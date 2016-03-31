@@ -2,3 +2,5 @@ __coverage__/
 node_modules/
 build/
 .idea/
+android/.gradle/
+npm-debug.log
