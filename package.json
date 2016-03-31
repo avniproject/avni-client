@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "author": "OpenCHS",
   "description": "OpenCHS Client using React, React-Native",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/OpenCHS/openchs-client.git"
@@ -39,6 +40,7 @@
     "lodash": "^3.10.0",
     "mocha": "^2.3.3",
     "react": "^0.14.x",
+    "react-native": "^0.22.2",
     "react-addons-test-utils": "^0.14.0",
     "react-document-title": "^2.0.1",
     "react-dom": "^0.14.0",
