@@ -6,4 +6,5 @@
     - brew
 
 - name: Install Android-SDK tools and versions
-  script: android-installation.sh
+  script: install-android-sdk.sh {{item}}
+  with_items: '{{android_deps}}'

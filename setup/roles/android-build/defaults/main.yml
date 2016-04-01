@@ -1,0 +1,2 @@
+---
+android_deps: ['android-21', 'extra-android-m2repository', 'build-tools-21.1.2', 'platform-tools', 'sys-img-x86_64-android-21', 'sys-img-x86-android-21', 'extra-google-m2repository']
