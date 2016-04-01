@@ -5,3 +5,4 @@
       - dev
       - node
       - client-build
+      - android-build
