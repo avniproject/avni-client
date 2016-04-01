@@ -1,0 +1,6 @@
+---
+- name: Install/Update Node and NPM
+  homebrew: name=node state=latest
+  tags:
+    - brew
+    - node

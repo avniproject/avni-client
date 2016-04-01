@@ -13,6 +13,3 @@
   tags:
     - brew
     - dev
-
-- name: Install/Update Node and NPM
-  homebrew: name=node state=latest
