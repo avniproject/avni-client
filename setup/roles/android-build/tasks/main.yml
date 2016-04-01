@@ -4,3 +4,6 @@
   tags:
     - android
     - brew
+
+- name: Install Android-SDK tools and versions
+  script: android-installation.sh
