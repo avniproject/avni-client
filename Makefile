@@ -8,4 +8,4 @@ else
 endif
 
 install: ansible_check
-				 ansible-playbook setup/local.yml -i setup/local
+				 ansible-playbook setup/dev.yml -i setup/local

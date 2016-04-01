@@ -4,3 +4,4 @@
   roles:
       - dev
       - node
+      - client-build

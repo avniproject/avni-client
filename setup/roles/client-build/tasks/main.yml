@@ -1,0 +1,6 @@
+---
+- name: Install react-native-cli
+  npm: name=react-native-cli global=yes state=latest
+  tags:
+    - dev
+    - brew
