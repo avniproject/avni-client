@@ -11,9 +11,6 @@
 - name: Install Android-Build-Tools
   script: install-build-tools.sh
 
-- name: Install Android-Build-Tools
-  script: install-build-tools.sh
-
 - name: Install Android-Platform-Tools
   script: install-platform-tools.sh
 
