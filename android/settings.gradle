@@ -1,0 +1,3 @@
+rootProject.name = 'OpenCHSClient'
+
+include ':app'
