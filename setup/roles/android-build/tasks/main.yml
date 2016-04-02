@@ -5,5 +5,20 @@
     - android
     - brew
 
-- name: Install Android-SDK tools and versions
-  script: install-android-sdk.sh
+- name: Install required Android-SDK
+  script: install-sdk.sh
+
+- name: Install Android-Build-Tools
+  script: install-build-tools.sh
+
+- name: Install Android-Build-Tools
+  script: install-build-tools.sh
+
+- name: Install Android-Platform-Tools
+  script: install-platform-tools.sh
+
+- name: Install Android-repositories
+  script: install-repositories.sh
+
+- name: Install Intel Image
+  script: install-intel-image.sh
