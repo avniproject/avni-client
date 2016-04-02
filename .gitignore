@@ -5,3 +5,5 @@ build/
 android/.gradle/
 npm-debug.log
 *.retry
+*.iml
+android/local.properties

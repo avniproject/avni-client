@@ -9,3 +9,6 @@ endif
 
 install: ansible_check
 				 ansible-playbook setup/dev.yml -i setup/local
+
+run-android:
+				 ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android
