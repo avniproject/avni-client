@@ -12,3 +12,9 @@ install: ansible_check
 
 run-android:
 				 ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android
+
+deps:
+				 npm install
+
+test:
+				 npm test

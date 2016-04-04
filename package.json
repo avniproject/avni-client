@@ -2,11 +2,29 @@
   "name": "OpenCHSClient",
   "version": "0.0.1",
   "private": false,
+  "repository": "https://github.com/OpenCHS/openchs-client",
+  "license": "MIT",
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start"
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
   },
   "dependencies": {
     "react": "^0.14.8",
     "react-native": "^0.22.2"
+  },
+  "devDependencies": {
+    "jest-cli": "^0.10.0",
+    "babel-jest": "^10.0.1",
+    "babel-polyfill": "^6.7.4",
+    "babel-preset-es2015": "*",
+    "babel-preset-react": "*",
+    "react-addons-test-utils": "^0.14.8"
+  },
+  "jest": {
+    "unmockedModulePathPatterns": [
+      "./node_modules/react",
+      "./node_modules/react-native",
+      "./node_modules/react-addons-test-utils"
+    ]
   }
 }
