@@ -20,4 +20,5 @@ test:
 				 npm test
 
 ci-test:
-				 npm install; npm test
+				 npm install
+				 npm test
