@@ -8,17 +8,18 @@ else
 endif
 
 install: ansible_check
-				 ansible-playbook setup/dev.yml -i setup/local
+	ansible-playbook setup/dev.yml -i setup/local
 
 run-android:
-				 ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android
+	ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android
 
 deps:
-				 npm install
+	npm install
 
 test:
-				 npm test
+	npm test
 
 ci-test:
-				 npm install
-				 npm test
+	rm -rf node_modules/
+	npm install
+	npm test
