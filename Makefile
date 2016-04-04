@@ -18,3 +18,6 @@ deps:
 
 test:
 				 npm test
+
+ci-test:
+				 npm install; npm test
