@@ -13,11 +13,12 @@
     "react-native": "^0.22.2"
   },
   "devDependencies": {
-    "jest-cli": "^0.10.0",
     "babel-jest": "^10.0.1",
     "babel-polyfill": "^6.7.4",
     "babel-preset-es2015": "*",
     "babel-preset-react": "*",
+    "babel-preset-stage-0": "^6.5.0",
+    "jest-cli": "^0.10.0",
     "react-addons-test-utils": "^0.14.8"
   },
   "jest": {
