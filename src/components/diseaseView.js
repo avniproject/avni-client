@@ -2,6 +2,7 @@ import React, {
     Component,
     StyleSheet,
     Text,
+    View,
     ListView
 } from 'react-native';
 
@@ -17,8 +18,6 @@ class DiseaseButton extends Component {
 
 class DiseaseViewHeader extends Component {
     render() {
-        console.log(this.props.stuff1);
-        console.log(this.props.stuff2);
         return (
             <Text style={styles.header}>{"Pick a Disease"}</Text>
         );
@@ -37,31 +36,36 @@ class DiseaseList extends Component {
 
     render() {
         return (
-            <ListView style={styles.welcome}
-                      dataSource={this.state.dataSource}
-                      renderSectionHeader={_ => <DiseaseViewHeader/>}
-                      renderRow={(rowItem) => <DiseaseButton diseaseName={rowItem}></DiseaseButton>}>
-            </ListView>
+            <View>
+                <DiseaseViewHeader/>
+                <ListView contentContainerStyle={styles.list}
+                          dataSource={this.state.dataSource}
+                          renderRow={(rowItem) => <DiseaseButton diseaseName={rowItem}></DiseaseButton>}>
+                </ListView>
+            </View>
         );
     }
 }
 
 
 const styles = StyleSheet.create({
-    welcome: {
-        fontSize: 20,
+    list: {
+        justifyContent: 'center',
+        flexDirection: 'row',
+        flexWrap: 'wrap'
+    },
+    item: {
+        backgroundColor: '#CCC',
+        margin: 10,
+        width: 100,
+        height: 100,
         textAlign: 'center',
-        margin: 10
+        justifyContent: 'center'
     },
     header: {
         height: 100,
-        textAlign: 'center',
-        color: '#333333',
-        marginBottom: 5
-    },
-    item: {
-        height: 80,
-        width: 70,
+        width: 100,
+        alignSelf: 'center',
         textAlign: 'center',
         color: '#333333',
         marginBottom: 5
