@@ -73,4 +73,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default new ViewWrapper("diseaseList", DiseaseList);
+export default new ViewWrapper("/diseaseList", DiseaseList);
