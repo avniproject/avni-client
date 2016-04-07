@@ -31,8 +31,6 @@ class Router extends Component {
 
     renderScene(route, nav) {
         this.navigator = nav;
-        console.log(route.path);
-        console.log(this.state.routes);
         if (!this.state.routes[route.path]) return <View/>;
         const Element = this.state.routes[route.path];
         return (<Element params={route.queryParams}></Element>);

@@ -8,11 +8,17 @@ import React, {
 
 import diseases from '../config/diseases.json'
 import ViewWrapper from './viewWrapper.js';
+import TypedTransition from './typedTransition.js';
+import questionAnswer from './questionAnswer.js';
 
 class DiseaseButton extends Component {
+    onSelect() {
+        TypedTransition.from(this).to(questionAnswer)
+    }
+
     render() {
         return (
-            <Text style={styles.item}>{this.props.diseaseName}</Text>
+            <Text onPress={this.onSelect.bind(this)} style={styles.item}>{this.props.diseaseName}</Text>
         );
     }
 }
@@ -35,6 +41,7 @@ class DiseaseList extends Component {
         };
     }
 
+
     render() {
         return (
             <View>
@@ -47,6 +54,10 @@ class DiseaseList extends Component {
         );
     }
 }
+
+DiseaseButton.contextTypes = {
+    navigator: React.PropTypes.func.isRequired
+};
 
 
 const styles = StyleSheet.create({

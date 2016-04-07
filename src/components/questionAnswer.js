@@ -2,26 +2,17 @@ import React, {
     Component,
     StyleSheet,
     Text,
-    View,
-    ListView
+    View
 } from 'react-native';
 
 import ViewWrapper from './viewWrapper.js';
 
 class QuestionAnswer extends Component {
-    constructor(props) {
-        super(props);
-        var dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {
-            "dataSource": dataSource.cloneWithRows(Object.keys(diseases)),
-            "diseases": diseases
-        };
-    }
 
     render() {
         return (
             <View>
-                <Text style={styles.header}>HELLO WORLD</Text>
+                <Text style={styles.header}>{"HELLO WORLD"}</Text>
             </View>
         );
     }
