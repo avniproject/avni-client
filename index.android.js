@@ -7,13 +7,13 @@ import React, {
     ListView
 } from 'react-native';
 
-import DiseaseList from './src/components/diseaseView.js'
+import App from './src/components/app.js'
 
 class OpenCHSClient extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <DiseaseList />
+                <App />
             </View>
         );
     }

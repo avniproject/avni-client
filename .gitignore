@@ -7,3 +7,4 @@ npm-debug.log
 *.retry
 *.iml
 android/local.properties
+.DS_Store
