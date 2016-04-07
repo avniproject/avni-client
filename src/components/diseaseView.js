@@ -7,6 +7,7 @@ import React, {
 } from 'react-native';
 
 import diseases from '../config/diseases.json'
+import ViewWrapper from './viewWrapper.js';
 
 class DiseaseButton extends Component {
     render() {
@@ -72,5 +73,4 @@ const styles = StyleSheet.create({
     }
 });
 
-
-export default DiseaseList;
+export default new ViewWrapper("diseaseList", DiseaseList);

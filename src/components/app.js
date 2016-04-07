@@ -6,25 +6,16 @@ import React, {
     ListView
 } from 'react-native';
 
-import ViewMap from './viewMap.js';
+import Router from './router.js';
+import Route from './route.js';
+import diseaseView from './diseaseView.js';
 
 class App extends Component {
-    constructor(props) {
-        super(props);
-        this.viewMap = new ViewMap();
-        this.state = {"currentView": this.viewMap.defaultView()};
-    }
-
-    _updateView(viewName) {
-        this.state.currentView = this.viewMap.get(viewName);
-    }
-
     render() {
-        var CurrentView = this.viewMap.get(this.state.currentView);
         return (
-            <View>
-                <CurrentView updateView={this._updateView}></CurrentView>
-            </View>
+            <Router initialRoute={{path: diseaseView.path()}}>
+                <Route path={diseaseView.path()} component={diseaseView.component()}/>
+            </Router>
         );
     }
 }
