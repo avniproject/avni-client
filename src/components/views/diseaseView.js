@@ -6,9 +6,9 @@ import React, {
     ListView
 } from 'react-native';
 
-import diseases from '../config/diseases.json'
+import diseases from '../../config/diseases.json'
 import ViewWrapper from './viewWrapper.js';
-import TypedTransition from './typedTransition.js';
+import TypedTransition from '../routing/typedTransition.js';
 import questionAnswer from './questionAnswer.js';
 
 class DiseaseButton extends Component {
