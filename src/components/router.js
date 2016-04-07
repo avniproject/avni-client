@@ -6,9 +6,9 @@ class Router extends Component {
         super(props);
 
         const routes = {};
-        React.Children.forEach(props.children, function (element) {
+        React.Children.forEach(props.children, (element) => {
             if (React.isValidElement(element)) {
-                routes[element.props.path] = element;
+                routes[element.props.path] = element.props.component;
             }
         });
         this.state = {routes};
@@ -31,10 +31,11 @@ class Router extends Component {
 
     renderScene(route, nav) {
         this.navigator = nav;
+        console.log(route.path);
+        console.log(this.state.routes);
         if (!this.state.routes[route.path]) return <View/>;
-
         const Element = this.state.routes[route.path];
-        return (<Element params={...route.queryParams}></Element>);
+        return (<Element params={route.queryParams}></Element>);
     }
 
 
