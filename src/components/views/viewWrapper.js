@@ -1,4 +1,4 @@
-const ViewWrapper = function (path) {
+const Path = function (path) {
     return function (view) {
         view.component = function () {
             return view;
@@ -9,4 +9,4 @@ const ViewWrapper = function (path) {
     };
 };
 
-export default ViewWrapper;
+export default Path;

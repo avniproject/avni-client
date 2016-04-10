@@ -5,9 +5,9 @@ import React, {
     View
 } from 'react-native';
 
-import ViewWrapper from './viewWrapper.js';
+import Path from './viewWrapper.js';
 
-@ViewWrapper("/questionAnswer")
+@Path("/questionAnswer")
 class QuestionAnswer extends Component {
 
     render() {
