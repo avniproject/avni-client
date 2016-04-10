@@ -7,7 +7,7 @@ import React, {
 } from 'react-native';
 
 import diseases from '../../config/diseases.json'
-import Path from './viewWrapper.js';
+import Path from './path.js';
 import TypedTransition from '../routing/typedTransition.js';
 import questionAnswer from './questionAnswer.js';
 

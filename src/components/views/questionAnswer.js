@@ -5,7 +5,7 @@ import React, {
     View
 } from 'react-native';
 
-import Path from './viewWrapper.js';
+import Path from './path.js';
 
 @Path("/questionAnswer")
 class QuestionAnswer extends Component {
