@@ -1,16 +1,12 @@
-class ViewWrapper {
-    constructor(path, component) {
-        this._path = path;
-        this._component = component;
-    }
-
-    component() {
-        return this._component;
-    }
-
-    path() {
-        return this._path;
-    }
-}
+const ViewWrapper = function (path) {
+    return function (view) {
+        view.component = function () {
+            return view;
+        };
+        view.path = function () {
+            return path;
+        }
+    };
+};
 
 export default ViewWrapper;

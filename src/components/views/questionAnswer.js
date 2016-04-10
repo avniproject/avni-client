@@ -7,12 +7,13 @@ import React, {
 
 import ViewWrapper from './viewWrapper.js';
 
+@ViewWrapper("/questionAnswer")
 class QuestionAnswer extends Component {
 
     render() {
         return (
             <View>
-                <Text style={styles.header}>{"HELLO WORLD"}</Text>
+                <Text style={styles.header}>{"New Page"}</Text>
             </View>
         );
     }
@@ -30,4 +31,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default new ViewWrapper("/questionAnswer", QuestionAnswer);
+export default QuestionAnswer;
