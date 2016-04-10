@@ -7,7 +7,7 @@ import React, {
 } from 'react-native';
 
 import diseases from '../../config/diseases.json'
-import Path from './path.js';
+import Path from './../routing/path.js';
 import TypedTransition from '../routing/typedTransition.js';
 import questionAnswer from './questionAnswer.js';
 
@@ -60,7 +60,7 @@ class DiseaseViewHeader extends Component {
     }
 }
 
-@Path("/diseaseList")
+@Path("/diseaseList", true)
 class DiseaseList extends Component {
     constructor(props) {
         super(props);

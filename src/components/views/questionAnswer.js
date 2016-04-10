@@ -5,9 +5,9 @@ import React, {
     View
 } from 'react-native';
 
-import Path from './path.js';
+import Path from './../routing/path.js';
 
-@Path("/questionAnswer")
+@Path("/questionAnswer", false)
 class QuestionAnswer extends Component {
 
     render() {
