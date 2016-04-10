@@ -30,4 +30,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default new ViewWrapper("questionAnswer", QuestionAnswer);
+export default new ViewWrapper("/questionAnswer", QuestionAnswer);
