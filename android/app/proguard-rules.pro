@@ -38,6 +38,7 @@
   *** get*();
 }
 
+-keep class com.facebook.react.bridge.queue.NativeRunnable { *; }
 -keep class * extends com.facebook.react.bridge.JavaScriptModule { *; }
 -keep class * extends com.facebook.react.bridge.NativeModule { *; }
 -keepclassmembers,includedescriptorclasses class * { native <methods>; }
