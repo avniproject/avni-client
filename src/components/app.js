@@ -1,18 +1,23 @@
-import React, {
-    Component,
-    StyleSheet,
-    Text,
-    View,
-    ListView
-} from 'react-native';
+import React, { Component } from 'react-native';
+import PathRegistry from './routing/pathRegistry';
+import Realm from 'realm';
+import models from '../models';
+import './views';
 
-import PathRegistry from './routing/pathRegistry.js';
-import * as views from './views/views.js';
+export default class App extends Component {
 
-class App extends Component {
-    render() {
-        return PathRegistry.routes();
-    }
+  store = new Realm(models);
+
+  static childContextTypes = {
+    getStore: React.PropTypes.func.isRequired,
+  };
+
+  getChildContext = () => ({
+    getStore: () => this.store,
+  });
+
+  render() {
+    return PathRegistry.routes();
+  }
+
 }
-
-export default App;

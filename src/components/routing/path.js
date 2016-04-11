@@ -1,21 +1,11 @@
-import React from 'react-native';
-import PathRegistry from "./pathRegistry.js";
+import PathRegistry from './pathRegistry';
 
-const Path = function (path, isDefault) {
-    return function (view) {
-        view.component = function () {
-            return view;
-        };
-        view.path = function () {
-            return path;
-        };
+export default function Path(path, isDefault) {
+  return (view) => {
+    Object.assign(view, { component: () => view, path: () => path });
 
-        PathRegistry.register(view);
+    PathRegistry.register(view);
+    if (isDefault) PathRegistry.setDefault(view);
+  };
+}
 
-        if (isDefault) {
-            PathRegistry.setDefault(view);
-        }
-    };
-};
-
-export default Path;
