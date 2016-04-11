@@ -23,3 +23,6 @@ ci-test:
 	rm -rf node_modules/
 	npm install
 	npm test
+
+release:
+	cd android; ./gradlew assembleRelease
