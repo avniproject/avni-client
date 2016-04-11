@@ -1,88 +1,114 @@
-import React, {
-    Component,
-    StyleSheet,
-    Text,
-    View,
-    ListView
-} from 'react-native';
-
-import diseases from '../../config/diseases.json'
-import Path from './../routing/path.js';
-import TypedTransition from '../routing/typedTransition.js';
-import questionAnswer from './questionAnswer.js';
-
-const styles = StyleSheet.create({
-    list: {
-        justifyContent: 'center',
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-    },
-    item: {
-        backgroundColor: '#CCC',
-        margin: 10,
-        width: 100,
-        height: 100,
-        textAlign: 'center',
-        justifyContent: 'center'
-    },
-    header: {
-        height: 100,
-        width: 100,
-        alignSelf: 'center',
-        textAlign: 'center',
-        color: '#333333',
-        marginBottom: 5
-    }
-});
-
+import React, { Component, StyleSheet, Text, View, ListView, DrawerLayoutAndroid } from 'react-native';
+import diseases from '../../config/diseases.json';
+import Path from '../routing/path';
+import TypedTransition from '../routing/typedTransition';
+import questionAnswer from './questionAnswer';
+import settingsView from './settingsView';
 
 class DiseaseButton extends Component {
-    static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
-    };
 
-    onSelect() {
-        TypedTransition.from(this).to(questionAnswer)
-    }
+  static propTypes = {
+    diseaseName: React.PropTypes.string.isRequired,
+  };
 
-    render() {
-        return (
-            <Text onPress={this.onSelect.bind(this)} style={styles.item}>{this.props.diseaseName}</Text>
-        );
-    }
+  static contextTypes = {
+    navigator: React.PropTypes.func.isRequired,
+  };
+
+  static styles = StyleSheet.create({
+    item: {
+      backgroundColor: '#CCC',
+      margin: 10,
+      width: 100,
+      height: 100,
+      textAlign: 'center',
+      justifyContent: 'center',
+    },
+  });
+
+  onSelect = () => {
+    TypedTransition.from(this).to(questionAnswer);
+  };
+
+  render() {
+    return (
+      <Text onPress={this.onSelect} style={DiseaseButton.styles.item}>{this.props.diseaseName}</Text>
+    );
+  }
 }
 
 class DiseaseViewHeader extends Component {
-    render() {
-        return (
-            <Text style={styles.header}>{"Pick a Disease"}</Text>
-        );
-    }
+
+  static styles = StyleSheet.create({
+    header: {
+      height: 100,
+      width: 100,
+      alignSelf: 'center',
+      textAlign: 'center',
+      color: '#333333',
+      marginBottom: 5,
+    },
+  });
+
+  render() {
+    return (
+      <Text style={DiseaseViewHeader.styles.header}>Pick a Disease</Text>
+    );
+  }
 }
 
-@Path("/diseaseList", true)
-class DiseaseList extends Component {
-    constructor(props) {
-        super(props);
-        var dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {
-            "dataSource": dataSource.cloneWithRows(Object.keys(diseases)),
-            "diseases": diseases
-        };
-    }
+@Path('/diseaseList', true)
+export default class DiseaseList extends Component {
 
+  static contextTypes = {
+    navigator: React.PropTypes.func.isRequired,
+  };
 
-    render() {
-        return (
-            <View>
-                <DiseaseViewHeader/>
-                <ListView contentContainerStyle={styles.list}
-                          dataSource={this.state.dataSource}
-                          renderRow={(rowItem) => <DiseaseButton diseaseName={rowItem}></DiseaseButton>}>
-                </ListView>
-            </View>
-        );
-    }
+  static styles = StyleSheet.create({
+    list: {
+      justifyContent: 'center',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    button: {
+      textAlign: 'left',
+    },
+  });
+
+  static initialDataSource = () =>
+    new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+
+  state = {
+    dataSource: DiseaseList.initialDataSource().cloneWithRows(Object.keys(diseases)),
+    diseases,
+  };
+
+  goToSettings = () => {
+    TypedTransition.from(this).to(settingsView);
+  };
+
+  navigationView = () => (
+    <View>
+      <Text style={DiseaseList.styles.button} onPress={this.goToSettings}>Settings</Text>
+    </View>
+  );
+
+  render() {
+    return (
+      <DrawerLayoutAndroid
+        drawerWidth={300}
+        drawerPosition={DrawerLayoutAndroid.positions.Left}
+        renderNavigationView={this.navigationView}
+      >
+        <View>
+          <DiseaseViewHeader/>
+          <ListView
+            contentContainerStyle={DiseaseList.styles.list}
+            dataSource={this.state.dataSource}
+            renderRow={(rowItem) => <DiseaseButton diseaseName={rowItem}/>}
+          />
+        </View>
+      </DrawerLayoutAndroid>
+    );
+  }
 }
-
-export default DiseaseList;

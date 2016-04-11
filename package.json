@@ -6,18 +6,26 @@
   "license": "MIT",
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "lint": "./node_modules/.bin/eslint src",
     "test": "jest"
   },
   "dependencies": {
-    "react": "^0.14.8",
-    "react-native": "^0.22.2"
+    "invariant": "2.2.1",
+    "react": "0.14.8",
+    "react-native": "0.23.1",
+    "realm": "0.11.1"
   },
   "devDependencies": {
-    "babel-jest": "^10.0.1",
-    "babel-polyfill": "^6.7.4",
-    "babel-preset-react-native-stage-0": "^1.0.1",
-    "jest-cli": "^0.10.0",
-    "react-addons-test-utils": "^0.14.8"
+    "babel-eslint": "6.0.2",
+    "babel-jest": "10.0.1",
+    "babel-polyfill": "6.7.4",
+    "babel-preset-react-native-stage-0": "1.0.1",
+    "eslint": "2.7.0",
+    "eslint-config-airbnb": "6.2.0",
+    "eslint-plugin-babel": "3.2.0",
+    "eslint-plugin-react": "4.3.0",
+    "jest-cli": "0.10.0",
+    "react-addons-test-utils": "0.14.8"
   },
   "jest": {
     "unmockedModulePathPatterns": [

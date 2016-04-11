@@ -1,28 +1,30 @@
 import React from 'react-native';
-import Router from './router.js';
-import Route from './route.js';
+import Router from './router';
+import Route from './route';
 
 class PathRegistry {
-    views = new Set([]);
-    defaultView = undefined;
 
-    register(view) {
-        this.views.add(view);
-    }
+  views = new Set([]);
+  defaultView = undefined;
 
-    setDefault(view) {
-        this.defaultView = view;
-    }
+  register(view) {
+    this.views.add(view);
+  }
 
-    routes() {
-        const routes = Array.from(this.views).map(view => <Route path={view.path()}
-                                                                 component={view.component()}></Route>);
+  setDefault(view) {
+    this.defaultView = view;
+  }
 
-        return (
-            <Router initialRoute={{path: this.defaultView.path()}}>
-                {routes}
-            </Router>);
-    }
+  routes() {
+    const routes = Array.from(this.views).map((view, index) =>
+      <Route key={index} path={view.path()} component={view.component()}/>);
+
+    return (
+      <Router initialRoute={{ path: this.defaultView.path() }}>
+        {routes}
+      </Router>
+    );
+  }
 }
 
 export default new PathRegistry();
