@@ -1,5 +1,5 @@
 import React, { Component, StyleSheet, Text, View, ListView, DrawerLayoutAndroid } from 'react-native';
-import diseases from '../../config/diseases.json';
+import initialDiseases from '../../config/diseases.json';
 import Path from '../routing/path';
 import TypedTransition from '../routing/typedTransition';
 import questionAnswer from './questionAnswer';
@@ -27,7 +27,10 @@ class DiseaseButton extends Component {
   });
 
   onSelect = () => {
-    TypedTransition.from(this).to(questionAnswer);
+    TypedTransition
+      .from(this)
+      .with({ diseaseName: this.props.diseaseName })
+      .to(questionAnswer);
   };
 
   render() {
@@ -62,6 +65,7 @@ export default class DiseaseList extends Component {
 
   static contextTypes = {
     navigator: React.PropTypes.func.isRequired,
+    getStore: React.PropTypes.func.isRequired,
   };
 
   static styles = StyleSheet.create({
@@ -79,8 +83,25 @@ export default class DiseaseList extends Component {
     new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
   state = {
-    dataSource: DiseaseList.initialDataSource().cloneWithRows(Object.keys(diseases)),
-    diseases,
+    dataSource: DiseaseList.initialDataSource().cloneWithRows(Object.keys(initialDiseases)),
+  };
+
+  constructor(props, context) {
+    super(props, context);
+    this.ensureCreated(this.context.getStore().objects('Question'));
+  }
+
+  ensureCreated = (diseases) => {
+    if (diseases.length === 0) {
+      const store = this.context.getStore();
+
+      store.write(() => {
+        Object.keys(initialDiseases).forEach(diseaseName => {
+          store.create('Question', initialDiseases[diseaseName]);
+        });
+      })
+    }
+    return diseases;
   };
 
   goToSettings = () => {
