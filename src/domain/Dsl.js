@@ -1,7 +1,10 @@
-export default {
-  ask: (content, { answers }) =>({
+import compiler from 'ljspjs';
+import diseases from './diseases';
+
+const dsl = {
+  ask: (content, { answers }) => ({
     content,
-    answers
+    answers,
   }),
   answers: (...args) => ({
     answers: args.map((content) => ({
@@ -16,4 +19,8 @@ export default {
   when: (...args) => ({
     answers: args,
   }),
-}
+};
+
+export default {
+  loadQuestions: (name) => compiler.execute(diseases[name].algorithm, dsl),
+};

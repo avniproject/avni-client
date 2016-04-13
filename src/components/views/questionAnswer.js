@@ -1,9 +1,7 @@
 import React, { Component, StyleSheet, Text, View } from 'react-native';
 import Path from '../routing/path';
 import TypedTransition from '../routing/typedTransition';
-import Dsl from '../../Dsl';
-import compiler from 'ljspjs';
-import fakeDisease from 'openchs-diseases/lib/fake.json';
+import dsl from '../../domain/dsl';
 
 @Path('/questionAnswer', false)
 export default class QuestionAnswer extends Component {
@@ -13,7 +11,6 @@ export default class QuestionAnswer extends Component {
   };
 
   static contextTypes = {
-    getStore: React.PropTypes.func.isRequired,
     navigator: React.PropTypes.func.isRequired,
   };
 
@@ -28,11 +25,14 @@ export default class QuestionAnswer extends Component {
     },
   });
 
-  state = {
-    question: compiler.execute(fakeDisease.algorithm, Dsl),
-  };
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      question: dsl.loadQuestions(props.params.diseaseName),
+    };
+  }
 
-  nextQuestion = (answer) => {
+  nextQuestion = (answer) => () => {
     const nextQuestion = answer.next();
 
     if (nextQuestion) {
@@ -42,13 +42,19 @@ export default class QuestionAnswer extends Component {
     }
   };
 
-  render() {
-    const next = this.nextQuestion;
+  toAnswerView = (answer) => (
+    <Text key={answer.content} onPress={this.nextQuestion(answer)}>
+      {answer.content}
+    </Text>
+  );
 
+  render() {
     return (
       <View>
-        <Text style={QuestionAnswer.styles.header}>{this.state.question.content}</Text>
-        {this.state.question.answers.map(a => <Text key={a.content} onPress={next.bind(this, a)}>{a.content}</Text>)}
+        <Text style={QuestionAnswer.styles.header}>
+          {this.state.question.content}
+        </Text>
+        {this.state.question.answers.map(this.toAnswerView)}
       </View>
     );
   }

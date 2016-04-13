@@ -1,8 +1,6 @@
 import React, { Component, StyleSheet, Text, TextInput, View } from 'react-native';
 import Path from '../routing/path';
 import initialSettings from '../../config/initialSettings.json';
-import { TypedStore } from '../../models';
-import Settings from '../../models/Settings';
 
 @Path('/settings', false)
 export default class SettingsView extends Component {

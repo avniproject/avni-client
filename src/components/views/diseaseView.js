@@ -3,6 +3,7 @@ import Path from '../routing/path';
 import TypedTransition from '../routing/typedTransition';
 import questionAnswer from './questionAnswer';
 import settingsView from './settingsView';
+import diseases from '../../domain/diseases';
 
 class DiseaseButton extends Component {
 
@@ -34,7 +35,9 @@ class DiseaseButton extends Component {
 
   render() {
     return (
-      <Text onPress={this.onSelect} style={DiseaseButton.styles.item}>{this.props.diseaseName}</Text>
+      <Text onPress={this.onSelect} style={DiseaseButton.styles.item}>
+        {this.props.diseaseName}
+      </Text>
     );
   }
 }
@@ -82,7 +85,7 @@ export default class DiseaseList extends Component {
     new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
   state = {
-    dataSource: DiseaseList.initialDataSource().cloneWithRows(['Disease 1']),
+    dataSource: DiseaseList.initialDataSource().cloneWithRows(Object.keys(diseases)),
   };
 
   goToSettings = () => {
@@ -91,7 +94,9 @@ export default class DiseaseList extends Component {
 
   navigationView = () => (
     <View>
-      <Text style={DiseaseList.styles.button} onPress={this.goToSettings}>Settings</Text>
+      <Text style={DiseaseList.styles.button} onPress={this.goToSettings}>
+        Settings
+      </Text>
     </View>
   );
 
