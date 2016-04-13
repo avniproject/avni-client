@@ -1,5 +1,4 @@
 import React, { Component, StyleSheet, Text, View, ListView, DrawerLayoutAndroid } from 'react-native';
-import initialDiseases from '../../config/diseases.json';
 import Path from '../routing/path';
 import TypedTransition from '../routing/typedTransition';
 import questionAnswer from './questionAnswer';
@@ -83,25 +82,7 @@ export default class DiseaseList extends Component {
     new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
   state = {
-    dataSource: DiseaseList.initialDataSource().cloneWithRows(Object.keys(initialDiseases)),
-  };
-
-  constructor(props, context) {
-    super(props, context);
-    this.ensureCreated(this.context.getStore().objects('Question'));
-  }
-
-  ensureCreated = (diseases) => {
-    if (diseases.length === 0) {
-      const store = this.context.getStore();
-
-      store.write(() => {
-        Object.keys(initialDiseases).forEach(diseaseName => {
-          store.create('Question', initialDiseases[diseaseName]);
-        });
-      })
-    }
-    return diseases;
+    dataSource: DiseaseList.initialDataSource().cloneWithRows(['Disease 1']),
   };
 
   goToSettings = () => {
