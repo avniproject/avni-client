@@ -1,5 +1,5 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
-import TypedTransition from '../../routing/typedTransition';
+import TypedTransition from '../../routing/TypedTransition';
 import questionAnswer from './../questionAnswer/QuestionAnswerView';
 
 export default class DiseaseButton extends Component {

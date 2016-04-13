@@ -4,7 +4,7 @@ export default class SettingsFormField extends Component {
 
   static propTypes = {
     onChangeText: React.PropTypes.func.isRequired,
-    defaultValue: React.PropTypes.object.isRequired,
+    defaultValue: React.PropTypes.string.isRequired,
   };
 
   static styles = StyleSheet.create({

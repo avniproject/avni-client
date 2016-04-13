@@ -1,6 +1,6 @@
 import React, { Component, View } from 'react-native';
-import Path from '../../routing/path';
-import TypedTransition from '../../routing/typedTransition';
+import Path from '../../routing/Path';
+import TypedTransition from '../../routing/TypedTransition';
 import dsl from '../../../domain/dsl';
 import AnswerList from './AnswerList';
 import QuestionHeader from './QuestionHeader';

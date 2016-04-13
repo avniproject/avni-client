@@ -1,5 +1,5 @@
 import React, { Component, View } from 'react-native';
-import Path from '../../routing/path';
+import Path from '../../routing/Path';
 import initialSettings from '../../../config/initialSettings.json';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';

@@ -1,4 +1,4 @@
-import PathRegistry from './pathRegistry';
+import PathRegistry from './PathRegistry';
 
 export default function Path(path) {
   return (view) => {

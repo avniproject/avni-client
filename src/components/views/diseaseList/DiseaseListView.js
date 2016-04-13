@@ -1,5 +1,5 @@
 import React, { Component, StyleSheet, View, ListView, DrawerLayoutAndroid } from 'react-native';
-import Path, { PathRoot } from '../../routing/path';
+import Path, { PathRoot } from '../../routing/Path';
 import diseases from '../../../domain/diseases';
 import DiseaseButton from './DiseaseButton';
 import DiseaseHeader from './DiseaseHeader';
