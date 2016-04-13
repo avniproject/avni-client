@@ -1,5 +1,5 @@
 {
-  "Disease 1": [{
+  "Stroke": [{
     "question": "1",
     "answer": [
       "1",
@@ -20,7 +20,7 @@
       "3"
     ]
   }],
-  "Disease 2": [{
+  "Hypertension": [{
     "question": "4",
     "answer": [
       "1",
@@ -40,7 +40,7 @@
       "3"
     ]
   }],
-  "Disease 3": [{
+  "Diabetes": [{
     "question": "7",
     "answer": [
       "1",
@@ -61,7 +61,7 @@
       "3"
     ]
   }],
-  "Disease 4": [{
+  "Pneumonia": [{
     "question": "10",
     "answer": [
       "2",

@@ -17,12 +17,15 @@ class DiseaseButton extends Component {
 
   static styles = StyleSheet.create({
     item: {
-      backgroundColor: '#CCC',
+      backgroundColor: '#FF8A80',
+      color: '#FFFFFF',
       margin: 10,
       width: 100,
       height: 100,
       textAlign: 'center',
+      textAlignVertical: 'center',
       justifyContent: 'center',
+      fontWeight: 'bold'
     },
   });
 
@@ -41,11 +44,13 @@ class DiseaseViewHeader extends Component {
 
   static styles = StyleSheet.create({
     header: {
-      height: 100,
-      width: 100,
+      backgroundColor: '#F44336',
+      color: '#FFFFFF',
+      height: 30,
+      width: 1000,
       alignSelf: 'center',
       textAlign: 'center',
-      color: '#333333',
+      textAlignVertical: 'center',
       marginBottom: 5,
     },
   });
