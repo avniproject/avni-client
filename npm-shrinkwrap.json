@@ -3526,6 +3526,10 @@
       "from": "levn@>=0.3.0 <0.4.0",
       "resolved": "https://registry.npmjs.org/levn/-/levn-0.3.0.tgz"
     },
+    "ljspjs": {
+      "version": "0.3.0",
+      "from": "ljspjs@0.3.0"
+    },
     "load-json-file": {
       "version": "1.1.0",
       "from": "load-json-file@>=1.0.0 <2.0.0",
@@ -4022,6 +4026,10 @@
       "version": "1.1.0",
       "from": "onetime@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/onetime/-/onetime-1.1.0.tgz"
+    },
+    "openchs-diseases": {
+      "version": "1.0.1",
+      "from": "openchs-diseases@1.0.1"
     },
     "opn": {
       "version": "3.0.3",

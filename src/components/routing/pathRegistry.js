@@ -1,6 +1,6 @@
 import React from 'react-native';
-import Router from './router';
-import Route from './route';
+import Router from './Router';
+import Route from './Route';
 
 class PathRegistry {
 
