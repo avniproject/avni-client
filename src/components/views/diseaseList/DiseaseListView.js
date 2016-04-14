@@ -1,6 +1,6 @@
 import React, { Component, StyleSheet, View, ListView, DrawerLayoutAndroid } from 'react-native';
 import Path, { PathRoot } from '../../routing/Path';
-import diseases from '../../../domain/diseases';
+import Diseases from '../../../domain/Diseases';
 import DiseaseButton from './DiseaseButton';
 import DiseaseHeader from './DiseaseHeader';
 import DiseaseNavigationMenu from './DiseaseNavigationMenu';
@@ -21,7 +21,7 @@ export default class DiseaseListView extends Component {
     new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
   state = {
-    dataSource: DiseaseListView.initialDataSource().cloneWithRows(Object.keys(diseases)),
+    dataSource: DiseaseListView.initialDataSource().cloneWithRows(Diseases.names()),
   };
 
   render() {

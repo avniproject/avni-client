@@ -1,7 +1,7 @@
 import React, { Component, View } from 'react-native';
 import Path from '../../routing/Path';
 import TypedTransition from '../../routing/TypedTransition';
-import dsl from '../../../domain/dsl';
+import DSL from '../../../domain/DSL';
 import AnswerList from './AnswerList';
 import QuestionHeader from './QuestionHeader';
 
@@ -19,7 +19,7 @@ export default class QuestionAnswerView extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      question: dsl.loadQuestions(props.params.diseaseName),
+      question: DSL.loadQuestions(props.params.diseaseName),
     };
   }
 
