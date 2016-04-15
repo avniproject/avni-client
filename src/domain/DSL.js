@@ -1,4 +1,3 @@
-import compiler from 'ljspjs';
 import Diseases from './Diseases';
 
 const ask = (content, answers) => ({ content, answers });
@@ -14,7 +13,6 @@ const dsl = { ask, answers, answer, when };
 export default class DSL {
 
   static loadQuestions(name) {
-    return compiler.execute(Diseases.forName(name).algorithm, dsl);
   }
 
 }
