@@ -11,8 +11,6 @@ const when = (...args) => args;
 const dsl = { ask, answers, answer, when };
 
 export default class DSL {
-
   static loadQuestions(name) {
   }
-
 }

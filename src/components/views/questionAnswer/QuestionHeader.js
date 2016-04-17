@@ -20,7 +20,7 @@ export default class QuestionHeader extends Component {
   render() {
     return (
       <Text style={QuestionHeader.styles.header}>
-        {this.props.question.content}
+        {this.props.question}
       </Text>
     );
   }

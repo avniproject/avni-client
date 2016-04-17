@@ -3,10 +3,10 @@ import fakeDisease from '../config/translatedConfig.json';
 export default class Diseases {
 
   static configs = {
-    Stroke: fakeDisease,
-    Hypertension: fakeDisease,
-    Diabetes: fakeDisease,
-    Pneumonia: fakeDisease,
+    stroke: fakeDisease,
+    hypertension: fakeDisease,
+    diabetes: fakeDisease,
+    pneumonia: fakeDisease,
   };
 
   static names() {
