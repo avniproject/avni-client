@@ -2,7 +2,7 @@ import React, { Component, StyleSheet, Text, View } from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
 import settingsView from './../settings/SettingsView';
 
-export default class DiseaseNavigationMenu extends Component {
+class DiseaseNavigationMenu extends Component {
 
   static contextTypes = {
     navigator: React.PropTypes.func.isRequired,
@@ -28,3 +28,5 @@ export default class DiseaseNavigationMenu extends Component {
     );
   }
 }
+
+export default DiseaseNavigationMenu;

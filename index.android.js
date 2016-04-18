@@ -1,5 +1,5 @@
 import React, { AppRegistry, Component, StyleSheet, View } from 'react-native';
-import App from './src/components/App';
+import App from './src/js/App';
 
 class OpenCHSClient extends Component {
 

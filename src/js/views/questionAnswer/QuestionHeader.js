@@ -1,6 +1,6 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 
-export default class QuestionHeader extends Component {
+class QuestionHeader extends Component {
 
   static propTypes = {
     question: React.PropTypes.object.isRequired,
@@ -25,3 +25,5 @@ export default class QuestionHeader extends Component {
     );
   }
 }
+
+export default QuestionHeader;

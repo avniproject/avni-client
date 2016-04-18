@@ -1,6 +1,6 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 
-export default class DiseaseViewHeader extends Component {
+class DiseaseViewHeader extends Component {
 
   static styles = StyleSheet.create({
     header: {
@@ -21,3 +21,5 @@ export default class DiseaseViewHeader extends Component {
     );
   }
 }
+
+export default DiseaseViewHeader;
