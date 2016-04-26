@@ -4,7 +4,8 @@ import initialSettings from '../../../config/initialSettings.json';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
 
-@Path('/settings') class SettingsView extends Component {
+@Path('/settings')
+class SettingsView extends Component {
 
     static contextTypes = {
         getStore: React.PropTypes.func.isRequired,

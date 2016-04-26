@@ -3,9 +3,9 @@ import Path from '../../routing/Path';
 import TypedTransition from '../../routing/TypedTransition';
 import AnswerList from './AnswerList';
 import QuestionHeader from './QuestionHeader';
-import QuestionService from '../../service/QuestionService';
 
-@Path('/questionAnswer') class QuestionAnswerView extends Component {
+@Path('/questionAnswer')
+class QuestionAnswerView extends Component {
 
     static propTypes = {
         params: React.PropTypes.object.isRequired,
@@ -14,12 +14,15 @@ import QuestionService from '../../service/QuestionService';
 
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
         super(props, context);
+        debugger;
+        this.questionService = this.context.getService("questionService");
         this.state = {
-            question: QuestionService.getQuestion(props.params.diseaseName, 0),
+            question: this.questionService.getQuestion(props.params.diseaseName, 0),
         };
     }
 

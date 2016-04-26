@@ -1,23 +1,30 @@
 import React, { Component } from 'react-native';
 import PathRegistry from './routing/PathRegistry';
+import BeanRegistry from './framework/BeanRegistry.js';
 import Realm from 'realm';
 import models from './models';
 import './views';
+import './service';
 
 export default class App extends Component {
 
-  store = new Realm(models);
+    constructor() {
+        super();
+        this.store = new Realm(models);
+        this.beans = BeanRegistry.init(this.store);
+        debugger;
+    }
 
-  static childContextTypes = {
-    getStore: React.PropTypes.func.isRequired,
-  };
+    static childContextTypes = {
+        getService: React.PropTypes.func.isRequired,
+    };
 
-  getChildContext = () => ({
-    getStore: () => this.store,
-  });
+    getChildContext = () => ({
+        getService: (serviceName) => this.beans.get(serviceName),
+    });
 
-  render() {
-    return PathRegistry.routes();
-  }
+    render() {
+        return PathRegistry.routes();
+    }
 
 }
