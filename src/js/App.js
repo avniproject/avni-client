@@ -12,7 +12,6 @@ export default class App extends Component {
         super();
         this.store = new Realm(models);
         this.beans = BeanRegistry.init(this.store);
-        debugger;
     }
 
     static childContextTypes = {

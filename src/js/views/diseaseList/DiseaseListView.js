@@ -6,7 +6,8 @@ import DiseaseHeader from './DiseaseHeader';
 import DiseaseNavigationMenu from './DiseaseNavigationMenu';
 
 @PathRoot
-@Path('/diseaseList') class DiseaseListView extends Component {
+@Path('/diseaseList')
+class DiseaseListView extends Component {
 
     static styles = StyleSheet.create({
         list: {
@@ -25,18 +26,18 @@ import DiseaseNavigationMenu from './DiseaseNavigationMenu';
 
     render() {
         return (
+            //TODO: Separate this out in another component
             <DrawerLayoutAndroid
                 drawerWidth={300}
                 drawerPosition={DrawerLayoutAndroid.positions.Left}
-                renderNavigationView={() => <DiseaseNavigationMenu/>}
-                >
+                renderNavigationView={() => <DiseaseNavigationMenu/>}>
                 <View>
                     <DiseaseHeader/>
                     <ListView
                         contentContainerStyle={DiseaseListView.styles.list}
                         dataSource={this.state.dataSource}
                         renderRow={(rowItem) => <DiseaseButton diseaseName={rowItem}/>}
-                        />
+                    />
                 </View>
             </DrawerLayoutAndroid>
         );
