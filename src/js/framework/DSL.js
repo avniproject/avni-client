@@ -31,7 +31,7 @@ export function numeric(options) {
         var match = function (userAnswer) {
 
         };
-        return {"type": "numeric", "match": match, "answers": "HELLO"};
+        return {"type": "numeric", "answers": "HELLO", "match": match};
     };
 }
 
@@ -39,7 +39,7 @@ export function options(options) {
     return function () {
         var choices = Object.keys(options);
         var match = function (userAnswer) {
-
+            return options[choices.filter(choiceItem => options[choiceItem][0](userAnswer))[0]][1];
         };
         return {"type": "options", "answers": choices, "match": match};
     };

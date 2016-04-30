@@ -1,16 +1,33 @@
-import React, { Component, Text } from 'react-native';
+import React, {Component, Text, StyleSheet} from 'react-native';
 
 class AnswerOption extends Component {
-
     static propTypes = {
-        next: React.PropTypes.func.isRequired,
-        answer: React.PropTypes.object.isRequired,
+        choice: React.PropTypes.string.isRequired,
+        match: React.PropTypes.func.isRequired,
     };
+
+    static contextTypes = {
+        navigator: React.PropTypes.func.isRequired,
+    };
+
+    static styles = StyleSheet.create({
+        item: {
+            backgroundColor: '#FF8A80',
+            color: '#FFFFFF',
+            margin: 10,
+            width: 100,
+            height: 100,
+            textAlign: 'center',
+            textAlignVertical: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+        },
+    });
 
     render() {
         return (
-            <Text key={this.props.answer.content} onPress={this.props.next}>
-                {this.props.answer.content}
+            <Text onPress={this.props.match} style={AnswerOption.styles.item}>
+                {this.props.choice}
             </Text>
         );
     }
