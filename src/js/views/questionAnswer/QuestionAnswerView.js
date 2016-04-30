@@ -1,8 +1,7 @@
 import React, {Component, View} from 'react-native';
 import Path from '../../routing/Path';
-import TypedTransition from '../../routing/TypedTransition';
-import AnswerList from './AnswerList';
-import QuestionHeader from './QuestionHeader';
+import Question from './Question.js';
+import Answer from './Answer.js';
 
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
@@ -19,17 +18,17 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        debugger;
-        this.questionService = this.context.getService("questionService");
+        this.diseaseService = this.context.getService("diseaseService");
         this.state = {
-            question: this.questionService.getQuestion(props.params.diseaseName, 0),
+            flow: this.diseaseService.diseases.get("stroke"),
         };
     }
 
     render() {
         return (
             <View>
-                <QuestionHeader question={this.state.question}/>
+                <Question question={this.state.flow.question}/>
+                <Answer answer={this.state.flow.answer}/>
             </View>
         );
     }

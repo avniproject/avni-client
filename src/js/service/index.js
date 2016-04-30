@@ -1,2 +1,2 @@
 export * from './ConceptService.js';
-export * from './QuestionService.js';
+export * from './DiseaseService.js';

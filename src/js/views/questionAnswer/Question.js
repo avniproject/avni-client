@@ -1,6 +1,6 @@
-import React, { Component, StyleSheet, Text } from 'react-native';
+import React, {Component, StyleSheet, Text, View} from 'react-native';
 
-class QuestionHeader extends Component {
+class Question extends Component {
 
     static propTypes = {
         question: React.PropTypes.string.isRequired,
@@ -19,11 +19,13 @@ class QuestionHeader extends Component {
 
     render() {
         return (
-            <Text style={QuestionHeader.styles.header}>
-                {this.props.question}
-            </Text>
+            <View>
+                <Text style={Question.styles.header}>
+                    {this.props.question}
+                </Text>
+            </View>
         );
     }
 }
 
-export default QuestionHeader;
+export default Question;
