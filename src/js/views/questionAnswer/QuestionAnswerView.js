@@ -18,7 +18,7 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        var flow = this.context.getService("diseaseService").getFlow("stroke");
+        var flow = this.context.getService("diseaseService").getFlow(props.params.diseaseName);
         this.state = {flow: flow};
     }
 
