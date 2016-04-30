@@ -1,41 +1,41 @@
-var stringComparison = function (expectedString) {
+export function stringComparison(expectedString) {
     return function (userAnswer) {
         return expectedString.toLowerCase() === userAnswer.toLowerCase();
     };
-};
+}
 
-var lessThan = function (upperBound) {
+export function lessThan(upperBound) {
     return function (userAnswer) {
         return userAnswer < upperBound;
     };
-};
+}
 
-var greaterThan = function (lowerBound) {
+export function greaterThan(lowerBound) {
     return function (userAnswer) {
         return lowerBound < userAnswer;
     };
-};
+}
 
-var lessThanAndGreaterThan = function (upperBound, lowerBound) {
+export function lessThanAndGreaterThan(upperBound, lowerBound) {
     return function (userAnswer) {
         return greaterThan(lowerBound)(userAnswer) && lessThan(upperBound)(userAnswer);
     };
 
-};
+}
 
-var end = function () {
-};
+export function end() {
+}
 
-var numeric = function (options) {
+export function numeric(options) {
     return function () {
         var match = function (userAnswer) {
 
         };
         return {"type": "numeric", "match": match, "answers": "HELLO"};
     };
-};
+}
 
-var options = function (options) {
+export function options(options) {
     return function () {
         var choices = Object.keys(options);
         var match = function (userAnswer) {
@@ -43,9 +43,9 @@ var options = function (options) {
         };
         return {"type": "options", "answers": choices, "match": match};
     };
-};
+}
 
-var when = function (answers) {
+export function when(answers) {
     return function () {
         var answerType = answers();
         this.type = answerType.type;
@@ -55,30 +55,15 @@ var when = function (answers) {
         };
         return this;
     }.bind(this);
-};
+}
 
-var Yes = stringComparison("Yes");
+export let Yes = stringComparison("Yes");
 
-var No = stringComparison("No");
+export let No = stringComparison("No");
 
-var ask = function (question, recurAnswer) {
+export function ask(question, recurAnswer) {
     return {
         "question": question,
         "answer": recurAnswer
     };
-};
-
-
-export default {
-    ask,
-    end,
-    Yes,
-    No,
-    lessThan,
-    lessThanAndGreaterThan,
-    greaterThan,
-    stringComparison,
-    numeric,
-    options,
-    when
-};
+}
