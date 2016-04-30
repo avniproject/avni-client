@@ -7,9 +7,7 @@ class BeanRegistry {
     }
 
     init(db) {
-        return new Map(Array.from(this.beans).map(function ([name, bean]) {
-            return [name, new bean(db)];
-        }));
+        return new Map(Array.from(this.beans).map(([name, bean]) => [name, new bean(db)]));
     }
 }
 
