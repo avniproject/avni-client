@@ -18,7 +18,7 @@ class Answer extends Component {
         var AnswerComponent = (Answer.answerType[answer.type]);
         return (
             <View>
-                {<AnswerComponent answer={answer}/>}
+                <AnswerComponent answer={answer}/>
             </View>
         );
     }
