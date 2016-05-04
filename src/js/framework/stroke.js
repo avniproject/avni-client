@@ -19,7 +19,7 @@ var howFast = ask("How fast do you run?", when(options({
 
 var ageRange = ask('How old are you?', when(numeric([
     [lessThan(20), end],
-    [lessThanAndGreaterThan(20, 60), howFast],
+    [lessThanAndGreaterThan(60, 20), howFast],
     [greaterThan(60), end]])));
 
 var stroke = ask('Do you feel any weakness?', when(options({
