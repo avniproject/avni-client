@@ -18,15 +18,15 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        var flow = this.context.getService("diseaseService").getFlow(props.params.diseaseName);
-        this.state = {flow: flow};
+        this.questionnaire = this.context.getService("questionnaireService").getQuestionnaire(props.params.diseaseName);
     }
 
     render() {
+        this.state = {questionnaire: this.questionnaire.currentQuestion()};
         return (
             <View>
-                <Question question={this.state.flow.question}/>
-                <Answer answer={this.state.flow.answer}/>
+                <Question question={this.state.questionnaire.question}/>
+                <Answer answer={this.state.questionnaire.answer}/>
             </View>
         );
     }

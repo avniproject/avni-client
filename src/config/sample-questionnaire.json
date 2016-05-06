@@ -1,0 +1,8 @@
+{
+  "name" : "Sample without control flow",
+  "description" : "Sample questionnaire without control flow logic",
+  "questions" : [
+    "Numeric Question",
+    "Multiple Choice Question 1"
+  ]
+}

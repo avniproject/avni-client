@@ -14,11 +14,10 @@ class Answer extends Component {
     };
 
     render() {
-        var answer = this.props.answer();
-        var AnswerComponent = (Answer.answerType[answer.type]);
+        var answer = this.props.answer;
+//        var AnswerComponent = (Answer.answerType[answer.type]);
         return (
             <View>
-                <AnswerComponent answer={answer}/>
             </View>
         );
     }
