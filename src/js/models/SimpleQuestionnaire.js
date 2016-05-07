@@ -1,3 +1,5 @@
+import Concepts from './Concepts.js';
+
 class SimpleQuestionnaire {
   constructor(questionnaireData, concepts) {
     this.questionnaireData = questionnaireData;
@@ -6,7 +8,14 @@ class SimpleQuestionnaire {
   }
 
   currentQuestion() {
-    return {question: this.questionnaireData.questions[this.questionIndex], answer: ""}
+    var questionConceptName = this.questionnaireData.questions[this.questionIndex];
+    var conceptData = this.concepts.findByName(questionConceptName)
+    return {
+      question: questionConceptName,
+      answer: {
+        answerType: conceptData.datatype.name
+      }
+    };
   }
 }
 

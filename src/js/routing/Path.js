@@ -11,4 +11,3 @@ export default function Path(path) {
 export function PathRoot(view) {
   PathRegistry.setDefault(view);
 }
-

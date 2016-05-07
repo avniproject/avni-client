@@ -5,7 +5,7 @@ import NumericAnswer from './Numeric.js';
 class Answer extends Component {
 
     static propTypes = {
-        answer: React.PropTypes.func.isRequired,
+        answer: React.PropTypes.object,
     };
 
     static answerType = {
@@ -15,11 +15,12 @@ class Answer extends Component {
 
     render() {
         var answer = this.props.answer;
-//        var AnswerComponent = (Answer.answerType[answer.type]);
+        var AnswerComponent = (Answer.answerType[answer.type]);
         return (
             <View>
             </View>
         );
+//        <AnswerComponent answer={answer}/>
     }
 }
 
