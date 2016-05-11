@@ -1,13 +1,4 @@
-import Questionnaire from '../models/Questionnaire';
-
-Array.prototype.first = function () {
-  return this[0];
-};
-
-Array.prototype.second = function () {
-  return this[1];
-};
-
+import QuestionFactory from '../factory/QuestionFactory';
 
 export function stringComparison(expectedString) {
   return function (userAnswer) {
@@ -37,17 +28,16 @@ export function lessThanAndGreaterThan(upperBound, lowerBound) {
 export function end() {
 }
 
-export function numeric(options) {
-  return function () {
-    var match = function (userAnswer) {
+const inferType = (type) => (answers) => {
+  return {"type": type, "answers": answers};
+};
 
-    };
-    return {"type": "numeric", "answers": "HELLO", "match": match};
-  };
+export function numeric(answers) {
+  return inferType("numeric")(answers);
 }
 
 export function options(options) {
-  return options;
+  return inferType("options")(options);
 }
 
 export function when(answers) {
@@ -59,5 +49,5 @@ export let Yes = stringComparison("Yes");
 export let No = stringComparison("No");
 
 export function ask(question, recurAnswer) {
-  return new Questionnaire(question, recurAnswer);
+  return QuestionFactory.getQuestion(question, recurAnswer);
 }

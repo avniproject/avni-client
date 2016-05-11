@@ -6,7 +6,7 @@ import { expect } from 'chai';
 describe('Concepts', () => {
   it('Find Concept', () => {
     var concepts = new Concepts(ConceptsData);
-    var conceptData = concepts.findByName("Numeric Questionnaire");
+    var conceptData = concepts.findByName("Numeric AbstractQuestion");
     expect(conceptData.locale).to.equal('en');
   });
 });

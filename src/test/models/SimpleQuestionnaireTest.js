@@ -5,11 +5,11 @@ import ConceptsData from '../../config/concepts.json';
 
 import { expect } from 'chai';
 
-describe('Simple Questionnaire', () => {
+describe('Simple AbstractQuestion', () => {
   it('Should load questions and their answers', () => {
     var simpleQuestionnaire = new SimpleQuestionnaire(Sample, new Concepts(ConceptsData));
     var currentQuestion = simpleQuestionnaire.currentQuestion();
-    expect(currentQuestion.question).to.equal('Numeric Questionnaire');
+    expect(currentQuestion.question).to.equal('Numeric AbstractQuestion');
     expect(currentQuestion.answer.answerType).to.equal('Numeric');
   });
 });

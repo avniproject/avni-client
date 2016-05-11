@@ -1,14 +1,8 @@
 import _ from 'lodash';
 
-class Questionnaire {
-  constructor(question, recurAnswers) {
-    this.question = question;
-    this.recurAnswers = recurAnswers;
-  }
+import AbstractQuestion from './AbstractQuestion';
 
-  getQuestion() {
-    return this.question;
-  }
+class ChoiceQuestion extends AbstractQuestion {
 
   getOptions() {
     return this.recurAnswers.map((option) => option[0]);
@@ -19,4 +13,4 @@ class Questionnaire {
   }
 }
 
-export default Questionnaire;
+export default ChoiceQuestion;

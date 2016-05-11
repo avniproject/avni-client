@@ -16,4 +16,9 @@ describe('DSL Test', () => {
     expect(nextQuestion.getQuestion()).to.equal("How old are you?");
   });
 
+  it("should handle questions with numeric answers", ()=> {
+    const nextQuestion = testDisease.answer("Yes").answer(40);
+    expect(nextQuestion.getQuestion()).to.equal("How fast do you run?");
+  });
+
 });
