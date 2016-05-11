@@ -8,7 +8,7 @@ describe('DSL Test', () => {
 
   it('should get options for the first question of the questionnaire', () => {
     expect(testDisease.getOptions()).to.eql(["Yes", "No"]);
-    //.eq for a deep equal, sot he values of the objects are compared. .equal does an object comparison.
+    //INFO: .eq for a deep equal, sot he values of the objects are compared. .equal does an object comparison.
   });
 
   it("should give next question based on the answer", ()=> {
