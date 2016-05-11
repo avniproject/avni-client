@@ -25,9 +25,6 @@ export function lessThanAndGreaterThan(upperBound, lowerBound) {
 
 }
 
-export function end() {
-}
-
 const inferType = (type) => (answers) => {
   return {"type": type, "answers": answers};
 };
@@ -39,6 +36,8 @@ export function numeric(answers) {
 export function options(options) {
   return inferType("options")(options);
 }
+
+export let end = QuestionFactory.getEnd();
 
 export function when(answers) {
   return answers;

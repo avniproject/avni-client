@@ -4,6 +4,10 @@ class AbstractQuestion {
     this.recurAnswers = recurAnswers;
   }
 
+  end() {
+    return false;
+  }
+
   getQuestion() {
     return this.question;
   }
