@@ -8,6 +8,10 @@ class ChoiceQuestion extends AbstractQuestion {
     return this.recurAnswers.map((option) => option[0]);
   }
 
+  getAnswerType() {
+    return "Options";
+  }
+
   answer(answer) {
     return _.find(this.recurAnswers, ((option) => option[1][0](answer)))[1][1];
   }

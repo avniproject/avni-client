@@ -8,6 +8,10 @@ class AbstractQuestion {
     return false;
   }
 
+  getAnswerType() {
+    return undefined;
+  }
+
   getQuestion() {
     return this.question;
   }

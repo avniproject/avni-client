@@ -4,6 +4,7 @@ import testDisease from './../resources/testDiseaseQuestionnaire';
 describe('DSL Test', () => {
   it('should get the first question based of the questionnaire', () => {
     expect(testDisease.getQuestion()).to.equal("Do you feel any weakness?");
+    expect(testDisease.getAnswerType()).to.eql("Options");
     expect(testDisease.end()).to.be.false;
   });
 
@@ -16,12 +17,14 @@ describe('DSL Test', () => {
   it("should give next question based on the answer", ()=> {
     const nextQuestion = testDisease.answer("Yes");
     expect(nextQuestion.getQuestion()).to.equal("How old are you?");
+    expect(nextQuestion.getAnswerType()).to.eql("Numeric");
     expect(testDisease.end()).to.be.false;
   });
 
   it("should handle questions with numeric answers", ()=> {
     const nextQuestion = testDisease.answer("Yes").answer(40);
     expect(nextQuestion.getQuestion()).to.equal("How fast do you run?");
+    expect(nextQuestion.getAnswerType()).to.eql("Options");
     expect(testDisease.end()).to.be.false;
   });
 
@@ -29,6 +32,7 @@ describe('DSL Test', () => {
     const end = testDisease.answer("Yes").answer(1);
     expect(end.getQuestion()).to.be.undefined;
     expect(end.end()).to.be.true;
+    expect(end.getAnswerType()).to.be.undefined;
   });
 
 });
