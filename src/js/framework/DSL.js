@@ -1,4 +1,13 @@
-import Question from '../models/Question';
+import Questionnaire from '../models/Questionnaire';
+
+Array.prototype.first = function () {
+  return this[0];
+};
+
+Array.prototype.second = function () {
+  return this[1];
+};
+
 
 export function stringComparison(expectedString) {
   return function (userAnswer) {
@@ -50,5 +59,5 @@ export let Yes = stringComparison("Yes");
 export let No = stringComparison("No");
 
 export function ask(question, recurAnswer) {
-  return new Question(question, recurAnswer);
+  return new Questionnaire(question, recurAnswer);
 }

@@ -9,7 +9,7 @@ describe('Simple Questionnaire', () => {
   it('Should load questions and their answers', () => {
     var simpleQuestionnaire = new SimpleQuestionnaire(Sample, new Concepts(ConceptsData));
     var currentQuestion = simpleQuestionnaire.currentQuestion();
-    expect(currentQuestion.question).to.equal('Numeric Question');
+    expect(currentQuestion.question).to.equal('Numeric Questionnaire');
     expect(currentQuestion.answer.answerType).to.equal('Numeric');
   });
 });
