@@ -38,25 +38,11 @@ export function numeric(options) {
 }
 
 export function options(options) {
-  return function () {
-    var choices = Object.keys(options);
-    var match = function (userAnswer) {
-      return options[choices.filter(choiceItem => options[choiceItem][0](userAnswer))[0]][1];
-    };
-    return {"type": "options", "answers": choices, "match": match};
-  };
+  return options;
 }
 
 export function when(answers) {
-  return function () {
-    var answerType = answers();
-    this.type = answerType.type;
-    this.choices = answerType.answers;
-    this.match = function (userAnswer) {
-      return answerType.match(userAnswer);
-    };
-    return this;
-  }.bind(this);
+  return answers;
 }
 
 export let Yes = stringComparison("Yes");
@@ -64,5 +50,5 @@ export let Yes = stringComparison("Yes");
 export let No = stringComparison("No");
 
 export function ask(question, recurAnswer) {
-  return new Question(question);
+  return new Question(question, recurAnswer);
 }
