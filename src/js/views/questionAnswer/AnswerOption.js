@@ -2,8 +2,8 @@ import React, {Component, Text, StyleSheet} from 'react-native';
 
 class AnswerOption extends Component {
     static propTypes = {
-        choice: React.PropTypes.string.isRequired,
-        match: React.PropTypes.func.isRequired,
+        answer: React.PropTypes.string.isRequired
+        // match: React.PropTypes.func.isRequired,
     };
 
     static contextTypes = {
@@ -27,7 +27,7 @@ class AnswerOption extends Component {
     render() {
         return (
             <Text onPress={this.props.match} style={AnswerOption.styles.item}>
-                {this.props.choice}
+                {this.props.answer}
             </Text>
         );
     }

@@ -18,10 +18,9 @@ class AnswerList extends Component {
 
     render() {
         return (
-            // <View>
-            //     {this.props.answers.map(this.toAnswerOption)}
-            // </View>
-            <Text>{JSON.stringify(this.props.answers)}</Text>
+            <View>
+                {this.props.answers.map(this.toAnswerOption)}
+            </View>
         );
     }
 }

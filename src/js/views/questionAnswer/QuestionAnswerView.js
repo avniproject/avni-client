@@ -7,8 +7,7 @@ import AnswerList from './AnswerList.js';
 class QuestionAnswerView extends Component {
 
     static propTypes = {
-        params: React.PropTypes.object.isRequired,
-        question: React.PropTypes.string
+        params: React.PropTypes.object.isRequired
     };
 
     static contextTypes = {
@@ -18,15 +17,14 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.questionnaire = this.context.getService("questionnaireService").getQuestionnaire(props.params.diseaseName);
+        this.questionnaire = context.getService("questionnaireService").getQuestionnaire(props.params.diseaseName);
     }
 
     render() {
         this.state = {questionnaire: this.questionnaire.currentQuestion()};
+        console.log(JSON.stringify(this.state));
         return (
             <View>
-                <Text>{JSON.stringify(this.props.params.diseaseName)}</Text>
-                <Text>{JSON.stringify(this.state.questionnaire)}</Text>
                 <Question question={this.state.questionnaire.question}/>
                 <AnswerList answers={this.state.questionnaire.answers}/>
             </View>
