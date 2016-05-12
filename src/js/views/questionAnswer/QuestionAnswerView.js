@@ -26,6 +26,16 @@ class QuestionAnswerView extends Component {
         else
             return (<AnswerList answers={this.state.questionAnswer.answers}/>);
     };
+    
+    previousButton = function (questionAnswer) {
+        if (!questionAnswer.isFirstQuestion)
+            return (<Text>Previous</Text>);
+    };
+
+    nextButton = function (questionAnswer) {
+        if (!questionAnswer.isLastQuestion)
+            return (<Text>Next</Text>);
+    };
 
     render() {
         this.state = {questionAnswer: this.questionnaire.currentQuestion()};
@@ -33,6 +43,8 @@ class QuestionAnswerView extends Component {
             <View>
                 <Question question={this.state.questionAnswer.question}/>
                 {this.toAnswer(this.state.questionAnswer)}
+                {this.previousButton(this.state.questionAnswer)}
+                {this.nextButton(this.state.questionAnswer)}
             </View>
         );
     }

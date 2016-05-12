@@ -10,7 +10,9 @@ class SimpleQuestionnaire {
         var conceptData = this.concepts.findByName(questionConceptName);
         var questionAnswer = {
             question: questionConceptName,
-            questionDataType: conceptData.datatype.name
+            questionDataType: conceptData.datatype.name,
+            isFirstQuestion: this.questionIndex === 0,
+            isLastQuestion: this.questionIndex === this.questionnaireData.questions.length - 1
         };
         questionAnswer.answers = conceptData.answers === undefined ? [] : conceptData.answers;
         return questionAnswer;
