@@ -13,15 +13,15 @@ class QuestionnaireService extends BaseService {
         //this should come from offline database
         this.questionnaires = new Map();
         this.questionnaires.set("stroke", Stroke);
+        this.questionnaires.set(Sample.name, Sample);
     }
 
     getQuestionnaire(questionnaireName) {
         var questionnaire = this.questionnaires.get(questionnaireName);
-        if (questionnaire === undefined) {
-          var conceptService = new ConceptService();
-          questionnaire = new SimpleQuestionnaire(Sample, conceptService.getConcepts());
-        }
-        return questionnaire;
+        if (questionnaire === undefined) return undefined;
+
+        var conceptService = new ConceptService();
+        return new SimpleQuestionnaire(Sample, conceptService.getConcepts());
     }
 }
 

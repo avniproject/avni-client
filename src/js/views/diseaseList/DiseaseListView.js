@@ -13,8 +13,8 @@ class DiseaseListView extends Component {
         list: {
             justifyContent: 'center',
             flexDirection: 'row',
-            flexWrap: 'wrap',
-        },
+            flexWrap: 'wrap'
+        }
     });
 
     static initialDataSource = () =>

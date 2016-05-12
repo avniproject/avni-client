@@ -10,4 +10,3 @@ describe.skip('Question Answer View Test', () => {
     expect(wrapper.state('question')).to.equal('Numeric Question');
   });
 });
-

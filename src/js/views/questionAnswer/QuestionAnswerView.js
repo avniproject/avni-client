@@ -1,7 +1,7 @@
-import React, {Component, View} from 'react-native';
+import React, {Component, View, Text} from 'react-native';
 import Path from '../../routing/Path';
 import Question from './Question.js';
-import Answer from './Answer.js';
+import AnswerList from './AnswerList.js';
 
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
@@ -13,7 +13,7 @@ class QuestionAnswerView extends Component {
 
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -25,8 +25,10 @@ class QuestionAnswerView extends Component {
         this.state = {questionnaire: this.questionnaire.currentQuestion()};
         return (
             <View>
+                <Text>{JSON.stringify(this.props.params.diseaseName)}</Text>
+                <Text>{JSON.stringify(this.state.questionnaire)}</Text>
                 <Question question={this.state.questionnaire.question}/>
-                <Answer answer={this.state.questionnaire.answer}/>
+                <AnswerList answers={this.state.questionnaire.answers}/>
             </View>
         );
     }

@@ -1,19 +1,5 @@
 [
   {
-    "display": "Numeric Question",
-    "uuid": "c36af420-3f10-11e4-adec-0800271c1b75",
-    "name": "Numeric Question",
-    "locale": "en",
-    "conceptNameType": "FULLY_SPECIFIED",
-    "datatype": {
-      "name": "Numeric"
-    },
-    "hiNormal": null,
-    "lowNormal": null,
-    "hiAbsolute": null,
-    "lowAbsolute": null
-  },
-  {
     "display": "Multiple Choice Question 1",
     "uuid": "b36af420-3f10-11e4-adec-0800271c1b75",
     "name": "Multiple Choice Question 1",
@@ -32,7 +18,31 @@
         "datatype": {
           "name": "N/A"
         }
+      },
+      {
+        "display": "Question 1 - Answer 2",
+        "uuid": "a546823932",
+        "name": "Question 1 - Answer 2",
+        "locale": "en",
+        "conceptNameType": "FULLY_SPECIFIED",
+        "datatype": {
+          "name": "N/A"
+        }
       }
     ]
+  },
+  {
+    "display": "Numeric Question",
+    "uuid": "c36af420-3f10-11e4-adec-0800271c1b75",
+    "name": "Numeric Question",
+    "locale": "en",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "datatype": {
+      "name": "Numeric"
+    },
+    "hiNormal": null,
+    "lowNormal": null,
+    "hiAbsolute": null,
+    "lowAbsolute": null
   }
 ]
