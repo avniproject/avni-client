@@ -1,10 +1,10 @@
-import Stroke from '../framework/stroke.js';
 import BaseService from './BaseService.js';
 import Service from '../framework/Service.js';
 import ConceptService from './ConceptService.js';
 import SimpleQuestionnaire from '../models/SimpleQuestionnaire.js';
 
 import Sample from '../../config/sample-questionnaire.json';
+import Diabetes from '../../config/diabetes.json';
 
 @Service("questionnaireService")
 class QuestionnaireService extends BaseService {
@@ -12,7 +12,7 @@ class QuestionnaireService extends BaseService {
         super(db);
         //this should come from offline database
         this.questionnaires = new Map();
-        this.questionnaires.set("stroke", Stroke);
+        this.questionnaires.set(Diabetes.name, Diabetes);
         this.questionnaires.set(Sample.name, Sample);
     }
 
@@ -21,7 +21,7 @@ class QuestionnaireService extends BaseService {
         if (questionnaire === undefined) return undefined;
 
         var conceptService = new ConceptService();
-        return new SimpleQuestionnaire(Sample, conceptService.getConcepts());
+        return new SimpleQuestionnaire(questionnaire, conceptService.getConcepts());
     }
 }
 
