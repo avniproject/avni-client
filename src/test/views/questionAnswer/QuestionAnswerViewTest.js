@@ -3,8 +3,10 @@ import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import QuestionAnswerView from '../../../js/views/questionAnswer/QuestionAnswerView';
 import QuestionnaireService from "../../../js/service/QuestionnaireService";
+import Question from "../../../js/views/questionAnswer/Question";
+import AnswerList from "../../../js/views/questionAnswer/AnswerList";
 
-describe.skip('Question Answer View Test', () => {
+describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
         const context = {
             navigator: ()=> ({}),
@@ -13,7 +15,7 @@ describe.skip('Question Answer View Test', () => {
             }
         };
         const wrapper = shallow(<QuestionAnswerView params={{diseaseName: 'Sample without control flow'}}/>, {context});
-        console.log(JSON.stringify(wrapper.state));
-        expect(wrapper.state.questionnaire).to.equal('Multiple Choice Question 1');
+        expect(wrapper.find(Question)).to.have.length(1);
+        expect(wrapper.find(AnswerList)).to.have.length(1);
     });
 });

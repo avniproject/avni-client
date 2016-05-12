@@ -22,7 +22,6 @@ class QuestionAnswerView extends Component {
 
     render() {
         this.state = {questionnaire: this.questionnaire.currentQuestion()};
-        console.log(JSON.stringify(this.state));
         return (
             <View>
                 <Question question={this.state.questionnaire.question}/>
