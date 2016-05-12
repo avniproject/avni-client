@@ -1,4 +1,4 @@
-import React, {Component, View, Text} from 'react-native';
+import React, {Component, View, Text, TextInput} from 'react-native';
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
@@ -20,12 +20,19 @@ class QuestionAnswerView extends Component {
         this.questionnaire = context.getService("questionnaireService").getQuestionnaire(props.params.diseaseName);
     }
 
+    toAnswer = function (questionAnswer) {
+        if (questionAnswer.questionDataType === 'Numeric')
+            return (<TextInput />);
+        else
+            return (<AnswerList answers={this.state.questionAnswer.answers}/>);
+    };
+
     render() {
-        this.state = {questionnaire: this.questionnaire.currentQuestion()};
+        this.state = {questionAnswer: this.questionnaire.currentQuestion()};
         return (
             <View>
-                <Question question={this.state.questionnaire.question}/>
-                <AnswerList answers={this.state.questionnaire.answers}/>
+                <Question question={this.state.questionAnswer.question}/>
+                {this.toAnswer(this.state.questionAnswer)}
             </View>
         );
     }
