@@ -5,11 +5,11 @@ import questionAnswer from './../questionAnswer/QuestionAnswerView';
 class DiseaseButton extends Component {
 
     static propTypes = {
-        diseaseName: React.PropTypes.string.isRequired,
+        diseaseName: React.PropTypes.string.isRequired
     };
 
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
+        navigator: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -22,8 +22,8 @@ class DiseaseButton extends Component {
             textAlign: 'center',
             textAlignVertical: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold',
-        },
+            fontWeight: 'bold'
+        }
     });
 
     onSelect = () => {

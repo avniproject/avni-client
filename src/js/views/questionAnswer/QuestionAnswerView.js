@@ -2,6 +2,7 @@ import React, {Component, View, Text, TextInput} from 'react-native';
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
+import TypedTransition from '../../routing/TypedTransition';
 
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
@@ -26,15 +27,22 @@ class QuestionAnswerView extends Component {
         else
             return (<AnswerList answers={this.state.questionAnswer.answers}/>);
     };
-    
+
     previousButton = function (questionAnswer) {
         if (!questionAnswer.isFirstQuestion)
-            return (<Text>Previous</Text>);
+            return (<Text onPress={this.onPrevious}>Previous</Text>);
+    };
+
+    onNext = function () {
+        TypedTransition
+            .from(this)
+            .with({diseaseName: this.props.diseaseName})
+            .to(this);
     };
 
     nextButton = function (questionAnswer) {
         if (!questionAnswer.isLastQuestion)
-            return (<Text>Next</Text>);
+            return (<Text onPress={this.onNext}>Next</Text>);
     };
 
     render() {
