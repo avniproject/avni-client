@@ -17,6 +17,10 @@ class SimpleQuestionnaire {
         questionAnswer.answers = conceptData.answers === undefined ? [] : conceptData.answers;
         return questionAnswer;
     }
+
+    setQuestionIndex(index) {
+        this.questionIndex = index;
+    }
 }
 
 export default SimpleQuestionnaire;

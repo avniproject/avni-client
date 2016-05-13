@@ -29,7 +29,10 @@ class DiseaseButton extends Component {
     onSelect = () => {
         TypedTransition
             .from(this)
-            .with({diseaseName: this.props.diseaseName})
+            .with({
+                diseaseName: this.props.diseaseName,
+                questionNumber: 0
+            })
             .to(questionAnswer);
     };
 

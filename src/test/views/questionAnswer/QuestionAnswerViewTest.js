@@ -14,7 +14,7 @@ describe('Question Answer View Test', () => {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
         };
-        const wrapper = shallow(<QuestionAnswerView params={{diseaseName: 'Sample without control flow'}}/>, {context});
+        const wrapper = shallow(<QuestionAnswerView params={{diseaseName: 'Sample without control flow', questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(AnswerList)).to.have.length(1);
         expect(wrapper.find(Text)).to.have.length(1);
@@ -27,7 +27,7 @@ describe('Question Answer View Test', () => {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
         };
-        const wrapper = shallow(<QuestionAnswerView params={{diseaseName: 'Diabetes'}}/>, {context});
+        const wrapper = shallow(<QuestionAnswerView params={{diseaseName: 'Diabetes', questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
         expect(wrapper.find(Text)).to.have.length(0);

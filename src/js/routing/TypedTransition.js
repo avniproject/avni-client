@@ -17,7 +17,7 @@ export default class TypedTransition {
         const path = pathParam ? `${viewClass.path().split(':')[0]}${pathParam}` : viewClass.path();
         this.view.context.navigator().push({path, queryParams: this.queryParams || {}});
     }
-
+    
     goBack() {
         this.view.context.navigator().pop();
     }

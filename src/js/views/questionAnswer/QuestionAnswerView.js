@@ -21,31 +21,45 @@ class QuestionAnswerView extends Component {
         this.questionnaire = context.getService("questionnaireService").getQuestionnaire(props.params.diseaseName);
     }
 
-    toAnswer = function (questionAnswer) {
+    toAnswer(questionAnswer) {
         if (questionAnswer.questionDataType === 'Numeric')
             return (<TextInput />);
         else
             return (<AnswerList answers={this.state.questionAnswer.answers}/>);
     };
 
-    previousButton = function (questionAnswer) {
+    previousButton(questionAnswer) {
         if (!questionAnswer.isFirstQuestion)
             return (<Text onPress={this.onPrevious}>Previous</Text>);
     };
 
-    onNext = function () {
-        TypedTransition
-            .from(this)
-            .with({diseaseName: this.props.diseaseName})
-            .to(this);
-    };
-
-    nextButton = function (questionAnswer) {
+    nextButton(questionAnswer) {
         if (!questionAnswer.isLastQuestion)
             return (<Text onPress={this.onNext}>Next</Text>);
     };
 
+    onPrevious = () => {
+        TypedTransition
+            .from(this)
+            .with({
+                diseaseName: this.props.params.diseaseName,
+                questionNumber: this.props.params.questionNumber - 1
+            })
+            .to(QuestionAnswerView);
+    };
+
+    onNext = () => {
+        TypedTransition
+            .from(this)
+            .with({
+                diseaseName: this.props.params.diseaseName,
+                questionNumber: this.props.params.questionNumber + 1
+            })
+            .to(QuestionAnswerView);
+    };
+
     render() {
+        this.questionnaire.setQuestionIndex(this.props.params.questionNumber);
         this.state = {questionAnswer: this.questionnaire.currentQuestion()};
         return (
             <View>
