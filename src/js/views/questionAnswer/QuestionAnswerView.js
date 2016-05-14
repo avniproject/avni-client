@@ -3,6 +3,7 @@ import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
 import TypedTransition from '../../routing/TypedTransition';
+import ConclusionView from "../conclusion/ConclusionView";
 
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
@@ -18,7 +19,7 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.questionnaire = context.getService("questionnaireService").getQuestionnaire(props.params.diseaseName);
+        this.questionnaire = context.getService("questionnaireService").getQuestionnaire(props.params.conclusion.questionnaireName);
     }
 
     toAnswer(questionAnswer) {
@@ -34,28 +35,30 @@ class QuestionAnswerView extends Component {
     };
 
     nextButton(questionAnswer) {
-        if (!questionAnswer.isLastQuestion)
-            return (<Text onPress={this.onNext}>Next</Text>);
+        return (<Text onPress={this.onNext}>Next</Text>);
     };
 
     onPrevious = () => {
         TypedTransition
             .from(this)
             .with({
-                diseaseName: this.props.params.diseaseName,
+                conclusion: this.props.params.conclusion,
                 questionNumber: this.props.params.questionNumber - 1
             })
             .to(QuestionAnswerView);
     };
 
     onNext = () => {
-        TypedTransition
-            .from(this)
-            .with({
-                diseaseName: this.props.params.diseaseName,
-                questionNumber: this.props.params.questionNumber + 1
-            })
-            .to(QuestionAnswerView);
+        var typedTransition = TypedTransition.from(this);
+        if (this.state.questionAnswer.isLastQuestion) {
+            typedTransition.with().to(ConclusionView);
+        } else {
+                typedTransition.with({
+                    conclusion: this.props.params.conclusion,
+                    questionNumber: this.props.params.questionNumber + 1
+                })
+                .to(QuestionAnswerView);            
+        }
     };
 
     render() {

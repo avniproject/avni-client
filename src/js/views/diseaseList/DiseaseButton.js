@@ -1,6 +1,7 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
 import questionAnswer from './../questionAnswer/QuestionAnswerView';
+import Conclusion from "../../models/Conclusion";
 
 class DiseaseButton extends Component {
 
@@ -27,10 +28,11 @@ class DiseaseButton extends Component {
     });
 
     onSelect = () => {
+        var conclusion = new Conclusion(this.props.diseaseName);
         TypedTransition
             .from(this)
             .with({
-                diseaseName: this.props.diseaseName,
+                conclusion: conclusion,
                 questionNumber: 0
             })
             .to(questionAnswer);

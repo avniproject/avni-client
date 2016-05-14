@@ -2,7 +2,6 @@ import React, {Component, View, Text} from 'react-native';
 import AnswerOption from './AnswerOption';
 
 class AnswerList extends Component {
-
     static propTypes = {
         answers: React.PropTypes.array.isRequired
     };
