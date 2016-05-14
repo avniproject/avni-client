@@ -1,4 +1,5 @@
 import React, {Component, Text, StyleSheet} from 'react-native';
+import AppState from "../../hack/AppState";
 
 class AnswerOption extends Component {
     static propTypes = {
@@ -7,7 +8,7 @@ class AnswerOption extends Component {
     };
 
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
+        navigator: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -15,18 +16,22 @@ class AnswerOption extends Component {
             backgroundColor: '#FF8A80',
             color: '#FFFFFF',
             margin: 10,
-            width: 100,
-            height: 100,
+            width: 300,
+            height: 30,
             textAlign: 'center',
             textAlignVertical: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold',
-        },
+            fontWeight: 'bold'
+        }
     });
+
+    onSelect = () => {
+        AppState
+    };
 
     render() {
         return (
-            <Text onPress={this.props.match} style={AnswerOption.styles.item}>
+            <Text onPress={this.onSelect} style={AnswerOption.styles.item}>
                 {this.props.answer}
             </Text>
         );

@@ -4,6 +4,7 @@ import Question from './Question.js';
 import AnswerList from './AnswerList.js';
 import TypedTransition from '../../routing/TypedTransition';
 import ConclusionView from "../conclusion/ConclusionView";
+import AppState from "../../hack/AppState"
 
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
@@ -19,7 +20,7 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.questionnaire = context.getService("questionnaireService").getQuestionnaire(props.params.conclusion.questionnaireName);
+        this.questionnaire = context.getService("questionnaireService").getQuestionnaire(AppState.conclusion.questionnaireName);
     }
 
     toAnswer(questionAnswer) {
@@ -42,7 +43,6 @@ class QuestionAnswerView extends Component {
         TypedTransition
             .from(this)
             .with({
-                conclusion: this.props.params.conclusion,
                 questionNumber: this.props.params.questionNumber - 1
             })
             .to(QuestionAnswerView);
@@ -54,7 +54,6 @@ class QuestionAnswerView extends Component {
             typedTransition.with().to(ConclusionView);
         } else {
                 typedTransition.with({
-                    conclusion: this.props.params.conclusion,
                     questionNumber: this.props.params.questionNumber + 1
                 })
                 .to(QuestionAnswerView);            
