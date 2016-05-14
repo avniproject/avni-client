@@ -25,9 +25,9 @@ class QuestionAnswerView extends Component {
 
     toAnswer(questionAnswer) {
         if (questionAnswer.questionDataType === 'Numeric')
-            return (<TextInput />);
+            return (<TextInput onChangeText={(text) => AppState.conclusion.currentAnswer = text} />);
         else
-            return (<AnswerList answers={this.state.questionAnswer.answers}/>);
+            return (<AnswerList answers={this.questionAnswer.answers}/>);
     };
 
     previousButton(questionAnswer) {
@@ -50,7 +50,7 @@ class QuestionAnswerView extends Component {
 
     onNext = () => {
         var typedTransition = TypedTransition.from(this);
-        if (this.state.questionAnswer.isLastQuestion) {
+        if (this.questionAnswer.isLastQuestion) {
             typedTransition.with().to(ConclusionView);
         } else {
                 typedTransition.with({
@@ -62,13 +62,14 @@ class QuestionAnswerView extends Component {
 
     render() {
         this.questionnaire.setQuestionIndex(this.props.params.questionNumber);
-        this.state = {questionAnswer: this.questionnaire.currentQuestion()};
+        this.questionAnswer = this.questionnaire.currentQuestion();
+        AppState.conclusion.currentQuestion = this.questionAnswer.question;
         return (
             <View>
-                <Question question={this.state.questionAnswer.question}/>
-                {this.toAnswer(this.state.questionAnswer)}
-                {this.previousButton(this.state.questionAnswer)}
-                {this.nextButton(this.state.questionAnswer)}
+                <Question question={this.questionAnswer.question}/>
+                {this.toAnswer(this.questionAnswer)}
+                {this.previousButton(this.questionAnswer)}
+                {this.nextButton(this.questionAnswer)}
             </View>
         );
     }

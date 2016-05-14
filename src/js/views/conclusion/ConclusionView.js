@@ -1,5 +1,6 @@
 import React, {Component, View, Text} from 'react-native';
 import Path from '../../routing/Path';
+import AppState from '../../hack/AppState'
 
 @Path('/conclusion')
 class ConclusionView extends Component {
@@ -19,7 +20,7 @@ class ConclusionView extends Component {
     render() {
         return (
             <View>
-                <Text>Conclusion</Text>
+                <Text>{JSON.stringify(AppState.conclusion)}</Text>
             </View>
         );
     }
