@@ -20,12 +20,12 @@ class QuestionAnswerView extends Component {
 
   constructor(props, context) {
     super(props, context);
-    this.questionnaire = context.getService("questionnaireService").getQuestionnaire(AppState.conclusion.questionnaireName);
+    this.questionnaire = context.getService("questionnaireService").getQuestionnaire(AppState.questionnaireAnswers.questionnaireName);
   }
 
   toAnswer(questionAnswer) {
     if (questionAnswer.questionDataType === 'Numeric')
-      return (<TextInput onChangeText={(text) => AppState.conclusion.currentAnswer = text}/>);
+      return (<TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}/>);
     else
       return (<AnswerList answers={this.questionAnswer.answers}/>);
   };
@@ -63,7 +63,7 @@ class QuestionAnswerView extends Component {
   render() {
     this.questionnaire.setQuestionIndex(this.props.params.questionNumber);
     this.questionAnswer = this.questionnaire.currentQuestion();
-    AppState.conclusion.currentQuestion = this.questionAnswer.question;
+    AppState.questionnaireAnswers.currentQuestion = this.questionAnswer.question;
     return (
       <View>
         <Question question={this.questionAnswer.question}/>

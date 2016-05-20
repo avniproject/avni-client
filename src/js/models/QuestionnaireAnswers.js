@@ -1,4 +1,4 @@
-class Conclusion {
+class QuestionnaireAnswers {
     constructor(questionnaireName) {
         this.questionnaireName = questionnaireName;
         this.questionAnswers = new Map();
@@ -13,4 +13,4 @@ class Conclusion {
     }
 }
 
-export default Conclusion;
+export default QuestionnaireAnswers;

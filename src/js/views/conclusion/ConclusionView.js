@@ -1,6 +1,7 @@
 import React, {Component, View, Text} from 'react-native';
 import Path from '../../routing/Path';
 import AppState from '../../hack/AppState'
+import * as ConclusionFunctions from '../../../config/conclusions'
 
 @Path('/conclusion')
 class ConclusionView extends Component {
@@ -9,8 +10,7 @@ class ConclusionView extends Component {
     };
 
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired
+        navigator: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -18,9 +18,13 @@ class ConclusionView extends Component {
     }
 
     render() {
+        var conclusionFunctionName = AppState.questionnaireAnswers.questionnaireName.replace(/\s/g, "_") + "_conclusion";
+        console.log("Function name for deriving conclusion: " + conclusionFunctionName);
+        var parameter = AppState.questionnaireAnswers;
+        var output = eval(`ConclusionFunctions.${conclusionFunctionName}(parameter)`);
         return (
             <View>
-                <Text>{JSON.stringify(AppState.conclusion)}</Text>
+                <Text>{output}</Text>
             </View>
         );
     }

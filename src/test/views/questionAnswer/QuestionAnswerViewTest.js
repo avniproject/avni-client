@@ -5,7 +5,7 @@ import QuestionAnswerView from '../../../js/views/questionAnswer/QuestionAnswerV
 import QuestionnaireService from "../../../js/service/QuestionnaireService";
 import Question from "../../../js/views/questionAnswer/Question";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
-import Conclusion from "../../../js/models/Conclusion";
+import QuestionnaireAnswers from "../../../js/models/QuestionnaireAnswers";
 import AppState from "../../../js/hack/AppState"
 
 describe('Question Answer View Test', () => {
@@ -16,7 +16,7 @@ describe('Question Answer View Test', () => {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
         };
-        AppState.conclusion = new Conclusion('Sample without control flow');
+        AppState.questionnaireAnswers = new QuestionnaireAnswers('Sample without control flow');
         const wrapper = shallow(<QuestionAnswerView params=
                                                         {{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
@@ -31,7 +31,7 @@ describe('Question Answer View Test', () => {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
         };
-        AppState.conclusion = new Conclusion('Diabetes');
+        AppState.questionnaireAnswers = new QuestionnaireAnswers('Diabetes');
         const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);

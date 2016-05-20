@@ -1,7 +1,7 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
 import questionAnswer from './../questionAnswer/QuestionAnswerView';
-import Conclusion from "../../models/Conclusion";
+import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
 import AppState from "../../hack/AppState";
 
 class DiseaseButton extends Component {
@@ -29,7 +29,7 @@ class DiseaseButton extends Component {
     });
 
     onSelect = () => {
-        AppState.conclusion = new Conclusion(this.props.diseaseName);
+        AppState.questionnaireAnswers = new QuestionnaireAnswers(this.props.diseaseName);
         TypedTransition
             .from(this)
             .with({

@@ -26,7 +26,7 @@ class AnswerOption extends Component {
     });
 
     onSelect = () => {
-        AppState.conclusion.currentAnswer = this.props.answer;
+        AppState.questionnaireAnswers.currentAnswer = this.props.answer;
     };
 
     render() {
