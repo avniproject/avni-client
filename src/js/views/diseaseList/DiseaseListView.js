@@ -2,7 +2,7 @@ import React, { Component, StyleSheet, View, ListView, DrawerLayoutAndroid } fro
 import Path, { PathRoot } from '../../routing/Path';
 import Diseases from '../../../config/diseases.json';
 import DiseaseButton from './DiseaseButton';
-import DiseaseHeader from './DiseaseHeader';
+import AppHeader from '../primitives/AppHeader';
 import DiseaseNavigationMenu from './DiseaseNavigationMenu';
 
 @PathRoot
@@ -32,7 +32,7 @@ class DiseaseListView extends Component {
                 drawerPosition={DrawerLayoutAndroid.positions.Left}
                 renderNavigationView={() => <DiseaseNavigationMenu/>}>
                 <View>
-                    <DiseaseHeader/>
+                    <AppHeader title="Decision Support Tools"/>
                     <ListView
                         contentContainerStyle={DiseaseListView.styles.list}
                         dataSource={this.state.dataSource}
