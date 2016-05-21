@@ -16,15 +16,15 @@ class DiseaseButton extends Component {
 
     static styles = StyleSheet.create({
         item: {
-            backgroundColor: '#FF8A80',
+            backgroundColor: '#FF3823',
             color: '#FFFFFF',
             margin: 10,
-            width: 100,
+            width: 150,
             height: 100,
             textAlign: 'center',
             textAlignVertical: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontSize: 23
         }
     });
 

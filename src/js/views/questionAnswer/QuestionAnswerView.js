@@ -6,6 +6,7 @@ import TypedTransition from '../../routing/TypedTransition';
 import ConclusionView from "../conclusion/ConclusionView";
 import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
+import AppHeader from '../primitives/AppHeader';
 
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
@@ -62,6 +63,7 @@ class QuestionAnswerView extends Component {
         AppState.questionnaireAnswers.currentQuestion = this.questionAnswer.question;
         return (
             <View>
+                <AppHeader title={AppState.questionnaireAnswers.questionnaireName} />
                 <Question question={this.questionAnswer.question}/>
                 {this.toAnswer(this.questionAnswer)}
                 {this.previousButton(this.questionAnswer)}

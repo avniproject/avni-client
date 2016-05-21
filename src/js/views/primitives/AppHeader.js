@@ -1,4 +1,4 @@
-import React, {Component, StyleSheet, Text} from 'react-native';
+import React, {Component, StyleSheet, Text, Image, View} from 'react-native';
 
 class AppHeader extends Component {
     static propTypes = {
@@ -6,24 +6,38 @@ class AppHeader extends Component {
     };
 
     static styles = StyleSheet.create({
+        main: {
+            backgroundColor: '#FF8A84',
+            height: 60,
+            width: 600,
+            marginBottom: 10,
+            flex: 1,
+            flexDirection: 'row'
+        },
+        icon: {
+            flex: 0.1
+        },
         header: {
-            backgroundColor: '#F44336',
             color: '#FFFFFF',
-            height: 30,
-            width: 1000,
-            alignSelf: 'center',
-            textAlign: 'center',
             textAlignVertical: 'center',
-            marginBottom: 5
+            fontWeight: 'bold',
+            fontSize: 26,
+            width: 50,
+            marginLeft: 100,
+            flex: 0.9
         }
     });
 
-
     render() {
         return (
-            <Text>
+            <View style={AppHeader.styles.main}>
+                <View style={AppHeader.styles.icon}>
+                    <Image
+                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/MentalState-48.png')}
+                        />
+                </View>
                 <Text style={AppHeader.styles.header}>{this.props.title}</Text>
-            </Text>
+            </View>
         );
     }
 }
