@@ -1,4 +1,4 @@
-import React, {Component, View, Text, TextInput, StyleSheet} from 'react-native';
+import React, {Component, View, Text, TextInput, StyleSheet, TouchableOpacity} from 'react-native';
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
@@ -42,12 +42,7 @@ class QuestionAnswerView extends Component {
     };
 
     onPrevious = () => {
-        TypedTransition
-            .from(this)
-            .with({
-                questionNumber: this.props.params.questionNumber - 1
-            })
-            .to(QuestionAnswerView);
+        TypedTransition.from(this).goBack();
     };
 
     onNext = () => {
