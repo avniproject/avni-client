@@ -21,7 +21,7 @@ describe('Question Answer View Test', () => {
                                                         {{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(AnswerList)).to.have.length(1);
-        expect(wrapper.find(Text)).to.have.length(1);
+        expect(wrapper.find(Text)).to.have.length(2);
     });
 
     it('when `Numeric` is the first question', () => {
@@ -35,6 +35,6 @@ describe('Question Answer View Test', () => {
         const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
-        expect(wrapper.find(Text)).to.have.length(1);
+        expect(wrapper.find(Text)).to.have.length(2);
     });
 });
