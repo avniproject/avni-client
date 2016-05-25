@@ -12,7 +12,7 @@ class AnswerOption extends Component {
 
     static styles = StyleSheet.create({
         highlight: {
-            activeOpacity: 0.5
+            
         },
         item: {
             backgroundColor: '#A8DADC',
