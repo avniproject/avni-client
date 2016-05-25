@@ -1,9 +1,10 @@
-import React, {Component, Text, StyleSheet, TouchableHighlight} from 'react-native';
+import React, {Component, Text, StyleSheet, View, Image} from 'react-native';
 import AppState from "../../hack/AppState";
 
 class AnswerOption extends Component {
     static propTypes = {
-        answer: React.PropTypes.string.isRequired
+        answer: React.PropTypes.string.isRequired,
+        answerList: React.PropTypes.object.isRequired
     };
 
     static contextTypes = {
@@ -11,33 +12,51 @@ class AnswerOption extends Component {
     };
 
     static styles = StyleSheet.create({
-        highlight: {
-            
+        answerRow: {
+            marginTop: 10,
+            height: 45,
+            marginLeft: 30,
+            marginRight: 30,
+            flex: 1,
+            flexDirection: 'row',
+            backgroundColor: '#A8DADC'
         },
         item: {
-            backgroundColor: '#A8DADC',
             color: '#000000',
             margin: 10,
-            height: 30,
             textAlign: 'left',
             textAlignVertical: 'center',
-            justifyContent: 'center',
             fontSize: 16,
-            marginLeft: 30
+            flex: 0.7
+        },
+        checkImage: {
+            flex: 0.2,
+            resizeMode: 'contain',
+            height: 45
         }
     });
+    
+    displayCheckImage() {
+        if (AppState.questionnaireAnswers.currentAnswer === this.props.answer) {
+            return (<Image style={AnswerOption.styles.checkImage}
+                           source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
+            />)
+        }
+    }
 
-    onSelect = () => {
-        AppState.questionnaireAnswers.currentAnswer = this.props.answer;
-    };
+    handleOnPress(self) {
+        AppState.questionnaireAnswers.currentAnswer = self.props.answer;
+        self.props.answerList.onChange();
+    }
 
     render() {
         return (
-            <TouchableHighlight>
-                <Text onPress={this.onSelect} style={AnswerOption.styles.item}>
+            <View style={AnswerOption.styles.answerRow}>
+                <Text style={AnswerOption.styles.item} onPress={() => this.handleOnPress(this)}>
                     {this.props.answer}
                 </Text>
-            </TouchableHighlight>
+                {this.displayCheckImage()}
+            </View>
         );
     }
 }

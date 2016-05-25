@@ -34,7 +34,7 @@ class QuestionAnswerView extends Component {
         else
             return (<AnswerList answers={this.questionAnswer.answers}/>);
     };
-
+    
     previousButton(questionAnswer) {
         var dynamicStyle = questionAnswer.isFirstQuestion ? CHSStyles.Global.navButtonHidden : CHSStyles.Global.navButtonVisible;
         return (
