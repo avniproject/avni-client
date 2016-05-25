@@ -1,10 +1,9 @@
-import React, {Component, Text, StyleSheet} from 'react-native';
+import React, {Component, Text, StyleSheet, TouchableHighlight} from 'react-native';
 import AppState from "../../hack/AppState";
 
 class AnswerOption extends Component {
     static propTypes = {
         answer: React.PropTypes.string.isRequired
-        // match: React.PropTypes.func.isRequired,
     };
 
     static contextTypes = {
@@ -12,16 +11,19 @@ class AnswerOption extends Component {
     };
 
     static styles = StyleSheet.create({
+        highlight: {
+            activeOpacity: 0.5
+        },
         item: {
-            backgroundColor: '#FF8A80',
-            color: '#FFFFFF',
+            backgroundColor: '#A8DADC',
+            color: '#000000',
             margin: 10,
-            width: 300,
             height: 30,
-            textAlign: 'center',
+            textAlign: 'left',
             textAlignVertical: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontSize: 16,
+            marginLeft: 30
         }
     });
 
@@ -31,9 +33,11 @@ class AnswerOption extends Component {
 
     render() {
         return (
-            <Text onPress={this.onSelect} style={AnswerOption.styles.item}>
-                {this.props.answer}
-            </Text>
+            <TouchableHighlight>
+                <Text onPress={this.onSelect} style={AnswerOption.styles.item}>
+                    {this.props.answer}
+                </Text>
+            </TouchableHighlight>
         );
     }
 }

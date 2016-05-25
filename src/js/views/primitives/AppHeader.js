@@ -33,7 +33,7 @@ class AppHeader extends Component {
             <View style={AppHeader.styles.main}>
                 <View style={AppHeader.styles.icon}>
                     <Image
-                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/MentalState-48.png')}
+                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}
                         />
                 </View>
                 <Text style={AppHeader.styles.header}>{this.props.title}</Text>

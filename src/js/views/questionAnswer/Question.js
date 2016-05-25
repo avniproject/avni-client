@@ -9,12 +9,10 @@ class Question extends Component {
     static styles = StyleSheet.create({
         question: {
             fontSize: 22,
-            height: 100,
+            height: 30,
             width: 600,
-            alignSelf: 'center',
-            textAlign: 'center',
-            color: '#333333',
-            marginBottom: 5
+            marginLeft: 10,
+            color: '#0C59CF'
         }
     });
 
