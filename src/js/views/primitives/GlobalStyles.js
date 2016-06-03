@@ -17,5 +17,12 @@ export let Global = StyleSheet.create({
     },
     navButtonVisible: {
         height: 44
+    },
+    mainSection: {
+        marginTop: 15,
+        paddingLeft: 10,
+        paddingRight: 10,
+        flex: 1,
+        flexDirection: 'column'
     }
 });

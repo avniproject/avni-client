@@ -15,6 +15,10 @@ class QuestionnaireAnswers {
     get currentAnswer() {
         return this.questionAnswers.get(this.questionCursor);
     }
+    
+    get value() {
+        return this.questionAnswers;
+    }
 }
 
 export default QuestionnaireAnswers;

@@ -10,8 +10,6 @@ class Question extends Component {
         question: {
             fontSize: 22,
             height: 30,
-            width: 600,
-            marginLeft: 10,
             color: '#0C59CF'
         }
     });

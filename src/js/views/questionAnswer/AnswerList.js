@@ -1,6 +1,5 @@
 import React, {Component, View, Text} from 'react-native';
 import AnswerOption from './AnswerOption';
-import AppState from "../../hack/AppState";
 
 class AnswerList extends Component {
     static propTypes = {
@@ -8,7 +7,6 @@ class AnswerList extends Component {
     };
 
     toAnswerOption(answer, self) {
-        console.log(self.constructor.name);
         return (<AnswerOption key={answer.name} answer={answer.name} answerList={self}/>);
     };
 
@@ -17,7 +15,6 @@ class AnswerList extends Component {
     };
 
     render() {
-        console.log(this.constructor.name);
         return (
             <View>
                 {this.props.answers.map((option) => this.toAnswerOption(option, this))}

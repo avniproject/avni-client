@@ -10,8 +10,10 @@ describe('Conclusion View Test', () => {
         const context = {
             navigator: ()=> ({})
         };
-        AppState.questionnaireAnswers = new QuestionnaireAnswers('Sample without control flow');
-        const wrapper = shallow(<ConclusionView params={{}}/>, {context});
-        expect(wrapper.find(Text)).to.have.length(1);
+        var questionnaireAnswers = new QuestionnaireAnswers('Sample without control flow');
+        questionnaireAnswers.currentQuestion = "foo";
+        questionnaireAnswers.currentAnswer = "bar";
+        AppState.questionnaireAnswers = questionnaireAnswers;
+        shallow(<ConclusionView params={{}}/>, {context});
     });
 });

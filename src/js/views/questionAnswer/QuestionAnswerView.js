@@ -11,7 +11,14 @@ import AppHeader from '../primitives/AppHeader';
 @Path('/questionAnswer')
 class QuestionAnswerView extends Component {
     static styles = StyleSheet.create({
-        nextButton: {}
+        textinput: {
+            borderRadius: 5,
+            padding: 5,
+            borderColor: '#000000',
+            borderStyle: 'solid',
+            borderWidth: 2,
+            fontSize: 24
+        }
     });
 
     static propTypes = {
@@ -30,11 +37,13 @@ class QuestionAnswerView extends Component {
 
     toAnswer(questionAnswer) {
         if (questionAnswer.questionDataType === 'Numeric')
-            return (<TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}/>);
+            return (
+                <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
+                           style={QuestionAnswerView.styles.textinput}/>);
         else
             return (<AnswerList answers={this.questionAnswer.answers}/>);
     };
-    
+
     previousButton(questionAnswer) {
         var dynamicStyle = questionAnswer.isFirstQuestion ? CHSStyles.Global.navButtonHidden : CHSStyles.Global.navButtonVisible;
         return (
@@ -64,12 +73,17 @@ class QuestionAnswerView extends Component {
         return (
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}/>
-                <Question question={this.questionAnswer.question}/>
-                {this.toAnswer(this.questionAnswer)}
-                <View style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between'}}>
-                    {this.previousButton(this.questionAnswer)}
-                    <Text onPress={this.onNext}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible, QuestionAnswerView.styles.nextButton]}>Next</Text>
+                <View style={CHSStyles.Global.mainSection}>
+                    <Question question={this.questionAnswer.question}/>
+                    {this.toAnswer(this.questionAnswer)}
+                    <View style={{alignSelf: 'flex-end'}}>
+                        <View
+                            style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
+                            {this.previousButton(this.questionAnswer)}
+                            <Text onPress={this.onNext}
+                                  style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible, QuestionAnswerView.styles.nextButton]}>Next</Text>
+                        </View>
+                    </View>
                 </View>
             </View>
         );

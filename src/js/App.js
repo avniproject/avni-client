@@ -1,4 +1,4 @@
-import React, { Component } from 'react-native';
+import React, {Component} from 'react-native';
 import PathRegistry from './routing/PathRegistry';
 import BeanRegistry from './framework/BeanRegistry.js';
 import Realm from 'realm';
@@ -7,7 +7,6 @@ import './views';
 import './service';
 
 export default class App extends Component {
-
     constructor() {
         super();
         this.store = new Realm(models);
@@ -27,3 +26,5 @@ export default class App extends Component {
     }
 
 }
+
+//todo - next and previous button should be at the same place on every page

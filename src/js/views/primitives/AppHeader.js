@@ -9,13 +9,12 @@ class AppHeader extends Component {
         main: {
             backgroundColor: '#FF8A84',
             height: 60,
-            width: 600,
-            marginBottom: 10,
             flex: 1,
             flexDirection: 'row'
         },
         icon: {
-            flex: 0.1
+            flex: 0.1,
+            marginTop: 5
         },
         header: {
             color: '#FFFFFF',
