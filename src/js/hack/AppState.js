@@ -7,5 +7,9 @@ class AppState {
         }
         return instance;
     }
+
+    createNewQuestionnaire(questionnaireName) {
+        this.questionnaireAnswers = new QuestionnaireAnswers(this.props.diseaseName);
+    }
 }
 export default new AppState();
