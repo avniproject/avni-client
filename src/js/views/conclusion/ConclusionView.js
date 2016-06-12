@@ -18,18 +18,20 @@ class ConclusionView extends Component {
     static styles = StyleSheet.create({
         summary: {
             fontSize: 24,
-            height: 30,
             color: '#0C59CF'
         },
         decision: {
             fontSize: 20,
-            height: 26,
             color: '#0C59CF'
         },
         questionAnswer: {
             fontSize: 18,
-            height: 24,
-            color: '#0C59CF'
+            flexDirection: 'column'
+        },
+        question: {
+            color: '#0C59CF',
+        },
+        answer: {
         }
     });
 
@@ -39,9 +41,13 @@ class ConclusionView extends Component {
 
     renderQuestionAnswer(answer, question, questionAnswers) {
         return (
-            <View>
-                <Text style={ConclusionView.styles.questionAnswer}>{question}</Text>
-                <Text style={ConclusionView.styles.questionAnswer}>{answer}</Text>
+            <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 0.5}}>
+                    <Text style={[ConclusionView.styles.questionAnswer, ConclusionView.styles.question]}>{question}</Text>
+                </View>
+                <View  style={{flex: 0.5}}>
+                    <Text style={[ConclusionView.styles.questionAnswer, ConclusionView.styles.answer]}>{answer}</Text>
+                </View>
             </View>);
     }
 
@@ -62,6 +68,9 @@ class ConclusionView extends Component {
                 <View style={CHSStyles.Global.mainSection}>
                     <Text style={ConclusionView.styles.summary}>{conclusion.systemDecisionSummary}</Text>
                     <Text style={ConclusionView.styles.decision}>{conclusion.systemDecision}</Text>
+
+                    <Text style={{fontSize: 24}}></Text>
+                    <Text style={{fontSize: 24}}>You answered as follows</Text>
                     {this.renderQuestionAnswers()}
                 </View>
             </View>

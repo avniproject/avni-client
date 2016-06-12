@@ -18,6 +18,10 @@ class QuestionAnswerView extends Component {
             borderStyle: 'solid',
             borderWidth: 2,
             fontSize: 24
+        },
+        main: {
+          flex: 1,
+          flexDirection: 'column'
         }
     });
 
@@ -39,7 +43,8 @@ class QuestionAnswerView extends Component {
         if (questionAnswer.questionDataType === 'Numeric')
             return (
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
-                           style={QuestionAnswerView.styles.textinput}/>);
+                           style={QuestionAnswerView.styles.textinput}
+                           keyboardType='numeric'/>);
         else
             return (<AnswerList answers={this.questionAnswer.answers}/>);
     };
@@ -73,12 +78,11 @@ class QuestionAnswerView extends Component {
         return (
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}/>
-                <View style={CHSStyles.Global.mainSection}>
+                <View style={[CHSStyles.Global.mainSection, QuestionAnswerView.styles.main]}>
                     <Question question={this.questionAnswer.question}/>
                     {this.toAnswer(this.questionAnswer)}
-                    <View style={{alignSelf: 'flex-end'}}>
-                        <View
-                            style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
+                    <View>
+                        <View style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                             {this.previousButton(this.questionAnswer)}
                             <Text onPress={this.onNext}
                                   style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible, QuestionAnswerView.styles.nextButton]}>Next</Text>
