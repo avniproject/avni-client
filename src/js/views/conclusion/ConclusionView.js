@@ -79,3 +79,8 @@ class ConclusionView extends Component {
 }
 
 export default ConclusionView;
+
+/*                    <ListView
+                          dataSource={AppState.questionnaireAnswers.value}
+                          renderRow={(rowData)}
+                      </ListView>*/
