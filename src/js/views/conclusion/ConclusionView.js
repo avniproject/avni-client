@@ -1,4 +1,4 @@
-import React, {Component, View, Text, StyleSheet} from 'react-native';
+import React, {Component, View, Text, StyleSheet, ListView} from 'react-native';
 import Path from '../../routing/Path';
 import AppState from '../../hack/AppState'
 import * as ConclusionFunctions from '../../../config/conclusions'
@@ -31,8 +31,7 @@ class ConclusionView extends Component {
         question: {
             color: '#0C59CF',
         },
-        answer: {
-        }
+        answer: {}
     });
 
     constructor(props, context) {
@@ -43,18 +42,13 @@ class ConclusionView extends Component {
         return (
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.5}}>
-                    <Text style={[ConclusionView.styles.questionAnswer, ConclusionView.styles.question]}>{question}</Text>
+                    <Text
+                        style={[ConclusionView.styles.questionAnswer, ConclusionView.styles.question]}>{question}</Text>
                 </View>
-                <View  style={{flex: 0.5}}>
+                <View style={{flex: 0.5}}>
                     <Text style={[ConclusionView.styles.questionAnswer, ConclusionView.styles.answer]}>{answer}</Text>
                 </View>
             </View>);
-    }
-
-    renderQuestionAnswers() {
-        var questionAnswersDisplay = [];
-        AppState.questionnaireAnswers.value.forEach((answer, question, questionAnswers) => questionAnswersDisplay.push(this.renderQuestionAnswer(answer, question, questionAnswers)));
-        return questionAnswersDisplay;
     }
 
     render() {
@@ -62,6 +56,10 @@ class ConclusionView extends Component {
         console.log("Function name for deriving conclusion: " + conclusionFunctionName);
         var parameter = AppState.questionnaireAnswers;
         var conclusion = eval(`ConclusionFunctions.${conclusionFunctionName}(parameter)`);
+
+        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        var dsClone = ds.cloneWithRows(AppState.questionnaireAnswers.toArray());
+
         return (
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}/>
@@ -70,8 +68,16 @@ class ConclusionView extends Component {
                     <Text style={ConclusionView.styles.decision}>{conclusion.systemDecision}</Text>
 
                     <Text style={{fontSize: 24}}></Text>
-                    <Text style={{fontSize: 24}}>You answered as follows</Text>
-                    {this.renderQuestionAnswers()}
+
+
+                    <ListView
+                        dataSource={dsClone}
+                        renderRow={(rowData) => this.renderQuestionAnswer(rowData.answer, rowData.question, null)}
+                        renderHeader={() => <Text style={{fontSize: 24}}>You answered as follows</Text>}
+                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
+                                                                                                     backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
+                    >
+                    </ListView>
                 </View>
             </View>
         );
@@ -79,8 +85,3 @@ class ConclusionView extends Component {
 }
 
 export default ConclusionView;
-
-/*                    <ListView
-                          dataSource={AppState.questionnaireAnswers.value}
-                          renderRow={(rowData)}
-                      </ListView>*/

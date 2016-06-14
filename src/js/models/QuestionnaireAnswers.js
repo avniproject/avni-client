@@ -19,6 +19,12 @@ class QuestionnaireAnswers {
     get value() {
         return this.questionAnswers;
     }
+
+    toArray() {
+        var questionAnswerPairs = [];
+        this.questionAnswers.forEach((answer, question, questionAnswers) => questionAnswerPairs.push({question, answer}));
+        return questionAnswerPairs;
+    }
 }
 
 export default QuestionnaireAnswers;

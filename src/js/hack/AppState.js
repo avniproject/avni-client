@@ -1,3 +1,4 @@
+import QuestionnaireAnswers from "../models/QuestionnaireAnswers";
 let instance = null;
 
 class AppState {
@@ -9,7 +10,7 @@ class AppState {
     }
 
     createNewQuestionnaire(questionnaireName) {
-        this.questionnaireAnswers = new QuestionnaireAnswers(this.props.diseaseName);
+        this.questionnaireAnswers = new QuestionnaireAnswers(questionnaireName);
     }
 }
 export default new AppState();

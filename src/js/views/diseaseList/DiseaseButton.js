@@ -29,7 +29,7 @@ class DiseaseButton extends Component {
     });
 
     onSelect = () => {
-        AppState.createNewQuestionnaire();
+        AppState.createNewQuestionnaire(this.props.diseaseName);
         TypedTransition
             .from(this)
             .with({
