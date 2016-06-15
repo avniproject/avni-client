@@ -8,7 +8,7 @@ import SettingsHeader from './SettingsHeader';
 class SettingsView extends Component {
 
     static contextTypes = {
-        getStore: React.PropTypes.func.isRequired,
+        getStore: React.PropTypes.func.isRequired
     };
 
     getSettings = () => this.ensureCreated(this.context.getStore().objects('Settings'));
