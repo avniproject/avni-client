@@ -4,6 +4,7 @@ import AppState from '../../hack/AppState'
 import * as ConclusionFunctions from '../../../config/conclusions'
 import AppHeader from '../primitives/AppHeader';
 import * as CHSStyles from "../primitives/GlobalStyles"
+import TypedTransition from '../../routing/TypedTransition';
 
 @Path('/conclusion')
 class ConclusionView extends Component {
@@ -51,6 +52,13 @@ class ConclusionView extends Component {
             </View>);
     }
 
+    onRestart = () => {
+        // TypedTransition.from(this).goBack();
+    };
+
+    onSaveAndRestart = () => {
+    };
+
     render() {
         var conclusionFunctionName = AppState.questionnaireAnswers.questionnaireName.replace(/\s/g, "_") + "_conclusion";
         console.log("Function name for deriving conclusion: " + conclusionFunctionName);
@@ -69,15 +77,20 @@ class ConclusionView extends Component {
 
                     <Text style={{fontSize: 24}}></Text>
 
-
                     <ListView
                         dataSource={dsClone}
                         renderRow={(rowData) => this.renderQuestionAnswer(rowData.answer, rowData.question, null)}
                         renderHeader={() => <Text style={{fontSize: 24}}>You answered as follows</Text>}
                         renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
                                                                                                      backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
-                    >
-                    </ListView>
+                    />
+                    <View
+                        style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
+                        <Text onPress={this.onRestart}
+                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Restart</Text>
+                        <Text onPress={this.onSaveAndRestart}
+                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Save & Restart</Text>
+                    </View>
                 </View>
             </View>
         );

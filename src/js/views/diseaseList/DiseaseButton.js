@@ -1,6 +1,6 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
-import questionAnswer from './../questionAnswer/QuestionAnswerView';
+import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
 import AppState from "../../hack/AppState";
 
@@ -35,7 +35,7 @@ class DiseaseButton extends Component {
             .with({
                 questionNumber: 0
             })
-            .to(questionAnswer);
+            .to(QuestionAnswerView);
     };
 
     render() {

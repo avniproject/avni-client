@@ -8,7 +8,7 @@ import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';
 
-@Path('/questionAnswer')
+@Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
     static styles = StyleSheet.create({
         textinput: {
@@ -85,7 +85,7 @@ class QuestionAnswerView extends Component {
                         <View style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                             {this.previousButton(this.questionAnswer)}
                             <Text onPress={this.onNext}
-                                  style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible, QuestionAnswerView.styles.nextButton]}>Next</Text>
+                                  style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Next</Text>
                         </View>
                     </View>
                 </View>
