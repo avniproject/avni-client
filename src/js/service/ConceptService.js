@@ -4,7 +4,7 @@ import Concepts from '../models/Concepts.js';
 
 import ConceptsData from '../../config/concepts.json';
 
-import 'isomorphic-fetch';
+// import 'isomorphic-fetch';
 
 @Service("conceptService")
 class ConceptService extends BaseService {
