@@ -6,7 +6,7 @@ class SettingsMultipeChoiceField extends Component {
 
     static propTypes = {
         onChangeSelection: React.PropTypes.func.isRequired,
-        defaultSelection: React.PropTypes.string.isRequired,
+        selectedValue: React.PropTypes.string.isRequired,
         availableValues: React.PropTypes.object.isRequired,
     };
 
@@ -30,7 +30,7 @@ class SettingsMultipeChoiceField extends Component {
                 </Text>
                 <Picker
                     style={SettingsMultipeChoiceField.styles.input}
-                    onChangeValue={this.props.onChangeSelection}
+                    onValueChange={this.props.onChangeSelection}
                     selectedValue={this.props.selectedValue}>
                     {pickerItems}
                 </Picker>

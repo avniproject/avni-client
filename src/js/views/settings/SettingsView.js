@@ -21,15 +21,11 @@ class SettingsView extends Component {
         return settings[0];
     };
 
-    onValueChanged = (key, value) => {
+    onServerURLChanged = (serverURL) => {
         const view = this;
         this.context.getStore().write(()=> {
-            view.getSettings()[key] = value;
+            view.getSettings()["serverURL"] = serverURL;
         });
-    };
-
-    onServerURLChanged = (serverURL) => {
-        this.onValueChanged("serverURL", serverURL);
     };
 
     onLocaleChanged = (locale) => {

@@ -29,7 +29,7 @@ class SettingsForm extends Component {
                 />
                 <SettingsMultipleChoiceField
                     onChangeSelection={this.props.onLocaleChanged}
-                    defaultSelection={this.props.settings.locale.selectedLocale}
+                    selectedValue={this.props.settings.locale.selectedLocale}
                     availableValues={this.props.settings.locale.availableValues}
                 />
 

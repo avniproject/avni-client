@@ -1,6 +1,6 @@
 import React, { Component, StyleSheet, Text, View } from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
-import settingsView from './../settings/SettingsView';
+import SettingsView from './../settings/SettingsView';
 
 class DiseaseNavigationMenu extends Component {
 
@@ -15,7 +15,7 @@ class DiseaseNavigationMenu extends Component {
   });
 
   goToSettings = () => {
-    TypedTransition.from(this).to(settingsView);
+    TypedTransition.from(this).to(SettingsView);
   };
 
   render() {
