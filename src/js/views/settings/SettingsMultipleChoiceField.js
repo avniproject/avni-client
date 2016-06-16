@@ -7,7 +7,7 @@ class SettingsMultipeChoiceField extends Component {
     static propTypes = {
         onChangeSelection: React.PropTypes.func.isRequired,
         defaultSelection: React.PropTypes.string.isRequired,
-        availableValues: React.PropTypes.array.isRequired,
+        availableValues: React.PropTypes.object.isRequired,
     };
 
     static styles = StyleSheet.create({
@@ -20,7 +20,8 @@ class SettingsMultipeChoiceField extends Component {
     });
 
     render() {
-        const pickerItems = this.props.availableValues.map((item) => <Item label={item.option}
+        const pickerItems = this.props.availableValues.map((item) => <Item key={item.option}
+                                                                           label={item.option}
                                                                            value={item.locale}/>);
         return (
             <View>

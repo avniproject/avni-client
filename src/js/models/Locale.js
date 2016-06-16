@@ -13,8 +13,7 @@ export class Locale {
     static schema = {
         name: 'Locale',
         properties: {
-            defaultLocale: "string",
-            'selectedLocale': "string",
+            selectedLocale: "string",
             availableValues: {"type": "list", "objectType": "LocaleMapping"},
         },
     };
