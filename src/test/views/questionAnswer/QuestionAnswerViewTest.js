@@ -12,6 +12,11 @@ describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
         const context = {
             navigator: ()=> ({}),
+            getStore: ()=> ({
+                objects: function () {
+                    return [{"locale": {"selectedLocale": "en"}}]
+                }
+            }),
             getService: function () {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
@@ -27,6 +32,11 @@ describe('Question Answer View Test', () => {
     it('when `Numeric` is the first question', () => {
         const context = {
             navigator: ()=> ({}),
+            getStore: ()=> ({
+                objects: function () {
+                    return [{"locale": {"selectedLocale": "en"}}]
+                }
+            }),
             getService: function () {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
