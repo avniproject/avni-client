@@ -35,7 +35,7 @@ class SettingsView extends Component {
     onLocaleChanged = (locale) => {
         const view = this;
         this.context.getStore().write(()=> {
-            view.getSettings()["locale"]["selectedLocale"] = value;
+            view.getSettings()["locale"]["selectedLocale"] = locale;
         });
     };
 
