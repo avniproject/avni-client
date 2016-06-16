@@ -3,8 +3,8 @@ class Settings {
         name: 'Settings',
         properties: {
             serverURL: 'string',
-            locale: {"type": "Locale"},
-        },
+            locale: {"type": "Locale"}
+        }
     };
 }
 
