@@ -20,8 +20,8 @@ class QuestionAnswerView extends Component {
             fontSize: 24
         },
         main: {
-          flex: 1,
-          flexDirection: 'column'
+            flex: 1,
+            flexDirection: 'column'
         }
     });
 
@@ -62,12 +62,11 @@ class QuestionAnswerView extends Component {
     onNext = () => {
         var typedTransition = TypedTransition.from(this);
         if (this.questionAnswer.isLastQuestion) {
-            typedTransition.with().to(ConclusionView);
+            typedTransition.to(ConclusionView);
         } else {
             typedTransition.with({
                 questionNumber: this.props.params.questionNumber + 1
-            })
-                .to(QuestionAnswerView);
+            }).to(QuestionAnswerView);
         }
     };
 
@@ -82,7 +81,8 @@ class QuestionAnswerView extends Component {
                     <Question question={this.questionAnswer.question}/>
                     {this.toAnswer(this.questionAnswer)}
                     <View>
-                        <View style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
+                        <View
+                            style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                             {this.previousButton(this.questionAnswer)}
                             <Text onPress={this.onNext}
                                   style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Next</Text>

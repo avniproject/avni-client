@@ -16,6 +16,7 @@ export default class TypedTransition {
 
         const path = pathParam ? `${viewClass.path().split(':')[0]}${pathParam}` : viewClass.path();
         this.view.context.navigator().push({path, queryParams: this.queryParams || {}});
+        return this;
     }
     
     goBack() {
@@ -32,5 +33,10 @@ export default class TypedTransition {
         invariant(view.context.navigator, 'Parameter `{view}` should be a React component and have a navigator context');
 
         return new TypedTransition(view);
+    }
+    
+    toBeginning() {
+        this.view.context.navigator().popToTop();
+        return this;
     }
 }

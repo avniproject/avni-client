@@ -53,10 +53,11 @@ class ConclusionView extends Component {
     }
 
     onRestart = () => {
-        // TypedTransition.from(this).goBack();
+        TypedTransition.from(this).toBeginning();
     };
 
     onSaveAndRestart = () => {
+        TypedTransition.from(this).toBeginning();
     };
 
     render() {
