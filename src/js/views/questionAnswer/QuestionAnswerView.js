@@ -31,12 +31,14 @@ class QuestionAnswerView extends Component {
 
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired
+        getService: React.PropTypes.func.isRequired,
+        getStore: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
         this.questionnaire = context.getService("questionnaireService").getQuestionnaire(AppState.questionnaireAnswers.questionnaireName);
+        this.locale = this.context.getStore().objects('Settings')[0]["locale"]["selectedLocale"];
     }
 
     toAnswer(questionAnswer) {
@@ -46,7 +48,7 @@ class QuestionAnswerView extends Component {
                            style={QuestionAnswerView.styles.textinput}
                            keyboardType='numeric'/>);
         else
-            return (<AnswerList answers={this.questionAnswer.answers}/>);
+            return (<AnswerList locale={this.locale} answers={this.questionAnswer.answers}/>);
     };
 
     previousButton(questionAnswer) {
@@ -78,7 +80,9 @@ class QuestionAnswerView extends Component {
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}/>
                 <View style={[CHSStyles.Global.mainSection, QuestionAnswerView.styles.main]}>
-                    <Question question={this.questionAnswer.question}/>
+                    <Question question={this.questionAnswer.question}
+                              questionConcept={this.questionAnswer.questionConcept}
+                              locale={this.locale}/>
                     {this.toAnswer(this.questionAnswer)}
                     <View>
                         <View

@@ -8,7 +8,7 @@ import Diabetes from '../../config/diabetes.json';
 
 @Service("questionnaireService")
 class QuestionnaireService extends BaseService {
-    constructor(props, context, db) {
+    constructor(db) {
         super(db);
         //this should come from offline database
         this.questionnaires = new Map();
@@ -20,7 +20,7 @@ class QuestionnaireService extends BaseService {
         var questionnaire = this.questionnaires.get(questionnaireName);
         if (questionnaire === undefined) return undefined;
 
-        var conceptService = new ConceptService();
+        var conceptService = new ConceptService(this.db);
         return new SimpleQuestionnaire(questionnaire, conceptService.getConcepts());
     }
 }

@@ -3,7 +3,8 @@ import React, {Component, StyleSheet, Text, View} from 'react-native';
 class Question extends Component {
 
     static propTypes = {
-        question: React.PropTypes.string.isRequired
+        question: React.PropTypes.string.isRequired,
+        questionConcept: React.PropTypes.object.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -15,10 +16,11 @@ class Question extends Component {
     });
 
     render() {
+        let question = this.props.questionConcept.conceptNames.filter((name) => name.locale === this.props.locale)[0];
         return (
             <View>
                 <Text style={Question.styles.question}>
-                    {this.props.question}
+                    {question.name}
                 </Text>
             </View>
         );

@@ -3,11 +3,13 @@ import AnswerOption from './AnswerOption';
 
 class AnswerList extends Component {
     static propTypes = {
-        answers: React.PropTypes.array.isRequired
+        answers: React.PropTypes.array.isRequired,
+        locale: React.PropTypes.string.isRequired
     };
 
     toAnswerOption(answer, self) {
-        return (<AnswerOption key={answer.name} answer={answer.name} answerList={self}/>);
+        let conceptName = answer.conceptNames.filter((name) => name.locale === self.props.locale)[0];
+        return (<AnswerOption key={conceptName.name} answer={conceptName.name} answerList={self}/>);
     };
 
     onChange() {

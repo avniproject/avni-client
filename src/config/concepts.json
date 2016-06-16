@@ -9,6 +9,10 @@
       {
         "name": "बहुविकल्पी सवाल",
         "locale": "hi-IN"
+      },
+      {
+        "name": "Multiple Choice Question 1",
+        "locale": "en"
       }
     ],
     "datatype": {
@@ -25,6 +29,10 @@
           {
             "name": "पहला सवाल पहला जवाब",
             "locale": "hi-IN"
+          },
+          {
+            "name": "Question 1 - Answer 1",
+            "locale": "en"
           }
         ],
         "datatype": {
@@ -41,6 +49,10 @@
           {
             "name": "पहला सवाल दूसरा  जवाब",
             "locale": "hi-IN"
+          },
+          {
+            "name": "Question 1 - Answer 2",
+            "locale": "en"
           }
         ],
         "datatype": {
@@ -62,6 +74,10 @@
       {
         "name": "संख्यात्मक सवाल",
         "locale": "hi-IN"
+      },
+      {
+        "name": "Numeric Question",
+        "locale": "en"
       }
     ],
     "hiNormal": null,
