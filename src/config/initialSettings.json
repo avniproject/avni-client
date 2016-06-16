@@ -1,3 +1,16 @@
 {
-  "serverURL": "http://default.url.to.server"
+  "serverURL": "http://default.url.to.server",
+  "locale": {
+    "defaultLocale": "en",
+    "availableValues": [
+      {
+        "locale": "en",
+        "option": "English"
+      },
+      {
+        "locale": "hi-IN",
+        "option": "Hindi"
+      }
+    ]
+  }
 }

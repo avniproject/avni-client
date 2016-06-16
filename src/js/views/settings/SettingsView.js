@@ -1,4 +1,4 @@
-import React, { Component, View } from 'react-native';
+import React, {Component, View} from 'react-native';
 import Path from '../../routing/Path';
 import initialSettings from '../../../config/initialSettings.json';
 import SettingsForm from './SettingsForm';
@@ -21,11 +21,19 @@ class SettingsView extends Component {
         return settings[0];
     };
 
-    onServerURLChanged = (serverURL) => {
+    onValueChanged = (key, value) => {
         const view = this;
-        this.context.getStore().write(() => {
-            view.getSettings().serverURL = serverURL;
+        this.context.getStore().write(()=> {
+            view.getSettings()[key] = value;
         });
+    };
+
+    onServerURLChanged = (serverURL) => {
+        this.onValueChanged("serverURL", serverURL);
+    };
+
+    onLocaleChanged = (locale) => {
+        this.onValueChanged("locale", locale);
     };
 
     render() {
@@ -35,7 +43,8 @@ class SettingsView extends Component {
                 <SettingsForm
                     settings={this.getSettings()}
                     onServerURLChanged={this.onServerURLChanged}
-                    />
+                    onLocaleChanged={this.onLocaleChanged}
+                />
             </View>
         );
     }

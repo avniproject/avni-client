@@ -1,5 +1,6 @@
-import React, { Component, StyleSheet, View } from 'react-native';
+import React, {Component, StyleSheet, View} from 'react-native';
 import SettingsFormField from './SettingsFormField';
+import SettingsMultipleChoiceField from './SettingsMultipleChoiceField';
 
 class SettingsForm extends Component {
 
@@ -25,11 +26,16 @@ class SettingsForm extends Component {
                 <SettingsFormField
                     onChangeText={this.props.onServerURLChanged}
                     defaultValue={this.props.settings.serverURL}
-                    />
+                />
             </View>
         );
     }
 }
 
+//<SettingsMultipleChoiceField
+// onChangeSelection={this.props.onLocaleChanged}
+// defaultSelection={this.props.settings.locale.defaultLocale}
+// availableValues={this.props.locale.availableValues}
+// />
 
 export default SettingsForm;
