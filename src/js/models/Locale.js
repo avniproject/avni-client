@@ -9,12 +9,11 @@ export class LocaleMapping {
 }
 
 export class Locale {
-
     static schema = {
         name: 'Locale',
         properties: {
             selectedLocale: "string",
-            availableValues: {"type": "list", "objectType": "LocaleMapping"},
-        },
+            availableValues: {"type": "list", "objectType": "LocaleMapping"}
+        }
     };
 }

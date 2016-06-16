@@ -15,12 +15,12 @@ export default class App extends Component {
 
     static childContextTypes = {
         getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func.isRequired,
+        getStore: React.PropTypes.func.isRequired
     };
 
     getChildContext = () => ({
         getStore: () => this.store,
-        getService: (serviceName) => this.beans.get(serviceName),
+        getService: (serviceName) => this.beans.get(serviceName)
     });
 
     render() {
