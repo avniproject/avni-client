@@ -33,15 +33,19 @@ class SettingsView extends Component {
     };
 
     onLocaleChanged = (locale) => {
-        this.onValueChanged("locale", locale);
+        const view = this;
+        this.context.getStore().write(()=> {
+            view.getSettings()["locale"]["selectedLocale"] = value;
+        });
     };
 
     render() {
+        var settings = this.getSettings();
         return (
             <View>
                 <SettingsHeader/>
                 <SettingsForm
-                    settings={this.getSettings()}
+                    settings={settings}
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />

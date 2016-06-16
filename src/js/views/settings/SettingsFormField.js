@@ -24,7 +24,7 @@ class SettingsFormField extends Component {
                 <TextInput
                     style={SettingsFormField.styles.input}
                     onChangeText={this.props.onChangeText}
-                    defaultValue={this.props.defaultValue}
+                    defaultValue={this.props.defaultSelection}
                     />
             </View>
         );

@@ -2,6 +2,7 @@
   "serverURL": "http://default.url.to.server",
   "locale": {
     "defaultLocale": "en",
+    "selectedLocale": "en",
     "availableValues": [
       {
         "locale": "en",

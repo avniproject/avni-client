@@ -27,15 +27,15 @@ class SettingsForm extends Component {
                     onChangeText={this.props.onServerURLChanged}
                     defaultValue={this.props.settings.serverURL}
                 />
+                <SettingsMultipleChoiceField
+                    onChangeSelection={this.props.onLocaleChanged}
+                    defaultSelection={this.props.settings.locale.selectedLocale}
+                    availableValues={this.props.settings.locale.availableValues}
+                />
+
             </View>
         );
     }
 }
-
-//<SettingsMultipleChoiceField
-// onChangeSelection={this.props.onLocaleChanged}
-// defaultSelection={this.props.settings.locale.defaultLocale}
-// availableValues={this.props.locale.availableValues}
-// />
 
 export default SettingsForm;
