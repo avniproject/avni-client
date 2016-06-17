@@ -1,7 +1,6 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 
 class SettingsHeader extends Component {
-
     static styles = StyleSheet.create({
         header: {
             height: 100,
@@ -10,7 +9,8 @@ class SettingsHeader extends Component {
             textAlign: 'center',
             color: '#333333',
             marginBottom: 5,
-        },
+            fontSize: 26
+        }
     });
 
     render() {

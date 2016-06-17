@@ -17,6 +17,10 @@ class SettingsForm extends Component {
             alignItems: 'flex-start',
             marginLeft: 20,
             marginRight: 20
+        },
+        field: {
+            fontSize: 20,
+            color: '#0C59CF'
         }
     });
 

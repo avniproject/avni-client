@@ -1,9 +1,12 @@
-import React, {Component, StyleSheet, Text, Image, View} from 'react-native';
+import React, {Component, StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
+import TypedTransition from "../../routing/TypedTransition";
+import SettingsView from "../settings/SettingsView";
 
 class AppHeader extends Component {
     static propTypes = {
         title: React.PropTypes.string.isRequired,
-        onTitlePressed: React.PropTypes.func.isRequired
+        onTitlePressed: React.PropTypes.func,
+        parent: React.PropTypes.object.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -24,19 +27,30 @@ class AppHeader extends Component {
             fontSize: 26,
             width: 50,
             marginLeft: 100,
-            flex: 0.9
+            flex: 0.8
         }
     });
+
+    onSettingsPress = () => {
+        console.log(this.props.parent.constructor.name);
+        TypedTransition.from(this.props.parent).to(SettingsView, Navigator.SceneConfigs.FloatFromLeft);
+    };
 
     render() {
         return (
             <View style={AppHeader.styles.main}>
+                <TouchableHighlight style={AppHeader.styles.icon} onPress={this.onSettingsPress}>
+                    <Image
+                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_icon.png')}
+                    />
+                </TouchableHighlight>
+                <Text style={AppHeader.styles.header}
+                      onTitlePressed={this.props.onTitlePressed}>{this.props.title}</Text>
                 <View style={AppHeader.styles.icon}>
                     <Image
                         source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}
-                        />
+                    />
                 </View>
-                <Text style={AppHeader.styles.header} onTitlePressed={this.props.onTitlePressed}>{this.props.title}</Text>
             </View>
         );
     }

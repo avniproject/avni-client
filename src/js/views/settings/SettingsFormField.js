@@ -1,7 +1,7 @@
 import React, { Component, StyleSheet, Text, TextInput, View } from 'react-native';
+import SettingsForm from './SettingsForm';
 
 class SettingsFormField extends Component {
-
     static propTypes = {
         onChangeText: React.PropTypes.func.isRequired,
         defaultValue: React.PropTypes.string.isRequired
@@ -18,8 +18,8 @@ class SettingsFormField extends Component {
     render() {
         return (
             <View>
-                <Text>
-                    Server URL:
+                <Text style={SettingsForm.styles.field}>
+                    Server URL
                 </Text>
                 <TextInput
                     style={SettingsFormField.styles.input}
@@ -30,6 +30,5 @@ class SettingsFormField extends Component {
         );
     }
 }
-
 
 export default SettingsFormField;

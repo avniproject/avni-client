@@ -5,13 +5,13 @@ import SettingsView from './../settings/SettingsView';
 class DiseaseNavigationMenu extends Component {
 
   static contextTypes = {
-    navigator: React.PropTypes.func.isRequired,
+    navigator: React.PropTypes.func.isRequired
   };
 
   static styles = StyleSheet.create({
     button: {
-      textAlign: 'left',
-    },
+      textAlign: 'left'
+    }
   });
 
   goToSettings = () => {

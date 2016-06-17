@@ -11,21 +11,20 @@ export default class TypedTransition {
         return this;
     }
 
-    to(viewClass, pathParam) {
+    to(viewClass, sceneConfig) {
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
 
-        const path = pathParam ? `${viewClass.path().split(':')[0]}${pathParam}` : viewClass.path();
-        this.view.context.navigator().push({path, queryParams: this.queryParams || {}});
+        const path = viewClass.path();
+        var route = {path, queryParams: this.queryParams || {}};
+        if (sceneConfig !== undefined) {
+            route.sceneConfig = sceneConfig;
+        }
+        this.view.context.navigator().push(route);
         return this;
     }
     
     goBack() {
         this.view.context.navigator().pop();
-    }
-
-    toUrl(path) {
-        invariant(path, 'Parameter `path` should not be empty');
-        this.view.context.navigator().push({path, queryParams: this.queryParams || {}});
     }
 
     static from(view) {
