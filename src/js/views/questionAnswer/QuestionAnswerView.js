@@ -7,6 +7,7 @@ import ConclusionView from "../conclusion/ConclusionView";
 import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';
+import WizardButtons from '../primitives/WizardButtons'
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -51,48 +52,26 @@ class QuestionAnswerView extends Component {
             return (<AnswerList locale={this.locale} answers={this.questionAnswer.answers}/>);
     };
 
-    previousButton(questionAnswer) {
-        var dynamicStyle = questionAnswer.isFirstQuestion ? CHSStyles.Global.navButtonHidden : CHSStyles.Global.navButtonVisible;
-        return (
-            <Text onPress={this.onPrevious} style={[CHSStyles.Global.navButton, dynamicStyle]}>Previous</Text>);
-    };
-
-    onPrevious = () => {
-        TypedTransition.from(this).goBack();
-    };
-
-    onNext = () => {
-        var typedTransition = TypedTransition.from(this);
-        if (this.questionAnswer.isLastQuestion) {
-            typedTransition.to(ConclusionView);
-        } else {
-            typedTransition.with({
-                questionNumber: this.props.params.questionNumber + 1
-            }).to(QuestionAnswerView);
-        }
-    };
-
     render() {
         this.questionnaire.setQuestionIndex(this.props.params.questionNumber);
         this.questionAnswer = this.questionnaire.currentQuestion();
         AppState.questionnaireAnswers.currentQuestion = this.questionAnswer.question;
         return (
             <View>
-                <AppHeader title={AppState.questionnaireAnswers.questionnaireName}/>
+                <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
                 <View style={[CHSStyles.Global.mainSection, QuestionAnswerView.styles.main]}>
                     <Question question={this.questionAnswer.question}
                               questionConcept={this.questionAnswer.questionConcept}
                               locale={this.locale}/>
                     {this.toAnswer(this.questionAnswer)}
-                    <View>
-                        <View
-                            style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
-                            {this.previousButton(this.questionAnswer)}
-                            <Text onPress={this.onNext}
-                                  style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Next</Text>
-                        </View>
-                    </View>
                 </View>
+                <WizardButtons hasQuestionBefore={!this.questionAnswer.isFirstQuestion}
+                               nextParams={{
+                                    questionNumber: this.props.params.questionNumber + 1
+                               }}
+                               parent={this}
+                               nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
+                />
             </View>
         );
     }

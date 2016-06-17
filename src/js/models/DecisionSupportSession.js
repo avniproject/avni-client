@@ -1,22 +1,18 @@
-import QuestionnaireAnswers from "./QuestionnaireAnswers";
-
 class DecisionSupportSession {
     static schema = {
         name: "DecisionSupportSession",
         properties: {
             questionnaireName: "string",
-            conclusionSummary: "string",
-            conclusionDetail: "string",
-            questionnaireAnswers: "QuestionnaireAnswers"
+            questionnaireAnswers: "QuestionnaireAnswers",
+            decisions: {type: "list", objectType: "Decision" }
         }
     };
     
-    static newInstance(questionnaireName, conclusion, questionnaireAnswers) {
+    static newInstance(questionnaireName, decisions, questionnaireAnswers) {
         var decisionSupportSession = {};
         decisionSupportSession.questionnaireName = questionnaireName;
-        decisionSupportSession.conclusionSummary = conclusion.systemDecisionSummary;
-        decisionSupportSession.conclusionDetail = conclusion.systemDecision;
         decisionSupportSession.questionnaireAnswers = questionnaireAnswers;
+        decisionSupportSession.decisions = decisions;
         return decisionSupportSession;
     }
 }

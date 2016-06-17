@@ -7,6 +7,7 @@ import Question from "../../../js/views/questionAnswer/Question";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
 import QuestionnaireAnswers from "../../../js/models/QuestionnaireAnswers";
 import AppState from "../../../js/hack/AppState"
+import WizardButtons from "../../../js/views/primitives/WizardButtons";
 
 describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
@@ -26,7 +27,7 @@ describe('Question Answer View Test', () => {
                                                         {{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(AnswerList)).to.have.length(1);
-        expect(wrapper.find(Text)).to.have.length(2);
+        expect(wrapper.find(WizardButtons)).to.have.length(1);
     });
 
     it('when `Numeric` is the first question', () => {
@@ -45,6 +46,6 @@ describe('Question Answer View Test', () => {
         const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
-        expect(wrapper.find(Text)).to.have.length(2);
+        expect(wrapper.find(WizardButtons)).to.have.length(1);
     });
 });

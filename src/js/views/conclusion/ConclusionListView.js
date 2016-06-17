@@ -1,6 +1,5 @@
 import Path from '../../routing/Path';
 import React, {Component, View, Text, StyleSheet} from 'react-native';
-import { ListView } from 'realm/react-native';
 
 @Path('/ConclusionListView')
 class ConclusionListView extends Component {

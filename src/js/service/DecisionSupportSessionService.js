@@ -9,8 +9,8 @@ class DecisionSupportSessionService extends BaseService {
         this.entityName = "DecisionSupportSession";
     }
 
-    save(questionnaireAnswers, conclusion) {
-        var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, conclusion, questionnaireAnswers.toSchemaInstance());
+    save(questionnaireAnswers, decisions) {
+        var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, decisions, questionnaireAnswers.toSchemaInstance());
         const db = this.db;
         db.write(() => db.create(this.entityName, decisionSupportSession));
     }
