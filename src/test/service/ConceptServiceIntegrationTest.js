@@ -14,7 +14,6 @@ xdescribe('Concept Service Integration', () => {
     });
 
     it('getConcepts', () => {
-        console.log(concepts);
         expect(concepts).to.not.be.undefined;
         expect(concepts.length).to.equal(2);
     });

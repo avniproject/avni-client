@@ -2,7 +2,8 @@ import React, {Component, StyleSheet, Text, Image, View} from 'react-native';
 
 class AppHeader extends Component {
     static propTypes = {
-        title: React.PropTypes.string.isRequired
+        title: React.PropTypes.string.isRequired,
+        onTitlePressed: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -35,7 +36,7 @@ class AppHeader extends Component {
                         source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}
                         />
                 </View>
-                <Text style={AppHeader.styles.header}>{this.props.title}</Text>
+                <Text style={AppHeader.styles.header} onTitlePressed={this.props.onTitlePressed}>{this.props.title}</Text>
             </View>
         );
     }

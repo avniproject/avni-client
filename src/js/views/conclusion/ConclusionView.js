@@ -3,6 +3,7 @@ import Path from '../../routing/Path';
 import AppState from '../../hack/AppState'
 import * as ConclusionFunctions from '../../../config/conclusions'
 import AppHeader from '../primitives/AppHeader';
+import ConclusionListView from '../conclusion/ConclusionListView';
 import * as CHSStyles from "../primitives/GlobalStyles"
 import TypedTransition from '../../routing/TypedTransition';
 import DecisionSupportSessionService from '../../service/DecisionSupportSessionService'
@@ -64,6 +65,12 @@ class ConclusionView extends Component {
         TypedTransition.from(this).toBeginning();
     };
 
+    onQuestionnaireNamePress = () => {
+        TypedTransition.from(this).with({
+            questionnaireName: AppState.questionnaireAnswers.questionnaireName
+        }).to(ConclusionListView);
+    };
+
     render() {
         var conclusionFunctionName = AppState.questionnaireAnswers.questionnaireName.replace(/\s/g, "_") + "_conclusion";
         console.log("Function name for deriving conclusion: " + conclusionFunctionName);
@@ -75,7 +82,7 @@ class ConclusionView extends Component {
 
         return (
             <View>
-                <AppHeader title={AppState.questionnaireAnswers.questionnaireName}/>
+                <AppHeader title={AppState.questionnaireAnswers.questionnaireName} onTitlePressed={this.onQuestionnaireNamePress} />
                 <View style={CHSStyles.Global.mainSection}>
                     <Text style={ConclusionView.styles.summary}>{this.conclusion.systemDecisionSummary}</Text>
                     <Text style={ConclusionView.styles.decision}>{this.conclusion.systemDecision}</Text>

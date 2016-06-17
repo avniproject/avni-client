@@ -5,6 +5,7 @@ import Realm from 'realm';
 import models from './models';
 import './views';
 import './service';
+import SettingsService from "./service/SettingsService";
 
 export default class App extends Component {
     constructor() {
@@ -24,9 +25,10 @@ export default class App extends Component {
     });
 
     render() {
+        var settingsService = new SettingsService(this.store);
+        settingsService.initialise();
         return PathRegistry.routes();
     }
-
 }
 
 //todo - next and previous button should be at the same place on every page

@@ -4,15 +4,15 @@ class SettingsFormField extends Component {
 
     static propTypes = {
         onChangeText: React.PropTypes.func.isRequired,
-        defaultValue: React.PropTypes.string.isRequired,
+        defaultValue: React.PropTypes.string.isRequired
     };
 
     static styles = StyleSheet.create({
         input: {
             height: 40,
             borderColor: 'gray',
-            borderWidth: 1,
-        },
+            borderWidth: 1
+        }
     });
 
     render() {

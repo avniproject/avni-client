@@ -1,5 +1,5 @@
 {
-  "serverURL": "http://default.url.to.server",
+  "serverURL": "http://server",
   "locale": {
     "selectedLocale": "en",
     "availableValues": [
@@ -8,8 +8,8 @@
         "option": "English"
       },
       {
-        "locale": "hi-IN",
-        "option": "Hindi"
+        "locale": "mr-IN",
+        "option": "Marathi"
       }
     ]
   }

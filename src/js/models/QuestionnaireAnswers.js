@@ -4,7 +4,6 @@ class QuestionnaireAnswers {
     static schema = {
         name: "QuestionnaireAnswers",
         properties: {
-            questionnaireName: "string",
             questionAnswers: {type: 'list', objectType: "QuestionAnswer"}
         }
     };
@@ -40,7 +39,7 @@ class QuestionnaireAnswers {
     }
 
     toSchemaInstance() {
-        var schemaInstance = {questionnaireName: this.questionnaireName, questionAnswers: []};
+        var schemaInstance = {questionAnswers: []};
         this.questionAnswers.forEach((answer, question, questionAnswers) => schemaInstance.questionAnswers.push(new QuestionAnswer(question, answer)));
         return schemaInstance;
     }

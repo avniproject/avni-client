@@ -6,7 +6,7 @@ class SettingsForm extends Component {
 
     static propTypes = {
         onServerURLChanged: React.PropTypes.func.isRequired,
-        settings: React.PropTypes.object.isRequired,
+        settings: React.PropTypes.object.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -16,8 +16,8 @@ class SettingsForm extends Component {
             justifyContent: 'center',
             alignItems: 'flex-start',
             marginLeft: 20,
-            marginRight: 20,
-        },
+            marginRight: 20
+        }
     });
 
     render() {
@@ -32,7 +32,6 @@ class SettingsForm extends Component {
                     selectedValue={this.props.settings.locale.selectedLocale}
                     availableValues={this.props.settings.locale.availableValues}
                 />
-
             </View>
         );
     }
