@@ -1,8 +1,6 @@
 import React, {Component, StyleSheet, Text, View, TouchableHighlight, Navigator} from 'react-native';
 import TypedTransition from "../../routing/TypedTransition";
 import * as CHSStyles from "./GlobalStyles";
-import ConclusionView from "../conclusion/ConclusionView";
-import QuestionAnswerView from "../questionAnswer/QuestionAnswerView";
 
 class WizardButtons extends Component {
     static propTypes = {

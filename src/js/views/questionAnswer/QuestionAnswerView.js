@@ -3,7 +3,7 @@ import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
 import TypedTransition from '../../routing/TypedTransition';
-import ConclusionView from "../conclusion/ConclusionView";
+import ConclusionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';

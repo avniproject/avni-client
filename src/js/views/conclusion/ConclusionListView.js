@@ -1,5 +1,6 @@
 import Path from '../../routing/Path';
 import React, {Component, View, Text, StyleSheet} from 'react-native';
+import TypedTransition from "../../routing/TypedTransition";
 
 @Path('/ConclusionListView')
 class ConclusionListView extends Component {
@@ -15,6 +16,12 @@ class ConclusionListView extends Component {
     constructor(props, context) {
         super(props, context);
     }
+
+    onQuestionnaireNamePress = () => {
+        TypedTransition.from(this).with({
+            questionnaireName: AppState.questionnaireAnswers.questionnaireName
+        }).to(ConclusionListView);
+    };
 
     render() {
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
