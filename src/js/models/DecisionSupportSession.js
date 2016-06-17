@@ -10,10 +10,12 @@ class DecisionSupportSession {
         }
     };
     
-    constructor(conclusion, questionnaireAnswers) {
-        this.conclusionSummary = conclusion.systemDecisionSummary;
-        this.conclusionDetail = conclusion.systemDecision;
-        this.questionnaireAnswers = questionnaireAnswers;
+    static newInstance(conclusion, questionnaireAnswers) {
+        var decisionSupportSession = {};
+        decisionSupportSession.conclusionSummary = conclusion.systemDecisionSummary;
+        decisionSupportSession.conclusionDetail = conclusion.systemDecision;
+        decisionSupportSession.questionnaireAnswers = questionnaireAnswers;
+        return decisionSupportSession;
     }
 }
 

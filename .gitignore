@@ -8,3 +8,4 @@ npm-debug.log
 *.iml
 android/local.properties
 .DS_Store
+default.realm*
