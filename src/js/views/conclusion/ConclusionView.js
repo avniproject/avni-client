@@ -3,7 +3,7 @@ import Path from '../../routing/Path';
 import AppState from '../../hack/AppState'
 import * as ConclusionFunctions from '../../../config/conclusions'
 import AppHeader from '../primitives/AppHeader';
-import ConclusionListView from '../conclusion/ConclusionListView';
+// import ConclusionListView from '../conclusion/ConclusionListView';
 import * as CHSStyles from "../primitives/GlobalStyles"
 import TypedTransition from '../../routing/TypedTransition';
 import DecisionSupportSessionService from '../../service/DecisionSupportSessionService'

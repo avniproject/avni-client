@@ -6,16 +6,28 @@ import DecisionSupportSession from "../models/DecisionSupportSession";
 class DecisionSupportSessionService extends BaseService {
     constructor(db) {
         super(db);
+        this.entityName = "DecisionSupportSession";
     }
 
     save(questionnaireAnswers, conclusion) {
         var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, conclusion, questionnaireAnswers.toSchemaInstance());
         const db = this.db;
-        db.write(() => db.create("DecisionSupportSession", decisionSupportSession));
+        db.write(() => db.create(this.entityName, decisionSupportSession));
     }
 
     getAll(questionnaireName) {
+        return this.getAll().filter(`questionnaireName = ${questionnaireName}`);
+    }
 
+    getAll() {
+        const db = this.db;
+        return db.objects(this.entityName);
+    }
+
+    deleteAll() {
+        const db = this.db;
+        let allSessions = db.objects(this.entityName);
+        db.write(() => db.deleteAll(allSessions));
     }
 }
 

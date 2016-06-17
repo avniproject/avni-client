@@ -40,6 +40,7 @@ class SettingsView extends Component {
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />
+                <Text >Export</Text>
             </View>
         );
     }

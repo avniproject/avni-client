@@ -18,6 +18,17 @@ export let Global = StyleSheet.create({
     navButtonVisible: {
         height: 44
     },
+    actionButton: {
+        backgroundColor: '#1D3557',
+        color: '#FFFFFF',
+        margin: 2,
+        width: 125,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+        fontSize: 18
+    },
     mainSection: {
         marginTop: 15,
         paddingLeft: 10,

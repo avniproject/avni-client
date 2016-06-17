@@ -1,5 +1,6 @@
 import Path from '../../routing/Path';
-import React, {Component, View, Text, StyleSheet, ListView} from 'react-native';
+import React, {Component, View, Text, StyleSheet} from 'react-native';
+import { ListView } from 'realm/react-native';
 
 @Path('/ConclusionListView')
 class ConclusionListView extends Component {
@@ -25,13 +26,6 @@ class ConclusionListView extends Component {
         return (
             <View>
                 <AppHeader title={`All ${this.props.questionnaireName} Details`}/>
-                <ListView
-                    dataSource={dsClone}
-                    renderRow={(rowData) => this.renderQuestionAnswer(rowData.answer, rowData.question, null)}
-                    renderHeader={() => <Text style={{fontSize: 24}}>You answered as follows</Text>}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
-                                                                                                     backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
-                />
             </View>
         );
     }
