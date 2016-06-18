@@ -5,6 +5,7 @@ import com.i18n.reactnativei18n.ReactNativeI18n;
 import io.realm.react.RealmReactPackage;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
+import com.rnfs.RNFSPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +30,8 @@ public class MainActivity extends ReactActivity {
         return BuildConfig.DEBUG;
     }
 
+
+
     /**
      * A list of packages used by the app. If the app uses additional views
      * or modules besides the default ones, add more packages here.
@@ -38,7 +41,8 @@ public class MainActivity extends ReactActivity {
         return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
             new ReactNativeI18n(),
-            new RealmReactPackage()
+            new RealmReactPackage(),
+            new RNFSPackage()
         );
     }
 }

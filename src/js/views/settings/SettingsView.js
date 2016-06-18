@@ -1,4 +1,4 @@
-import React, {Component, View} from 'react-native';
+import React, {Component, View, TouchableHighlight, Text} from 'react-native';
 import Path from '../../routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
@@ -32,7 +32,8 @@ class SettingsView extends Component {
     };
 
     onExportPress = () => {
-        
+        const service = this.context.getService("exportService");
+        service.export();
     };
 
     render() {
