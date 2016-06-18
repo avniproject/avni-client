@@ -6,8 +6,13 @@ class BeanRegistry {
         this.beans.add([name, bean]);
     }
 
-    init(db) {
-        return new Map(Array.from(this.beans).map(([name, bean]) => [name, new bean(db)]));
+    init(db, beanStore) {
+        return new Map(Array.from(this.beans).map(([name, bean]) => [name, new bean(db, beanStore)]));
+    }
+    
+    getBean(name) {
+        console.log(this.beans);
+        return this.beans.get(name);
     }
 }
 

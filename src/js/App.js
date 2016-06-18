@@ -11,7 +11,7 @@ export default class App extends Component {
     constructor() {
         super();
         this.store = new Realm(models);
-        this.beans = BeanRegistry.init(this.store);
+        this.beans = BeanRegistry.init(this.store, this);
     }
 
     static childContextTypes = {
@@ -23,6 +23,10 @@ export default class App extends Component {
         getStore: () => this.store,
         getService: (serviceName) => this.beans.get(serviceName)
     });
+    
+    getBean(name) {
+        return this.beans.get(name);
+    }
 
     render() {
         var settingsService = new SettingsService(this.store);
