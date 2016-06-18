@@ -11,7 +11,6 @@ class BeanRegistry {
     }
     
     getBean(name) {
-        console.log(this.beans);
         return this.beans.get(name);
     }
 }

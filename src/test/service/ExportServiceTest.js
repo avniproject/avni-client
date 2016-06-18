@@ -9,14 +9,12 @@ describe('Export Service', () => {
 
         const stubbedDecisionSupportSessionService = {
             getAll: (questionnaireName) => {
-                return {
-                    filter: (criteria) => {
-                        return [
-                            DecisionSupportSession.newInstance("foo", [{value: 'Paracetamol'}],
-                                                                    [new QuestionAnswer("Question 1", "Answer 1"), new QuestionAnswer("Question 2", "Answer 2")])
-                        ]
-                    }
-                }
+                const decisionSupportSession = DecisionSupportSession.newInstance(
+                    "foo",
+                    [{value: 'Paracetamol'}],
+                    [new QuestionAnswer("Question 1", "Answer 1"), new QuestionAnswer("Question 2", "Answer 2")],
+                    new Date());
+                return [decisionSupportSession]
             }
         };
 
@@ -28,7 +26,7 @@ describe('Export Service', () => {
                             "Question 1",
                             "Question 2"
                         ],
-                        decisions: [
+                        decisionKeys: [
                             "Suggestion"
                         ]
                     };
@@ -48,9 +46,8 @@ describe('Export Service', () => {
 
         var exportService = new ExportService(null, stubbedBeanStore, stubbedFileSystemGateway);
         const contents = exportService.exportContents("foo");
-        const expectedContents = `Question 1,Question 2,Suggestion
-Answer 1,Answer 2,Paracetamol
-`;
-        expect(contents).to.equals(expectedContents);
+        const header = `Question 1,Question 2,Suggestion,Created At`;
+        expect(contents).to.contain(header);
+        expect(contents).to.contain("Answer 1,Answer 2,Paracetamol");
     });
 });

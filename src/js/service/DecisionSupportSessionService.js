@@ -10,7 +10,7 @@ class DecisionSupportSessionService extends BaseService {
     }
 
     save(questionnaireAnswers, decisions) {
-        var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, decisions, questionnaireAnswers.toSchemaInstance());
+        var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, decisions, questionnaireAnswers.toSchemaInstance(), new Date());
         const db = this.db;
         db.write(() => db.create(this.entityName, decisionSupportSession));
     }
@@ -19,7 +19,8 @@ class DecisionSupportSessionService extends BaseService {
         const db = this.db;
         const allSessions = db.objects(this.entityName);
         if (questionnaireName === undefined) return allSessions;
-        return allSessions.filter(`questionnaireName = ${questionnaireName}`);
+        const expression = `questionnaireName = \"${questionnaireName}\"`;
+        return allSessions.filtered(expression);
     }
     
     deleteAll() {

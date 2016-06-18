@@ -32,7 +32,6 @@ class AppHeader extends Component {
     });
 
     onSettingsPress = () => {
-        console.log(this.props.parent.constructor.name);
         TypedTransition.from(this.props.parent).to(SettingsView, Navigator.SceneConfigs.FloatFromLeft);
     };
 

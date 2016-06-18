@@ -1,13 +1,6 @@
 import QuestionAnswer from "./QuestionAnswer";
 
 class QuestionnaireAnswers {
-    static schema = {
-        name: "QuestionnaireAnswers",
-        properties: {
-            questionAnswers: {type: 'list', objectType: "QuestionAnswer"}
-        }
-    };
-
     constructor(questionnaireName) {
         this.questionnaireName = questionnaireName;
         this.questionAnswers = new Map();
@@ -39,8 +32,8 @@ class QuestionnaireAnswers {
     }
 
     toSchemaInstance() {
-        var schemaInstance = {questionAnswers: []};
-        this.questionAnswers.forEach((answer, question, questionAnswers) => schemaInstance.questionAnswers.push(new QuestionAnswer(question, answer)));
+        var schemaInstance = [];
+        this.questionAnswers.forEach((answer, question, questionAnswers) => schemaInstance.push(new QuestionAnswer(question, answer)));
         return schemaInstance;
     }
 }

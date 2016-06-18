@@ -2,6 +2,7 @@ import React, {NativeModules} from 'react-native';
 import BaseService from "./BaseService";
 import Service from "../framework/Service";
 import FileSystemGateway from "./gateway/FileSystemGateway";
+import General from "../utility/General"
 
 @Service("exportService")
 class ExportService extends BaseService {
@@ -15,7 +16,9 @@ class ExportService extends BaseService {
         const questionnaireNames = questionnaireService.getQuestionnaireNames();
 
         questionnaireNames.forEach((questionnaireName) => {
-            this.exportContents(questionnaireName);
+            const fileContents = this.exportContents(questionnaireName);
+            const fileName = General.replaceAndroidIncompatibleChars(questionnaireName) + General.getCurrentDate() + ".csv";
+            this.fileSystemGateway.createFile(fileName, fileContents);
         });
     }
 
@@ -24,34 +27,31 @@ class ExportService extends BaseService {
         const questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
         var header = '';
         questionnaire.questions.forEach(function (question) {
-            header += ExportService.makeItExportable(question);
+            header += General.toExportable(question);
             header += ',';
         });
 
-        header += ExportService.makeItExportable(questionnaire.decisions[0]);
+        header += General.toExportable(questionnaire.decisionKeys[0]);
+        header += ",Created At";
         header += '\n';
         return header;
     }
 
-    static makeItExportable(str) {
-        var result = str.replace(/"/g, '""');
-        if (result.search(/("|,|\n)/g) >= 0)
-            result = '"' + result + '"';
-        return result;
-    }
-
     exportContents(questionnaireName) {
         const decisionSupportSessionService = this.getService("decisionSupportSessionService");
-        const allSessions = decisionSupportSessionService.getAll();
-
         var contents = this.getHeader(questionnaireName);
-        const decisionSupportSessions = allSessions.filter(`questionnaireName = ${questionnaireName}`);
+        
+        const decisionSupportSessions = decisionSupportSessionService.getAll(questionnaireName);
         decisionSupportSessions.forEach(function (session) {
-            session.questionnaireAnswers.forEach(function (questionnaireAnswer) {
-                contents += ExportService.makeItExportable(questionnaireAnswer.answer);
+            session.questionAnswers.map(function () {
+            });
+            session.questionAnswers.forEach(function (questionnaireAnswer) {
+                contents += General.toExportable(questionnaireAnswer.answer);
                 contents += ',';
             });
-            contents += ExportService.makeItExportable(session.decisions[0].value);
+            contents += General.toExportable(session.decisions[0].value);
+            contents += ',';
+            contents += General.formatDateTime(session.saveDate);
             contents += '\n';
         });
         return contents;

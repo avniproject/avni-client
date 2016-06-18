@@ -6,5 +6,5 @@ import QuestionAnswer from "./QuestionAnswer";
 import Decision from "./Decision";
 
 export default {
-    schema: [LocaleMapping, Locale, Settings, QuestionAnswer, QuestionnaireAnswers, Decision, DecisionSupportSession]
+    schema: [LocaleMapping, Locale, Settings, QuestionAnswer, Decision, DecisionSupportSession]
 };

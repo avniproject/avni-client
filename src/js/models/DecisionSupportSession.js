@@ -3,16 +3,18 @@ class DecisionSupportSession {
         name: "DecisionSupportSession",
         properties: {
             questionnaireName: "string",
-            questionnaireAnswers: "QuestionnaireAnswers",
-            decisions: {type: "list", objectType: "Decision" }
+            questionAnswers: {type: "list", objectType: "QuestionAnswer"},
+            decisions: {type: "list", objectType: "Decision"},
+            saveDate: {type: "date"}
         }
     };
     
-    static newInstance(questionnaireName, decisions, questionnaireAnswers) {
+    static newInstance(questionnaireName, decisions, questionAnswers, savedDate) {
         var decisionSupportSession = {};
         decisionSupportSession.questionnaireName = questionnaireName;
-        decisionSupportSession.questionnaireAnswers = questionnaireAnswers;
+        decisionSupportSession.questionAnswers = questionAnswers;
         decisionSupportSession.decisions = decisions;
+        decisionSupportSession.saveDate = savedDate;
         return decisionSupportSession;
     }
 }

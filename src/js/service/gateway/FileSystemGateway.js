@@ -3,12 +3,12 @@ class FileSystemGateway {
         const RNFS = require('react-native-fs');
 
         // create a path you want to write to
-        var path = RNFS.DocumentDirectoryPath + '/test.txt';
+        var path = `${RNFS.DocumentDirectoryPath}/${name}`;
 
         // write the file
-        RNFS.writeFile(path, 'Lorem ipsum dolor sit amet', 'utf8')
+        RNFS.writeFile(path, contents, 'utf8')
             .then((success) => {
-                console.log('FILE WRITTEN!');
+                console.log(`A new file created at ${path}`);
             })
             .catch((err) => {
                 console.log(err.message);

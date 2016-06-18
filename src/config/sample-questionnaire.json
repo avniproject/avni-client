@@ -5,7 +5,7 @@
     "Multiple Choice Question 1",
     "Numeric Question"
   ],
-  "decisions": [
+  "decisionKeys": [
     "Treatment"
   ]
 }

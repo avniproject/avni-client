@@ -22,6 +22,14 @@ class SimpleQuestionnaire {
     setQuestionIndex(index) {
         this.questionIndex = index;
     }
+    
+    get questions() {
+        return this.questionnaireData.questions;
+    }
+
+    get decisionKeys() {
+        return this.questionnaireData.decisionKeys;
+    }
 }
 
 export default SimpleQuestionnaire;

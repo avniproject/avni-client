@@ -4,7 +4,7 @@
   "questions" : [
     "Numeric Question"
   ],
-  "decisions": [
+  "decisionKeys": [
     "Treatment"
   ]
 }
