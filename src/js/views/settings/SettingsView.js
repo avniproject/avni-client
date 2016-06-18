@@ -33,7 +33,7 @@ class SettingsView extends Component {
 
     onExportPress = () => {
         const service = this.context.getService("exportService");
-        service.export();
+        service.exportAll();
     };
 
     render() {

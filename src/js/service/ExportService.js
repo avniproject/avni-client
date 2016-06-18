@@ -1,45 +1,60 @@
 import React, {NativeModules} from 'react-native';
 import BaseService from "./BaseService";
 import Service from "../framework/Service";
-import DecisionSupportSessionService from "./DecisionSupportSessionService";
-import QuestionnaireService from "./QuestionnaireService";
-
-import RNFS from 'react-native-fs';
+import FileSystemGateway from "./gateway/FileSystemGateway";
 
 @Service("exportService")
 class ExportService extends BaseService {
-    constructor(db, beanStore) {
+    constructor(db, beanStore, fileSystemGateway) {
         super(db, beanStore);
+        this.fileSystemGateway = fileSystemGateway === undefined ? new FileSystemGateway() : fileSystemGateway;
     }
 
-    export() {
-        const decisionSupportSessionService = new DecisionSupportSessionService(this.db);
-        const allSessions = decisionSupportSessionService.getAll();
+    exportAll() {
+        const questionnaireService = this.getService("questionnaireService");
+        const questionnaireNames = questionnaireService.getQuestionnaireNames();
 
-        var contents = this.getHeader(allSessions);
-        allSessions.forEach(function (session) {
+        questionnaireNames.forEach((questionnaireName) => {
+            this.exportContents(questionnaireName);
+        });
+    }
 
+    getHeader(questionnaireName) {
+        const questionnaireService = this.getService("questionnaireService");
+        const questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
+        var header = '';
+        questionnaire.questions.forEach(function (question) {
+            header += ExportService.makeItExportable(question);
+            header += ',';
         });
 
-        // require the module
-        // var RNFS = require('react-native-fs');
-
-        // create a path you want to write to
-        var path = RNFS.DocumentDirectoryPath + '/test.txt';
-
-        // write the file
-        RNFS.writeFile(path, 'Lorem ipsum dolor sit amet', 'utf8')
-            .then((success) => {
-                console.log('FILE WRITTEN!');
-            })
-            .catch((err) => {
-                console.log(err.message);
-            });
+        header += ExportService.makeItExportable(questionnaire.decisions[0]);
+        header += '\n';
+        return header;
     }
 
+    static makeItExportable(str) {
+        var result = str.replace(/"/g, '""');
+        if (result.search(/("|,|\n)/g) >= 0)
+            result = '"' + result + '"';
+        return result;
+    }
 
-    getHeader(allSessions) {
-        const questionnaireService = this.getService("questionnaireService");
+    exportContents(questionnaireName) {
+        const decisionSupportSessionService = this.getService("decisionSupportSessionService");
+        const allSessions = decisionSupportSessionService.getAll();
+
+        var contents = this.getHeader(questionnaireName);
+        const decisionSupportSessions = allSessions.filter(`questionnaireName = ${questionnaireName}`);
+        decisionSupportSessions.forEach(function (session) {
+            session.questionnaireAnswers.forEach(function (questionnaireAnswer) {
+                contents += ExportService.makeItExportable(questionnaireAnswer.answer);
+                contents += ',';
+            });
+            contents += ExportService.makeItExportable(session.decisions[0].value);
+            contents += '\n';
+        });
+        return contents;
     }
 }
 

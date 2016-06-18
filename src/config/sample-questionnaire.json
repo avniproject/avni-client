@@ -4,5 +4,8 @@
   "questions" : [
     "Multiple Choice Question 1",
     "Numeric Question"
+  ],
+  "decisions": [
+    "Treatment"
   ]
 }

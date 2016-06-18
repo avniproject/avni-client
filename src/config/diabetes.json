@@ -3,5 +3,8 @@
   "description" : "Diabetes",
   "questions" : [
     "Numeric Question"
+  ],
+  "decisions": [
+    "Treatment"
   ]
 }

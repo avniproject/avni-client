@@ -17,6 +17,14 @@ class QuestionnaireService extends BaseService {
         var conceptService = new ConceptService(this.db);
         return new SimpleQuestionnaire(questionnaire, conceptService.getConcepts());
     }
+
+    getQuestionnaireNames() {
+        const questionnaires = [];
+        AppState.questionnaires.forEach((answer, question, questionAnswers) => {
+            questionnaires.push(question);
+        });
+        return questionnaires;
+    }
 }
 
 export default QuestionnaireService;
