@@ -31,6 +31,10 @@ class SettingsView extends Component {
         this.setState({});
     };
 
+    onExportPress = () => {
+        
+    };
+
     render() {
         return (
             <View>
@@ -40,7 +44,9 @@ class SettingsView extends Component {
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />
-                <Text >Export</Text>
+                <TouchableHighlight onPress={this.onExportPress}>
+                    <Text>Export</Text>
+                </TouchableHighlight>
             </View>
         );
     }

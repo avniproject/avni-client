@@ -16,14 +16,12 @@ class DecisionSupportSessionService extends BaseService {
     }
 
     getAll(questionnaireName) {
-        return this.getAll().filter(`questionnaireName = ${questionnaireName}`);
-    }
-
-    getAll() {
         const db = this.db;
-        return db.objects(this.entityName);
+        const allSessions = db.objects(this.entityName);
+        if (questionnaireName === undefined) return allSessions;
+        return allSessions.filter(`questionnaireName = ${questionnaireName}`);
     }
-
+    
     deleteAll() {
         const db = this.db;
         let allSessions = db.objects(this.entityName);

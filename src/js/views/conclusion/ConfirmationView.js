@@ -3,7 +3,7 @@ import TypedTransition from "../../routing/TypedTransition";
 import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from '../primitives/AppHeader';
 import Path from "../../routing/Path";
-import AppState from '../../hack/AppState'
+import AppState from '../../hack/AppState';
 
 @Path('/ConfirmationView')
 class ConfirmationView extends Component {
@@ -33,7 +33,7 @@ class ConfirmationView extends Component {
 
     onSaveAndRestart = () => {
         var service = this.context.getService("decisionSupportSessionService");
-        service.save(AppState.questionnaireAnswers, this.decisions);
+        service.save(AppState.questionnaireAnswers, this.props.params.decisions);
         TypedTransition.from(this).toBeginning();
     };
 
