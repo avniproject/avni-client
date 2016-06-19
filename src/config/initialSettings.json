@@ -8,7 +8,11 @@
         "option": "English"
       },
       {
-        "locale": "mr-IN",
+        "locale": "hi_IN",
+        "option": "Hindi"
+      },
+      {
+        "locale": "mr_IN",
         "option": "Marathi"
       }
     ]

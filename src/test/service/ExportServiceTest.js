@@ -12,7 +12,7 @@ describe('Export Service', () => {
                 const decisionSupportSession = DecisionSupportSession.newInstance(
                     "foo",
                     [{value: 'Paracetamol'}],
-                    [new QuestionAnswer("Question 1", "Answer 1"), new QuestionAnswer("Question 2", "Answer 2")],
+                    [QuestionAnswer.newInstance("Question 1", "Answer 1"), QuestionAnswer.newInstance("Question 2", "Answer 2")],
                     new Date());
                 return [decisionSupportSession]
             }

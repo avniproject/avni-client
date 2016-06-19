@@ -1,6 +1,7 @@
 import React, {Component, StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
 import TypedTransition from "../../routing/TypedTransition";
 import SettingsView from "../settings/SettingsView";
+import I18n from '../../utility/Messages'
 
 class AppHeader extends Component {
     static propTypes = {
@@ -44,7 +45,7 @@ class AppHeader extends Component {
                     />
                 </TouchableHighlight>
                 <Text style={AppHeader.styles.header}
-                      onTitlePressed={this.props.onTitlePressed}>{this.props.title}</Text>
+                      onTitlePressed={this.props.onTitlePressed}>{I18n.t(this.props.title)}</Text>
                 <View style={AppHeader.styles.icon}>
                     <Image
                         source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}

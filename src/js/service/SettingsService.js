@@ -1,6 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/Service";
 import InitialSettings from '../../config/initialSettings.json';
+import I18n from "../utility/Messages";
 
 @Service("settingsService")
 class SettingsService extends BaseService {
@@ -14,8 +15,12 @@ class SettingsService extends BaseService {
         return settings[0];
     }
     
-    save(fn) {
-        this.db.write(fn);
+    save(locale) {
+        const self = this;
+        this.db.write(() => {
+            self.getSettings().locale.selectedLocale = locale;
+            I18n.locale = locale;
+        });
     }
     
     initialise() {
@@ -23,6 +28,9 @@ class SettingsService extends BaseService {
         const dbInScope = this.db;
         if (settings === undefined)
             this.db.write(() => dbInScope.create('Settings', InitialSettings));
+        I18n.locale = this.getSettings().locale.selectedLocale;
+        console.log(`Default messages default locale=${I18n.defaultLocale}`);
+        console.log(`Current messages locale=${I18n.currentLocale()}`);
     }
 }
 

@@ -25,9 +25,7 @@ class SettingsView extends Component {
 
     onLocaleChanged = (locale) => {
         const view = this;
-        this.service.save(()=> {
-            view.settings.locale.selectedLocale = locale;
-        });
+        this.service.save(locale);
         this.setState({});
     };
 

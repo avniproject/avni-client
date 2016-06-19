@@ -11,6 +11,7 @@ class AppState {
             this.questionnaires = new Map();
             // this.questionnaires.set(this.diabetes.name, this.diabetes);
             this.questionnaires.set(this.sample.name, this.sample);
+            this.questionnaires.set(this.diabetes.name, this.diabetes);
         }
         return instance;
     }

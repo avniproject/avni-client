@@ -1,7 +1,7 @@
 import React, {Component, StyleSheet, View, ListView, DrawerLayoutAndroid} from 'react-native';
 import Path, {PathRoot} from '../../routing/Path';
-import Diseases from '../../../config/diseases.json';
-import DiseaseButton from './DiseaseButton';
+import QuestionnaireNames from '../../../config/questionnaires.json';
+import QuestionnaireButton from './DiseaseButton';
 import AppHeader from '../primitives/AppHeader';
 import DiseaseNavigationMenu from './DiseaseNavigationMenu';
 
@@ -24,7 +24,7 @@ class DiseaseListView extends Component {
         new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
     state = {
-        dataSource: DiseaseListView.initialDataSource().cloneWithRows(Diseases)
+        dataSource: DiseaseListView.initialDataSource().cloneWithRows(QuestionnaireNames)
     };
 
     render() {
@@ -35,11 +35,11 @@ class DiseaseListView extends Component {
                 drawerPosition={DrawerLayoutAndroid.positions.Left}
                 renderNavigationView={() => <DiseaseNavigationMenu/>}>
                 <View>
-                    <AppHeader title="Decision Support Tools" parent={this}/>
+                    <AppHeader title="questionnaireList" parent={this}/>
                     <ListView
                         contentContainerStyle={DiseaseListView.styles.list}
                         dataSource={this.state.dataSource}
-                        renderRow={(rowItem) => <DiseaseButton diseaseName={rowItem}/>}
+                        renderRow={(rowItem) => <QuestionnaireButton diseaseName={rowItem}/>}
                     />
                 </View>
             </DrawerLayoutAndroid>

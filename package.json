@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "lint": "./node_modules/.bin/eslint src",
-    "test": "find ./src/test -name '*Test.js' | xargs mocha --require react-native-mock/mock.js --require babel-core/register src/test/**/*.js"
+    "test": "find ./src/test -name '*Test.js' | xargs mocha --require react-native-mock/mock.js --require src/test/testHelper.js src/test/**/*.js"
   },
   "dependencies": {
     "invariant": "2.2.1",

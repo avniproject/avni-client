@@ -16,6 +16,8 @@ class Question extends Component {
     });
 
     render() {
+        console.log(this.props.questionConcept.conceptNames);
+        console.log(this.props.locale);
         let question = this.props.questionConcept.conceptNames.filter((name) => name.locale === this.props.locale)[0];
         return (
             <View>

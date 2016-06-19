@@ -57,7 +57,7 @@ class ConfirmationView extends Component {
 
         return (
             <View>
-                <AppHeader title="Confirmation"
+                <AppHeader title="confirmation"
                            parent={this}
                 />
                 <ListView
