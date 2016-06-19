@@ -9,7 +9,7 @@ class AppState {
             this.sample = require('../../config/sample-questionnaire.json');
 
             this.questionnaires = new Map();
-            this.questionnaires.set(this.diabetes.name, this.diabetes);
+            // this.questionnaires.set(this.diabetes.name, this.diabetes);
             this.questionnaires.set(this.sample.name, this.sample);
         }
         return instance;
