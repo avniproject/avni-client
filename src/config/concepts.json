@@ -143,5 +143,24 @@
     "datatype": {
       "name": "N/A"
     }
+  },
+  {
+    "display": "Date of Birth",
+    "uuid": "JHK8898HH",
+    "name": "Date of Birth",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Date of Birth",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Date"
+    }
   }
 ]

@@ -3,7 +3,8 @@
   "description" : "Sample questionnaire without control flow logic",
   "questions" : [
     "Multiple Choice Question 1",
-    "Numeric Question"
+    "Numeric Question",
+    "Date of Birth"
   ],
   "decisionKeys": [
     "Treatment"

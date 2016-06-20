@@ -5,6 +5,7 @@ import AppHeader from '../primitives/AppHeader';
 import Path from "../../routing/Path";
 import AppState from '../../hack/AppState';
 import I18n from '../../utility/Messages';
+import General from '../../utility/General';
 
 @Path('/ConfirmationView')
 class ConfirmationView extends Component {
@@ -39,6 +40,8 @@ class ConfirmationView extends Component {
     };
 
     renderRow(key, value) {
+        var displayValue = value instanceof Date ? General.formatDate(value) : value;
+
         return (
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.5}}>
@@ -46,7 +49,7 @@ class ConfirmationView extends Component {
                         style={[ConfirmationView.styles.questionAnswer, ConfirmationView.styles.question]}>{key}</Text>
                 </View>
                 <View style={{flex: 0.5}}>
-                    <Text style={[ConfirmationView.styles.questionAnswer, ConfirmationView.styles.answer]}>{value}</Text>
+                    <Text style={[ConfirmationView.styles.questionAnswer, ConfirmationView.styles.answer]}>{displayValue}</Text>
                 </View>
             </View>);
     }

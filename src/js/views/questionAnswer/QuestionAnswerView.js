@@ -1,13 +1,13 @@
-import React, {Component, View, Text, TextInput, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {Component, View, Text, TextInput, StyleSheet, TouchableOpacity, DatePickerAndroid, TouchableHighlight} from 'react-native';
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
-import TypedTransition from '../../routing/TypedTransition';
 import ConclusionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';
-import WizardButtons from '../primitives/WizardButtons'
+import WizardButtons from '../primitives/WizardButtons';
+import General from '../../utility/General';
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -40,6 +40,7 @@ class QuestionAnswerView extends Component {
         super(props, context);
         this.questionnaire = context.getService("questionnaireService").getQuestionnaire(AppState.questionnaireAnswers.questionnaireName);
         this.locale = this.context.getStore().objects('Settings')[0]["locale"]["selectedLocale"];
+        this.state = {};
     }
 
     toAnswer(questionAnswer) {
@@ -48,9 +49,36 @@ class QuestionAnswerView extends Component {
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
                            style={QuestionAnswerView.styles.textinput}
                            keyboardType='numeric'/>);
+        else if (questionAnswer.questionDataType === 'Date')
+            return (<TouchableHighlight
+                onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer})}>
+                <Text>{this.dateDisplay()}</Text>
+            </TouchableHighlight>);
         else
             return (<AnswerList locale={this.locale} answers={this.questionAnswer.answers}/>);
     };
+
+    dateDisplay() {
+        if (AppState.questionnaireAnswers.currentAnswer === undefined) {
+            return "Choose a date";
+        } else {
+            return General.formatDate(AppState.questionnaireAnswers.currentAnswer);
+        }
+    }
+
+    async showPicker(stateKey, options) {
+        try {
+            var newState = {};
+            const {action, year, month, day} = await DatePickerAndroid.open(options);
+            if (action === DatePickerAndroid.dismissedAction) {
+            } else {
+                AppState.questionnaireAnswers.currentAnswer = new Date(year, month, day);
+            }
+            this.setState({});
+        } catch ({code, message}) {
+            console.warn(`Error in example '${stateKey}': `, message);
+        }
+    }
 
     render() {
         this.questionnaire.setQuestionIndex(this.props.params.questionNumber);

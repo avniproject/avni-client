@@ -5,7 +5,11 @@ class General {
     
     static getCurrentDate() {
         const date = new Date();
-        return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()}`;
+        return General.formatDate(date);
+    }
+    
+    static formatDate(date) {
+        return `${date.getDate()}-${(date.getMonth() + 1)}-${date.getFullYear()}`;
     }
 
     static toExportable(str) {
