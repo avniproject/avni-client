@@ -7,6 +7,6 @@ describe('Concepts', () => {
   it('Find Concept', () => {
     var concepts = new Concepts(ConceptsData);
     var conceptData = concepts.findByName("Numeric Question");
-    expect(conceptData.locale).to.equal('en');
+    expect(conceptData.datatype.name).to.equal('Numeric');
   });
 });

@@ -1,7 +1,6 @@
 class Concepts {
-    constructor(data, locale) {
+    constructor(data) {
         this.data = data;
-        this.locale = locale;
     }
 
     findByName(name) {

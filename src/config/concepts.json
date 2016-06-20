@@ -3,7 +3,6 @@
     "display": "Multiple Choice Question 1",
     "uuid": "b36af420-3f10-11e4-adec-0800271c1b75",
     "name": "Multiple Choice Question 1",
-    "locale": "en",
     "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
@@ -20,44 +19,10 @@
     },
     "answers": [
       {
-        "display": "Question 1 - Answer 1",
-        "uuid": "a546823932",
-        "name": "Question 1 - Answer 1",
-        "locale": "en",
-        "conceptNameType": "FULLY_SPECIFIED",
-        "conceptNames": [
-          {
-            "name": "पहला सवाल पहला जवाब",
-            "locale": "hi_IN"
-          },
-          {
-            "name": "Question 1 - Answer 1",
-            "locale": "en"
-          }
-        ],
-        "datatype": {
-          "name": "N/A"
-        }
+        "name": "Question 1 - Answer 1"
       },
       {
-        "display": "Question 1 - Answer 2",
-        "uuid": "a546823932",
-        "name": "Question 1 - Answer 2",
-        "locale": "en",
-        "conceptNameType": "FULLY_SPECIFIED",
-        "conceptNames": [
-          {
-            "name": "पहला सवाल दूसरा  जवाब",
-            "locale": "hi_IN"
-          },
-          {
-            "name": "Question 1 - Answer 2",
-            "locale": "en"
-          }
-        ],
-        "datatype": {
-          "name": "N/A"
-        }
+        "name": "Question 1 - Answer 2"
       }
     ]
   },
@@ -65,7 +30,6 @@
     "display": "Numeric Question",
     "uuid": "c36af420-3f10-11e4-adec-0800271c1b75",
     "name": "Numeric Question",
-    "locale": "en",
     "conceptNameType": "FULLY_SPECIFIED",
     "datatype": {
       "name": "Numeric"
@@ -84,5 +48,100 @@
     "lowNormal": null,
     "hiAbsolute": null,
     "lowAbsolute": null
+  },
+  {
+    "display": "Question 1 - Answer 1",
+    "uuid": "a546823932",
+    "name": "Question 1 - Answer 1",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "conceptNames": [
+      {
+        "name": "पहला सवाल पहला जवाब",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Question 1 - Answer 1",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "display": "Question 1 - Answer 2",
+    "uuid": "a546823932",
+    "name": "Question 1 - Answer 2",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "conceptNames": [
+      {
+        "name": "पहला सवाल दूसरा  जवाब",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Question 1 - Answer 2",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "display": "Diabetes",
+    "uuid": "a5468267567A",
+    "name": "Diabetes",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "conceptNames": [
+      {
+        "name": "मधुमेह:",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Diabetes",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "display": "Sample without control flow",
+    "uuid": "G9897hJ",
+    "name": "Sample without control flow",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "conceptNames": [
+      {
+        "name": "नमूना",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Sample without control flow",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "display": "Treatment",
+    "uuid": "JLA0987",
+    "name": "Treatment",
+    "conceptNameType": "FULLY_SPECIFIED",
+    "conceptNames": [
+      {
+        "name": "इलाज",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Treatment",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
   }
 ]

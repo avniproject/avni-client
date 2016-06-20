@@ -8,8 +8,7 @@ class AnswerList extends Component {
     };
 
     toAnswerOption(answer, self) {
-        let conceptName = answer.conceptNames.filter((name) => name.locale === self.props.locale)[0];
-        return (<AnswerOption key={conceptName.name} answer={conceptName.name} answerList={self}/>);
+        return (<AnswerOption key={answer.name} answer={answer.name} answerList={self}/>);
     };
 
     onChange() {

@@ -1,5 +1,6 @@
 import React, {Component, Text, StyleSheet, View, Image} from 'react-native';
 import AppState from "../../hack/AppState";
+import I18n from '../../utility/Messages'
 
 class AnswerOption extends Component {
     static propTypes = {
@@ -53,7 +54,7 @@ class AnswerOption extends Component {
         return (
             <View style={AnswerOption.styles.answerRow}>
                 <Text style={AnswerOption.styles.item} onPress={() => this.handleOnPress(this)}>
-                    {this.props.answer}
+                    {I18n.t(this.props.answer)}
                 </Text>
                 {this.displayCheckImage()}
             </View>

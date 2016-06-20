@@ -1,6 +1,6 @@
 let instance = null;
 
-class Messages {
+export class Messages {
     constructor() {
         if (!instance) {
             instance = this;
@@ -19,11 +19,26 @@ class Messages {
                 },
                 mr_IN: {
                     questionnaireList: 'Decision Support Tools(MR)'
+                },
+                hi_IN: {
+                    questionnaireList: 'फेसला समर्थन उपकरण'
                 }
             }
         }
 
         return instance;
+    }
+
+    addTerminologyMessages(concepts) {
+        concepts.forEach((concept) => {
+            concept.conceptNames.forEach((conceptName) => {
+                var translationInALocale = this.I18n.translations[conceptName.locale];
+                if (translationInALocale === undefined) {
+                    this.I18n.translations[conceptName.locale] = {};
+                }
+                this.I18n.translations[conceptName.locale][concept.name] = conceptName.name;
+            });
+        });
     }
 
     getI18n() {
