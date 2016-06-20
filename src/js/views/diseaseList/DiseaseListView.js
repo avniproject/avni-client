@@ -1,7 +1,7 @@
 import React, {Component, StyleSheet, View, ListView, DrawerLayoutAndroid} from 'react-native';
 import Path, {PathRoot} from '../../routing/Path';
 import QuestionnaireNames from '../../../config/questionnaires.json';
-import QuestionnaireButton from './DiseaseButton';
+import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
 import DiseaseNavigationMenu from './DiseaseNavigationMenu';
 

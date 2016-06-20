@@ -1,10 +1,11 @@
 import React, { Component, StyleSheet, Text } from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
-import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
 import AppState from "../../hack/AppState";
+import I18n from '../../utility/Messages'
 
-class DiseaseButton extends Component {
+
+class QuestionnaireButton extends Component {
 
     static propTypes = {
         diseaseName: React.PropTypes.string.isRequired
@@ -40,11 +41,11 @@ class DiseaseButton extends Component {
 
     render() {
         return (
-            <Text onPress={this.onSelect} style={DiseaseButton.styles.item}>
-                {this.props.diseaseName}
+            <Text onPress={this.onSelect} style={QuestionnaireButton.styles.item}>
+                {I18n.t(this.props.diseaseName)}
             </Text>
         );
     }
 }
 
-export default DiseaseButton;
+export default QuestionnaireButton;

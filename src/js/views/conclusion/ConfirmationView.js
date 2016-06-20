@@ -4,6 +4,7 @@ import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from '../primitives/AppHeader';
 import Path from "../../routing/Path";
 import AppState from '../../hack/AppState';
+import I18n from '../../utility/Messages';
 
 @Path('/ConfirmationView')
 class ConfirmationView extends Component {
@@ -63,7 +64,7 @@ class ConfirmationView extends Component {
                 <ListView
                     dataSource={dsClone}
                     renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
-                    renderHeader={() => <Text style={{fontSize: 24}}>You answered as follows</Text>}
+                    renderHeader={() => <Text style={{fontSize: 24}}>{I18n.t("answersConfirmationTitle")}</Text>}
                     renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
                                                                                                      backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
                 />
@@ -72,10 +73,9 @@ class ConfirmationView extends Component {
                 <View
                     style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
                     <Text onPress={this.onRestart}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Restart</Text>
+                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("restart")}</Text>
                     <Text onPress={this.onSaveAndRestart}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Save &
-                        Restart</Text>
+                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("saveAndRestart")}</Text>
                 </View>
             </View>
         );

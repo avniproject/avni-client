@@ -2,6 +2,7 @@ import React, {Component, View, TouchableHighlight, Text} from 'react-native';
 import Path from '../../routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
+import I18n from '../../utility/Messages';
 
 @Path('/settings')
 class SettingsView extends Component {
@@ -44,7 +45,7 @@ class SettingsView extends Component {
                     onLocaleChanged={this.onLocaleChanged}
                 />
                 <TouchableHighlight onPress={this.onExportPress}>
-                    <Text>Export</Text>
+                    <Text>{I18n.t("export")}</Text>
                 </TouchableHighlight>
             </View>
         );

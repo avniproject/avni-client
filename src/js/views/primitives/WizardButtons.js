@@ -1,6 +1,7 @@
 import React, {Component, StyleSheet, Text, View, TouchableHighlight, Navigator} from 'react-native';
 import TypedTransition from "../../routing/TypedTransition";
 import * as CHSStyles from "./GlobalStyles";
+import I18n from '../../utility/Messages';
 
 class WizardButtons extends Component {
     static propTypes = {
@@ -13,7 +14,7 @@ class WizardButtons extends Component {
     previousButton() {
         var dynamicStyle = this.props.hasQuestionBefore ? CHSStyles.Global.navButtonVisible : CHSStyles.Global.navButtonHidden;
         return (
-            <Text onPress={this.onPrevious} style={[CHSStyles.Global.navButton, dynamicStyle]}>Previous</Text>);
+            <Text onPress={this.onPrevious} style={[CHSStyles.Global.navButton, dynamicStyle]}>{I18n.t("previous")}</Text>);
     };
 
     onPrevious = () => {
@@ -32,7 +33,7 @@ class WizardButtons extends Component {
                     style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                     {this.previousButton()}
                     <Text onPress={this.onNext}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>Next</Text>
+                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
                 </View>
             </View>
         );

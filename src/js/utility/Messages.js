@@ -15,13 +15,26 @@ export class Messages {
             this.I18n.translations = {
                 en: {
                     questionnaireList: 'Decision Support Tools',
-                    confirmation: 'Confirmation'
+                    confirmation: 'Confirmation',
+                    next: 'Next',
+                    previous: 'Previous',
+                    restart: 'Restart',
+                    saveAndRestart: 'Save & Restart',
+                    export: 'Export',
+                    answersConfirmationTitle: 'You answered as follows'
                 },
                 mr_IN: {
                     questionnaireList: 'Decision Support Tools(MR)'
                 },
                 hi_IN: {
-                    questionnaireList: 'फेसला समर्थन उपकरण'
+                    questionnaireList: 'फेसला समर्थन उपकरण',
+                    next: 'अगला',
+                    previous: 'पिछला',
+                    confirmation: 'पुष्टीकरण',
+                    restart: 'पुनः आरंभ करें',
+                    saveAndRestart: 'बचाएँ एवं पुनः आरम्भ करें',
+                    export: 'निर्यात',
+                    answersConfirmationTitle: ''
                 }
             }
         }
