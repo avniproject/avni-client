@@ -22,7 +22,8 @@ export class Messages {
                     saveAndRestart: 'Save & Restart',
                     export: 'Export',
                     answersConfirmationTitle: 'You answered as follows',
-                    allQuestionnaireSessionsSummary: "All Questionnaire Sessions"
+                    allQuestionnaireSessionsSummary: "All Questionnaire Sessions",
+                    session: "Decision Support Session"
                 },
                 mr_IN: {
                     questionnaireList: 'Decision Support Tools(MR)'
