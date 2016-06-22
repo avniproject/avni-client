@@ -3,6 +3,8 @@ import React, {Component, View, Text, StyleSheet, ListView} from 'react-native';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
 import I18n from '../../utility/Messages';
+import TypedTransition from "../../routing/TypedTransition";
+import DecisionSupportSessionView from "./DecisionSupportSessionView";
 
 @Path('/ConclusionListView')
 class ConclusionListView extends Component {
@@ -12,7 +14,7 @@ class ConclusionListView extends Component {
             flexDirection: 'column'
         },
         saveDate: {
-            color: '#0C59CF'
+            color: 'blue'
         }
     });
 
@@ -29,6 +31,10 @@ class ConclusionListView extends Component {
         super(props, context);
     }
 
+    onSessionRowPress(session) {
+        TypedTransition.from(this).with({session: session}).to(DecisionSupportSessionView);
+    };
+
     renderSummaryField(summaryField, session) {
         return (
             <View style={{flex: 0.33}}>
@@ -41,6 +47,7 @@ class ConclusionListView extends Component {
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.33}}>
                     <Text
+                        onPress={() => this.onSessionRowPress(session)}
                           style={[ConclusionListView.styles.sessionItem, ConclusionListView.styles.saveDate]}>{General.formatDate(session.saveDate)}</Text>
                 </View>
                 {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}

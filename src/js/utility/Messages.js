@@ -23,7 +23,7 @@ export class Messages {
                     export: 'Export',
                     answersConfirmationTitle: 'You answered as follows',
                     allQuestionnaireSessionsSummary: "All Questionnaire Sessions",
-                    session: "Decision Support Session"
+                    session: "Session Details"
                 },
                 mr_IN: {
                     questionnaireList: 'Decision Support Tools(MR)'

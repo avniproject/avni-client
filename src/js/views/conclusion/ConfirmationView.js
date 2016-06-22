@@ -5,7 +5,7 @@ import AppHeader from '../primitives/AppHeader';
 import Path from "../../routing/Path";
 import AppState from '../../hack/AppState';
 import I18n from '../../utility/Messages';
-import DecisionSupportSessionView from './DecisionSupportSessionView';
+import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 
 @Path('/ConfirmationView')
 class ConfirmationView extends Component {
@@ -34,7 +34,7 @@ class ConfirmationView extends Component {
                 <AppHeader title="confirmation"
                            parent={this}
                 />
-                <DecisionSupportSessionView decision={this.props.params.decisions[0]}/>
+                <DecisionSupportSessionComponent decision={this.props.params.decisions[0]} questionAnswers={AppState.questionnaireAnswers.toArray()}/>
                 <View
                     style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
                     <Text onPress={this.onRestart}
