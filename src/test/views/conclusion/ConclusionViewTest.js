@@ -2,7 +2,6 @@ import React, {Text, TextInput} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import DecisionView from '../../../js/views/conclusion/DecisionView';
-import QuestionnaireAnswers from "../../../js/models/QuestionnaireAnswers";
 import AppState from "../../../js/hack/AppState"
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import ConceptData from "../../../js/service/ConceptData";

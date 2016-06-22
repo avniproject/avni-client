@@ -36,12 +36,12 @@ class ConclusionListView extends Component {
             </View>);
     }
 
-    renderRow(session, questionnaire) {
+    renderRow(session, questionnaire, rowID) {
         return (
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.33}}>
                     <Text
-                        style={[ConclusionListView.styles.sessionItem, ConclusionListView.styles.saveDate]}>{session.saveDate}</Text>
+                          style={[ConclusionListView.styles.sessionItem, ConclusionListView.styles.saveDate]}>{General.formatDate(session.saveDate)}</Text>
                 </View>
                 {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}
             </View>);
@@ -50,7 +50,7 @@ class ConclusionListView extends Component {
     renderSessions(questionnaireName) {
         const questionnaireService = this.context.getService("questionnaireService");
         var questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
-        
+
         const dssService = this.context.getService("decisionSupportSessionService");
         var sessions = dssService.getAll(questionnaireName);
 
@@ -61,10 +61,11 @@ class ConclusionListView extends Component {
             <View>
                 <Text>{`Sessions for ${questionnaireName}`}</Text>
                 <ListView
+                    enableEmptySections={true}
                     dataSource={dsClone}
-                    renderRow={(session) => this.renderRow(session, questionnaire)}
+                    renderRow={(session, sectionID, rowID) => this.renderRow(session, questionnaire, rowID)}
                     renderHeader={() => <Text style={{fontSize: 24}}>{I18n.t("answersConfirmationTitle")}</Text>}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text key={rowID} style={{height: adjacentRowHighlighted ? 4 : 1,
                                                                                                      backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
                 />
             </View>);
@@ -76,7 +77,7 @@ class ConclusionListView extends Component {
 
         return (
             <View>
-                <AppHeader title={`All ${this.props.questionnaireName} Details`} parent={this}/>
+                <AppHeader title="allQuestionnaireSessionsSummary" parent={this}/>
                 {questionnaireNames.map((questionnaireName) => this.renderSessions(questionnaireName))}
             </View>
         );

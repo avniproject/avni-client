@@ -1,32 +1,44 @@
 import Service from "../framework/Service";
 import BaseService from "./BaseService";
 import DecisionSupportSession from "../models/DecisionSupportSession";
+import QuestionAnswer from "../models/QuestionAnswer";
+import Decision from "../models/Decision";
 
 @Service("decisionSupportSessionService")
 class DecisionSupportSessionService extends BaseService {
     constructor(db) {
         super(db);
-        this.entityName = "DecisionSupportSession";
     }
 
     save(questionnaireAnswers, decisions) {
         var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, decisions, questionnaireAnswers.toSchemaInstance(), new Date());
         const db = this.db;
-        db.write(() => db.create(this.entityName, decisionSupportSession));
+        db.write(() => db.create(DecisionSupportSession.EntityName, decisionSupportSession));
     }
 
     getAll(questionnaireName) {
-        const db = this.db;
-        const allSessions = db.objects(this.entityName);
+        const allSessions = this.db.objects(DecisionSupportSession.EntityName);
         if (questionnaireName === undefined) return allSessions;
         const expression = `questionnaireName = \"${questionnaireName}\"`;
         return allSessions.filtered(expression);
     }
     
+    getNumberOfSessions() {
+        const allSessions = this.db.objects(DecisionSupportSession.EntityName);
+        return allSessions.length;
+    }
+
     deleteAll() {
         const db = this.db;
-        let allSessions = db.objects(this.entityName);
-        db.write(() => db.deleteAll(allSessions));
+        
+        const entities = [DecisionSupportSession.EntityName, QuestionAnswer.EntityName, Decision.EntityName];
+        entities.forEach((entityName) => {
+            console.log(entityName);
+            db.write(() => {
+                var objects = db.objects(entityName);
+                db.delete(objects);
+            });
+        });
     }
 }
 

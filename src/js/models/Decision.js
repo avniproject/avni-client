@@ -17,4 +17,5 @@ class Decision {
     }
 }
 
+Decision.EntityName = "Decision";
 export default Decision;

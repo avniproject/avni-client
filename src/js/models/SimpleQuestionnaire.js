@@ -34,9 +34,9 @@ class SimpleQuestionnaire {
     }
     
     get summaryFields() {
-        this.questionnaireData.summaryFields.map((summaryField) => {
-            if (this.questions.indexOf(summaryField)) return new SummaryField(summaryField, SummaryField.Question);
-            if (this.decisionKeys.indexOf(summaryField)) return new SummaryField(summaryField, SummaryField.DecisionKey);
+        return this.questionnaireData.summaryFields.map((summaryField) => {
+            if (this.questions.indexOf(summaryField) !== -1) return new SummaryField(summaryField, SummaryField.Question);
+            if (this.decisionKeys.indexOf(summaryField) !== -1) return new SummaryField(summaryField, SummaryField.DecisionKey);
         });
     }
     

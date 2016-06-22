@@ -1,4 +1,4 @@
-import React, {Component, View, TouchableHighlight, Text} from 'react-native';
+import React, {Component, View, TouchableHighlight, Text, Alert} from 'react-native';
 import Path from '../../routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
@@ -34,6 +34,18 @@ class SettingsView extends Component {
         const service = this.context.getService("exportService");
         service.exportAll();
     };
+    
+    onDeleteSessionsPress = () => {
+        const service = this.context.getService("decisionSupportSessionService");
+        Alert.alert(
+            'Do you want to delete all saved sessions?',
+            `There are currently ${service.getNumberOfSessions()} sessions. Delete?`,
+            [
+                {text: 'Yes', onPress: () => {service.deleteAll()}},
+                {text: 'No', onPress: () => {}, style: 'cancel'}
+            ]
+        )
+    };
 
     render() {
         return (
@@ -46,6 +58,9 @@ class SettingsView extends Component {
                 />
                 <TouchableHighlight onPress={this.onExportPress}>
                     <Text>{I18n.t("export")}</Text>
+                </TouchableHighlight>
+                <TouchableHighlight onPress={this.onDeleteSessionsPress}>
+                    <Text>Delete Sessions</Text>
                 </TouchableHighlight>
             </View>
         );

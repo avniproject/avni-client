@@ -50,7 +50,7 @@ describe('Question Answer View Test', () => {
 
         var simpleQuestionnaire = new SimpleQuestionnaire(AppState.diabetes, ConceptData.concepts);
         AppState.startQuestionnaireSession(simpleQuestionnaire);
-        
+
         const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
