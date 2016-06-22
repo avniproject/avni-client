@@ -12,7 +12,8 @@ class QuestionnaireButton extends Component {
     };
 
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
+        navigator: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -30,7 +31,9 @@ class QuestionnaireButton extends Component {
     });
 
     onSelect = () => {
-        AppState.createNewQuestionnaire(this.props.diseaseName);
+        const service = this.context.getService("questionnaireService");
+        var questionnaire = service.getQuestionnaire(this.props.diseaseName);
+        AppState.startQuestionnaireSession(questionnaire);
         TypedTransition
             .from(this)
             .with({

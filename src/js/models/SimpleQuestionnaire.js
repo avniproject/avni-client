@@ -1,3 +1,5 @@
+import SummaryField from "./SummaryField";
+
 class SimpleQuestionnaire {
     constructor(questionnaireData, concepts) {
         this.questionnaireData = questionnaireData;
@@ -29,6 +31,17 @@ class SimpleQuestionnaire {
 
     get decisionKeys() {
         return this.questionnaireData.decisionKeys;
+    }
+    
+    get summaryFields() {
+        this.questionnaireData.summaryFields.map((summaryField) => {
+            if (this.questions.indexOf(summaryField)) return new SummaryField(summaryField, SummaryField.Question);
+            if (this.decisionKeys.indexOf(summaryField)) return new SummaryField(summaryField, SummaryField.DecisionKey);
+        });
+    }
+    
+    get name() {
+        return this.questionnaireData.name;
     }
 }
 

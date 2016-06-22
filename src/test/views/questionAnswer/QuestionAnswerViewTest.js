@@ -8,6 +8,8 @@ import AnswerList from "../../../js/views/questionAnswer/AnswerList";
 import QuestionnaireAnswers from "../../../js/models/QuestionnaireAnswers";
 import AppState from "../../../js/hack/AppState"
 import WizardButtons from "../../../js/views/primitives/WizardButtons";
+import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
+import ConceptData from "../../../js/service/ConceptData";
 
 describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
@@ -22,7 +24,10 @@ describe('Question Answer View Test', () => {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
         };
-        AppState.questionnaireAnswers = new QuestionnaireAnswers('Sample without control flow');
+
+        var simpleQuestionnaire = new SimpleQuestionnaire(AppState.sample, ConceptData.concepts);
+        AppState.startQuestionnaireSession(simpleQuestionnaire);
+
         const wrapper = shallow(<QuestionAnswerView params=
                                                         {{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
@@ -30,7 +35,7 @@ describe('Question Answer View Test', () => {
         expect(wrapper.find(WizardButtons)).to.have.length(1);
     });
 
-    it('when `Numeric` is the first question', () => {
+    it('when Numeric is the first question', () => {
         const context = {
             navigator: ()=> ({}),
             getStore: ()=> ({
@@ -42,7 +47,10 @@ describe('Question Answer View Test', () => {
                 return new QuestionnaireService(undefined, undefined, undefined);
             }
         };
-        AppState.questionnaireAnswers = new QuestionnaireAnswers('Diabetes');
+
+        var simpleQuestionnaire = new SimpleQuestionnaire(AppState.diabetes, ConceptData.concepts);
+        AppState.startQuestionnaireSession(simpleQuestionnaire);
+        
         const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);

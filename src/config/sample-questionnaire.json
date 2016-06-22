@@ -8,5 +8,8 @@
   ],
   "decisionKeys": [
     "Treatment"
+  ],
+  "summaryFields": [
+    "Numeric Question", "Treatment"
   ]
 }

@@ -9,7 +9,19 @@ class General {
     }
     
     static formatDate(date) {
-        return `${date.getDate()}-${(date.getMonth() + 1)}-${date.getFullYear()}`;
+        return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
+    }
+
+    static isoFormat(date) {
+        return `${date.getFullYear()}-${General.toTwoChars(date.getMonth() + 1)}-${General.toTwoChars(date.getDate())}`;
+    }
+
+    static toTwoChars(number) {
+        return `${number}`.length === 1 ? `0${number}` : `${number}`;
+    }
+    
+    static formatValue(value) {
+        return value instanceof Date ? General.formatDate(value) : value;
     }
 
     static toExportable(str) {

@@ -1,9 +1,11 @@
-import React, {Component, StyleSheet, View, ListView, DrawerLayoutAndroid} from 'react-native';
+import React, {Component, StyleSheet, View, ListView, DrawerLayoutAndroid, Text} from 'react-native';
 import Path, {PathRoot} from '../../routing/Path';
 import QuestionnaireNames from '../../../config/questionnaires.json';
 import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
 import DiseaseNavigationMenu from './DiseaseNavigationMenu';
+import TypedTransition from "../../routing/TypedTransition";
+import ConclusionListView from "../conclusion/ConclusionListView";
 
 @PathRoot
 @Path('/diseaseList')
@@ -27,6 +29,10 @@ class DiseaseListView extends Component {
         dataSource: DiseaseListView.initialDataSource().cloneWithRows(QuestionnaireNames)
     };
 
+    onViewSavedSessionsPress = () => {
+        TypedTransition.from(this).to(ConclusionListView);
+    };
+
     render() {
         return (
             //TODO: Separate this out in another component
@@ -41,6 +47,7 @@ class DiseaseListView extends Component {
                         dataSource={this.state.dataSource}
                         renderRow={(rowItem) => <QuestionnaireButton diseaseName={rowItem}/>}
                     />
+                    <Text onPress={this.onViewSavedSessionsPress}>View Saved Sessions</Text>
                 </View>
             </DrawerLayoutAndroid>
         );

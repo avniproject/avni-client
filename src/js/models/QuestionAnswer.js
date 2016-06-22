@@ -1,3 +1,5 @@
+import General from '../utility/General';
+
 class QuestionAnswer {
     static schema = {
         name: "QuestionAnswer",
@@ -8,10 +10,10 @@ class QuestionAnswer {
     };
 
     static newInstance(question, answer) {
-        const questionAnswer = new QuestionAnswer();
-        questionAnswer.question = question;
-        questionAnswer.answer = answer;
-        return questionAnswer;
+        return {
+            question: question,
+            answer: answer instanceof Date ? General.isoFormat(answer) : answer
+        }
     }
 }
 

@@ -7,6 +7,14 @@ class Decision {
             value: "string"
         }
     };
+    
+    static newInstance(name, code, value) {
+        return {
+            name: name,
+            code: code,
+            value: value
+        };
+    }
 }
 
 export default Decision;

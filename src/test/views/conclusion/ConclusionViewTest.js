@@ -4,6 +4,8 @@ import {expect} from 'chai';
 import DecisionView from '../../../js/views/conclusion/DecisionView';
 import QuestionnaireAnswers from "../../../js/models/QuestionnaireAnswers";
 import AppState from "../../../js/hack/AppState"
+import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
+import ConceptData from "../../../js/service/ConceptData";
 
 describe('Conclusion View Test', () => {
     it('should have display conclusion', () => {
@@ -11,10 +13,8 @@ describe('Conclusion View Test', () => {
             navigator: ()=> ({}),
             getService: ()=> ({})
         };
-        var questionnaireAnswers = new QuestionnaireAnswers('Sample without control flow');
-        questionnaireAnswers.currentQuestion = "foo";
-        questionnaireAnswers.currentAnswer = "bar";
-        AppState.questionnaireAnswers = questionnaireAnswers;
+        var simpleQuestionnaire = new SimpleQuestionnaire(AppState.sample, ConceptData.concepts);
+        AppState.startQuestionnaireSession(simpleQuestionnaire);
         shallow(<DecisionView params={{}}/>, {context});
     });
 });

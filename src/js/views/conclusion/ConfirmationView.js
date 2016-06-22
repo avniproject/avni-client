@@ -40,8 +40,6 @@ class ConfirmationView extends Component {
     };
 
     renderRow(key, value) {
-        var displayValue = value instanceof Date ? General.formatDate(value) : value;
-
         return (
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.5}}>
@@ -49,7 +47,7 @@ class ConfirmationView extends Component {
                         style={[ConfirmationView.styles.questionAnswer, ConfirmationView.styles.question]}>{key}</Text>
                 </View>
                 <View style={{flex: 0.5}}>
-                    <Text style={[ConfirmationView.styles.questionAnswer, ConfirmationView.styles.answer]}>{displayValue}</Text>
+                    <Text style={[ConfirmationView.styles.questionAnswer, ConfirmationView.styles.answer]}>{General.formatValue(value)}</Text>
                 </View>
             </View>);
     }

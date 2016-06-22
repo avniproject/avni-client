@@ -17,6 +17,19 @@ class DecisionSupportSession {
         decisionSupportSession.saveDate = savedDate;
         return decisionSupportSession;
     }
+
+    //These methods are static because when data is loaded from database then it would not instantiate the class
+    static getAnswerFor(question, session) {
+        return session.questionAnswers.find((questionAnswer) => {
+            return questionAnswer.question === question;
+        }).answer;
+    }
+
+    static getDecisionFor(decisionKey, session) {
+        return session.decisions.find((decision) => {
+            return decision.name === decisionKey;
+        }).value;
+    }
 }
 
 export default DecisionSupportSession;

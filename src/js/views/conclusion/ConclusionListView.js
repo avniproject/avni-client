@@ -1,9 +1,21 @@
 import Path from '../../routing/Path';
-import React, {Component, View, Text, StyleSheet} from 'react-native';
-import TypedTransition from "../../routing/TypedTransition";
+import React, {Component, View, Text, StyleSheet, ListView} from 'react-native';
+import General from '../../utility/General';
+import AppHeader from '../primitives/AppHeader';
+import I18n from '../../utility/Messages';
 
 @Path('/ConclusionListView')
 class ConclusionListView extends Component {
+    static styles = StyleSheet.create({
+        sessionItem: {
+            fontSize: 18,
+            flexDirection: 'column'
+        },
+        saveDate: {
+            color: '#0C59CF'
+        }
+    });
+
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };
@@ -17,21 +29,55 @@ class ConclusionListView extends Component {
         super(props, context);
     }
 
-    onQuestionnaireNamePress = () => {
-        TypedTransition.from(this).with({
-            questionnaireName: AppState.questionnaireAnswers.questionnaireName
-        }).to(ConclusionListView);
-    };
+    renderSummaryField(summaryField, session) {
+        return (
+            <View style={{flex: 0.33}}>
+                <Text style={[ConclusionListView.styles.sessionItem]}>{summaryField.getValueFrom(session)}</Text>
+            </View>);
+    }
 
-    render() {
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    renderRow(session, questionnaire) {
+        return (
+            <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 0.33}}>
+                    <Text
+                        style={[ConclusionListView.styles.sessionItem, ConclusionListView.styles.saveDate]}>{session.saveDate}</Text>
+                </View>
+                {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}
+            </View>);
+    }
+
+    renderSessions(questionnaireName) {
+        const questionnaireService = this.context.getService("questionnaireService");
+        var questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
+        
         const dssService = this.context.getService("decisionSupportSessionService");
-        var sessions = dssService.getAll(this.props.questionnaireName);
+        var sessions = dssService.getAll(questionnaireName);
+
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const dsClone = ds.cloneWithRows(sessions);
 
         return (
             <View>
-                <AppHeader title={`All ${this.props.questionnaireName} Details`}/>
+                <Text>{`Sessions for ${questionnaireName}`}</Text>
+                <ListView
+                    dataSource={dsClone}
+                    renderRow={(session) => this.renderRow(session, questionnaire)}
+                    renderHeader={() => <Text style={{fontSize: 24}}>{I18n.t("answersConfirmationTitle")}</Text>}
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
+                                                                                                     backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
+                />
+            </View>);
+    }
+
+    render() {
+        const questionnaireService = this.context.getService("questionnaireService");
+        const questionnaireNames = questionnaireService.getQuestionnaireNames();
+
+        return (
+            <View>
+                <AppHeader title={`All ${this.props.questionnaireName} Details`} parent={this}/>
+                {questionnaireNames.map((questionnaireName) => this.renderSessions(questionnaireName))}
             </View>
         );
     }

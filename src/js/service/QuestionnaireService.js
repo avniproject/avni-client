@@ -11,7 +11,7 @@ class QuestionnaireService extends BaseService {
     }
 
     getQuestionnaire(questionnaireName) {
-        var questionnaire = AppState.questionnaires.get(questionnaireName);
+        var questionnaire = AppState.questionnaireData.get(questionnaireName);
         if (questionnaire === undefined) return undefined;
 
         var conceptService = new ConceptService(this.db);
@@ -20,7 +20,7 @@ class QuestionnaireService extends BaseService {
 
     getQuestionnaireNames() {
         const questionnaires = [];
-        AppState.questionnaires.forEach((answer, question, questionAnswers) => {
+        AppState.questionnaireData.forEach((answer, question, questionAnswers) => {
             questionnaires.push(question);
         });
         return questionnaires;

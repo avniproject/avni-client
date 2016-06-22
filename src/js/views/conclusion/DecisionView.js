@@ -39,11 +39,10 @@ class DecisionView extends Component {
         var parameter = AppState.questionnaireAnswers;
         this.decisions = eval(`ConclusionFunctions.${conclusionFunctionName}(parameter)`);
 
-
         return (
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}
-                           onTitlePressed={this.onQuestionnaireNamePress}
+                           onTitlePressed={this.onViewSavedSessionsPress}
                            parent={this}
                 />
                 <View style={CHSStyles.Global.mainSection}>

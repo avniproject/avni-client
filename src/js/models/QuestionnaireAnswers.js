@@ -1,8 +1,8 @@
 import QuestionAnswer from "./QuestionAnswer";
 
 class QuestionnaireAnswers {
-    constructor(questionnaireName) {
-        this.questionnaireName = questionnaireName;
+    constructor(questionnaire) {
+        this.questionnaire = questionnaire;
         this.questionAnswers = new Map();
     }
 
@@ -33,8 +33,15 @@ class QuestionnaireAnswers {
 
     toSchemaInstance() {
         var schemaInstance = [];
-        this.questionAnswers.forEach((answer, question, questionAnswers) => schemaInstance.push(new QuestionAnswer(question, answer)));
+        this.questionAnswers.forEach((answer, question) => {
+            // if (answer instanceof)
+            schemaInstance.push(QuestionAnswer.newInstance(question, answer));
+        });
         return schemaInstance;
+    }
+    
+    get questionnaireName() {
+        return this.questionnaire.name;
     }
 }
 
