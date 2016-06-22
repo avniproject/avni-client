@@ -4,8 +4,8 @@ class Concepts {
     }
 
     findByName(name) {
-        return this.data.find(function (x) {
-            return name === x.name;
+        return this.data.find(function (concept) {
+            return name === concept.name;
         });
     }
 }

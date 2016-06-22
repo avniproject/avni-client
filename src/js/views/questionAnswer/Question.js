@@ -1,10 +1,11 @@
 import React, {Component, StyleSheet, Text, View} from 'react-native';
+import I18n from '../../utility/Messages';
 
 class Question extends Component {
 
     static propTypes = {
         question: React.PropTypes.string.isRequired,
-        questionConcept: React.PropTypes.object.isRequired
+        isMandatory: React.PropTypes.bool.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -16,11 +17,12 @@ class Question extends Component {
     });
 
     render() {
-        let question = this.props.questionConcept.conceptNames.filter((name) => name.locale === this.props.locale)[0];
+        console.log(this.props.question);
+        let question = I18n.t(this.props.question);
         return (
             <View>
                 <Text style={Question.styles.question}>
-                    {question.name}
+                    {this.props.isMandatory ? `${question} *` : `${question}`}
                 </Text>
             </View>
         );

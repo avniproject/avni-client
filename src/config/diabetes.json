@@ -2,7 +2,9 @@
   "name" : "Diabetes",
   "description" : "Diabetes",
   "questions" : [
-    "Numeric Question"
+    {
+      "name": "Numeric Question"
+    }
   ],
   "decisionKeys": [
     "Treatment"

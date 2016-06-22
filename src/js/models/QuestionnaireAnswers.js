@@ -43,6 +43,11 @@ class QuestionnaireAnswers {
     get questionnaireName() {
         return this.questionnaire.name;
     }
+
+    get currentAnswerIsEmpty() {
+        const currentAnswer = this.currentAnswer;
+        return currentAnswer === undefined || (!(currentAnswer instanceof Date) && !(currentAnswer));
+    }
 }
 
 export default QuestionnaireAnswers;

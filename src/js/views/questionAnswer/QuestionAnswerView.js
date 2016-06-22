@@ -1,4 +1,13 @@
-import React, {Component, View, Text, TextInput, StyleSheet, TouchableOpacity, DatePickerAndroid, TouchableHighlight} from 'react-native';
+import React, {
+    Component,
+    View,
+    Text,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    DatePickerAndroid,
+    TouchableHighlight
+} from 'react-native';
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
@@ -43,7 +52,7 @@ class QuestionAnswerView extends Component {
         this.state = {};
     }
 
-    toAnswer(questionAnswer) {
+    renderAnswer(questionAnswer) {
         if (questionAnswer.questionDataType === 'Numeric')
             return (
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
@@ -89,9 +98,9 @@ class QuestionAnswerView extends Component {
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
                 <View style={[CHSStyles.Global.mainSection, QuestionAnswerView.styles.main]}>
                     <Question question={this.questionAnswer.question}
-                              questionConcept={this.questionAnswer.questionConcept}
-                              locale={this.locale}/>
-                    {this.toAnswer(this.questionAnswer)}
+                              locale={this.locale}
+                              isMandatory={this.questionAnswer.isMandatory}/>
+                    {this.renderAnswer(this.questionAnswer)}
                 </View>
                 <WizardButtons hasQuestionBefore={!this.questionAnswer.isFirstQuestion}
                                nextParams={{
@@ -99,6 +108,7 @@ class QuestionAnswerView extends Component {
                                }}
                                parent={this}
                                nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
+                               isMandatory={this.questionAnswer.isMandatory}
                 />
             </View>
         );
