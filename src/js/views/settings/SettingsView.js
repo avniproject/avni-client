@@ -17,7 +17,8 @@ class SettingsView extends Component {
         super(props, context);
         this.service = this.context.getService("settingsService");
         this.settings = this.service.getSettings();
-        this.state = {};
+        this.state = {exporting: false};
+        this.onExportPress = this.onExportPress.bind(this);
     }
 
     onServerURLChanged = (serverURL) => {
@@ -30,17 +31,12 @@ class SettingsView extends Component {
     onLocaleChanged = (locale) => {
         const view = this;
         this.service.save(locale);
-        this.setState({});
     };
 
     onExportPress = () => {
-        this.state.progress = 0;
+        this.setState({exporting: true});
         const service = this.context.getService("exportService");
-        service.exportAll();
-        var now = new Date().getTime();
-        while (new Date().getTime() < now + 1000) { /* do nothing */
-        }
-        this.state.progress = 1;
+        service.exportAll(()=> this.setState({exporting: false}));
     };
 
     onDeleteSessionsPress = () => {
@@ -90,7 +86,7 @@ class SettingsView extends Component {
     }
 
     renderBusyIndicator() {
-        return (<ProgressBarAndroid progress={this.state.progress}/>);
+        return this.state.exporting ? (<ProgressBarAndroid />) : (<View/>);
     }
 }
 

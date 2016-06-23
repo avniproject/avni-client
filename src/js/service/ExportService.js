@@ -11,7 +11,7 @@ class ExportService extends BaseService {
         this.fileSystemGateway = fileSystemGateway === undefined ? new FileSystemGateway() : fileSystemGateway;
     }
 
-    exportAll() {
+    exportAll(done) {
         const questionnaireService = this.getService("questionnaireService");
         const questionnaireNames = questionnaireService.getQuestionnaireNames();
 
@@ -20,6 +20,10 @@ class ExportService extends BaseService {
             const fileName = General.replaceAndroidIncompatibleChars(questionnaireName) + General.getCurrentDate() + ".csv";
             this.fileSystemGateway.createFile(fileName, fileContents);
         });
+        var delay = 1000; //1 second
+        setTimeout(function () {
+            done()
+        }, delay);
     }
 
     getHeader(questionnaireName) {
@@ -40,7 +44,7 @@ class ExportService extends BaseService {
     exportContents(questionnaireName) {
         const decisionSupportSessionService = this.getService("decisionSupportSessionService");
         var contents = this.getHeader(questionnaireName);
-        
+
         const decisionSupportSessions = decisionSupportSessionService.getAll(questionnaireName);
         decisionSupportSessions.forEach((session) => {
             session.questionAnswers.forEach(function (questionAnswer) {
