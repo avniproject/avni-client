@@ -27,7 +27,7 @@ class ExportService extends BaseService {
         const questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
         var header = '';
         questionnaire.questions.forEach(function (question) {
-            header += General.toExportable(question);
+            header += General.toExportable(question.name);
             header += ',';
         });
 
