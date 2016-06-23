@@ -3,7 +3,7 @@ import Path, {PathRoot} from '../../routing/Path';
 import QuestionnaireNames from '../../../config/questionnaires.json';
 import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
-import DiseaseNavigationMenu from './DiseaseNavigationMenu';
+import SettingsView from '../settings/SettingsView';
 
 @PathRoot
 @Path('/diseaseList')
@@ -33,7 +33,7 @@ class DiseaseListView extends Component {
             <DrawerLayoutAndroid
                 drawerWidth={300}
                 drawerPosition={DrawerLayoutAndroid.positions.Left}
-                renderNavigationView={() => <DiseaseNavigationMenu/>}>
+                renderNavigationView={() => <SettingsView/>}>
                 <View>
                     <AppHeader title="questionnaireList" parent={this}/>
                     <ListView

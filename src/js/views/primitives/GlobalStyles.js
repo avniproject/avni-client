@@ -22,16 +22,16 @@ export let Global = StyleSheet.create({
         backgroundColor: '#1D3557',
         color: '#FFFFFF',
         margin: 2,
-        width: 125,
+        width: 200,
+        height: 50,
         textAlign: 'center',
         textAlignVertical: 'center',
-        justifyContent: 'center',
         fontWeight: 'bold',
-        fontSize: 18
+        fontSize: 20
     },
     mainSection: {
         marginTop: 15,
         paddingLeft: 10,
-        paddingRight: 10,
+        paddingRight: 10
     }
 });

@@ -13,7 +13,7 @@ class SettingsMultipleChoiceField extends Component {
     static styles = StyleSheet.create({
         input: {
             height: 40,
-            width: 100,
+            width: 200,
             borderColor: 'gray',
             borderWidth: 1
         }
@@ -24,12 +24,12 @@ class SettingsMultipleChoiceField extends Component {
                                                                            label={item.option}
                                                                            value={item.locale}/>);
         return (
-            <View>
-                <Text style={SettingsForm.styles.field}>
+            <View style={[{flex: 1, flexDirection: 'row'}, SettingsForm.styles.formItem]}>
+                <Text style={[SettingsForm.styles.fieldLabel, {flex: 0.2}]}>
                     Locale
                 </Text>
                 <Picker
-                    style={SettingsMultipleChoiceField.styles.input}
+                    style={[SettingsMultipleChoiceField.styles.input, {flex: 0.7}]}
                     onValueChange={this.props.onChangeSelection}
                     selectedValue={this.props.selectedValue}>
                     {pickerItems}

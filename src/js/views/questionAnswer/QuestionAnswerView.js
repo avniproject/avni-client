@@ -28,10 +28,6 @@ class QuestionAnswerView extends Component {
             borderStyle: 'solid',
             borderWidth: 2,
             fontSize: 24
-        },
-        main: {
-            flex: 1,
-            flexDirection: 'column'
         }
     });
 
@@ -94,22 +90,29 @@ class QuestionAnswerView extends Component {
         this.questionAnswer = this.questionnaire.currentQuestion();
         AppState.questionnaireAnswers.currentQuestion = this.questionAnswer.question;
         return (
-            <View>
+            <View style={{flexDirection: 'column'}}>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
-                <View style={[CHSStyles.Global.mainSection, QuestionAnswerView.styles.main]}>
-                    <Question question={this.questionAnswer.question}
-                              locale={this.locale}
-                              isMandatory={this.questionAnswer.isMandatory}/>
-                    {this.renderAnswer(this.questionAnswer)}
-                </View>
-                <WizardButtons hasQuestionBefore={!this.questionAnswer.isFirstQuestion}
-                               nextParams={{
+                <View>
+                    <View style={[CHSStyles.Global.mainSection, {flexDirection: 'column'}]}>
+                        <View style={{alignSelf: 'flex-start'}}>
+                            <Question question={this.questionAnswer.question}
+                                      locale={this.locale}
+                                      isMandatory={this.questionAnswer.isMandatory}/>
+                        </View>
+                        <View style={{alignSelf: 'flex-start'}}>
+                            {this.renderAnswer(this.questionAnswer)}
+                        </View>
+                        <WizardButtons hasQuestionBefore={!this.questionAnswer.isFirstQuestion}
+                                       nextParams={{
                                     questionNumber: this.props.params.questionNumber + 1
                                }}
-                               parent={this}
-                               nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
-                               isMandatory={this.questionAnswer.isMandatory}
-                />
+                                       parent={this}
+                                       nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
+                                       isMandatory={this.questionAnswer.isMandatory}
+                                       style={{alignSelf: 'flex-end'}}
+                        />
+                    </View>
+                </View>
             </View>
         );
     }

@@ -3,22 +3,16 @@ import SettingsFormField from './SettingsFormField';
 import SettingsMultipleChoiceField from './SettingsMultipleChoiceField';
 
 class SettingsForm extends Component {
-
     static propTypes = {
         onServerURLChanged: React.PropTypes.func.isRequired,
         settings: React.PropTypes.object.isRequired
     };
 
     static styles = StyleSheet.create({
-        form: {
-            flex: 1,
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            marginLeft: 20,
-            marginRight: 20
+        formItem: {
+            marginBottom: 10
         },
-        field: {
+        fieldLabel: {
             fontSize: 20,
             color: '#0C59CF'
         }
@@ -26,7 +20,7 @@ class SettingsForm extends Component {
 
     render() {
         return (
-            <View style={SettingsForm.styles.form}>
+            <View style={{marginBottom: 20}}>
                 <SettingsFormField
                     onChangeText={this.props.onServerURLChanged}
                     defaultValue={this.props.settings.serverURL}

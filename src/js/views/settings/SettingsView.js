@@ -1,12 +1,20 @@
-import React, {Component, View, TouchableHighlight, Text, Alert, ProgressBarAndroid} from 'react-native';
+import React, {Component, View, TouchableHighlight, Text, Alert, ProgressBarAndroid, StyleSheet} from 'react-native';
 import Path from '../../routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
 import I18n from '../../utility/Messages';
 import TypedTransition from "../../routing/TypedTransition";
+import {Global} from "../primitives/GlobalStyles";
 
 @Path('/settings')
 class SettingsView extends Component {
+    static styles = StyleSheet.create({
+        main: {
+            marginLeft: 20,
+            marginRight: 20
+        }
+    });
+
     static contextTypes = {
         getStore: React.PropTypes.func.isRequired,
         getService: React.PropTypes.func.isRequired,
@@ -64,23 +72,21 @@ class SettingsView extends Component {
 
     render() {
         return (
-            <View>
+            <View style={[SettingsView.styles.main, {flex: 1, flexDirection: 'column'}]}>
                 <SettingsHeader/>
                 <SettingsForm
                     settings={this.settings}
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />
-                {this.renderBusyIndicator()}
-                <TouchableHighlight onPress={this.onDeleteSessionsPress}>
-                    <Text>Delete Sessions</Text>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.onExportPress}>
-                    <Text>{I18n.t("export")}</Text>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.onDeleteSessionsPress}>
-                    <Text>Delete Sessions</Text>
-                </TouchableHighlight>
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    <TouchableHighlight onPress={this.onDeleteSessionsPress}>
+                        <Text style={Global.actionButton}>Delete Sessions</Text>
+                    </TouchableHighlight>
+                    <TouchableHighlight onPress={this.onExportPress}>
+                        <Text style={Global.actionButton}>{I18n.t("export")}</Text>
+                    </TouchableHighlight>
+                </View>
             </View>
         );
     }

@@ -36,7 +36,7 @@ class ConfirmationView extends Component {
                 />
                 <DecisionSupportSessionComponent decision={this.props.params.decisions[0]} questionAnswers={AppState.questionnaireAnswers.toArray()}/>
                 <View
-                    style={{flexDirection: 'row', height: 100, width: 600, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
+                    style={{flexDirection: 'row', height: 100, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
                     <Text onPress={this.onRestart}
                           style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("restart")}</Text>
                     <Text onPress={this.onSaveAndRestart}

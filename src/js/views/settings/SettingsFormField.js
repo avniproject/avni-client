@@ -17,12 +17,12 @@ class SettingsFormField extends Component {
 
     render() {
         return (
-            <View>
-                <Text style={SettingsForm.styles.field}>
+            <View style={[SettingsForm.styles.formItem, {flexDirection: 'row', alignItems: 'center'}]}>
+                <Text style={[SettingsForm.styles.fieldLabel, {flex: 0.2}]}>
                     Server URL
                 </Text>
                 <TextInput
-                    style={SettingsFormField.styles.input}
+                    style={[SettingsFormField.styles.input, {flex: 0.6}]}
                     onChangeText={this.props.onChangeText}
                     defaultValue={this.props.defaultValue}
                     />

@@ -38,18 +38,20 @@ class AppHeader extends Component {
 
     render() {
         return (
-            <View style={AppHeader.styles.main}>
-                <TouchableHighlight style={AppHeader.styles.icon} onPress={this.onSettingsPress}>
-                    <Image
-                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_icon.png')}
-                    />
-                </TouchableHighlight>
-                <Text style={AppHeader.styles.header}
-                      onTitlePressed={this.props.onTitlePressed}>{I18n.t(this.props.title)}</Text>
-                <View style={AppHeader.styles.icon}>
-                    <Image
-                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}
-                    />
+            <View>
+                <View style={AppHeader.styles.main}>
+                    <TouchableHighlight style={AppHeader.styles.icon} onPress={this.onSettingsPress}>
+                        <Image
+                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_icon.png')}
+                        />
+                    </TouchableHighlight>
+                    <Text style={AppHeader.styles.header}
+                          onTitlePressed={this.props.onTitlePressed}>{I18n.t(this.props.title)}</Text>
+                    <View style={AppHeader.styles.icon}>
+                        <Image
+                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}
+                        />
+                    </View>
                 </View>
             </View>
         );
