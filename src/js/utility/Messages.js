@@ -25,7 +25,9 @@ export class Messages {
                     allQuestionnaireSessionsSummary: "All Questionnaire Sessions",
                     session: "Session Details",
                     decisionsMadeBySystem: "Decisions made by system",
-                    viewSavedSessions: "Saved Sessions"
+                    viewSavedSessions: "Saved Sessions",
+                    sessionsForPrefix: "Sessions for",
+                    zeroNumberOfSessions: "There are no saved sessions"
                 },
                 mr_IN: {
                     questionnaireList: 'Decision Support Tools(MR)'

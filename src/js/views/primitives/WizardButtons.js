@@ -16,8 +16,10 @@ class WizardButtons extends Component {
     previousButton() {
         var dynamicStyle = this.props.hasQuestionBefore ? CHSStyles.Global.navButtonVisible : CHSStyles.Global.navButtonHidden;
         return (
-            <Text onPress={this.onPrevious}
-                  style={[CHSStyles.Global.navButton, dynamicStyle]}>{I18n.t("previous")}</Text>);
+            <TouchableHighlight>
+                <Text onPress={this.onPrevious}
+                      style={[CHSStyles.Global.navButton, dynamicStyle]}>{I18n.t("previous")}</Text>
+            </TouchableHighlight>);
     };
 
     onPrevious = () => {
@@ -47,8 +49,10 @@ class WizardButtons extends Component {
             <View
                 style={{flexDirection: 'row', height: 100, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                 {this.previousButton()}
-                <Text onPress={this.onNext}
-                      style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
+                <TouchableHighlight>
+                    <Text onPress={this.onNext}
+                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
+                </TouchableHighlight>
             </View>
         );
     }

@@ -40,10 +40,14 @@ class ConfirmationView extends Component {
                 </View>
                 <View
                     style={{flexDirection: 'row', height: 100, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
-                    <Text onPress={this.onRestart}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("restart")}</Text>
-                    <Text onPress={this.onSaveAndRestart}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("saveAndRestart")}</Text>
+                    <TouchableHighlight>
+                        <Text onPress={this.onRestart}
+                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("restart")}</Text>
+                    </TouchableHighlight>
+                    <TouchableHighlight>
+                        <Text onPress={this.onSaveAndRestart}
+                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("saveAndRestart")}</Text>
+                    </TouchableHighlight>
                 </View>
             </View>
         );

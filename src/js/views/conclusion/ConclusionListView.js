@@ -1,13 +1,13 @@
 import Path from '../../routing/Path';
-import React, {Component, View, Text, StyleSheet, ListView} from 'react-native';
+import React, {Component, View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
 import I18n from '../../utility/Messages';
 import TypedTransition from "../../routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
 
-@Path('/ConclusionListView')
-class ConclusionListView extends Component {
+@Path('/DecisionSupportSessionListView')
+class DecisionSupportSessionListView extends Component {
     static styles = StyleSheet.create({
         sessionItem: {
             fontSize: 18,
@@ -38,18 +38,19 @@ class ConclusionListView extends Component {
     renderSummaryField(summaryField, session) {
         return (
             <View style={{flex: 0.33}}>
-                <Text style={[ConclusionListView.styles.sessionItem]}>{summaryField.getValueFrom(session)}</Text>
+                <Text
+                    style={[DecisionSupportSessionListView.styles.sessionItem]}>{summaryField.getValueFrom(session)}</Text>
             </View>);
     }
 
     renderRow(session, questionnaire, rowID) {
         return (
             <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 0.33}}>
+                <TouchableHighlight style={{flex: 0.33}}>
                     <Text
                         onPress={() => this.onSessionRowPress(session)}
-                          style={[ConclusionListView.styles.sessionItem, ConclusionListView.styles.saveDate]}>{General.formatDate(session.saveDate)}</Text>
-                </View>
+                        style={[DecisionSupportSessionListView.styles.sessionItem, DecisionSupportSessionListView.styles.saveDate]}>{General.formatDate(session.saveDate)}</Text>
+                </TouchableHighlight>
                 {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}
             </View>);
     }
@@ -65,17 +66,39 @@ class ConclusionListView extends Component {
         const dsClone = ds.cloneWithRows(sessions);
 
         return (
-            <View>
-                <Text>{`Sessions for ${questionnaireName}`}</Text>
+            <View style={{margin: 4}}>
                 <ListView
                     enableEmptySections={true}
                     dataSource={dsClone}
                     renderRow={(session, sectionID, rowID) => this.renderRow(session, questionnaire, rowID)}
-                    renderHeader={() => <Text style={{fontSize: 24}}>{I18n.t("answersConfirmationTitle")}</Text>}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text key={rowID} style={{height: adjacentRowHighlighted ? 4 : 1,
-                                                                                                     backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
+                    renderHeader={() => {
+                        return (
+                        <View>
+                            <Text style={{fontSize: 24, color: '#000000'}}>{`${I18n.t('sessionsForPrefix')} ${questionnaireName}`}</Text>
+                            {this._renderSeparator(0)}
+                        </View>
+                        )
+                    }}
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._renderSeparator(rowID)}
                 />
+                {this.renderZeroSessionMessage(sessions)}
             </View>);
+    }
+
+    _renderSeparator(rowID) {
+        return (<Text key={rowID} style={{height: 2, backgroundColor: '#CCCCCC'}}></Text>);
+    }
+
+    renderZeroSessionMessage(sessions) {
+        if (sessions.length === 0)
+            return (
+                <View>
+                    <Text style={{fontSize: 18}}>{I18n.t('zeroNumberOfSessions')}</Text>
+                    {this._renderSeparator(0)}
+                </View>
+            );
+        else
+            return (<Text/>);
     }
 
     render() {
@@ -91,4 +114,4 @@ class ConclusionListView extends Component {
     }
 }
 
-export default ConclusionListView;
+export default DecisionSupportSessionListView;
