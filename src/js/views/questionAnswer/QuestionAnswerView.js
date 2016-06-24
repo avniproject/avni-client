@@ -53,11 +53,13 @@ class QuestionAnswerView extends Component {
             return (
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
                            style={QuestionAnswerView.styles.textinput}
-                           keyboardType='numeric'/>);
+                           keyboardType='numeric'
+                           autoFocus={true}/>);
         else if (questionAnswer.questionDataType === 'Date')
             return (<TouchableHighlight
-                onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer})}>
-                <Text>{this.dateDisplay()}</Text>
+                onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer})}
+                style={{margin: 10}}>
+                <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
         else
             return (<AnswerList locale={this.locale} answers={this.questionAnswer.answers}/>);
@@ -90,28 +92,24 @@ class QuestionAnswerView extends Component {
         this.questionAnswer = this.questionnaire.currentQuestion();
         AppState.questionnaireAnswers.currentQuestion = this.questionAnswer.question;
         return (
-            <View style={{flexDirection: 'column'}}>
+            <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
-                <View>
-                    <View style={[CHSStyles.Global.mainSection, {flexDirection: 'column'}]}>
-                        <View style={{alignSelf: 'flex-start'}}>
-                            <Question question={this.questionAnswer.question}
-                                      locale={this.locale}
-                                      isMandatory={this.questionAnswer.isMandatory}/>
-                        </View>
-                        <View style={{alignSelf: 'flex-start'}}>
-                            {this.renderAnswer(this.questionAnswer)}
-                        </View>
-                        <WizardButtons hasQuestionBefore={!this.questionAnswer.isFirstQuestion}
-                                       nextParams={{
+                <View style={[CHSStyles.Global.mainSection, {flex: 1}]}>
+                    <Question question={this.questionAnswer.question}
+                              locale={this.locale}
+                              isMandatory={this.questionAnswer.isMandatory}/>
+                    <View style={{flex: 1}}>
+                        {this.renderAnswer(this.questionAnswer)}
+                    </View>
+                    <WizardButtons hasQuestionBefore={!this.questionAnswer.isFirstQuestion}
+                                   nextParams={{
                                     questionNumber: this.props.params.questionNumber + 1
                                }}
-                                       parent={this}
-                                       nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
-                                       isMandatory={this.questionAnswer.isMandatory}
-                                       style={{alignSelf: 'flex-end'}}
-                        />
-                    </View>
+                                   parent={this}
+                                   nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
+                                   isMandatory={this.questionAnswer.isMandatory}
+                                   style={{}}
+                    />
                 </View>
             </View>
         );

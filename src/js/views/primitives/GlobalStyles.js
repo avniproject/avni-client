@@ -5,7 +5,7 @@ export let Global = StyleSheet.create({
         backgroundColor: '#FF3823',
         color: '#FFFFFF',
         margin: 2,
-        width: 175,
+        width: 165,
         textAlign: 'center',
         textAlignVertical: 'center',
         justifyContent: 'center',

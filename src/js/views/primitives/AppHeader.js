@@ -14,21 +14,21 @@ class AppHeader extends Component {
         main: {
             backgroundColor: '#FF8A84',
             height: 60,
-            flex: 1,
             flexDirection: 'row'
         },
         icon: {
-            flex: 0.1,
+            flex: 0.13,
+            margin: 3,
             marginTop: 5
         },
         header: {
             color: '#FFFFFF',
             textAlignVertical: 'center',
+            textAlign:'center',
             fontWeight: 'bold',
             fontSize: 26,
             width: 50,
-            marginLeft: 100,
-            flex: 0.8
+            flex: 1
         }
     });
 

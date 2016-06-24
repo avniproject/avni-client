@@ -27,7 +27,7 @@ class AnswerOption extends Component {
             margin: 10,
             textAlign: 'left',
             textAlignVertical: 'center',
-            fontSize: 16,
+            fontSize: 18,
             flex: 0.7
         },
         checkImage: {

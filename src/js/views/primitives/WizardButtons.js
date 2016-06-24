@@ -44,13 +44,11 @@ class WizardButtons extends Component {
 
     render() {
         return (
-            <View style={{alignSelf: 'flex-end'}}>
-                <View
-                    style={{flexDirection: 'row', height: 100, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
-                    {this.previousButton()}
-                    <Text onPress={this.onNext}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
-                </View>
+            <View
+                style={{flexDirection: 'row', height: 100, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
+                {this.previousButton()}
+                <Text onPress={this.onNext}
+                      style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
             </View>
         );
     }

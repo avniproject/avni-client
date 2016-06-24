@@ -79,6 +79,7 @@ class SettingsView extends Component {
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />
+                {this.renderBusyIndicator()}
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <TouchableHighlight onPress={this.onDeleteSessionsPress}>
                         <Text style={Global.actionButton}>Delete Sessions</Text>
