@@ -23,8 +23,12 @@ describe('Export Service', () => {
                 if (questionnaireName === "foo") {
                     return {
                         questions: [
-                            "Question 1",
-                            "Question 2"
+                            {
+                                name: "Question 1"
+                            },
+                            {
+                                name: "Question 2"
+                            }
                         ],
                         decisionKeys: [
                             "Suggestion"
