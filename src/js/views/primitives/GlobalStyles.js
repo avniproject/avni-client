@@ -22,7 +22,7 @@ export let Global = StyleSheet.create({
         backgroundColor: '#1D3557',
         color: '#FFFFFF',
         margin: 2,
-        width: 200,
+        width: 175,
         height: 50,
         textAlign: 'center',
         textAlignVertical: 'center',

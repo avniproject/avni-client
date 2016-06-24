@@ -5,6 +5,7 @@ import SettingsHeader from './SettingsHeader';
 import I18n from '../../utility/Messages';
 import TypedTransition from "../../routing/TypedTransition";
 import {Global} from "../primitives/GlobalStyles";
+import ConclusionListView from "../conclusion/ConclusionListView";
 
 @Path('/settings')
 class SettingsView extends Component {
@@ -81,11 +82,14 @@ class SettingsView extends Component {
                 />
                 {this.renderBusyIndicator()}
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <TouchableHighlight onPress={this.onDeleteSessionsPress}>
-                        <Text style={Global.actionButton}>Delete Sessions</Text>
+                    <TouchableHighlight onPress={this.onViewSavedSessionsPress}>
+                        <Text style={Global.actionButton}>{I18n.t("viewSavedSessions")}</Text>
                     </TouchableHighlight>
                     <TouchableHighlight onPress={this.onExportPress}>
                         <Text style={Global.actionButton}>{I18n.t("export")}</Text>
+                    </TouchableHighlight>
+                    <TouchableHighlight onPress={this.onDeleteSessionsPress}>
+                        <Text style={Global.actionButton}>Delete Sessions</Text>
                     </TouchableHighlight>
                 </View>
             </View>

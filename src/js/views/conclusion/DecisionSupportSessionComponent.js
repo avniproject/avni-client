@@ -1,6 +1,5 @@
 import React, {Component, View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import General from '../../utility/General';
-import AppState from '../../hack/AppState';
 import I18n from '../../utility/Messages';
 
 class DecisionSupportSessionComponent extends Component {
@@ -17,7 +16,7 @@ class DecisionSupportSessionComponent extends Component {
 
     static propTypes = {
         decision: React.PropTypes.object.isRequired,
-        questionAnswers: React.PropTypes.object.isRequired
+        questionAnswers: React.PropTypes.array.isRequired
     };
 
     renderRow(key, value) {
@@ -25,7 +24,7 @@ class DecisionSupportSessionComponent extends Component {
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.5}}>
                     <Text
-                        style={[DecisionSupportSessionComponent.styles.questionAnswer, DecisionSupportSessionComponent.styles.question]}>{key}</Text>
+                        style={[DecisionSupportSessionComponent.styles.questionAnswer, DecisionSupportSessionComponent.styles.question]}>{I18n.t(key)}</Text>
                 </View>
                 <View style={{flex: 0.5}}>
                     <Text style={[DecisionSupportSessionComponent.styles.questionAnswer, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
@@ -42,11 +41,11 @@ class DecisionSupportSessionComponent extends Component {
             <ListView
                 dataSource={dsClone}
                 renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
-                renderHeader={() => <Text style={{fontSize: 24}}>{I18n.t("answersConfirmationTitle")}</Text>}
-                renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 4 : 1,
+                renderHeader={() => <Text style={{fontSize: 24, color: '#000000'}}>{I18n.t("answersConfirmationTitle")}</Text>}
+                renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{height: adjacentRowHighlighted ? 1 : 2,
                                                                                                      backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
             />
-            <Text style={{fontSize: 24}}>Decisions made by system</Text>
+            <Text style={{fontSize: 24, marginTop: 10, color: '#000000'}}>{I18n.t('decisionsMadeBySystem')}</Text>
             {this.renderRow(decision.name, decision.value)}
         </View>);
     }

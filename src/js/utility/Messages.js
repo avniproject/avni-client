@@ -23,7 +23,9 @@ export class Messages {
                     export: 'Export',
                     answersConfirmationTitle: 'You answered as follows',
                     allQuestionnaireSessionsSummary: "All Questionnaire Sessions",
-                    session: "Session Details"
+                    session: "Session Details",
+                    decisionsMadeBySystem: "Decisions made by system",
+                    viewSavedSessions: "Saved Sessions"
                 },
                 mr_IN: {
                     questionnaireList: 'Decision Support Tools(MR)'

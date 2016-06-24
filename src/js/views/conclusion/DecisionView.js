@@ -49,7 +49,7 @@ class DecisionView extends Component {
                     <Text style={DecisionView.styles.summary}>{this.decisions[0].name}</Text>
                     <Text style={DecisionView.styles.decision}>{this.decisions[0].value}</Text>
 
-                    <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this} nextView={ConfirmationView}/>
+                    <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this} nextView={ConfirmationView} isMandatory={false}/>
                 </View>
             </View>
         );

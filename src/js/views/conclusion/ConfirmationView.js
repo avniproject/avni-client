@@ -27,14 +27,17 @@ class ConfirmationView extends Component {
         service.save(AppState.questionnaireAnswers, this.props.params.decisions);
         TypedTransition.from(this).toBeginning();
     };
-    
+
     render() {
         return (
             <View>
                 <AppHeader title="confirmation"
                            parent={this}
                 />
-                <DecisionSupportSessionComponent decision={this.props.params.decisions[0]} questionAnswers={AppState.questionnaireAnswers.toArray()}/>
+                <View style={CHSStyles.Global.mainSection}>
+                    <DecisionSupportSessionComponent decision={this.props.params.decisions[0]}
+                                                     questionAnswers={AppState.questionnaireAnswers.toArray()}/>
+                </View>
                 <View
                     style={{flexDirection: 'row', height: 100, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
                     <Text onPress={this.onRestart}

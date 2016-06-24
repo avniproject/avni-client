@@ -11,7 +11,7 @@ import React, {
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
-import ConclusionView from "../conclusion/DecisionView";
+import DecisionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';
@@ -21,7 +21,7 @@ import General from '../../utility/General';
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
     static styles = StyleSheet.create({
-        textinput: {
+        textInput: {
             borderRadius: 5,
             padding: 5,
             borderColor: '#000000',
@@ -52,7 +52,7 @@ class QuestionAnswerView extends Component {
         if (questionAnswer.questionDataType === 'Numeric')
             return (
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
-                           style={QuestionAnswerView.styles.textinput}
+                           style={QuestionAnswerView.styles.textInput}
                            keyboardType='numeric'
                            autoFocus={true}/>);
         else if (questionAnswer.questionDataType === 'Date')
@@ -106,7 +106,7 @@ class QuestionAnswerView extends Component {
                                     questionNumber: this.props.params.questionNumber + 1
                                }}
                                    parent={this}
-                                   nextView={this.questionAnswer.isLastQuestion ? ConclusionView : QuestionAnswerView}
+                                   nextView={this.questionAnswer.isLastQuestion ? DecisionView : QuestionAnswerView}
                                    isMandatory={this.questionAnswer.isMandatory}
                                    style={{}}
                     />
