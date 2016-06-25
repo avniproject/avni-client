@@ -23,7 +23,9 @@ class General {
     }
     
     static formatValue(value) {
-        return value instanceof Date ? General.formatDate(value) : I18n.t(value);
+        if (value instanceof Date) return General.formatDate(value);
+        if (!isNaN(value)) return value;
+        return value;
     }
 
     static toExportable(str) {

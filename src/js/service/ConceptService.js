@@ -21,7 +21,6 @@ class ConceptService extends BaseService {
     //     return response.json();
     // }).then(function (json) {
     //     new Concepts(json);
-    //     console.log(conceptData);
     // });
 }
 

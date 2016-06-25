@@ -33,7 +33,6 @@ class DecisionSupportSessionService extends BaseService {
         
         const entities = [DecisionSupportSession.EntityName, QuestionAnswer.EntityName, Decision.EntityName];
         entities.forEach((entityName) => {
-            console.log(entityName);
             db.write(() => {
                 var objects = db.objects(entityName);
                 db.delete(objects);

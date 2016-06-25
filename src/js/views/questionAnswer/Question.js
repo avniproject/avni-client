@@ -17,7 +17,6 @@ class Question extends Component {
     });
 
     render() {
-        console.log(this.props.question);
         let question = I18n.t(this.props.question);
         return (
             <View>

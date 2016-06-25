@@ -1,9 +1,6 @@
 [
   {
-    "display": "Multiple Choice Question 1",
-    "uuid": "b36af420-3f10-11e4-adec-0800271c1b75",
     "name": "Multiple Choice Question 1",
-    "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
         "name": "बहुविकल्पी सवाल",
@@ -27,10 +24,7 @@
     ]
   },
   {
-    "display": "Numeric Question",
-    "uuid": "c36af420-3f10-11e4-adec-0800271c1b75",
     "name": "Numeric Question",
-    "conceptNameType": "FULLY_SPECIFIED",
     "datatype": {
       "name": "Numeric"
     },
@@ -43,15 +37,9 @@
         "name": "Numeric Question",
         "locale": "en"
       }
-    ],
-    "hiNormal": null,
-    "lowNormal": null,
-    "hiAbsolute": null,
-    "lowAbsolute": null
+    ]
   },
   {
-    "display": "Question 1 - Answer 1",
-    "uuid": "a546823932",
     "name": "Question 1 - Answer 1",
     "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
@@ -69,10 +57,7 @@
     }
   },
   {
-    "display": "Question 1 - Answer 2",
-    "uuid": "a546823932",
     "name": "Question 1 - Answer 2",
-    "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
         "name": "पहला सवाल दूसरा  जवाब",
@@ -88,10 +73,7 @@
     }
   },
   {
-    "display": "Diabetes",
-    "uuid": "a5468267567A",
     "name": "Diabetes",
-    "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
         "name": "मधुमेह:",
@@ -107,10 +89,7 @@
     }
   },
   {
-    "display": "Sample without control flow",
-    "uuid": "G9897hJ",
     "name": "Sample without control flow",
-    "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
         "name": "नमूना",
@@ -126,10 +105,7 @@
     }
   },
   {
-    "display": "Treatment",
-    "uuid": "JLA0987",
     "name": "Treatment",
-    "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
         "name": "इलाज",
@@ -141,14 +117,11 @@
       }
     ],
     "datatype": {
-      "name": "N/A"
+      "name": "Text"
     }
   },
   {
-    "display": "Date of Birth",
-    "uuid": "JHK8898HH",
     "name": "Date of Birth",
-    "conceptNameType": "FULLY_SPECIFIED",
     "conceptNames": [
       {
         "name": "जन्मतिथि",
@@ -161,6 +134,264 @@
     ],
     "datatype": {
       "name": "Date"
+    }
+  },
+  {
+    "name": "Name",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Name",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Text"
+    }
+  },
+  {
+    "name": "Age",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Age",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Numeric"
+    },
+    "lowAbsolute": 0,
+    "hiAbsolute": 130
+  },
+  {
+    "name": "Sex",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Sex",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Coded"
+    },
+    "answers": [
+      {
+        "name": "Male"
+      },
+      {
+        "name": "Female"
+      }
+    ]
+  },
+  {
+    "name": "Male",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Male",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "name": "Female",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Female",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "name": "Village",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Village",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Text"
+    }
+  },
+  {
+    "name": "Weight",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Weight",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Numeric"
+    }
+  },
+  {
+    "name": "Respiratory Rate",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Respiratory Rate",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Numeric"
+    }
+  },
+  {
+    "name": "Diagnosis",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Diagnosis",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Coded"
+    },
+    "answers": [
+      {
+        "name": "Malaria"
+      },
+      {
+        "name": "Cold"
+      }
+    ]
+  },
+  {
+    "name": "Malaria",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Malaria",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "name": "Cold",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Cold",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "N/A"
+    }
+  },
+  {
+    "name": "VHW Lokbiradari",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "VHW Lokbiradari",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Text"
+    }
+  },
+  {
+    "name": "Temperature",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Temperature",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Numeric"
+    }
+  },
+  {
+    "name": "Height",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "Height",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Numeric"
+    }
+  },
+  {
+    "name": "BMI",
+    "conceptNames": [
+      {
+        "name": "जन्मतिथि",
+        "locale": "hi_IN"
+      },
+      {
+        "name": "BMI",
+        "locale": "en"
+      }
+    ],
+    "datatype": {
+      "name": "Text"
     }
   }
 ]

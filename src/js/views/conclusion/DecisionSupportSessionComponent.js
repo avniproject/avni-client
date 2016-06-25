@@ -24,10 +24,10 @@ class DecisionSupportSessionComponent extends Component {
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.5}}>
                     <Text
-                        style={[DecisionSupportSessionComponent.styles.questionAnswer, DecisionSupportSessionComponent.styles.question]}>{I18n.t(key)}</Text>
+                        style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.question]}>{I18n.t(key)}</Text>
                 </View>
                 <View style={{flex: 0.5}}>
-                    <Text style={[DecisionSupportSessionComponent.styles.questionAnswer, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
+                    <Text style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
                 </View>
             </View>);
     }

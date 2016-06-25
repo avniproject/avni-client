@@ -1,12 +1,25 @@
-class FileSystemGateway {
-    createFile(name, contents) {
-        const RNFS = require('react-native-fs');
+let instance = null;
+import RuntimeMode from '../../utility/RuntimeMode';
 
+class FileSystemGateway {
+    constructor() {
+        if (!instance) {
+            instance = this;
+            if (RuntimeMode.runningTest()) {
+                this.RNFS = {};
+            } else {
+                this.RNFS = require('react-native-fs');
+            }
+        }
+        return instance;
+    }
+
+    createFile(name, contents) {
         // create a path you want to write to
-        var path = `${RNFS.DocumentDirectoryPath}/${name}`;
+        var path = `${this.RNFS.DocumentDirectoryPath}/${name}`;
 
         // write the file
-        RNFS.writeFile(path, contents, 'utf8')
+        this.RNFS.writeFile(path, contents, 'utf8')
             .then((success) => {
                 console.log(`A new file created at ${path}`);
             })
@@ -14,6 +27,28 @@ class FileSystemGateway {
                 console.log(err.message);
             });
     }
+
+    readFile(name, onRead, context) {
+        var path = `${this.RNFS.DocumentDirectoryPath}/${name}`;
+        console.log(`Reading file ${path}`);
+        this.RNFS.readFile(path, 'utf8')
+            .then((contents) => {
+                console.log(contents);
+                onRead(contents, context);
+            }).
+        catch((err) => {
+            console.log(err.message);
+        });
+    }
+
+    logFileNames(dir) {
+        this.RNFS.readDir(this.RNFS.DocumentDirectoryPath)
+            .then((result) => {
+                console.log('GOT RESULT', result);
+            }).catch((err) => {
+            console.log(err.message);
+        });
+    }
 }
 
-export default FileSystemGateway;
+export default new FileSystemGateway();

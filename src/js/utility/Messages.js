@@ -1,11 +1,12 @@
 let instance = null;
+import RuntimeMode from './RuntimeMode';
 
 export class Messages {
     constructor() {
         if (!instance) {
             instance = this;
             //hack - don't know how else to get around this. removing it causes unexpected token because of some es6 compilation issue.
-            if (process.env.npm_package_scripts_test !== undefined && process.env.npm_package_scripts_test.includes('react-native-mock')) {
+            if (RuntimeMode.runningTest()) {
                 this.I18n = {};
             } else {
                 this.I18n = require('react-native-i18n');

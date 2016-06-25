@@ -7,19 +7,20 @@ class SimpleQuestionnaire {
         this.questionIndex = 0;
     }
 
-    currentQuestion() {
+    get currentQuestion() {
         var questionConceptName = this.questionnaireData.questions[this.questionIndex].name;
         var conceptData = this.concepts.findByName(questionConceptName);
         var mandatoryValue = this.questionnaireData.questions[this.questionIndex].mandatory;
-        var questionAnswer = {
-            question: questionConceptName,
+        return {
+            name: questionConceptName,
             questionDataType: conceptData.datatype.name,
             isFirstQuestion: this.questionIndex === 0,
             isLastQuestion: this.questionIndex === this.questionnaireData.questions.length - 1,
-            isMandatory: mandatoryValue === undefined ? true : mandatoryValue
+            isMandatory: mandatoryValue === undefined ? true : mandatoryValue,
+            answers: conceptData.answers === undefined ? [] : conceptData.answers,
+            lowAbsolute: conceptData.lowAbsolute,
+            hiAbsolute: conceptData.hiAbsolute
         };
-        questionAnswer.answers = conceptData.answers === undefined ? [] : conceptData.answers;
-        return questionAnswer;
     }
 
     setQuestionIndex(index) {
@@ -49,5 +50,8 @@ class SimpleQuestionnaire {
         return this.questionnaireData.name;
     }
 }
+
+SimpleQuestionnaire.Numeric = 'Numeric';
+SimpleQuestionnaire.Text = 'Text';
 
 export default SimpleQuestionnaire;

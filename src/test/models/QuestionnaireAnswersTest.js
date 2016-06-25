@@ -5,7 +5,7 @@ describe('QuestionnaireAnswers', () => {
     var qa;
 
     beforeEach(function() {
-        qa = new QuestionnaireAnswers("foo");
+        qa = new QuestionnaireAnswers({name: "foo"});
         qa.currentQuestion = "bar";
         qa.currentAnswer = "baz";
     });

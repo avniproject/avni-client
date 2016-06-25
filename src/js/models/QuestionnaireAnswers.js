@@ -2,8 +2,8 @@ import QuestionAnswer from "./QuestionAnswer";
 
 class QuestionnaireAnswers {
     constructor(questionnaire) {
-        this.questionnaire = questionnaire;
         this.questionAnswers = new Map();
+        this.questionnaire = questionnaire;
     }
 
     set currentQuestion(value) {
@@ -15,7 +15,11 @@ class QuestionnaireAnswers {
     }
 
     get currentAnswer() {
-        return this.questionAnswers.get(this.questionCursor);
+        return this.getAnswerFor(this.questionCursor);
+    }
+    
+    getAnswerFor(questionName) {
+        return this.questionAnswers.get(questionName);
     }
 
     get value() {
@@ -34,7 +38,6 @@ class QuestionnaireAnswers {
     toSchemaInstance() {
         var schemaInstance = [];
         this.questionAnswers.forEach((answer, question) => {
-            // if (answer instanceof)
             schemaInstance.push(QuestionAnswer.newInstance(question, answer));
         });
         return schemaInstance;
@@ -45,8 +48,7 @@ class QuestionnaireAnswers {
     }
 
     get currentAnswerIsEmpty() {
-        const currentAnswer = this.currentAnswer;
-        return currentAnswer === undefined || (!(currentAnswer instanceof Date) && !(currentAnswer));
+        return this.currentAnswer === undefined || (!(this.currentAnswer instanceof Date) && !(this.currentAnswer));
     }
 }
 

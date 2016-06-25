@@ -2,13 +2,13 @@ import React, {NativeModules} from 'react-native';
 import BaseService from "./BaseService";
 import Service from "../framework/Service";
 import FileSystemGateway from "./gateway/FileSystemGateway";
-import General from "../utility/General"
+import General from "../utility/General";
 
 @Service("exportService")
 class ExportService extends BaseService {
     constructor(db, beanStore, fileSystemGateway) {
         super(db, beanStore);
-        this.fileSystemGateway = fileSystemGateway === undefined ? new FileSystemGateway() : fileSystemGateway;
+        this.fileSystemGateway = fileSystemGateway === undefined ? FileSystemGateway : fileSystemGateway;
     }
 
     exportAll(done) {
@@ -20,10 +20,9 @@ class ExportService extends BaseService {
             const fileName = General.replaceAndroidIncompatibleChars(questionnaireName) + General.getCurrentDate() + ".csv";
             this.fileSystemGateway.createFile(fileName, fileContents);
         });
-        var delay = 1000; //1 second
         setTimeout(function () {
             done()
-        }, delay);
+        }, 0);
     }
 
     getHeader(questionnaireName) {

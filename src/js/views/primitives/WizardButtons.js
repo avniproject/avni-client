@@ -10,7 +10,7 @@ class WizardButtons extends Component {
         nextParams: React.PropTypes.object.isRequired,
         parent: React.PropTypes.object.isRequired,
         nextView: React.PropTypes.func.isRequired,
-        isMandatory: React.PropTypes.bool.isRequired
+        validationFn: React.PropTypes.func
     };
 
     previousButton() {
@@ -27,21 +27,22 @@ class WizardButtons extends Component {
     };
 
     onNext = () => {
-        if (AppState.questionnaireAnswers.currentAnswerIsEmpty && this.props.isMandatory)
-            Alert.alert(
-                'This field is mandatory',
-                'There is no value specified',
-                [
-                    {
-                        text: 'OK', onPress: () => {
-                    }
-                    }
-                ]
-            );
-        else {
-            var typedTransition = TypedTransition.from(this.props.parent);
-            typedTransition.with(this.props.nextParams).to(this.props.nextView);
+        if (this.props.validationFn !== undefined) {
+            var validationResult = this.props.validationFn();
+            if (!validationResult.status) {
+                Alert.alert('Validation Error', validationResult.message,
+                    [
+                        {
+                            text: 'OK', onPress: () => {
+                        }
+                        }
+                    ]
+                );
+                return;
+            }
         }
+        var typedTransition = TypedTransition.from(this.props.parent);
+        typedTransition.with(this.props.nextParams).to(this.props.nextView);
     };
 
     render() {

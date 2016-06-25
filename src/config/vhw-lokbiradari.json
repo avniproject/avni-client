@@ -1,0 +1,37 @@
+{
+  "name" : "VHW Lokbiradari",
+  "description" : "VHW app",
+  "questions" : [
+    {
+      "name": "Name"
+    },
+    {
+      "name": "Age"
+    },
+    {
+      "name": "Sex"
+    },
+    {
+      "name": "Village"
+    },
+    {
+      "name": "Temperature"
+    },
+    {
+      "name": "Weight"
+    },
+    {
+      "name": "Respiratory Rate",
+      "mandatory": false
+    },
+    {
+      "name": "Diagnosis"
+    }
+  ],
+  "decisionKeys": [
+    "Treatment"
+  ],
+  "summaryFields": [
+    "Name", "Village"
+  ]
+}
