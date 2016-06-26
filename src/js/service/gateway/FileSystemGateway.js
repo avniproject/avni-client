@@ -33,20 +33,17 @@ class FileSystemGateway {
         console.log(`Reading file ${path}`);
         this.RNFS.readFile(path, 'utf8')
             .then((contents) => {
-                console.log(contents);
                 onRead(contents, context);
-            }).
-        catch((err) => {
-            console.log(err.message);
+            }).catch((err) => {
+            console.error(`Error reading file: ${path} --> ${err}`);
         });
     }
 
     logFileNames(dir) {
-        this.RNFS.readDir(this.RNFS.DocumentDirectoryPath)
-            .then((result) => {
-                console.log('GOT RESULT', result);
-            }).catch((err) => {
-            console.log(err.message);
+        this.RNFS.readDir(this.RNFS.DocumentDirectoryPath).then((result) => {
+            console.log('GOT RESULT', result);
+        }).catch((err) => {
+            console.error(`${err}`);
         });
     }
 }

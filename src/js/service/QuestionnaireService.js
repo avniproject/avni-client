@@ -1,8 +1,8 @@
-import BaseService from './BaseService.js';
-import Service from '../framework/Service.js';
-import ConceptService from './ConceptService.js';
-import SimpleQuestionnaire from '../models/SimpleQuestionnaire.js';
-import AppState from '../hack/AppState';
+import BaseService from './BaseService'
+import Service from '../framework/Service'
+import ConceptService from './ConceptService'
+import SimpleQuestionnaire from '../models/SimpleQuestionnaire'
+import ConfigurationData from '../service/ConfigurationData'
 
 @Service("questionnaireService")
 class QuestionnaireService extends BaseService {
@@ -11,7 +11,7 @@ class QuestionnaireService extends BaseService {
     }
 
     getQuestionnaire(questionnaireName) {
-        var questionnaire = AppState.questionnaireData.get(questionnaireName);
+        var questionnaire = ConfigurationData.questionnaireConfigurations.get(questionnaireName);
         if (questionnaire === undefined) return undefined;
 
         var conceptService = new ConceptService(this.db);
@@ -20,7 +20,7 @@ class QuestionnaireService extends BaseService {
 
     getQuestionnaireNames() {
         const questionnaires = [];
-        AppState.questionnaireData.forEach((answer, question, questionAnswers) => {
+        ConfigurationData.questionnaireConfigurations.forEach((answer, question, questionAnswers) => {
             questionnaires.push(question);
         });
         return questionnaires;

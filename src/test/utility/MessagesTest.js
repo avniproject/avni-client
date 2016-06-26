@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {Messages} from "../../js/utility/Messages";
-import ConceptData from "../../config/concepts.json";
+import ConceptData from "../../js/service/ConceptData";
 
 describe('Messages', () => {
     it('addTerminologyMessages', () => {

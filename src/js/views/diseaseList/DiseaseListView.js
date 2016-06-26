@@ -5,7 +5,6 @@ import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 
-@PathRoot
 @Path('/diseaseList')
 class DiseaseListView extends Component {
     static contextTypes = {

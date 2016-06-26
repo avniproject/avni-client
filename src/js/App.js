@@ -6,8 +6,7 @@ import models from './models';
 import './views';
 import './service';
 import SettingsService from "./service/SettingsService";
-import {Messages} from "./utility/Messages";
-import ConceptData from "./service/ConceptData";
+import AppState from './hack/AppState'
 
 export default class App extends Component {
     constructor() {
@@ -33,7 +32,9 @@ export default class App extends Component {
     render() {
         var settingsService = new SettingsService(this.store);
         settingsService.initialise();
-        new Messages().addTerminologyMessages(ConceptData);
+
+        const ConceptData = require('./service/ConceptData');
+        require('./service/ConfigurationData');
         return PathRegistry.routes();
     }
 }

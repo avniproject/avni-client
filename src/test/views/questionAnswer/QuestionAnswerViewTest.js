@@ -5,11 +5,11 @@ import QuestionAnswerView from '../../../js/views/questionAnswer/QuestionAnswerV
 import QuestionnaireService from "../../../js/service/QuestionnaireService";
 import Question from "../../../js/views/questionAnswer/Question";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
-import QuestionnaireAnswers from "../../../js/models/QuestionnaireAnswers";
 import AppState from "../../../js/hack/AppState"
 import WizardButtons from "../../../js/views/primitives/WizardButtons";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import ConceptData from "../../../js/service/ConceptData";
+import ConfigurationData from "../../../js/service/ConfigurationData";
 
 describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
@@ -25,7 +25,7 @@ describe('Question Answer View Test', () => {
             }
         };
 
-        var simpleQuestionnaire = new SimpleQuestionnaire(AppState.sample, ConceptData.concepts);
+        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.sample, ConceptData.concepts);
         AppState.startQuestionnaireSession(simpleQuestionnaire);
 
         const wrapper = shallow(<QuestionAnswerView params=
@@ -48,7 +48,7 @@ describe('Question Answer View Test', () => {
             }
         };
 
-        var simpleQuestionnaire = new SimpleQuestionnaire(AppState.diabetes, ConceptData.concepts);
+        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.diabetes, ConceptData.concepts);
         AppState.startQuestionnaireSession(simpleQuestionnaire);
 
         const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});

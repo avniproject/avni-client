@@ -7,7 +7,7 @@ export let Sample_without_control_flow_conclusion = function (questionnaireAnswe
 };
 
 const treatmentByDiagnosisAndCode = {
-    "मलेरिया": {
+    "Malaria": {
         "X1": {
             "1": [
                 {
@@ -43,7 +43,7 @@ const treatmentByDiagnosisAndCode = {
                     "Number of times": 1
                 }]
         },
-        "A2": {
+        "X2": {
             "1": [
                 {
                     "Medicine": "क्लोरोक्विन सायरप",
@@ -78,7 +78,7 @@ const treatmentByDiagnosisAndCode = {
                     "Number of times": 1
                 }]
         },
-        "A3": {
+        "X3": {
             "1": [
                 {
                     "Medicine": "क्लोरोक्विन सायरप",
@@ -113,7 +113,7 @@ const treatmentByDiagnosisAndCode = {
                     "Number of times": 1
                 }]
         },
-        "A4": {
+        "X4": {
             "1": [
                 {
                     "Medicine": "क्लोरोक्विन सायरप",
@@ -148,7 +148,7 @@ const treatmentByDiagnosisAndCode = {
                     "Number of times": 1
                 }]
         },
-        "A5": {
+        "X5": {
             "1": [
                 {
                     "Medicine": "क्लोरोक्विन सायरप",
@@ -183,7 +183,7 @@ const treatmentByDiagnosisAndCode = {
                     "Number of times": 1
                 }]
         },
-        "A6": {
+        "X6": {
             "1": [
                 {
                     "Medicine": "क्लोरोक्विन सायरप",
@@ -218,7 +218,7 @@ const treatmentByDiagnosisAndCode = {
                     "Number of times": 1
                 }]
         },
-        "A7": {
+        "X7": {
             "1": [
                 {
                     "Medicine": "क्लोरोक्विन सायरप",
@@ -252,11 +252,11 @@ const treatmentByDiagnosisAndCode = {
                     "Amount": 0.5,
                     "Number of times": 1
                 }]
-        },
+        }
     },
-    "सर्दी": {
+    "Cold": {
         "A1": {
-        },
+        }
     }
 };
 

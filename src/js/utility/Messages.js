@@ -49,8 +49,8 @@ export class Messages {
         return instance;
     }
 
-    addTerminologyMessages(concepts) {
-        concepts.forEach((concept) => {
+    addTerminologyMessages(conceptData) {
+        conceptData.concepts.forEach((concept) => {
             concept.conceptNames.forEach((conceptName) => {
                 var translationInALocale = this.I18n.translations[conceptName.locale];
                 if (translationInALocale === undefined) {

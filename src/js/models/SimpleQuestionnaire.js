@@ -2,20 +2,20 @@ import SummaryField from "./SummaryField";
 
 class SimpleQuestionnaire {
     constructor(questionnaireData, concepts) {
-        this.questionnaireData = questionnaireData;
+        this.questionnaireConfigurations = questionnaireData;
         this.concepts = concepts;
         this.questionIndex = 0;
     }
 
     get currentQuestion() {
-        var questionConceptName = this.questionnaireData.questions[this.questionIndex].name;
+        var questionConceptName = this.questionnaireConfigurations.questions[this.questionIndex].name;
         var conceptData = this.concepts.findByName(questionConceptName);
-        var mandatoryValue = this.questionnaireData.questions[this.questionIndex].mandatory;
+        var mandatoryValue = this.questionnaireConfigurations.questions[this.questionIndex].mandatory;
         return {
             name: questionConceptName,
             questionDataType: conceptData.datatype.name,
             isFirstQuestion: this.questionIndex === 0,
-            isLastQuestion: this.questionIndex === this.questionnaireData.questions.length - 1,
+            isLastQuestion: this.questionIndex === this.questionnaireConfigurations.questions.length - 1,
             isMandatory: mandatoryValue === undefined ? true : mandatoryValue,
             answers: conceptData.answers === undefined ? [] : conceptData.answers,
             lowAbsolute: conceptData.lowAbsolute,
@@ -28,15 +28,15 @@ class SimpleQuestionnaire {
     }
 
     get questions() {
-        return this.questionnaireData.questions;
+        return this.questionnaireConfigurations.questions;
     }
 
     get decisionKeys() {
-        return this.questionnaireData.decisionKeys;
+        return this.questionnaireConfigurations.decisionKeys;
     }
 
     get summaryFields() {
-        return this.questionnaireData.summaryFields.map((summaryField) => {
+        return this.questionnaireConfigurations.summaryFields.map((summaryField) => {
             if (this.questions.find(function (question) {
                     return summaryField === question.name;
                 }) !== undefined)
@@ -47,7 +47,7 @@ class SimpleQuestionnaire {
     }
 
     get name() {
-        return this.questionnaireData.name;
+        return this.questionnaireConfigurations.name;
     }
 }
 

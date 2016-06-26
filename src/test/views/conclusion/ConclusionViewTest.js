@@ -5,6 +5,7 @@ import DecisionView from '../../../js/views/conclusion/DecisionView';
 import AppState from "../../../js/hack/AppState"
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import ConceptData from "../../../js/service/ConceptData";
+import ConfigurationData from "../../../js/service/ConfigurationData";
 
 describe('Conclusion View Test', () => {
     it('should have display conclusion', () => {
@@ -12,7 +13,7 @@ describe('Conclusion View Test', () => {
             navigator: ()=> ({}),
             getService: ()=> ({})
         };
-        var simpleQuestionnaire = new SimpleQuestionnaire(AppState.sample, ConceptData.concepts);
+        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.sample, ConceptData.concepts);
         AppState.startQuestionnaireSession(simpleQuestionnaire);
         shallow(<DecisionView params={{}}/>, {context});
     });

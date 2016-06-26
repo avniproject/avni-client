@@ -20,9 +20,7 @@ class ExportService extends BaseService {
             const fileName = General.replaceAndroidIncompatibleChars(questionnaireName) + General.getCurrentDate() + ".csv";
             this.fileSystemGateway.createFile(fileName, fileContents);
         });
-        setTimeout(function () {
-            done()
-        }, 0);
+        done();
     }
 
     getHeader(questionnaireName) {

@@ -6,7 +6,7 @@ import ConceptData from './ConceptData';
 @Service("conceptService")
 class ConceptService extends BaseService {
     getConcepts() {
-        return new Concepts(ConceptData);
+        return new Concepts(ConceptData.concepts);
     }
     
     // import 'isomorphic-fetch';
