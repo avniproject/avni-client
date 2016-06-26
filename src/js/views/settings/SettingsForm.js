@@ -20,7 +20,7 @@ class SettingsForm extends Component {
 
     render() {
         return (
-            <View style={{marginBottom: 20}}>
+            <View style={{marginBottom: 10}}>
                 <SettingsFormField
                     onChangeText={this.props.onServerURLChanged}
                     defaultValue={this.props.settings.serverURL}

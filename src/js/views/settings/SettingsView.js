@@ -6,6 +6,7 @@ import I18n from '../../utility/Messages';
 import TypedTransition from "../../routing/TypedTransition";
 import {Global} from "../primitives/GlobalStyles";
 import ConclusionListView from "../conclusion/ConclusionListView";
+import FileSystemGateway from "../../service/gateway/FileSystemGateway";
 
 @Path('/settings')
 class SettingsView extends Component {
@@ -80,6 +81,10 @@ class SettingsView extends Component {
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
+                    <Text style={{flex: 0.2, fontSize: 20, color: '#0C59CF'}}>Home Folder</Text>
+                    <Text style={{flex: 0.6, fontSize: 20, color: '#0C59CF'}}>{FileSystemGateway.basePath}</Text>
+                </View>
                 {this.renderBusyIndicator()}
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <TouchableHighlight onPress={this.onViewSavedSessionsPress}>
