@@ -1170,6 +1170,7 @@ const englishWordsToMarathi = {
     "Chloroquin": "क्लोरोक्विन",
     "Chloroquin Syrup": "क्लोरोक्विन सायरप",
     "Paracetamol Syrup": "पॅरासिटामॉल सायरप",
+    "Paracetamol": "पॅरासिटामॉल",
     "Spoon": "चमचा",
     "Tablet": "टॅबलेट",
     "Cetrizine": "सेट्रीझीन",

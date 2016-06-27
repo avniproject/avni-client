@@ -8,14 +8,17 @@ class ConfigurationData {
     constructor() {
         if (!instance) {
             instance = this;
-
-            this.diabetes = require('../../config/diabetes.json');
-            this.sample = require('../../config/sample-questionnaire.json');
             this.vhw = require('../../config/vhw-lokbiradari.json');
 
             this.questionnaireConfigurations = new Map();
-            this.questionnaireConfigurations.set(this.sample.name, this.sample);
-            this.questionnaireConfigurations.set(this.diabetes.name, this.diabetes);
+
+            if (process.env.NODE_ENV === "development" || RuntimeMode.runningTest()) {
+                this.diabetes = require('../../config/diabetes.json');
+                this.sample = require('../../config/sample-questionnaire.json');
+
+                this.questionnaireConfigurations.set(this.sample.name, this.sample);
+                this.questionnaireConfigurations.set(this.diabetes.name, this.diabetes);
+            }
             this.questionnaireConfigurations.set(this.vhw.name, this.vhw);
 
             this.numberOfFilesRead = 0;
