@@ -370,7 +370,7 @@ const treatmentByDiagnosisAndCode = {
     },
     "Cough": {
         "X1": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron Syrup",
                     "Amount": 0.5,
@@ -380,7 +380,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X2": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron Syrup",
                     "Amount": 0.5,
@@ -390,7 +390,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X3": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron Syrup",
                     "Amount": 1,
@@ -400,7 +400,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X4": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron",
                     "Amount": 0.5,
@@ -410,7 +410,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X5": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron",
                     "Amount": 1,
@@ -420,7 +420,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X6": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron",
                     "Amount": 1,
@@ -430,7 +430,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X7": {
-            "3-5": [
+            "1-5": [
                 {
                     "Medicine": "Ceptron",
                     "Amount": 2,
@@ -442,7 +442,7 @@ const treatmentByDiagnosisAndCode = {
     },
     "Diarrhoea": {
         "X1": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone Syrup",
                     "Amount": 0.5,
@@ -457,7 +457,7 @@ const treatmentByDiagnosisAndCode = {
                 }]
         },
         "X2": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone Syrup",
                     "Amount": 1,
@@ -472,7 +472,7 @@ const treatmentByDiagnosisAndCode = {
                 }]
         },
         "X3": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone Syrup",
                     "Amount": 2,
@@ -487,7 +487,7 @@ const treatmentByDiagnosisAndCode = {
                 }]
         },
         "X4": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone",
                     "Amount": 0.5,
@@ -502,7 +502,7 @@ const treatmentByDiagnosisAndCode = {
                 }]
         },
         "X5": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone",
                     "Amount": 0.5,
@@ -517,7 +517,7 @@ const treatmentByDiagnosisAndCode = {
                 }]
         },
         "X6": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone",
                     "Amount": 1,
@@ -532,7 +532,7 @@ const treatmentByDiagnosisAndCode = {
                 }]
         },
         "X7": {
-            "1": [
+            "3": [
                 {
                     "Medicine": "Furoxone",
                     "Amount": 1,
@@ -549,7 +549,7 @@ const treatmentByDiagnosisAndCode = {
     },
     "Vomiting": {
         "X1": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Onden Syrup",
                     "Amount": 1,
@@ -559,7 +559,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X2": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Onden Syrup",
                     "Amount": 2,
@@ -569,7 +569,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X3": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Onden Syrup",
                     "Amount": 0.5,
@@ -579,7 +579,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X4": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Onden Syrup",
                     "Amount": 1,
@@ -589,7 +589,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X5": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Perinorm",
                     "Amount": 0.5,
@@ -599,7 +599,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X6": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Perinorm",
                     "Amount": 0.5,
@@ -609,7 +609,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X7": {
-            "1,2,3": [
+            "3": [
                 {
                     "Medicine": "Perinorm",
                     "Amount": 1,
@@ -621,7 +621,7 @@ const treatmentByDiagnosisAndCode = {
     },
     "Abdominal Pain": {
         "X1": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam Syrup",
                     "Amount": 0.5,
@@ -631,7 +631,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X2": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam Syrup",
                     "Amount": 1,
@@ -641,7 +641,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X3": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam Syrup",
                     "Amount": 1,
@@ -651,7 +651,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X4": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam",
                     "Amount": 0.5,
@@ -661,7 +661,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X5": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam",
                     "Amount": 0.5,
@@ -671,7 +671,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X6": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam",
                     "Amount": 1,
@@ -681,7 +681,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X7": {
-            "1,2": [
+            "2": [
                 {
                     "Medicine": "Cyroclopam",
                     "Amount": 1,
@@ -693,7 +693,7 @@ const treatmentByDiagnosisAndCode = {
     },
     "Acidity": {
         "X4": {
-            "1,2": [
+            "1-5": [
                 {
                     "Medicine": "Femotidine",
                     "Amount": 0.5,
@@ -703,7 +703,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X5": {
-            "1,2": [
+            "1-5": [
                 {
                     "Medicine": "Femotidine",
                     "Amount": 0.5,
@@ -713,7 +713,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X6": {
-            "1,2": [
+            "1-5": [
                 {
                     "Medicine": "Femotidine",
                     "Amount": 1,
@@ -723,7 +723,7 @@ const treatmentByDiagnosisAndCode = {
             ]
         },
         "X7": {
-            "1,2": [
+            "1-5": [
                 {
                     "Medicine": "Femotidine",
                     "Amount": 1,
@@ -731,6 +731,427 @@ const treatmentByDiagnosisAndCode = {
                     "Times": "2"
                 }
             ]
+        }
+    },
+    "Boils": {
+        "X1": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": "2"
+                }
+            ]
+        },
+        "X2": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": "2"
+                }
+            ]
+        },
+        "X3": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron Syrup",
+                    "Amount": 1,
+                    "Dose Unit": "Spoon",
+                    "Times": "2"
+                }
+            ]
+        },
+        "X4": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": "2"
+                }
+            ]
+        },
+        "X5": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": "2"
+                }
+            ]
+        },
+        "X6": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": "2"
+                }
+            ]
+        },
+        "X7": {
+            "1-5": [
+                {
+                    "Medicine": "Ceptron",
+                    "Amount": 2,
+                    "Dose Unit": "Tablet",
+                    "Times": "2"
+                }
+            ]
+        }
+    },
+    "Scabies": {
+        "X1": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 0.25,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        },
+        "X2": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        },
+        "X3": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        },
+        "X4": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 1,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        },
+        "X5": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        },
+        "X6": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        },
+        "X7": {
+            "3": [
+                {
+                    "Medicine": "Cetrizine",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Scabizol",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
+                }
+            ]
+        }
+    },
+    "Ring Worm": {
+        "X1": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 0.25,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                }
+            ]
+        },
+        "X2": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                }
+            ]
+        },
+        "X3": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                }
+            ]
+        },
+        "X4": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine Syrup",
+                    "Amount": 1,
+                    "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                }
+            ]
+        },
+        "X5": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                }
+            ]
+        },
+        "X6": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                }
+            ]
+        },
+        "X7": {
+            "3-5": [
+                {
+                    "Medicine": "Cetrizine",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                }
+            ]
+        }
+    },
+    "Body Ache": {
+        "X1": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }]
+        },
+        "X2": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Dose Unit": "Spoon",
+                    "Amount": 1,
+                    "Times": 3
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 0.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }]
+        },
+        "X3": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 1.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 1.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol Syrup",
+                    "Amount": 1.5,
+                    "Dose Unit": "Spoon",
+                    "Times": 3
+                }]
+        },
+        "X4": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X5": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 3
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 3
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 3
+                }]
+        },
+        "X6": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X7": {
+            "1": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 3
+                }],
+            "2": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 3
+                }],
+            "3": [
+                {
+                    "Medicine": "Paracetamol",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 3
+                }]
         }
     }
 };
@@ -746,22 +1167,26 @@ const weightRangesToCode = [
 ];
 
 const englishWordsToMarathi = {
-    Chloroquin: "क्लोरोक्विन",
+    "Chloroquin": "क्लोरोक्विन",
     "Chloroquin Syrup": "क्लोरोक्विन सायरप",
     "Paracetamol Syrup": "पॅरासिटामॉल सायरप",
-    Spoon: "चमचा",
-    Tablet: "टॅबलेट",
+    "Spoon": "चमचा",
+    "Tablet": "टॅबलेट",
     "Cetrizine": "सेट्रीझीन",
     "Cetrizine Syrup": "सेट्रीझीन सायरप",
     "Furoxone Syrup":  "फ्युरोक्सोन सायरप",
     "Furoxone":  "फ्युरोक्सोन",
-    "Abdak Syrup": "अबडक",
+    "Abdak": "अबडक",
+    "Abdak Syrup": "अबडक सायरप",
     "BC": "बीसी",
     "Perinorm": "पेरीनॉर्म",
-    "Onden": "ऑन्डेन सायरप",
+    "Onden Syrup": "ऑन्डेन सायरप",
     "Cyroclopam Syrup": "सायरप सायक्लोपाम",
     "Cyroclopam": "सायक्लोपाम",
-    "Femotidine": "फॅमोटिडीन"
+    "Femotidine": "फॅमोटिडीन",
+    "Ceptron Syrup": "सायरप सेप्ट्रान",
+    "Ceptron": "सेप्ट्रान",
+    "Scabizol": "खरजेचे औषध"
 };
 
 var doseQuantityToMarathi = function (doseQuantity, doseUnit) {
@@ -777,9 +1202,9 @@ var doseQuantityToMarathi = function (doseQuantity, doseUnit) {
 };
 
 var dosageTimingToMarathi = function (times) {
-    if (times === 1) return "दिवसातून एकदा";
-    if (times === 2) return "दिवसातून दोन वेळा";
-    if (times === 3) return "दिवसातून तीन वेळा";
+    if (times === 1 || times === "1") return "दिवसातून एकदा";
+    if (times === 2 || times === "2") return "दिवसातून दोन वेळा";
+    if (times === 3 || times === "3") return "दिवसातून तीन वेळा";
     if (times === "Once Evening") return "रोज संध्याकाळी एकदा";
     console.error(`Number of times ${times} not supported yet`);
 };
@@ -788,6 +1213,7 @@ export let VHW_Lokbiradari_conclusion = function (questionnaireAnswers) {
     const weight = questionnaireAnswers.getAnswerFor('Weight');
     const diagnosis = questionnaireAnswers.getAnswerFor('Diagnosis');
     const age = questionnaireAnswers.getAnswerFor('Age');
+    const sex = questionnaireAnswers.getAnswerFor('Sex');
 
     const weightRangeToCode = weightRangesToCode.find((weightRangeToCode) => {
         return weightRangeToCode.start <= weight && weightRangeToCode.end >= weight;
@@ -798,16 +1224,28 @@ export let VHW_Lokbiradari_conclusion = function (questionnaireAnswers) {
     decision.code = weightRangeToCode.code;
     var prescription = treatmentByDiagnosisAndCode[diagnosis][weightRangeToCode.code];
     var message = "";
-    for (var day = 1; day <= 3; day++) {
-        for (var medicine = 0; medicine < prescription[`${day}`].length; medicine++) {
-            const daysPrescription = prescription[`${day}`][medicine];
+
+    var dayTokens = getKeys(prescription);
+    if (dayTokens.length === 1 && dayTokens[0] !== "1") {
+        if (dayTokens[0] === "3-5")
+            message += "३ ते ५ दिवस";
+        else if (dayTokens[0] === "1-5")
+            message += "१ ते ५ दिवस";
+        else if (dayTokens[0] === "3")
+            message += "३ दिवस";
+        else if (dayTokens[0] === "2")
+            message += "२ दिवस";
+
+        message += "\n";
+    }
+    for (var token = 0; token < dayTokens.length; token++) {
+        for (var medicine = 0; medicine < prescription[dayTokens[token]].length; medicine++) {
+            const daysPrescription = prescription[dayTokens[token]][medicine];
             message += englishWordsToMarathi[`${daysPrescription.Medicine}`];
-            message += " ";
-            message += englishWordsToMarathi[`${daysPrescription["Dose Unit"]}`];
             message += " ";
             message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
             message += " ";
-            message += daysPrescription.Amount < 2 ? "चमचा" : "चमचे";
+            message += getDoseUnitMessage(daysPrescription);
             message += " ";
             message += dosageTimingToMarathi(daysPrescription.Times);
             message += "\n";
@@ -816,14 +1254,30 @@ export let VHW_Lokbiradari_conclusion = function (questionnaireAnswers) {
     }
     decision.value = message;
 
-    if (weight >= 13 && diagnosis === "Malaria") {
+    if (weight >= 13 && diagnosis === "Malaria")
         decision.alert = "क्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी";
-    } else if (diagnosis === 'Cough' && age >= 16 && age <= 40 && weight >= 13)
+    else if (diagnosis === 'Cough' && age >= 16 && age <= 40 && weight >= 13 && sex === "Female")
         decision.alert = "१६ ते ४० वर्षाच्या बायकांना सेप्ट्रान देऊ नये त्याऐवजी सिफ्रान १गोळी दिवसातून २ वेळा द्यावी";
     else if (diagnosis === 'Vomiting')
         decision.alert = "उलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत";
 
     return [decision];
+};
+
+var getDoseUnitMessage = function(daysPrescription) {
+    if (daysPrescription["Dose Unit"] === "Spoon")
+        return daysPrescription.Amount < 2 ? "चमचा" : "चमचे";
+    else if (daysPrescription["Dose Unit"] === "ml")
+        return "ml";
+    return "टॅबलेट";
+};
+
+var getKeys = function(obj) {
+    var keys = [];
+    for (var key in obj) {
+        keys.push(key);
+    }
+    return keys;
 };
 
 export let BMI_conclusion = function (questionnaireAnswers) {

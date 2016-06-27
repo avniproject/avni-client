@@ -49,7 +49,7 @@ export class Messages {
                     export: "डाउनलोड",
                     sessionsForPrefix: "मागील तपासण्या",
                     answersConfirmationTitle: "दिलेले उत्तर",
-                    decisionsMadeBySystem: "निदान",
+                    decisionsMadeBySystem: "उपचार",
                     deleteConfirmation: "तुम्हाला सर्व डाटा डीलीट करावयाचा आहे का?",
                     numberOfSessions: "{{count}} तपासण्यांचा डाटा डीलीट होइल.",
                     validationError: 'फॉर्म वर चुक आहे ',

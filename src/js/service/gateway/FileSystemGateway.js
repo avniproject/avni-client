@@ -28,14 +28,15 @@ class FileSystemGateway {
             });
     }
 
-    readFile(name, onRead, context) {
+    readFile(name, onRead, onError, context) {
         var path = `${this.basePath}/${name}`;
         console.log(`Reading file ${path}`);
         this.RNFS.readFile(path, 'utf8')
             .then((contents) => {
                 onRead(contents, context);
             }).catch((err) => {
-            console.error(`Error reading file: ${path} --> ${err}`);
+                console.error(`Error reading file: ${path} --> ${err}`);
+                onError(`Error reading file: ${path} --> ${err}`, context);
         });
     }
 
@@ -46,7 +47,17 @@ class FileSystemGateway {
             console.error(`${err}`);
         });
     }
-    
+
+    writeFile(fileName, message) {
+        var path = `${this.basePath}/${fileName}`;
+        this.RNFS.writeFile(path, message, 'utf8', {append: 'true'}).then((success) => {
+            console.log('Log written');
+        })
+            .catch((err) => {
+                console.error(err.message);
+            });
+    }
+
     get basePath() {
         return this.RNFS.DocumentDirectoryPath;
     }

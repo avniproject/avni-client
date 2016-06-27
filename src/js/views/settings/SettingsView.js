@@ -53,7 +53,7 @@ class SettingsView extends Component {
     onDeleteSessionsPress = () => {
         const service = this.context.getService("decisionSupportSessionService");
         Alert.alert(
-            I18n.get('deleteConfirmation'),
+            I18n.t('deleteConfirmation'),
             I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
             [
                 {
@@ -84,7 +84,7 @@ class SettingsView extends Component {
                 />
                 <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                     <Text style={{flex: 0.2, fontSize: 20, color: '#0C59CF'}}>Home Folder</Text>
-                    <Text style={{flex: 0.6, fontSize: 20, color: '#0C59CF'}}>{FileSystemGateway.basePath}</Text>
+                    <Text style={{flex: 0.6, fontSize: 24, color: '#0C59CF'}}>{FileSystemGateway.basePath}</Text>
                 </View>
                 {this.renderBusyIndicator()}
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>

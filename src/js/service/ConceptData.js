@@ -9,9 +9,10 @@ class ConceptData {
             instance = this;
             this.numberOfFilesRead = 0;
             if (RuntimeMode.runningTest())
-                instance.concepts = require("../../config/sample-concepts.json");
+                this.concepts = require("../../config/sample-concepts.json");
             else {
-                FileSystemGateway.readFile('concepts.json', ConceptData.onRead, this);
+                this.concepts = require("../../config/concepts.json");
+                // FileSystemGateway.readFile('concepts.json', ConceptData.onRead, ConceptData.onError, this);
             }
         }
 
@@ -24,8 +25,13 @@ class ConceptData {
         console.log("ConceptData reading completed");
     }
     
+    static onError(errorMessage, self) {
+        self.errorMessage = errorMessage;
+    }
+    
     get initialised() {
-        return this.numberOfFilesRead === 1;
+        return true;
+        // return this.numberOfFilesRead === 1 || this.errorMessage !== undefined;
     }
 }
 

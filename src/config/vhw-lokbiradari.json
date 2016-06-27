@@ -25,12 +25,13 @@
       "mandatory": false
     },
     {
-      "name": "Pulse",
-      "mandatory": false
+      "name": "Pulse"
     },
     {
-      "name": "BP",
-      "mandatory": false
+      "name": "Systolic"
+    },
+    {
+      "name": "Diastolic"
     },
     {
       "name": "Pedal Edema",

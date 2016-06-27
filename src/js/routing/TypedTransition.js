@@ -43,8 +43,6 @@ export default class TypedTransition {
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const path = viewClass.path();
         var route = {path, queryParams: this.queryParams || {}};
-        console.log(route);
-        console.log(this.view.context.navigator().getCurrentRoutes());
         this.view.context.navigator().resetTo(route);
         return this;
     }
