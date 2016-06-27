@@ -22,11 +22,11 @@ class DecisionSupportSessionComponent extends Component {
     renderRow(key, value) {
         return (
             <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 0.5}}>
+                <View style={{flex: 0.3}}>
                     <Text
                         style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.question]}>{I18n.t(key)}</Text>
                 </View>
-                <View style={{flex: 0.5}}>
+                <View style={{flex: 0.7}}>
                     <Text style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
                 </View>
             </View>);

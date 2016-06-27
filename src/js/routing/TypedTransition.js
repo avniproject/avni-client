@@ -38,4 +38,14 @@ export default class TypedTransition {
         this.view.context.navigator().popToTop();
         return this;
     }
+
+    resetTo(viewClass) {
+        invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
+        const path = viewClass.path();
+        var route = {path, queryParams: this.queryParams || {}};
+        console.log(route);
+        console.log(this.view.context.navigator().getCurrentRoutes());
+        this.view.context.navigator().resetTo(route);
+        return this;
+    }
 }

@@ -6,6 +6,7 @@ import Path from "../../routing/Path";
 import AppState from '../../hack/AppState';
 import I18n from '../../utility/Messages';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
+import DiseaseListView from "../diseaseList/DiseaseListView";
 
 @Path('/ConfirmationView')
 class ConfirmationView extends Component {
@@ -19,13 +20,13 @@ class ConfirmationView extends Component {
     };
 
     onRestart = () => {
-        TypedTransition.from(this).toBeginning();
+        TypedTransition.from(this).resetTo(DiseaseListView);
     };
 
     onSaveAndRestart = () => {
         var service = this.context.getService("decisionSupportSessionService");
         service.save(AppState.questionnaireAnswers, this.props.params.decisions);
-        TypedTransition.from(this).toBeginning();
+        TypedTransition.from(this).resetTo(DiseaseListView);
     };
 
     render() {

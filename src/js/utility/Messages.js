@@ -26,12 +26,27 @@ export class Messages {
                     allQuestionnaireSessionsSummary: "All Questionnaire Sessions",
                     session: "Session Details",
                     decisionsMadeBySystem: "Decisions made by system",
-                    viewSavedSessions: "Saved Sessions",
+                    viewSavedSessions: "View Sessions",
                     sessionsForPrefix: "Sessions for",
-                    zeroNumberOfSessions: "There are no saved sessions"
+                    zeroNumberOfSessions: "There are no saved sessions",
+                    deleteSessions: "Delete Data",
+                    deleteConfirmation: "Do you want to delete all saved sessions?",
+                    numberOfSessions: "There are currently {{count}} sessions."
                 },
                 mr_IN: {
-                    questionnaireList: 'Decision Support Tools(MR)'
+                    questionnaireList: '',
+                    next: '>>',
+                    previous: '<<',
+                    saveAndRestart: 'सेव',
+                    restart: 'पुनः सुरू',
+                    viewSavedSessions: "डाटा पाहा",
+                    deleteSessions: "डाटा डीलीट",
+                    export: "डाउनलोड",
+                    sessionsForPrefix: "मागील तपासण्या",
+                    answersConfirmationTitle: "दिलेले उत्तर",
+                    decisionsMadeBySystem: "निदान",
+                    deleteConfirmation: "तुम्हाला सर्व डाटा डीलीट करावयाचा आहे का?",
+                    numberOfSessions: "{{count}} तपासण्यांचा डाटा डीलीट होइल."
                 },
                 hi_IN: {
                     questionnaireList: 'फेसला समर्थन उपकरण',

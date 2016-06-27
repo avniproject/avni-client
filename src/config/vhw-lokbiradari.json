@@ -15,13 +15,33 @@
       "name": "Village"
     },
     {
-      "name": "Temperature"
-    },
-    {
       "name": "Weight"
     },
     {
+      "name": "Temperature"
+    },
+    {
       "name": "Respiratory Rate",
+      "mandatory": false
+    },
+    {
+      "name": "Pulse",
+      "mandatory": false
+    },
+    {
+      "name": "BP",
+      "mandatory": false
+    },
+    {
+      "name": "Pedal Edema",
+      "mandatory": false
+    },
+    {
+      "name": "Pallor",
+      "mandatory": false
+    },
+    {
+      "name": "Skin Condition",
       "mandatory": false
     },
     {

@@ -10,7 +10,7 @@ import {expect} from 'chai';
 describe('Simple Question', () => {
     it('Should load questions and their answers', () => {
         var simpleQuestionnaire = new SimpleQuestionnaire(Sample, new Concepts(ConceptsData));
-        var question = simpleQuestionnaire.currentQuestion;
+        var question = simpleQuestionnaire.getQuestion(0);
         expect(question.name).to.equal('Multiple Choice Question 1');
         expect(question.answers.length).to.equal(2);
         expect(question.isFirstQuestion).to.equal(true);
@@ -19,7 +19,7 @@ describe('Simple Question', () => {
 
     it('Should load questions and their answers - 2', () => {
         var simpleQuestionnaire = new SimpleQuestionnaire(Diabetes, new Concepts(ConceptsData));
-        var question = simpleQuestionnaire.currentQuestion;
+        var question = simpleQuestionnaire.getQuestion(0);
         expect(question.name).to.equal('Numeric Question');
     });
 

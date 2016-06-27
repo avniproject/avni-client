@@ -4,7 +4,6 @@ import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
 import I18n from '../../utility/Messages'
 
-
 class QuestionnaireButton extends Component {
 
     static propTypes = {

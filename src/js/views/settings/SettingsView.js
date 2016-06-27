@@ -41,6 +41,7 @@ class SettingsView extends Component {
     onLocaleChanged = (locale) => {
         const view = this;
         this.service.save(locale);
+        this.setState({});
     };
 
     onExportPress = () => {
@@ -52,17 +53,17 @@ class SettingsView extends Component {
     onDeleteSessionsPress = () => {
         const service = this.context.getService("decisionSupportSessionService");
         Alert.alert(
-            'Do you want to delete all saved sessions?',
-            `There are currently ${service.getNumberOfSessions()} sessions. Delete?`,
+            I18n.get('deleteConfirmation'),
+            I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
             [
                 {
                     text: 'Yes', onPress: () => {
-                    service.deleteAll()
-                }
+                        service.deleteAll()
+                    }
                 },
                 {
                     text: 'No', onPress: () => {
-                }, style: 'cancel'
+                    }, style: 'cancel'
                 }
             ]
         )
@@ -94,7 +95,7 @@ class SettingsView extends Component {
                         <Text style={Global.actionButton}>{I18n.t("export")}</Text>
                     </TouchableHighlight>
                     <TouchableHighlight onPress={this.onDeleteSessionsPress}>
-                        <Text style={Global.actionButton}>Delete Sessions</Text>
+                        <Text style={Global.actionButton}>{I18n.t("deleteSessions")}</Text>
                     </TouchableHighlight>
                 </View>
             </View>

@@ -4,27 +4,22 @@ class SimpleQuestionnaire {
     constructor(questionnaireData, concepts) {
         this.questionnaireConfigurations = questionnaireData;
         this.concepts = concepts;
-        this.questionIndex = 0;
     }
 
-    get currentQuestion() {
-        var questionConceptName = this.questionnaireConfigurations.questions[this.questionIndex].name;
+    getQuestion(questionIndex) {
+        var questionConceptName = this.questionnaireConfigurations.questions[questionIndex].name;
         var conceptData = this.concepts.findByName(questionConceptName);
-        var mandatoryValue = this.questionnaireConfigurations.questions[this.questionIndex].mandatory;
+        var mandatoryValue = this.questionnaireConfigurations.questions[questionIndex].mandatory;
         return {
             name: questionConceptName,
             questionDataType: conceptData.datatype.name,
-            isFirstQuestion: this.questionIndex === 0,
-            isLastQuestion: this.questionIndex === this.questionnaireConfigurations.questions.length - 1,
+            isFirstQuestion: questionIndex === 0,
+            isLastQuestion: questionIndex === this.questionnaireConfigurations.questions.length - 1,
             isMandatory: mandatoryValue === undefined ? true : mandatoryValue,
             answers: conceptData.answers === undefined ? [] : conceptData.answers,
             lowAbsolute: conceptData.lowAbsolute,
             hiAbsolute: conceptData.hiAbsolute
         };
-    }
-
-    setQuestionIndex(index) {
-        this.questionIndex = index;
     }
 
     get questions() {
