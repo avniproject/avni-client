@@ -10,4 +10,13 @@ describe('General', () => {
     it('formatDate', () => {
         expect(General.formatDate(new Date('2011-04-11'))).is.equal('11-04-2011');
     });
+
+    it('isAnswerNotWithinRange', () => {
+        const question = {lowAbsolute: 10, hiAbsolute: 65};
+        expect(General.isAnswerNotWithinRange(20, question)).is.false;
+        expect(General.isAnswerNotWithinRange(10, question)).is.false;
+        expect(General.isAnswerNotWithinRange(65, question)).is.false;
+        expect(General.isAnswerNotWithinRange(5, question)).is.true;
+        expect(General.isAnswerNotWithinRange(66, question)).is.true;
+    });
 });

@@ -1,11 +1,10 @@
 import React, {Component, StyleSheet, Text, View} from 'react-native';
 import I18n from '../../utility/Messages';
+import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 
 class Question extends Component {
-
     static propTypes = {
-        question: React.PropTypes.string.isRequired,
-        isMandatory: React.PropTypes.bool.isRequired
+        question: React.PropTypes.object.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -17,14 +16,21 @@ class Question extends Component {
     });
 
     render() {
-        let question = I18n.t(this.props.question);
         return (
             <View>
                 <Text style={Question.styles.question}>
-                    {this.props.isMandatory ? `${question} *` : `${question}`}
+                    {this.toQuestionText()}
                 </Text>
             </View>
         );
+    }
+
+    toQuestionText() {
+        const questionText = I18n.t(this.props.question.name);
+        var text = this.props.question.isMandatory ? `${questionText} *` : `${questionText}`;
+        if (this.props.question.questionDataType === SimpleQuestionnaire.Numeric && this.props.question.lowAbsolute !== undefined)
+            text += ` [${this.props.question.lowAbsolute} - ${this.props.question.hiAbsolute}]`;
+        return text;
     }
 }
 

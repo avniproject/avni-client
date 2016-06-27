@@ -7,7 +7,9 @@ export class Messages {
             instance = this;
             //hack - don't know how else to get around this. removing it causes unexpected token because of some es6 compilation issue.
             if (RuntimeMode.runningTest()) {
-                this.I18n = {};
+                this.I18n = {
+                    t: function(){}
+                };
             } else {
                 this.I18n = require('react-native-i18n');
             }
@@ -31,7 +33,10 @@ export class Messages {
                     zeroNumberOfSessions: "There are no saved sessions",
                     deleteSessions: "Delete Data",
                     deleteConfirmation: "Do you want to delete all saved sessions?",
-                    numberOfSessions: "There are currently {{count}} sessions."
+                    numberOfSessions: "There are currently {{count}} sessions.",
+                    validationError: 'Validation Error',
+                    numericValueValidation: "Is not a number or is out of range",
+                    emptyValidationMessage: "There is no value specified"
                 },
                 mr_IN: {
                     questionnaireList: '',
@@ -46,7 +51,10 @@ export class Messages {
                     answersConfirmationTitle: "दिलेले उत्तर",
                     decisionsMadeBySystem: "निदान",
                     deleteConfirmation: "तुम्हाला सर्व डाटा डीलीट करावयाचा आहे का?",
-                    numberOfSessions: "{{count}} तपासण्यांचा डाटा डीलीट होइल."
+                    numberOfSessions: "{{count}} तपासण्यांचा डाटा डीलीट होइल.",
+                    validationError: 'फॉर्म वर चुक आहे ',
+                    numericValueValidation: "कृपया १-१३० मधील नंबर टाका",
+                    emptyValidationMessage: "ह्या प्रश्नाचे उत्तर देणे अनिवार्य आहे "
                 },
                 hi_IN: {
                     questionnaireList: 'फेसला समर्थन उपकरण',

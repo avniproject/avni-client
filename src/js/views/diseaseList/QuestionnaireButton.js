@@ -1,4 +1,4 @@
-import React, { Component, StyleSheet, Text } from 'react-native';
+import React, {Component, StyleSheet, Text, TouchableHighlight} from 'react-native';
 import TypedTransition from '../../routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
@@ -43,9 +43,11 @@ class QuestionnaireButton extends Component {
 
     render() {
         return (
-            <Text onPress={this.onSelect} style={QuestionnaireButton.styles.item}>
-                {I18n.t(this.props.diseaseName)}
-            </Text>
+            <TouchableHighlight>
+                <Text onPress={this.onSelect} style={QuestionnaireButton.styles.item}>
+                    {I18n.t(this.props.diseaseName)}
+                </Text>
+            </TouchableHighlight>
         );
     }
 }

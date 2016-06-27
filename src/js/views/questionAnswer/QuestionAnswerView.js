@@ -19,6 +19,7 @@ import WizardButtons from '../primitives/WizardButtons';
 import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
+import I18n from '../../utility/Messages';
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -93,10 +94,10 @@ class QuestionAnswerView extends Component {
     validate = () => {
         const answer = AppState.questionnaireAnswers.currentAnswer;
         if (this.question.isMandatory && AppState.questionnaireAnswers.currentAnswerIsEmpty) {
-            return {status: false, message: "There is no value specified"};
+            return {status: false, message: I18n.t('emptyValidationMessage')};
         } else if (this.question.isMandatory && this.question.questionDataType === SimpleQuestionnaire.Numeric &&
-                    !isNaN(answer) && (answer < this.question.lowAbsolute || answer > this.question.hiAbsolute)) {
-            return {status: false, message: "Is not a number of is out of range"};
+                    General.isAnswerNotWithinRange(answer, this.question)) {
+            return {status: false, message: I18n.t('numericValueValidation')};
         }
         return {status: true};
     };
@@ -108,9 +109,7 @@ class QuestionAnswerView extends Component {
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
                 <View style={[CHSStyles.Global.mainSection, {flex: 1}]}>
-                    <Question question={this.question.name}
-                              locale={this.locale}
-                              isMandatory={this.question.isMandatory}/>
+                    <Question question={this.question} locale={this.locale} />
                     <View style={{flex: 1}}>
                         {this.renderAnswer(this.question)}
                     </View>

@@ -30,11 +30,10 @@ class WizardButtons extends Component {
         if (this.props.validationFn !== undefined) {
             var validationResult = this.props.validationFn();
             if (!validationResult.status) {
-                Alert.alert('Validation Error', validationResult.message,
+                Alert.alert(I18n.t("validationError"), validationResult.message,
                     [
                         {
-                            text: 'OK', onPress: () => {
-                        }
+                            text: 'OK', onPress: () => {}
                         }
                     ]
                 );

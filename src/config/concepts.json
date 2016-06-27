@@ -256,7 +256,9 @@
     ],
     "datatype": {
       "name": "Numeric"
-    }
+    },
+    "lowAbsolute": 1,
+    "hiAbsolute": 120
   },
   {
     "name": "Respiratory Rate",
@@ -272,7 +274,9 @@
     ],
     "datatype": {
       "name": "Numeric"
-    }
+    },
+    "lowAbsolute": 10,
+    "hiAbsolute": 40
   },
   {
     "name": "Diagnosis",
@@ -375,7 +379,9 @@
     ],
     "datatype": {
       "name": "Numeric"
-    }
+    },
+    "lowAbsolute": 77,
+    "hiAbsolute": 109.4
   },
   {
     "name": "Height",
@@ -423,7 +429,9 @@
     ],
     "datatype": {
       "name": "Numeric"
-    }
+    },
+    "lowAbsolute": 40,
+    "hiAbsolute": 150
   },
   {
     "name": "BP",

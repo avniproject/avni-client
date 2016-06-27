@@ -43,6 +43,10 @@ class General {
         });
         return str;
     }
+
+    static isAnswerNotWithinRange(answer, question) {
+        return !isNaN(answer) && (answer < question.lowAbsolute || answer > question.hiAbsolute);
+    }
 }
 
 export default General;
