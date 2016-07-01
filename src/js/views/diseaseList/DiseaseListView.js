@@ -20,7 +20,7 @@ class DiseaseListView extends Component {
     });
 
     static initialDataSource = () =>
-        new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        new ListView.DataSource({rowHasChanged: (row_1, row_2) => row_1 !== row_2});
 
     state = {
         dataSource: DiseaseListView.initialDataSource().cloneWithRows(QuestionnaireNames)
