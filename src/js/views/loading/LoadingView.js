@@ -1,13 +1,13 @@
-import Path, {PathRoot} from '../routing/Path'
+import Path, {PathRoot} from '../../routing/Path'
 import React, {Component, ProgressBarAndroid, View, Text} from 'react-native'
-import ConceptData from "../service/ConceptData"
-import ConfigurationData from '../service/ConfigurationData'
-import TypedTransition from '../routing/TypedTransition'
-import DiseaseListView from "./diseaseList/DiseaseListView"
-import AppState from '../hack/AppState'
-import {Messages} from "../utility/Messages"
-import FileSystemGateway from "../service/gateway/FileSystemGateway"
-import ErrorView from "./ErrorView";
+import ConceptData from "../../service/ConceptData"
+import ConfigurationData from '../../service/ConfigurationData'
+import TypedTransition from '../../routing/TypedTransition'
+import DiseaseListView from "./../diseaseList/DiseaseListView"
+import AppState from '../../hack/AppState'
+import {Messages} from "../../utility/Messages"
+import FileSystemGateway from "../../service/gateway/FileSystemGateway"
+import ErrorView from "../error/ErrorView";
 
 @PathRoot
 @Path('/loadingView')

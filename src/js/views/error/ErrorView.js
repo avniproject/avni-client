@@ -1,4 +1,4 @@
-import Path from '../routing/Path'
+import Path from '../../routing/Path'
 import React, {Component, View, Text} from 'react-native'
 
 @Path('/errorView')
