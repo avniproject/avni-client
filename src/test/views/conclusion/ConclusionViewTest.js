@@ -1,4 +1,5 @@
-import React, {Text, TextInput} from 'react-native';
+import React from 'react';
+import {Text, TextInput} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import DecisionView from '../../../js/views/conclusion/DecisionView';

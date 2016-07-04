@@ -36,9 +36,9 @@
     "eslint-plugin-react": "4.3.0",
     "flow-bin": "^0.27.0",
     "mocha": "2.4.5",
-    "react-addons-test-utils": "^15.0.2",
-    "react-dom": "^15.0.2",
-    "react-native-mock": "^0.2.2",
+    "react-addons-test-utils": "15.0.2",
+    "react-dom": "15.0.2",
+    "react-native-mock": "0.2.2",
     "rnpm-plugin-upgrade": "^0.26.0"
   }
 }
