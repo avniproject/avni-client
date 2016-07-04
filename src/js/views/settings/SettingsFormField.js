@@ -1,4 +1,5 @@
-import React, { Component, StyleSheet, Text, TextInput, View } from 'react-native';
+import  {StyleSheet, Text, TextInput, View} from 'react-native';
+import React, {Component} from 'react';
 import SettingsForm from './SettingsForm';
 
 class SettingsFormField extends Component {
@@ -25,7 +26,7 @@ class SettingsFormField extends Component {
                     style={[SettingsFormField.styles.input, {flex: 0.6}]}
                     onChangeText={this.props.onChangeText}
                     defaultValue={this.props.defaultValue}
-                    />
+                />
             </View>
         );
     }

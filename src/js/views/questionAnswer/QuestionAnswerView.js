@@ -1,5 +1,4 @@
-import React, {
-    Component,
+import {
     View,
     Text,
     TextInput,
@@ -8,6 +7,7 @@ import React, {
     DatePickerAndroid,
     TouchableHighlight
 } from 'react-native';
+import React, {Component} from 'react';
 import Path from '../../routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
@@ -90,13 +90,13 @@ class QuestionAnswerView extends Component {
             console.warn(`Error in example '${stateKey}': `, message);
         }
     }
-    
+
     validate = () => {
         const answer = AppState.questionnaireAnswers.currentAnswer;
         if (this.question.isMandatory && AppState.questionnaireAnswers.currentAnswerIsEmpty) {
             return {status: false, message: I18n.t('emptyValidationMessage')};
         } else if (this.question.isMandatory && this.question.questionDataType === SimpleQuestionnaire.Numeric &&
-                    General.isAnswerNotWithinRange(answer, this.question)) {
+            General.isAnswerNotWithinRange(answer, this.question)) {
             return {status: false, message: I18n.t('numericValueValidation')};
         }
         return {status: true};
@@ -109,7 +109,7 @@ class QuestionAnswerView extends Component {
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
                 <View style={[CHSStyles.Global.mainSection, {flex: 1}]}>
-                    <Question question={this.question} locale={this.locale} />
+                    <Question question={this.question} locale={this.locale}/>
                     <View style={{flex: 1}}>
                         {this.renderAnswer(this.question)}
                     </View>

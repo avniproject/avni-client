@@ -1,4 +1,5 @@
-import React, {Component, StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
+import {StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
+import React, {Component} from 'react';
 import TypedTransition from "../../routing/TypedTransition";
 import SettingsView from "../settings/SettingsView";
 import I18n from '../../utility/Messages'
@@ -24,7 +25,7 @@ class AppHeader extends Component {
         header: {
             color: '#FFFFFF',
             textAlignVertical: 'center',
-            textAlign:'center',
+            textAlign: 'center',
             fontWeight: 'bold',
             fontSize: 26,
             width: 50,

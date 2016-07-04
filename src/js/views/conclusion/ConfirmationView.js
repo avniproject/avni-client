@@ -1,4 +1,5 @@
-import React, {Component, View, ListView, Text, StyleSheet, TouchableOpacity, TouchableHighlight} from 'react-native';
+import {View, ListView, Text, StyleSheet, TouchableOpacity, TouchableHighlight} from 'react-native';
+import React, {Component} from 'react';
 import TypedTransition from "../../routing/TypedTransition";
 import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from '../primitives/AppHeader';

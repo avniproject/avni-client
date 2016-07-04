@@ -1,4 +1,5 @@
-import React, {Component, View, Text, StyleSheet, ListView} from 'react-native';
+import {View, Text, StyleSheet, ListView} from 'react-native';
+import React, {Component} from 'react';
 import Path from '../../routing/Path';
 import AppState from '../../hack/AppState'
 import * as ConclusionFunctions from '../../../config/conclusions'
@@ -56,7 +57,8 @@ class DecisionView extends Component {
                     <Text style={DecisionView.styles.summary}>{I18n.t(this.decisions[0].name)}</Text>
                     <Text style={DecisionView.styles.decision}>{this.decisions[0].value}</Text>
                     {this.renderAlert(this.decisions[0])}
-                    <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this} nextView={ConfirmationView}/>
+                    <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this}
+                                   nextView={ConfirmationView}/>
                 </View>
             </View>
         );

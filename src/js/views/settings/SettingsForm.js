@@ -1,4 +1,5 @@
-import React, {Component, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import React, {Component} from 'react';
 import SettingsFormField from './SettingsFormField';
 import SettingsMultipleChoiceField from './SettingsMultipleChoiceField';
 

@@ -1,8 +1,8 @@
-import React, {Component, StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'react-native';
+import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'react-native';
+import React, {Component} from 'react';
 import TypedTransition from "../../routing/TypedTransition";
 import * as CHSStyles from "./GlobalStyles";
 import I18n from '../../utility/Messages';
-import AppState from '../../hack/AppState';
 
 class WizardButtons extends Component {
     static propTypes = {
@@ -33,7 +33,8 @@ class WizardButtons extends Component {
                 Alert.alert(I18n.t("validationError"), validationResult.message,
                     [
                         {
-                            text: 'OK', onPress: () => {}
+                            text: 'OK', onPress: () => {
+                        }
                         }
                     ]
                 );

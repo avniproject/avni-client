@@ -1,4 +1,5 @@
-import React, {Component, StyleSheet, View, ListView, DrawerLayoutAndroid, Text} from 'react-native';
+import  {StyleSheet, View, ListView, DrawerLayoutAndroid, Text} from 'react-native';
+import React, {Component} from 'react';
 import Path, {PathRoot} from '../../routing/Path';
 import QuestionnaireNames from '../../../config/questionnaires.json';
 import QuestionnaireButton from './QuestionnaireButton';
@@ -25,7 +26,7 @@ class DiseaseListView extends Component {
     state = {
         dataSource: DiseaseListView.initialDataSource().cloneWithRows(QuestionnaireNames)
     };
-    
+
     render() {
         return (
             //TODO: Separate this out in another component

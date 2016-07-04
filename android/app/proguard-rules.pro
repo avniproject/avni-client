@@ -38,7 +38,6 @@
   *** get*();
 }
 
--keep class com.facebook.react.bridge.queue.NativeRunnable { *; }
 -keep class * extends com.facebook.react.bridge.JavaScriptModule { *; }
 -keep class * extends com.facebook.react.bridge.NativeModule { *; }
 -keepclassmembers,includedescriptorclasses class * { native <methods>; }
@@ -62,7 +61,3 @@
 -dontwarn java.nio.file.*
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 -dontwarn okio.**
-
-# stetho
-
--dontwarn com.facebook.stetho.**

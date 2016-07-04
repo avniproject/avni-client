@@ -1,4 +1,4 @@
-import React, {NativeModules} from 'react-native';
+import {NativeModules} from 'react-native';
 import BaseService from "./BaseService";
 import Service from "../framework/Service";
 import FileSystemGateway from "./gateway/FileSystemGateway";

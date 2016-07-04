@@ -1,4 +1,5 @@
-import React, { Component, StyleSheet, Text } from 'react-native';
+import {StyleSheet, Text} from 'react-native';
+import React, {Component} from 'react';
 
 class SettingsHeader extends Component {
     static styles = StyleSheet.create({

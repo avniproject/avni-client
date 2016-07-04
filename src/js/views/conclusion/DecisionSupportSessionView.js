@@ -1,4 +1,5 @@
-import React, {Component, View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {Component} from 'react';
 import AppHeader from '../primitives/AppHeader';
 import DecisionSupportSessionControl from './DecisionSupportSessionComponent';
 import Path from "../../routing/Path";

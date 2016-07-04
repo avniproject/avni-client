@@ -1,4 +1,5 @@
-import React, {Component, Text, StyleSheet, View, Image} from 'react-native';
+import {Text, StyleSheet, View, Image} from 'react-native';
+import React, {Component} from 'react';
 import AppState from "../../hack/AppState";
 import I18n from '../../utility/Messages'
 
@@ -36,7 +37,7 @@ class AnswerOption extends Component {
             height: 45
         }
     });
-    
+
     displayCheckImage() {
         if (AppState.questionnaireAnswers.currentAnswer === this.props.answer) {
             return (<Image style={AnswerOption.styles.checkImage}

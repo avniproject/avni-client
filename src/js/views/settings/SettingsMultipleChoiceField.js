@@ -1,4 +1,5 @@
-import React, {Component, StyleSheet, Text, TextInput, View, Picker} from 'react-native';
+import {StyleSheet, Text, TextInput, View, Picker} from 'react-native';
+import React, {Component} from 'react';
 import SettingsForm from './SettingsForm';
 
 const Item = Picker.Item;

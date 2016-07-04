@@ -1,4 +1,5 @@
-import React, {Component, View, TouchableHighlight, Text, Alert, ProgressBarAndroid, StyleSheet} from 'react-native';
+import {View, TouchableHighlight, Text, Alert, ProgressBarAndroid, StyleSheet} from 'react-native';
+import React, {Component} from 'react';
 import Path from '../../routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
@@ -58,12 +59,12 @@ class SettingsView extends Component {
             [
                 {
                     text: 'Yes', onPress: () => {
-                        service.deleteAll()
-                    }
+                    service.deleteAll()
+                }
                 },
                 {
                     text: 'No', onPress: () => {
-                    }, style: 'cancel'
+                }, style: 'cancel'
                 }
             ]
         )

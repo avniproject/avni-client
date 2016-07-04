@@ -1,4 +1,4 @@
-import React, { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 
 export let Global = StyleSheet.create({
     navButton: {

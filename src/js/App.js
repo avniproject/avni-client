@@ -1,4 +1,4 @@
-import React, {Component} from 'react-native';
+import React, {Component} from 'react';
 import PathRegistry from './routing/PathRegistry';
 import BeanRegistry from './framework/BeanRegistry.js';
 import Realm from 'realm';
@@ -24,7 +24,7 @@ export default class App extends Component {
         getStore: () => this.store,
         getService: (serviceName) => this.beans.get(serviceName)
     });
-    
+
     getBean(name) {
         return this.beans.get(name);
     }

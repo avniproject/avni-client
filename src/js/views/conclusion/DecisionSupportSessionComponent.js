@@ -1,4 +1,5 @@
-import React, {Component, View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {Component} from 'react';
 import General from '../../utility/General';
 import I18n from '../../utility/Messages';
 
@@ -27,7 +28,8 @@ class DecisionSupportSessionComponent extends Component {
                         style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.question]}>{I18n.t(key)}</Text>
                 </View>
                 <View style={{flex: 0.7}}>
-                    <Text style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
+                    <Text
+                        style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
                 </View>
             </View>);
     }

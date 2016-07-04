@@ -1,5 +1,6 @@
 import Path, {PathRoot} from '../../routing/Path'
-import React, {Component, ProgressBarAndroid, View, Text} from 'react-native'
+import {ProgressBarAndroid, View, Text} from 'react-native'
+import React, {Component} from 'react';
 import ConceptData from "../../service/ConceptData"
 import ConfigurationData from '../../service/ConfigurationData'
 import TypedTransition from '../../routing/TypedTransition'

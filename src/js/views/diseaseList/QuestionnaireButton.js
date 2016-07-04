@@ -1,4 +1,5 @@
-import React, {Component, StyleSheet, Text, TouchableHighlight} from 'react-native';
+import  {StyleSheet, Text, TouchableHighlight} from 'react-native';
+import React, {Component} from 'react';
 import TypedTransition from '../../routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";

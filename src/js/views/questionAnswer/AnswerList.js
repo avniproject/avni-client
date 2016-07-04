@@ -1,4 +1,5 @@
-import React, {Component, View, Text} from 'react-native';
+import {View, Text} from 'react-native';
+import React, {Component} from 'react';
 import AnswerOption from './AnswerOption';
 
 class AnswerList extends Component {

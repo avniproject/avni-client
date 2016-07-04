@@ -1,5 +1,6 @@
 import Path from '../../routing/Path';
-import React, {Component, View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native';
+import {View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native';
+import React, {Component} from 'react';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
 import I18n from '../../utility/Messages';
