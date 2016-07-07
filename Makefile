@@ -13,6 +13,8 @@ install: ansible_check
 run-android:
 	ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android
 
+run-packager:
+	REACT_EDITOR=atom ./node_modules/react-native/packager/packager.sh start --reset-cache
 deps:
 	npm install
 
