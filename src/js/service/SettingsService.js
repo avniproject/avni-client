@@ -7,6 +7,10 @@ import I18n from "../utility/Messages";
 class SettingsService extends BaseService {
     constructor(db) {
         super(db);
+        const dbInScope = this.db;
+        if (this.getSettings() === undefined)
+            this.db.write(() => dbInScope.create('Settings', InitialSettings));
+        I18n.locale = this.getSettings().locale.selectedLocale;
     }
 
     getSettings() {
@@ -14,23 +18,20 @@ class SettingsService extends BaseService {
         if (settings === undefined || settings.length === 0) return undefined;
         return settings[0];
     }
-    
-    save(locale) {
+
+    saveServerURL(serverURL) {
+        const self = this;
+        this.db.write(() => {
+            self.getSettings().serverURL = serverURL;
+        });
+    }
+
+    saveLocale(locale) {
         const self = this;
         this.db.write(() => {
             self.getSettings().locale.selectedLocale = locale;
             I18n.locale = locale;
         });
-    }
-    
-    initialise() {
-        var settings = this.getSettings();
-        const dbInScope = this.db;
-        if (settings === undefined)
-            this.db.write(() => dbInScope.create('Settings', InitialSettings));
-        I18n.locale = this.getSettings().locale.selectedLocale;
-        console.log(`Default messages default locale=${I18n.defaultLocale}`);
-        console.log(`Current messages locale=${I18n.currentLocale()}`);
     }
 }
 

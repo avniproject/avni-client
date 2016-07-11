@@ -30,18 +30,15 @@ class SettingsView extends Component {
         this.settings = this.service.getSettings();
         this.state = {exporting: false};
         this.onExportPress = this.onExportPress.bind(this);
+        this.onLocaleChanged = this.onLocaleChanged.bind(this);
     }
 
     onServerURLChanged = (serverURL) => {
-        const view = this;
-        this.service.save(()=> {
-            view.settings.serverURL = serverURL;
-        });
+        this.service.saveServerURL(serverURL);
     };
 
     onLocaleChanged = (locale) => {
-        const view = this;
-        this.service.save(locale);
+        this.service.saveLocale(locale);
         this.setState({});
     };
 

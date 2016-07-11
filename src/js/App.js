@@ -30,8 +30,7 @@ export default class App extends Component {
     }
 
     render() {
-        var settingsService = new SettingsService(this.store);
-        settingsService.initialise();
+        // var settingsService = new SettingsService(this.store);
 
         const ConceptData = require('./service/ConceptData');
         require('./service/ConfigurationData');
