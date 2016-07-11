@@ -18,20 +18,24 @@
       "name": "Weight"
     },
     {
-      "name": "Temperature"
+      "name": "Temperature",
+      "mandatory": false
     },
     {
       "name": "Respiratory Rate",
       "mandatory": false
     },
     {
-      "name": "Pulse"
+      "name": "Pulse",
+      "mandatory": false
     },
     {
-      "name": "Systolic"
+      "name": "Systolic",
+      "mandatory": false
     },
     {
-      "name": "Diastolic"
+      "name": "Diastolic",
+      "mandatory": false
     },
     {
       "name": "Pedal Edema",

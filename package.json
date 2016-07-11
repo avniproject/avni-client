@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
-  "license": "MIT",
+  "license": "AGPL",
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "lint": "./node_modules/.bin/eslint src",

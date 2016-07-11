@@ -23,6 +23,7 @@ class WizardButtons extends Component {
     };
 
     onPrevious = () => {
+        require('dismissKeyboard')();
         TypedTransition.from(this.props.parent).goBack();
     };
 
@@ -41,6 +42,7 @@ class WizardButtons extends Component {
                 return;
             }
         }
+        require('dismissKeyboard')();
         var typedTransition = TypedTransition.from(this.props.parent);
         typedTransition.with(this.props.nextParams).to(this.props.nextView);
     };

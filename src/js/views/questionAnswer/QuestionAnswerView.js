@@ -1,5 +1,6 @@
 import {
     View,
+    ScrollView,
     Text,
     TextInput,
     StyleSheet,
@@ -106,7 +107,7 @@ class QuestionAnswerView extends Component {
         this.question = this.questionnaire.getQuestion(this.props.params.questionNumber);
         AppState.questionnaireAnswers.currentQuestion = this.question.name;
         return (
-            <View>
+            <ScrollView keyboardShouldPersistTaps={true}>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}/>
                 <View style={[CHSStyles.Global.mainSection, {flex: 1}]}>
                     <Question question={this.question} locale={this.locale}/>
@@ -122,7 +123,7 @@ class QuestionAnswerView extends Component {
                                    validationFn={this.validate}
                     />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
