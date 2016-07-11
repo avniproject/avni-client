@@ -6,7 +6,7 @@ import models from './models';
 import './views';
 import './service';
 import SettingsService from "./service/SettingsService";
-import AppState from './hack/AppState'
+import AppState from './hack/AppState';
 
 export default class App extends Component {
     constructor() {
