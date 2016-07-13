@@ -1,5 +1,5 @@
 export let get = (endpoint, cb) => {
-    fetch("endpoint", {
+    fetch(endpoint, {
         "method": "GET",
         headers: {
             'Accept': 'application/json',
