@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
-import BeanRegistry from './framework/bean/BeanRegistry.js';
+import BeanRegistry from './framework/bean/BeanRegistry';
+import BootstrapRegistry from './framework/bootstrap/BootstrapRegistry';
 import Realm from 'realm';
 import models from './models';
 import './views';
 import './service';
+import './tasks';
 import AppState from './hack/AppState'; //Required Import
 
 export default class App extends Component {
@@ -12,6 +14,7 @@ export default class App extends Component {
         super();
         this.store = new Realm(models);
         this.beans = BeanRegistry.init(this.store, this);
+        BootstrapRegistry.runAllTasks(this.beans.get("settingsService"));
     }
 
     static childContextTypes = {
@@ -22,8 +25,6 @@ export default class App extends Component {
     getChildContext = () => ({
         getStore: () => this.store,
         getService: (serviceName) => {
-            console.log(serviceName);
-            console.log(Array.from(this.beans.keys()));
             return this.beans.get(serviceName)
         }
     });

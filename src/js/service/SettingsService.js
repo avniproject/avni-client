@@ -19,6 +19,10 @@ class SettingsService extends BaseService {
         return settings[0];
     }
 
+    getServerURL() {
+        return this.getSettings().serverURL;
+    }
+
     saveServerURL(serverURL) {
         const self = this;
         this.db.write(() => {
