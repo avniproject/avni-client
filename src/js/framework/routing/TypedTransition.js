@@ -1,7 +1,6 @@
 import invariant from 'invariant';
 
 export default class TypedTransition {
-
     constructor(view) {
         this.view = view;
     }
@@ -12,6 +11,7 @@ export default class TypedTransition {
     }
 
     to(viewClass, sceneConfig) {
+        require('dismissKeyboard')();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
 
         const path = viewClass.path();
@@ -24,6 +24,7 @@ export default class TypedTransition {
     }
     
     goBack() {
+        require('dismissKeyboard')();
         this.view.context.navigator().pop();
     }
 
@@ -35,11 +36,13 @@ export default class TypedTransition {
     }
     
     toBeginning() {
+        require('dismissKeyboard')();
         this.view.context.navigator().popToTop();
         return this;
     }
 
     resetTo(viewClass) {
+        require('dismissKeyboard')();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const path = viewClass.path();
         var route = {path, queryParams: this.queryParams || {}};

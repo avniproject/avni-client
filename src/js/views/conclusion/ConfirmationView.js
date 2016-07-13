@@ -20,14 +20,14 @@ class ConfirmationView extends Component {
         params: React.PropTypes.object.isRequired
     };
 
-    onRestart = () => {
-        TypedTransition.from(this).resetTo(DiseaseListView);
-    };
-
     onSaveAndRestart = () => {
         var service = this.context.getService("decisionSupportSessionService");
         service.save(AppState.questionnaireAnswers, this.props.params.decisions);
         TypedTransition.from(this).resetTo(DiseaseListView);
+    };
+
+    onPrevious = () => {
+        TypedTransition.from(this).goBack();
     };
 
     render() {
@@ -41,10 +41,10 @@ class ConfirmationView extends Component {
                                                      questionAnswers={AppState.questionnaireAnswers.toArray()}/>
                 </View>
                 <View
-                    style={{flexDirection: 'row', height: 100, justifyContent: 'flex-end', marginTop: 30, paddingRight: 20}}>
+                    style={{flexDirection: 'row', height: 100, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                     <TouchableHighlight>
-                        <Text onPress={this.onRestart}
-                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("restart")}</Text>
+                        <Text onPress={this.onPrevious}
+                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("previous")}</Text>
                     </TouchableHighlight>
                     <TouchableHighlight>
                         <Text onPress={this.onSaveAndRestart}
