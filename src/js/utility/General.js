@@ -47,6 +47,10 @@ class General {
     static isAnswerNotWithinRange(answer, question) {
         return !isNaN(answer) && (answer < question.lowAbsolute || answer > question.hiAbsolute);
     }
+    
+    static formatRange(question) {
+        return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
+    }
 }
 
 export default General;

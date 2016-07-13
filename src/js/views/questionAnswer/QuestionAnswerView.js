@@ -100,7 +100,7 @@ class QuestionAnswerView extends Component {
             return {status: false, message: I18n.t('emptyValidationMessage')};
         } else if (this.question.isMandatory && this.question.questionDataType === SimpleQuestionnaire.Numeric &&
             General.isAnswerNotWithinRange(answer, this.question)) {
-            return {status: false, message: I18n.t('numericValueValidation')};
+            return {status: false, message: I18n.t('numericValueValidation', {range: General.formatRange(this.question)})};
         }
         return {status: true};
     };

@@ -35,7 +35,7 @@ export class Messages {
                     deleteConfirmation: "Do you want to delete all saved sessions?",
                     numberOfSessions: "There are currently {{count}} sessions.",
                     validationError: 'Validation Error',
-                    numericValueValidation: "Is not a number or is out of range",
+                    numericValueValidation: "Is not a number or is out of range {{range}}",
                     emptyValidationMessage: "There is no value specified"
                 },
                 mr_IN: {
@@ -53,7 +53,7 @@ export class Messages {
                     deleteConfirmation: "तुम्हाला सर्व डाटा डीलीट करावयाचा आहे का?",
                     numberOfSessions: "{{count}} तपासण्यांचा डाटा डीलीट होइल.",
                     validationError: 'फॉर्म वर चुक आहे ',
-                    numericValueValidation: "कृपया १-१३० मधील नंबर टाका",
+                    numericValueValidation: "कृपया {{range}} मधील नंबर टाका",
                     emptyValidationMessage: "ह्या प्रश्नाचे उत्तर देणे अनिवार्य आहे "
                 },
                 hi_IN: {
