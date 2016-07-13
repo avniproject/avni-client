@@ -1,5 +1,5 @@
 import BaseService from "./BaseService";
-import Service from "../framework/Service";
+import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
 import I18n from "../utility/Messages";
 

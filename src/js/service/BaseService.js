@@ -1,5 +1,3 @@
-import BeanRegistry from "../framework/BeanRegistry";
-
 export default class BaseService {
     constructor(db, beanStore) {
         this.db = db;

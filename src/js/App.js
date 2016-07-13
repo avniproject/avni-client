@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import PathRegistry from './routing/PathRegistry';
-import BeanRegistry from './framework/BeanRegistry.js';
+import BeanRegistry from './framework/bean/BeanRegistry.js';
 import Realm from 'realm';
 import models from './models';
 import './views';
 import './service';
-import SettingsService from "./service/SettingsService";
-import AppState from './hack/AppState';
+import AppState from './hack/AppState'; //Required Import
 
 export default class App extends Component {
     constructor() {
@@ -22,7 +21,11 @@ export default class App extends Component {
 
     getChildContext = () => ({
         getStore: () => this.store,
-        getService: (serviceName) => this.beans.get(serviceName)
+        getService: (serviceName) => {
+            console.log(serviceName);
+            console.log(Array.from(this.beans.keys()));
+            return this.beans.get(serviceName)
+        }
     });
 
     getBean(name) {
@@ -30,8 +33,6 @@ export default class App extends Component {
     }
 
     render() {
-        // var settingsService = new SettingsService(this.store);
-
         const ConceptData = require('./service/ConceptData');
         require('./service/ConfigurationData');
         return PathRegistry.routes();

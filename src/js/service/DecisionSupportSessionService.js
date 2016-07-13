@@ -1,4 +1,4 @@
-import Service from "../framework/Service";
+import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import DecisionSupportSession from "../models/DecisionSupportSession";
 import QuestionAnswer from "../models/QuestionAnswer";

@@ -1,5 +1,5 @@
 import BaseService from './BaseService'
-import Service from '../framework/Service'
+import Service from '../framework/bean/Service'
 import ConceptService from './ConceptService'
 import SimpleQuestionnaire from '../models/SimpleQuestionnaire'
 import ConfigurationData from '../service/ConfigurationData'

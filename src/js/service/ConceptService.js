@@ -1,5 +1,5 @@
 import BaseService from './BaseService.js'
-import Service from '../framework/Service.js';
+import Service from '../framework/bean/Service';
 import Concepts from '../models/Concepts.js';
 import ConceptData from './ConceptData';
 
@@ -8,7 +8,7 @@ class ConceptService extends BaseService {
     getConcepts() {
         return new Concepts(ConceptData.concepts);
     }
-    
+
     // import 'isomorphic-fetch';
     // var conceptData;
     // fetch('http://0.0.0.0/files/concepts.json', {
