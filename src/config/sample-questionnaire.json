@@ -3,7 +3,8 @@
   "description" : "Sample questionnaire without control flow logic",
   "questions" : [
     {
-      "name": "Multiple Choice Question 1"
+      "name": "Multiple Choice Question 1",
+      "multiSelect" : true
     },
     {
       "name": "Numeric Question",

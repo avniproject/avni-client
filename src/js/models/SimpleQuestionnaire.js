@@ -7,15 +7,15 @@ class SimpleQuestionnaire {
     }
 
     getQuestion(questionIndex) {
-        var questionConceptName = this.questionnaireConfigurations.questions[questionIndex].name;
-        var conceptData = this.concepts.findByName(questionConceptName);
-        var mandatoryValue = this.questionnaireConfigurations.questions[questionIndex].mandatory;
+        var questionConfiguration = this.questionnaireConfigurations.questions[questionIndex];
+        var conceptData = this.concepts.findByName(questionConfiguration.name);
         return {
-            name: questionConceptName,
+            name: questionConfiguration.name,
             questionDataType: conceptData.datatype.name,
             isFirstQuestion: questionIndex === 0,
             isLastQuestion: questionIndex === this.questionnaireConfigurations.questions.length - 1,
-            isMandatory: mandatoryValue === undefined ? true : mandatoryValue,
+            isMandatory: questionConfiguration.mandatory === undefined ? true : questionConfiguration.mandatory,
+            isMultiSelect: questionConfiguration.multiSelect === undefined ? false : questionConfiguration.multiSelect,
             answers: conceptData.answers === undefined ? [] : conceptData.answers,
             lowAbsolute: conceptData.lowAbsolute,
             hiAbsolute: conceptData.hiAbsolute

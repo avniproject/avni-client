@@ -13,14 +13,18 @@ describe('Simple Question', () => {
         var question = simpleQuestionnaire.getQuestion(0);
         expect(question.name).to.equal('Multiple Choice Question 1');
         expect(question.answers.length).to.equal(2);
-        expect(question.isFirstQuestion).to.equal(true);
-        expect(question.isLastQuestion).to.equal(false);
+        expect(question.isFirstQuestion).to.be.true;
+        expect(question.isLastQuestion).to.be.false;
+        expect(question.isMandatory).to.be.true;
+        expect(question.isMultiSelect).to.be.true;
+
     });
 
     it('Should load questions and their answers - 2', () => {
         var simpleQuestionnaire = new SimpleQuestionnaire(Diabetes, new Concepts(ConceptsData));
         var question = simpleQuestionnaire.getQuestion(0);
         expect(question.name).to.equal('Numeric Question');
+        expect(question.isMultiSelect).to.be.false;
     });
 
     it('Get Summary Fields', () => {

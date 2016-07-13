@@ -68,7 +68,7 @@ class QuestionAnswerView extends Component {
                 <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
         else {
-            return (<AnswerList locale={this.locale} answers={this.question.answers}/>);
+            return (<AnswerList locale={this.locale} answers={this.question.answers} isMultiSelect={this.question.isMultiSelect}/>);
         }
     };
 

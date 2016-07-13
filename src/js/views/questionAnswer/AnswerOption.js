@@ -1,18 +1,13 @@
 import {Text, StyleSheet, View, Image} from 'react-native';
 import React, {Component} from 'react';
-import AppState from "../../hack/AppState";
 import I18n from '../../utility/Messages'
 
 class AnswerOption extends Component {
     static propTypes = {
         answer: React.PropTypes.string.isRequired,
-        answerList: React.PropTypes.object.isRequired
+        isSelected: React.PropTypes.object.isRequired
     };
-
-    static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
-    };
-
+    
     static styles = StyleSheet.create({
         answerRow: {
             marginTop: 10,
@@ -38,23 +33,19 @@ class AnswerOption extends Component {
         }
     });
 
+    // TODO: Incorporate android image adding in the build script rather than these paths
     displayCheckImage() {
-        if (AppState.questionnaireAnswers.currentAnswer === this.props.answer) {
+        if (this.props.isSelected) {
             return (<Image style={AnswerOption.styles.checkImage}
                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
             />)
         }
     }
 
-    handleOnPress(self) {
-        AppState.questionnaireAnswers.currentAnswer = self.props.answer;
-        self.props.answerList.onChange();
-    }
-
     render() {
         return (
             <View style={AnswerOption.styles.answerRow}>
-                <Text style={AnswerOption.styles.item} onPress={() => this.handleOnPress(this)}>
+                 <Text style={AnswerOption.styles.item} onPress={() => this.props.optionPressed(this.props.answer)}>
                     {I18n.t(this.props.answer)}
                 </Text>
                 {this.displayCheckImage()}
