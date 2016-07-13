@@ -9,7 +9,7 @@ import {
     TouchableHighlight
 } from 'react-native';
 import React, {Component} from 'react';
-import Path from '../../routing/Path';
+import Path from '../../framework/routing/Path';
 import Question from './Question.js';
 import AnswerList from './AnswerList.js';
 import DecisionView from "../conclusion/DecisionView";

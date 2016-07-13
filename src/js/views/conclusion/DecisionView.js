@@ -1,6 +1,6 @@
 import {View, Text, StyleSheet, ListView} from 'react-native';
 import React, {Component} from 'react';
-import Path from '../../routing/Path';
+import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
 import * as ConclusionFunctions from '../../../config/conclusions'
 import AppHeader from '../primitives/AppHeader';

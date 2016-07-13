@@ -1,6 +1,6 @@
 import  {StyleSheet, Text, View} from 'react-native';
 import React, {Component} from 'react';
-import TypedTransition from '../../routing/TypedTransition';
+import TypedTransition from '../../framework/routing/TypedTransition';
 import SettingsView from './../settings/SettingsView';
 
 class DiseaseNavigationMenu extends Component {

@@ -1,9 +1,9 @@
 import {View, ListView, Text, StyleSheet, TouchableOpacity, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
-import TypedTransition from "../../routing/TypedTransition";
+import TypedTransition from "../../framework/routing/TypedTransition";
 import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from '../primitives/AppHeader';
-import Path from "../../routing/Path";
+import Path from "../../framework/routing/Path";
 import AppState from '../../hack/AppState';
 import I18n from '../../utility/Messages';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';

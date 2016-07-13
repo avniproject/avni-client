@@ -1,6 +1,6 @@
 import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'react-native';
 import React, {Component} from 'react';
-import TypedTransition from "../../routing/TypedTransition";
+import TypedTransition from "../../framework/routing/TypedTransition";
 import * as CHSStyles from "./GlobalStyles";
 import I18n from '../../utility/Messages';
 

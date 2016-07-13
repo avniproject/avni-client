@@ -1,6 +1,6 @@
 import  {StyleSheet, View, ListView, DrawerLayoutAndroid, Text} from 'react-native';
 import React, {Component} from 'react';
-import Path, {PathRoot} from '../../routing/Path';
+import Path, {PathRoot} from '../../framework/routing/Path';
 import QuestionnaireNames from '../../../config/questionnaires.json';
 import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';

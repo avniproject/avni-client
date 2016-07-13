@@ -1,9 +1,9 @@
-import Path, {PathRoot} from '../../routing/Path'
+import Path, {PathRoot} from '../../framework/routing/Path'
 import {ProgressBarAndroid, View, Text} from 'react-native'
 import React, {Component} from 'react';
 import ConceptData from "../../service/ConceptData"
 import ConfigurationData from '../../service/ConfigurationData'
-import TypedTransition from '../../routing/TypedTransition'
+import TypedTransition from '../../framework/routing/TypedTransition'
 import DiseaseListView from "./../diseaseList/DiseaseListView"
 import AppState from '../../hack/AppState'
 import {Messages} from "../../utility/Messages"

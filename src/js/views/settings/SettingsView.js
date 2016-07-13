@@ -1,10 +1,10 @@
 import {View, TouchableHighlight, Text, Alert, ProgressBarAndroid, StyleSheet} from 'react-native';
 import React, {Component} from 'react';
-import Path from '../../routing/Path';
+import Path from '../../framework/routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
 import I18n from '../../utility/Messages';
-import TypedTransition from "../../routing/TypedTransition";
+import TypedTransition from "../../framework/routing/TypedTransition";
 import {Global} from "../primitives/GlobalStyles";
 import ConclusionListView from "../conclusion/ConclusionListView";
 import FileSystemGateway from "../../service/gateway/FileSystemGateway";

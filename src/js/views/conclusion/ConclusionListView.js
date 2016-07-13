@@ -1,10 +1,10 @@
-import Path from '../../routing/Path';
+import Path from '../../framework/routing/Path';
 import {View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
 import I18n from '../../utility/Messages';
-import TypedTransition from "../../routing/TypedTransition";
+import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
 
 @Path('/DecisionSupportSessionListView')

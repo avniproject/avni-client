@@ -1,6 +1,6 @@
 import {StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
 import React, {Component} from 'react';
-import TypedTransition from "../../routing/TypedTransition";
+import TypedTransition from "../../framework/routing/TypedTransition";
 import SettingsView from "../settings/SettingsView";
 import I18n from '../../utility/Messages'
 

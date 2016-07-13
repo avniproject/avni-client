@@ -1,4 +1,4 @@
-import Path from '../../routing/Path';
+import Path from '../../framework/routing/Path';
 import {View, Text} from 'react-native';
 import React, {Component} from 'react';
 

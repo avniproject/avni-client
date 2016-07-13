@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import PathRegistry from './routing/PathRegistry';
+import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry.js';
 import Realm from 'realm';
 import models from './models';
@@ -39,4 +39,4 @@ export default class App extends Component {
     }
 }
 
-//todo - next and previous button should be at the same place on every page
+//TODO - next and previous button should be at the same place on every page
