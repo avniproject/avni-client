@@ -8,10 +8,6 @@ class AnswerList extends Component {
         locale: React.PropTypes.string.isRequired
     };
 
-    toAnswerOption(answer, self) {
-        return (<AnswerOption key={answer.name} answer={answer.name} answerList={self}/>);
-    };
-
     onChange() {
         this.setState({});
     };
@@ -19,7 +15,8 @@ class AnswerList extends Component {
     render() {
         return (
             <View>
-                {this.props.answers.map((option) => this.toAnswerOption(option, this))}
+                {this.props.answers.map((option) => (
+                    <AnswerOption key={option.name} answer={option.name} answerList={this}/>))}
             </View>
         );
     }
