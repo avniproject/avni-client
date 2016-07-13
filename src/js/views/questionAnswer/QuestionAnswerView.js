@@ -11,7 +11,8 @@ import {
 import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import Question from './Question.js';
-import AnswerList from './AnswerList.js';
+import MultiSelectAnswerList from './MultiSelectAnswerList';
+import SingleSelectAnswerList from './SingleSelectAnswerList';
 import DecisionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState"
 import * as CHSStyles from "../primitives/GlobalStyles"
@@ -68,7 +69,9 @@ class QuestionAnswerView extends Component {
                 <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
         else {
-            return (<AnswerList locale={this.locale} answers={this.question.answers} isMultiSelect={this.question.isMultiSelect}/>);
+            var AnswerComponent = new Map([[true, MultiSelectAnswerList], [false, SingleSelectAnswerList]])
+                .get(this.question.isMultiSelect);
+            return (<AnswerComponent locale={this.locale} answers={this.question.answers}/>);
         }
     };
 
@@ -100,7 +103,10 @@ class QuestionAnswerView extends Component {
             return {status: false, message: I18n.t('emptyValidationMessage')};
         } else if (this.question.isMandatory && this.question.questionDataType === SimpleQuestionnaire.Numeric &&
             General.isAnswerNotWithinRange(answer, this.question)) {
-            return {status: false, message: I18n.t('numericValueValidation', {range: General.formatRange(this.question)})};
+            return {
+                status: false,
+                message: I18n.t('numericValueValidation', {range: General.formatRange(this.question)})
+            };
         }
         return {status: true};
     };
@@ -114,7 +120,8 @@ class QuestionAnswerView extends Component {
         AppState.questionnaireAnswers.currentQuestion = this.question.name;
         return (
             <ScrollView keyboardShouldPersistTaps={true}>
-                <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this} onTitlePressed={this.onTitlePress}/>
+                <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}
+                           onTitlePressed={this.onTitlePress}/>
                 <View style={[CHSStyles.Global.mainSection, {flex: 1}]}>
                     <Question question={this.question} locale={this.locale}/>
                     <View style={{flex: 1}}>
