@@ -73,8 +73,8 @@ class SettingsView extends Component {
 
     render() {
         return (
-            <View style={[SettingsView.styles.main, {flex: 1, flexDirection: 'column'}]}>
-                <SettingsHeader/>
+            <View style={[SettingsView.styles.main, {flexDirection: 'column'}]}>
+                <SettingsHeader parent={this}/>
                 <SettingsForm
                     settings={this.settings}
                     onServerURLChanged={this.onServerURLChanged}

@@ -36,7 +36,9 @@ export class Messages {
                     numberOfSessions: "There are currently {{count}} sessions.",
                     validationError: 'Validation Error',
                     numericValueValidation: "Is not a number or is out of range {{range}}",
-                    emptyValidationMessage: "There is no value specified"
+                    emptyValidationMessage: "There is no value specified",
+                    settings: "Settings",
+                    close: "Close"
                 },
                 mr_IN: {
                     questionnaireList: '',
@@ -54,7 +56,8 @@ export class Messages {
                     numberOfSessions: "{{count}} तपासण्यांचा डाटा डीलीट होइल.",
                     validationError: 'फॉर्म वर चुक आहे ',
                     numericValueValidation: "कृपया {{range}} मधील नंबर टाका",
-                    emptyValidationMessage: "ह्या प्रश्नाचे उत्तर देणे अनिवार्य आहे "
+                    emptyValidationMessage: "ह्या प्रश्नाचे उत्तर देणे अनिवार्य आहे ",
+                    settings: "सेटिंग"
                 },
                 hi_IN: {
                     questionnaireList: 'फेसला समर्थन उपकरण',
