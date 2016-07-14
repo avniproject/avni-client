@@ -37,7 +37,7 @@ class ConfirmationView extends Component {
                            parent={this}
                 />
                 <View style={CHSStyles.Global.mainSection}>
-                    <DecisionSupportSessionComponent decision={this.props.params.decisions[0]}
+                    <DecisionSupportSessionComponent decisions={this.props.params.decisions}
                                                      questionAnswers={AppState.questionnaireAnswers.toArray()}/>
                 </View>
                 <View

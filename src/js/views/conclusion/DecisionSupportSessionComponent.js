@@ -16,7 +16,7 @@ class DecisionSupportSessionComponent extends Component {
     });
 
     static propTypes = {
-        decision: React.PropTypes.object.isRequired,
+        decisions: React.PropTypes.array.isRequired,
         questionAnswers: React.PropTypes.array.isRequired
     };
 
@@ -35,7 +35,7 @@ class DecisionSupportSessionComponent extends Component {
     }
 
     render() {
-        const decision = this.props.decision;
+        const decisions = this.props.decisions;
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         var dsClone = ds.cloneWithRows(this.props.questionAnswers);
 
@@ -48,7 +48,7 @@ class DecisionSupportSessionComponent extends Component {
                                                                                                      backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
             />
             <Text style={{fontSize: 24, marginTop: 10, color: '#000000'}}>{I18n.t('decisionsMadeBySystem')}</Text>
-            {this.renderRow(decision.name, decision.value)}
+            {decisions.map((decision) => this.renderRow(decision.name, decision.value))}
         </View>);
     }
 }

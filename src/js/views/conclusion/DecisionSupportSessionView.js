@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
 import AppHeader from '../primitives/AppHeader';
-import DecisionSupportSessionControl from './DecisionSupportSessionComponent';
+import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import Path from "../../framework/routing/Path";
 
 @Path('/DecisionSupportSessionView')
@@ -19,7 +19,7 @@ class DecisionSupportSessionView extends Component {
         return (
             <View>
                 <AppHeader parent={this} title="session"/>
-                <DecisionSupportSessionControl questionAnswers={session.questionAnswers} decision={session.decisions[0]}/>
+                <DecisionSupportSessionComponent questionAnswers={session.questionAnswers} decisions={session.decisions}/>
             </View>
         );
     }

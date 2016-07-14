@@ -41,6 +41,22 @@ class DecisionView extends Component {
         }
     }
 
+    renderDecisions(decisions) {
+        return decisions.map((decision) => {
+            return this.renderDecision(decision);
+        });
+    }
+
+    renderDecision(decision) {
+        return (
+            <View>
+                <Text style={DecisionView.styles.summary}>{I18n.t(decision.name)}</Text>
+                <Text style={DecisionView.styles.decision}>{decision.value}</Text>
+                {this.renderAlert(decision)}
+            </View>
+        );
+    }
+
     render() {
         var conclusionFunctionName = AppState.questionnaireAnswers.questionnaireName.replace(/\s/g, "_") + "_conclusion";
         console.log("Function name for deriving conclusion: " + conclusionFunctionName);
@@ -54,9 +70,7 @@ class DecisionView extends Component {
                            parent={this}
                 />
                 <View style={CHSStyles.Global.mainSection}>
-                    <Text style={DecisionView.styles.summary}>{I18n.t(this.decisions[0].name)}</Text>
-                    <Text style={DecisionView.styles.decision}>{this.decisions[0].value}</Text>
-                    {this.renderAlert(this.decisions[0])}
+                    {this.renderDecisions(this.decisions)}
                     <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this}
                                    nextView={ConfirmationView}/>
                 </View>
