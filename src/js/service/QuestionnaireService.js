@@ -25,6 +25,11 @@ class QuestionnaireService extends BaseService {
         });
         return questionnaires;
     }
+
+    saveQuestionnaire(questionnaire) {
+        const db = this.db;
+        this.db.write(()=> db.create("Questionnaire", questionnaire));
+    }
 }
 
 export default QuestionnaireService;

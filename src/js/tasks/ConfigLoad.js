@@ -13,16 +13,12 @@ class ConfigLoad extends Task {
     }
 
     _storeQuestionnaire(questionnaire) {
-        console.log("QUESTIONNAIRE");
-        console.log(questionnaire);
     }
 
     _storeConcepts(concepts) {
-        console.log(concepts);
     }
 
     _storeConclusion(conclusion) {
-        console.log(conclusion);
     }
 
     _getFileOf(type) {
