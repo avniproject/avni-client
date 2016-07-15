@@ -16,8 +16,8 @@ export class Questionnaire {
             name: 'string',
             description: 'string',
             questions: {"type": "list", "objectType": "QuestionnaireQuestion"},
-            decisionKeys: {"type": "list", "objectType": 'string'},
-            summaryFields: {"type": "list", "objectType": 'string'}
+            decisionKeys: {"type": "data"},
+            summaryFields: {"type": "data"}
 
         }
     };
