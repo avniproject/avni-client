@@ -28,3 +28,6 @@ ci-test:
 
 release:
 	cd android; ./gradlew assembleRelease
+
+log:
+	adb logcat *:S ReactNative:V ReactNativeJS:V
