@@ -32,8 +32,11 @@ class ExportService extends BaseService {
             header += ',';
         });
 
-        header += General.toExportable(questionnaire.decisionKeys[0]);
-        header += ",Created At";
+        questionnaire.decisionKeys.forEach(function (decisionKey) {
+            header += General.toExportable(decisionKey);
+            header += ',';
+        });
+        header += "Created At";
         header += '\n';
         return header;
     }
@@ -48,8 +51,11 @@ class ExportService extends BaseService {
                 contents += General.toExportable(questionAnswer.answer);
                 contents += ',';
             });
-            contents += General.toExportable(session.decisions[0].value);
-            contents += ',';
+            for (var i = 0; i < session.decisions.length; i++) {
+                contents += General.toExportable(session.decisions[i].value);
+                contents += ',';
+            }
+
             contents += General.formatDateTime(session.saveDate);
             contents += '\n';
         });

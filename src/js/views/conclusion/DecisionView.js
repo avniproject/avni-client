@@ -2,12 +2,15 @@ import {View, Text, StyleSheet, ListView} from 'react-native';
 import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
-import * as ConclusionFunctions from '../../../config/conclusions'
+import * as BMI_getDecision from '../../../config/decision/BMI'
+import * as Sample_without_control_flow_getDecision from '../../../config/decision/Sample_without_control_flow'
+import * as VHW_Lokbiradari_getDecision from '../../../config/decision/VHW_Lokbiradari'
 import AppHeader from '../primitives/AppHeader';
 import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
 import I18n from '../../utility/Messages';
+import DecisionSupportExtension from "../../models/DecisionSupportExtension";
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -58,10 +61,10 @@ class DecisionView extends Component {
     }
 
     render() {
-        var conclusionFunctionName = AppState.questionnaireAnswers.questionnaireName.replace(/\s/g, "_") + "_conclusion";
-        console.log("Function name for deriving conclusion: " + conclusionFunctionName);
-        var parameter = AppState.questionnaireAnswers;
-        this.decisions = eval(`ConclusionFunctions.${conclusionFunctionName}(parameter)`);
+        const decisionSupportExtension = new DecisionSupportExtension(AppState.questionnaireAnswers.questionnaireName);
+        console.log("Module name for making decision: " + decisionSupportExtension.functionName);
+        const parameter = AppState.questionnaireAnswers;
+        this.decisions = eval(`${decisionSupportExtension.functionName}.${decisionSupportExtension.functionName}(parameter)`);
 
         return (
             <View>

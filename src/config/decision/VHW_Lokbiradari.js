@@ -1,12 +1,3 @@
-export let Sample_without_control_flow_conclusion = function (questionnaireAnswers) {
-    var decision = {};
-    decision.name = "Treatment";
-    decision.code = "ABC001";
-    decision.value = "The patient should be referred to the hospital immediately as he may having tuberculosis";
-    decision.alert = "ALERT MESSAGE";
-    return [decision];
-};
-
 const treatmentByDiagnosisAndCode = {
     "Malaria": {
         "X1": {
@@ -1211,7 +1202,7 @@ var dosageTimingToMarathi = function (times) {
     console.error(`Number of times ${times} not supported yet`);
 };
 
-export let VHW_Lokbiradari_conclusion = function (questionnaireAnswers) {
+export let VHW_Lokbiradari_makeDecision = function (questionnaireAnswers) {
     const weight = questionnaireAnswers.getAnswerFor('Weight');
     const diagnosis = questionnaireAnswers.getAnswerFor('Diagnosis');
     const age = questionnaireAnswers.getAnswerFor('Age');
@@ -1280,17 +1271,4 @@ var getKeys = function(obj) {
         keys.push(key);
     }
     return keys;
-};
-
-export let BMI_conclusion = function (questionnaireAnswers) {
-    var decision = {};
-    decision.name = "BMI";
-    decision.code = "N/A";
-
-    const weight = questionnaireAnswers.getAnswerFor('Weight');
-    const height = questionnaireAnswers.getAnswerFor('Height');
-    const bmi = (weight * 10000)/(height * height);
-    decision.value = `${bmi}`;
-
-    return [decision];
 };
