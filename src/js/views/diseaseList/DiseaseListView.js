@@ -1,15 +1,22 @@
 import  {StyleSheet, View, ListView, DrawerLayoutAndroid, Text} from 'react-native';
 import React, {Component} from 'react';
 import Path, {PathRoot} from '../../framework/routing/Path';
-import QuestionnaireNames from '../../../config/questionnaires.json';
 import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 
 @Path('/diseaseList')
 class DiseaseListView extends Component {
+
+    constructor(props, context) {
+        super(props, context);
+        const questionnaireNames = context.getService("questionnaireService").getQuestionnaireNames();
+        this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaireNames)};
+    }
+
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
+        navigator: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -22,10 +29,6 @@ class DiseaseListView extends Component {
 
     static initialDataSource = () =>
         new ListView.DataSource({rowHasChanged: (row_1, row_2) => row_1 !== row_2});
-
-    state = {
-        dataSource: DiseaseListView.initialDataSource().cloneWithRows(QuestionnaireNames)
-    };
 
     render() {
         return (

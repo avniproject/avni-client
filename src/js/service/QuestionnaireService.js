@@ -8,6 +8,7 @@ import ConfigurationData from '../service/ConfigurationData'
 class QuestionnaireService extends BaseService {
     constructor(db) {
         super(db);
+        this.saveQuestionnaire = this.saveQuestionnaire.bind(this);
     }
 
     getQuestionnaire(questionnaireName) {
@@ -19,16 +20,18 @@ class QuestionnaireService extends BaseService {
     }
 
     getQuestionnaireNames() {
-        const questionnaires = [];
-        ConfigurationData.questionnaireConfigurations.forEach((answer, question, questionAnswers) => {
-            questionnaires.push(question);
-        });
-        return questionnaires;
+        return this.db.objects('Questionnaire').map((questionnaire) => questionnaire['name']);
+    }
+
+    _obj(value) {
+        return {"value": value};
     }
 
     saveQuestionnaire(questionnaire) {
+        questionnaire['decisionKeys'] = questionnaire['decisionKeys'].map(this._obj);
+        questionnaire['summaryFields'] = questionnaire['summaryFields'].map(this._obj);
         const db = this.db;
-        this.db.write(()=> db.create("Questionnaire", questionnaire));
+        this.db.write(()=> db.create("Questionnaire", questionnaire, true));
     }
 }
 

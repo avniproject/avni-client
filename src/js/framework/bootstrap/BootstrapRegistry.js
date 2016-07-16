@@ -6,8 +6,8 @@ class BootstrapRegistry extends Registry {
         this.runAllTasks = this.runAllTasks.bind(this);
     }
 
-    runAllTasks(settingsService) {
-        Array.from(this.entities).map(([taskName, task]) => new task(settingsService).run())
+    runAllTasks(getBean) {
+        Array.from(this.entities).map(([taskName, task]) => new task(getBean).run())
     }
 
 }

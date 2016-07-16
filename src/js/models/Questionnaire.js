@@ -9,15 +9,25 @@ export class QuestionnaireQuestion {
     }
 }
 
+export class StringObject {
+    static schema = {
+        name: "StringObject",
+        properties: {
+            value: "string"
+        }
+    }
+}
+
 export class Questionnaire {
     static schema = {
         name: 'Questionnaire',
+        primaryKey: 'name',
         properties: {
             name: 'string',
             description: 'string',
             questions: {"type": "list", "objectType": "QuestionnaireQuestion"},
-            decisionKeys: {"type": "data"},
-            summaryFields: {"type": "data"}
+            decisionKeys: {"type": "list", "objectType": "StringObject"},
+            summaryFields: {"type": "list", "objectType": "StringObject"}
 
         }
     };

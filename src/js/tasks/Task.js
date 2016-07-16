@@ -1,6 +1,6 @@
 class Task {
-    constructor(settingsService) {
-        this.settingService = settingsService;
+    constructor(getBean) {
+        this.getBean = getBean;
     }
 
     run() {

@@ -12,9 +12,10 @@ import AppState from './hack/AppState'; //Required Import
 export default class App extends Component {
     constructor() {
         super();
+        this.getBean = this.getBean.bind(this);
         this.store = new Realm(models);
         this.beans = BeanRegistry.init(this.store, this);
-        BootstrapRegistry.runAllTasks(this.beans.get("settingsService"));
+        BootstrapRegistry.runAllTasks(this.getBean);
     }
 
     static childContextTypes = {

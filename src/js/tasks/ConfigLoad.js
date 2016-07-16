@@ -5,14 +5,11 @@ import _ from 'lodash';
 
 @Bootstrap("configLoad")
 class ConfigLoad extends Task {
-    constructor(settingService) {
-        super(settingService);
-        this.serverURL = this.settingService.getServerURL();
-        this.typeMapping = new Map([["questionnaires", this._storeQuestionnaire],
+    constructor(getBean) {
+        super(getBean);
+        this.serverURL = this.getBean("settingsService").getServerURL();
+        this.typeMapping = new Map([["questionnaires", this.getBean("questionnaireService").saveQuestionnaire],
             ["concepts", this._storeConcepts], ["conclusions", this._storeConclusion]]);
-    }
-
-    _storeQuestionnaire(questionnaire) {
     }
 
     _storeConcepts(concepts) {
