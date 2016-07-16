@@ -288,6 +288,17 @@ const treatmentByDiagnosisAndCode = {
                 }]
         }
     },
+    "Chloroquine Resistant Malaria": {
+        "X1": {
+            "1-3": [
+                {
+                    "Medicine": "Lonart Forte",
+                    "Amount": 0.5,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        }
+    },
     "Cold": {
         "X1": {
             "3-5": [
@@ -919,6 +930,12 @@ const treatmentByDiagnosisAndCode = {
                     "Amount": 0.25,
                     "Dose Unit": "Spoon",
                     "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Amount": 0,
+                    "Dose Unit": "Paste",
+                    "Times": "Once"
                 }
             ]
         },
@@ -1145,6 +1162,113 @@ const treatmentByDiagnosisAndCode = {
                     "Times": 3
                 }]
         }
+    },
+    "Pregnancy": {
+        "X1": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X2": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X3": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X4": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X5": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X6": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
+        "X7": {
+            "1-30": [
+                {
+                    "Medicine": "Iron Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                },
+                {
+                    "Medicine": "Calcium Tablets",
+                    "Amount": 1,
+                    "Dose Unit": "Tablet",
+                    "Times": 2
+                }]
+        },
     }
 };
 
@@ -1179,7 +1303,10 @@ const englishWordsToMarathi = {
     "Femotidine": "फॅमोटिडीन",
     "Ceptron Syrup": "सायरप सेप्ट्रान",
     "Ceptron": "सेप्ट्रान",
-    "Scabizol": "खरजेचे औषध"
+    "Scabizol": "खरजेचे औषध",
+    "Salicylic Acid": "सॅलिसिलिक ऍसिड",
+    "Iron": "लोहाच्या",
+    "Calcium": "कॅल्शियम"
 };
 
 var doseQuantityToMarathi = function (doseQuantity, doseUnit) {
@@ -1202,7 +1329,7 @@ var dosageTimingToMarathi = function (times) {
     console.error(`Number of times ${times} not supported yet`);
 };
 
-export let VHW_Lokbiradari_makeDecision = function (questionnaireAnswers) {
+export let VHW_Lokbiradari_getDecision = function (questionnaireAnswers) {
     const weight = questionnaireAnswers.getAnswerFor('Weight');
     const diagnosis = questionnaireAnswers.getAnswerFor('Diagnosis');
     const age = questionnaireAnswers.getAnswerFor('Age');
