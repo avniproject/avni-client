@@ -89,14 +89,14 @@
     }
   },
   {
-    "name": "Sample without control flow",
+    "name": "Sample",
     "conceptNames": [
       {
         "name": "नमूना",
         "locale": "hi_IN"
       },
       {
-        "name": "Sample without control flow",
+        "name": "Sample",
         "locale": "en"
       }
     ],

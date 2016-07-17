@@ -8,7 +8,7 @@ import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import ConceptData from "../../../js/service/ConceptData";
 import ConfigurationData from "../../../js/service/ConfigurationData";
 
-describe('Conclusion View Test', () => {
+describe('Decision View Test', () => {
     it('should have display conclusion', () => {
         const context = {
             navigator: ()=> ({}),

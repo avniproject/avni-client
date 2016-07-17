@@ -1,5 +1,5 @@
 {
-  "name" : "Sample without control flow",
+  "name" : "Sample",
   "description" : "Sample questionnaire without control flow logic",
   "questions" : [
     {

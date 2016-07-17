@@ -3,7 +3,6 @@ import Service from '../framework/bean/Service';
 import ConceptService from './ConceptService';
 import SimpleQuestionnaire from '../models/SimpleQuestionnaire';
 import ConfigurationData from '../service/ConfigurationData';
-import QuestionnaireNames from '../../config/questionnaireNames.json';
 
 @Service("questionnaireService")
 class QuestionnaireService extends BaseService {

@@ -19,8 +19,8 @@ export class Messages {
                 en: {
                     questionnaireList: 'Decision Support Tools',
                     confirmation: 'Confirmation',
-                    next: 'Next',
-                    previous: 'Previous',
+                    next: '>>',
+                    previous: '<<',
                     restart: 'Restart',
                     saveAndRestart: 'Save & Restart',
                     export: 'Export',
@@ -42,8 +42,6 @@ export class Messages {
                 },
                 mr_IN: {
                     questionnaireList: '',
-                    next: '>>',
-                    previous: '<<',
                     saveAndRestart: 'सेव',
                     restart: 'पुनः सुरू',
                     viewSavedSessions: "डाटा पाहा",
@@ -61,8 +59,6 @@ export class Messages {
                 },
                 hi_IN: {
                     questionnaireList: 'फेसला समर्थन उपकरण',
-                    next: 'अगला',
-                    previous: 'पिछला',
                     confirmation: 'पुष्टीकरण',
                     restart: 'पुनः आरंभ करें',
                     saveAndRestart: 'बचाएँ एवं पुनः आरम्भ करें',

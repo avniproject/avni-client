@@ -21,8 +21,9 @@ export class StringObject {
 export class Questionnaire {
     static schema = {
         name: 'Questionnaire',
-        primaryKey: 'name',
+        primaryKey: 'uuid',
         properties: {
+            uuid: 'string',
             name: 'string',
             description: 'string',
             questions: {"type": "list", "objectType": "QuestionnaireQuestion"},

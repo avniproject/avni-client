@@ -5,7 +5,7 @@ import I18n from '../../utility/Messages'
 class AnswerOption extends Component {
     static propTypes = {
         answer: React.PropTypes.string.isRequired,
-        isSelected: React.PropTypes.object.isRequired
+        isSelected: React.PropTypes.bool.isRequired
     };
     
     static styles = StyleSheet.create({

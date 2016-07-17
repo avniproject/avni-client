@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
 import * as BMI_getDecision from '../../../config/decision/BMI'
-import * as Sample_without_control_flow_getDecision from '../../../config/decision/Sample_without_control_flow'
+import * as Sample_getDecision from '../../../config/decision/Sample'
 import * as VHW_Lokbiradari_getDecision from '../../../config/decision/VHW_Lokbiradari'
 import AppHeader from '../primitives/AppHeader';
 import * as CHSStyles from "../primitives/GlobalStyles"
