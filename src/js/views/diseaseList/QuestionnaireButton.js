@@ -18,7 +18,7 @@ class QuestionnaireButton extends Component {
 
     static styles = StyleSheet.create({
         item: {
-            backgroundColor: '#FF3823',
+            backgroundColor: '#e93a2c',
             color: '#FFFFFF',
             margin: 10,
             width: 150,

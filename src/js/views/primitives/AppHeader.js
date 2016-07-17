@@ -13,7 +13,7 @@ class AppHeader extends Component {
 
     static styles = StyleSheet.create({
         main: {
-            backgroundColor: '#FF8A84',
+            backgroundColor: '#e93a2c',
             height: 60,
             flexDirection: 'row'
         },
@@ -26,7 +26,6 @@ class AppHeader extends Component {
             color: '#FFFFFF',
             textAlignVertical: 'center',
             textAlign: 'center',
-            fontWeight: 'bold',
             fontSize: 26
         }
     });

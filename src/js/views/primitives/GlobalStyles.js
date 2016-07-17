@@ -2,7 +2,7 @@ import {StyleSheet} from 'react-native';
 
 export let Global = StyleSheet.create({
     navButton: {
-        backgroundColor: '#FF3823',
+        backgroundColor: '#f39c12',
         color: '#FFFFFF',
         margin: 2,
         width: 165,
@@ -18,16 +18,20 @@ export let Global = StyleSheet.create({
     navButtonVisible: {
         height: 44
     },
-    actionButton: {
-        backgroundColor: '#1D3557',
-        color: '#FFFFFF',
+    actionButtonWrapper: {
+        backgroundColor: '#e93a2c',
         margin: 2,
         width: 175,
         height: 50,
+        flex: 1,
+        borderRadius: 5
+    },
+    actionButton: {
+        color: '#FFFFFF',
         textAlign: 'center',
         textAlignVertical: 'center',
-        fontWeight: 'bold',
-        fontSize: 20
+        fontSize: 20,
+        flex: 1
     },
     mainSection: {
         marginTop: 15,
