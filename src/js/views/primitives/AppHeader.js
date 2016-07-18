@@ -26,7 +26,8 @@ class AppHeader extends Component {
             color: '#FFFFFF',
             textAlignVertical: 'center',
             textAlign: 'center',
-            fontSize: 26
+            fontSize: 26,
+            flex: 1
         }
     });
 
@@ -40,7 +41,7 @@ class AppHeader extends Component {
                 <View style={AppHeader.styles.main}>
                     <TouchableHighlight style={AppHeader.styles.icon} onPress={this.onSettingsPress}>
                         <Image
-                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_icon.png')}
+                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_50.png')}
                         />
                     </TouchableHighlight>
                     <TouchableHighlight onPress={this.props.onTitlePressed} style={{width: 50, flex: 1}}>

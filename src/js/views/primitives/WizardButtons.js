@@ -17,8 +17,10 @@ class WizardButtons extends Component {
         var dynamicStyle = this.props.hasQuestionBefore ? CHSStyles.Global.navButtonVisible : CHSStyles.Global.navButtonHidden;
         return (
             <TouchableHighlight>
-                <Text onPress={this.onPrevious}
-                      style={[CHSStyles.Global.navButton, dynamicStyle]}>{I18n.t("previous")}</Text>
+                <View style={CHSStyles.Global.actionButtonWrapper}>
+                    <Text onPress={this.onPrevious}
+                          style={[CHSStyles.Global.actionButton, dynamicStyle]}>{I18n.t("previous")}</Text>
+                </View>
             </TouchableHighlight>);
     };
 
@@ -48,11 +50,13 @@ class WizardButtons extends Component {
     render() {
         return (
             <View
-                style={{flexDirection: 'row', height: 100, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
+                style={{flexDirection: 'row', height: 50, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
                 {this.previousButton()}
                 <TouchableHighlight>
-                    <Text onPress={this.onNext}
-                          style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
+                    <View style={CHSStyles.Global.actionButtonWrapper}>
+                        <Text onPress={this.onNext}
+                              style={[CHSStyles.Global.actionButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
+                    </View>
                 </TouchableHighlight>
             </View>
         );

@@ -1,4 +1,4 @@
-import  {StyleSheet, Text, TouchableHighlight} from 'react-native';
+import  {StyleSheet, Text, TouchableHighlight, View} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
@@ -6,7 +6,6 @@ import AppState from "../../hack/AppState";
 import I18n from '../../utility/Messages'
 
 class QuestionnaireButton extends Component {
-
     static propTypes = {
         diseaseName: React.PropTypes.string.isRequired
     };
@@ -17,12 +16,16 @@ class QuestionnaireButton extends Component {
     };
 
     static styles = StyleSheet.create({
-        item: {
+        itemWrapper: {
+            flex: 1,
+            borderRadius: 3,
             backgroundColor: '#e93a2c',
-            color: '#FFFFFF',
-            margin: 10,
             width: 150,
             height: 100,
+            margin: 5
+        },
+        item: {
+            color: '#FFFFFF',
             textAlign: 'center',
             textAlignVertical: 'center',
             justifyContent: 'center',
@@ -45,9 +48,11 @@ class QuestionnaireButton extends Component {
     render() {
         return (
             <TouchableHighlight>
-                <Text onPress={this.onSelect} style={QuestionnaireButton.styles.item}>
-                    {I18n.t(this.props.diseaseName)}
-                </Text>
+                <View style={QuestionnaireButton.styles.itemWrapper}>
+                    <Text onPress={this.onSelect} style={[QuestionnaireButton.styles.item, {flex: 1}]}>
+                        {I18n.t(this.props.diseaseName)}
+                    </Text>
+                </View>
             </TouchableHighlight>
         );
     }

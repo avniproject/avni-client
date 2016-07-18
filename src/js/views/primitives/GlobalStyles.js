@@ -1,17 +1,6 @@
 import {StyleSheet} from 'react-native';
 
 export let Global = StyleSheet.create({
-    navButton: {
-        backgroundColor: '#f39c12',
-        color: '#FFFFFF',
-        margin: 2,
-        width: 165,
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        justifyContent: 'center',
-        fontWeight: 'bold',
-        fontSize: 22
-    },
     navButtonHidden: {
         height: 0
     },
@@ -19,18 +8,18 @@ export let Global = StyleSheet.create({
         height: 44
     },
     actionButtonWrapper: {
-        backgroundColor: '#e93a2c',
+        backgroundColor: '#2cdbe9',
         margin: 2,
-        width: 175,
-        height: 50,
+        width: 125,
+        height: 40,
         flex: 1,
         borderRadius: 5
     },
     actionButton: {
-        color: '#FFFFFF',
+        color: '#ffffff',
         textAlign: 'center',
         textAlignVertical: 'center',
-        fontSize: 20,
+        fontSize: 18,
         flex: 1
     },
     mainSection: {

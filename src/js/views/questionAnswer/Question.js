@@ -13,7 +13,7 @@ class Question extends Component {
         question: {
             fontSize: 22,
             height: 30,
-            color: '#0C59CF'
+            color: '#e93a2c'
         }
     });
 

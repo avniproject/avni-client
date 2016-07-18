@@ -16,10 +16,10 @@ class AnswerOption extends Component {
             marginRight: 30,
             flex: 1,
             flexDirection: 'row',
-            backgroundColor: '#A8DADC'
+            backgroundColor: '#e93a2c'
         },
         item: {
-            color: '#000000',
+            color: '#ffffff',
             margin: 10,
             textAlign: 'left',
             textAlignVertical: 'center',

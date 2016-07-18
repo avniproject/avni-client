@@ -28,7 +28,8 @@ class DiseaseListView extends Component {
         list: {
             justifyContent: 'center',
             flexDirection: 'row',
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
+            marginTop: 30
         }
     });
 
@@ -67,7 +68,7 @@ class DiseaseListView extends Component {
     render() {
         return (
             //TODO: Separate this out in another component
-            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#ededed'}}>
+            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#ffffff'}}>
                 <DrawerLayoutAndroid
                     drawerWidth={300}
                     drawerPosition={DrawerLayoutAndroid.positions.Left}
