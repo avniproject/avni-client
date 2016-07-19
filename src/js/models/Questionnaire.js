@@ -28,6 +28,7 @@ export class Questionnaire {
             uuid: 'string',
             name: 'string',
             description: 'string',
+            conceptUUID: 'string',
             questions: {"type": "list", "objectType": "QuestionnaireQuestion"},
             decisionKeys: {"type": "list", "objectType": "StringObject"},
             summaryFields: {"type": "list", "objectType": "StringObject"}

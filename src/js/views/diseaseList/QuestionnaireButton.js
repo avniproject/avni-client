@@ -34,8 +34,7 @@ class QuestionnaireButton extends Component {
     });
 
     onSelect = () => {
-        const service = this.context.getService("questionnaireService");
-        var questionnaire = service.getQuestionnaire(this.props.questionnaire.uuid);
+        var questionnaire = this.questionnaireFactory.make(this.props.questionnaire);
         AppState.startQuestionnaireSession(questionnaire);
         TypedTransition
             .from(this)

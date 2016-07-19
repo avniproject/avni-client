@@ -1,27 +1,24 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
-import Concepts from '../models/Concepts.js';
-import ConceptData from './ConceptData';
+import {Concept} from '../models/Concept';
+import _ from 'lodash';
 
 @Service("conceptService")
 class ConceptService extends BaseService {
-    getConcepts() {
-        return new Concepts(ConceptData.concepts);
+    constructor(db) {
+        super(db);
+        this.saveConcept = this.saveConcept.bind(this);
+        this.getConceptByUUID = this.getConceptByUUID.bind(this);
     }
 
-    // import 'isomorphic-fetch';
-    // var conceptData;
-    // fetch('http://0.0.0.0/files/concepts.json', {
-    //     method: 'GET',
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //     }
-    // }).then(function (response) {
-    //     return response.json();
-    // }).then(function (json) {
-    //     new Concepts(json);
-    // });
+    getConceptByUUID(conceptUUID) {
+        return _.merge({}, this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID));
+    }
+
+    saveConcept(concept) {
+        const db = this.db;
+        this.db.write(()=> db.create(Concept.schema.name, concept, true));
+    }
 }
 
 export default ConceptService;

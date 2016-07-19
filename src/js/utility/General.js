@@ -4,12 +4,17 @@ class General {
     static formatDateTime(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     }
-    
+
+
+    static isDefined(value) {
+        return value != undefined || value != null;
+    }
+
     static getCurrentDate() {
         const date = new Date();
         return General.formatDate(date);
     }
-    
+
     static formatDate(date) {
         return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
     }
@@ -21,7 +26,7 @@ class General {
     static toTwoChars(number) {
         return `${number}`.length === 1 ? `0${number}` : `${number}`;
     }
-    
+
     static formatValue(value) {
         if (value instanceof Date) return General.formatDate(value);
         if (!isNaN(value)) return value;
@@ -47,7 +52,7 @@ class General {
     static isAnswerNotWithinRange(answer, question) {
         return !isNaN(answer) && (answer < question.lowAbsolute || answer > question.hiAbsolute);
     }
-    
+
     static formatRange(question) {
         return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
     }

@@ -3,23 +3,31 @@ import SummaryField from "./SummaryField";
 class SimpleQuestionnaire {
     constructor(questionnaireData, concepts) {
         this.questionnaireConfigurations = questionnaireData;
-        this.concepts = concepts;
+        this.questionnaireConcept = questionnaireConcept;
+        this.currentQuestionIndex = 0;
     }
 
     getQuestion(questionIndex) {
         var questionConfiguration = this.questionnaireConfigurations.questions[questionIndex];
-        var conceptData = this.concepts.findByName(questionConfiguration.name);
         return {
             name: questionConfiguration.name,
-            questionDataType: conceptData.datatype.name,
+            questionDataType: this.questionnaireConcept.datatype.name,
             isFirstQuestion: questionIndex === 0,
             isLastQuestion: questionIndex === this.questionnaireConfigurations.questions.length - 1,
             isMandatory: questionConfiguration.mandatory === undefined ? true : questionConfiguration.mandatory,
             isMultiSelect: questionConfiguration.multiSelect === undefined ? false : questionConfiguration.multiSelect,
-            answers: conceptData.answers === undefined ? [] : conceptData.answers,
-            lowAbsolute: conceptData.lowAbsolute,
-            hiAbsolute: conceptData.hiAbsolute
+            answers: this.questionnaireConcept.answers === undefined ? [] : this.questionnaireConcept.answers,
+            lowAbsolute: this.questionnaireConcept.lowAbsolute,
+            hiAbsolute: this.questionnaireConcept.hiAbsolute
         };
+    }
+
+    prev() {
+        this.currentQuestionIndex--;
+    }
+
+    next() {
+        this.currentQuestionIndex++;
     }
 
     get questions() {

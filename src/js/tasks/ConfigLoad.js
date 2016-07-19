@@ -9,10 +9,7 @@ class ConfigLoad extends Task {
         super(getBean);
         this.serverURL = this.getBean("settingsService").getServerURL();
         this.typeMapping = new Map([["questionnaires", this.getBean("questionnaireService").saveQuestionnaire],
-            ["concepts", this._storeConcepts], ["conclusions", this._storeConclusion]]);
-    }
-
-    _storeConcepts(concepts) {
+            ["concepts", (concepts) => concepts.map(this.getBean("conceptService").saveConcept)], ["conclusions", this._storeConclusion]]);
     }
 
     _storeConclusion(conclusion) {
