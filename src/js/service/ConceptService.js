@@ -15,6 +15,10 @@ class ConceptService extends BaseService {
         return _.merge({}, this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID));
     }
 
+    getConceptByName(conceptName) {
+        return _.merge({}, this.db.objects(Concept.schema.name).filtered(`name = \"${conceptName}\"`)[0]);
+    }
+
     saveConcept(concept) {
         const db = this.db;
         this.db.write(()=> db.create(Concept.schema.name, concept, true));

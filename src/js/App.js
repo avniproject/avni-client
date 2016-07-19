@@ -35,7 +35,6 @@ export default class App extends Component {
     }
 
     render() {
-        const ConceptData = require('./service/ConceptData');
         require('./service/ConfigurationData');
         return PathRegistry.routes();
     }

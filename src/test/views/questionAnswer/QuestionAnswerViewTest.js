@@ -9,9 +9,7 @@ import MultiSelectAnswerList from "../../../js/views/questionAnswer/MultiSelectA
 import AppState from "../../../js/hack/AppState"
 import WizardButtons from "../../../js/views/primitives/WizardButtons";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
-import ConceptData from "../../../js/service/ConceptData";
 import ConfigurationData from "../../../js/service/ConfigurationData";
-import Concepts from "../../../js/models/Concepts";
 
 describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {

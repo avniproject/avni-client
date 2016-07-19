@@ -1,33 +1,28 @@
 import SummaryField from "./SummaryField";
 
 class SimpleQuestionnaire {
-    constructor(questionnaireData, concepts) {
+    static Numeric = "Numeric";
+    static Text = "Text";
+
+    constructor(questionnaireData, conceptService) {
         this.questionnaireConfigurations = questionnaireData;
-        this.questionnaireConcept = questionnaireConcept;
-        this.currentQuestionIndex = 0;
+        this.conceptService = conceptService;
     }
 
     getQuestion(questionIndex) {
         var questionConfiguration = this.questionnaireConfigurations.questions[questionIndex];
+        const questionConcept = this.conceptService.getConceptByName(questionConfiguration.name);
         return {
             name: questionConfiguration.name,
-            questionDataType: this.questionnaireConcept.datatype.name,
+            questionDataType: questionConcept.datatype.name,
             isFirstQuestion: questionIndex === 0,
             isLastQuestion: questionIndex === this.questionnaireConfigurations.questions.length - 1,
             isMandatory: questionConfiguration.mandatory === undefined ? true : questionConfiguration.mandatory,
             isMultiSelect: questionConfiguration.multiSelect === undefined ? false : questionConfiguration.multiSelect,
-            answers: this.questionnaireConcept.answers === undefined ? [] : this.questionnaireConcept.answers,
-            lowAbsolute: this.questionnaireConcept.lowAbsolute,
-            hiAbsolute: this.questionnaireConcept.hiAbsolute
+            answers: questionConcept.answers === undefined ? [] : questionConcept.answers,
+            lowAbsolute: questionConcept.lowAbsolute,
+            hiAbsolute: questionConcept.hiAbsolute
         };
-    }
-
-    prev() {
-        this.currentQuestionIndex--;
-    }
-
-    next() {
-        this.currentQuestionIndex++;
     }
 
     get questions() {
@@ -53,8 +48,5 @@ class SimpleQuestionnaire {
         return this.questionnaireConfigurations.name;
     }
 }
-
-SimpleQuestionnaire.Numeric = 'Numeric';
-SimpleQuestionnaire.Text = 'Text';
 
 export default SimpleQuestionnaire;

@@ -1,8 +1,6 @@
 import SimpleQuestionnaire from '../../js/models/SimpleQuestionnaire.js';
-import Concepts from '../../js/models/Concepts.js';
 import Sample from '../../config/sample-questionnaire.json';
 import Diabetes from '../../config/diabetes.json';
-import ConceptsData from '../../config/concepts.json';
 import SummaryField from '../../js/models/SummaryField';
 
 import {expect} from 'chai';

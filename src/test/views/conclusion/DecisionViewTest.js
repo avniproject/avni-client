@@ -5,7 +5,6 @@ import {expect} from 'chai';
 import DecisionView from '../../../js/views/conclusion/DecisionView';
 import AppState from "../../../js/hack/AppState"
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
-import ConceptData from "../../../js/service/ConceptData";
 import ConfigurationData from "../../../js/service/ConfigurationData";
 
 describe('Decision View Test', () => {

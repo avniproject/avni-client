@@ -13,8 +13,7 @@ class QuestionnaireService extends BaseService {
 
     getQuestionnaire(questionnaireUUID) {
         const questionnaire = Questionnaire.fromDB(this.db.objectForPrimaryKey(Questionnaire.schema.name, questionnaireUUID));
-        const questionnaireConcept = this.getService("conceptService").getConceptByUUID(questionnaire.conceptUUID);
-        return new SimpleQuestionnaire(questionnaire, questionnaireConcept);
+        return new SimpleQuestionnaire(questionnaire, this.getService("conceptService"));
     }
 
     getQuestionnaireNames() {
