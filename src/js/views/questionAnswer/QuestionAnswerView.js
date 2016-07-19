@@ -50,8 +50,8 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.questionnaire = context.getService("questionnaireService").getQuestionnaire(AppState.questionnaireAnswers.questionnaireName);
         this.locale = this.context.getStore().objects('Settings')[0]["locale"]["selectedLocale"];
+        this.questionnaire = this.props.params.questionnaire;
         this.state = {};
     }
 
@@ -129,8 +129,9 @@ class QuestionAnswerView extends Component {
                     </View>
                     <WizardButtons hasQuestionBefore={!this.question.isFirstQuestion}
                                    nextParams={{
-                                    questionNumber: this.props.params.questionNumber + 1
-                               }}
+                                       questionNumber: this.props.params.questionNumber + 1,
+                                       questionnaire: this.props.params.questionnaire
+                                   }}
                                    parent={this}
                                    nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
                                    validationFn={this.validate}

@@ -17,5 +17,4 @@ class QuestionAnswer {
     }
 }
 
-QuestionAnswer.EntityName = "QuestionAnswer";
 export default QuestionAnswer;

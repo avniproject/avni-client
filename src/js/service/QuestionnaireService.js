@@ -2,7 +2,8 @@ import BaseService from './BaseService';
 import Service from '../framework/bean/Service';
 import ConceptService from './ConceptService';
 import SimpleQuestionnaire from '../models/SimpleQuestionnaire';
-import ConfigurationData from '../service/ConfigurationData';
+import _ from 'lodash';
+import {Questionnaire} from '../models/Questionnaire';
 
 @Service("questionnaireService")
 class QuestionnaireService extends BaseService {
@@ -11,27 +12,20 @@ class QuestionnaireService extends BaseService {
         this.saveQuestionnaire = this.saveQuestionnaire.bind(this);
     }
 
-    getQuestionnaire(questionnaireName) {
-        var questionnaire = ConfigurationData.questionnaireConfigurations.get(questionnaireName);
-        if (questionnaire === undefined) return undefined;
-
+    getQuestionnaire(questionnaireUUID) {
+        const questionnaire = Questionnaire.fromDB(this.db.objectForPrimaryKey(Questionnaire.schema.name, questionnaireUUID));
         var conceptService = new ConceptService(this.db);
         return new SimpleQuestionnaire(questionnaire, conceptService.getConcepts());
     }
 
     getQuestionnaireNames() {
-        return this.db.objects('Questionnaire').map((questionnaire) => questionnaire['name']);
+        return this.db.objects(Questionnaire.schema.name).map((questionnaire) => _.pick(questionnaire, ['uuid', 'name']));
     }
 
-    _obj(value) {
-        return {"value": value};
-    }
 
     saveQuestionnaire(questionnaire) {
-        questionnaire['decisionKeys'] = questionnaire['decisionKeys'].map(this._obj);
-        questionnaire['summaryFields'] = questionnaire['summaryFields'].map(this._obj);
         const db = this.db;
-        this.db.write(()=> db.create("Questionnaire", questionnaire, true));
+        this.db.write(()=> db.create("Questionnaire", Questionnaire.toDB(questionnaire), true));
     }
 }
 

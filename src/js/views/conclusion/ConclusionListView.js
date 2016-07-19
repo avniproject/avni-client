@@ -56,12 +56,13 @@ class DecisionSupportSessionListView extends Component {
             </View>);
     }
 
-    renderSessions(questionnaireName) {
+    renderSessions(questionnaire) {
+        console.log(this.context.getService);
         const questionnaireService = this.context.getService("questionnaireService");
-        var questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
+        const completeQuestionnaire = questionnaireService.getQuestionnaire(questionnaire.uuid);
 
         const dssService = this.context.getService("decisionSupportSessionService");
-        var sessions = dssService.getAll(questionnaireName);
+        var sessions = dssService.getAll(questionnaire.name);
 
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const dsClone = ds.cloneWithRows(sessions);
@@ -71,13 +72,16 @@ class DecisionSupportSessionListView extends Component {
                 <ListView
                     enableEmptySections={true}
                     dataSource={dsClone}
-                    renderRow={(session, sectionID, rowID) => this.renderRow(session, questionnaire, rowID)}
+                    renderRow={(session, sectionID, rowID) => this.renderRow(session, completeQuestionnaire, rowID)}
                     renderHeader={() => {
                         return (
-                        <View>
-                            <Text style={{fontSize: 24, color: '#000000'}}>{`${I18n.t('sessionsForPrefix')} ${questionnaireName}`}</Text>
-                            {this._renderSeparator(0)}
-                        </View>
+                            <View>
+                                <Text style={{
+                                    fontSize: 24,
+                                    color: '#000000'
+                                }}>{`${I18n.t('sessionsForPrefix')} ${questionnaire.name}`}</Text>
+                                {this._renderSeparator(0)}
+                            </View>
                         )
                     }}
                     renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._renderSeparator(rowID)}
@@ -104,12 +108,12 @@ class DecisionSupportSessionListView extends Component {
 
     render() {
         const questionnaireService = this.context.getService("questionnaireService");
-        const questionnaireNames = questionnaireService.getQuestionnaireNames();
+        const questionnaires = questionnaireService.getQuestionnaireNames();
 
         return (
             <View>
                 <AppHeader title="allQuestionnaireSessionsSummary" parent={this}/>
-                {questionnaireNames.map((questionnaireName) => this.renderSessions(questionnaireName))}
+                {questionnaires.map(this.renderSessions.bind(this))}
             </View>
         );
     }

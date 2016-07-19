@@ -1,4 +1,5 @@
 class DecisionSupportSession {
+    //TODO: MIHIR : Use questionnaire UUID instead of questionnaire name
     static schema = {
         name: "DecisionSupportSession",
         properties: {
@@ -8,7 +9,7 @@ class DecisionSupportSession {
             saveDate: {type: "date"}
         }
     };
-    
+
     static newInstance(questionnaireName, decisions, questionAnswers, savedDate) {
         var decisionSupportSession = {};
         decisionSupportSession.questionnaireName = questionnaireName;
@@ -17,7 +18,7 @@ class DecisionSupportSession {
         decisionSupportSession.saveDate = savedDate;
         return decisionSupportSession;
     }
-    
+
     //These methods are static because when data is loaded from database then it would not instantiate the class
     static getAnswerFor(question, session) {
         var questionAnswer = session.questionAnswers.find((questionAnswer) => {
@@ -33,5 +34,4 @@ class DecisionSupportSession {
     }
 }
 
-DecisionSupportSession.EntityName = "DecisionSupportSession";
 export default DecisionSupportSession;

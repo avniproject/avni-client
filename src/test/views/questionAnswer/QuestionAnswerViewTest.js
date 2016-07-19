@@ -11,6 +11,7 @@ import WizardButtons from "../../../js/views/primitives/WizardButtons";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import ConceptData from "../../../js/service/ConceptData";
 import ConfigurationData from "../../../js/service/ConfigurationData";
+import Concepts from "../../../js/models/Concepts";
 
 describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
@@ -26,11 +27,14 @@ describe('Question Answer View Test', () => {
             }
         };
 
-        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.sample, ConceptData.concepts);
+        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.sample, new Concepts(ConceptData.concepts));
         AppState.startQuestionnaireSession(simpleQuestionnaire);
 
         const wrapper = shallow(<QuestionAnswerView params=
-                                                        {{questionNumber: 0}}/>, {context});
+                                                        {{
+                                                            questionNumber: 0,
+                                                            questionnaire: simpleQuestionnaire
+                                                        }}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(MultiSelectAnswerList)).to.have.length(1);
         expect(wrapper.find(WizardButtons)).to.have.length(1);
@@ -49,10 +53,11 @@ describe('Question Answer View Test', () => {
             }
         };
 
-        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.diabetes, ConceptData.concepts);
+        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.diabetes, new Concepts(ConceptData.concepts));
         AppState.startQuestionnaireSession(simpleQuestionnaire);
 
-        const wrapper = shallow(<QuestionAnswerView params={{questionNumber: 0}}/>, {context});
+        const wrapper = shallow(<QuestionAnswerView
+            params={{questionNumber: 0, questionnaire: simpleQuestionnaire}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
         expect(wrapper.find(WizardButtons)).to.have.length(1);

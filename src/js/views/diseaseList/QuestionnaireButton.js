@@ -7,7 +7,7 @@ import I18n from '../../utility/Messages'
 
 class QuestionnaireButton extends Component {
     static propTypes = {
-        diseaseName: React.PropTypes.string.isRequired
+        questionnaire: React.PropTypes.object.isRequired
     };
 
     static contextTypes = {
@@ -35,12 +35,13 @@ class QuestionnaireButton extends Component {
 
     onSelect = () => {
         const service = this.context.getService("questionnaireService");
-        var questionnaire = service.getQuestionnaire(this.props.diseaseName);
+        var questionnaire = service.getQuestionnaire(this.props.questionnaire.uuid);
         AppState.startQuestionnaireSession(questionnaire);
         TypedTransition
             .from(this)
             .with({
-                questionNumber: 0
+                questionNumber: 0,
+                questionnaire: questionnaire
             })
             .to(QuestionAnswerView);
     };
@@ -50,7 +51,7 @@ class QuestionnaireButton extends Component {
             <TouchableHighlight>
                 <View style={QuestionnaireButton.styles.itemWrapper}>
                     <Text onPress={this.onSelect} style={[QuestionnaireButton.styles.item, {flex: 1}]}>
-                        {I18n.t(this.props.diseaseName)}
+                        {I18n.t(this.props.questionnaire.name)}
                     </Text>
                 </View>
             </TouchableHighlight>

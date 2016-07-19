@@ -14,8 +14,8 @@ class DiseaseListView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        const questionnaireNames = context.getService("questionnaireService").getQuestionnaireNames();
-        this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaireNames), exporting: false};
+        const questionnaires = context.getService("questionnaireService").getQuestionnaireNames();
+        this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires), exporting: false};
         this.onExportPress = this.onExportPress.bind(this);
     }
 
@@ -68,7 +68,8 @@ class DiseaseListView extends Component {
     render() {
         return (
             //TODO: Separate this out in another component
-            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#ffffff'}}>
+            <View
+                style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#ffffff'}}>
                 <DrawerLayoutAndroid
                     drawerWidth={300}
                     drawerPosition={DrawerLayoutAndroid.positions.Left}
@@ -78,7 +79,7 @@ class DiseaseListView extends Component {
                         <ListView
                             contentContainerStyle={DiseaseListView.styles.list}
                             dataSource={this.state.dataSource}
-                            renderRow={(rowItem) => <QuestionnaireButton diseaseName={rowItem}/>}
+                            renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
                         />
                     </View>
                 </DrawerLayoutAndroid>

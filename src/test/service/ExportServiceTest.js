@@ -19,8 +19,8 @@ describe('Export Service', () => {
         };
 
         const stubbedQuestionnaireService = {
-            getQuestionnaire: (questionnaireName) => {
-                if (questionnaireName === "foo") {
+            getQuestionnaire: (questionnaireUUID) => {
+                if (questionnaireUUID === "94d3b225-b339-4f6e-8ba3-549df4ee8fac") {
                     return {
                         questions: [
                             {
@@ -49,7 +49,7 @@ describe('Export Service', () => {
         };
 
         var exportService = new ExportService(null, stubbedBeanStore, stubbedFileSystemGateway);
-        const contents = exportService.exportContents("foo");
+        const contents = exportService.exportContents({name: "foo", uuid: "94d3b225-b339-4f6e-8ba3-549df4ee8fac"});
         const header = `Question 1,Question 2,Suggestion,Created At`;
         expect(contents).to.contain(header);
         expect(contents).to.contain("Answer 1,Answer 2,Paracetamol");

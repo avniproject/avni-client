@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export class QuestionnaireQuestion {
     static schema = {
         name: 'QuestionnaireQuestion',
@@ -32,4 +34,21 @@ export class Questionnaire {
 
         }
     };
+
+    static _obj(value) {
+        return {"value": value};
+    }
+
+    static toDB(questionnaire) {
+        questionnaire['decisionKeys'] = questionnaire['decisionKeys'].map(Questionnaire._obj);
+        questionnaire['summaryFields'] = questionnaire['summaryFields'].map(Questionnaire._obj);
+        return questionnaire;
+    }
+
+    static fromDB(questionnaire) {
+        questionnaire = _.merge({}, questionnaire);
+        questionnaire['decisionKeys'] = questionnaire['decisionKeys'].map((key)=> key.value);
+        questionnaire['summaryFields'] = questionnaire['summaryFields'].map((field) => field.value);
+        return questionnaire;
+    }
 }

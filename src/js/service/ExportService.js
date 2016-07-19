@@ -13,26 +13,26 @@ class ExportService extends BaseService {
 
     exportAll(done) {
         const questionnaireService = this.getService("questionnaireService");
-        const questionnaireNames = questionnaireService.getQuestionnaireNames();
+        const questionnaires = questionnaireService.getQuestionnaireNames();
 
-        questionnaireNames.forEach((questionnaireName) => {
-            const fileContents = this.exportContents(questionnaireName);
-            const fileName = General.replaceAndroidIncompatibleChars(questionnaireName) + General.getCurrentDate() + ".csv";
+        questionnaires.forEach((questionnaire) => {
+            const fileContents = this.exportContents(questionnaire);
+            const fileName = General.replaceAndroidIncompatibleChars(questionnaire.name) + General.getCurrentDate() + ".csv";
             this.fileSystemGateway.createFile(fileName, fileContents);
         });
         done();
     }
 
-    getHeader(questionnaireName) {
+    getHeader(questionnaire) {
         const questionnaireService = this.getService("questionnaireService");
-        const questionnaire = questionnaireService.getQuestionnaire(questionnaireName);
+        const completeQuestionnaire = questionnaireService.getQuestionnaire(questionnaire.uuid);
         var header = '';
-        questionnaire.questions.forEach(function (question) {
+        completeQuestionnaire.questions.forEach(function (question) {
             header += General.toExportable(question.name);
             header += ',';
         });
 
-        questionnaire.decisionKeys.forEach(function (decisionKey) {
+        completeQuestionnaire.decisionKeys.forEach(function (decisionKey) {
             header += General.toExportable(decisionKey);
             header += ',';
         });
@@ -41,11 +41,11 @@ class ExportService extends BaseService {
         return header;
     }
 
-    exportContents(questionnaireName) {
+    exportContents(questionnaire) {
         const decisionSupportSessionService = this.getService("decisionSupportSessionService");
-        var contents = this.getHeader(questionnaireName);
+        var contents = this.getHeader(questionnaire);
 
-        const decisionSupportSessions = decisionSupportSessionService.getAll(questionnaireName);
+        const decisionSupportSessions = decisionSupportSessionService.getAll(questionnaire.name);
         decisionSupportSessions.forEach((session) => {
             session.questionAnswers.forEach(function (questionAnswer) {
                 contents += General.toExportable(questionAnswer.answer);
