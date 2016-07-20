@@ -5,7 +5,6 @@ import ConfigurationData from '../../service/ConfigurationData'
 import TypedTransition from '../../framework/routing/TypedTransition'
 import DiseaseListView from "./../diseaseList/DiseaseListView"
 import AppState from '../../hack/AppState'
-import {Messages} from "../../utility/Messages"
 import FileSystemGateway from "../../service/gateway/FileSystemGateway"
 import ErrorView from "../error/ErrorView";
 

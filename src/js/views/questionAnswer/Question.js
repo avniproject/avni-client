@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {Component} from 'react';
-import I18n from '../../utility/Messages';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import General from '../../utility/General';
 
