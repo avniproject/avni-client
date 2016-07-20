@@ -1,6 +1,7 @@
 import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
+import Colors  from '../primitives/Colors';
 
 class DecisionSupportSessionComponent extends Component {
 
@@ -60,7 +61,11 @@ class DecisionSupportSessionComponent extends Component {
                         backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
                     }}></Text>}
                 />
-                <Text style={{fontSize: 24, marginTop: 10, color: '#000000'}}>{this.I18n.t('decisionsMadeBySystem')}</Text>
+                <Text style={{
+                    fontSize: 24,
+                    marginTop: 10,
+                    color: '#000000'
+                }}>{this.I18n.t('decisionsMadeBySystem')}</Text>
                 {decisions.map((decision) => this.renderRow(decision.name, decision.value))}
             </View>);
     }
