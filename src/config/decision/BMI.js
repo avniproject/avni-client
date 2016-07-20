@@ -1,4 +1,4 @@
-export let BMI_makeDecision = function (questionnaireAnswers) {
+export let BMI_getDecision = function (questionnaireAnswers) {
     var decision = {};
     decision.name = "BMI";
     decision.code = "N/A";
