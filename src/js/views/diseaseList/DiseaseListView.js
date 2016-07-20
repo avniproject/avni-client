@@ -6,7 +6,7 @@ import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import ConclusionListView from "../conclusion/ConclusionListView";
+import DecisionSupportSessionListView from "../conclusion/DecisionSupportSessionListView";
 
 @Path('/diseaseList')
 class DiseaseListView extends Component {
@@ -62,7 +62,7 @@ class DiseaseListView extends Component {
     };
 
     onViewSavedSessionsPress = () => {
-        TypedTransition.from(this).to(ConclusionListView);
+        TypedTransition.from(this).to(DecisionSupportSessionListView);
     };
 
     render() {

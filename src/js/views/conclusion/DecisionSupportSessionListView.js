@@ -15,6 +15,9 @@ class DecisionSupportSessionListView extends Component {
         },
         saveDate: {
             color: 'blue'
+        },
+        noSessionText: {
+            fontSize: 18,
         }
     });
 
@@ -97,7 +100,8 @@ class DecisionSupportSessionListView extends Component {
         if (sessions.length === 0)
             return (
                 <View>
-                    <Text style={{fontSize: 18}}>{this.I18n.t('zeroNumberOfSessions')}</Text>
+                    <Text
+                        style={DecisionSupportSessionListView.styles.noSessionText}>{this.I18n.t('zeroNumberOfSessions')}</Text>
                     {this._renderSeparator(0)}
                 </View>
             );
