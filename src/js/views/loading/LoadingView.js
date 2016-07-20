@@ -1,12 +1,10 @@
 import Path, {PathRoot} from '../../framework/routing/Path'
 import {ProgressBarAndroid, View, Text} from 'react-native'
 import React, {Component} from 'react';
-import ConfigurationData from '../../service/ConfigurationData'
 import TypedTransition from '../../framework/routing/TypedTransition'
 import DiseaseListView from "./../diseaseList/DiseaseListView"
 import AppState from '../../hack/AppState'
 import FileSystemGateway from "../../service/gateway/FileSystemGateway"
-import ErrorView from "../error/ErrorView";
 
 @PathRoot
 @Path('/loadingView')
@@ -23,21 +21,10 @@ class LoadingView extends Component {
         var fileLoaded = false;
         AppState.loadingCompleted = false;
         const intervalID = setInterval(() => {
-            if (fileLoaded === false)
-                fileLoaded = ConfigurationData.initialised;
-
-            if (fileLoaded === true && ConfigurationData.errorMessage === undefined) {
-                AppState.loadingCompleted = true;
-                console.trace(`File system data loaded`);
-                clearInterval(intervalID);
-                TypedTransition.from(this).to(DiseaseListView);
-            } else if (fileLoaded === true) {
-                AppState.loadingCompleted = true;
-                console.trace(`File system data loading error`);
-                clearInterval(intervalID);
-                var queryParams = {errors: [ConfigurationData.errorMessage]};
-                TypedTransition.from(this).with(queryParams).to(ErrorView);
-            }
+            AppState.loadingCompleted = true;
+            console.trace(`File system data loaded`);
+            clearInterval(intervalID);
+            TypedTransition.from(this).to(DiseaseListView);
         }, 300);
 
         return (

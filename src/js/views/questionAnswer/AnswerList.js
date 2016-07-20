@@ -5,7 +5,7 @@ import AppState from "../../hack/AppState";
 
 class AnswerList extends Component {
     static propTypes = {
-        answers: React.PropTypes.array.isRequired,
+        answers: React.PropTypes.object.isRequired,
         locale: React.PropTypes.string.isRequired
     };
 

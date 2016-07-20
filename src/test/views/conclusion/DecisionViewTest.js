@@ -5,7 +5,6 @@ import {expect} from 'chai';
 import DecisionView from '../../../js/views/conclusion/DecisionView';
 import AppState from "../../../js/hack/AppState"
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
-import ConfigurationData from "../../../js/service/ConfigurationData";
 
 describe('Decision View Test', () => {
     it('should have display conclusion', () => {

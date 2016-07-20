@@ -36,7 +36,6 @@ export default class App extends Component {
     }
 
     render() {
-        require('./service/ConfigurationData');
         return PathRegistry.routes();
     }
 }
