@@ -9,8 +9,28 @@ import FileSystemGateway from "../../service/gateway/FileSystemGateway";
 class SettingsView extends Component {
     static styles = StyleSheet.create({
         main: {
-            marginLeft: 20,
-            marginRight: 20
+            flexDirection: 'column'
+        },
+        form: {
+            marginTop: 40
+        },
+        formItem: {
+            marginBottom: 10,
+            marginHorizontal: 10,
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'flex-end'
+        },
+        formItemLabel: {
+            fontSize: 20,
+            color: '#e93a2c',
+            flex: 0.18
+        },
+        formItemInput: {
+            height: 40,
+            borderColor: '#e93a2c',
+            borderWidth: 3,
+            flex: 0.7
         }
     });
 
@@ -39,17 +59,13 @@ class SettingsView extends Component {
 
     render() {
         return (
-            <View style={[SettingsView.styles.main, {flexDirection: 'column'}]}>
+            <View style={[SettingsView.styles.main]}>
                 <SettingsHeader parent={this}/>
                 <SettingsForm
                     settings={this.settings}
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                 />
-                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
-                    <Text style={{flex: 0.2, fontSize: 20, color: '#0C59CF'}}>Home Folder</Text>
-                    <Text style={{flex: 0.6, fontSize: 24, color: '#0C59CF'}}>{FileSystemGateway.basePath}</Text>
-                </View>
                 {this.renderBusyIndicator()}
             </View>
         );

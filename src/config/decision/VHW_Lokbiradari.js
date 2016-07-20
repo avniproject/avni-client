@@ -821,7 +821,7 @@ const treatmentByDiagnosisAndCode = {
                     "Medicine": "Scabizol",
                     "Amount": 0,
                     "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Times": "Scabies Instruction"
                 }
             ]
         },
@@ -1291,8 +1291,8 @@ const englishWordsToMarathi = {
     "Tablet": "टॅबलेट",
     "Cetrizine": "सेट्रीझीन",
     "Cetrizine Syrup": "सेट्रीझीन सायरप",
-    "Furoxone Syrup":  "फ्युरोक्सोन सायरप",
-    "Furoxone":  "फ्युरोक्सोन",
+    "Furoxone Syrup": "फ्युरोक्सोन सायरप",
+    "Furoxone": "फ्युरोक्सोन",
     "Abdak": "अबडक",
     "Abdak Syrup": "अबडक सायरप",
     "BC": "बीसी",
@@ -1384,7 +1384,7 @@ export let VHW_Lokbiradari_getDecision = function (questionnaireAnswers) {
     return [decision];
 };
 
-var getDoseUnitMessage = function(daysPrescription) {
+var getDoseUnitMessage = function (daysPrescription) {
     if (daysPrescription["Dose Unit"] === "Spoon")
         return daysPrescription.Amount < 2 ? "चमचा" : "चमचे";
     else if (daysPrescription["Dose Unit"] === "ml")
@@ -1392,7 +1392,7 @@ var getDoseUnitMessage = function(daysPrescription) {
     return "टॅबलेट";
 };
 
-var getKeys = function(obj) {
+var getKeys = function (obj) {
     var keys = [];
     for (var key in obj) {
         keys.push(key);

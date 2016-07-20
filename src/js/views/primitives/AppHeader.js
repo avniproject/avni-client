@@ -22,7 +22,7 @@ class AppHeader extends Component {
 
     static styles = StyleSheet.create({
         main: {
-            backgroundColor: '#e93a2c',
+            backgroundColor: '#e46d14',
             height: 60,
             flexDirection: 'row'
         },

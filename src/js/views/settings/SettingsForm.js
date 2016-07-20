@@ -2,6 +2,7 @@ import {StyleSheet, View} from 'react-native';
 import React, {Component} from 'react';
 import SettingsFormField from './SettingsFormField';
 import SettingsMultipleChoiceField from './SettingsMultipleChoiceField';
+import SettingsView from './SettingsView';
 
 class SettingsForm extends Component {
     static propTypes = {
@@ -9,19 +10,9 @@ class SettingsForm extends Component {
         settings: React.PropTypes.object.isRequired
     };
 
-    static styles = StyleSheet.create({
-        formItem: {
-            marginBottom: 10
-        },
-        fieldLabel: {
-            fontSize: 20,
-            color: '#0C59CF'
-        }
-    });
-
     render() {
         return (
-            <View style={{marginBottom: 10}}>
+            <View style={SettingsView.styles.form}>
                 <SettingsFormField
                     onChangeText={this.props.onServerURLChanged}
                     defaultValue={this.props.settings.serverURL}

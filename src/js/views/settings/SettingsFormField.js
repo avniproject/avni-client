@@ -1,6 +1,6 @@
 import  {StyleSheet, Text, TextInput, View} from 'react-native';
 import React, {Component} from 'react';
-import SettingsForm from './SettingsForm';
+import SettingsView from './SettingsView';
 
 class SettingsFormField extends Component {
     static propTypes = {
@@ -8,22 +8,12 @@ class SettingsFormField extends Component {
         defaultValue: React.PropTypes.string.isRequired
     };
 
-    static styles = StyleSheet.create({
-        input: {
-            height: 40,
-            borderColor: 'gray',
-            borderWidth: 1
-        }
-    });
-
     render() {
         return (
-            <View style={[SettingsForm.styles.formItem, {flexDirection: 'row', alignItems: 'center'}]}>
-                <Text style={[SettingsForm.styles.fieldLabel, {flex: 0.2}]}>
-                    Server URL
-                </Text>
+            <View style={SettingsView.styles.formItem}>
+                <Text style={SettingsView.styles.formItemLabel}>Server URL</Text>
                 <TextInput
-                    style={[SettingsFormField.styles.input, {flex: 0.6}]}
+                    style={[SettingsView.styles.formItemInput, {fontSize: 20}]}
                     onChangeText={this.props.onChangeText}
                     defaultValue={this.props.defaultValue}
                 />

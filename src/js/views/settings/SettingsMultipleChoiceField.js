@@ -1,6 +1,6 @@
 import {StyleSheet, Text, TextInput, View, Picker} from 'react-native';
 import React, {Component} from 'react';
-import SettingsForm from './SettingsForm';
+import SettingsView from './SettingsView';
 
 const Item = Picker.Item;
 
@@ -11,26 +11,15 @@ class SettingsMultipleChoiceField extends Component {
         availableValues: React.PropTypes.object.isRequired
     };
 
-    static styles = StyleSheet.create({
-        input: {
-            height: 40,
-            width: 200,
-            borderColor: 'gray',
-            borderWidth: 1
-        }
-    });
-
     render() {
         const pickerItems = this.props.availableValues.map((item) => <Item key={item.option}
                                                                            label={item.option}
                                                                            value={item.locale}/>);
         return (
-            <View style={[{flex: 1, flexDirection: 'row'}, SettingsForm.styles.formItem]}>
-                <Text style={[SettingsForm.styles.fieldLabel, {flex: 0.2}]}>
-                    Locale
-                </Text>
+            <View style={SettingsView.styles.formItem}>
+                <Text style={SettingsView.styles.formItemLabel}>Locale</Text>
                 <Picker
-                    style={[SettingsMultipleChoiceField.styles.input, {flex: 0.7}]}
+                    style={SettingsView.styles.formItemInput}
                     onValueChange={this.props.onChangeSelection}
                     selectedValue={this.props.selectedValue}>
                     {pickerItems}

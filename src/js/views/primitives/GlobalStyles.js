@@ -8,7 +8,7 @@ export let Global = StyleSheet.create({
         height: 44
     },
     actionButtonWrapper: {
-        backgroundColor: '#2cdbe9',
+        backgroundColor: '#148be4',
         margin: 2,
         width: 125,
         height: 40,

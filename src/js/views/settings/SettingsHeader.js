@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, TouchableHighlight} from 'react-native';
+import {StyleSheet, Text, View, TouchableHighlight, Image} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 
@@ -17,21 +17,31 @@ class SettingsHeader extends Component {
         main: {
             flexDirection: 'row',
             height: 60,
-            marginBottom: 5
+            backgroundColor: '#e93a2c',
+            flex: 1
         },
-        close: {
-            color: '#333333',
-            fontSize: 26,
-            textAlignVertical: 'center',
-            fontWeight: 'bold'
+        labelWrapper: {
+            flex: 0.9,
+            flexDirection: 'row',
+            justifyContent: 'flex-start'
         },
         label: {
-            flex: 0.90,
             textAlignVertical: 'center',
             textAlign: 'center',
-            fontWeight: 'bold',
-            color: '#333333',
-            fontSize: 26
+            color: '#ffffff',
+            fontSize: 26,
+            marginLeft: 14
+        },
+        closeWrapper: {
+            marginRight: 10,
+            flex: 0.1
+        },
+        close: {
+            color: '#ffffff',
+            fontSize: 32,
+            textAlignVertical: 'center',
+            textAlign: 'center',
+            flex: 1
         }
     });
 
@@ -46,10 +56,15 @@ class SettingsHeader extends Component {
     render() {
         return (
             <View style={SettingsHeader.styles.main}>
-                <Text style={SettingsHeader.styles.label}>
-                    {this.I18n.t('settings')}
-                </Text>
-                <TouchableHighlight>
+                <View style={SettingsHeader.styles.labelWrapper}>
+                    <Image style={{marginLeft: 10}}
+                           source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_50.png')}
+                    />
+                    <Text style={SettingsHeader.styles.label}>
+                        {this.I18n.t('settings')}
+                    </Text>
+                </View>
+                <TouchableHighlight style={SettingsHeader.styles.closeWrapper}>
                     <Text style={SettingsHeader.styles.close} onPress={this.onClosePress}>
                         {this.I18n.t('close')}
                     </Text>

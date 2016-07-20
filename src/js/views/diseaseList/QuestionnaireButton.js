@@ -24,7 +24,7 @@ class QuestionnaireButton extends Component {
         itemWrapper: {
             flex: 1,
             borderRadius: 3,
-            backgroundColor: '#e93a2c',
+            backgroundColor: '#e46d14',
             width: 150,
             height: 100,
             margin: 5
