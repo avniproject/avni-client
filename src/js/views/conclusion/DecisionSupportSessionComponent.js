@@ -34,7 +34,7 @@ class DecisionSupportSessionComponent extends Component {
             <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 0.3}}>
                     <Text
-                        style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.question]}>{this.I18n.t(key)}</Text>
+                        style={DecisionSupportSessionComponent.styles.question}>{this.I18n.t(key)}</Text>
                 </View>
                 <View style={{flex: 0.7}}>
                     <Text
@@ -48,21 +48,23 @@ class DecisionSupportSessionComponent extends Component {
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         var dsClone = ds.cloneWithRows(this.props.questionAnswers);
 
-        return (<View>
-            <ListView
-                dataSource={dsClone}
-                renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
-                renderHeader={() => <Text
-                    style={{fontSize: 24, color: '#000000'}}>{this.I18n.t("answersConfirmationTitle")}</Text>}
-                renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
-                    height: adjacentRowHighlighted ? 1 : 2,
-                    backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
-                }}></Text>}
-            />
-            <Text style={{fontSize: 24, marginTop: 10, color: '#000000'}}>{this.I18n.t('decisionsMadeBySystem')}</Text>
-            {decisions.map((decision) => this.renderRow(decision.name, decision.value))}
-        </View>);
+        return (
+            <View>
+                <ListView
+                    dataSource={dsClone}
+                    renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
+                    renderHeader={() => <Text
+                        style={{fontSize: 24, color: Colors.Primary}}>{this.I18n.t("answersConfirmationTitle")}</Text>}
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
+                        height: adjacentRowHighlighted ? 1 : 2,
+                        backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
+                    }}></Text>}
+                />
+                <Text style={{fontSize: 24, marginTop: 10, color: '#000000'}}>{this.I18n.t('decisionsMadeBySystem')}</Text>
+                {decisions.map((decision) => this.renderRow(decision.name, decision.value))}
+            </View>);
     }
+
 }
 
 export default DecisionSupportSessionComponent;

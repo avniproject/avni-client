@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import Colors from '../primitives/Colors';
 
 export let Global = StyleSheet.create({
     navButtonHidden: {
@@ -8,7 +9,7 @@ export let Global = StyleSheet.create({
         height: 44
     },
     actionButtonWrapper: {
-        backgroundColor: '#148be4',
+        backgroundColor: Colors.Complimentary,
         margin: 2,
         width: 125,
         height: 40,

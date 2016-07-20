@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
+import Colors from '../primitives/Colors';
 
 class QuestionnaireButton extends Component {
 
@@ -24,7 +25,7 @@ class QuestionnaireButton extends Component {
         itemWrapper: {
             flex: 1,
             borderRadius: 3,
-            backgroundColor: '#e46d14',
+            backgroundColor: Colors.Primary,
             width: 150,
             height: 100,
             margin: 5

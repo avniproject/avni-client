@@ -1,6 +1,7 @@
 import {StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
+import Colors from '../primitives/Colors';
 import SettingsView from "../settings/SettingsView";
 
 class AppHeader extends Component {
@@ -22,7 +23,7 @@ class AppHeader extends Component {
 
     static styles = StyleSheet.create({
         main: {
-            backgroundColor: '#e46d14',
+            backgroundColor: Colors.Primary,
             height: 60,
             flexDirection: 'row'
         },

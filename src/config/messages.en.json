@@ -11,7 +11,6 @@
   "session": "Session Details",
   "decisionsMadeBySystem": "Decisions made by system",
   "viewSavedSessions": "View Data",
-  "sessionsForPrefix": "Sessions for",
   "zeroNumberOfSessions": "There are no saved sessions",
   "deleteSessions": "Delete Data",
   "deleteConfirmation": "Do you want to delete all saved sessions?",

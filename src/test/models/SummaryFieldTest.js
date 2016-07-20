@@ -12,7 +12,7 @@ describe('Summary Field', () => {
             [QuestionAnswer.newInstance("Q1", "A1")],
             new Date()
         );
-        expect(new SummaryField("abc", SummaryField.DecisionKey).getValueFrom(session)).to.equal("ZZZ");
+        expect(new SummaryField("abc", SummaryField.DecisionKey).getValueFrom(session)).to.equal("A");
         expect(new SummaryField("Q1", SummaryField.Question).getValueFrom(session)).to.equal("A1");
     });
 });

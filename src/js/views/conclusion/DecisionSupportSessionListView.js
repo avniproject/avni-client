@@ -5,19 +5,46 @@ import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
+import Colors from '../primitives/Colors';
 
 @Path('/DecisionSupportSessionListView')
 class DecisionSupportSessionListView extends Component {
     static styles = StyleSheet.create({
-        sessionItem: {
-            fontSize: 18,
-            flexDirection: 'column'
+        sessionTypeContainer: {
+            margin: 8,
+            marginTop: 22,
+            borderWidth: 2,
+            borderRadius: 3,
+            borderColor: Colors.Primary
         },
-        saveDate: {
-            color: 'blue'
+        sessionTypeHeader: {
+            fontSize: 20,
+            backgroundColor: Colors.Primary,
+            color: '#ffffff',
+            textAlign: 'center'
+        },
+        session: {
+            flex: 1,
+            flexDirection: 'row',
+            marginLeft: 5
+        },
+        sessionItemContainer: {
+            flex: 0.33
+        },
+        sessionItem: {
+            fontSize: 19,
+            color: Colors.Complimentary,
+            textAlign: 'center',
+            flex: 0.33
+        },
+        sessionSeparator: {
+            height: 2,
+            backgroundColor: '#14e4d5'
         },
         noSessionText: {
             fontSize: 18,
+            textAlign: 'center',
+            color: Colors.Complimentary
         }
     });
 
@@ -41,7 +68,7 @@ class DecisionSupportSessionListView extends Component {
 
     renderSummaryField(summaryField, session) {
         return (
-            <View style={{flex: 0.33}}>
+            <View style={DecisionSupportSessionListView.styles.sessionItemContainer}>
                 <Text
                     style={[DecisionSupportSessionListView.styles.sessionItem]}>{summaryField.getValueFrom(session)}</Text>
             </View>);
@@ -49,14 +76,14 @@ class DecisionSupportSessionListView extends Component {
 
     renderRow(session, questionnaire, rowID) {
         return (
-            <View style={{flex: 1, flexDirection: 'row'}}>
-                <TouchableHighlight style={{flex: 0.33}}>
-                    <Text
-                        onPress={() => this.onSessionRowPress(session)}
-                        style={[DecisionSupportSessionListView.styles.sessionItem, DecisionSupportSessionListView.styles.saveDate]}>{General.formatDate(session.saveDate)}</Text>
-                </TouchableHighlight>
-                {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}
-            </View>);
+            <TouchableHighlight onPress={() => this.onSessionRowPress(session)}>
+                <View style={DecisionSupportSessionListView.styles.session}>
+                    <Text style={DecisionSupportSessionListView.styles.sessionItem}>
+                        {General.formatDate(session.saveDate)}
+                    </Text>
+                    {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}
+                </View>
+            </TouchableHighlight>);
     }
 
     renderSessions(questionnaire) {
@@ -70,7 +97,7 @@ class DecisionSupportSessionListView extends Component {
         const dsClone = ds.cloneWithRows(sessions);
 
         return (
-            <View style={{margin: 4}}>
+            <View style={DecisionSupportSessionListView.styles.sessionTypeContainer}>
                 <ListView
                     enableEmptySections={true}
                     dataSource={dsClone}
@@ -78,22 +105,22 @@ class DecisionSupportSessionListView extends Component {
                     renderHeader={() => {
                         return (
                             <View>
-                                <Text style={{
-                                    fontSize: 24,
-                                    color: '#000000'
-                                }}>{`${this.I18n.t('sessionsForPrefix')} ${questionnaire.name}`}</Text>
-                                {this._renderSeparator(0)}
+                                <Text style={DecisionSupportSessionListView.styles.sessionTypeHeader}>
+                                    {questionnaire.name}
+                                </Text>
                             </View>
                         )
                     }}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._renderSeparator(rowID)}
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._renderSeparator(rowID, sessions.length)}
                 />
                 {this.renderZeroSessionMessage(sessions)}
             </View>);
     }
 
-    _renderSeparator(rowID) {
-        return (<Text key={rowID} style={{height: 2, backgroundColor: '#CCCCCC'}}></Text>);
+    _renderSeparator(rowID, total) {
+        if (rowID === (total - 1) || rowID === `${(total - 1)}` || total === 0 || total === undefined) return (<View/>);
+        console.log(`${rowID} ${total}`);
+        return (<Text key={rowID} style={DecisionSupportSessionListView.styles.sessionSeparator}/>);
     }
 
     renderZeroSessionMessage(sessions) {
@@ -106,7 +133,7 @@ class DecisionSupportSessionListView extends Component {
                 </View>
             );
         else
-            return (<Text/>);
+            return (<View/>);
     }
 
     render() {

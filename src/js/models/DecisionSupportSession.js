@@ -30,7 +30,7 @@ class DecisionSupportSession {
     static getDecisionFor(decisionKey, session) {
         return session.decisions.find((decision) => {
             return decision.name === decisionKey;
-        }).value;
+        }).code;
     }
 }
 
