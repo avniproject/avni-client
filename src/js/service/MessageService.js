@@ -17,7 +17,6 @@ class MessageService extends BaseService {
             mr_IN: Messages_mr_IN,
             hi_IN: Messages_hi_IN
         };
-        console.log(this.I18n.translations);
     }
 
     init(beans) {
