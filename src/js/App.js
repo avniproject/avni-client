@@ -10,11 +10,12 @@ import './tasks';
 import AppState from './hack/AppState'; //Required Import
 
 export default class App extends Component {
-    constructor() {
-        super();
-        this.getBean = this.getBean.bind(this);
+
+    constructor(props, context) {
+        super(props, context);
         this.store = new Realm(models);
         this.beans = BeanRegistry.init(this.store, this);
+        this.getBean = this.getBean.bind(this);
         BootstrapRegistry.runAllTasks(this.getBean);
     }
 

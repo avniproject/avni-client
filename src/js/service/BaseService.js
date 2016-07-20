@@ -4,6 +4,10 @@ export default class BaseService {
         this.beanStore = beanStore;
     }
 
+    init() {
+
+    }
+
     getService(name) {
         return this.beanStore.getBean(name);
     }

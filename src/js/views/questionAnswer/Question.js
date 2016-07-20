@@ -5,8 +5,18 @@ import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import General from '../../utility/General';
 
 class Question extends Component {
+
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
     static propTypes = {
         question: React.PropTypes.object.isRequired
+    };
+
+    static contextTypes = {
+        getService: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -16,6 +26,14 @@ class Question extends Component {
             color: '#e93a2c'
         }
     });
+
+    toQuestionText() {
+        const questionText = this.I18n.t(this.props.question.name);
+        var text = this.props.question.isMandatory ? `${questionText} *` : `${questionText}`;
+        if (this.props.question.questionDataType === SimpleQuestionnaire.Numeric && this.props.question.lowAbsolute !== undefined)
+            text += ` ${General.formatRange(this.props.question)}`;
+        return text;
+    }
 
     render() {
         return (
@@ -27,13 +45,6 @@ class Question extends Component {
         );
     }
 
-    toQuestionText() {
-        const questionText = I18n.t(this.props.question.name);
-        var text = this.props.question.isMandatory ? `${questionText} *` : `${questionText}`;
-        if (this.props.question.questionDataType === SimpleQuestionnaire.Numeric && this.props.question.lowAbsolute !== undefined)
-            text += ` ${General.formatRange(this.props.question)}`;
-        return text;
-    }
 }
 
 export default Question;

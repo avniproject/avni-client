@@ -1,4 +1,4 @@
-export let Sample_getDecision = function (questionnaireAnswers) {
+export let Sample_without_control_flow_getDecision = function (questionnaireAnswers) {
     var decision = {};
     decision.name = "Treatment";
     decision.code = "ABC001";

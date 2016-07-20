@@ -2,9 +2,18 @@ import {StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'reac
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SettingsView from "../settings/SettingsView";
-import I18n from '../../utility/Messages'
 
 class AppHeader extends Component {
+
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
+    static contextTypes = {
+        getService: React.PropTypes.func.isRequired
+    };
+
     static propTypes = {
         title: React.PropTypes.string.isRequired,
         onTitlePressed: React.PropTypes.func,
@@ -45,7 +54,7 @@ class AppHeader extends Component {
                         />
                     </TouchableHighlight>
                     <TouchableHighlight onPress={this.props.onTitlePressed} style={{width: 50, flex: 1}}>
-                        <Text style={AppHeader.styles.header}>{I18n.t(this.props.title)}</Text>
+                        <Text style={AppHeader.styles.header}>{this.I18n.t(this.props.title)}</Text>
                     </TouchableHighlight>
                     <View style={AppHeader.styles.icon}>
                         <Image

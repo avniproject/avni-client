@@ -1,13 +1,21 @@
 import {Text, StyleSheet, View, Image} from 'react-native';
 import React, {Component} from 'react';
-import I18n from '../../utility/Messages'
 
 class AnswerOption extends Component {
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
     static propTypes = {
         answer: React.PropTypes.string.isRequired,
         isSelected: React.PropTypes.bool.isRequired
     };
-    
+
+    static contextTypes = {
+        getService: React.PropTypes.func.isRequired
+    };
+
     static styles = StyleSheet.create({
         answerRow: {
             marginTop: 10,
@@ -45,8 +53,8 @@ class AnswerOption extends Component {
     render() {
         return (
             <View style={AnswerOption.styles.answerRow}>
-                 <Text style={AnswerOption.styles.item} onPress={() => this.props.optionPressed(this.props.answer)}>
-                    {I18n.t(this.props.answer)}
+                <Text style={AnswerOption.styles.item} onPress={() => this.props.optionPressed(this.props.answer)}>
+                    {this.I18n.t(this.props.answer)}
                 </Text>
                 {this.displayCheckImage()}
             </View>

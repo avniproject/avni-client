@@ -3,9 +3,14 @@ import React, {Component} from 'react';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
-import I18n from '../../utility/Messages'
 
 class QuestionnaireButton extends Component {
+
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
     static propTypes = {
         questionnaire: React.PropTypes.object.isRequired
     };
@@ -51,7 +56,7 @@ class QuestionnaireButton extends Component {
             <TouchableHighlight>
                 <View style={QuestionnaireButton.styles.itemWrapper}>
                     <Text onPress={this.onSelect} style={[QuestionnaireButton.styles.item, {flex: 1}]}>
-                        {I18n.t(this.props.questionnaire.name)}
+                        {this.I18n.t(this.props.questionnaire.name)}
                     </Text>
                 </View>
             </TouchableHighlight>

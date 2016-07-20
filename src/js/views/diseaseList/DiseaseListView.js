@@ -5,7 +5,6 @@ import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
-import I18n from '../../utility/Messages';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ConclusionListView from "../conclusion/ConclusionListView";
 
@@ -15,6 +14,7 @@ class DiseaseListView extends Component {
     constructor(props, context) {
         super(props, context);
         const questionnaires = context.getService("questionnaireService").getQuestionnaireNames();
+        this.I18n = context.getService("messageService").getI18n();
         this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires), exporting: false};
         this.onExportPress = this.onExportPress.bind(this);
     }
@@ -45,8 +45,8 @@ class DiseaseListView extends Component {
     onDeleteSessionsPress = () => {
         const service = this.context.getService("decisionSupportSessionService");
         Alert.alert(
-            I18n.t('deleteConfirmation'),
-            I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
+            this.I18n.t('deleteConfirmation'),
+            this.I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
             [
                 {
                     text: 'Yes', onPress: () => {
@@ -88,17 +88,17 @@ class DiseaseListView extends Component {
                     <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                         <TouchableHighlight onPress={this.onViewSavedSessionsPress}>
                             <View style={Global.actionButtonWrapper}>
-                                <Text style={Global.actionButton}>{I18n.t("viewSavedSessions")}</Text>
+                                <Text style={Global.actionButton}>{this.I18n.t("viewSavedSessions")}</Text>
                             </View>
                         </TouchableHighlight>
                         <TouchableHighlight onPress={this.onExportPress}>
                             <View style={Global.actionButtonWrapper}>
-                                <Text style={Global.actionButton}>{I18n.t("export")}</Text>
+                                <Text style={Global.actionButton}>{this.I18n.t("export")}</Text>
                             </View>
                         </TouchableHighlight>
                         <TouchableHighlight onPress={this.onDeleteSessionsPress}>
                             <View style={Global.actionButtonWrapper}>
-                                <Text style={Global.actionButton}>{I18n.t("deleteSessions")}</Text>
+                                <Text style={Global.actionButton}>{this.I18n.t("deleteSessions")}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>

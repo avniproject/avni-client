@@ -1,16 +1,14 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
-import I18n from "../utility/Messages";
 
 @Service("settingsService")
 class SettingsService extends BaseService {
-    constructor(db) {
-        super(db);
+    constructor(db, beanStore) {
+        super(db, beanStore);
         const dbInScope = this.db;
         if (this.getSettings() === undefined)
             this.db.write(() => dbInScope.create('Settings', InitialSettings));
-        I18n.locale = this.getSettings().locale.selectedLocale;
     }
 
     getSettings() {
@@ -31,11 +29,16 @@ class SettingsService extends BaseService {
     }
 
     saveLocale(locale) {
+        const messageService = this.getService("messageService");
         const self = this;
         this.db.write(() => {
             self.getSettings().locale.selectedLocale = locale;
-            I18n.locale = locale;
+            messageService.setLocale(locale);
         });
+    }
+
+    getLocale() {
+        return this.getSettings().locale.selectedLocale;
     }
 }
 

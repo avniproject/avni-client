@@ -2,9 +2,18 @@ import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'reac
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import * as CHSStyles from "./GlobalStyles";
-import I18n from '../../utility/Messages';
 
 class WizardButtons extends Component {
+
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
+    static contextTypes = {
+        getService: React.PropTypes.func.isRequired
+    };
+
     static propTypes = {
         hasQuestionBefore: React.PropTypes.bool.isRequired,
         nextParams: React.PropTypes.object.isRequired,
@@ -19,7 +28,7 @@ class WizardButtons extends Component {
             <TouchableHighlight>
                 <View style={CHSStyles.Global.actionButtonWrapper}>
                     <Text onPress={this.onPrevious}
-                          style={[CHSStyles.Global.actionButton, dynamicStyle]}>{I18n.t("previous")}</Text>
+                          style={[CHSStyles.Global.actionButton, dynamicStyle]}>{this.I18n.t("previous")}</Text>
                 </View>
             </TouchableHighlight>);
     };
@@ -32,7 +41,7 @@ class WizardButtons extends Component {
         if (this.props.validationFn !== undefined) {
             var validationResult = this.props.validationFn();
             if (!validationResult.status) {
-                Alert.alert(I18n.t("validationError"), validationResult.message,
+                Alert.alert(this.I18n.t("validationError"), validationResult.message,
                     [
                         {
                             text: 'OK', onPress: () => {
@@ -50,12 +59,18 @@ class WizardButtons extends Component {
     render() {
         return (
             <View
-                style={{flexDirection: 'row', height: 50, justifyContent: 'space-between', marginTop: 30, paddingRight: 20}}>
+                style={{
+                    flexDirection: 'row',
+                    height: 50,
+                    justifyContent: 'space-between',
+                    marginTop: 30,
+                    paddingRight: 20
+                }}>
                 {this.previousButton()}
                 <TouchableHighlight>
                     <View style={CHSStyles.Global.actionButtonWrapper}>
                         <Text onPress={this.onNext}
-                              style={[CHSStyles.Global.actionButton, CHSStyles.Global.navButtonVisible]}>{I18n.t("next")}</Text>
+                              style={[CHSStyles.Global.actionButton, CHSStyles.Global.navButtonVisible]}>{this.I18n.t("next")}</Text>
                     </View>
                 </TouchableHighlight>
             </View>

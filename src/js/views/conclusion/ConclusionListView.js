@@ -3,7 +3,6 @@ import {View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
-import I18n from '../../utility/Messages';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
 
@@ -30,6 +29,7 @@ class DecisionSupportSessionListView extends Component {
 
     constructor(props, context) {
         super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
     }
 
     onSessionRowPress(session) {
@@ -57,7 +57,6 @@ class DecisionSupportSessionListView extends Component {
     }
 
     renderSessions(questionnaire) {
-        console.log(this.context.getService);
         const questionnaireService = this.context.getService("questionnaireService");
         const completeQuestionnaire = questionnaireService.getQuestionnaire(questionnaire.uuid);
 
@@ -79,7 +78,7 @@ class DecisionSupportSessionListView extends Component {
                                 <Text style={{
                                     fontSize: 24,
                                     color: '#000000'
-                                }}>{`${I18n.t('sessionsForPrefix')} ${questionnaire.name}`}</Text>
+                                }}>{`${this.I18n.t('sessionsForPrefix')} ${questionnaire.name}`}</Text>
                                 {this._renderSeparator(0)}
                             </View>
                         )
@@ -98,7 +97,7 @@ class DecisionSupportSessionListView extends Component {
         if (sessions.length === 0)
             return (
                 <View>
-                    <Text style={{fontSize: 18}}>{I18n.t('zeroNumberOfSessions')}</Text>
+                    <Text style={{fontSize: 18}}>{this.I18n.t('zeroNumberOfSessions')}</Text>
                     {this._renderSeparator(0)}
                 </View>
             );

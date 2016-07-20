@@ -3,17 +3,21 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
 import * as BMI_getDecision from '../../../config/decision/BMI'
-import * as Sample_getDecision from '../../../config/decision/Sample'
+import * as Sample_without_control_flow_getDecision from '../../../config/decision/Sample'
 import * as VHW_Lokbiradari_getDecision from '../../../config/decision/VHW_Lokbiradari'
 import AppHeader from '../primitives/AppHeader';
 import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
-import I18n from '../../utility/Messages';
 import DecisionSupportExtension from "../../models/DecisionSupportExtension";
 
 @Path('/DecisionView')
 class DecisionView extends Component {
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };
@@ -34,10 +38,6 @@ class DecisionView extends Component {
         }
     });
 
-    constructor(props, context) {
-        super(props, context);
-    }
-
     renderAlert(decision) {
         if (decision.alert !== undefined) {
             return (<Text style={{fontSize: 26, marginTop: 10, color: '#ff0000'}}>{decision.alert}</Text>);
@@ -53,7 +53,7 @@ class DecisionView extends Component {
     renderDecision(decision) {
         return (
             <View>
-                <Text style={DecisionView.styles.summary}>{I18n.t(decision.name)}</Text>
+                <Text style={DecisionView.styles.summary}>{this.I18n.t(decision.name)}</Text>
                 <Text style={DecisionView.styles.decision}>{decision.value}</Text>
                 {this.renderAlert(decision)}
             </View>

@@ -31,7 +31,6 @@ class LoadingView extends Component {
                 AppState.loadingCompleted = true;
                 console.trace(`File system data loaded`);
                 clearInterval(intervalID);
-                // new Messages().addTerminologyMessages(ConceptData);
                 TypedTransition.from(this).to(DiseaseListView);
             } else if (fileLoaded === true) {
                 AppState.loadingCompleted = true;

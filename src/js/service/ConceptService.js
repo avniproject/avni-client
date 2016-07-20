@@ -3,10 +3,11 @@ import Service from '../framework/bean/Service';
 import {Concept} from '../models/Concept';
 import _ from 'lodash';
 
+
 @Service("conceptService")
 class ConceptService extends BaseService {
-    constructor(db) {
-        super(db);
+    constructor(db, beanStore) {
+        super(db, beanStore);
         this.saveConcept = this.saveConcept.bind(this);
         this.getConceptByUUID = this.getConceptByUUID.bind(this);
     }
@@ -20,6 +21,9 @@ class ConceptService extends BaseService {
     }
 
     saveConcept(concept) {
+        const messageService = this.getService("messageService");
+        concept.conceptNames.map((conceptName) =>
+            messageService.addTranslation(conceptName.locale, concept.name, conceptName.name));
         const db = this.db;
         this.db.write(()=> db.create(Concept.schema.name, concept, true));
     }

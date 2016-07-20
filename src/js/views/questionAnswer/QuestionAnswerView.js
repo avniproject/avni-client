@@ -21,7 +21,6 @@ import WizardButtons from '../primitives/WizardButtons';
 import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
-import I18n from '../../utility/Messages';
 import TypedTransition from '../../framework/routing/TypedTransition'
 import DiseaseListView from "../diseaseList/DiseaseListView";
 
@@ -52,6 +51,7 @@ class QuestionAnswerView extends Component {
         super(props, context);
         this.locale = this.context.getStore().objects('Settings')[0]["locale"]["selectedLocale"];
         this.questionnaire = this.props.params.questionnaire;
+        this.I18n = context.getService("messageService").getI18n();
         this.state = {};
     }
 
@@ -100,12 +100,12 @@ class QuestionAnswerView extends Component {
     validate = () => {
         const answer = AppState.questionnaireAnswers.currentAnswer;
         if (this.question.isMandatory && AppState.questionnaireAnswers.currentAnswerIsEmpty) {
-            return {status: false, message: I18n.t('emptyValidationMessage')};
+            return {status: false, message: this.I18n.t('emptyValidationMessage')};
         } else if (this.question.isMandatory && this.question.questionDataType === SimpleQuestionnaire.Numeric &&
             General.isAnswerNotWithinRange(answer, this.question)) {
             return {
                 status: false,
-                message: I18n.t('numericValueValidation', {range: General.formatRange(this.question)})
+                message: this.I18n.t('numericValueValidation', {range: General.formatRange(this.question)})
             };
         }
         return {status: true};

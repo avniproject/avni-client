@@ -1,9 +1,18 @@
 import {StyleSheet, Text, View, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
-import I18n from '../../utility/Messages'
 import TypedTransition from "../../framework/routing/TypedTransition";
 
 class SettingsHeader extends Component {
+
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService("messageService").getI18n();
+    }
+
+    static contextTypes = {
+        getService: React.PropTypes.func.isRequired
+    };
+
     static styles = StyleSheet.create({
         main: {
             flexDirection: 'row',
@@ -38,11 +47,11 @@ class SettingsHeader extends Component {
         return (
             <View style={SettingsHeader.styles.main}>
                 <Text style={SettingsHeader.styles.label}>
-                    {I18n.t('settings')}
+                    {this.I18n.t('settings')}
                 </Text>
                 <TouchableHighlight>
                     <Text style={SettingsHeader.styles.close} onPress={this.onClosePress}>
-                        {I18n.t('close')}
+                        {this.I18n.t('close')}
                     </Text>
                 </TouchableHighlight>
             </View>
