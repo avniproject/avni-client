@@ -1,4 +1,4 @@
-const treatmentByDiagnosisAndCode = {
+export const treatmentByDiagnosisAndCode = {
     "Malaria": {
         "X1": {
             "1": [
@@ -628,7 +628,7 @@ const treatmentByDiagnosisAndCode = {
                 {
                     "Medicine": "Cyroclopam Syrup",
                     "Amount": 0.5,
-                    "Dose Unit": "ml",
+                    "Dose Unit": "Spoon",
                     "Times": "3"
                 }
             ]
@@ -638,7 +638,7 @@ const treatmentByDiagnosisAndCode = {
                 {
                     "Medicine": "Cyroclopam Syrup",
                     "Amount": 1,
-                    "Dose Unit": "ml",
+                    "Dose Unit": "Spoon",
                     "Times": "3"
                 }
             ]
@@ -819,9 +819,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Scabies Instruction"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         },
@@ -835,9 +833,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         },
@@ -851,9 +847,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         },
@@ -867,9 +861,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         },
@@ -883,9 +875,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         },
@@ -899,9 +889,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         },
@@ -915,9 +903,7 @@ const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Scabizol Instruction"
                 }
             ]
         }
@@ -1272,7 +1258,7 @@ const treatmentByDiagnosisAndCode = {
     }
 };
 
-const weightRangesToCode = [
+export const weightRangesToCode = [
     {start: 3.0, end: 5.5, code: "X1"},
     {start: 5.6, end: 7.9, code: "X2"},
     {start: 8.0, end: 13, code: "X3"},
@@ -1318,7 +1304,7 @@ var doseQuantityToMarathi = function (doseQuantity, doseUnit) {
     if (doseQuantity === 2) return "२";
     if (doseQuantity === 3) return "३";
     if (doseQuantity === 4) return "४";
-    console.error(`Dose quantity - ${doseQuantity} for dose unit - ${doseUnit} is not supported`);
+    console.log(`ERROR Dose quantity - ${doseQuantity} for dose unit - ${doseUnit} is not supported`);
 };
 
 var dosageTimingToMarathi = function (times) {
@@ -1358,15 +1344,21 @@ export let VHW_Lokbiradari_getDecision = function (questionnaireAnswers) {
 
         message += "\n";
     }
+
     for (var token = 0; token < dayTokens.length; token++) {
-        for (var medicine = 0; medicine < prescription[dayTokens[token]].length; medicine++) {
-            const daysPrescription = prescription[dayTokens[token]][medicine];
+        for (var medicineNumber = 0; medicineNumber < prescription[dayTokens[token]].length; medicineNumber++) {
+            const daysPrescription = prescription[dayTokens[token]][medicineNumber];
+
             message += englishWordsToMarathi[`${daysPrescription.Medicine}`];
             message += " ";
-            message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
-            message += " ";
-            message += getDoseUnitMessage(daysPrescription);
-            message += " ";
+            if (daysPrescription.Spl !== undefined) {
+                
+            } else {
+                message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
+                message += " ";
+                message += getDoseUnitMessage(daysPrescription);
+                message += " ";
+            }
             message += dosageTimingToMarathi(daysPrescription.Times);
             message += "\n";
         }

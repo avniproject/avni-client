@@ -6,6 +6,12 @@ class QuestionnaireAnswers {
         this.questionnaire = questionnaire;
     }
 
+    set(question, answer) {
+        this.currentQuestion = question;
+        this.currentAnswer = answer;
+        return this;
+    }
+
     set currentQuestion(value) {
         this.questionCursor = value;
     }

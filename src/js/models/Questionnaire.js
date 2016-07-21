@@ -6,7 +6,7 @@ export class QuestionnaireQuestion {
         properties: {
             name: 'string',
             multiSelect: {type: 'bool', optional: true},
-            mandator: {type: 'bool', optional: true}
+            mandatory: {type: 'bool', optional: true}
         }
     }
 }

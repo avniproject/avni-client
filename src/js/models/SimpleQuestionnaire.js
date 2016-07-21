@@ -1,4 +1,5 @@
 import SummaryField from "./SummaryField";
+import _ from 'lodash';
 
 class SimpleQuestionnaire {
     static Numeric = "Numeric";
@@ -17,8 +18,8 @@ class SimpleQuestionnaire {
             questionDataType: questionConcept.datatype.name,
             isFirstQuestion: questionIndex === 0,
             isLastQuestion: questionIndex === this.questionnaireConfigurations.questions.length - 1,
-            isMandatory: questionConfiguration.mandatory === undefined ? true : questionConfiguration.mandatory,
-            isMultiSelect: questionConfiguration.multiSelect == undefined ? false : questionConfiguration.multiSelect,
+            isMandatory: _.isNil(questionConfiguration.mandatory) ? true : questionConfiguration.mandatory,
+            isMultiSelect: _.isNil(questionConfiguration.multiSelect) ? false : questionConfiguration.multiSelect,
             answers: questionConcept.answers === undefined ? [] : questionConcept.answers,
             lowAbsolute: questionConcept.lowAbsolute,
             hiAbsolute: questionConcept.hiAbsolute

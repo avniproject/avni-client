@@ -66,24 +66,26 @@ class DecisionSupportSessionListView extends Component {
         TypedTransition.from(this).with({session: session}).to(DecisionSupportSessionView);
     };
 
-    renderSummaryField(summaryField, session) {
+    renderSummaryField(summaryField, session, questionnaire, rowID) {
         return (
-            <View style={DecisionSupportSessionListView.styles.sessionItemContainer}>
-                <Text
+            <View style={DecisionSupportSessionListView.styles.sessionItemContainer} key={`1.1${questionnaire.name}${summaryField.summaryFieldName}${rowID}`}>
+                <Text key={`1.2${questionnaire.name}${rowID}`}
                     style={[DecisionSupportSessionListView.styles.sessionItem]}>{summaryField.getValueFrom(session)}</Text>
             </View>);
     }
 
     renderRow(session, questionnaire, rowID) {
+        const rowIDSuffix = `${questionnaire.name}${rowID}`;
         return (
-            <TouchableHighlight onPress={() => this.onSessionRowPress(session)}>
-                <View style={DecisionSupportSessionListView.styles.session}>
-                    <Text style={DecisionSupportSessionListView.styles.sessionItem}>
-                        {General.formatDate(session.saveDate)}
-                    </Text>
-                    {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session))}
-                </View>
-            </TouchableHighlight>);
+            <View key={`1${rowIDSuffix}`}>
+                <TouchableHighlight onPress={() => this.onSessionRowPress(session)} key={`2${rowIDSuffix}`}>
+                    <View style={DecisionSupportSessionListView.styles.session} key={`3${rowIDSuffix}`}>
+                        <Text
+                            style={DecisionSupportSessionListView.styles.sessionItem} key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}</Text>
+                        {questionnaire.summaryFields.map((summaryField) => this.renderSummaryField(summaryField, session, questionnaire, rowID))}
+                    </View>
+                </TouchableHighlight>
+            </View>);
     }
 
     renderSessions(questionnaire) {
@@ -111,16 +113,15 @@ class DecisionSupportSessionListView extends Component {
                             </View>
                         )
                     }}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._renderSeparator(rowID, sessions.length)}
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._renderSeparator(rowID, `S${questionnaire.name}${rowID}`, sessions.length)}
                 />
                 {this.renderZeroSessionMessage(sessions)}
             </View>);
     }
 
-    _renderSeparator(rowID, total) {
-        if (rowID === (total - 1) || rowID === `${(total - 1)}` || total === 0 || total === undefined) return (<View/>);
-        console.log(`${rowID} ${total}`);
-        return (<Text key={rowID} style={DecisionSupportSessionListView.styles.sessionSeparator}/>);
+    _renderSeparator(rowNumber, rowID, total) {
+        if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) return (<View key={rowID}/>);
+        return (<Text key={rowID} style={DecisionSupportSessionListView.styles.sessionSeparator}></Text>);
     }
 
     renderZeroSessionMessage(sessions) {

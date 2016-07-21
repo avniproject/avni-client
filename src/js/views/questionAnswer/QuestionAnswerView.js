@@ -28,7 +28,6 @@ import DiseaseListView from "../diseaseList/DiseaseListView";
 class QuestionAnswerView extends Component {
     static styles = StyleSheet.create({
         textInput: {
-            borderRadius: 5,
             padding: 5,
             borderColor: '#000000',
             borderStyle: 'solid',
