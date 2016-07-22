@@ -1,15 +1,11 @@
 let instance = null;
-import RuntimeMode from '../../utility/RuntimeMode';
+import RNFS from 'react-native-fs';
 
 class FileSystemGateway {
     constructor() {
         if (!instance) {
             instance = this;
-            if (RuntimeMode.runningTest()) {
-                this.RNFS = {};
-            } else {
-                this.RNFS = require('react-native-fs');
-            }
+            this.RNFS = RNFS;
         }
         return instance;
     }
@@ -35,8 +31,8 @@ class FileSystemGateway {
             .then((contents) => {
                 onRead(contents, context);
             }).catch((err) => {
-                console.error(`Error reading file: ${path} --> ${err}`);
-                onError(`Error reading file: ${path} --> ${err}`, context);
+            console.error(`Error reading file: ${path} --> ${err}`);
+            onError(`Error reading file: ${path} --> ${err}`, context);
         });
     }
 
