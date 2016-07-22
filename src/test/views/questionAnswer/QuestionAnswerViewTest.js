@@ -9,9 +9,31 @@ import MultiSelectAnswerList from "../../../js/views/questionAnswer/MultiSelectA
 import AppState from "../../../js/hack/AppState"
 import WizardButtons from "../../../js/views/primitives/WizardButtons";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
-import ConfigurationData from "../../../js/service/ConfigurationData";
+import SampleQuestionnaire from "../../resources/sample-questionnaire.json";
+import Diabetes from "../../resources/diabetes.json";
+import Concepts from "../../resources/sample-concepts.json";
+import _ from "lodash";
 
 describe('Question Answer View Test', () => {
+
+    function getService() {
+        return {
+            "getI18n": function () {
+                return {
+                    t: function (t) {
+                        return t;
+                    }
+                };
+            },
+            "questionnaire": new QuestionnaireService(undefined, undefined, undefined)
+        };
+    }
+
+    function makeConceptService(conceptName) {
+        const conceptToRet = _.find(Concepts, (concept)=>concept.name === conceptName);
+        return {getConceptByName: () => conceptToRet};
+    }
+
     it('should have `Multiple Choice Question 1` as the first question', () => {
         const context = {
             navigator: ()=> ({}),
@@ -20,12 +42,10 @@ describe('Question Answer View Test', () => {
                     return [{"locale": {"selectedLocale": "en"}}]
                 }
             }),
-            getService: function () {
-                return new QuestionnaireService(undefined, undefined, undefined);
-            }
+            getService: getService
         };
 
-        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.sample, new Concepts(ConceptData.concepts));
+        var simpleQuestionnaire = new SimpleQuestionnaire(SampleQuestionnaire, makeConceptService("Multiple Choice Question 1"));
         AppState.startQuestionnaireSession(simpleQuestionnaire);
 
         const wrapper = shallow(<QuestionAnswerView params=
@@ -46,12 +66,10 @@ describe('Question Answer View Test', () => {
                     return [{"locale": {"selectedLocale": "en"}}]
                 }
             }),
-            getService: function () {
-                return new QuestionnaireService(undefined, undefined, undefined);
-            }
+            getService: getService
         };
 
-        var simpleQuestionnaire = new SimpleQuestionnaire(ConfigurationData.diabetes, new Concepts(ConceptData.concepts));
+        var simpleQuestionnaire = new SimpleQuestionnaire(Diabetes, makeConceptService("Numeric Question"));
         AppState.startQuestionnaireSession(simpleQuestionnaire);
 
         const wrapper = shallow(<QuestionAnswerView
