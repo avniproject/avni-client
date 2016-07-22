@@ -1,13 +1,22 @@
 import SimpleQuestionnaire from '../../js/models/SimpleQuestionnaire.js';
-import Sample from '../../config/sample-questionnaire.json';
-import Diabetes from '../../config/diabetes.json';
 import SummaryField from '../../js/models/SummaryField';
+import SampleQuestionnaire from '../resources/sample-questionnaire.json';
+import DiabetesQuestionnaire from '../resources/diabetes.json';
+import Concepts from '../resources/sample-concepts.json';
+import _ from 'lodash';
 
 import {expect} from 'chai';
 
 describe('Simple Question', () => {
+
+    function makeConceptService(conceptName) {
+        const conceptToRet = _.find(Concepts, (concept)=>concept.name === conceptName);
+        return {getConceptByName: () => conceptToRet};
+    }
+
     it('Should load questions and their answers', () => {
-        var simpleQuestionnaire = new SimpleQuestionnaire(Sample, new Concepts(ConceptsData));
+        var simpleQuestionnaire = new SimpleQuestionnaire(SampleQuestionnaire,
+            makeConceptService('Multiple Choice Question 1'));
         var question = simpleQuestionnaire.getQuestion(0);
         expect(question.name).to.equal('Multiple Choice Question 1');
         expect(question.answers.length).to.equal(2);
@@ -19,14 +28,16 @@ describe('Simple Question', () => {
     });
 
     it('Should load questions and their answers - 2', () => {
-        var simpleQuestionnaire = new SimpleQuestionnaire(Diabetes, new Concepts(ConceptsData));
+        var simpleQuestionnaire = new SimpleQuestionnaire(DiabetesQuestionnaire,
+            makeConceptService('Numeric Question'));
         var question = simpleQuestionnaire.getQuestion(0);
         expect(question.name).to.equal('Numeric Question');
         expect(question.isMultiSelect).to.be.false;
     });
 
     it('Get Summary Fields', () => {
-        var simpleQuestionnaire = new SimpleQuestionnaire(Sample, new Concepts(ConceptsData));
+        var simpleQuestionnaire = new SimpleQuestionnaire(SampleQuestionnaire,
+            makeConceptService('Multiple Choice Question 1'));
         expect(simpleQuestionnaire.summaryFields.length).to.equal(2);
         expect(simpleQuestionnaire.summaryFields[0].summaryFieldType).to.equal(SummaryField.Question);
         expect(simpleQuestionnaire.summaryFields[1].summaryFieldType).to.equal(SummaryField.DecisionKey);
