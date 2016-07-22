@@ -1,6 +1,8 @@
 import {StyleSheet, Text, View, TouchableHighlight, Image} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
+import Colors from '../primitives/Colors';
+
 
 class SettingsHeader extends Component {
 
@@ -17,7 +19,7 @@ class SettingsHeader extends Component {
         main: {
             flexDirection: 'row',
             height: 60,
-            backgroundColor: '#e93a2c',
+            backgroundColor: Colors.Primary,
             flex: 1
         },
         labelWrapper: {

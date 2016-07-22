@@ -65,6 +65,7 @@ class SettingsView extends Component {
                     settings={this.settings}
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
+                    getService={this.context.getService}
                 />
                 {this.renderBusyIndicator()}
             </View>

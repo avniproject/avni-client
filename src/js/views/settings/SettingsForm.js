@@ -3,11 +3,14 @@ import React, {Component} from 'react';
 import SettingsFormField from './SettingsFormField';
 import SettingsMultipleChoiceField from './SettingsMultipleChoiceField';
 import SettingsView from './SettingsView';
+import SyncButton from './SyncButton';
+
 
 class SettingsForm extends Component {
     static propTypes = {
         onServerURLChanged: React.PropTypes.func.isRequired,
-        settings: React.PropTypes.object.isRequired
+        settings: React.PropTypes.object.isRequired,
+        getService: React.PropTypes.func.isRequired,
     };
 
     render() {
@@ -22,6 +25,7 @@ class SettingsForm extends Component {
                     selectedValue={this.props.settings.locale.selectedLocale}
                     availableValues={this.props.settings.locale.availableValues}
                 />
+                <SyncButton getService={this.props.getService}/>
             </View>
         );
     }
