@@ -4,7 +4,7 @@ import QuestionnaireAnswers from "../js/models/QuestionnaireAnswers";
 import _ from 'lodash';
 
 describe('Make Decision', () => {
-    it('Regression for all diseases, to ensure there are no exceptions', () => {
+    it('Regression for all diseases, to ensure there are no exceptions and error messages', () => {
         var questionnaireAnswers = new QuestionnaireAnswers();
 
         _.keys(o.treatmentByDiagnosisAndCode).forEach((diagnosis) => {

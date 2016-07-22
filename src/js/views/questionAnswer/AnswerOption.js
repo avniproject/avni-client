@@ -1,4 +1,4 @@
-import {Text, StyleSheet, View, Image} from 'react-native';
+import {Text, StyleSheet, View, Image, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
 
 class AnswerOption extends Component {
@@ -44,9 +44,11 @@ class AnswerOption extends Component {
     // TODO: Incorporate android image adding in the build script rather than these paths
     displayCheckImage() {
         if (this.props.isSelected) {
-            return (<Image style={AnswerOption.styles.checkImage}
-                           source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
-            />)
+            return (<TouchableHighlight onPress={() => this.props.optionPressed(this.props.answer)}>
+                <Image style={AnswerOption.styles.checkImage}
+                       source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
+                />
+            </TouchableHighlight>)
         }
     }
 

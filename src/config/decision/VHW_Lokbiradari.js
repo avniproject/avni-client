@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const treatmentByDiagnosisAndCode = {
     "Malaria": {
         "X1": {
@@ -819,7 +821,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -833,7 +836,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -843,11 +847,12 @@ export const treatmentByDiagnosisAndCode = {
                     "Medicine": "Cetrizine Syrup",
                     "Amount": 0.5,
                     "Dose Unit": "Spoon",
-                    "Times": "Once Evening"
+                    "Times": "Once Evening",
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -861,7 +866,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -875,7 +881,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -889,7 +896,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -903,7 +911,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Scabizol",
-                    "Spl": "Scabizol Instruction"
+                    "Spl": "Scabizol Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         }
@@ -919,9 +928,8 @@ export const treatmentByDiagnosisAndCode = {
                 },
                 {
                     "Medicine": "Salicylic Acid",
-                    "Amount": 0,
-                    "Dose Unit": "Paste",
-                    "Times": "Once"
+                    "Spl": "Salicylic Acid Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -931,6 +939,11 @@ export const treatmentByDiagnosisAndCode = {
                     "Medicine": "Cetrizine Syrup",
                     "Amount": 0.5,
                     "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Spl": "Salicylic Acid Instruction",
                     "Times": "Once Evening"
                 }
             ]
@@ -942,6 +955,11 @@ export const treatmentByDiagnosisAndCode = {
                     "Amount": 0.5,
                     "Dose Unit": "Spoon",
                     "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Spl": "Salicylic Acid Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -951,6 +969,11 @@ export const treatmentByDiagnosisAndCode = {
                     "Medicine": "Cetrizine Syrup",
                     "Amount": 1,
                     "Dose Unit": "Spoon",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Spl": "Salicylic Acid Instruction",
                     "Times": "Once Evening"
                 }
             ]
@@ -962,6 +985,11 @@ export const treatmentByDiagnosisAndCode = {
                     "Amount": 0.5,
                     "Dose Unit": "Tablet",
                     "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Spl": "Salicylic Acid Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -972,6 +1000,11 @@ export const treatmentByDiagnosisAndCode = {
                     "Amount": 0.5,
                     "Dose Unit": "Tablet",
                     "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Spl": "Salicylic Acid Instruction",
+                    "Times": "Once Evening"
                 }
             ]
         },
@@ -981,6 +1014,11 @@ export const treatmentByDiagnosisAndCode = {
                     "Medicine": "Cetrizine",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
+                    "Times": "Once Evening"
+                },
+                {
+                    "Medicine": "Salicylic Acid",
+                    "Spl": "Salicylic Acid Instruction",
                     "Times": "Once Evening"
                 }
             ]
@@ -1153,13 +1191,13 @@ export const treatmentByDiagnosisAndCode = {
         "X1": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1168,13 +1206,13 @@ export const treatmentByDiagnosisAndCode = {
         "X2": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1183,13 +1221,13 @@ export const treatmentByDiagnosisAndCode = {
         "X3": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1198,13 +1236,13 @@ export const treatmentByDiagnosisAndCode = {
         "X4": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1213,13 +1251,13 @@ export const treatmentByDiagnosisAndCode = {
         "X5": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1228,13 +1266,13 @@ export const treatmentByDiagnosisAndCode = {
         "X6": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1243,13 +1281,13 @@ export const treatmentByDiagnosisAndCode = {
         "X7": {
             "1-30": [
                 {
-                    "Medicine": "Iron Tablets",
+                    "Medicine": "Iron",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
                 },
                 {
-                    "Medicine": "Calcium Tablets",
+                    "Medicine": "Calcium",
                     "Amount": 1,
                     "Dose Unit": "Tablet",
                     "Times": 2
@@ -1292,7 +1330,8 @@ const englishWordsToMarathi = {
     "Scabizol": "खरजेचे औषध",
     "Salicylic Acid": "सॅलिसिलिक ऍसिड",
     "Iron": "लोहाच्या",
-    "Calcium": "कॅल्शियम"
+    "Calcium": "कॅल्शियम",
+    "Lonart Forte": "लोनर्ट फोर्टे"
 };
 
 var doseQuantityToMarathi = function (doseQuantity, doseUnit) {
@@ -1304,7 +1343,7 @@ var doseQuantityToMarathi = function (doseQuantity, doseUnit) {
     if (doseQuantity === 2) return "२";
     if (doseQuantity === 3) return "३";
     if (doseQuantity === 4) return "४";
-    console.log(`ERROR Dose quantity - ${doseQuantity} for dose unit - ${doseUnit} is not supported`);
+    console.error(`ERROR Dose quantity - ${doseQuantity} for dose unit - ${doseUnit} is not supported`);
 };
 
 var dosageTimingToMarathi = function (times) {
@@ -1314,6 +1353,13 @@ var dosageTimingToMarathi = function (times) {
     if (times === "Once Evening") return "रोज संध्याकाळी एकदा";
     console.error(`Number of times ${times} not supported yet`);
 };
+
+function translateToMarathi(text) {
+    var toMarathi = englishWordsToMarathi[text];
+    if (_.isNil(toMarathi))
+        console.error(`No translation found for ${text}`);
+    return toMarathi;
+}
 
 export let VHW_Lokbiradari_getDecision = function (questionnaireAnswers) {
     const weight = questionnaireAnswers.getAnswerFor('Weight');
@@ -1349,10 +1395,10 @@ export let VHW_Lokbiradari_getDecision = function (questionnaireAnswers) {
         for (var medicineNumber = 0; medicineNumber < prescription[dayTokens[token]].length; medicineNumber++) {
             const daysPrescription = prescription[dayTokens[token]][medicineNumber];
 
-            message += englishWordsToMarathi[`${daysPrescription.Medicine}`];
+            message += translateToMarathi(daysPrescription.Medicine);
             message += " ";
             if (daysPrescription.Spl !== undefined) {
-                
+                message += daysPrescription.Spl;
             } else {
                 message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
                 message += " ";
