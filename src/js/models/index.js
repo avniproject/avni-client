@@ -6,7 +6,8 @@ import {Questionnaire, QuestionnaireQuestion, StringObject} from './Questionnair
 import DecisionSupportSession from "./DecisionSupportSession";
 import QuestionAnswer from "./QuestionAnswer";
 import Decision from "./Decision";
+import DecisionData from "./DecisionConfig";
 
 export default {
-    schema: [LocaleMapping, Locale, Settings, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, StringObject, Questionnaire, ConceptName, ConceptDatatype, ConceptAnswer, Concept]
+    schema: [LocaleMapping, Locale, Settings, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, StringObject, Questionnaire, ConceptName, ConceptDatatype, ConceptAnswer, Concept, DecisionData]
 };

@@ -2,14 +2,10 @@ import {View, Text, StyleSheet, ListView} from 'react-native';
 import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
-import * as BMI_getDecision from '../../../config/decision/BMI'
-import * as Sample_without_control_flow_getDecision from '../../../config/decision/Sample'
-import * as VHW_Lokbiradari_getDecision from '../../../config/decision/VHW_Lokbiradari'
 import AppHeader from '../primitives/AppHeader';
 import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
-import DecisionSupportExtension from "../../models/DecisionSupportExtension";
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -61,11 +57,10 @@ class DecisionView extends Component {
     }
 
     render() {
-        const decisionSupportExtension = new DecisionSupportExtension(AppState.questionnaireAnswers.questionnaireName);
-        console.log("Module name for making decision: " + decisionSupportExtension.functionName);
-        const parameter = AppState.questionnaireAnswers;
-        this.decisions = eval(`${decisionSupportExtension.functionName}.${decisionSupportExtension.functionName}(parameter)`);
-
+        const decision = this.context.getService("decisionConfigService")
+            .getDecisionConfig(AppState.questionnaireAnswers.questionnaireName);
+        var param = AppState.questionnaireAnswers;
+        this.decisions = eval(`${decision.decisionCode} getDecision(param);`);
         return (
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}
