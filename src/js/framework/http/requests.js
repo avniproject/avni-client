@@ -1,5 +1,4 @@
 let _get = (endpoint, cb) => {
-    console.log(endpoint);
     fetch(endpoint, {
         "method": "GET",
         headers: {
@@ -12,7 +11,6 @@ let _get = (endpoint, cb) => {
 };
 
 let _getText = (endpoint, cb) => {
-    console.log(endpoint);
     fetch(endpoint, {
         "method": "GET",
         headers: {
@@ -25,5 +23,6 @@ let _getText = (endpoint, cb) => {
 };
 
 export let get = (endpoint, cb) => {
+    console.log(endpoint);
     return new Map([[true, _get], [false, _getText]]).get(endpoint.endsWith(".json"))(endpoint, cb);
 };
