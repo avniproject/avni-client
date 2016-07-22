@@ -1,5 +1,6 @@
 import {Text, StyleSheet, View, Image, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
+import Colors from '../primitives/Colors';
 
 class AnswerOption extends Component {
     constructor(props, context) {
@@ -24,7 +25,7 @@ class AnswerOption extends Component {
             marginRight: 30,
             flex: 1,
             flexDirection: 'row',
-            backgroundColor: '#e93a2c'
+            backgroundColor: Colors.Primary
         },
         item: {
             color: '#ffffff',
@@ -34,8 +35,10 @@ class AnswerOption extends Component {
             fontSize: 18,
             flex: 0.7
         },
+        checkImageContainer: {
+            flex: 0.3
+        },
         checkImage: {
-            flex: 0.2,
             resizeMode: 'contain',
             height: 45
         }
@@ -44,7 +47,7 @@ class AnswerOption extends Component {
     // TODO: Incorporate android image adding in the build script rather than these paths
     displayCheckImage() {
         if (this.props.isSelected) {
-            return (<TouchableHighlight onPress={() => this.props.optionPressed(this.props.answer)}>
+            return (<TouchableHighlight onPress={() => this.props.optionPressed(this.props.answer)} style={AnswerOption.styles.checkImageContainer}>
                 <Image style={AnswerOption.styles.checkImage}
                        source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
                 />
