@@ -1,10 +1,9 @@
 import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
-import Colors  from '../primitives/Colors';
+import * as CHSStyles from '../primitives/GlobalStyles';
 
 class DecisionSupportSessionComponent extends Component {
-
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService("messageService").getI18n();
@@ -32,44 +31,54 @@ class DecisionSupportSessionComponent extends Component {
 
     renderRow(key, value) {
         return (
-            <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 0.3}}>
+            <View style={CHSStyles.Global.listRow}>
+                <View style={CHSStyles.Global.listCellContainer}>
                     <Text
-                        style={DecisionSupportSessionComponent.styles.question}>{this.I18n.t(key)}</Text>
+                        style={CHSStyles.Global.listCell}>{this.I18n.t(key)}</Text>
                 </View>
-                <View style={{flex: 0.7}}>
+                <View style={CHSStyles.Global.listCellContainer}>
                     <Text
-                        style={[DecisionSupportSessionComponent.styles.question, DecisionSupportSessionComponent.styles.answer]}>{General.formatValue(value)}</Text>
+                        style={CHSStyles.Global.listCell}>{General.formatValue(value)}</Text>
                 </View>
             </View>);
     }
 
     render() {
-        const decisions = this.props.decisions;
-        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        var dsClone = ds.cloneWithRows(this.props.questionAnswers);
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        const dsClone = ds.cloneWithRows(this.props.questionAnswers);
+
+        const dsDecisions = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        const dsDecisionsClone = ds.cloneWithRows(this.props.decisions);
 
         return (
             <View>
-                <ListView
-                    dataSource={dsClone}
-                    renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
-                    renderHeader={() => <Text
-                        style={{fontSize: 24, color: Colors.Primary}}>{this.I18n.t("answersConfirmationTitle")}</Text>}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
-                        height: adjacentRowHighlighted ? 1 : 2,
-                        backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
-                    }}></Text>}
-                />
-                <Text style={{
-                    fontSize: 24,
-                    marginTop: 10,
-                    color: '#000000'
-                }}>{this.I18n.t('decisionsMadeBySystem')}</Text>
-                {decisions.map((decision) => this.renderRow(decision.name, decision.value))}
+                <View style={CHSStyles.Global.listViewContainer}>
+                    <ListView
+                        dataSource={dsClone}
+                        renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
+                        renderHeader={() => <Text
+                            style={CHSStyles.Global.listViewHeader}>{this.I18n.t("answersConfirmationTitle")}</Text>}
+                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
+                            height: adjacentRowHighlighted ? 1 : 2,
+                            backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
+                        }}></Text>}
+                    />
+                </View>
+
+                <View style={CHSStyles.Global.listViewContainer}>
+                    <ListView
+                        dataSource={dsDecisionsClone}
+                        renderRow={(decision) => this.renderRow(decision.name, decision.value)}
+                        renderHeader={() => <Text
+                            style={CHSStyles.Global.listViewHeader}>{this.I18n.t('decisionsMadeBySystem')}</Text>}
+                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
+                            height: adjacentRowHighlighted ? 1 : 2,
+                            backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
+                        }}></Text>}
+                    />
+                </View>
             </View>);
     }
-
 }
 
 export default DecisionSupportSessionComponent;

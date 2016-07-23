@@ -48,18 +48,22 @@ class ConfirmationView extends Component {
                 <View
                     style={{
                         flexDirection: 'row',
-                        height: 100,
                         justifyContent: 'space-between',
                         marginTop: 30,
-                        paddingRight: 20
+                        paddingRight: 10,
+                        paddingLeft: 10
                     }}>
                     <TouchableHighlight>
-                        <Text onPress={this.onPrevious}
-                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{this.I18n.t("previous")}</Text>
+                        <View style={CHSStyles.Global.actionButtonWrapper}>
+                            <Text onPress={this.onPrevious}
+                                  style={[CHSStyles.Global.actionButton, CHSStyles.Global.navButtonVisible]}>{this.I18n.t("previous")}</Text>
+                        </View>
                     </TouchableHighlight>
                     <TouchableHighlight>
-                        <Text onPress={this.onSaveAndRestart}
-                              style={[CHSStyles.Global.navButton, CHSStyles.Global.navButtonVisible]}>{this.I18n.t("saveAndRestart")}</Text>
+                        <View style={CHSStyles.Global.actionButtonWrapper}>
+                            <Text onPress={this.onSaveAndRestart}
+                                  style={[CHSStyles.Global.actionButton, CHSStyles.Global.navButtonVisible]}>{this.I18n.t("saveAndRestart")}</Text>
+                        </View>
                     </TouchableHighlight>
                 </View>
             </View>

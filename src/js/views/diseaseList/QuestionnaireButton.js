@@ -24,7 +24,7 @@ class QuestionnaireButton extends Component {
     static styles = StyleSheet.create({
         itemWrapper: {
             flex: 1,
-            borderRadius: 3,
+            borderRadius: 5,
             backgroundColor: Colors.Primary,
             width: 150,
             height: 100,

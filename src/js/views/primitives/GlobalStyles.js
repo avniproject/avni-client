@@ -13,7 +13,6 @@ export let Global = StyleSheet.create({
         margin: 2,
         width: 125,
         height: 40,
-        flex: 1,
         borderRadius: 5
     },
     actionButton: {
@@ -24,8 +23,44 @@ export let Global = StyleSheet.create({
         flex: 1
     },
     mainSection: {
-        marginTop: 15,
-        paddingLeft: 10,
-        paddingRight: 10
+        marginTop: 15
+    },
+    //<ListView>
+    listViewContainer: {
+        margin: 8,
+        marginTop: 22,
+        borderWidth: 2,
+        borderRadius: 3,
+        borderColor: Colors.TertiaryColor
+    },
+    listViewHeader: {
+        fontSize: 20,
+        backgroundColor: Colors.TertiaryColor,
+        color: '#555555',
+        textAlign: 'center'
+    },
+    listRow: {
+        flex: 1,
+        flexDirection: 'row',
+        marginLeft: 5
+    },
+    listCellContainer: {
+        flex: 0.33
+    },
+    listCell: {
+        fontSize: 19,
+        color: Colors.Complimentary,
+        textAlign: 'center',
+        flex: 0.33
+    },
+    listRowSeparator: {
+        height: 2,
+        backgroundColor: '#14e4d5'
+    },
+    emptyListPlaceholderText: {
+        fontSize: 18,
+        textAlign: 'center',
+        color: Colors.Complimentary
     }
+    //</ListView>
 });
