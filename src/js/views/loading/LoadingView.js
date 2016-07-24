@@ -25,7 +25,7 @@ class LoadingView extends Component {
             console.trace(`File system data loaded`);
             clearInterval(intervalID);
             TypedTransition.from(this).to(DiseaseListView);
-        }, 300);
+        }, 500);
 
         return (
             <View>
