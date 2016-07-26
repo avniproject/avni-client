@@ -11,16 +11,17 @@ class ConfigLoad extends Task {
             ["concepts", (concepts) => concepts.map(this.getBean("conceptService").saveConcept)], ["decisionConfig", this.getBean("decisionConfigService").saveDecisionConfig]]);
     }
 
-    _getFileOf(type) {
-        const serverURL = this.getBean("settingsService").getServerURL();
-        return ((fileName) => get(`${serverURL}/${fileName}`, (response) =>
-            this.typeMapping.get(type)(response, fileName)));
+    _getFileFrom(serverURL) {
+        return {
+            of: (type)=>((fileName) => get(`${serverURL}/${fileName}`, (response) =>
+                this.typeMapping.get(type)(response, fileName)))
+        };
     }
 
     run() {
         const serverURL = this.getBean("settingsService").getServerURL();
         get(`${serverURL}/filelist.json`, (response) => {
-            _.map(response, (fileNames, type) => fileNames.map(this._getFileOf(type).bind(this)));
+            _.map(response, (fileNames, type) => fileNames.map(this._getFileFrom(serverURL).of(type).bind(this)));
         });
     }
 }
