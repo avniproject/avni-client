@@ -60,7 +60,7 @@ class QuestionAnswerView extends Component {
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
                            style={QuestionAnswerView.styles.textInput}
                            keyboardType={questionAnswer.questionDataType === SimpleQuestionnaire.Numeric ? 'numeric' : 'default'}
-                           autoFocus={true}>{AppState.questionnaireAnswers.currentAnswer}</TextInput>);
+                           autoFocus={questionAnswer.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer}</TextInput>);
         else if (questionAnswer.questionDataType === 'Date')
             return (<TouchableHighlight
                 onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer})}

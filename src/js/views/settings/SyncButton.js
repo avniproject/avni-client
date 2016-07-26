@@ -17,7 +17,7 @@ class SyncButton extends Component {
     _triggerSync() {
         this.setState({syncing: true});
         BootstrapRegistry.runTask("configLoad");
-        setTimeout(() => this.setState({syncing: false}), 300);
+        setTimeout(() => this.setState({syncing: false}), 500);
     }
 
     render() {
