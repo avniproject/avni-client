@@ -31,7 +31,7 @@ class DecisionSupportSessionListView extends Component {
         return (
             <View style={CHSStyles.Global.listCellContainer} key={`1.1${questionnaire.name}${summaryField.summaryFieldName}${rowID}`}>
                 <Text key={`1.2${questionnaire.name}${rowID}`}
-                    style={[CHSStyles.Global.listCell]}>{summaryField.getValueFrom(session)}</Text>
+                      style={[CHSStyles.Global.listCell]}>{summaryField.getValueFrom(session)}</Text>
             </View>);
     }
 
@@ -82,7 +82,7 @@ class DecisionSupportSessionListView extends Component {
 
     static _renderSeparator(rowNumber, rowID, total) {
         if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) return (<View key={rowID}/>);
-        return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator} />);
+        return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator}/>);
     }
 
     renderZeroSessionMessage(sessions) {
@@ -105,7 +105,9 @@ class DecisionSupportSessionListView extends Component {
         return (
             <View>
                 <AppHeader title="allQuestionnaireSessionsSummary" parent={this}/>
-                {questionnaires.map(this.renderSessions.bind(this))}
+                <View style={CHSStyles.Global.mainSection}>
+                    {questionnaires.map(this.renderSessions.bind(this))}
+                </View>
             </View>
         );
     }

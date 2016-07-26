@@ -5,7 +5,6 @@ import Messages_en from '../../config/messages.en.json';
 import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
 
-
 @Service("messageService")
 class MessageService extends BaseService {
     constructor(db, beanStore) {

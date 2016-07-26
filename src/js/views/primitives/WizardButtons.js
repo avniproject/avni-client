@@ -63,8 +63,7 @@ class WizardButtons extends Component {
                     flexDirection: 'row',
                     height: 50,
                     justifyContent: 'space-between',
-                    marginTop: 30,
-                    paddingRight: 20
+                    marginTop: 30
                 }}>
                 {this.previousButton()}
                 <TouchableHighlight>

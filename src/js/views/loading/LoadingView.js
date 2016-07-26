@@ -22,10 +22,9 @@ class LoadingView extends Component {
         AppState.loadingCompleted = false;
         const intervalID = setInterval(() => {
             AppState.loadingCompleted = true;
-            console.trace(`File system data loaded`);
             clearInterval(intervalID);
             TypedTransition.from(this).to(DiseaseListView);
-        }, 500);
+        }, 3000);
 
         return (
             <View>

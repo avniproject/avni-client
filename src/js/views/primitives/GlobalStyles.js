@@ -2,6 +2,10 @@ import {StyleSheet} from 'react-native';
 import Colors from '../primitives/Colors';
 
 export let Global = StyleSheet.create({
+    mainSection: {
+        marginHorizontal: 5,
+        marginTop: 15
+    },
     navButtonHidden: {
         height: 0
     },
@@ -10,7 +14,6 @@ export let Global = StyleSheet.create({
     },
     actionButtonWrapper: {
         backgroundColor: Colors.Complimentary,
-        margin: 2,
         width: 125,
         height: 40,
         borderRadius: 5
@@ -21,9 +24,6 @@ export let Global = StyleSheet.create({
         textAlignVertical: 'center',
         fontSize: 18,
         flex: 1
-    },
-    mainSection: {
-        marginTop: 15
     },
     //<ListView>
     listViewContainer: {

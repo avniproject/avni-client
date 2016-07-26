@@ -10,7 +10,6 @@ import DecisionSupportSessionListView from "../conclusion/DecisionSupportSession
 
 @Path('/diseaseList')
 class DiseaseListView extends Component {
-
     constructor(props, context) {
         super(props, context);
         const questionnaires = context.getService("questionnaireService").getQuestionnaireNames();
@@ -29,7 +28,10 @@ class DiseaseListView extends Component {
             justifyContent: 'center',
             flexDirection: 'row',
             flexWrap: 'wrap',
-            marginTop: 30
+            marginTop: 15
+        },
+        sessionButtonContainer: {
+            marginHorizontal: 4
         }
     });
 
@@ -69,38 +71,40 @@ class DiseaseListView extends Component {
         return (
             //TODO: Separate this out in another component
             <View
-                style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#ffffff'}}>
-                <DrawerLayoutAndroid
-                    drawerWidth={300}
-                    drawerPosition={DrawerLayoutAndroid.positions.Left}
-                    renderNavigationView={() => <SettingsView/>}>
-                    <View>
-                        <AppHeader title="questionnaireList" parent={this}/>
-                        <ListView
-                            contentContainerStyle={DiseaseListView.styles.list}
-                            dataSource={this.state.dataSource}
-                            renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
-                        />
-                    </View>
-                </DrawerLayoutAndroid>
+                style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+                <AppHeader title="questionnaireList" parent={this}/>
+                <View style={[Global.mainSection, {flex: 1}]}>
+                    <DrawerLayoutAndroid
+                        drawerWidth={300}
+                        drawerPosition={DrawerLayoutAndroid.positions.Left}
+                        renderNavigationView={() => <SettingsView/>}>
+                        <View>
+                            <ListView
+                                contentContainerStyle={DiseaseListView.styles.list}
+                                dataSource={this.state.dataSource}
+                                renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
+                            />
+                        </View>
+                    </DrawerLayoutAndroid>
 
-                <View style={{marginBottom: 30}}>
-                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                        <TouchableHighlight onPress={this.onViewSavedSessionsPress}>
-                            <View style={Global.actionButtonWrapper}>
-                                <Text style={Global.actionButton}>{this.I18n.t("viewSavedSessions")}</Text>
-                            </View>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={this.onExportPress}>
-                            <View style={Global.actionButtonWrapper}>
-                                <Text style={Global.actionButton}>{this.I18n.t("export")}</Text>
-                            </View>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={this.onDeleteSessionsPress}>
-                            <View style={Global.actionButtonWrapper}>
-                                <Text style={Global.actionButton}>{this.I18n.t("deleteSessions")}</Text>
-                            </View>
-                        </TouchableHighlight>
+                    <View style={{marginBottom: 30}}>
+                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                            <TouchableHighlight onPress={this.onViewSavedSessionsPress} style={DiseaseListView.styles.sessionButtonContainer}>
+                                <View style={Global.actionButtonWrapper}>
+                                    <Text style={Global.actionButton}>{this.I18n.t("viewSavedSessions")}</Text>
+                                </View>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={this.onExportPress} style={DiseaseListView.styles.sessionButtonContainer}>
+                                <View style={Global.actionButtonWrapper}>
+                                    <Text style={Global.actionButton}>{this.I18n.t("export")}</Text>
+                                </View>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={this.onDeleteSessionsPress} style={DiseaseListView.styles.sessionButtonContainer}>
+                                <View style={Global.actionButtonWrapper}>
+                                    <Text style={Global.actionButton}>{this.I18n.t("deleteSessions")}</Text>
+                                </View>
+                            </TouchableHighlight>
+                        </View>
                     </View>
                 </View>
             </View>

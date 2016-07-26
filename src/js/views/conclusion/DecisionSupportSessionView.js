@@ -17,7 +17,7 @@ class DecisionSupportSessionView extends Component {
     render() {
         const session = this.props.params.session;
         return (
-            <View>
+            <View style={CHSStyles.Global.mainSection}>
                 <AppHeader parent={this} title="session"/>
                 <DecisionSupportSessionComponent questionAnswers={session.questionAnswers} decisions={session.decisions}/>
             </View>

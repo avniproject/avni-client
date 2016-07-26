@@ -35,3 +35,5 @@ log:
 
 uninstall:
 	adb uninstall com.openchsclient
+
+reinstall: uninstall run-android

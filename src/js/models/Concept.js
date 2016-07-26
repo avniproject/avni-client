@@ -36,7 +36,9 @@ export class Concept {
             name: 'string',
             conceptNames: {"type": "list", "objectType": "ConceptName"},
             datatype: {"type": "ConceptDatatype"},
-            answers: {"type": "list", "objectType": "ConceptAnswer"}
+            answers: {"type": "list", "objectType": "ConceptAnswer"},
+            lowAbsolute: {"type": 'int', optional: true},
+            hiAbsolute: {"type": 'int', optional: true}
         }
     };
 
