@@ -15,6 +15,7 @@ run-android:
 
 run-packager:
 	REACT_EDITOR=atom ./node_modules/react-native/packager/packager.sh start --reset-cache
+
 deps:
 	npm install
 
@@ -31,3 +32,6 @@ release:
 
 log:
 	adb logcat *:S ReactNative:V ReactNativeJS:V
+
+uninstall:
+	adb uninstall com.openchsclient
