@@ -5,3 +5,4 @@ export * from './ExportService';
 export * from './SettingsService';
 export * from './MessageService';
 export * from './DecisionConfigService';
+export * from './ConfigService';

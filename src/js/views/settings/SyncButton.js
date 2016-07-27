@@ -1,6 +1,5 @@
 import {StyleSheet, View, Text, TouchableHighlight, ProgressBarAndroid} from 'react-native';
 import React, {Component} from 'react';
-import BootstrapRegistry from '../../framework/bootstrap/BootstrapRegistry';
 import * as CHSStyles from '../primitives/GlobalStyles';
 
 class SyncButton extends Component {
@@ -16,7 +15,7 @@ class SyncButton extends Component {
 
     _triggerSync() {
         this.setState({syncing: true});
-        BootstrapRegistry.runTask("configLoad");
+        this.props.getService("configService").getAllFilesAndSave();
         setTimeout(() => this.setState({syncing: false}), 500);
     }
 
