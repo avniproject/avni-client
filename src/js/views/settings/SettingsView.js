@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
-import FileSystemGateway from "../../service/gateway/FileSystemGateway";
 
 @Path('/settings')
 class SettingsView extends Component {

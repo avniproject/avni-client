@@ -1,26 +1,28 @@
 import {NativeModules} from 'react-native';
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import FileSystemGateway from "./gateway/FileSystemGateway";
 import General from "../utility/General";
+import {post} from '../framework/http/requests';
 
 @Service("exportService")
 class ExportService extends BaseService {
-    constructor(db, beanStore, fileSystemGateway) {
+    constructor(db, beanStore) {
         super(db, beanStore);
-        this.fileSystemGateway = fileSystemGateway === undefined ? FileSystemGateway : fileSystemGateway;
     }
 
     exportAll(done) {
-        const questionnaireService = this.getService("questionnaireService");
-        const questionnaires = questionnaireService.getQuestionnaireNames();
-
-        questionnaires.forEach((questionnaire) => {
-            const fileContents = this.exportContents(questionnaire);
-            const fileName = General.replaceAndroidIncompatibleChars(questionnaire.name) + General.getCurrentDate() + ".csv";
-            this.fileSystemGateway.createFile(fileName, fileContents);
-        });
+        const exportURL = `${this.getService("settingsService").getServerURL()}/export`;
+        this.getService("questionnaireService").getQuestionnaireNames().map(this.exportFileTo(exportURL));
         done();
+    }
+
+    exportFileTo(exportURL) {
+        return (questionnaire) => {
+            const fileContents = this.exportContents(questionnaire);
+            const fileName = `${General.replaceAndroidIncompatibleChars(questionnaire.name)}_${General.getTimeStamp()}.csv`;
+            post(`${exportURL}/${fileName}`, fileContents, ()=> {
+            });
+        }
     }
 
     getHeader(questionnaire) {

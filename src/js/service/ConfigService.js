@@ -24,7 +24,7 @@ class ConfigService extends BaseService {
     }
 
     getAllFilesAndSave() {
-        const configURL = `${this.getService("settingsService").getServerURL()}/config`;
+        const configURL = `${this.getService("settingsService").getServerURL()}/fs/config`;
         get(`${configURL}/filelist.json`, (response) => {
             _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL).of(type).bind(this)));
         });

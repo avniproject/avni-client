@@ -5,7 +5,6 @@ import DecisionSupportSession from "../../js/models/DecisionSupportSession";
 
 describe('Export Service', () => {
     it('Export', () => {
-        const stubbedFileSystemGateway = {};
 
         const stubbedDecisionSupportSessionService = {
             getAll: (questionnaireName) => {
@@ -48,7 +47,7 @@ describe('Export Service', () => {
             }
         };
 
-        var exportService = new ExportService(null, stubbedBeanStore, stubbedFileSystemGateway);
+        var exportService = new ExportService(null, stubbedBeanStore);
         const contents = exportService.exportContents({name: "foo", uuid: "94d3b225-b339-4f6e-8ba3-549df4ee8fac"});
         const header = `Question 1,Question 2,Suggestion,Created At`;
         expect(contents).to.contain(header);

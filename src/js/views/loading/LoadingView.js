@@ -4,7 +4,6 @@ import React, {Component} from 'react';
 import TypedTransition from '../../framework/routing/TypedTransition'
 import DiseaseListView from "./../diseaseList/DiseaseListView"
 import AppState from '../../hack/AppState'
-import FileSystemGateway from "../../service/gateway/FileSystemGateway"
 
 @PathRoot
 @Path('/loadingView')
@@ -28,7 +27,7 @@ class LoadingView extends Component {
 
         return (
             <View>
-                <Text style={{flex: 0.6, fontSize: 20, color: '#0C59CF'}}>{FileSystemGateway.basePath}</Text>
+                <Text style={{flex: 0.6, fontSize: 20, color: '#0C59CF'}}>{"Loading"}</Text>
                 <ProgressBarAndroid />
             </View>
         );

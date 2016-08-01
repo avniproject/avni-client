@@ -22,6 +22,17 @@ let _getText = (endpoint, cb) => {
         .then(cb);
 };
 
+let _post = (endpoint, file, cb) => {
+    console.log(endpoint);
+    fetch(endpoint, {
+        "method": "POST",
+        "body": file
+    })
+        .then((response) => cb());
+};
+
+export let post = _post;
+
 export let get = (endpoint, cb) => {
     console.log(endpoint);
     return new Map([[true, _get], [false, _getText]]).get(endpoint.endsWith(".json"))(endpoint, cb);
