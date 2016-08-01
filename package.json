@@ -18,9 +18,9 @@
     "minio": "^2.0.1",
     "react": "^15.0.2",
     "react-native": "^0.26.3",
-    "react-native-fs": "^1.5.1",
     "react-native-i18n": "0.0.8",
-    "realm": "0.14.1"
+    "realm": "0.14.1",
+    "redux": "^3.5.2"
   },
   "devDependencies": {
     "babel-eslint": "6.0.2",
