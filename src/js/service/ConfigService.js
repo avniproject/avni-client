@@ -16,17 +16,17 @@ class ConfigService extends BaseService {
             ["concepts", (concepts) => concepts.map(beans.get("conceptService").saveConcept)], ["decisionConfig", beans.get("decisionConfigService").saveDecisionConfig]]);
     }
 
-    getFileFrom(serverURL) {
+    getFileFrom(configURL) {
         return {
-            of: (type) => ((fileName) => get(`${serverURL}/${fileName}`, (response) =>
+            of: (type) => ((fileName) => get(`${configURL}/${fileName}`, (response) =>
                 this.typeMapping.get(type)(response, fileName)))
         };
     }
 
     getAllFilesAndSave() {
-        const serverURL = this.getService("settingsService").getServerURL();
-        get(`${serverURL}/filelist.json`, (response) => {
-            _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(serverURL).of(type).bind(this)));
+        const configURL = `${this.getService("settingsService").getServerURL()}/config`;
+        get(`${configURL}/filelist.json`, (response) => {
+            _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL).of(type).bind(this)));
         });
     }
 }
