@@ -6,7 +6,7 @@ installed. If you have homebrew installed just run
 
 # Running
 To run the application `make run-android`
-In the application set the server url of the config location by going to the settings view. If you are using emulator then you would need to use IP address. e.g. http://10.0.0.3:3000/openchs/config 
+In the application set the server url of the config location by going to the settings view. If you are using emulator then you would need to use IP address. e.g. http://10.0.0.3:3000/openchs 
 
 
 # Running tests in Intellij
