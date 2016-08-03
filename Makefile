@@ -29,7 +29,7 @@ ci-test:
 	make test
 
 release:
-	cd android; ./gradlew assembleRelease
+	cd android; ANDROID_HOME=/usr/local/opt/android-sdk ./gradlew assembleRelease
 
 log:
 	adb logcat *:S ReactNative:V ReactNativeJS:V
