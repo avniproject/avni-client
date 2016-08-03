@@ -23,6 +23,7 @@ test:
 	npm test
 
 ci-test:
+	@echo "Running Tests on CI"
 	rm -rf node_modules/
 	make deps
 	make test
