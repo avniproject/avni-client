@@ -29,7 +29,7 @@ ci-test:
 	make test
 
 release:
-	cd android; ANDROID_HOME=/usr/local/opt/android-sdk ./gradlew assembleRelease
+	cd android; ./gradlew assembleRelease
 
 log:
 	adb logcat *:S ReactNative:V ReactNativeJS:V
@@ -38,3 +38,9 @@ uninstall:
 	adb uninstall com.openchsclient
 
 reinstall: uninstall run-android
+
+ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
+
+deploy:
+	make release
+	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/latest/openchs-client-$(ts).apk
