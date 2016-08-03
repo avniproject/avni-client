@@ -24,8 +24,8 @@ test:
 
 ci-test:
 	rm -rf node_modules/
-	npm install
-	npm test
+	make deps
+	make test
 
 release:
 	cd android; ./gradlew assembleRelease
