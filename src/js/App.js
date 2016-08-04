@@ -40,5 +40,3 @@ export default class App extends Component {
         return PathRegistry.routes();
     }
 }
-
-//TODO - next and previous button should be at the same place on every page
