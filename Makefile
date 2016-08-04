@@ -24,6 +24,8 @@ test:
 
 ci-install:
 	@echo "Provisioning CI"
+	@echo "Removing node modules"
+	rm -rf node_modules/
 	@echo "Installing Ansible"
 	sudo yum install ansible -y
 	download-android
@@ -49,5 +51,5 @@ reinstall: uninstall run-android
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 
 deploy:
-	ANDROID_HOME=$(ANDROID_HOME) make release
+	make release
 	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/latest/openchs-client-$(ts).apk
