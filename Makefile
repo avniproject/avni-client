@@ -27,7 +27,7 @@ ci-install:
 	@echo "Removing node modules"
 	rm -rf node_modules/
 	download-android
-
+	./install_android_libs.sh
 
 ci-test:
 	@echo "Running Tests on CI"
