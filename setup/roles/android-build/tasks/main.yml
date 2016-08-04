@@ -1,11 +1,12 @@
 ---
 - name: Install android-sdk
   package: name=android-sdk state=latest
+  ignore_errors: yes
   tags:
     - android
     - brew
     - apt
 
 - name: Install required Android-SDK Libs
-  command: "echo y | ./android update sdk --no-ui --all --filter {{ item }}"
+  command: "echo y | android update sdk --no-ui --all --filter {{ item }}"
   with_items: android_deps
