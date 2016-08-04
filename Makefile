@@ -27,7 +27,7 @@ ci-install:
 	@echo "Removing node modules"
 	rm -rf node_modules/
 	download-android
-	./install_android_libs.sh
+
 
 ci-test:
 	@echo "Running Tests on CI"
@@ -49,5 +49,6 @@ reinstall: uninstall run-android
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 
 deploy:
+	make deps
 	make release
 	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/latest/openchs-client-$(ts).apk
