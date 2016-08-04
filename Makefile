@@ -28,6 +28,7 @@ ci-install:
 	sudo yum install ansible -y
 	download-android
 	ansible-playbook setup/ci.yml -i setup/local
+	sudo find / -iname 'android-23'
 
 ci-test:
 	@echo "Running Tests on CI"
