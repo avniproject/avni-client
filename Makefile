@@ -26,10 +26,8 @@ ci-install:
 	@echo "Provisioning CI"
 	@echo "Removing node modules"
 	rm -rf node_modules/
-	@echo "Installing Ansible"
-	sudo yum install ansible -y
 	download-android
-	ansible-playbook setup/ci.yml -i setup/local
+	./install_android_libs.sh
 
 ci-test:
 	@echo "Running Tests on CI"

@@ -1,5 +1,0 @@
----
-- name: Provision CI Environment
-  hosts: all
-  roles:
-      - android-build

@@ -1,7 +1,6 @@
 ---
 - name: Install android-sdk
   package: name=android-sdk state=latest
-  ignore_errors: yes
   tags:
     - android
     - brew
