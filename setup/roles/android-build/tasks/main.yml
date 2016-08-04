@@ -8,5 +8,4 @@
     - apt
 
 - name: Install required Android-SDK Libs
-  command: "echo y | android update sdk --no-ui --all --filter {{ item }}"
-  with_items: "{{ android_deps }}"
+  script: install_android_libs.sh
