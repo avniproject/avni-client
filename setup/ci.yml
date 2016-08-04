@@ -2,6 +2,5 @@
 - name: Provision CI Environment
   hosts: all
   roles:
-      - node
       - client-build
       - android-build

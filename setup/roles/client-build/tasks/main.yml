@@ -3,7 +3,6 @@
   npm: name=react-native-cli global=yes state=latest
   tags:
     - client
-    - brew
 
 - name: Resolve client npm dependencies
   npm: path=./ state=latest
