@@ -24,10 +24,9 @@ test:
 
 ci-install:
 	@echo "Provisioning CI"
-	@echo "Adding Ansible Repo"
-	apt-add-repository ppa:ansible/ansible -y
 	@echo "Installing Ansible"
-	apt-get update; apt-get install ansible -y
+	sudo yum install ansible -y
+	download-android
 	ansible-playbook setup/ci.yml -i setup/local
 
 ci-test:
