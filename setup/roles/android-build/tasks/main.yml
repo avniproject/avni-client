@@ -1,21 +1,11 @@
 ---
 - name: Install android-sdk
-  homebrew: name=android-sdk state=latest
+  package: name=android-sdk state=latest
   tags:
     - android
     - brew
+    - apt
 
-- name: Install required Android-SDK
-  script: install-sdk.sh
-
-- name: Install Android-Build-Tools
-  script: install-build-tools.sh
-
-- name: Install Android-Platform-Tools
-  script: install-platform-tools.sh
-
-- name: Install Android-repositories
-  script: install-repositories.sh
-
-- name: Install Intel Image
-  script: install-intel-image.sh
+- name: Install required Android-SDK Libs
+  command: "echo y | ./android update sdk --no-ui --all --filter {{ item }}"
+  with_items: android_deps

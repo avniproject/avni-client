@@ -22,6 +22,14 @@ deps:
 test:
 	npm test
 
+ci-install:
+	@echo "Provisioning CI"
+	@echo "Adding Ansible Repo"
+	apt-add-repository ppa:ansible/ansible -y
+	@echo "Installing Ansible"
+	apt-get update; apt-get install ansible -y
+	ansible-playbook setup/ci.yml -i setup/local
+
 ci-test:
 	@echo "Running Tests on CI"
 	rm -rf node_modules/
@@ -42,15 +50,5 @@ reinstall: uninstall run-android
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 
 deploy:
-	wget http://dl.google.com/android/android-sdk_r23-linux.tgz -O android.tgz
-	tar -xvf android.tgz
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter build-tools-23.0.1
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter build-tools-23.0.3
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter sys-img-x86_64-android-23
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter sys-img-x86-android-23
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter platform-tools
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter extra-google-m2repository
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter extra-android-m2repository
-	cd android-sdk-linux/tools; echo y | ./android update sdk --no-ui --all --filter android-23
 	make release
 	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/latest/openchs-client-$(ts).apk

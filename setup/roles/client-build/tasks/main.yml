@@ -4,5 +4,6 @@
   tags:
     - client
     - brew
+
 - name: Resolve client npm dependencies
   npm: path=./ state=latest
