@@ -8,25 +8,27 @@ import './views';
 import './service';
 import './tasks';
 import AppState from './hack/AppState'; //Required Import
+import AppStore from './store/AppStore';
 
 export default class App extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.store = new Realm(models);
-        this.beans = BeanRegistry.init(this.store, this);
+        this.db = new Realm(models);
+        this.beans = BeanRegistry.init(this.db, this);
         this.getBean = this.getBean.bind(this);
         BootstrapRegistry.init(this.getBean);
         BootstrapRegistry.runAllTasks();
+
     }
 
     static childContextTypes = {
         getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func.isRequired
+        getDB: React.PropTypes.func.isRequired
     };
 
     getChildContext = () => ({
-        getStore: () => this.store,
+        getDB: () => this.db,
         getService: (serviceName) => {
             return this.beans.get(serviceName)
         }

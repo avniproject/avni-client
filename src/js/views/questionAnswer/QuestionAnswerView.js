@@ -43,12 +43,12 @@ class QuestionAnswerView extends Component {
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
         getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func.isRequired
+        getDB: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
-        this.locale = this.context.getStore().objects('Settings')[0]["locale"]["selectedLocale"];
+        this.locale = this.context.getDB().objects('Settings')[0]["locale"]["selectedLocale"];
         this.questionnaire = this.props.params.questionnaire;
         this.I18n = context.getService("messageService").getI18n();
         this.state = {};

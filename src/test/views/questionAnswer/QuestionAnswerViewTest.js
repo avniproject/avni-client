@@ -37,7 +37,7 @@ describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
         const context = {
             navigator: ()=> ({}),
-            getStore: ()=> ({
+            getDB: ()=> ({
                 objects: function () {
                     return [{"locale": {"selectedLocale": "en"}}]
                 }
@@ -61,7 +61,7 @@ describe('Question Answer View Test', () => {
     it('when Numeric is the first question', () => {
         const context = {
             navigator: ()=> ({}),
-            getStore: ()=> ({
+            getDB: ()=> ({
                 objects: function () {
                     return [{"locale": {"selectedLocale": "en"}}]
                 }

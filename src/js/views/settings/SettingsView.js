@@ -34,7 +34,7 @@ class SettingsView extends Component {
     });
 
     static contextTypes = {
-        getStore: React.PropTypes.func.isRequired,
+        getDB: React.PropTypes.func.isRequired,
         getService: React.PropTypes.func.isRequired,
         navigator: React.PropTypes.func.isRequired
     };
