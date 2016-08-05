@@ -8,6 +8,7 @@ import './views';
 import './service';
 import './tasks';
 import AppState from './hack/AppState'; //Required Import
+import ConceptService from './service/ConceptService';
 import AppStore from './store/AppStore';
 
 export default class App extends Component {
@@ -19,7 +20,7 @@ export default class App extends Component {
         this.getBean = this.getBean.bind(this);
         BootstrapRegistry.init(this.getBean);
         BootstrapRegistry.runAllTasks();
-
+        this.appStore = new AppStore(this.db, this.beans);
     }
 
     static childContextTypes = {

@@ -1,5 +1,9 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
+import QuestionnaireService from './QuestionnaireService';
+import ConceptService from './ConceptService';
+import SettingsService from './SettingsService';
+import DecisionConfigService from './DecisionConfigService';
 import {get} from '../framework/http/requests';
 
 
@@ -12,8 +16,8 @@ class ConfigService extends BaseService {
     }
 
     init(beans) {
-        this.typeMapping = new Map([["questionnaires", beans.get("questionnaireService").saveQuestionnaire],
-            ["concepts", (concepts) => concepts.map(beans.get("conceptService").saveConcept)], ["decisionConfig", beans.get("decisionConfigService").saveDecisionConfig]]);
+        this.typeMapping = new Map([["questionnaires", beans.get(QuestionnaireService).saveQuestionnaire],
+            ["concepts", (concepts) => concepts.map(beans.get(ConceptService).saveConcept)], ["decisionConfig", beans.get(DecisionConfigService).saveDecisionConfig]]);
     }
 
     getFileFrom(configURL) {
@@ -24,7 +28,7 @@ class ConfigService extends BaseService {
     }
 
     getAllFilesAndSave() {
-        const configURL = `${this.getService("settingsService").getServerURL()}/fs/config`;
+        const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
         get(`${configURL}/filelist.json`, (response) => {
             _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL).of(type).bind(this)));
         });

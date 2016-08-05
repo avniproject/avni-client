@@ -13,11 +13,8 @@ import {createStore} from 'redux';
 
 class AppStore {
     constructor(db, beans) {
-        this.db = new Realm(models);
-        this.beans = BeanRegistry.init(this.db, this);
-        this.getBean = this.getBean.bind(this);
-        BootstrapRegistry.init(this.getBean);
-        BootstrapRegistry.runAllTasks();
+        this.db = db;
+        this.beans = beans;
     };
 }
 

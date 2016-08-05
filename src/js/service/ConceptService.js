@@ -1,6 +1,7 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
 import {Concept} from '../models/Concept';
+import MessageService from './MessageService';
 import _ from 'lodash';
 
 
@@ -21,7 +22,7 @@ class ConceptService extends BaseService {
     }
 
     saveConcept(concept) {
-        const messageService = this.getService("messageService");
+        const messageService = this.getService(MessageService);
         concept.conceptNames.map((conceptName) =>
             messageService.addTranslation(conceptName.locale, concept.name, conceptName.name));
         const db = this.db;

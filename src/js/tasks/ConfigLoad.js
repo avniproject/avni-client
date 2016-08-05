@@ -1,5 +1,6 @@
 import Task from './Task';
 import Bootstrap from '../framework/bootstrap/Bootstrap';
+import ConfigService from '../service/ConfigService';
 
 @Bootstrap("configLoad")
 class ConfigLoad extends Task {
@@ -9,7 +10,7 @@ class ConfigLoad extends Task {
     }
 
     run() {
-        this.getBean("configService").getAllFilesAndSave();
+        this.getBean(ConfigService).getAllFilesAndSave();
     }
 }
 

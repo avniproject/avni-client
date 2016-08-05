@@ -1,6 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
+import MessageService from './MessageService';
 
 @Service("settingsService")
 class SettingsService extends BaseService {
@@ -29,7 +30,7 @@ class SettingsService extends BaseService {
     }
 
     saveLocale(locale) {
-        const messageService = this.getService("messageService");
+        const messageService = this.getService(MessageService);
         const self = this;
         this.db.write(() => {
             self.getSettings().locale.selectedLocale = locale;

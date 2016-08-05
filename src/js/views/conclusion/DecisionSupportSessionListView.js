@@ -3,6 +3,9 @@ import {View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
+import MessageService from '../../service/MessageService';
+import QuestionnaireService from '../../service/QuestionnaireService';
+import DecisionSupportSessionService from '../../service/DecisionSupportSessionService';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
 import * as CHSStyles from '../primitives/GlobalStyles';
@@ -20,7 +23,7 @@ class DecisionSupportSessionListView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     onSessionRowPress(session) {
@@ -29,7 +32,8 @@ class DecisionSupportSessionListView extends Component {
 
     static renderSummaryField(summaryField, session, questionnaire, rowID) {
         return (
-            <View style={CHSStyles.Global.listCellContainer} key={`1.1${questionnaire.name}${summaryField.summaryFieldName}${rowID}`}>
+            <View style={CHSStyles.Global.listCellContainer}
+                  key={`1.1${questionnaire.name}${summaryField.summaryFieldName}${rowID}`}>
                 <Text key={`1.2${questionnaire.name}${rowID}`}
                       style={[CHSStyles.Global.listCell]}>{summaryField.getValueFrom(session)}</Text>
             </View>);
@@ -42,7 +46,8 @@ class DecisionSupportSessionListView extends Component {
                 <TouchableHighlight onPress={() => this.onSessionRowPress(session)} key={`2${rowIDSuffix}`}>
                     <View style={CHSStyles.Global.listRow} key={`3${rowIDSuffix}`}>
                         <Text
-                            style={CHSStyles.Global.listCell} key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}</Text>
+                            style={CHSStyles.Global.listCell}
+                            key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}</Text>
                         {questionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryField(summaryField, session, questionnaire, rowID))}
                     </View>
                 </TouchableHighlight>
@@ -50,10 +55,10 @@ class DecisionSupportSessionListView extends Component {
     }
 
     renderSessions(questionnaire) {
-        const questionnaireService = this.context.getService("questionnaireService");
+        const questionnaireService = this.context.getService(QuestionnaireService);
         const completeQuestionnaire = questionnaireService.getQuestionnaire(questionnaire.uuid);
 
-        const dssService = this.context.getService("decisionSupportSessionService");
+        const dssService = this.context.getService(DecisionSupportSessionService);
         var sessions = dssService.getAll(questionnaire.name);
 
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -81,7 +86,8 @@ class DecisionSupportSessionListView extends Component {
     }
 
     static _renderSeparator(rowNumber, rowID, total) {
-        if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) return (<View key={rowID}/>);
+        if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) return (
+            <View key={rowID}/>);
         return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator}/>);
     }
 
@@ -99,7 +105,7 @@ class DecisionSupportSessionListView extends Component {
     }
 
     render() {
-        const questionnaireService = this.context.getService("questionnaireService");
+        const questionnaireService = this.context.getService(QuestionnaireService);
         const questionnaires = questionnaireService.getQuestionnaireNames();
 
         return (

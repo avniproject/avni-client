@@ -22,6 +22,7 @@ import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
 import TypedTransition from '../../framework/routing/TypedTransition'
+import MessageService from '../../service/MessageService';
 import DiseaseListView from "../diseaseList/DiseaseListView";
 
 @Path('/QuestionAnswerView')
@@ -50,7 +51,7 @@ class QuestionAnswerView extends Component {
         super(props, context);
         this.locale = this.context.getDB().objects('Settings')[0]["locale"]["selectedLocale"];
         this.questionnaire = this.props.params.questionnaire;
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
         this.state = {};
     }
 

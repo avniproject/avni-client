@@ -2,12 +2,13 @@ import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'reac
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import * as CHSStyles from "./GlobalStyles";
+import MessageService from '../../service/MessageService';
 
 class WizardButtons extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static contextTypes = {

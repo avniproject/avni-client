@@ -7,13 +7,17 @@ import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionListView from "../conclusion/DecisionSupportSessionListView";
+import MessageService from '../../service/MessageService';
+import QuestionnaireService from '../../service/QuestionnaireService';
+import DecisionSupportSessionService from '../../service/DecisionSupportSessionService';
+import ExportService from '../../service/ExportService';
 
 @Path('/diseaseList')
 class DiseaseListView extends Component {
     constructor(props, context) {
         super(props, context);
-        const questionnaires = context.getService("questionnaireService").getQuestionnaireNames();
-        this.I18n = context.getService("messageService").getI18n();
+        const questionnaires = context.getService(QuestionnaireService).getQuestionnaireNames();
+        this.I18n = context.getService(MessageService).getI18n();
         this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires), exporting: false};
         this.onExportPress = this.onExportPress.bind(this);
     }
@@ -40,12 +44,12 @@ class DiseaseListView extends Component {
 
     onExportPress = () => {
         this.setState({exporting: true});
-        const service = this.context.getService("exportService");
+        const service = this.context.getService(ExportService);
         service.exportAll(()=> this.setState({exporting: false}));
     };
 
     onDeleteSessionsPress = () => {
-        const service = this.context.getService("decisionSupportSessionService");
+        const service = this.context.getService(DecisionSupportSessionService);
         Alert.alert(
             this.I18n.t('deleteConfirmation'),
             this.I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),

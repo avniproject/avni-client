@@ -1,4 +1,5 @@
 import BaseService from './BaseService';
+import ConceptService from './ConceptService';
 import Service from '../framework/bean/Service';
 import SimpleQuestionnaire from '../models/SimpleQuestionnaire';
 import _ from 'lodash';
@@ -13,7 +14,7 @@ class QuestionnaireService extends BaseService {
 
     getQuestionnaire(questionnaireUUID) {
         const questionnaire = Questionnaire.fromDB(this.db.objectForPrimaryKey(Questionnaire.schema.name, questionnaireUUID));
-        return new SimpleQuestionnaire(questionnaire, this.getService("conceptService"));
+        return new SimpleQuestionnaire(questionnaire, this.getService(ConceptService));
     }
 
     getQuestionnaireNames() {

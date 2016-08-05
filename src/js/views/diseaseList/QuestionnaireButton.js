@@ -4,12 +4,14 @@ import TypedTransition from '../../framework/routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
 import Colors from '../primitives/Colors';
+import MessageService from '../../service/MessageService';
+import QuestionnaireService from '../../service/QuestionnaireService';
 
 class QuestionnaireButton extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static propTypes = {
@@ -40,7 +42,7 @@ class QuestionnaireButton extends Component {
     });
 
     onSelect = () => {
-        const service = this.context.getService("questionnaireService");
+        const service = this.context.getService(QuestionnaireService);
         const questionnaire = service.getQuestionnaire(this.props.questionnaire.uuid);
         AppState.startQuestionnaireSession(questionnaire);
         TypedTransition

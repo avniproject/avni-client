@@ -5,6 +5,8 @@ import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from '../primitives/AppHeader';
 import Path from "../../framework/routing/Path";
 import AppState from '../../hack/AppState';
+import MessageService from '../../service/MessageService';
+import DecisionSupportSessionService from '../../service/DecisionSupportSessionService';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import DiseaseListView from "../diseaseList/DiseaseListView";
 
@@ -13,7 +15,7 @@ class ConfirmationView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static contextTypes = {
@@ -26,7 +28,7 @@ class ConfirmationView extends Component {
     };
 
     onSaveAndRestart = () => {
-        var service = this.context.getService("decisionSupportSessionService");
+        var service = this.context.getService(DecisionSupportSessionService);
         service.save(AppState.questionnaireAnswers, this.props.params.decisions);
         TypedTransition.from(this).resetTo(DiseaseListView);
     };

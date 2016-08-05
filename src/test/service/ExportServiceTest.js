@@ -1,7 +1,10 @@
 import {expect} from 'chai';
 import ExportService from "../../js/service/ExportService";
 import QuestionAnswer from "../../js/models/QuestionAnswer";
+import DecisionSupportSessionService from "../../js/service/DecisionSupportSessionService";
+import QuestionnaireService from "../../js/service/QuestionnaireService";
 import DecisionSupportSession from "../../js/models/DecisionSupportSession";
+
 
 describe('Export Service', () => {
     it('Export', () => {
@@ -39,9 +42,9 @@ describe('Export Service', () => {
 
         const stubbedBeanStore = {
             getBean: (serviceName)=> {
-                if (serviceName === "decisionSupportSessionService") {
+                if (serviceName === DecisionSupportSessionService) {
                     return stubbedDecisionSupportSessionService;
-                } else if (serviceName === "questionnaireService") {
+                } else if (serviceName === QuestionnaireService) {
                     return stubbedQuestionnaireService;
                 }
             }

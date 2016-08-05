@@ -1,6 +1,7 @@
 import {StyleSheet, View, Text, TouchableHighlight, ProgressBarAndroid} from 'react-native';
 import React, {Component} from 'react';
 import * as CHSStyles from '../primitives/GlobalStyles';
+import ConfigService from '../../service/ConfigService';
 
 class SyncButton extends Component {
     constructor(props, context) {
@@ -15,7 +16,7 @@ class SyncButton extends Component {
 
     _triggerSync() {
         this.setState({syncing: true});
-        this.props.getService("configService").getAllFilesAndSave();
+        this.props.getService(ConfigService).getAllFilesAndSave();
         setTimeout(() => this.setState({syncing: false}), 500);
     }
 

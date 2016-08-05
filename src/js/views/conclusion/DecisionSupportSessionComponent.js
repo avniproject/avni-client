@@ -2,11 +2,12 @@ import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import * as CHSStyles from '../primitives/GlobalStyles';
+import MessageService from '../../service/MessageService';
 
 class DecisionSupportSessionComponent extends Component {
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static styles = StyleSheet.create({

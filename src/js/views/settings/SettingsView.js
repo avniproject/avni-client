@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import SettingsForm from './SettingsForm';
 import SettingsHeader from './SettingsHeader';
+import SettingsService from '../../service/SettingsService';
 
 @Path('/settings')
 class SettingsView extends Component {
@@ -41,7 +42,7 @@ class SettingsView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.service = this.context.getService("settingsService");
+        this.service = this.context.getService(SettingsService);
         this.settings = this.service.getSettings();
         this.state = {exporting: false};
         this.onLocaleChanged = this.onLocaleChanged.bind(this);

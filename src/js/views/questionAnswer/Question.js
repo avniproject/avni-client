@@ -2,12 +2,13 @@ import {StyleSheet, Text, View} from 'react-native';
 import React, {Component} from 'react';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import General from '../../utility/General';
+import MessageService from '../../service/MessageService';
 
 class Question extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService("messageService").getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static propTypes = {

@@ -2,6 +2,9 @@ import {NativeModules} from 'react-native';
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import General from "../utility/General";
+import SettingsService from './SettingsService';
+import QuestionnaireService from './QuestionnaireService';
+import DecisionSupportSessionService from './DecisionSupportSessionService';
 import {post} from '../framework/http/requests';
 
 @Service("exportService")
@@ -11,8 +14,8 @@ class ExportService extends BaseService {
     }
 
     exportAll(done) {
-        const exportURL = `${this.getService("settingsService").getServerURL()}/export`;
-        this.getService("questionnaireService").getQuestionnaireNames().map(this.exportFileTo(exportURL));
+        const exportURL = `${this.getService(SettingsService).getServerURL()}/export`;
+        this.getService(QuestionnaireService).getQuestionnaireNames().map(this.exportFileTo(exportURL));
         done();
     }
 
@@ -26,7 +29,7 @@ class ExportService extends BaseService {
     }
 
     getHeader(questionnaire) {
-        const questionnaireService = this.getService("questionnaireService");
+        const questionnaireService = this.getService(QuestionnaireService);
         const completeQuestionnaire = questionnaireService.getQuestionnaire(questionnaire.uuid);
         var header = '';
         completeQuestionnaire.questions.forEach(function (question) {
@@ -44,7 +47,7 @@ class ExportService extends BaseService {
     }
 
     exportContents(questionnaire) {
-        const decisionSupportSessionService = this.getService("decisionSupportSessionService");
+        const decisionSupportSessionService = this.getService(DecisionSupportSessionService);
         var contents = this.getHeader(questionnaire);
 
         const decisionSupportSessions = decisionSupportSessionService.getAll(questionnaire.name);

@@ -2,6 +2,7 @@ import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
 import I18n from 'react-native-i18n';
 import Messages_en from '../../config/messages.en.json';
+import SettingsService from '../service/SettingsService';
 import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
 
@@ -19,7 +20,7 @@ class MessageService extends BaseService {
     }
 
     init(beans) {
-        this.setLocale(beans.get("settingsService").getLocale());
+        this.setLocale(beans.get(SettingsService).getLocale());
     }
 
     addTranslation(locale, key, value) {
