@@ -8,7 +8,6 @@ import './views';
 import './service';
 import './tasks';
 import AppState from './hack/AppState'; //Required Import
-import ConceptService from './service/ConceptService';
 import AppStore from './store/AppStore';
 
 export default class App extends Component {

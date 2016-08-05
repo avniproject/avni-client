@@ -16,6 +16,15 @@ class AppStore {
         this.db = db;
         this.beans = beans;
     };
+
+    store(initState = {}, action) {
+
+    }
+
+    buildStore() {
+        return
+    }
+
 }
 
 
