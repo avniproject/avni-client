@@ -1,5 +1,5 @@
 {
-  "serverURL": "http://www.openchs.org/config",
+  "serverURL": "http://www.openchs.org",
   "locale": {
     "selectedLocale": "en",
     "availableValues": [
