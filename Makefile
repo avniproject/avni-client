@@ -11,7 +11,7 @@ install: ansible_check
 	ansible-playbook setup/dev.yml -i setup/local
 
 run-android:
-	ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android
+	ANDROID_HOME=/usr/local/opt/android-sdk react-native run-android --offline
 
 run-packager:
 	REACT_EDITOR=atom ./node_modules/react-native/packager/packager.sh start --reset-cache
