@@ -19,8 +19,8 @@ class MessageService extends BaseService {
         };
     }
 
-    init(beans) {
-        this.setLocale(beans.get(SettingsService).getLocale());
+    init() {
+        this.setLocale(this.getService(SettingsService).getLocale());
     }
 
     addTranslation(locale, key, value) {

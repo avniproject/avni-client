@@ -1,6 +1,7 @@
-import  {StyleSheet, View, ListView, DrawerLayoutAndroid, Text, TouchableHighlight, Alert} from 'react-native';
-import React, {Component} from 'react';
-import Path from '../../framework/routing/Path';
+import {StyleSheet, View, ListView, DrawerLayoutAndroid, Text, TouchableHighlight, Alert} from 'react-native';
+import React from 'react';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import Path, {PathRoot} from '../../framework/routing/Path';
 import QuestionnaireButton from './QuestionnaireButton';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
@@ -8,24 +9,31 @@ import {Global} from "../primitives/GlobalStyles";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionListView from "../conclusion/DecisionSupportSessionListView";
 import MessageService from '../../service/MessageService';
-import QuestionnaireService from '../../service/QuestionnaireService';
+import Actions from '../../action';
 import DecisionSupportSessionService from '../../service/DecisionSupportSessionService';
 import ExportService from '../../service/ExportService';
 
+@PathRoot
 @Path('/diseaseList')
-class DiseaseListView extends Component {
+class DiseaseListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
-        const questionnaires = context.getService(QuestionnaireService).getQuestionnaireNames();
         this.I18n = context.getService(MessageService).getI18n();
-        this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires), exporting: false};
-        this.onExportPress = this.onExportPress.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows([]), exporting: false};
+        context.getStore().subscribe(this.handleChange);
     }
 
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired
+        getService: React.PropTypes.func.isRequired,
+        getStore: React.PropTypes.func
     };
+
+    handleChange() {
+        const questionnaires = this.context.getStore().getState().questionnaires;
+        this.setState({dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires)});
+    }
 
     static styles = StyleSheet.create({
         list: {
@@ -71,6 +79,10 @@ class DiseaseListView extends Component {
         TypedTransition.from(this).to(DecisionSupportSessionListView);
     };
 
+    componentDidMount() {
+        this.dispatchAction(Actions.GET_QUESTIONNAIRES);
+    }
+
     render() {
         return (
             //TODO: Separate this out in another component
@@ -84,6 +96,7 @@ class DiseaseListView extends Component {
                         renderNavigationView={() => <SettingsView/>}>
                         <View>
                             <ListView
+                                enableEmptySections={true}
                                 contentContainerStyle={DiseaseListView.styles.list}
                                 dataSource={this.state.dataSource}
                                 renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
@@ -93,17 +106,20 @@ class DiseaseListView extends Component {
 
                     <View style={{marginBottom: 30}}>
                         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                            <TouchableHighlight onPress={this.onViewSavedSessionsPress} style={DiseaseListView.styles.sessionButtonContainer}>
+                            <TouchableHighlight onPress={this.onViewSavedSessionsPress}
+                                                style={DiseaseListView.styles.sessionButtonContainer}>
                                 <View style={Global.actionButtonWrapper}>
                                     <Text style={Global.actionButton}>{this.I18n.t("viewSavedSessions")}</Text>
                                 </View>
                             </TouchableHighlight>
-                            <TouchableHighlight onPress={this.onExportPress} style={DiseaseListView.styles.sessionButtonContainer}>
+                            <TouchableHighlight onPress={this.onExportPress}
+                                                style={DiseaseListView.styles.sessionButtonContainer}>
                                 <View style={Global.actionButtonWrapper}>
                                     <Text style={Global.actionButton}>{this.I18n.t("export")}</Text>
                                 </View>
                             </TouchableHighlight>
-                            <TouchableHighlight onPress={this.onDeleteSessionsPress} style={DiseaseListView.styles.sessionButtonContainer}>
+                            <TouchableHighlight onPress={this.onDeleteSessionsPress}
+                                                style={DiseaseListView.styles.sessionButtonContainer}>
                                 <View style={Global.actionButtonWrapper}>
                                     <Text style={Global.actionButton}>{this.I18n.t("deleteSessions")}</Text>
                                 </View>

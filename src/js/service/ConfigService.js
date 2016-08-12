@@ -15,9 +15,14 @@ class ConfigService extends BaseService {
         this.getFileFrom = this.getFileFrom.bind(this);
     }
 
-    init(beans) {
-        this.typeMapping = new Map([["questionnaires", beans.get(QuestionnaireService).saveQuestionnaire],
-            ["concepts", (concepts) => concepts.map(beans.get(ConceptService).saveConcept)], ["decisionConfig", beans.get(DecisionConfigService).saveDecisionConfig]]);
+    init() {
+        this.typeMapping = new Map([["questionnaires", this.getService(QuestionnaireService).saveQuestionnaire],
+            ["decisionConfig", this.getService(DecisionConfigService).saveDecisionConfig],
+            ["concepts", (concepts) => concepts.map((concept)=> {
+                const conceptService = this.getService(ConceptService);
+                conceptService.saveConcept(concept);
+                conceptService.addConceptI18n(concept);
+            })]]);
     }
 
     getFileFrom(configURL) {

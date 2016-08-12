@@ -4,27 +4,27 @@ import Route from './Route';
 
 class PathRegistry {
 
-  views = new Set([]);
-  defaultView = undefined;
+    views = new Set([]);
+    defaultView = undefined;
 
-  register(view) {
-    this.views.add(view);
-  }
+    register(view) {
+        this.views.add(view);
+    }
 
-  setDefault(view) {
-    this.defaultView = view;
-  }
+    setDefault(view) {
+        this.defaultView = view;
+    }
 
-  routes() {
-    const routes = Array.from(this.views).map((view, index) =>
-      <Route key={index} path={view.path()} component={view.component()}/>);
+    routes() {
+        const routes = Array.from(this.views).map((view, index) =>
+            <Route key={index} path={view.path()} component={view.component()}/>);
 
-    return (
-      <Router initialRoute={{ path: this.defaultView.path() }}>
-        {routes}
-      </Router>
-    );
-  }
+        return (
+            <Router initialRoute={{path: this.defaultView.path()}}>
+                {routes}
+            </Router>
+        );
+    }
 }
 
 export default new PathRegistry();

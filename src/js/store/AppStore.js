@@ -1,31 +1,8 @@
-import {createStore} from 'redux';
+import {createStore, combineReducers} from 'redux';
+import stateReducers from '../reducer';
+import _ from 'lodash';
 
-// const AppStore = function (initState = {
-//     concepts: [],
-//     questionnaires: []
-// }, action) {
-//     switch (action.type) {
-//         case "ADD_CONCEPTS":
-//             initState.concepts = action.data;
-//     }
-// };
-//
-
-class AppStore {
-    constructor(db, beans) {
-        this.db = db;
-        this.beans = beans;
-    };
-
-    store(initState = {}, action) {
-
-    }
-
-    buildStore() {
-        return
-    }
-
+function AppStoreFactory(beans) {
+    return createStore(combineReducers(_.mapValues(stateReducers, (reducer) => reducer.factory(beans))));
 }
-
-
-export default AppStore;
+export default AppStoreFactory;

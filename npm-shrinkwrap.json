@@ -599,11 +599,6 @@
       "from": "babel-plugin-transform-es2015-computed-properties@>=6.5.0 <7.0.0",
       "resolved": "https://registry.npmjs.org/babel-plugin-transform-es2015-computed-properties/-/babel-plugin-transform-es2015-computed-properties-6.6.5.tgz"
     },
-    "babel-plugin-transform-es2015-constants": {
-      "version": "6.1.4",
-      "from": "babel-plugin-transform-es2015-constants@>=6.1.4 <7.0.0",
-      "resolved": "https://registry.npmjs.org/babel-plugin-transform-es2015-constants/-/babel-plugin-transform-es2015-constants-6.1.4.tgz"
-    },
     "babel-plugin-transform-es2015-destructuring": {
       "version": "6.6.5",
       "from": "babel-plugin-transform-es2015-destructuring@>=6.5.0 <7.0.0",
@@ -802,9 +797,9 @@
       }
     },
     "babel-preset-react-native": {
-      "version": "1.5.6",
-      "from": "babel-preset-react-native@>=1.5.2 <2.0.0",
-      "resolved": "https://registry.npmjs.org/babel-preset-react-native/-/babel-preset-react-native-1.5.6.tgz"
+      "version": "1.9.0",
+      "from": "babel-preset-react-native@latest",
+      "resolved": "https://registry.npmjs.org/babel-preset-react-native/-/babel-preset-react-native-1.9.0.tgz"
     },
     "babel-regenerator-runtime": {
       "version": "6.5.0",
@@ -3247,9 +3242,9 @@
       "resolved": "https://registry.npmjs.org/image-size/-/image-size-0.3.5.tgz"
     },
     "immutable": {
-      "version": "3.7.6",
-      "from": "immutable@>=3.7.5 <4.0.0",
-      "resolved": "https://registry.npmjs.org/immutable/-/immutable-3.7.6.tgz"
+      "version": "3.8.1",
+      "from": "immutable@latest",
+      "resolved": "https://registry.npmjs.org/immutable/-/immutable-3.8.1.tgz"
     },
     "imurmurhash": {
       "version": "0.1.4",
@@ -4772,6 +4767,11 @@
               "resolved": "https://registry.npmjs.org/core-js/-/core-js-1.2.6.tgz"
             }
           }
+        },
+        "immutable": {
+          "version": "3.7.6",
+          "from": "immutable@>=3.7.6 <3.8.0",
+          "resolved": "https://registry.npmjs.org/immutable/-/immutable-3.7.6.tgz"
         },
         "lodash": {
           "version": "3.10.1",

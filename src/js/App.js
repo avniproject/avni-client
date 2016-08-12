@@ -8,7 +8,8 @@ import './views';
 import './service';
 import './tasks';
 import AppState from './hack/AppState'; //Required Import
-import AppStore from './store/AppStore';
+import AppStoreFactory from './store/AppStore';
+import {Provider} from 'react-redux'
 
 export default class App extends Component {
 
@@ -19,19 +20,22 @@ export default class App extends Component {
         this.getBean = this.getBean.bind(this);
         BootstrapRegistry.init(this.getBean);
         BootstrapRegistry.runAllTasks();
-        this.appStore = new AppStore(this.db, this.beans);
+        this.routes = PathRegistry.routes();
+        this.appStore = AppStoreFactory(this.beans);
     }
 
     static childContextTypes = {
         getService: React.PropTypes.func.isRequired,
-        getDB: React.PropTypes.func.isRequired
+        getDB: React.PropTypes.func.isRequired,
+        getStore: React.PropTypes.func.isRequired
     };
 
     getChildContext = () => ({
         getDB: () => this.db,
         getService: (serviceName) => {
             return this.beans.get(serviceName)
-        }
+        },
+        getStore: () => this.appStore
     });
 
     getBean(name) {
@@ -39,6 +43,7 @@ export default class App extends Component {
     }
 
     render() {
-        return PathRegistry.routes();
+        return this.routes;
+
     }
 }

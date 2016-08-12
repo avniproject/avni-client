@@ -13,6 +13,7 @@
     "test": "find ./src/*test -name '*Test.js' | xargs mocha --require react-native-mock/mock.js --require src/test/testHelper.js"
   },
   "dependencies": {
+    "immutable": "^3.8.1",
     "invariant": "2.2.1",
     "lodash": "^4.12.0",
     "minio": "^2.0.1",
