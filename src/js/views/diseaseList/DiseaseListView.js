@@ -24,12 +24,6 @@ class DiseaseListView extends AbstractComponent {
         context.getStore().subscribe(this.handleChange);
     }
 
-    static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func
-    };
-
     handleChange() {
         const questionnaires = this.context.getStore().getState().questionnaires;
         this.setState({dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires)});
