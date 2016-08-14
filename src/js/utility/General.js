@@ -3,11 +3,9 @@ class General {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     }
 
-
     static isDefined(value) {
         return value != undefined || value != null;
     }
-
 
     static getTimeStamp() {
         var date = new Date();
@@ -58,10 +56,6 @@ class General {
             str = str.replace(character, '_');
         });
         return str;
-    }
-
-    static isAnswerNotWithinRange(answer, question) {
-        return !isNaN(answer) && (answer < question.lowAbsolute || answer > question.hiAbsolute);
     }
 
     static formatRange(question) {

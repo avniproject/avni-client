@@ -30,7 +30,7 @@ class Question extends Component {
     toQuestionText() {
         const questionText = this.I18n.t(this.props.question.name);
         var text = this.props.question.isMandatory ? `${questionText} *` : `${questionText}`;
-        if (this.props.question.questionDataType === SimpleQuestionnaire.Numeric && this.props.question.lowAbsolute !== undefined)
+        if (this.props.question.hasRange())
             text += ` ${General.formatRange(this.props.question)}`;
         return text;
     }

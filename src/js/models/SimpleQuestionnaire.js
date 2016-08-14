@@ -1,5 +1,5 @@
 import SummaryField from "./SummaryField";
-import _ from 'lodash';
+import Question from "./Question";
 
 class SimpleQuestionnaire {
     static Numeric = "Numeric";
@@ -13,17 +13,7 @@ class SimpleQuestionnaire {
     getQuestion(questionIndex) {
         var questionConfiguration = this.questionnaireConfigurations.questions[questionIndex];
         const questionConcept = this.conceptService.getConceptByName(questionConfiguration.name);
-        return {
-            name: questionConfiguration.name,
-            questionDataType: questionConcept.datatype.name,
-            isFirstQuestion: questionIndex === 0,
-            isLastQuestion: questionIndex === this.questionnaireConfigurations.questions.length - 1,
-            isMandatory: _.isNil(questionConfiguration.mandatory) ? true : questionConfiguration.mandatory,
-            isMultiSelect: _.isNil(questionConfiguration.multiSelect) ? false : questionConfiguration.multiSelect,
-            answers: questionConcept.answers === undefined ? [] : questionConcept.answers,
-            lowAbsolute: questionConcept.lowAbsolute,
-            hiAbsolute: questionConcept.hiAbsolute
-        };
+        return new Question(questionConfiguration, questionConcept, questionIndex === 0, questionIndex === this.questionnaireConfigurations.questions.length - 1);
     }
 
     get questions() {
