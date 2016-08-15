@@ -61,10 +61,10 @@ class QuestionAnswerView extends Component {
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
                            style={QuestionAnswerView.styles.textInput}
                            keyboardType={questionAnswer.questionDataType === SimpleQuestionnaire.Numeric ? 'numeric' : 'default'}
-                           autoFocus={questionAnswer.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer}</TextInput>);
+                           autoFocus={questionAnswer.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
         else if (questionAnswer.questionDataType === 'Date')
             return (<TouchableHighlight
-                onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer})}
+                onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer.value})}
                 style={{margin: 10}}>
                 <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
@@ -79,7 +79,7 @@ class QuestionAnswerView extends Component {
         if (AppState.questionnaireAnswers.currentAnswer === undefined) {
             return "Choose a date";
         } else {
-            return General.formatDate(AppState.questionnaireAnswers.currentAnswer);
+            return General.formatDate(AppState.questionnaireAnswers.currentAnswer.value);
         }
     }
 
@@ -101,7 +101,7 @@ class QuestionAnswerView extends Component {
         const answer = AppState.questionnaireAnswers.currentAnswer;
         if (this.question.isMandatory && AppState.questionnaireAnswers.currentAnswerIsEmpty) {
             return {status: false, message: this.I18n.t('emptyValidationMessage')};
-        } else if (this.question.isRangeViolated(answer)) {
+        } else if (this.question.questionDataType === SimpleQuestionnaire.Numeric && this.question.isRangeViolated(answer)) {
             return {
                 status: false,
                 message: this.I18n.t('numericValueValidation', {range: General.formatRange(this.question)})

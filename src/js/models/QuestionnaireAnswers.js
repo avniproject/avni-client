@@ -1,4 +1,6 @@
 import QuestionAnswer from "./QuestionAnswer";
+import Answer from "./Answer";
+import _ from 'lodash';
 
 class QuestionnaireAnswers {
     constructor(questionnaire) {
@@ -25,7 +27,7 @@ class QuestionnaireAnswers {
     }
     
     getAnswerFor(questionName) {
-        return this.questionAnswers.get(questionName);
+        return new Answer(this.questionAnswers.get(questionName));
     }
 
     get value() {
@@ -54,7 +56,8 @@ class QuestionnaireAnswers {
     }
 
     get currentAnswerIsEmpty() {
-        return this.currentAnswer === undefined || (!(this.currentAnswer instanceof Date) && !(this.currentAnswer));
+        return _.isNil(this.currentAnswer.value) || _.isEmpty(_.trim(this.currentAnswer.value));
+//        return this.currentAnswer === undefined || (!(this.currentAnswer instanceof Date) && !(this.currentAnswer));
     }
 }
 

@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import Question from '../../js/models/Question';
+import Answer from '../../js/models/Answer';
 
 describe('QuestionTest', () => {
     it('hasRange', () => {
@@ -12,45 +13,41 @@ describe('QuestionTest', () => {
 
     it('isRangeViolated for mandatory question with range', () => {
         const question = new Question({"mandatory": true}, {"datatype" : {"name": "Numeric"}, "lowAbsolute": 10, "hiAbsolute": 65});
-        expect(question.isRangeViolated("a")).is.false;
-        expect(question.isRangeViolated(20)).is.false;
-        expect(question.isRangeViolated(10)).is.false;
-        expect(question.isRangeViolated(65)).is.false;
-        expect(question.isRangeViolated(5)).is.true;
-        expect(question.isRangeViolated(66)).is.true;
+        expect(question.isRangeViolated(new Answer("a"))).is.false;
+        expect(question.isRangeViolated(new Answer(20))).is.false;
+        expect(question.isRangeViolated(new Answer(10))).is.false;
+        expect(question.isRangeViolated(new Answer(65))).is.false;
+        expect(question.isRangeViolated(new Answer(5))).is.true;
+        expect(question.isRangeViolated(new Answer(66))).is.true;
     });
 
     it('isRangeViolated for mandatory question without range', () => {
-        const question = new Question({"mandatory": true}, {"datatype" : {"name": "Numeric"}});
-        expect(question.isRangeViolated(20)).is.false;
-        expect(question.isRangeViolated()).is.false;
-        expect(question.isRangeViolated(null)).is.false;
+        var question = new Question({"mandatory": true}, {"datatype" : {"name": "Numeric"}});
+        expect(question.isRangeViolated(new Answer(20))).is.false;
+        expect(question.isRangeViolated(new Answer())).is.false;
+        expect(question.isRangeViolated(new Answer(null))).is.false;
+
+        question = new Question({"mandatory": true}, {"datatype" : {"name": "Text"}});
+        expect(question.isRangeViolated(new Answer("1"))).is.false;
     });
 
     it('isRangeViolated for optional question with range', () => {
         const question = new Question({"mandatory": false}, {"datatype" : {"name": "Numeric"}, "lowAbsolute": 10, "hiAbsolute": 65});
-        expect(question.isRangeViolated(undefined)).is.false;
-        expect(question.isRangeViolated(null)).is.false;
+        expect(question.isRangeViolated(new Answer(undefined))).is.false;
+        expect(question.isRangeViolated(new Answer(null))).is.false;
 
-        expect(question.isRangeViolated(20)).is.false;
-        expect(question.isRangeViolated(10)).is.false;
-        expect(question.isRangeViolated(65)).is.false;
-        expect(question.isRangeViolated(5)).is.true;
-        expect(question.isRangeViolated(66)).is.true;
+        expect(question.isRangeViolated(new Answer(20))).is.false;
+        expect(question.isRangeViolated(new Answer(10))).is.false;
+        expect(question.isRangeViolated(new Answer(65))).is.false;
+        expect(question.isRangeViolated(new Answer(5))).is.true;
+        expect(question.isRangeViolated(new Answer(66))).is.true;
     });
 
     it('isRangeViolated for optional question without range', () => {
         const question = new Question({"mandatory": false}, {"datatype" : {"name": "Numeric"}});
-        expect(question.isRangeViolated()).is.false;
-        expect(question.isRangeViolated(null)).is.false;
-        expect(question.isRangeViolated(20)).is.false;
-    });
-
-    it('Range is not violated for non-numeric questions', () => {
-        const question = new Question({}, {"datatype" : {"name": "Text"}});
-        expect(question.isRangeViolated("a")).is.false;
-        expect(question.isRangeViolated()).is.false;
-        expect(question.isRangeViolated(null)).is.false;
+        expect(question.isRangeViolated(new Answer())).is.false;
+        expect(question.isRangeViolated(new Answer(null))).is.false;
+        expect(question.isRangeViolated(new Answer(20))).is.false;
     });
 
     it('isMandatory', () => {

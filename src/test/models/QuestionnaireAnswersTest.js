@@ -11,7 +11,7 @@ describe('QuestionnaireAnswers', () => {
     });
 
     it('Should get current answer', () => {
-        expect(qa.currentAnswer).to.equal("baz");
+        expect(qa.currentAnswer.value).to.equal("baz");
     });
 
     it('To Array', () => {
@@ -23,7 +23,10 @@ describe('QuestionnaireAnswers', () => {
         
         qa.currentAnswer = "";
         expect(qa.currentAnswerIsEmpty).is.true;
-        
+
+        qa.currentAnswer = " ";
+        expect(qa.currentAnswerIsEmpty).is.true;
+
         qa.currentAnswer = new Date();
         expect(qa.currentAnswerIsEmpty).is.false;
         

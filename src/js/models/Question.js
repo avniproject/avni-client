@@ -42,9 +42,8 @@ class Question {
     }
 
     isRangeViolated(answer) {
-        if (_.isNil(answer) && !this.isMandatory) return false;
-
-        return (answer < this.lowAbsolute || answer > this.hiAbsolute);
+        if (answer.isNilOrEmpty()) return false;
+        return (answer.value < this.lowAbsolute || answer.value > this.hiAbsolute);
     }
 }
 
