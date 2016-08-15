@@ -13,7 +13,7 @@ describe('QuestionTest', () => {
 
     it('isRangeViolated for mandatory question with range', () => {
         const question = new Question({"mandatory": true}, {"datatype" : {"name": "Numeric"}, "lowAbsolute": 10, "hiAbsolute": 65});
-        expect(question.isRangeViolated(new Answer("a"))).is.false;
+        expect(question.isRangeViolated(new Answer("a"))).is.true;
         expect(question.isRangeViolated(new Answer(20))).is.false;
         expect(question.isRangeViolated(new Answer(10))).is.false;
         expect(question.isRangeViolated(new Answer(65))).is.false;
@@ -35,6 +35,7 @@ describe('QuestionTest', () => {
         const question = new Question({"mandatory": false}, {"datatype" : {"name": "Numeric"}, "lowAbsolute": 10, "hiAbsolute": 65});
         expect(question.isRangeViolated(new Answer(undefined))).is.false;
         expect(question.isRangeViolated(new Answer(null))).is.false;
+        expect(question.isRangeViolated(new Answer("a"))).is.true;
 
         expect(question.isRangeViolated(new Answer(20))).is.false;
         expect(question.isRangeViolated(new Answer(10))).is.false;

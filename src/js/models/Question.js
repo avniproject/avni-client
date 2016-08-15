@@ -43,6 +43,7 @@ class Question {
 
     isRangeViolated(answer) {
         if (answer.isNilOrEmpty()) return false;
+        if (answer.isNotANumber) return true;
         return (answer.value < this.lowAbsolute || answer.value > this.hiAbsolute);
     }
 }
