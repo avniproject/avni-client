@@ -7,6 +7,7 @@ import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
 import MessageService from '../../service/MessageService';
+import RuleContext from '../../models/RuleContext';
 import DecisionConfigService from '../../service/DecisionConfigService';
 
 @Path('/DecisionView')
@@ -61,8 +62,9 @@ class DecisionView extends Component {
     render() {
         const decision = this.context.getService(DecisionConfigService)
             .getDecisionConfig(AppState.questionnaireAnswers.questionnaireName);
-        var param = AppState.questionnaireAnswers;
-        this.decisions = eval(`${decision.decisionCode} getDecision(param);`);
+        const param = AppState.questionnaireAnswers.createRuleContext();
+        const evalExpression = `${decision.decisionCode} getDecision(param);`;
+        this.decisions = eval(evalExpression);
         return (
             <View>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName}

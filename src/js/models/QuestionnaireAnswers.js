@@ -1,5 +1,6 @@
 import QuestionAnswer from "./QuestionAnswer";
 import Answer from "./Answer";
+import RuleContext from "./RuleContext";
 import _ from 'lodash';
 
 class QuestionnaireAnswers {
@@ -25,7 +26,8 @@ class QuestionnaireAnswers {
     get currentAnswer() {
         return this.getAnswerFor(this.questionCursor);
     }
-    
+
+    //external API method used by rules
     getAnswerFor(questionName) {
         return new Answer(this.questionAnswers.get(questionName));
     }
@@ -57,7 +59,10 @@ class QuestionnaireAnswers {
 
     get currentAnswerIsEmpty() {
         return _.isNil(this.currentAnswer.value) || _.isEmpty(_.trim(this.currentAnswer.value));
-//        return this.currentAnswer === undefined || (!(this.currentAnswer instanceof Date) && !(this.currentAnswer));
+    }
+
+    createRuleContext() {
+        return new RuleContext(this.questionAnswers);
     }
 }
 

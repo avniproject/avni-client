@@ -51,6 +51,11 @@ describe('QuestionTest', () => {
         expect(question.isRangeViolated(new Answer(20))).is.false;
     });
 
+    it('isRangeViolated for numeric questions with no range specified', () => {
+        const question = new Question({"mandatory": true}, {"datatype" : {"name": "Numeric"}, "lowAbsolute": null, "hiAbsolute": null});
+        expect(question.isRangeViolated(new Answer(20))).is.false;
+    });
+
     it('isMandatory', () => {
         const question = new Question({});
         expect(question.isMandatory).is.true;

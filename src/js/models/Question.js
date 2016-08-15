@@ -44,6 +44,9 @@ class Question {
     isRangeViolated(answer) {
         if (answer.isNilOrEmpty()) return false;
         if (answer.isNotANumber) return true;
+
+        if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
+
         return (answer.value < this.lowAbsolute || answer.value > this.hiAbsolute);
     }
 }
