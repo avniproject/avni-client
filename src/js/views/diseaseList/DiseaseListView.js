@@ -20,13 +20,12 @@ class DiseaseListView extends AbstractComponent {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
         this.handleChange = this.handleChange.bind(this);
-        this.state = {dataSource: DiseaseListView.initialDataSource().cloneWithRows([]), exporting: false};
+        this.state = {questionnaires: [], exporting: false};
         context.getStore().subscribe(this.handleChange);
     }
 
     handleChange() {
-        const questionnaires = this.context.getStore().getState().questionnaires;
-        this.setState({dataSource: DiseaseListView.initialDataSource().cloneWithRows(questionnaires)});
+        this.setState({questionnaires: this.context.getStore().getState().questionnaires});
     }
 
     static styles = StyleSheet.create({
@@ -78,6 +77,7 @@ class DiseaseListView extends AbstractComponent {
     }
 
     render() {
+        const dataSource = DiseaseListView.initialDataSource().cloneWithRows(this.state.questionnaires);
         return (
             //TODO: Separate this out in another component
             <View
@@ -92,7 +92,7 @@ class DiseaseListView extends AbstractComponent {
                             <ListView
                                 enableEmptySections={true}
                                 contentContainerStyle={DiseaseListView.styles.list}
-                                dataSource={this.state.dataSource}
+                                dataSource={dataSource}
                                 renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
                             />
                         </View>
