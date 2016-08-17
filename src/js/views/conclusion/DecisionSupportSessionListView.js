@@ -65,7 +65,7 @@ class DecisionSupportSessionListView extends Component {
         const dsClone = ds.cloneWithRows(sessions);
 
         return (
-            <View style={CHSStyles.Global.listViewContainer}>
+            <View key={questionnaire.uuid} style={CHSStyles.Global.listViewContainer}>
                 <ListView
                     enableEmptySections={true}
                     dataSource={dsClone}

@@ -16,7 +16,6 @@ class ExportService extends BaseService {
     exportAll(done) {
         const exportURL = `${this.getService(SettingsService).getServerURL()}/export`;
         this.getService(QuestionnaireService).getQuestionnaireNames().map(this.exportFileTo(exportURL));
-        done();
     }
 
     exportFileTo(exportURL) {
