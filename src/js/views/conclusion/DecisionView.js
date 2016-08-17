@@ -63,7 +63,6 @@ class DecisionView extends Component {
         const decision = this.context.getService(DecisionConfigService)
             .getDecisionConfig(AppState.questionnaireAnswers.questionnaireName);
         const param = AppState.questionnaireAnswers.createRuleContext();
-//        console.log(evalExpression);
         const evalExpression = `${decision.decisionCode} getDecision(param);`;
         this.decisions = eval(evalExpression);
         return (

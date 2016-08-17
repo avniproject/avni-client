@@ -38,7 +38,6 @@ class DiseaseListView extends AbstractComponent {
 
     render() {
         return (
-            //TODO: Separate this out in another component
             <View
                 style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
                 <AppHeader title="questionnaireList" parent={this}/>
