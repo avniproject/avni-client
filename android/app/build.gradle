@@ -59,6 +59,8 @@ import com.android.build.OutputFile
  * ]
  */
 
+apply from: "../../node_modules/react-native/react.gradle"
+
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
@@ -78,7 +80,6 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
 
-    apply from: "../../node_modules/react-native/react.gradle"
 
     defaultConfig {
         applicationId "com.openchsclient"

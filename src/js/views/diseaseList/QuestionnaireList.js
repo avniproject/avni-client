@@ -1,4 +1,4 @@
-import {View, ListView} from 'react-native';
+import {View, ListView, StyleSheet} from 'react-native';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import React from 'react';
 import QuestionnaireButton from './QuestionnaireButton';
@@ -15,7 +15,7 @@ class QuestionnaireList extends AbstractComponent {
     render() {
         const dataSource = QuestionnaireList.initialDataSource().cloneWithRows(this.props.questionnaires);
         return (
-            <View>
+            <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap'}}>
                 <ListView
                     enableEmptySections={true}
                     contentContainerStyle={this.props.style}

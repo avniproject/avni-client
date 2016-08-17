@@ -29,7 +29,7 @@ class QuestionnaireButton extends Component {
             borderRadius: 5,
             backgroundColor: Colors.Primary,
             width: 150,
-            height: 100,
+            height: 50,
             margin: 5
         },
         item: {

@@ -28,6 +28,8 @@ class DiseaseListView extends AbstractComponent {
         list: {
             justifyContent: 'center',
             flexDirection: 'row',
+            flex: 2,
+            alignItems: 'center',
             flexWrap: 'wrap',
             marginTop: 15
         },
@@ -38,10 +40,9 @@ class DiseaseListView extends AbstractComponent {
 
     render() {
         return (
-            <View
-                style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', flexWrap: 'wrap'}}>
                 <AppHeader title="questionnaireList" parent={this}/>
-                <View style={[Global.mainSection, {flex: 1}]}>
+                <View style={[Global.mainSection, {flex: 1, flexWrap: 'wrap'}]}>
                     <DrawerLayoutAndroid
                         drawerWidth={300}
                         drawerPosition={DrawerLayoutAndroid.positions.Left}
