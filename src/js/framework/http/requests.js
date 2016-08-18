@@ -8,7 +8,7 @@ let _get = (endpoint, cb) => {
         }
     })
         .then((response) => {
-          return response.json();
+            return response.json();
         })
         .then(cb)
         .catch((message) => console.log(`Calling ${endpoint} gave error: ${message}`));
@@ -24,7 +24,7 @@ let _getText = (endpoint, cb) => {
         }
     })
         .then((response) => {
-          return response.text();
+            return response.text();
         })
         .then(cb)
         .catch((message) => console.log(`Calling ${endpoint} gave error: ${message}`));

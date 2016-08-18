@@ -5,6 +5,7 @@ import ConceptService from './ConceptService';
 import SettingsService from './SettingsService';
 import DecisionConfigService from './DecisionConfigService';
 import {get} from '../framework/http/requests';
+import _ from 'lodash';
 
 
 @Service("configService")
