@@ -28,9 +28,10 @@ class QuestionnaireButton extends Component {
             flex: 1,
             borderRadius: 5,
             backgroundColor: Colors.Primary,
-            width: 50,
+            width: 150,
             height: 50,
-            margin: 5
+            margin: 5,
+            alignSelf: 'flex-start',
         },
         item: {
             color: '#FFFFFF',

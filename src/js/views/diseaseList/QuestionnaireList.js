@@ -15,10 +15,10 @@ class QuestionnaireList extends AbstractComponent {
     render() {
         const dataSource = QuestionnaireList.initialDataSource().cloneWithRows(this.props.questionnaires);
         return (
-            <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap'}}>
+            <View>
                 <ListView
                     enableEmptySections={true}
-                    contentContainerStyle={this.props.style}
+                    contentContainerStyle={this.props.listStyle}
                     dataSource={dataSource}
                     renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
                 />

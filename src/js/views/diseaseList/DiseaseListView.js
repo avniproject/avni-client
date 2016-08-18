@@ -28,8 +28,8 @@ class DiseaseListView extends AbstractComponent {
         list: {
             justifyContent: 'center',
             flexDirection: 'row',
-            flex: 2,
-            alignItems: 'center',
+            flex: 1,
+            alignItems: 'flex-start',
             flexWrap: 'wrap',
             marginTop: 15
         },
@@ -48,7 +48,7 @@ class DiseaseListView extends AbstractComponent {
                         drawerPosition={DrawerLayoutAndroid.positions.Left}
                         renderNavigationView={() => <SettingsView/>}>
                         <QuestionnaireList questionnaires={this.state.questionnaires}
-                                           style={DiseaseListView.styles.list}/>
+                                           listStyle={DiseaseListView.styles.list}/>
                     </DrawerLayoutAndroid>
 
                     <QuestionnaireToolbar style={DiseaseListView.styles.sessionButtonContainer}/>
