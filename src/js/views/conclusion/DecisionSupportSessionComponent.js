@@ -59,10 +59,10 @@ class DecisionSupportSessionComponent extends Component {
                         renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
                         renderHeader={() => <Text
                             style={CHSStyles.Global.listViewHeader}>{this.I18n.t("answersConfirmationTitle")}</Text>}
-                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
-                            height: adjacentRowHighlighted ? 1 : 2,
-                            backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
-                        }}></Text>}
+                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text
+                            key={rowID}
+                            style={{height: adjacentRowHighlighted ? 1 : 2,
+                                backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
                     />
                 </View>
 
@@ -72,7 +72,9 @@ class DecisionSupportSessionComponent extends Component {
                         renderRow={(decision) => this.renderRow(decision.name, decision.value)}
                         renderHeader={() => <Text
                             style={CHSStyles.Global.listViewHeader}>{this.I18n.t('decisionsMadeBySystem')}</Text>}
-                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text style={{
+                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text
+                            key={rowID}
+                            style={{
                             height: adjacentRowHighlighted ? 1 : 2,
                             backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
                         }}></Text>}

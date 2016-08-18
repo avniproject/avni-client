@@ -28,7 +28,7 @@ class QuestionnaireButton extends Component {
             flex: 1,
             borderRadius: 5,
             backgroundColor: Colors.Primary,
-            width: 150,
+            width: 50,
             height: 50,
             margin: 5
         },

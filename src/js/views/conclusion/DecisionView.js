@@ -51,7 +51,7 @@ class DecisionView extends Component {
 
     renderDecision(decision) {
         return (
-            <View>
+            <View key={decision.name}>
                 <Text style={DecisionView.styles.summary}>{this.I18n.t(decision.name)}</Text>
                 <Text style={DecisionView.styles.decision}>{decision.value}</Text>
                 {this.renderAlert(decision)}
