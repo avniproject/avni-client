@@ -12,6 +12,7 @@ class DecisionConfigService extends BaseService {
     }
 
     saveDecisionConfig(decisionCode, fileName) {
+        console.log(`Saving ${fileName}`);
         const db = this.db;
         this.db.write(()=> db.create(DecisionData.schema.name, DecisionData.toDB(fileName, decisionCode), true));
     }

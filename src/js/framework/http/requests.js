@@ -1,6 +1,6 @@
 let _get = (endpoint, cb) => {
     console.log(`Calling ${endpoint}`);
-    fetch(endpoint, {
+    return fetch(endpoint, {
         "method": "GET",
         headers: {
             'Accept': 'application/json',
@@ -16,7 +16,7 @@ let _get = (endpoint, cb) => {
 
 let _getText = (endpoint, cb) => {
     console.log(`Calling ${endpoint}`);
-    fetch(endpoint, {
+    return fetch(endpoint, {
         "method": "GET",
         headers: {
             'Accept': 'text/plain',
@@ -32,7 +32,7 @@ let _getText = (endpoint, cb) => {
 
 let _post = (endpoint, file, cb) => {
     console.log(`Calling ${endpoint}`);
-    fetch(endpoint, {
+    return fetch(endpoint, {
         "method": "POST",
         "body": file
     })

@@ -18,10 +18,10 @@ export default class App extends Component {
         this.db = new Realm(models);
         this.beans = BeanRegistry.init(this.db, this);
         this.getBean = this.getBean.bind(this);
+        this.appStore = AppStoreFactory(this.beans);
         BootstrapRegistry.init(this.getBean);
         BootstrapRegistry.runAllTasks();
         this.routes = PathRegistry.routes();
-        this.appStore = AppStoreFactory(this.beans);
     }
 
     static childContextTypes = {

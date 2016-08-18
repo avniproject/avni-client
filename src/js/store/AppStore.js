@@ -1,8 +1,10 @@
 import {createStore, combineReducers} from 'redux';
-import stateReducers from '../reducer';
+import initReducers from '../reducer';
 import _ from 'lodash';
 
 function AppStoreFactory(beans) {
-    return createStore(combineReducers(_.mapValues(stateReducers, (reducer) => reducer.factory(beans))));
+    var reducers = initReducers(beans);
+    console.log(reducers);
+    return createStore(combineReducers(reducers));
 }
 export default AppStoreFactory;
