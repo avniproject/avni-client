@@ -8,9 +8,8 @@ class BootstrapRegistry extends Registry {
         this.init = this.init.bind(this);
     }
 
-    init(getBean) {
-        this.getBean = getBean;
-        this.entities = new Map(Array.from(this.entities).map(([taskName, task]) => [taskName, new task(this.getBean)]));
+    init(dispatch) {
+        this.entities = new Map(Array.from(this.entities).map(([taskName, task]) => [taskName, new task(dispatch)]));
     }
 
     runAllTasks() {

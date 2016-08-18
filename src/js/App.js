@@ -19,7 +19,7 @@ export default class App extends Component {
         this.beans = BeanRegistry.init(this.db, this);
         this.getBean = this.getBean.bind(this);
         this.appStore = AppStoreFactory(this.beans);
-        BootstrapRegistry.init(this.getBean);
+        BootstrapRegistry.init(this.appStore.dispatch);
         BootstrapRegistry.runAllTasks();
         this.routes = PathRegistry.routes();
     }

@@ -6,6 +6,7 @@ import SettingsService from './SettingsService';
 import DecisionConfigService from './DecisionConfigService';
 import {get} from '../framework/http/requests';
 import _ from 'lodash';
+import {comp} from 'transducers-js';
 
 
 @Service("configService")
@@ -26,17 +27,17 @@ class ConfigService extends BaseService {
             })]]);
     }
 
-    getFileFrom(configURL) {
+    getFileFrom(configURL, cb) {
         return {
             of: (type) => ((fileName) => get(`${configURL}/${fileName}`, (response) =>
-                this.typeMapping.get(type)(response, fileName)))
+                comp(cb, this.typeMapping.get(type))(response, fileName)))
         };
     }
 
-    getAllFilesAndSave() {
+    getAllFilesAndSave(cb) {
         const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
         get(`${configURL}/filelist.json`, (response) => {
-            return _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL).of(type).bind(this)));
+            return _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL, cb).of(type).bind(this)));
         });
     }
 }

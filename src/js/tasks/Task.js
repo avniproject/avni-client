@@ -1,6 +1,11 @@
 class Task {
-    constructor(getBean) {
-        this.getBean = getBean;
+    constructor(dispatch) {
+        this.dispatch = dispatch;
+        this.dispatchAction = this.dispatchAction.bind(this);
+    }
+
+    dispatchAction(action, cb) {
+        return this.dispatch({"type": action, "cb": cb});
     }
 
     run() {
