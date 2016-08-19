@@ -39,6 +39,7 @@ class ConceptService extends BaseService {
     saveConcept(concept) {
         const db = this.db;
         this.db.write(()=> db.create(Concept.schema.name, concept, true));
+        return concept;
     }
 }
 

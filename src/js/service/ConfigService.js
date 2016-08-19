@@ -18,13 +18,12 @@ class ConfigService extends BaseService {
     }
 
     init() {
+        const conceptService = this.getService(ConceptService);
         this.typeMapping = new Map([["questionnaires", this.getService(QuestionnaireService).saveQuestionnaire],
             ["decisionConfig", this.getService(DecisionConfigService).saveDecisionConfig],
-            ["concepts", (concepts) => concepts.map((concept)=> {
-                const conceptService = this.getService(ConceptService);
-                conceptService.saveConcept(concept);
-                conceptService.addConceptI18n(concept);
-            })]]);
+            ["concepts", (concepts) => concepts.map((concept)=>
+                comp(conceptService.addConceptI18n,
+                    conceptService.saveConcept)(concept))]]);
     }
 
     getFileFrom(configURL, cb) {
