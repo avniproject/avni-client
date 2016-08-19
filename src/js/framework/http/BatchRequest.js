@@ -19,7 +19,8 @@ class BatchRequest {
 
     fire(finalCallback) {
         const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), ()=> {}, 1);
-        this.requestQueue.map((request) => request().then(() => callbackQueue.pop()()));
+        const notify = () => callbackQueue.pop()();
+        this.requestQueue.map((request) => request().then(notify));
     }
 }
 
