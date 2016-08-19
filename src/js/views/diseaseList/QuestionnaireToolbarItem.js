@@ -9,7 +9,7 @@ class QuestionnaireToolbarItem extends AbstractComponent {
             <TouchableHighlight onPress={this.props.handlePress}
                                 style={this.props.style}>
                 <View style={Global.actionButtonWrapper}>
-                    <Text style={Global.actionButton}>{this.props.buttonText}</Text>
+                    {this.renderSpinner((<Text style={Global.actionButton}>{this.props.buttonText}</Text>))}
                 </View>
             </TouchableHighlight>);
     }

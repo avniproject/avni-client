@@ -1,3 +1,4 @@
+import _ from 'lodash';
 let _get = (endpoint, cb) => {
     console.log(`Calling ${endpoint}`);
     return fetch(endpoint, {
@@ -31,12 +32,12 @@ let _getText = (endpoint, cb) => {
 };
 
 let _post = (endpoint, file, cb) => {
-    console.log(`Calling ${endpoint}`);
+    console.log(`Posting To ${endpoint}`);
     return fetch(endpoint, {
         "method": "POST",
         "body": file
     })
-        .then((response) => cb())
+        .then(cb)
         .catch((message) => console.log(`Calling ${endpoint} gave error: ${message}`));
 };
 

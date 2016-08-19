@@ -5,24 +5,28 @@ import General from "../utility/General";
 import SettingsService from './SettingsService';
 import QuestionnaireService from './QuestionnaireService';
 import DecisionSupportSessionService from './DecisionSupportSessionService';
-import {post} from '../framework/http/requests';
+import BatchRequest from '../framework/http/BatchRequest';
 
 @Service("exportService")
 class ExportService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
+        const batchRequests = new BatchRequest();
+        this.fire = batchRequests.fire;
+        this.post = batchRequests.post;
     }
 
     exportAll(done) {
         const exportURL = `${this.getService(SettingsService).getServerURL()}/export`;
         this.getService(QuestionnaireService).getQuestionnaireNames().map(this.exportFileTo(exportURL));
+        this.fire(done);
     }
 
     exportFileTo(exportURL) {
         return (questionnaire) => {
             const fileContents = this.exportContents(questionnaire);
             const fileName = `${General.replaceAndroidIncompatibleChars(questionnaire.name)}_${General.getTimeStamp()}.csv`;
-            post(`${exportURL}/${fileName}`, fileContents, ()=> {
+            this.post(`${exportURL}/${fileName}`, fileContents, ()=> {
             });
         }
     }

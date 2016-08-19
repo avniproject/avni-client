@@ -1,8 +1,11 @@
 import React, {Component} from 'react';
+import {ActivityIndicator} from 'react-native';
+import {Map} from 'immutable';
 
 class AbstractComponent extends Component {
     constructor(props, context) {
         super(props, context);
+        this.renderSpinner = this.renderSpinner.bind(this);
     }
 
     static contextTypes = {
@@ -13,6 +16,11 @@ class AbstractComponent extends Component {
 
     dispatchAction(action) {
         this.context.getStore().dispatch({"type": action});
+    }
+
+    renderSpinner(component) {
+        if (this.props.loading) return (<ActivityIndicator color="white" />);
+        return component;
     }
 
 }

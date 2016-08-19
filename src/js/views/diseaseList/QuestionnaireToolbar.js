@@ -6,6 +6,8 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionListView from "../conclusion/DecisionSupportSessionListView";
 import MessageService from "../../service/MessageService";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
+import {Map} from 'immutable';
+import _ from 'lodash';
 import ExportService from "../../service/ExportService";
 
 class QuestionnaireToolbar extends AbstractComponent {
@@ -13,15 +15,34 @@ class QuestionnaireToolbar extends AbstractComponent {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
         this.onExportPress = this.onExportPress.bind(this);
-        this.toolbarItems = [
-            {handlePress: this.onViewSavedSessionsPress, buttonText: "viewSavedSessions"},
-            {handlePress: this.onExportPress, buttonText: "export"},
-            {handlePress: this.onDeleteSessionsPress, buttonText: "deleteSessions"}
-        ];
+        this._exporting = this._exporting.bind(this);
+        this.state = {
+            toolbarItems: {
+                "viewSavedSessions": {
+                    handlePress: this.onViewSavedSessionsPress,
+                    buttonText: "viewSavedSessions",
+                    loading: false
+                },
+                "export": {handlePress: this.onExportPress, buttonText: "export", loading: false},
+                "deleteSessions": {
+                    handlePress: this.onDeleteSessionsPress,
+                    buttonText: "deleteSessions",
+                    loading: false
+                }
+            }
+        };
+    }
+
+    _exporting(loading) {
+        this.setState({
+            toolbarItems: Object.assign({}, this.state.toolbarItems,
+                {"export": Object.assign({}, this.state.toolbarItems.export, {"loading": loading})})
+        });
     }
 
     onExportPress = () => {
-        this.context.getService(ExportService).exportAll();
+        this._exporting(true);
+        this.context.getService(ExportService).exportAll(()=> this._exporting(false));
     };
 
     onDeleteSessionsPress = () => {
@@ -48,11 +69,12 @@ class QuestionnaireToolbar extends AbstractComponent {
     };
 
     render() {
-        const toolbarItems = this.toolbarItems.map(({handlePress, buttonText})=> (
+        const toolbarItems = _.map(this.state.toolbarItems, ({handlePress, buttonText, loading}, key)=> (
             <QuestionnaireToolbarItem
                 key={buttonText}
                 style={this.props.style}
                 handlePress={handlePress}
+                loading={loading}
                 buttonText={this.I18n.t(buttonText)}/>));
         return (
             <View style={{marginBottom: 30}}>
