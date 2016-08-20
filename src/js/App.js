@@ -9,7 +9,6 @@ import './service';
 import './tasks';
 import AppState from './hack/AppState'; //Required Import
 import AppStoreFactory from './store/AppStore';
-import {Provider} from 'react-redux'
 
 export default class App extends Component {
 
