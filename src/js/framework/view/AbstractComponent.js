@@ -5,7 +5,7 @@ import {Map} from 'immutable';
 class AbstractComponent extends Component {
     constructor(props, context) {
         super(props, context);
-        this.renderSpinner = this.renderSpinner.bind(this);
+        this.renderComponent = this.renderComponent.bind(this);
     }
 
     static styles = StyleSheet.create({
@@ -25,8 +25,8 @@ class AbstractComponent extends Component {
         this.context.getStore().dispatch({"type": action});
     }
 
-    renderSpinner(component, color = "white", size = "small") {
-        if (this.props.loading) return (
+    renderComponent(component, color = "white", size = "small") {
+        if (this.loading) return (
             <ActivityIndicator style={AbstractComponent.styles.spinner} color={color} size={size}/>);
         return component;
     }

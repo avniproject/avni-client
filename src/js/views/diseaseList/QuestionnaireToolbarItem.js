@@ -5,11 +5,12 @@ import {TouchableHighlight, View, Text} from 'react-native';
 
 class QuestionnaireToolbarItem extends AbstractComponent {
     render() {
+        this.loading = this.props.loading;
         return (
             <TouchableHighlight onPress={this.props.handlePress}
                                 style={this.props.style}>
                 <View style={Global.actionButtonWrapper}>
-                    {this.renderSpinner((<Text style={Global.actionButton}>{this.props.buttonText}</Text>))}
+                    {this.renderComponent((<Text style={Global.actionButton}>{this.props.buttonText}</Text>))}
                 </View>
             </TouchableHighlight>);
     }

@@ -67,13 +67,8 @@ class SettingsView extends Component {
                     onLocaleChanged={this.onLocaleChanged}
                     getService={this.context.getService}
                 />
-                {this.renderBusyIndicator()}
             </View>
         );
-    }
-
-    renderBusyIndicator() {
-        return this.state.exporting ? (<ProgressBarAndroid />) : (<View/>);
     }
 }
 

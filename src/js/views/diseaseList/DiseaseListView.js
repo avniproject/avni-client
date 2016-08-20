@@ -7,7 +7,6 @@ import QuestionnaireToolbar from './QuestionnaireToolbar';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
-import Actions from '../../action';
 import MessageService from '../../service/MessageService';
 
 @PathRoot
@@ -16,17 +15,6 @@ class DiseaseListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
-        this.handleChange = this.handleChange.bind(this);
-        this.componentDidMount = this.componentDidMount.bind(this);
-        this.state = {questionnaires: [], loadingQuestionnaires: false};
-        context.getStore().subscribe(this.handleChange);
-    }
-
-    handleChange() {
-        this.setState({
-            questionnaires: this.context.getStore().getState().questionnaires,
-            loadingQuestionnaires: false
-        });
     }
 
     static styles = StyleSheet.create({
@@ -43,10 +31,6 @@ class DiseaseListView extends AbstractComponent {
         }
     });
 
-    componentDidMount() {
-        this.setState({loadingQuestionnaires: true});
-        setTimeout(()=>this.dispatchAction(Actions.GET_QUESTIONNAIRES), 500);
-    }
 
     render() {
         return (
@@ -57,9 +41,7 @@ class DiseaseListView extends AbstractComponent {
                         drawerWidth={300}
                         drawerPosition={DrawerLayoutAndroid.positions.Left}
                         renderNavigationView={() => <SettingsView/>}>
-                        <QuestionnaireList questionnaires={this.state.questionnaires}
-                                           listStyle={DiseaseListView.styles.list}
-                                           loading={this.state.loadingQuestionnaires}/>
+                        <QuestionnaireList listStyle={DiseaseListView.styles.list}/>
                     </DrawerLayoutAndroid>
 
                     <QuestionnaireToolbar style={DiseaseListView.styles.sessionButtonContainer}/>

@@ -2,8 +2,9 @@ import {StyleSheet, View, Text, TouchableHighlight, ProgressBarAndroid} from 're
 import React, {Component} from 'react';
 import * as CHSStyles from '../primitives/GlobalStyles';
 import ConfigService from '../../service/ConfigService';
+import AbstractComponent from "../../framework/view/AbstractComponent";
 
-class SyncButton extends Component {
+class SyncButton extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false};
@@ -16,22 +17,20 @@ class SyncButton extends Component {
 
     _triggerSync() {
         this.setState({syncing: true});
-        this.props.getService(ConfigService).getAllFilesAndSave();
-        setTimeout(() => this.setState({syncing: false}), 500);
+        this.props.getService(ConfigService).getAllFilesAndSave(()=>this.setState({syncing: false}));
     }
 
     render() {
-        const renderBusyIndicator = () => this.state.syncing ? (<ProgressBarAndroid/>) : (<View/>);
+        this.loading = this.state.syncing;
         return (
             <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
                 <TouchableHighlight>
                     <View style={CHSStyles.Global.actionButtonWrapper}>
-                        <Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>
+                        {this.renderComponent((<Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>
                             Sync Config
-                        </Text>
+                        </Text>))}
                     </View>
                 </TouchableHighlight>
-                {renderBusyIndicator()}
             </View>
         );
     }
