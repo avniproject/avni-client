@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator} from 'react-native';
+import {ActivityIndicator, StyleSheet} from 'react-native';
 import {Map} from 'immutable';
 
 class AbstractComponent extends Component {
@@ -7,6 +7,13 @@ class AbstractComponent extends Component {
         super(props, context);
         this.renderSpinner = this.renderSpinner.bind(this);
     }
+
+    static styles = StyleSheet.create({
+        spinner: {
+            justifyContent: 'center',
+            alignSelf: 'center'
+        }
+    });
 
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
@@ -18,8 +25,9 @@ class AbstractComponent extends Component {
         this.context.getStore().dispatch({"type": action});
     }
 
-    renderSpinner(component) {
-        if (this.props.loading) return (<ActivityIndicator color="white" />);
+    renderSpinner(component, color = "white", size = "small") {
+        if (this.props.loading) return (
+            <ActivityIndicator style={AbstractComponent.styles.spinner} color={color} size={size}/>);
         return component;
     }
 

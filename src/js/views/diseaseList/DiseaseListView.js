@@ -7,6 +7,7 @@ import QuestionnaireToolbar from './QuestionnaireToolbar';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
+import Actions from '../../action';
 import MessageService from '../../service/MessageService';
 
 @PathRoot
@@ -16,12 +17,16 @@ class DiseaseListView extends AbstractComponent {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
         this.handleChange = this.handleChange.bind(this);
-        this.state = {questionnaires: [], exporting: false};
+        this.componentDidMount = this.componentDidMount.bind(this);
+        this.state = {questionnaires: [], loadingQuestionnaires: false};
         context.getStore().subscribe(this.handleChange);
     }
 
     handleChange() {
-        this.setState({questionnaires: this.context.getStore().getState().questionnaires});
+        this.setState({
+            questionnaires: this.context.getStore().getState().questionnaires,
+            loadingQuestionnaires: false
+        });
     }
 
     static styles = StyleSheet.create({
@@ -38,6 +43,11 @@ class DiseaseListView extends AbstractComponent {
         }
     });
 
+    componentDidMount() {
+        this.setState({loadingQuestionnaires: true});
+        setTimeout(()=>this.dispatchAction(Actions.GET_QUESTIONNAIRES), 500);
+    }
+
     render() {
         return (
             <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', flexWrap: 'wrap'}}>
@@ -48,7 +58,8 @@ class DiseaseListView extends AbstractComponent {
                         drawerPosition={DrawerLayoutAndroid.positions.Left}
                         renderNavigationView={() => <SettingsView/>}>
                         <QuestionnaireList questionnaires={this.state.questionnaires}
-                                           listStyle={DiseaseListView.styles.list}/>
+                                           listStyle={DiseaseListView.styles.list}
+                                           loading={this.state.loadingQuestionnaires}/>
                     </DrawerLayoutAndroid>
 
                     <QuestionnaireToolbar style={DiseaseListView.styles.sessionButtonContainer}/>
