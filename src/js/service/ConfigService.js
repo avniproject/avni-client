@@ -7,6 +7,7 @@ import DecisionConfigService from './DecisionConfigService';
 import {get} from '../framework/http/requests';
 import _ from 'lodash';
 import {comp} from 'transducers-js';
+import BatchRequest from "../framework/http/BatchRequest";
 
 
 @Service("configService")
@@ -15,6 +16,9 @@ class ConfigService extends BaseService {
         super(db, beanStore);
         this.getAllFilesAndSave = this.getAllFilesAndSave.bind(this);
         this.getFileFrom = this.getFileFrom.bind(this);
+        const batchRequests = new BatchRequest();
+        this.fire = batchRequests.fire;
+        this.get = batchRequests.get;
     }
 
     init() {
@@ -26,17 +30,19 @@ class ConfigService extends BaseService {
                     conceptService.saveConcept)(concept))]]);
     }
 
-    getFileFrom(configURL, cb) {
+    getFileFrom(configURL) {
         return {
-            of: (type) => ((fileName) => get(`${configURL}/${fileName}`, (response) =>
-                comp(cb, this.typeMapping.get(type))(response, fileName)))
+            of: (type) => ((fileName) => this.get(`${configURL}/${fileName}`, (response) =>
+                this.typeMapping.get(type)(response, fileName)))
         };
+
     }
 
     getAllFilesAndSave(cb) {
         const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
         get(`${configURL}/filelist.json`, (response) => {
-            return _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL, cb).of(type).bind(this)));
+            _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL).of(type).bind(this)));
+           this.fire(cb);
         });
     }
 }
