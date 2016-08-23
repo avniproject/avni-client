@@ -21,14 +21,14 @@ class SyncButton extends AbstractComponent {
     }
 
     render() {
-        this.loading = this.state.syncing;
         return (
             <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
                 <TouchableHighlight>
                     <View style={CHSStyles.Global.actionButtonWrapper}>
-                        {this.renderComponent((<Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>
-                            Sync Config
-                        </Text>))}
+                        {this.renderComponent(this.state.syncing, (
+                            <Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>
+                                Sync Config
+                            </Text>))}
                     </View>
                 </TouchableHighlight>
             </View>

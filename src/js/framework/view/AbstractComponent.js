@@ -25,8 +25,8 @@ class AbstractComponent extends Component {
         this.context.getStore().dispatch({"type": action});
     }
 
-    renderComponent(component, color = "white", size = "small") {
-        if (this.loading) return (
+    renderComponent(loading, component, color = "white", size = "small") {
+        if (loading) return (
             <ActivityIndicator style={AbstractComponent.styles.spinner} color={color} size={size}/>);
         return component;
     }

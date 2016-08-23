@@ -30,10 +30,9 @@ class QuestionnaireList extends AbstractComponent {
 
     render() {
         const dataSource = QuestionnaireList.initialDataSource().cloneWithRows(this.state.questionnaires);
-        this.loading = this.state.loading;
         return (
             <View>
-                {this.renderComponent((<ListView
+                {this.renderComponent(this.state.loading, (<ListView
                     enableEmptySections={true}
                     contentContainerStyle={this.props.listStyle}
                     dataSource={dataSource}

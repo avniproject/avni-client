@@ -5,7 +5,7 @@ import ConceptService from './ConceptService';
 import SettingsService from './SettingsService';
 import DecisionConfigService from './DecisionConfigService';
 import {get} from '../framework/http/requests';
-import _ from 'lodash';
+import {Map} from 'immutable';
 import {comp} from 'transducers-js';
 import BatchRequest from "../framework/http/BatchRequest";
 
@@ -18,36 +18,34 @@ class ConfigService extends BaseService {
         this.getFileFrom = this.getFileFrom.bind(this);
         const batchRequests = new BatchRequest();
         this.fire = batchRequests.fire;
-        this.get = batchRequests.get;
+        this.lazyGet = batchRequests.get;
     }
 
     init() {
         const conceptService = this.getService(ConceptService);
-        this.typeMapping = new Map([["questionnaire.json", this.getService(QuestionnaireService).saveQuestionnaire],
-            ["decision.js", this.getService(DecisionConfigService).saveDecisionConfig],
-            ["concepts.json", (concepts) => concepts.map((concept)=>
+        this.typeMapping = Map({
+            "questionnaire.json": this.getService(QuestionnaireService).saveQuestionnaire,
+            "decision.js": this.getService(DecisionConfigService).saveDecisionConfig,
+            "concepts.json": (concepts) => concepts.map((concept)=>
                 comp(conceptService.addConceptI18n,
-                    conceptService.saveConcept)(concept))]]);
+                    conceptService.saveConcept)(concept))
+        });
     }
 
-    getFileFrom(configURL) {
+    getFileFrom(moduleURL) {
         return {
-            of: (type) => ((fileName) => this.get(`${configURL}/${fileName}`, (response) =>
-                this.typeMapping.get(type)(response, fileName)))
+            with: (moduleName) => (fileName) => this.lazyGet(`${moduleURL}/${moduleName}/${fileName}`, (response) =>
+                this.typeMapping.get(fileName)(response, moduleName))
         };
     }
 
     getAllFilesAndSave(cb) {
         const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
         get(`${configURL}/modules.json`, (response) => {
-            _.forEach(response.modules, (moduleName) => {
-                _.forEach(["questionnaire.json", "decision.js", "concepts.json"], (file) => {
-                    get(`${configURL}/modules/${moduleName}/${file}`, (moduleFileContents) => {
-                        this.typeMapping.get(file)(moduleFileContents, moduleName);
-                    });
-                });
-            });
-            cb();
+            response.modules.map(
+                (moduleName)=>Array.from(this.typeMapping.keys()).map(
+                    this.getFileFrom(`${configURL}/modules`).with(moduleName)));
+            this.fire(cb);
         });
     }
 }
