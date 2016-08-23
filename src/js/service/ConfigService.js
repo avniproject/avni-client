@@ -42,9 +42,9 @@ class ConfigService extends BaseService {
     getAllFilesAndSave(cb) {
         const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
         get(`${configURL}/modules.json`, (response) => {
-            response.modules.map(
-                (moduleName)=>Array.from(this.typeMapping.keys()).map(
-                    this.getFileFrom(`${configURL}/modules`).with(moduleName)));
+            const fileTypes = Array.from(this.typeMapping.keys());
+            response.modules
+                .map((moduleName)=> fileTypes.map(this.getFileFrom(`${configURL}/modules`).with(moduleName)));
             this.fire(cb);
         });
     }
