@@ -11,9 +11,9 @@ class DecisionConfigService extends BaseService {
         this.getDecisionConfig = this.getDecisionConfig.bind(this);
     }
 
-    saveDecisionConfig(decisionCode, fileName) {
+    saveDecisionConfig(decisionCode, moduleName) {
         const db = this.db;
-        this.db.write(()=> db.create(DecisionData.schema.name, DecisionData.toDB(fileName, decisionCode), true));
+        this.db.write(()=> db.create(DecisionData.schema.name, DecisionData.toDB(moduleName, decisionCode), true));
     }
 
     getDecisionConfig(questionnaireName) {

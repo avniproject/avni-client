@@ -23,9 +23,9 @@ class ConfigService extends BaseService {
 
     init() {
         const conceptService = this.getService(ConceptService);
-        this.typeMapping = new Map([["questionnaires", this.getService(QuestionnaireService).saveQuestionnaire],
-            ["decisionConfig", this.getService(DecisionConfigService).saveDecisionConfig],
-            ["concepts", (concepts) => concepts.map((concept)=>
+        this.typeMapping = new Map([["questionnaire.json", this.getService(QuestionnaireService).saveQuestionnaire],
+            ["decision.js", this.getService(DecisionConfigService).saveDecisionConfig],
+            ["concepts.json", (concepts) => concepts.map((concept)=>
                 comp(conceptService.addConceptI18n,
                     conceptService.saveConcept)(concept))]]);
     }
@@ -35,14 +35,19 @@ class ConfigService extends BaseService {
             of: (type) => ((fileName) => this.get(`${configURL}/${fileName}`, (response) =>
                 this.typeMapping.get(type)(response, fileName)))
         };
-
     }
 
     getAllFilesAndSave(cb) {
         const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
-        get(`${configURL}/filelist.json`, (response) => {
-            _.map(response, (fileNames, type) => fileNames.map(this.getFileFrom(configURL).of(type).bind(this)));
-           this.fire(cb);
+        get(`${configURL}/modules.json`, (response) => {
+            _.forEach(response.modules, (moduleName) => {
+                _.forEach(["questionnaire.json", "decision.js", "concepts.json"], (file) => {
+                    get(`${configURL}/modules/${moduleName}/${file}`, (moduleFileContents) => {
+                        this.typeMapping.get(file)(moduleFileContents, moduleName);
+                    });
+                });
+            });
+            this.fire(cb);
         });
     }
 }
