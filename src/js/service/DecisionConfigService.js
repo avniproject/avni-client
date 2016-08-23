@@ -17,7 +17,7 @@ class DecisionConfigService extends BaseService {
     }
 
     getDecisionConfig(questionnaireName) {
-        return this.db.objectForPrimaryKey(DecisionData.schema.name, `${questionnaireName.toLowerCase()}.js`);
+        return this.db.objectForPrimaryKey(DecisionData.schema.name, `${questionnaireName.toLowerCase()}`);
     }
 }
 

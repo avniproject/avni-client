@@ -47,7 +47,7 @@ class ConfigService extends BaseService {
                     });
                 });
             });
-            this.fire(cb);
+            cb();
         });
     }
 }
