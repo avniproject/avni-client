@@ -24,6 +24,7 @@ import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
 import TypedTransition from '../../framework/routing/TypedTransition'
 import MessageService from '../../service/MessageService';
 import DiseaseListView from "../diseaseList/DiseaseListView";
+import _ from 'lodash';
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -76,7 +77,7 @@ class QuestionAnswerView extends Component {
     };
 
     dateDisplay() {
-        if (AppState.questionnaireAnswers.currentAnswer === undefined) {
+        if (_.isNil(AppState.questionnaireAnswers.currentAnswer) || _.isNil(AppState.questionnaireAnswers.currentAnswer.value)) {
             return "Choose a date";
         } else {
             return General.formatDate(AppState.questionnaireAnswers.currentAnswer.value);
