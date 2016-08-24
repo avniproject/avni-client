@@ -22,7 +22,7 @@ export default class TypedTransition {
         this.view.context.navigator().push(route);
         return this;
     }
-    
+
     goBack() {
         require("dismissKeyboard")();
         this.view.context.navigator().pop();
@@ -34,7 +34,7 @@ export default class TypedTransition {
 
         return new TypedTransition(view);
     }
-    
+
     toBeginning() {
         require("dismissKeyboard")();
         this.view.context.navigator().popToTop();
