@@ -43,4 +43,4 @@ android/keystores/debug.keystore
 .idea/
 android/.gradle/
 gen/
-android/app/src/main/res/values/secrets.xml
+**/secret-keys.xml
