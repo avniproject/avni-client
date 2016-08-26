@@ -3,15 +3,21 @@ import React, {Component} from 'react';
 import * as CHSStyles from '../primitives/GlobalStyles';
 import ConfigService from '../../service/ConfigService';
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import MessageService from '../../service/MessageService';
 
 class SyncButton extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false};
         this._triggerSync = this._triggerSync.bind(this);
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static propTypes = {
+        getService: React.PropTypes.func.isRequired
+    };
+
+    static contextTypes = {
         getService: React.PropTypes.func.isRequired
     };
 
@@ -26,8 +32,7 @@ class SyncButton extends AbstractComponent {
                 <TouchableHighlight>
                     <View style={CHSStyles.Global.actionButtonWrapper}>
                         {this.renderComponent(this.state.syncing, (
-                            <Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>
-                                Sync Config
+                            <Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>{this.I18n.t("syncConfig")}
                             </Text>))}
                     </View>
                 </TouchableHighlight>

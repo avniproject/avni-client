@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {Component} from 'react';
-import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import General from '../../utility/General';
 import MessageService from '../../service/MessageService';
 

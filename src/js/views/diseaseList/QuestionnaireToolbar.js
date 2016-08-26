@@ -75,7 +75,7 @@ class QuestionnaireToolbar extends AbstractComponent {
                 style={this.props.style}
                 handlePress={handlePress}
                 loading={loading}
-                buttonText={this.I18n.t(buttonText)}/>));
+                buttonText={buttonText}/>));
         return (
             <View style={{marginBottom: 30}}>
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>

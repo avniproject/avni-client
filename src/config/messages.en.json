@@ -19,5 +19,8 @@
   "numericValueValidation": "Is not a number or is out of range {{range}}",
   "emptyValidationMessage": "There is no value specified",
   "settings": "Settings",
-  "close": "X"
+  "close": "X",
+  "serverURL": "Server URL",
+  "locale": "Locale",
+  "syncConfig": "Sync Config"
 }

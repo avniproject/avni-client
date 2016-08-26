@@ -2,11 +2,12 @@ import  {StyleSheet, Text, View} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import SettingsView from './../settings/SettingsView';
+import MessageService from '../../service/MessageService';
 
 class DiseaseNavigationMenu extends Component {
-
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
+        navigator: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -14,6 +15,11 @@ class DiseaseNavigationMenu extends Component {
             textAlign: 'left'
         }
     });
+
+    constructor(props, context) {
+        super(props, context);
+        this.I18n = context.getService(MessageService).getI18n();
+    }
 
     goToSettings = () => {
         TypedTransition.from(this).to(SettingsView);
@@ -23,7 +29,7 @@ class DiseaseNavigationMenu extends Component {
         return (
             <View>
                 <Text style={DiseaseNavigationMenu.styles.button} onPress={this.goToSettings}>
-                    Settings
+                    {this.I18n.t('settings')}
                 </Text>
             </View>
         );

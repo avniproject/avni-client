@@ -47,7 +47,7 @@ class DecisionSupportSessionListView extends Component {
                     <View style={CHSStyles.Global.listRow} key={`3${rowIDSuffix}`}>
                         <Text
                             style={CHSStyles.Global.listCell}
-                            key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}</Text>
+                            key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}></Text>
                         {questionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryField(summaryField, session, questionnaire, rowID))}
                     </View>
                 </TouchableHighlight>
@@ -74,7 +74,7 @@ class DecisionSupportSessionListView extends Component {
                         return (
                             <View>
                                 <Text style={CHSStyles.Global.listViewHeader}>
-                                    {questionnaire.name}
+                                    {this.I18n.t(questionnaire.name)}
                                 </Text>
                             </View>
                         )
