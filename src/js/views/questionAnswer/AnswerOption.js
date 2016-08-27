@@ -22,8 +22,8 @@ class AnswerOption extends Component {
         answerRow: {
             marginTop: 10,
             height: 45,
-            marginLeft: 30,
-            marginRight: 30,
+            marginLeft: 15,
+            marginRight: 15,
             flex: 1,
             flexDirection: 'row',
             backgroundColor: Colors.Primary
@@ -34,26 +34,28 @@ class AnswerOption extends Component {
             textAlign: 'left',
             textAlignVertical: 'center',
             fontSize: 18,
-            flex: 0.7
+            flex: 3
         },
         checkImageContainer: {
-            flex: 0.3
+            flex: 1,
+            alignItems: 'center'
         },
         checkImage: {
             resizeMode: 'contain',
-            height: 45
+            height: 45,
+            width: 60,
         }
     });
 
     // TODO: Incorporate android image adding in the build script rather than these paths
     displayCheckImage() {
         if (this.props.isSelected) {
-            return (<TouchableHighlight onPress={() => this.props.optionPressed(this.props.answer)}
-                                        style={AnswerOption.styles.checkImageContainer}>
-                <Image style={AnswerOption.styles.checkImage}
-                       source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
-                />
-            </TouchableHighlight>)
+            return (
+                <TouchableHighlight onPress={() => this.props.optionPressed(this.props.answer)}>
+                    <Image style={AnswerOption.styles.checkImage}
+                           source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
+                    />
+                </TouchableHighlight>);
         }
     }
 
@@ -63,7 +65,9 @@ class AnswerOption extends Component {
                 <Text style={AnswerOption.styles.item} onPress={() => this.props.optionPressed(this.props.answer)}>
                     {this.I18n.t(this.props.answer)}
                 </Text>
-                {this.displayCheckImage()}
+                <View style={AnswerOption.styles.checkImageContainer}>
+                    {this.displayCheckImage()}
+                </View>
             </View>
         );
     }

@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
-import Colors from '../primitives/Colors';
 import MessageService from '../../service/MessageService';
 import QuestionnaireService from '../../service/QuestionnaireService';
 
@@ -15,32 +14,14 @@ class QuestionnaireButton extends Component {
     }
 
     static propTypes = {
-        questionnaire: React.PropTypes.object.isRequired
+        questionnaire: React.PropTypes.object.isRequired,
+        styles: React.PropTypes.object.isRequired
     };
 
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
         getService: React.PropTypes.func.isRequired
     };
-
-    static styles = StyleSheet.create({
-        itemWrapper: {
-            flex: 1,
-            borderRadius: 5,
-            backgroundColor: Colors.Primary,
-            width: 150,
-            height: 50,
-            margin: 5,
-            alignSelf: 'flex-start',
-        },
-        item: {
-            color: '#FFFFFF',
-            textAlign: 'center',
-            textAlignVertical: 'center',
-            justifyContent: 'center',
-            fontSize: 23
-        }
-    });
 
     onSelect = () => {
         const service = this.context.getService(QuestionnaireService);
@@ -58,8 +39,8 @@ class QuestionnaireButton extends Component {
     render() {
         return (
             <TouchableHighlight>
-                <View style={QuestionnaireButton.styles.itemWrapper}>
-                    <Text onPress={this.onSelect} style={[QuestionnaireButton.styles.item, {flex: 1}]}>
+                <View style={this.props.styles.questionnaireButtonWrapper}>
+                    <Text onPress={this.onSelect} style={this.props.styles.questionnaireButton}>
                         {this.I18n.t(this.props.questionnaire.name)}
                     </Text>
                 </View>

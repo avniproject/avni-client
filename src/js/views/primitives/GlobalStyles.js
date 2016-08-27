@@ -14,7 +14,7 @@ export let Global = StyleSheet.create({
     },
     actionButtonWrapper: {
         backgroundColor: Colors.Complimentary,
-        width: 125,
+        width: 110,
         height: 40,
         borderRadius: 5
     },

@@ -1,4 +1,4 @@
-import {StyleSheet, View, DrawerLayoutAndroid} from 'react-native';
+import {StyleSheet, View, DrawerLayoutAndroid, Dimensions} from 'react-native';
 import React from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path, {PathRoot} from '../../framework/routing/Path';
@@ -8,6 +8,8 @@ import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
+import Colors from '../primitives/Colors';
+import Styler from '../../framework/view/Styler';
 
 @PathRoot
 @Path('/diseaseList')
@@ -18,33 +20,59 @@ class DiseaseListView extends AbstractComponent {
     }
 
     static styles = StyleSheet.create({
-        list: {
+        main: {
+            flex: 1,
+            flexDirection: 'column'
+        },
+        mainSection: {
+            flex: 1,
+            flexDirection: 'column',
+        },
+        questionnaireList: {
             justifyContent: 'center',
             flexDirection: 'row',
-            flex: 1,
             alignItems: 'flex-start',
             flexWrap: 'wrap',
-            marginTop: 15
+            marginTop: 15,
         },
-        sessionButtonContainer: {
+        questionnaireButtonWrapper: {
+            borderRadius: 5,
+            backgroundColor: Colors.Primary,
+            width: 120,
+            height: 100,
+            margin: 5,
+        },
+        questionnaireButton: {
+            color: '#FFFFFF',
+            textAlign: 'center',
+            textAlignVertical: 'center',
+            justifyContent: 'center',
+            flex: 1,
+            fontSize: Styler.getScaledFont(23)
+        },
+        questionnaireToolBarMain: {
+            marginBottom: 30,
+            flexDirection: 'row',
+            justifyContent: 'center'
+        },
+        toolbarButtonContainer: {
             marginHorizontal: 4
-        }
+        },
     });
-
 
     render() {
         return (
-            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', flexWrap: 'wrap'}}>
+            <View style={DiseaseListView.styles.main}>
                 <AppHeader title="questionnaireList" parent={this}/>
-                <View style={[Global.mainSection, {flex: 1, flexWrap: 'wrap'}]}>
+                <View style={[Global.mainSection, DiseaseListView.styles.mainSection]}>
                     <DrawerLayoutAndroid
                         drawerWidth={300}
                         drawerPosition={DrawerLayoutAndroid.positions.Left}
                         renderNavigationView={() => <SettingsView/>}>
-                        <QuestionnaireList listStyle={DiseaseListView.styles.list}/>
+                        <QuestionnaireList styles={DiseaseListView.styles}/>
                     </DrawerLayoutAndroid>
 
-                    <QuestionnaireToolbar style={DiseaseListView.styles.sessionButtonContainer}/>
+                    <QuestionnaireToolbar styles={DiseaseListView.styles}/>
                 </View>
             </View>
         );

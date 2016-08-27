@@ -9,6 +9,10 @@ class QuestionnaireToolbarItem extends AbstractComponent {
         getService: React.PropTypes.func.isRequired
     };
 
+    static propTypes = {
+        styles: React.PropTypes.object.isRequired
+    };
+
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
@@ -17,7 +21,7 @@ class QuestionnaireToolbarItem extends AbstractComponent {
     render() {
         return (
             <TouchableHighlight onPress={this.props.handlePress}
-                                style={this.props.style}>
+                                style={this.props.styles.toolbarButtonContainer}>
                 <View style={Global.actionButtonWrapper}>
                     {this.renderComponent(this.props.loading, (
                         <Text style={Global.actionButton}>{this.I18n.t(this.props.buttonText)}</Text>))}

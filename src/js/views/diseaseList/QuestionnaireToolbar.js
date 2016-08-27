@@ -6,7 +6,6 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionListView from "../conclusion/DecisionSupportSessionListView";
 import MessageService from "../../service/MessageService";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
-import {Map} from 'immutable';
 import _ from 'lodash';
 import ExportService from "../../service/ExportService";
 
@@ -32,6 +31,10 @@ class QuestionnaireToolbar extends AbstractComponent {
             }
         };
     }
+
+    static propTypes = {
+        styles: React.PropTypes.object.isRequired
+    };
 
     _exporting(loading) {
         this.setState({
@@ -72,20 +75,16 @@ class QuestionnaireToolbar extends AbstractComponent {
         const toolbarItems = _.map(this.state.toolbarItems, ({handlePress, buttonText, loading}, key)=> (
             <QuestionnaireToolbarItem
                 key={buttonText}
-                style={this.props.style}
+                styles={this.props.styles}
                 handlePress={handlePress}
                 loading={loading}
                 buttonText={buttonText}/>));
         return (
-            <View style={{marginBottom: 30}}>
-                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <View style={this.props.styles.questionnaireToolBarMain}>
                     {toolbarItems}
-                </View>
             </View>
         );
-
     }
-
 }
 
 export default QuestionnaireToolbar;

@@ -2,7 +2,8 @@ import {View, ListView, StyleSheet} from 'react-native';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import React from 'react';
 import QuestionnaireButton from './QuestionnaireButton';
-import Actions from '../../action'
+import DiseaseListView from './DiseaseListView';
+import Actions from '../../action';
 
 class QuestionnaireList extends AbstractComponent {
     constructor(props, context) {
@@ -12,6 +13,10 @@ class QuestionnaireList extends AbstractComponent {
         this.state = {questionnaires: [], loading: false};
         context.getStore().subscribe(this.handleChange);
     }
+
+    static propTypes = {
+        styles: React.PropTypes.object.isRequired
+    };
 
     handleChange() {
         this.setState({
@@ -34,9 +39,9 @@ class QuestionnaireList extends AbstractComponent {
             <View>
                 {this.renderComponent(this.state.loading, (<ListView
                     enableEmptySections={true}
-                    contentContainerStyle={this.props.listStyle}
+                    contentContainerStyle={DiseaseListView.styles.questionnaireList}
                     dataSource={dataSource}
-                    renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}/>}
+                    renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire} styles={this.props.styles}/>}
                 />), "black", "large")}
             </View>);
     }

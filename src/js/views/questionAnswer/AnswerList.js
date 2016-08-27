@@ -26,7 +26,6 @@ class AnswerList extends Component {
     }
 
     optionPressed(answer) {
-
     }
 
     render() {
