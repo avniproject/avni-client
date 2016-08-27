@@ -5,7 +5,7 @@
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/openchs/openchs)
 
 # Dev setup
-If running the repository for the first time, make sure you have homebrew
+If you are setting up the machine for the first time, make sure you have homebrew
 installed. If you have homebrew installed just run
 `make install` from the root of this repository.
 
