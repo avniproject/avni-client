@@ -9,7 +9,6 @@ import SettingsView from '../settings/SettingsView';
 import {Global} from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 import Colors from '../primitives/Colors';
-import Styler from '../../framework/view/Styler';
 
 @PathRoot
 @Path('/diseaseList')
@@ -48,7 +47,7 @@ class DiseaseListView extends AbstractComponent {
             textAlignVertical: 'center',
             justifyContent: 'center',
             flex: 1,
-            fontSize: Styler.getScaledFont(23)
+            fontSize: 23
         },
         questionnaireToolBarMain: {
             marginBottom: 30,
