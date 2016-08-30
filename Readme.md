@@ -10,6 +10,9 @@
 # Bintray
 [ ![Download](https://api.bintray.com/packages/openchs/generic/openchs-client/images/download.svg) ](https://bintray.com/openchs/generic/openchs-client/_latestVersion)
 
+# License
+[![License](https://img.shields.io/badge/license-AGPL-green.svg?style=flat)](https://github.com/openchs/openchs-client/blob/master/LICENSE)
+
 # Dev setup
 If you are setting up the machine for the first time, make sure you have homebrew
 installed. If you have homebrew installed just run
