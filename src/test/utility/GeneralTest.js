@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import General from '../../js/utility/General'
+import Duration from "../../js/models/Duration";
 
 describe('General', () => {
     it('replaceAndroidIncompatibleChars', () => {
@@ -9,5 +10,10 @@ describe('General', () => {
 
     it('formatDate', () => {
         expect(General.formatDate(new Date('2011-04-11'))).is.equal('11-04-2011');
+    });
+
+    it('formatValue', () => {
+        expect(General.formatValue('abc')).is.equal('abc');
+        General.formatValue(new Duration(10, Duration.Year));
     });
 });

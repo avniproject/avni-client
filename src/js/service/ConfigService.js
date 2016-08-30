@@ -18,7 +18,7 @@ class ConfigService extends BaseService {
         this.getFileFrom = this.getFileFrom.bind(this);
         const batchRequests = new BatchRequest();
         this.fire = batchRequests.fire;
-        this.lazyGet = batchRequests.get;
+        this.batchGet = batchRequests.get;
     }
 
     init() {
@@ -34,7 +34,7 @@ class ConfigService extends BaseService {
 
     getFileFrom(moduleURL) {
         return {
-            with: (moduleName) => (fileName) => this.lazyGet(`${moduleURL}/${moduleName}/${fileName}`, (response) =>
+            with: (moduleName) => (fileName) => this.batchGet(`${moduleURL}/${moduleName}/${fileName}`, (response) =>
                 this.typeMapping.get(fileName)(response, moduleName))
         };
     }

@@ -22,5 +22,7 @@
   "close": "X",
   "serverURL": "Server URL",
   "locale": "Locale",
-  "syncConfig": "Sync Config"
+  "syncConfig": "Sync Config",
+  "months": "Months",
+  "years": "Years"
 }

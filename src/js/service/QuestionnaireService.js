@@ -21,7 +21,6 @@ class QuestionnaireService extends BaseService {
         return this.db.objects(Questionnaire.schema.name).map((questionnaire) => _.pick(questionnaire, ['uuid', 'name']));
     }
 
-
     saveQuestionnaire(questionnaire) {
         const db = this.db;
         this.db.write(()=> db.create(Questionnaire.schema.name, Questionnaire.toDB(questionnaire), true));

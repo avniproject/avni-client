@@ -25,6 +25,13 @@ export let Global = StyleSheet.create({
         fontSize: 18,
         flex: 1
     },
+    toggleButton: {
+        color: '#ffffff',
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: 18,
+
+    },
     //<ListView>
     listViewContainer: {
         margin: 8,

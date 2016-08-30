@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import QuestionnaireAnswers from '../../js/models/QuestionnaireAnswers';
+import Duration from "../../js/models/Duration";
 
 describe('QuestionnaireAnswers', () => {
     var qa;
@@ -7,7 +8,7 @@ describe('QuestionnaireAnswers', () => {
     beforeEach(function() {
         qa = new QuestionnaireAnswers({name: "foo"});
         qa.currentQuestion = "bar";
-        qa.currentAnswer = "baz";
+        qa.currentAnswerValue = "baz";
     });
 
     it('Should get current answer', () => {
@@ -21,16 +22,19 @@ describe('QuestionnaireAnswers', () => {
     it('Current Answer Is Empty', () => {
         expect(qa.currentAnswerIsEmpty).is.false;
         
-        qa.currentAnswer = "";
+        qa.currentAnswerValue = "";
         expect(qa.currentAnswerIsEmpty).is.true;
 
-        qa.currentAnswer = " ";
+        qa.currentAnswerValue = " ";
         expect(qa.currentAnswerIsEmpty).is.true;
 
-        qa.currentAnswer = new Date();
+        qa.currentAnswerValue = new Date();
         expect(qa.currentAnswerIsEmpty).is.false;
         
-        qa.currentAnswer = undefined;
+        qa.currentAnswerValue = undefined;
+        expect(qa.currentAnswerIsEmpty).is.true;
+
+        qa.currentAnswerValue = new Duration(null, Duration.Month);
         expect(qa.currentAnswerIsEmpty).is.true;
     });
 });

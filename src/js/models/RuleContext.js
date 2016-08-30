@@ -4,7 +4,7 @@ class RuleContext {
     }
 
     getAnswerFor(questionName) {
-        return this.questionAnswers.get(questionName)
+        return this.questionAnswers.get(questionName);
     }
 }
 

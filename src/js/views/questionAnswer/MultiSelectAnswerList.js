@@ -8,7 +8,7 @@ class MultiSelectAnswerList extends AnswerList {
         var answersMap = this.state.answersMap;
         const previousState = answersMap.get(answer);
         answersMap.set(answer, !previousState);
-        AppState.questionnaireAnswers.currentAnswer = this.joinSelection(answersMap);
+        AppState.questionnaireAnswers.currentAnswerValue = this.joinSelection(answersMap);
         this.setState({answersMap: answersMap});
     }
 }

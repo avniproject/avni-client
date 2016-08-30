@@ -1,3 +1,4 @@
+import Duration from "../models/Duration";
 class General {
     static formatDateTime(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -38,6 +39,7 @@ class General {
 
     static formatValue(value) {
         if (value instanceof Date) return General.formatDate(value);
+        if (value instanceof Duration) return value.toString();
         if (!isNaN(value)) return value;
         return value;
     }

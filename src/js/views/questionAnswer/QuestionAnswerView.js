@@ -14,16 +14,16 @@ import Question from './Question.js';
 import MultiSelectAnswerList from './MultiSelectAnswerList';
 import SingleSelectAnswerList from './SingleSelectAnswerList';
 import DecisionView from "../conclusion/DecisionView";
-import AppState from "../../hack/AppState"
+import AppState from "../../hack/AppState";
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';
 import WizardButtons from '../primitives/WizardButtons';
 import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
-import QuestionnaireAnswers from "../../models/QuestionnaireAnswers";
 import TypedTransition from '../../framework/routing/TypedTransition'
 import MessageService from '../../service/MessageService';
 import DiseaseListView from "../diseaseList/DiseaseListView";
+import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 
 @Path('/QuestionAnswerView')
@@ -59,10 +59,14 @@ class QuestionAnswerView extends Component {
     renderAnswer(questionAnswer) {
         if (questionAnswer.questionDataType === SimpleQuestionnaire.Numeric || questionAnswer.questionDataType === SimpleQuestionnaire.Text)
             return (
-                <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswer = text}
+                <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswerValue = text}
                            style={QuestionAnswerView.styles.textInput}
                            keyboardType={questionAnswer.questionDataType === SimpleQuestionnaire.Numeric ? 'numeric' : 'default'}
                            autoFocus={questionAnswer.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
+        else if (questionAnswer.questionDataType === SimpleQuestionnaire.Duration) {
+            return (
+                <DurationComponent styles={QuestionAnswerView.styles} />);
+        }
         else if (questionAnswer.questionDataType === 'Date')
             return (<TouchableHighlight
                 onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer.value})}
@@ -90,7 +94,7 @@ class QuestionAnswerView extends Component {
             const {action, year, month, day} = await DatePickerAndroid.open(options);
             if (action === DatePickerAndroid.dismissedAction) {
             } else {
-                AppState.questionnaireAnswers.currentAnswer = new Date(year, month, day);
+                AppState.questionnaireAnswers.currentAnswerValue = new Date(year, month, day);
             }
             this.setState({});
         } catch ({code, message}) {

@@ -3,6 +3,7 @@ import Question from "./Question";
 
 class SimpleQuestionnaire {
     static Numeric = "Numeric";
+    static Duration = "Duration";
     static Text = "Text";
 
     constructor(questionnaireData, conceptService) {
