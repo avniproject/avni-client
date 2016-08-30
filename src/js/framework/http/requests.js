@@ -1,12 +1,10 @@
-const fetchFactory = function (endpoint, method = "GET", params) {
-    return fetch(endpoint, {
-        "method": method,
-        ...params
-    });
-};
+const fetchFactory = (endpoint, method = "GET", params) => fetch(endpoint, {"method": method, ...params});
+
+const makeHeader = (type) =>  new Map([['json', {headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}}], ['text', {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain'}}]]).get(type);
+
 
 let _get = (endpoint, cb) => {
-    return fetchFactory(endpoint, "GET", {headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}})
+    return fetchFactory(endpoint, "GET", makeHeader("json"))
         .then((response) => {
             return response.json();
         })
@@ -15,7 +13,7 @@ let _get = (endpoint, cb) => {
 };
 
 let _getText = (endpoint, cb) => {
-    return fetchFactory(endpoint, "GET", {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain'}})
+    return fetchFactory(endpoint, "GET", makeHeader("text"))
         .then((response) => {
             return response.text();
         })
