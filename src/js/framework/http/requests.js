@@ -1,13 +1,12 @@
-import _ from 'lodash';
-let _get = (endpoint, cb) => {
-    console.log(`Calling ${endpoint}`);
+const fetchFactory = function (endpoint, method = "GET", params) {
     return fetch(endpoint, {
-        "method": "GET",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
+        "method": method,
+        ...params
+    });
+};
+
+let _get = (endpoint, cb) => {
+    return fetchFactory(endpoint, "GET", {headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}})
         .then((response) => {
             return response.json();
         })
@@ -16,14 +15,7 @@ let _get = (endpoint, cb) => {
 };
 
 let _getText = (endpoint, cb) => {
-    console.log(`Calling ${endpoint}`);
-    return fetch(endpoint, {
-        "method": "GET",
-        headers: {
-            'Accept': 'text/plain',
-            'Content-Type': 'text/plain'
-        }
-    })
+    return fetchFactory(endpoint, "GET", {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain'}})
         .then((response) => {
             return response.text();
         })
@@ -33,10 +25,7 @@ let _getText = (endpoint, cb) => {
 
 let _post = (endpoint, file, cb) => {
     console.log(`Posting To ${endpoint}`);
-    return fetch(endpoint, {
-        "method": "POST",
-        "body": file
-    })
+    return fetchFactory(endpoint, "POST", {body: file})
         .then(cb)
         .catch((message) => console.log(`Calling ${endpoint} gave error: ${message}`));
 };
@@ -44,5 +33,6 @@ let _post = (endpoint, file, cb) => {
 export let post = _post;
 
 export let get = (endpoint, cb) => {
+    console.log(`Calling ${endpoint}`);
     return new Map([[true, _get], [false, _getText]]).get(endpoint.endsWith(".json"))(endpoint, cb);
 };
