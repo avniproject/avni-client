@@ -22,6 +22,9 @@ deps:
 test:
 	npm test
 
+coverage:
+	npm run coverage
+
 ci-install:
 	@echo "Provisioning CI"
 	@echo "Removing node modules"
@@ -34,6 +37,10 @@ ci-test:
 	rm -rf node_modules/
 	make deps
 	make test
+	make coverage
+	npm install -g codeclimate-test-reporter
+	codeclimate-test-reporter < coverage/lcov.info
+
 
 release:
 	cd android; ./gradlew assembleRelease
