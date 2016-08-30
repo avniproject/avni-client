@@ -4,6 +4,9 @@
 # Join our discussions
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/openchs/openchs)
 
+# Code Climate
+[![Code Climate](https://codeclimate.com/github/OpenCHS/openchs-client/badges/gpa.svg)](https://codeclimate.com/github/OpenCHS/openchs-client)
+
 # Dev setup
 If you are setting up the machine for the first time, make sure you have homebrew
 installed. If you have homebrew installed just run
