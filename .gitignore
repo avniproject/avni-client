@@ -43,3 +43,4 @@ android/keystores/debug.keystore
 .idea/
 android/.gradle/
 gen/
+coverage/

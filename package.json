@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "lint": "./node_modules/.bin/eslint src",
-    "test": "find ./src/*test -name '*Test.js' | xargs mocha --require react-native-mock/mock.js --require src/test/testHelper.js"
+    "test": "mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')",
+    "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')"
   },
   "dependencies": {
     "immutable": "^3.8.1",
@@ -35,6 +36,7 @@
     "eslint-plugin-jsx-a11y": "0.6.2",
     "eslint-plugin-react": "4.3.0",
     "flow-bin": "^0.27.0",
+    "istanbul": "^1.1.0-alpha.1",
     "mocha": "3.0.2",
     "mockery": "^1.7.0",
     "react-addons-test-utils": "15.0.2",
