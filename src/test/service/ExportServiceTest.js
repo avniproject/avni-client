@@ -5,7 +5,6 @@ import DecisionSupportSessionService from "../../js/service/DecisionSupportSessi
 import QuestionnaireService from "../../js/service/QuestionnaireService";
 import DecisionSupportSession from "../../js/models/DecisionSupportSession";
 
-
 describe('Export Service', () => {
     it('Export', () => {
 

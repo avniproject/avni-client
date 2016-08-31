@@ -5,6 +5,8 @@ class SimpleQuestionnaire {
     static Numeric = "Numeric";
     static Duration = "Duration";
     static Text = "Text";
+    static Date = "Date";
+    static Coded = "Coded";
 
     constructor(questionnaireData, conceptService) {
         this.questionnaireConfigurations = questionnaireData;

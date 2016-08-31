@@ -84,9 +84,6 @@ class DurationComponent extends Component {
     }
 
     render() {
-        if (_.isNil(AppState.questionnaireAnswers.currentAnswer.value))
-            AppState.questionnaireAnswers.currentAnswerValue = new Duration(null, Duration.Year);
-
         const duration = AppState.questionnaireAnswers.currentAnswer.value;
 
         const monthButtonStyle = duration.isInMonths ? DurationComponent.styles.pressedButton : DurationComponent.styles.notPressedButton;

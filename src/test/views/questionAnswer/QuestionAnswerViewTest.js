@@ -5,7 +5,6 @@ import {expect} from 'chai';
 import QuestionAnswerView from '../../../js/views/questionAnswer/QuestionAnswerView';
 import QuestionnaireService from "../../../js/service/QuestionnaireService";
 import Question from "../../../js/views/questionAnswer/Question";
-import MultiSelectAnswerList from "../../../js/views/questionAnswer/MultiSelectAnswerList";
 import AppState from "../../../js/hack/AppState"
 import WizardButtons from "../../../js/views/primitives/WizardButtons";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
@@ -13,6 +12,7 @@ import SampleQuestionnaire from "../../resources/sample-questionnaire.json";
 import Diabetes from "../../resources/diabetes.json";
 import Concepts from "../../resources/sample-concepts.json";
 import _ from "lodash";
+import AnswerList from "../../../js/views/questionAnswer/AnswerList";
 
 describe('Question Answer View Test', () => {
 
@@ -54,7 +54,7 @@ describe('Question Answer View Test', () => {
                                                             questionnaire: simpleQuestionnaire
                                                         }}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
-        expect(wrapper.find(MultiSelectAnswerList)).to.have.length(1);
+        expect(wrapper.find(AnswerList)).to.have.length(1);
         expect(wrapper.find(WizardButtons)).to.have.length(1);
     });
 

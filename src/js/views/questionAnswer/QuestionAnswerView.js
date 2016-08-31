@@ -11,8 +11,6 @@ import {
 import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import Question from './Question.js';
-import MultiSelectAnswerList from './MultiSelectAnswerList';
-import SingleSelectAnswerList from './SingleSelectAnswerList';
 import DecisionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState";
 import * as CHSStyles from "../primitives/GlobalStyles"
@@ -25,6 +23,7 @@ import MessageService from '../../service/MessageService';
 import DiseaseListView from "../diseaseList/DiseaseListView";
 import DurationComponent from './DurationComponent';
 import _ from 'lodash';
+import AnswerList from './AnswerList';
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -56,27 +55,25 @@ class QuestionAnswerView extends Component {
         this.state = {};
     }
 
-    renderAnswer(questionAnswer) {
-        if (questionAnswer.questionDataType === SimpleQuestionnaire.Numeric || questionAnswer.questionDataType === SimpleQuestionnaire.Text)
+    renderAnswer(question) {
+        if (question.questionDataType === SimpleQuestionnaire.Numeric || question.questionDataType === SimpleQuestionnaire.Text)
             return (
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswerValue = text}
                            style={QuestionAnswerView.styles.textInput}
-                           keyboardType={questionAnswer.questionDataType === SimpleQuestionnaire.Numeric ? 'numeric' : 'default'}
-                           autoFocus={questionAnswer.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
-        else if (questionAnswer.questionDataType === SimpleQuestionnaire.Duration) {
+                           keyboardType={question.questionDataType === SimpleQuestionnaire.Numeric ? 'numeric' : 'default'}
+                           autoFocus={question.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
+        else if (question.questionDataType === SimpleQuestionnaire.Duration) {
             return (
                 <DurationComponent styles={QuestionAnswerView.styles} />);
         }
-        else if (questionAnswer.questionDataType === 'Date')
+        else if (question.questionDataType === SimpleQuestionnaire.Date)
             return (<TouchableHighlight
                 onPress={this.showPicker.bind(this, 'simple', {date: AppState.questionnaireAnswers.currentAnswer.value})}
                 style={{margin: 10}}>
                 <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
         else {
-            var AnswerComponent = new Map([[true, MultiSelectAnswerList], [false, SingleSelectAnswerList]])
-                .get(this.question.isMultiSelect);
-            return (<AnswerComponent locale={this.locale} answers={this.question.answers}/>);
+            return (<AnswerList locale={this.locale} answers={this.question.answers} isMultiSelect={this.question.isMultiSelect}/>);
         }
     };
 
@@ -122,6 +119,9 @@ class QuestionAnswerView extends Component {
     render() {
         this.question = this.questionnaire.getQuestion(this.props.params.questionNumber);
         AppState.questionnaireAnswers.currentQuestion = this.question.name;
+        if (_.isNil(AppState.questionnaireAnswers.currentAnswer.value))
+            AppState.questionnaireAnswers.currentAnswerValue = this.question.defaultValue;
+
         return (
             <ScrollView keyboardShouldPersistTaps={true}>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}

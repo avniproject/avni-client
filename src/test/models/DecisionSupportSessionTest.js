@@ -11,6 +11,6 @@ describe('Decision Support Session', () => {
             [QuestionAnswer.newInstance("Q1", "A1")],
             new Date()
         );
-        expect(DecisionSupportSession.getAnswerFor("Q1", session)).to.equal("A1");
+        expect(DecisionSupportSession.getAnswerFor("Q1", session)[0].value).to.equal("A1");
     });
 });

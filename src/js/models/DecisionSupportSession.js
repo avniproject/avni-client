@@ -1,5 +1,4 @@
 class DecisionSupportSession {
-    //TODO: MIHIR : Use questionnaire UUID instead of questionnaire name
     static schema = {
         name: "DecisionSupportSession",
         properties: {
@@ -24,7 +23,7 @@ class DecisionSupportSession {
         var questionAnswer = session.questionAnswers.find((questionAnswer) => {
             return questionAnswer.question === question;
         });
-        return questionAnswer.answer;
+        return questionAnswer.answers;
     }
 
     static getDecisionFor(decisionKey, session) {

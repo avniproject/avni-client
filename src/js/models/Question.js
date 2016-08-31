@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import SimpleQuestionnaire from './SimpleQuestionnaire';
+import Duration from "./Duration";
 
 class Question {
     constructor(questionConfiguration, questionConcept, isFirstQuestion, isLastQuestion) {
@@ -48,6 +49,16 @@ class Question {
         if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
 
         return (answer.value < this.lowAbsolute || answer.value > this.hiAbsolute);
+    }
+
+    get defaultValue() {
+        const defaultValues = new Map([[SimpleQuestionnaire.Numeric, ''],
+            [SimpleQuestionnaire.Duration, new Duration(null, Duration.Year)],
+            [SimpleQuestionnaire.Text, ''],
+            [SimpleQuestionnaire.Coded, []],
+            [SimpleQuestionnaire.Date, undefined]]);
+
+        return defaultValues.get(this.questionDataType);
     }
 }
 

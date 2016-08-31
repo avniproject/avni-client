@@ -2,6 +2,7 @@ import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import DecisionSupportSession from "../models/DecisionSupportSession";
 import QuestionAnswer from "../models/QuestionAnswer";
+import Answer from "../models/Answer";
 import Decision from "../models/Decision";
 
 @Service("decisionSupportSessionService")
@@ -31,7 +32,7 @@ class DecisionSupportSessionService extends BaseService {
     deleteAll() {
         const db = this.db;
 
-        [DecisionSupportSession.schema.name, QuestionAnswer.schema.name, Decision.schema.name].forEach((entityName) => {
+        [DecisionSupportSession.schema.name, QuestionAnswer.schema.name, Decision.schema.name, Answer.schema.name].forEach((entityName) => {
             db.write(() => {
                 var objects = db.objects(entityName);
                 db.delete(objects);

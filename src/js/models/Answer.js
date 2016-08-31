@@ -1,8 +1,19 @@
 import _ from 'lodash';
+import Duration from "./Duration";
+import General from '../utility/General';
 
 class Answer {
-    constructor(value) {
+    static schema = {
+        name: "Answer",
+        properties: {
+            value: "string",
+            unit: {type: "string", optional: true}
+        }
+    };
+
+    constructor(value, unit) {
         this.value = value;
+        this.unit = unit;
     }
 
     isNilOrEmpty() {
@@ -11,6 +22,22 @@ class Answer {
 
     get isNotANumber() {
         return isNaN(this.value);
+    }
+
+    static newInstances(answer) {
+        var answers = [];
+        if (_.isArray(answer)) {
+            answer.map((answerItem) => {
+                answers.push(new Answer(answerItem));
+            });
+        } else if (answer instanceof Duration) {
+            answers.push(new Answer(answer.durationValueAsString, answer.durationUnit));
+        } else if (answer instanceof Date) {
+            answers.push(new Answer(General.isoFormat(answer)));
+        } else {
+            answers.push(new Answer(answer));
+        }
+        return answers;
     }
 }
 

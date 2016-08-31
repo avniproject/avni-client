@@ -9,6 +9,10 @@ class Duration {
         this.durationUnit = durationUnit;
     }
 
+    static fromAnswer(answer) {
+        return new Duration(answer.value, answer.unit);
+    }
+
     get isInMonths() {
         return this.durationUnit === Duration.Month;
     }

@@ -16,4 +16,9 @@ describe('General', () => {
         expect(General.formatValue('abc')).is.equal('abc');
         General.formatValue(new Duration(10, Duration.Year));
     });
+
+    it('toExportable', () => {
+        expect(General.toExportable('abc')).is.equal('abc');
+        expect(General.toExportable('a,b')).is.equal('"a,b"');
+    });
 });

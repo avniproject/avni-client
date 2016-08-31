@@ -56,7 +56,7 @@ class ExportService extends BaseService {
         const decisionSupportSessions = decisionSupportSessionService.getAll(questionnaire.name);
         decisionSupportSessions.forEach((session) => {
             session.questionAnswers.forEach(function (questionAnswer) {
-                contents += General.toExportable(questionAnswer.answer);
+                contents += questionAnswer.answerAsExportableString();
                 contents += ',';
             });
             for (var i = 0; i < session.decisions.length; i++) {
