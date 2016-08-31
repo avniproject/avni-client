@@ -22,8 +22,8 @@ class AbstractComponent extends Component {
         getStore: React.PropTypes.func
     };
 
-    dispatchAction(action) {
-        this.context.getStore().dispatch({"type": action});
+    dispatchAction(action, params) {
+        this.context.getStore().dispatch({"type": action, ...params});
     }
 
     renderComponent(loading, component, color = this.spinnerDefaults.get("color"),

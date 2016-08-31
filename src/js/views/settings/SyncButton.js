@@ -1,9 +1,9 @@
 import {StyleSheet, View, Text, TouchableHighlight, ProgressBarAndroid} from 'react-native';
 import React, {Component} from 'react';
 import * as CHSStyles from '../primitives/GlobalStyles';
-import ConfigService from '../../service/ConfigService';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MessageService from '../../service/MessageService';
+import Actions from '../../action';
 
 class SyncButton extends AbstractComponent {
     constructor(props, context) {
@@ -17,13 +17,10 @@ class SyncButton extends AbstractComponent {
         getService: React.PropTypes.func.isRequired
     };
 
-    static contextTypes = {
-        getService: React.PropTypes.func.isRequired
-    };
 
     _triggerSync() {
         this.setState({syncing: true});
-        this.props.getService(ConfigService).getAllFilesAndSave(()=>this.setState({syncing: false}));
+        this.dispatchAction(Actions.GET_CONFIG, {cb: ()=> this.setState({syncing: false})});
     }
 
     render() {
@@ -32,7 +29,8 @@ class SyncButton extends AbstractComponent {
                 <TouchableHighlight>
                     <View style={CHSStyles.Global.actionButtonWrapper}>
                         {this.renderComponent(this.state.syncing, (
-                            <Text onPress={this._triggerSync} style={CHSStyles.Global.actionButton}>{this.I18n.t("syncConfig")}
+                            <Text onPress={this._triggerSync}
+                                  style={CHSStyles.Global.actionButton}>{this.I18n.t("syncConfig")}
                             </Text>))}
                     </View>
                 </TouchableHighlight>

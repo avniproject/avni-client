@@ -13,7 +13,6 @@ class DecisionSupportSessionService extends BaseService {
     save(questionnaireAnswers, decisions) {
         var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, decisions, questionnaireAnswers.toSchemaInstance(), new Date());
         const db = this.db;
-        console.log(decisionSupportSession);
         db.write(() => db.create(DecisionSupportSession.schema.name, decisionSupportSession));
     }
 
