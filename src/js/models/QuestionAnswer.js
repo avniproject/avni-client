@@ -13,6 +13,7 @@ class QuestionAnswer {
     };
 
     constructor(question, answers) {
+        if (_.isNil(question)) return;
         this.question = question;
         this.answers = answers;
     }
@@ -22,6 +23,10 @@ class QuestionAnswer {
     }
 
     answerAsExportableString() {
+        return General.toExportable(this.answerAsString());
+    }
+
+    answerAsString() {
         var str;
         if (this.answers.length === 1) {
             if (_.isNil(this.answers[0].unit)) str = _(this.answers[0].value).toString();
@@ -33,8 +38,7 @@ class QuestionAnswer {
             }));
             str = values.toString();
         }
-
-        return General.toExportable(str);
+        return str;
     }
 }
 

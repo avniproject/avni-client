@@ -56,7 +56,7 @@ class DecisionSupportSessionComponent extends Component {
                 <View style={CHSStyles.Global.listViewContainer}>
                     <ListView
                         dataSource={dsClone}
-                        renderRow={(rowData) => this.renderRow(rowData.question, rowData.answer)}
+                        renderRow={(rowData) => this.renderRow(rowData.question, rowData.answerAsString())}
                         renderHeader={() => <Text
                             style={CHSStyles.Global.listViewHeader}>{this.I18n.t("answersConfirmationTitle")}</Text>}
                         renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text

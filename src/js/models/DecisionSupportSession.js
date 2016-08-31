@@ -19,11 +19,11 @@ class DecisionSupportSession {
     }
 
     //These methods are static because when data is loaded from database then it would not instantiate the class
-    static getAnswerFor(question, session) {
+    static findQuestionAnswer(question, session) {
         var questionAnswer = session.questionAnswers.find((questionAnswer) => {
             return questionAnswer.question === question;
         });
-        return questionAnswer.answers;
+        return questionAnswer;
     }
 
     static getDecisionFor(decisionKey, session) {

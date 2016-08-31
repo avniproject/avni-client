@@ -8,7 +8,8 @@ class SummaryField {
     
     getValueFrom(session) {
         if (this.summaryFieldType === SummaryField.Question) {
-            return DecisionSupportSession.getAnswerFor(this.summaryFieldName, session);
+            var questionAnswer = DecisionSupportSession.findQuestionAnswer(this.summaryFieldName, session);
+            return questionAnswer.answerAsString();
         } else if (this.summaryFieldType === SummaryField.DecisionKey) {
             return DecisionSupportSession.getDecisionFor(this.summaryFieldName, session);
         }

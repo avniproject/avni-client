@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import AppHeader from '../primitives/AppHeader';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import Path from "../../framework/routing/Path";
+import * as CHSStyles from "../primitives/GlobalStyles";
 
 @Path('/DecisionSupportSessionView')
 class DecisionSupportSessionView extends Component {

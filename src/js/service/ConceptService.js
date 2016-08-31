@@ -19,7 +19,7 @@ class ConceptService extends BaseService {
     }
 
     getConceptByUUID(conceptUUID) {
-        return _.merge({}, this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID));
+        return this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID);
     }
 
     getAllConcepts() {
@@ -27,7 +27,7 @@ class ConceptService extends BaseService {
     }
 
     getConceptByName(conceptName) {
-        return _.merge({}, this.db.objects(Concept.schema.name).filtered(`name = \"${conceptName}\"`)[0]);
+        return this.db.objects(Concept.schema.name).filtered(`name = \"${conceptName}\"`)[0];
     }
 
     addConceptI18n(concept) {

@@ -13,6 +13,6 @@ describe('Summary Field', () => {
             new Date()
         );
         expect(new SummaryField("abc", SummaryField.DecisionKey).getValueFrom(session)).to.equal("A");
-        expect(new SummaryField("Q1", SummaryField.Question).getValueFrom(session)[0].value).to.equal("A1");
+        expect(new SummaryField("Q1", SummaryField.Question).getValueFrom(session)).to.equal("A1");
     });
 });

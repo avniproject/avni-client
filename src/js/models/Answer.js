@@ -12,6 +12,8 @@ class Answer {
     };
 
     constructor(value, unit) {
+        if (_.isNil(value) && _.isNil(unit)) return;
+
         this.value = value;
         this.unit = unit;
     }
