@@ -11,7 +11,7 @@ class QuestionnaireList extends AbstractComponent {
         this.handleChange = this.handleChange.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.state = {questionnaires: [], loading: false};
-        context.getStore().subscribe(this.handleChange);
+        this.unsubscribe = context.getStore().subscribe(this.handleChange);
     }
 
     static propTypes = {
@@ -30,6 +30,10 @@ class QuestionnaireList extends AbstractComponent {
         setTimeout(()=>this.dispatchAction(Actions.GET_QUESTIONNAIRES), 500);
     }
 
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
+
     static initialDataSource = () =>
         new ListView.DataSource({rowHasChanged: (row_1, row_2) => row_1 !== row_2});
 
@@ -41,7 +45,8 @@ class QuestionnaireList extends AbstractComponent {
                     enableEmptySections={true}
                     contentContainerStyle={DiseaseListView.styles.questionnaireList}
                     dataSource={dataSource}
-                    renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire} styles={this.props.styles}/>}
+                    renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}
+                                                                       styles={this.props.styles}/>}
                 />), "black", "large")}
             </View>);
     }
