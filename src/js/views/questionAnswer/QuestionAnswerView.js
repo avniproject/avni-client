@@ -24,6 +24,7 @@ import DiseaseListView from "../diseaseList/DiseaseListView";
 import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 import AnswerList from './AnswerList';
+import TabularListView from './../conclusion/TabularListView';
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -64,7 +65,7 @@ class QuestionAnswerView extends Component {
                            autoFocus={question.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
         else if (question.questionDataType === SimpleQuestionnaire.Duration) {
             return (
-                <DurationComponent styles={QuestionAnswerView.styles} />);
+                <DurationComponent styles={QuestionAnswerView.styles}/>);
         }
         else if (question.questionDataType === SimpleQuestionnaire.Date)
             return (<TouchableHighlight
@@ -73,7 +74,8 @@ class QuestionAnswerView extends Component {
                 <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
         else {
-            return (<AnswerList locale={this.locale} answers={this.question.answers} isMultiSelect={this.question.isMultiSelect}/>);
+            return (<AnswerList locale={this.locale} answers={this.question.answers}
+                                isMultiSelect={this.question.isMultiSelect}/>);
         }
     };
 
@@ -121,7 +123,6 @@ class QuestionAnswerView extends Component {
         AppState.questionnaireAnswers.currentQuestion = this.question.name;
         if (_.isNil(AppState.questionnaireAnswers.currentAnswer.value))
             AppState.questionnaireAnswers.currentAnswerValue = this.question.defaultValue;
-
         return (
             <ScrollView keyboardShouldPersistTaps={true}>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}
@@ -131,6 +132,8 @@ class QuestionAnswerView extends Component {
                     <View>
                         {this.renderAnswer(this.question)}
                     </View>
+                    <TabularListView data={AppState.questionnaireAnswers.toArray()}
+                                     message={"answersConfirmationTitle"}/>
                     <WizardButtons hasQuestionBefore={!this.question.isFirstQuestion}
                                    nextParams={{
                                        questionNumber: this.props.params.questionNumber + 1,

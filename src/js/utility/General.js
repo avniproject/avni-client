@@ -1,4 +1,5 @@
 import Duration from "../models/Duration";
+import _ from 'lodash';
 class General {
     static formatDateTime(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -6,6 +7,11 @@ class General {
 
     static isDefined(value) {
         return value != undefined || value != null;
+    }
+
+    static isNilOrEmpty(value) {
+        return _.isNil(value) || _.isEmpty(_.trim(value));
+
     }
 
     static getTimeStamp() {

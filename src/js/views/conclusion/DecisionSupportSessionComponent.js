@@ -2,12 +2,12 @@ import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import * as CHSStyles from '../primitives/GlobalStyles';
-import MessageService from '../../service/MessageService';
+import TabularListView from './TabularListView';
+import AbstractComponent from '../../framework/view/AbstractComponent';
 
-class DecisionSupportSessionComponent extends Component {
+class DecisionSupportSessionComponent extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static styles = StyleSheet.create({
@@ -20,10 +20,6 @@ class DecisionSupportSessionComponent extends Component {
         },
         answer: {}
     });
-
-    static contextTypes = {
-        getService: React.PropTypes.func.isRequired
-    };
 
     static propTypes = {
         decisions: React.PropTypes.array.isRequired,
@@ -45,12 +41,9 @@ class DecisionSupportSessionComponent extends Component {
     }
 
     render() {
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const dsClone = ds.cloneWithRows(this.props.questionAnswers);
-
-        const dsDecisions = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const dsDecisionsClone = ds.cloneWithRows(this.props.decisions);
-
+        const decisions = this.props.decisions.map(({name, value})=> {
+            return {key: name, value: value};
+        });
         return (
             <View>
                 <View style={CHSStyles.Global.listViewContainer}>
@@ -80,6 +73,8 @@ class DecisionSupportSessionComponent extends Component {
                         }}></Text>}
                     />
                 </View>
+                {/*<TabularListView data={this.props.questionAnswers} message={"answersConfirmationTitle"}/>*/}
+                {/*<TabularListView data={decisions} message={"decisionsMadeBySystem"}/>*/}
             </View>);
     }
 }

@@ -3,6 +3,7 @@ import Answer from "./Answer";
 import RuleContext from "./RuleContext";
 import _ from 'lodash';
 import Duration from './Duration';
+import General from '../utility/General';
 
 class QuestionnaireAnswers {
     constructor(questionnaire) {
@@ -41,6 +42,12 @@ class QuestionnaireAnswers {
         var questionAnswersArray = [];
         this.questionAnswers.forEach((answer, question, questionAnswers) => questionAnswersArray.push(QuestionAnswer.newInstance(question, answer)));
         return questionAnswersArray;
+        // return Array.from(this.questionAnswers.entries())
+        //     .filter(([key, value])=> !this.isAnswerEmpty(value))
+        //     .map(([key, value])=> Object.assign({}, {
+        //         key: key,
+        //         value: value
+        //     }));
     }
 
     toSchemaInstance() {
@@ -50,15 +57,19 @@ class QuestionnaireAnswers {
         });
         return schemaInstance;
     }
-    
+
     get questionnaireName() {
         return this.questionnaire.name;
     }
 
     get currentAnswerIsEmpty() {
-        if (this.currentAnswer.value instanceof Duration)
-            return this.currentAnswer.value.isEmpty;
-        return _.isNil(this.currentAnswer.value) || _.isEmpty(_.trim(this.currentAnswer.value));
+        return this.isAnswerEmpty(this.currentAnswer.value)
+    }
+
+    isAnswerEmpty(value) {
+        if (value instanceof Duration)
+            return value.isEmpty;
+        return General.isNilOrEmpty(value);
     }
 
     createRuleContext() {

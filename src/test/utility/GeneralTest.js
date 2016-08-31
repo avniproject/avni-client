@@ -21,4 +21,14 @@ describe('General', () => {
         expect(General.toExportable('abc')).is.equal('abc');
         expect(General.toExportable('a,b')).is.equal('"a,b"');
     });
+
+    it('isNotEmptyOrNil', () => {
+        expect(General.isNilOrEmpty(null)).is.true;
+        expect(General.isNilOrEmpty('')).is.true;
+        expect(General.isNilOrEmpty(undefined)).is.true;
+        expect(General.isNilOrEmpty('      ')).is.true;
+        expect(General.isNilOrEmpty([])).is.true;
+        expect(General.isNilOrEmpty('HelloWorld')).is.false;
+        expect(General.isNilOrEmpty({})).is.false;
+    });
 });

@@ -13,6 +13,7 @@ import Diabetes from "../../resources/diabetes.json";
 import Concepts from "../../resources/sample-concepts.json";
 import _ from "lodash";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
+import TabularListView from "../../../js/views/conclusion/TabularListView";
 
 describe('Question Answer View Test', () => {
 
@@ -56,6 +57,7 @@ describe('Question Answer View Test', () => {
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(AnswerList)).to.have.length(1);
         expect(wrapper.find(WizardButtons)).to.have.length(1);
+        expect(wrapper.find(TabularListView)).to.have.length(1);
     });
 
     it('when Numeric is the first question', () => {
@@ -77,5 +79,6 @@ describe('Question Answer View Test', () => {
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
         expect(wrapper.find(WizardButtons)).to.have.length(1);
+        expect(wrapper.find(TabularListView)).to.have.length(1);
     });
 });
