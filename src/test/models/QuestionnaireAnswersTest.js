@@ -25,12 +25,11 @@ describe('QuestionnaireAnswers', () => {
         qa.set("foo7", new Duration(12, Duration.Year));
         var questionnaireAnswersArray = qa.toArray();
         expect(questionnaireAnswersArray).to.have.length(4);
-        console.log(questionnaireAnswersArray);
         expect(questionnaireAnswersArray).to.deep.have.members([
                 {key: 'bar', value: 'baz'},
                 {key: 'foo1', value: 'bar1'},
                 {key: 'foo2', value: 'bar2'},
-                {key: 'foo7', value: new Duration(12, Duration.Year)}
+                {key: 'foo7', value: '12 Years'}
             ]
         );
     });

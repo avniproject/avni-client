@@ -46,35 +46,8 @@ class DecisionSupportSessionComponent extends AbstractComponent {
         });
         return (
             <View>
-                <View style={CHSStyles.Global.listViewContainer}>
-                    <ListView
-                        dataSource={dsClone}
-                        renderRow={(rowData) => this.renderRow(rowData.question, rowData.answerAsString())}
-                        renderHeader={() => <Text
-                            style={CHSStyles.Global.listViewHeader}>{this.I18n.t("answersConfirmationTitle")}</Text>}
-                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text
-                            key={rowID}
-                            style={{height: adjacentRowHighlighted ? 1 : 2,
-                                backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'}}></Text>}
-                    />
-                </View>
-
-                <View style={CHSStyles.Global.listViewContainer}>
-                    <ListView
-                        dataSource={dsDecisionsClone}
-                        renderRow={(decision) => this.renderRow(decision.name, decision.value)}
-                        renderHeader={() => <Text
-                            style={CHSStyles.Global.listViewHeader}>{this.I18n.t('decisionsMadeBySystem')}</Text>}
-                        renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text
-                            key={rowID}
-                            style={{
-                            height: adjacentRowHighlighted ? 1 : 2,
-                            backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
-                        }}></Text>}
-                    />
-                </View>
-                {/*<TabularListView data={this.props.questionAnswers} message={"answersConfirmationTitle"}/>*/}
-                {/*<TabularListView data={decisions} message={"decisionsMadeBySystem"}/>*/}
+                <TabularListView data={this.props.questionAnswers} message={"answersConfirmationTitle"}/>
+                <TabularListView data={decisions} message={"decisionsMadeBySystem"}/>
             </View>);
     }
 }

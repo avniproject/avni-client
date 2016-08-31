@@ -27,6 +27,7 @@ class Answer {
     }
 
     static newInstances(answer) {
+        if (_.isNil(answer)) return;
         var answers = [];
         if (_.isArray(answer)) {
             answer.map((answerItem) => {

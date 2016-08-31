@@ -39,23 +39,18 @@ class QuestionnaireAnswers {
     }
 
     toArray() {
-        var questionAnswersArray = [];
-        this.questionAnswers.forEach((answer, question, questionAnswers) => questionAnswersArray.push(QuestionAnswer.newInstance(question, answer)));
-        return questionAnswersArray;
-        // return Array.from(this.questionAnswers.entries())
-        //     .filter(([key, value])=> !this.isAnswerEmpty(value))
-        //     .map(([key, value])=> Object.assign({}, {
-        //         key: key,
-        //         value: value
-        //     }));
+        return Array.from(this.questionAnswers.entries())
+            .filter(([question, answer])=> !this.isAnswerEmpty(answer))
+            .map(([question, answer])=> QuestionAnswer.newInstance(question, answer))
+            .map((questionAnswer) => _.merge({}, {
+                key: questionAnswer.question,
+                value: questionAnswer.answerAsString()
+            }));
     }
 
     toSchemaInstance() {
-        var schemaInstance = [];
-        this.questionAnswers.forEach((answer, question) => {
-            schemaInstance.push(QuestionAnswer.newInstance(question, answer));
-        });
-        return schemaInstance;
+        return Array.from(this.questionAnswers.entries())
+            .map(([question, answer])=>QuestionAnswer.newInstance(question, answer));
     }
 
     get questionnaireName() {
