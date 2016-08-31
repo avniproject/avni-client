@@ -59,7 +59,7 @@ class DecisionSupportSessionListView extends Component {
         const completeQuestionnaire = questionnaireService.getQuestionnaire(questionnaire.uuid);
 
         const dssService = this.context.getService(DecisionSupportSessionService);
-        var sessions = dssService.getAll(questionnaire.name);
+        var sessions = dssService.getAll(questionnaire.uuid);
 
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const dsClone = ds.cloneWithRows(sessions);

@@ -9,7 +9,7 @@ describe('Export Service', () => {
     it('Export', () => {
 
         const stubbedDecisionSupportSessionService = {
-            getAll: (questionnaireName) => {
+            getAll: (questionnaireUUID) => {
                 const decisionSupportSession = DecisionSupportSession.newInstance(
                     "foo",
                     [{value: 'Paracetamol'}],

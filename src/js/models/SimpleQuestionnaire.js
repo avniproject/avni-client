@@ -8,27 +8,27 @@ class SimpleQuestionnaire {
     static Date = "Date";
     static Coded = "Coded";
 
-    constructor(questionnaireData, conceptService) {
-        this.questionnaireConfigurations = questionnaireData;
+    constructor(questionnaire, conceptService) {
+        this.questionnaire = questionnaire;
         this.conceptService = conceptService;
     }
 
     getQuestion(questionIndex) {
-        var questionConfiguration = this.questionnaireConfigurations.questions[questionIndex];
+        var questionConfiguration = this.questionnaire.questions[questionIndex];
         const questionConcept = this.conceptService.getConceptByName(questionConfiguration.name);
-        return new Question(questionConfiguration, questionConcept, questionIndex === 0, questionIndex === this.questionnaireConfigurations.questions.length - 1);
+        return new Question(questionConfiguration, questionConcept, questionIndex === 0, questionIndex === this.questionnaire.questions.length - 1);
     }
 
     get questions() {
-        return this.questionnaireConfigurations.questions;
+        return this.questionnaire.questions;
     }
 
     get decisionKeys() {
-        return this.questionnaireConfigurations.decisionKeys;
+        return this.questionnaire.decisionKeys;
     }
 
     get summaryFields() {
-        return this.questionnaireConfigurations.summaryFields.map((summaryField) => {
+        return this.questionnaire.summaryFields.map((summaryField) => {
             if (this.questions.find(function (question) {
                     return summaryField === question.name;
                 }) !== undefined)
@@ -39,7 +39,7 @@ class SimpleQuestionnaire {
     }
 
     get name() {
-        return this.questionnaireConfigurations.name;
+        return this.questionnaire.name;
     }
 }
 

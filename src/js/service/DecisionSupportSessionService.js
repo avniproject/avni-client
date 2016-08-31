@@ -12,15 +12,14 @@ class DecisionSupportSessionService extends BaseService {
     }
 
     save(questionnaireAnswers, decisions) {
-        var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireName, decisions, questionnaireAnswers.toSchemaInstance(), new Date());
+        var decisionSupportSession = DecisionSupportSession.newInstance(questionnaireAnswers.questionnaireUUID, decisions, questionnaireAnswers.toSchemaInstance(), new Date());
         const db = this.db;
         db.write(() => db.create(DecisionSupportSession.schema.name, decisionSupportSession));
     }
 
-    getAll(questionnaireName) {
+    getAll(questionnaireUUID) {
         const allSessions = this.db.objects(DecisionSupportSession.schema.name);
-        if (questionnaireName === undefined) return allSessions;
-        const expression = `questionnaireName = \"${questionnaireName}\"`;
+        const expression = `questionnaireUUID = \"${questionnaireUUID}\"`;
         return allSessions.filtered(expression);
     }
 

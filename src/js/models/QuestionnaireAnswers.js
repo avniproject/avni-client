@@ -38,12 +38,9 @@ class QuestionnaireAnswers {
     }
 
     toArray() {
-        var questionAnswerPairs = [];
-        this.questionAnswers.forEach((answer, question, questionAnswers) => questionAnswerPairs.push({
-            question,
-            answer
-        }));
-        return questionAnswerPairs;
+        var questionAnswersArray = [];
+        this.questionAnswers.forEach((answer, question, questionAnswers) => questionAnswersArray.push(QuestionAnswer.newInstance(question, answer)));
+        return questionAnswersArray;
     }
 
     toSchemaInstance() {
@@ -66,6 +63,10 @@ class QuestionnaireAnswers {
 
     createRuleContext() {
         return new RuleContext(this.questionAnswers);
+    }
+
+    get questionnaireUUID() {
+        return this.questionnaire.questionnaire.uuid;
     }
 }
 
