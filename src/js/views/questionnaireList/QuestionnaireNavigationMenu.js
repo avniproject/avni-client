@@ -4,7 +4,7 @@ import TypedTransition from '../../framework/routing/TypedTransition';
 import SettingsView from './../settings/SettingsView';
 import MessageService from '../../service/MessageService';
 
-class DiseaseNavigationMenu extends Component {
+class QuestionnaireNavigationMenu extends Component {
     static contextTypes = {
         navigator: React.PropTypes.func.isRequired,
         getService: React.PropTypes.func.isRequired
@@ -28,7 +28,7 @@ class DiseaseNavigationMenu extends Component {
     render() {
         return (
             <View>
-                <Text style={DiseaseNavigationMenu.styles.button} onPress={this.goToSettings}>
+                <Text style={QuestionnaireNavigationMenu.styles.button} onPress={this.goToSettings}>
                     {this.I18n.t('settings')}
                 </Text>
             </View>
@@ -36,4 +36,4 @@ class DiseaseNavigationMenu extends Component {
     }
 }
 
-export default DiseaseNavigationMenu;
+export default QuestionnaireNavigationMenu;

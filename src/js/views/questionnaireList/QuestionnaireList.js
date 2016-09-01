@@ -2,7 +2,7 @@ import {View, ListView, StyleSheet} from 'react-native';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import React from 'react';
 import QuestionnaireButton from './QuestionnaireButton';
-import DiseaseListView from './DiseaseListView';
+import QuestionnaireListView from './QuestionnaireListView';
 import Actions from '../../action';
 
 class QuestionnaireList extends AbstractComponent {
@@ -43,7 +43,7 @@ class QuestionnaireList extends AbstractComponent {
             <View>
                 {this.renderComponent(this.state.loading, (<ListView
                     enableEmptySections={true}
-                    contentContainerStyle={DiseaseListView.styles.questionnaireList}
+                    contentContainerStyle={QuestionnaireListView.styles.questionnaireList}
                     dataSource={dataSource}
                     renderRow={(questionnaire) => <QuestionnaireButton questionnaire={questionnaire}
                                                                        styles={this.props.styles}/>}

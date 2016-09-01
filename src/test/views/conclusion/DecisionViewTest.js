@@ -22,7 +22,7 @@ describe('Decision View Test', () => {
                         };
                     },
                     "getDecisionConfig": function () {
-                        return {"decisionCode": 'var getDecision = function (questionnaireAnswers) { console.log("FN CALLED"); var decision = {}; decision.name = "Treatment"; decision.code = "ABC001"; decision.value = "The patient should be referred to the hospital immediately as he may having tuberculosis"; decision.alert = "ALERT MESSAGE"; return [decision]; };'}
+                        return {"decisionCode": 'var getDecision = function (questionnaireAnswers) { var decision = {}; decision.name = "Treatment"; decision.code = "ABC001"; decision.value = "The patient should be referred to the hospital immediately as he may having tuberculosis"; decision.alert = "ALERT MESSAGE"; return [decision]; };'}
                     }
 
                 }
@@ -30,6 +30,12 @@ describe('Decision View Test', () => {
         };
         var simpleQuestionnaire = new SimpleQuestionnaire(SampleQuestionnaire, {});
         AppState.startQuestionnaireSession(simpleQuestionnaire);
-        shallow(<DecisionView params={{}}/>, {context});
+        const wrapper = shallow(<DecisionView params={{}}/>, {context});
+        expect(wrapper.instance().decisions).to.deep.be.equal([{
+            name: 'Treatment',
+            code: 'ABC001',
+            value: 'The patient should be referred to the hospital immediately as he may having tuberculosis',
+            alert: 'ALERT MESSAGE'
+        }]);
     });
 });

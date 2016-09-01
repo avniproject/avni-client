@@ -20,7 +20,7 @@ import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import TypedTransition from '../../framework/routing/TypedTransition'
 import MessageService from '../../service/MessageService';
-import DiseaseListView from "../diseaseList/DiseaseListView";
+import QuestionnaireListView from "../questionnaireList/QuestionnaireListView";
 import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 import AnswerList from './AnswerList';
@@ -115,7 +115,7 @@ class QuestionAnswerView extends Component {
     };
 
     onTitlePress = () => {
-        TypedTransition.from(this).resetTo(DiseaseListView);
+        TypedTransition.from(this).resetTo(QuestionnaireListView);
     };
 
     render() {

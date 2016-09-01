@@ -14,14 +14,14 @@ describe('DecisionSupportSessionComponent View Test', () => {
                         return t;
                     }
                 };
-            }
+            },
         };
     }
-
+    const context = {getService: getService, navigator: ()=> ({})};
     it('Should call Tabular List View with proper params', () => {
         const decisionData = [{name: "Weight", value: 12}, {name: "Height", value: 122}];
         const data = [{key: "Weight", value: 12}, {key: "Height", value: 122}];
-        const context = {getService: getService};
+
         const wrapper = shallow(<DecisionSupportSessionComponent
             decisions={decisionData}
             questionAnswers={data}/>, {context});

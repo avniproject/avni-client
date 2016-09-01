@@ -12,7 +12,7 @@ import Colors from '../primitives/Colors';
 
 @PathRoot
 @Path('/diseaseList')
-class DiseaseListView extends AbstractComponent {
+class QuestionnaireListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
@@ -61,21 +61,21 @@ class DiseaseListView extends AbstractComponent {
 
     render() {
         return (
-            <View style={DiseaseListView.styles.main}>
+            <View style={QuestionnaireListView.styles.main}>
                 <AppHeader title="questionnaireList" parent={this}/>
-                <View style={[Global.mainSection, DiseaseListView.styles.mainSection]}>
+                <View style={[Global.mainSection, QuestionnaireListView.styles.mainSection]}>
                     <DrawerLayoutAndroid
                         drawerWidth={300}
                         drawerPosition={DrawerLayoutAndroid.positions.Left}
                         renderNavigationView={() => <SettingsView/>}>
-                        <QuestionnaireList styles={DiseaseListView.styles}/>
+                        <QuestionnaireList styles={QuestionnaireListView.styles}/>
                     </DrawerLayoutAndroid>
 
-                    <QuestionnaireToolbar styles={DiseaseListView.styles}/>
+                    <QuestionnaireToolbar styles={QuestionnaireListView.styles}/>
                 </View>
             </View>
         );
     }
 }
 
-export default DiseaseListView;
+export default QuestionnaireListView;

@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import Colors from '../primitives/Colors';
 import MessageService from '../../service/MessageService';
-import DiseaseListView from '../diseaseList/DiseaseListView';
+import QuestionnaireListView from '../questionnaireList/QuestionnaireListView';
 
 
 class SettingsHeader extends Component {
@@ -54,7 +54,7 @@ class SettingsHeader extends Component {
     };
 
     onClosePress = () => {
-        TypedTransition.from(this.props.parent).to(DiseaseListView);
+        TypedTransition.from(this.props.parent).to(QuestionnaireListView);
     };
 
     render() {
