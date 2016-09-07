@@ -7,8 +7,8 @@ import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
 import MessageService from '../../service/MessageService';
-import RuleContext from '../../models/RuleContext';
 import DecisionConfigService from '../../service/DecisionConfigService';
+import TabularListView from './TabularListView';
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -76,6 +76,8 @@ class DecisionView extends Component {
                     <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this}
                                    nextView={ConfirmationView}/>
                 </View>
+                <TabularListView data={AppState.questionnaireAnswers.toArray()}
+                                 message={"answersConfirmationTitle"}/>
             </View>
         );
     }

@@ -132,8 +132,6 @@ class QuestionAnswerView extends Component {
                     <View>
                         {this.renderAnswer(this.question)}
                     </View>
-                    <TabularListView data={AppState.questionnaireAnswers.toArray()}
-                                     message={"answersConfirmationTitle"}/>
                     <WizardButtons hasQuestionBefore={!this.question.isFirstQuestion}
                                    nextParams={{
                                        questionNumber: this.props.params.questionNumber + 1,
@@ -143,6 +141,8 @@ class QuestionAnswerView extends Component {
                                    nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
                                    validationFn={this.validate}
                     />
+                    <TabularListView data={AppState.questionnaireAnswers.toArray()}
+                                     message={"answersConfirmationTitle"}/>
                 </View>
             </ScrollView>
         );
