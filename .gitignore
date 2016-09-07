@@ -44,3 +44,4 @@ android/keystores/debug.keystore
 android/.gradle/
 gen/
 coverage/
+**/secret-keys.xml
