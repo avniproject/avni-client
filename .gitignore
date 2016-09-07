@@ -43,5 +43,7 @@ android/keystores/debug.keystore
 .idea/
 android/.gradle/
 gen/
+<<<<<<< HEAD
 coverage/
 **/secret-keys.xml
+android/app/src/main/res/values/secrets.xml
