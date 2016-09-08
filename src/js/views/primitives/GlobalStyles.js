@@ -60,6 +60,11 @@ export let Global = StyleSheet.create({
         textAlign: 'center',
         flex: 0.33
     },
+    columnHeader: {
+        fontSize: 21,
+        textAlign: 'center',
+        flex: 0.33
+    },
     listRowSeparator: {
         height: 2,
         backgroundColor: '#14e4d5'

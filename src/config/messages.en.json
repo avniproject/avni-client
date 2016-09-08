@@ -24,5 +24,6 @@
   "locale": "Locale",
   "syncConfig": "Sync Config",
   "months": "Months",
-  "years": "Years"
+  "years": "Years",
+  "date": "Date"
 }

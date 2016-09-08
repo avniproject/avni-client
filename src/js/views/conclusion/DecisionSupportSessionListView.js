@@ -43,6 +43,13 @@ class DecisionSupportSessionListView extends Component {
             </View>);
     }
 
+    static renderSummaryFieldHeader(summaryField) {
+        return (
+            <View style={CHSStyles.Global.listCellContainer}>
+                <Text style={CHSStyles.Global.columnHeader}>{summaryField.summaryFieldName}</Text>
+            </View>);
+    }
+
     renderRow(session, questionnaire, rowID) {
         const rowIDSuffix = `${questionnaire.name}${rowID}`;
         return (
@@ -77,9 +84,12 @@ class DecisionSupportSessionListView extends Component {
                     renderHeader={() => {
                         return (
                             <View>
-                                <Text style={CHSStyles.Global.listViewHeader}>
-                                    {this.I18n.t(questionnaire.name)}
-                                </Text>
+                                <View>
+                                    <Text style={CHSStyles.Global.listViewHeader}>
+                                        {this.I18n.t(questionnaire.name)}
+                                    </Text>
+                                </View>
+                                {sessions.length !== 0 ? this.renderColumnHeaders(completeQuestionnaire) : <View/>}
                             </View>
                         )
                     }}
@@ -106,6 +116,16 @@ class DecisionSupportSessionListView extends Component {
             );
         else
             return (<View/>);
+    }
+
+    renderColumnHeaders(completeQuestionnaire) {
+        return (<View>
+            <View style={CHSStyles.Global.listRow}>
+                <Text style={CHSStyles.Global.columnHeader}>{this.I18n.t('date')}</Text>
+                {completeQuestionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryFieldHeader(summaryField))}
+            </View>
+            <Text style={CHSStyles.Global.listRowSeparator}/>
+        </View>);
     }
 
     render() {
