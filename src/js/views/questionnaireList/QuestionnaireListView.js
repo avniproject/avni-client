@@ -18,6 +18,10 @@ class QuestionnaireListView extends AbstractComponent {
         this.I18n = context.getService(MessageService).getI18n();
     }
 
+    viewName() {
+        return "QuestionnaireListView";
+    }
+
     static styles = StyleSheet.create({
         main: {
             flex: 1,

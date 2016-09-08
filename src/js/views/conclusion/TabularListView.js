@@ -17,16 +17,16 @@ class TabularListView extends AbstractComponent {
         message: React.PropTypes.string.isRequired,
     };
 
-    renderRow(key, value) {
+    renderRow(rowData) {
         return (
             <View style={CHSStyles.Global.listRow}>
                 <View style={CHSStyles.Global.listCellContainer}>
                     <Text
-                        style={CHSStyles.Global.listCell}>{this.I18n.t(key)}</Text>
+                        style={CHSStyles.Global.listCell}>{this.I18n.t(rowData.key)}</Text>
                 </View>
                 <View style={CHSStyles.Global.listCellContainer}>
                     <Text
-                        style={CHSStyles.Global.listCell}>{General.formatValue(value)}</Text>
+                        style={CHSStyles.Global.listCell}>{General.formatValue(rowData.value)}</Text>
                 </View>
             </View>);
     }
@@ -40,7 +40,7 @@ class TabularListView extends AbstractComponent {
             <View style={CHSStyles.Global.listViewContainer}>
                 <ListView
                     dataSource={dsClone}
-                    renderRow={(rowData) => this.renderRow(rowData.key, rowData.value)}
+                    renderRow={(rowData) => this.renderRow(rowData)}
                     enableEmptySections={true}
                     renderHeader={() => <Text
                         style={CHSStyles.Global.listViewHeader}>{this.I18n.t(this.props.message)}</Text>}

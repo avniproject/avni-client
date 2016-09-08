@@ -1,7 +1,5 @@
 import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
-import General from '../../utility/General';
-import * as CHSStyles from '../primitives/GlobalStyles';
 import TabularListView from './TabularListView';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 
@@ -26,24 +24,11 @@ class DecisionSupportSessionComponent extends AbstractComponent {
         questionAnswers: React.PropTypes.array.isRequired
     };
 
-    renderRow(key, value) {
-        return (
-            <View style={CHSStyles.Global.listRow}>
-                <View style={CHSStyles.Global.listCellContainer}>
-                    <Text
-                        style={CHSStyles.Global.listCell}>{this.I18n.t(key)}</Text>
-                </View>
-                <View style={CHSStyles.Global.listCellContainer}>
-                    <Text
-                        style={CHSStyles.Global.listCell}>{General.formatValue(value)}</Text>
-                </View>
-            </View>);
-    }
-
     render() {
         const decisions = this.props.decisions.map(({name, value})=> {
             return {key: name, value: value};
         });
+
         return (
             <View>
                 <TabularListView data={this.props.questionAnswers} message={"answersConfirmationTitle"}/>

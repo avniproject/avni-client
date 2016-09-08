@@ -37,6 +37,10 @@ class ConfirmationView extends Component {
         TypedTransition.from(this).goBack();
     };
 
+    viewName() {
+        return "ConfirmationView";
+    }
+
     render() {
         return (
             <View>

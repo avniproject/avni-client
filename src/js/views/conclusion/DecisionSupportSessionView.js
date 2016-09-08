@@ -4,6 +4,7 @@ import AppHeader from '../primitives/AppHeader';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import Path from "../../framework/routing/Path";
 import * as CHSStyles from "../primitives/GlobalStyles";
+import _ from 'lodash';
 
 @Path('/DecisionSupportSessionView')
 class DecisionSupportSessionView extends Component {
@@ -11,16 +12,31 @@ class DecisionSupportSessionView extends Component {
         super(props, context);
     }
 
+    viewName() {
+        return "DecisionSupportSessionView";
+    }
+
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };
 
+    static contextTypes = {
+        navigator: React.PropTypes.func.isRequired
+    };
+
     render() {
         const session = this.props.params.session;
+        const questionAnswers = session.questionAnswers.map((questionAnswer) => _.merge({}, {
+            key: questionAnswer.question,
+            value: questionAnswer.answerAsString()
+        }));
+
         return (
-            <View style={CHSStyles.Global.mainSection}>
+            <View>
                 <AppHeader parent={this} title="session"/>
-                <DecisionSupportSessionComponent questionAnswers={session.questionAnswers} decisions={session.decisions}/>
+                <View style={CHSStyles.Global.mainSection}>
+                    <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
+                </View>
             </View>
         );
     }

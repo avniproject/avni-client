@@ -17,6 +17,10 @@ class DecisionView extends Component {
         this.I18n = context.getService(MessageService).getI18n();
     }
 
+    viewName() {
+        return "DecisionView";
+    }
+
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };

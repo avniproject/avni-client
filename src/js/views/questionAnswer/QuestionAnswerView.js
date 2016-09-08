@@ -56,6 +56,10 @@ class QuestionAnswerView extends Component {
         this.state = {};
     }
 
+    viewName() {
+        return "QuestionAnswerView";
+    }
+
     renderAnswer(question) {
         if (question.questionDataType === SimpleQuestionnaire.Numeric || question.questionDataType === SimpleQuestionnaire.Text)
             return (

@@ -26,6 +26,10 @@ class DecisionSupportSessionListView extends Component {
         this.I18n = context.getService(MessageService).getI18n();
     }
 
+    viewName() {
+        return "DecisionSupportSessionListView";
+    }
+
     onSessionRowPress(session) {
         TypedTransition.from(this).with({session: session}).to(DecisionSupportSessionView);
     };
@@ -81,7 +85,7 @@ class DecisionSupportSessionListView extends Component {
                     }}
                     renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => DecisionSupportSessionListView._renderSeparator(rowID, `S${questionnaire.name}${rowID}`, sessions.length)}
                 />
-                {this.renderZeroSessionMessage(sessions)}
+                {this.renderZeroSessionMessageIfNeeded(sessions)}
             </View>);
     }
 
@@ -91,7 +95,7 @@ class DecisionSupportSessionListView extends Component {
         return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator}/>);
     }
 
-    renderZeroSessionMessage(sessions) {
+    renderZeroSessionMessageIfNeeded(sessions) {
         if (sessions.length === 0)
             return (
                 <View>
