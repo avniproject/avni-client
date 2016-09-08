@@ -44,7 +44,7 @@ class ConfirmationView extends Component {
     render() {
         return (
             <View>
-                <AppHeader title="confirmation"
+                <AppHeader title={this.I18n.t("confirmation")}
                            parent={this}
                 />
                 <View style={CHSStyles.Global.mainSection}>

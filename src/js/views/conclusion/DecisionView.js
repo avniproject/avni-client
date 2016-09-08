@@ -71,7 +71,7 @@ class DecisionView extends Component {
         this.decisions = eval(evalExpression);
         return (
             <View>
-                <AppHeader title={AppState.questionnaireAnswers.questionnaireName}
+                <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)}
                            onTitlePressed={this.onViewSavedSessionsPress}
                            parent={this}
                 />

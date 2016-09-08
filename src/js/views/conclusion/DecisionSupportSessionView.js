@@ -5,11 +5,14 @@ import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import Path from "../../framework/routing/Path";
 import * as CHSStyles from "../primitives/GlobalStyles";
 import _ from 'lodash';
+import General from '../../utility/General';
+import MessageService from "../../service/MessageService";
 
 @Path('/DecisionSupportSessionView')
 class DecisionSupportSessionView extends Component {
     constructor(props, context) {
         super(props, context);
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     viewName() {
@@ -21,7 +24,8 @@ class DecisionSupportSessionView extends Component {
     };
 
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
+        navigator: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired
     };
 
     render() {
@@ -33,7 +37,7 @@ class DecisionSupportSessionView extends Component {
 
         return (
             <View>
-                <AppHeader parent={this} title="session"/>
+                <AppHeader parent={this} title={this.I18n.t("session", {saveDate: General.formatDate(session.saveDate)})}/>
                 <View style={CHSStyles.Global.mainSection}>
                     <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
                 </View>

@@ -66,7 +66,7 @@ class QuestionnaireListView extends AbstractComponent {
     render() {
         return (
             <View style={QuestionnaireListView.styles.main}>
-                <AppHeader title="questionnaireList" parent={this}/>
+                <AppHeader title={this.I18n.t("questionnaireList")} parent={this}/>
                 <View style={[Global.mainSection, QuestionnaireListView.styles.mainSection]}>
                     <DrawerLayoutAndroid
                         drawerWidth={300}

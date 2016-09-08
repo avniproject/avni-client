@@ -72,7 +72,7 @@ class AppHeader extends Component {
                         {this.renderImage()}
                     </TouchableHighlight>
                     <TouchableHighlight onPress={this.props.onTitlePressed} style={{width: 50, flex: 1}}>
-                        <Text style={AppHeader.styles.header}>{this.I18n.t(this.props.title)}</Text>
+                        <Text style={AppHeader.styles.header}>{this.props.title}</Text>
                     </TouchableHighlight>
                     <View style={AppHeader.styles.icon}>
                         <Image

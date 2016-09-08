@@ -129,7 +129,7 @@ class QuestionAnswerView extends Component {
             AppState.questionnaireAnswers.currentAnswerValue = this.question.defaultValue;
         return (
             <ScrollView keyboardShouldPersistTaps={true}>
-                <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}
+                <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)} parent={this}
                            onTitlePressed={this.onTitlePress}/>
                 <View style={[CHSStyles.Global.mainSection]}>
                     <Question question={this.question} locale={this.locale}/>

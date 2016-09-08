@@ -134,7 +134,7 @@ class DecisionSupportSessionListView extends Component {
 
         return (
             <View>
-                <AppHeader title="allQuestionnaireSessionsSummary" parent={this}/>
+                <AppHeader title={this.I18n.t("allQuestionnaireSessionsSummary")} parent={this}/>
                 <View style={CHSStyles.Global.mainSection}>
                     {questionnaires.map(this.renderSessions.bind(this))}
                 </View>
