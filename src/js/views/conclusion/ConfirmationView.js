@@ -1,4 +1,4 @@
-import {View, ListView, Text, StyleSheet, TouchableOpacity, TouchableHighlight} from 'react-native';
+import {View, ListView, Text, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import * as CHSStyles from "../primitives/GlobalStyles";
@@ -43,7 +43,7 @@ class ConfirmationView extends Component {
 
     render() {
         return (
-            <View>
+            <ScrollView keyboardShouldPersistTaps={true}>
                 <AppHeader title={this.I18n.t("confirmation")}
                            parent={this}
                 />
@@ -72,7 +72,7 @@ class ConfirmationView extends Component {
                         </View>
                     </TouchableHighlight>
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }

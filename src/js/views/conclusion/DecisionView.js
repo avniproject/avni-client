@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, ListView} from 'react-native';
+import {View, Text, StyleSheet, ListView, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
@@ -70,7 +70,7 @@ class DecisionView extends Component {
         const evalExpression = `${decision.decisionCode} getDecision(param);`;
         this.decisions = eval(evalExpression);
         return (
-            <View>
+            <ScrollView keyboardShouldPersistTaps={true}>
                 <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)}
                            onTitlePressed={this.onViewSavedSessionsPress}
                            parent={this}
@@ -82,7 +82,7 @@ class DecisionView extends Component {
                 </View>
                 <TabularListView data={AppState.questionnaireAnswers.toArray()}
                                  message={"answersConfirmationTitle"}/>
-            </View>
+            </ScrollView>
         );
     }
 }

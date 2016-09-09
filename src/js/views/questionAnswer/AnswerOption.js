@@ -34,16 +34,19 @@ class AnswerOption extends Component {
             textAlign: 'left',
             textAlignVertical: 'center',
             fontSize: 18,
-            flex: 3
+            flex: 4
         },
         checkImageContainer: {
             flex: 1,
-            alignItems: 'center'
+            flexDirection: 'row'
         },
         checkImage: {
             resizeMode: 'contain',
             height: 45,
             width: 60,
+        },
+        checkImagePlaceholder: {
+            flex: 1
         }
     });
 
@@ -56,6 +59,8 @@ class AnswerOption extends Component {
                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/check.png')}
                     />
                 </TouchableHighlight>);
+        } else {
+            return (<Text style={AnswerOption.styles.checkImagePlaceholder} onPress={() => this.props.optionPressed(this.props.answer)}/>);
         }
     }
 

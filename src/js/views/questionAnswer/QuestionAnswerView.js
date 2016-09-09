@@ -66,7 +66,7 @@ class QuestionAnswerView extends Component {
                 <TextInput onChangeText={(text) => AppState.questionnaireAnswers.currentAnswerValue = text}
                            style={QuestionAnswerView.styles.textInput}
                            keyboardType={question.questionDataType === SimpleQuestionnaire.Numeric ? 'numeric' : 'default'}
-                           autoFocus={question.isMandatory ? true : false}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
+                           autoFocus={true}>{AppState.questionnaireAnswers.currentAnswer.value}</TextInput>);
         else if (question.questionDataType === SimpleQuestionnaire.Duration) {
             return (
                 <DurationComponent styles={QuestionAnswerView.styles}/>);
@@ -93,7 +93,6 @@ class QuestionAnswerView extends Component {
 
     async showPicker(stateKey, options) {
         try {
-            var newState = {};
             const {action, year, month, day} = await DatePickerAndroid.open(options);
             if (action === DatePickerAndroid.dismissedAction) {
             } else {
