@@ -1,9 +1,8 @@
 import _ from 'lodash';
 
 class AnswerListModel {
-    constructor(chosenAnswers, isMultiSelect) {
+    constructor(chosenAnswers) {
         this.chosenAnswers = chosenAnswers;
-        this.isMultiSelect = isMultiSelect;
     }
 
     isSelected(option) {

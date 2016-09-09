@@ -5,7 +5,7 @@ class Duration {
     static Year = "Year";
 
     constructor(durationValue, durationUnit) {
-        this.durationValue = durationValue;
+        this._durationValue = durationValue;
         this.durationUnit = durationUnit;
     }
 
@@ -50,6 +50,13 @@ class Duration {
 
     get isEmpty() {
         return _.isNil(this._durationValue);
+    }
+
+    get inYears() {
+        if (this.durationUnit === Duration.Month)
+            return this.durationValue / 12;
+        else
+            return this.durationValue;
     }
 }
 

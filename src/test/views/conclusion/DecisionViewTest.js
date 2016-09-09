@@ -8,7 +8,6 @@ import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import SampleQuestionnaire from '../../resources/sample-questionnaire.json';
 
 describe('Decision View Test', () => {
-
     it('should have display conclusion', () => {
         const context = {
             navigator: ()=> ({}),
@@ -21,10 +20,9 @@ describe('Decision View Test', () => {
                             }
                         };
                     },
-                    "getDecisionConfig": function () {
-                        return {"decisionCode": 'var getDecision = function (questionnaireAnswers) { var decision = {}; decision.name = "Treatment"; decision.code = "ABC001"; decision.value = "The patient should be referred to the hospital immediately as he may having tuberculosis"; decision.alert = "ALERT MESSAGE"; return [decision]; };'}
+                    "getDecision": function () {
+                        return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
                     }
-
                 }
             }
         };

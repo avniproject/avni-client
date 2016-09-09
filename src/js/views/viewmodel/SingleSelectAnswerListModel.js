@@ -1,6 +1,10 @@
 import AnswerListModel from "./AnswerListModel";
 
 class SingleSelectAnswerListModel extends AnswerListModel {
+    constructor(chosenAnswers) {
+        super(chosenAnswers);
+    }
+
     toggleSelection(option) {
         if (this.chosenAnswers.length === 0) {
             this.select(option);

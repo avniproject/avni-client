@@ -25,6 +25,7 @@ import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 import AnswerList from './AnswerList';
 import TabularListView from './../conclusion/TabularListView';
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -113,6 +114,12 @@ class QuestionAnswerView extends Component {
                 status: false,
                 message: this.I18n.t('numericValueValidation', {range: General.formatRange(this.question)})
             };
+        }
+
+        if (this.question.isLastQuestion) {
+            const validationResult = this.context.getService(RuleEvaluationService).validate(AppState.questionnaireAnswers.questionnaireName);
+            console.log(validationResult);
+            return {status: validationResult.passed, message: validationResult.message}
         }
         return {status: true};
     };
