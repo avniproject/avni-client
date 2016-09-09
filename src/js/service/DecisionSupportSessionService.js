@@ -4,11 +4,12 @@ import DecisionSupportSession from "../models/DecisionSupportSession";
 import QuestionAnswer from "../models/QuestionAnswer";
 import Answer from "../models/Answer";
 import Decision from "../models/Decision";
+import QuestionnaireService from "./QuestionnaireService";
 
 @Service("decisionSupportSessionService")
 class DecisionSupportSessionService extends BaseService {
-    constructor(db) {
-        super(db);
+    constructor(db, beanStore) {
+        super(db, beanStore);
     }
 
     save(questionnaireAnswers, decisions) {
@@ -20,7 +21,12 @@ class DecisionSupportSessionService extends BaseService {
     getAll(questionnaireUUID) {
         const allSessions = this.db.objects(DecisionSupportSession.schema.name);
         const expression = `questionnaireUUID = \"${questionnaireUUID}\"`;
-        return allSessions.filtered(expression);
+        var questionnaireSessions = allSessions.filtered(expression);
+        var questionnaire = this.getService(QuestionnaireService).getQuestionnaire(questionnaireUUID);
+        return questionnaireSessions.map((questionnaireSession) => {
+            questionnaireSession.questionnaire = questionnaire.questionnaire;
+            return questionnaireSession;
+        });
     }
 
     getNumberOfSessions() {

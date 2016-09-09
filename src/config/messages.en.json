@@ -8,7 +8,7 @@
   "export": "Export",
   "answersConfirmationTitle": "Entered data",
   "allQuestionnaireSessionsSummary": "Your data",
-  "session": "questionnaireName data - {{saveDate}}",
+  "session": "{{questionnaireName}} - on {{saveDate}}",
   "decisionsMadeBySystem": "Generated data",
   "viewSavedSessions": "View Data",
   "zeroNumberOfSessions": "There are no saved sessions",

@@ -6,7 +6,6 @@ export default class BaseService {
     }
 
     init() {
-
     }
 
     getService(name) {

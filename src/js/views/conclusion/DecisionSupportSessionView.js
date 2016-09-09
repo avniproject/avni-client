@@ -37,7 +37,7 @@ class DecisionSupportSessionView extends Component {
 
         return (
             <View>
-                <AppHeader parent={this} title={this.I18n.t("session", {saveDate: General.formatDate(session.saveDate)})}/>
+                <AppHeader parent={this} title={this.I18n.t("session", {saveDate: General.formatDate(session.saveDate), questionnaireName: session.questionnaire.name})}/>
                 <View style={CHSStyles.Global.mainSection}>
                     <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
                 </View>
