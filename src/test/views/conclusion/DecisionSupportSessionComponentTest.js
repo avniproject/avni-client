@@ -17,10 +17,17 @@ describe('DecisionSupportSessionComponent View Test', () => {
             },
         };
     }
+
     const context = {getService: getService, navigator: ()=> ({})};
     it('Should call Tabular List View with proper params', () => {
-        const decisionData = [{name: "Weight", value: 12}, {name: "Height", value: 122}];
-        const data = [{key: "Weight", value: 12}, {key: "Height", value: 122}];
+        const decisionData = [{name: "Weight", value: 12}, {
+            name: "Height",
+            value: 122
+        }].map((obj, idx)=> Object.assign(obj, {index: idx}));
+        const data = [{key: "Weight", value: 12}, {
+            key: "Height",
+            value: 122
+        }].map((obj, idx)=> Object.assign(obj, {index: idx}));
 
         const wrapper = shallow(<DecisionSupportSessionComponent
             decisions={decisionData}

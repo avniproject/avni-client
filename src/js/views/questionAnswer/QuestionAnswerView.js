@@ -15,7 +15,7 @@ import DecisionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState";
 import * as CHSStyles from "../primitives/GlobalStyles"
 import AppHeader from '../primitives/AppHeader';
-import WizardButtons from '../primitives/WizardButtons';
+import PreviousNextSave from '../common/PreviousNextSave';
 import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import TypedTransition from '../../framework/routing/TypedTransition'
@@ -142,14 +142,14 @@ class QuestionAnswerView extends Component {
                     <View>
                         {this.renderAnswer(this.question)}
                     </View>
-                    <WizardButtons hasQuestionBefore={!this.question.isFirstQuestion}
-                                   nextParams={{
-                                       questionNumber: this.props.params.questionNumber + 1,
-                                       questionnaire: this.props.params.questionnaire
-                                   }}
-                                   parent={this}
-                                   nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
-                                   validationFn={this.validate}
+                    <PreviousNextSave hasQuestionBefore={!this.question.isFirstQuestion}
+                                      nextParams={{
+                                          questionNumber: this.props.params.questionNumber + 1,
+                                          questionnaire: this.props.params.questionnaire
+                                      }}
+                                      parent={this}
+                                      nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
+                                      validationFn={this.validate}
                     />
                     <QuestionAnswerTabView questionnaire={this.props.params.questionnaire}
                                            data={AppState.questionnaireAnswers.toArray()}

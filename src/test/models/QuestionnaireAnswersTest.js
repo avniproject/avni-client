@@ -26,10 +26,10 @@ describe('QuestionnaireAnswers', () => {
         var questionnaireAnswersArray = qa.toArray();
         expect(questionnaireAnswersArray).to.have.length(4);
         expect(questionnaireAnswersArray).to.deep.have.members([
-                {key: 'bar', value: 'baz'},
-                {key: 'foo1', value: 'bar1'},
-                {key: 'foo2', value: 'bar2'},
-                {key: 'foo7', value: '12 Years'}
+                {key: 'bar', value: 'baz', index: 0},
+                {key: 'foo1', value: 'bar1', index: 1},
+                {key: 'foo2', value: 'bar2', index: 2},
+                {key: 'foo7', value: '12 Years', index: 3}
             ]
         );
     });

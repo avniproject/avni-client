@@ -21,7 +21,7 @@ class DecisionSupportSessionComponent extends AbstractComponent {
     });
 
     static propTypes = {
-        decisions: React.PropTypes.array.isRequired,
+        decisions: React.PropTypes.object.isRequired,
         questionAnswers: React.PropTypes.array.isRequired,
         questionnaire: React.PropTypes.object
     };

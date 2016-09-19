@@ -6,14 +6,14 @@ import QuestionAnswerView from '../../../js/views/questionAnswer/QuestionAnswerV
 import QuestionnaireService from "../../../js/service/QuestionnaireService";
 import Question from "../../../js/views/questionAnswer/Question";
 import AppState from "../../../js/hack/AppState"
-import WizardButtons from "../../../js/views/primitives/WizardButtons";
+import PreviousNextSave from "../../../js/views/common/PreviousNextSave";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
 import SampleQuestionnaire from "../../resources/sample-questionnaire.json";
 import Diabetes from "../../resources/diabetes.json";
 import Concepts from "../../resources/sample-concepts.json";
 import _ from "lodash";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
-import TabularListView from "../../../js/views/common/TabularListView";
+import QuestionAnswerTabView from "../../../js/views/common/QuestionAnswerTabView";
 
 describe('Question Answer View Test', () => {
 
@@ -56,8 +56,8 @@ describe('Question Answer View Test', () => {
                                                         }}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(AnswerList)).to.have.length(1);
-        expect(wrapper.find(WizardButtons)).to.have.length(1);
-        expect(wrapper.find(TabularListView)).to.have.length(1);
+        expect(wrapper.find(PreviousNextSave)).to.have.length(1);
+        expect(wrapper.find(QuestionAnswerTabView)).to.have.length(1);
     });
 
     it('when Numeric is the first question', () => {
@@ -78,7 +78,7 @@ describe('Question Answer View Test', () => {
             params={{questionNumber: 0, questionnaire: simpleQuestionnaire}}/>, {context});
         expect(wrapper.find(Question)).to.have.length(1);
         expect(wrapper.find(TextInput)).to.have.length(1);
-        expect(wrapper.find(WizardButtons)).to.have.length(1);
-        expect(wrapper.find(TabularListView)).to.have.length(1);
+        expect(wrapper.find(PreviousNextSave)).to.have.length(1);
+        expect(wrapper.find(QuestionAnswerTabView)).to.have.length(1);
     });
 });

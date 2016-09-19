@@ -4,13 +4,10 @@ import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
 import AppHeader from '../primitives/AppHeader';
 import * as CHSStyles from "../primitives/GlobalStyles"
-import WizardButtons from '../primitives/WizardButtons'
-import ConfirmationView from "./ConfirmationView";
+import PreviousNextSave from '../common/PreviousNextSave';
 import MessageService from '../../service/MessageService';
 import QuestionAnswerTabView from '../common/QuestionAnswerTabView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import QuestionAnswerView from "../questionAnswer/QuestionAnswerView";
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -75,11 +72,12 @@ class DecisionView extends Component {
                 />
                 <View style={CHSStyles.Global.mainSection}>
                     {this.renderDecisions(this.decisions)}
-                    <WizardButtons hasQuestionBefore={true} nextParams={{
-                        questionnaire: this.props.params.questionnaire,
-                        decisions: this.decisions
-                    }} parent={this}
-                                   nextView={ConfirmationView}/>
+                    <PreviousNextSave hasQuestionBefore={true}
+                                      nextParams={{
+                                          questionnaire: this.props.params.questionnaire,
+                                          decisions: this.decisions
+                                      }}
+                                      parent={this}/>
                 </View>
                 <QuestionAnswerTabView
                     questionnaire={this.props.params.questionnaire}
