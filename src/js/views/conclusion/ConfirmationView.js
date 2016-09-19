@@ -28,8 +28,8 @@ class ConfirmationView extends Component {
     };
 
     onSaveAndRestart = () => {
-        var service = this.context.getService(DecisionSupportSessionService);
-        service.save(AppState.questionnaireAnswers, this.props.params.decisions);
+        const decisionSupportSessionService = this.context.getService(DecisionSupportSessionService);
+        decisionSupportSessionService.save(AppState.questionnaireAnswers, this.props.params.decisions);
         TypedTransition.from(this).resetTo(QuestionnaireListView);
     };
 
@@ -49,9 +49,9 @@ class ConfirmationView extends Component {
                 />
                 <View style={CHSStyles.Global.mainSection}>
                     <DecisionSupportSessionComponent
-                                                     questionnaire={this.props.params.questionnaire}
-                                                     decisions={this.props.params.decisions}
-                                                     questionAnswers={AppState.questionnaireAnswers.toArray()}/>
+                        questionnaire={this.props.params.questionnaire}
+                        decisions={this.props.params.decisions}
+                        questionAnswers={AppState.questionnaireAnswers.toArray()}/>
                 </View>
                 <View
                     style={{

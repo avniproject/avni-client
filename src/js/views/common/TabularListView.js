@@ -10,6 +10,8 @@ class TabularListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
+        this.clickable = this.clickable.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
     static propTypes = {
@@ -18,13 +20,18 @@ class TabularListView extends AbstractComponent {
         handleClick: React.PropTypes.func,
     };
 
+    clickable() {
+        return !_.isNil(this.props.handleClick);
+    }
+
     handleClick(index) {
-        return _.isNil(this.props.handleClick) ? General.emptyFunction : ()=>this.props.handleClick(index);
+        return this.clickable() ? ()=> this.props.handleClick(index) : General.emptyFunction;
     }
 
     renderRow(rowData) {
+        const WrappingComponent = this.clickable() ? TouchableHighlight : View;
         return (
-            <TouchableHighlight onPress={this.handleClick(rowData.index)}>
+            <WrappingComponent onPress={this.handleClick(rowData.index)}>
                 <View style={CHSStyles.Global.listRow}>
 
                     <View style={CHSStyles.Global.listCellContainer}>
@@ -37,7 +44,7 @@ class TabularListView extends AbstractComponent {
                     </View>
 
                 </View>
-            </TouchableHighlight>);
+            </WrappingComponent>);
     }
 
     render() {

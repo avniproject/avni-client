@@ -3,8 +3,6 @@ import React, {Component} from 'react';
 import TabularListView from '../common/TabularListView';
 import QuestionAnswerTabView from '../common/QuestionAnswerTabView';
 import AbstractComponent from '../../framework/view/AbstractComponent';
-import TypedTransition from "../../framework/routing/TypedTransition";
-import QuestionAnswerView from "../questionAnswer/QuestionAnswerView";
 
 class DecisionSupportSessionComponent extends AbstractComponent {
     constructor(props, context) {
@@ -25,19 +23,19 @@ class DecisionSupportSessionComponent extends AbstractComponent {
     static propTypes = {
         decisions: React.PropTypes.array.isRequired,
         questionAnswers: React.PropTypes.array.isRequired,
-        questionnaire: React.PropTypes.object.isRequired
+        questionnaire: React.PropTypes.object
     };
 
     render() {
         const decisions = this.props.decisions.map(({name, value}, index)=> {
             return {key: name, value: value, index: index};
         });
-
+        const QAComponent = this.props.questionnaire ? QuestionAnswerTabView : TabularListView;
         return (
             <View>
-                <QuestionAnswerTabView questionnaire={this.props.questionnaire}
-                                       data={this.props.questionAnswers}
-                                       message={"answersConfirmationTitle"}/>
+                <QAComponent questionnaire={this.props.questionnaire}
+                             data={this.props.questionAnswers}
+                             message={"answersConfirmationTitle"}/>
                 <TabularListView data={decisions} message={"decisionsMadeBySystem"}/>
             </View>);
     }
