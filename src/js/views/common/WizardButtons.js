@@ -20,10 +20,11 @@ class WizardButtons extends Component {
 
     render() {
         const buttons = this.props.buttons.map((button, idx)=>(
-            <TouchableHighlight key={idx}>
+            <TouchableHighlight key={idx}
+                                style={button.visible ? CHSStyles.Global.navButtonVisible : CHSStyles.Global.navButtonHidden}>
                 <View style={CHSStyles.Global.actionButtonWrapper}>
                     <Text onPress={button.func}
-                          style={[CHSStyles.Global.actionButton, button.visible ? CHSStyles.Global.navButtonVisible : CHSStyles.Global.navButtonHidden]}>{this.I18n.t(button.text)}</Text>
+                          style={[CHSStyles.Global.actionButton]}>{this.I18n.t(button.text)}</Text>
                 </View>
             </TouchableHighlight>
         ));

@@ -5,6 +5,7 @@ import QuestionnaireListView from "../questionnaireList/QuestionnaireListView";
 import WizardButtons from "./WizardButtons";
 import AppState from '../../hack/AppState';
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
+import MessageService from "../../service/MessageService";
 
 class PreviousNext extends Component {
     static contextTypes = {
@@ -25,6 +26,7 @@ class PreviousNext extends Component {
         this.onNext = this.onNext.bind(this);
         this.onPrevious = this.onPrevious.bind(this);
         this.onSave = this.onSave.bind(this);
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     onPrevious() {
@@ -57,9 +59,9 @@ class PreviousNext extends Component {
     }
 
     render() {
-        const previous = {text: "previous", visible: !this.props.hasQuestionBefore, func: this.onPrevious};
+        const previous = {text: "previous", visible: this.props.hasQuestionBefore || !this.props.nextView, func: this.onPrevious};
         const next = {text: "next", visible: true, func: this.onNext};
-        const save = {text: "saveAndRestart", visible: false, func: this.onSave};
+        const save = {text: "saveAndRestart", visible: !this.props.nextView, func: this.onSave};
         var buttons = [previous];
         buttons.push(this.props.nextView ? next : save);
         return (
