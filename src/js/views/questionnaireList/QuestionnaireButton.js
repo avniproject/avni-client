@@ -5,12 +5,15 @@ import QuestionAnswerView from './../questionAnswer/QuestionAnswerView';
 import AppState from "../../hack/AppState";
 import MessageService from '../../service/MessageService';
 import QuestionnaireService from '../../service/QuestionnaireService';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import Actions from '../../action';
 
-class QuestionnaireButton extends Component {
+class QuestionnaireButton extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
+        this.onSelect = this.onSelect.bind(this);
     }
 
     static propTypes = {
@@ -18,20 +21,12 @@ class QuestionnaireButton extends Component {
         styles: React.PropTypes.object.isRequired
     };
 
-    static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired
-    };
-
-    onSelect = () => {
-        const service = this.context.getService(QuestionnaireService);
-        const questionnaire = service.getQuestionnaire(this.props.questionnaire.uuid);
-        AppState.startQuestionnaireSession(questionnaire);
+    onSelect() {
+        this.dispatchAction(Actions.CREATE_SESSION, {questionnaireUUID: this.props.questionnaire.uuid});
         TypedTransition
             .from(this)
             .with({
-                questionNumber: 0,
-                questionnaire: questionnaire
+                questionnaireUUID: this.props.questionnaire.uuid
             })
             .to(QuestionAnswerView);
     };

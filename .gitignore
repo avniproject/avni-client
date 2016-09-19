@@ -44,3 +44,7 @@ android/keystores/debug.keystore
 android/.gradle/
 gen/
 coverage/
+
+default.realm
+default.realm.lock
+default.realm.management

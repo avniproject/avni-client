@@ -20,14 +20,16 @@ import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
 import TypedTransition from '../../framework/routing/TypedTransition'
 import MessageService from '../../service/MessageService';
+import SettingsService from '../../service/SettingsService';
 import QuestionnaireListView from "../questionnaireList/QuestionnaireListView";
 import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 import AnswerList from './AnswerList';
 import TabularListView from './../conclusion/TabularListView';
+import AbstractComponent from '../../framework/view/AbstractComponent';
 
 @Path('/QuestionAnswerView')
-class QuestionAnswerView extends Component {
+class QuestionAnswerView extends AbstractComponent {
     static styles = StyleSheet.create({
         textInput: {
             padding: 5,
@@ -42,18 +44,19 @@ class QuestionAnswerView extends Component {
         params: React.PropTypes.object.isRequired
     };
 
-    static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired,
-        getDB: React.PropTypes.func.isRequired
-    };
-
     constructor(props, context) {
         super(props, context);
-        this.locale = this.context.getDB().objects('Settings')[0]["locale"]["selectedLocale"];
-        this.questionnaire = this.props.params.questionnaire;
+        this.locale = context.getService(SettingsService).getLocale();
         this.I18n = context.getService(MessageService).getI18n();
-        this.state = {};
+        this.state = {
+            loading: true,
+            questionnaire: this.getState(this.props.params.questionnaireUUID).questionnaire
+        };
+        this.subscribe(this.handleChange);
+    }
+
+    handleChange() {
+
     }
 
     renderAnswer(question) {
@@ -101,7 +104,7 @@ class QuestionAnswerView extends Component {
         }
     }
 
-    validate = () => {
+    validate() {
         const answer = AppState.questionnaireAnswers.currentAnswer;
         if (this.question.isMandatory && AppState.questionnaireAnswers.currentAnswerIsEmpty) {
             return {status: false, message: this.I18n.t('emptyValidationMessage')};
@@ -112,28 +115,33 @@ class QuestionAnswerView extends Component {
             };
         }
         return {status: true};
-    };
+    }
 
-    onTitlePress = () => {
+    onTitlePress() {
         TypedTransition.from(this).resetTo(QuestionnaireListView);
-    };
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
+
+    componentDidMount() {
+        // console.log(this.context.getStore().getState());
+    }
 
     render() {
-        this.question = this.questionnaire.getQuestion(this.props.params.questionNumber);
-        AppState.questionnaireAnswers.currentQuestion = this.question.name;
-        if (_.isNil(AppState.questionnaireAnswers.currentAnswer.value))
-            AppState.questionnaireAnswers.currentAnswerValue = this.question.defaultValue;
         return (
             <ScrollView keyboardShouldPersistTaps={true}>
                 <AppHeader title={AppState.questionnaireAnswers.questionnaireName} parent={this}
                            onTitlePressed={this.onTitlePress}/>
                 <View style={[CHSStyles.Global.mainSection]}>
-                    <Question question={this.question} locale={this.locale}/>
-                    <View>
-                        {this.renderAnswer(this.question)}
-                    </View>
-                    <TabularListView data={AppState.questionnaireAnswers.toArray()}
-                                     message={"answersConfirmationTitle"}/>
+                    {this.renderComponent(this.state.loading, (
+                        <View>
+                            <Question question={this.question} locale={this.locale}/>
+                            <View>
+                                {this.renderAnswer(this.question)}
+                            </View>
+                        </View>), color = "black", size = "large")}
                     <WizardButtons hasQuestionBefore={!this.question.isFirstQuestion}
                                    nextParams={{
                                        questionNumber: this.props.params.questionNumber + 1,
@@ -141,8 +149,9 @@ class QuestionAnswerView extends Component {
                                    }}
                                    parent={this}
                                    nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
-                                   validationFn={this.validate}
-                    />
+                                   validationFn={this.validate}/>
+                    <TabularListView data={AppState.questionnaireAnswers.toArray()}
+                                     message={"answersConfirmationTitle"}/>
                 </View>
             </ScrollView>
         );

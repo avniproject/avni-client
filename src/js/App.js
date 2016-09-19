@@ -7,6 +7,7 @@ import './views';
 import './service';
 import AppState from './hack/AppState'; //Required Import
 import AppStoreFactory from './store/AppStore';
+import SessionFactory from './factory/SessionFactory';
 
 export default class App extends Component {
 
@@ -15,6 +16,7 @@ export default class App extends Component {
         this.db = new Realm(models);
         this.beans = BeanRegistry.init(this.db, this);
         this.getBean = this.getBean.bind(this);
+        SessionFactory.register(this.beans);
         this.appStore = AppStoreFactory(this.beans);
         this.routes = PathRegistry.routes();
     }
