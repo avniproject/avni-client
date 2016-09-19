@@ -1,6 +1,6 @@
 import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {Component} from 'react';
-import TabularListView from './TabularListView';
+import TabularListView from '../common/TabularListView';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 
 class DecisionSupportSessionComponent extends AbstractComponent {

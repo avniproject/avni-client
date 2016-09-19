@@ -2,7 +2,7 @@ import React from 'react';
 import {View, ListView} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
-import TabularListView from '../../../js/views/conclusion/TabularListView';
+import TabularListView from '../../../js/views/common/TabularListView';
 
 describe('Tabular List View Test', () => {
     function getService() {

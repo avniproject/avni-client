@@ -7,7 +7,7 @@ import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
 import MessageService from '../../service/MessageService';
-import TabularListView from './TabularListView';
+import TabularListView from '../common/TabularListView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/DecisionView')

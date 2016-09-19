@@ -3,7 +3,7 @@ import {View, ListView} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import DecisionSupportSessionComponent from '../../../js/views/conclusion/DecisionSupportSessionComponent';
-import TabularListView from '../../../js/views/conclusion/TabularListView';
+import TabularListView from '../../../js/views/common/TabularListView';
 
 describe('DecisionSupportSessionComponent View Test', () => {
     function getService() {

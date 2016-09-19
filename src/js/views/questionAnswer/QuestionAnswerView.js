@@ -24,7 +24,7 @@ import QuestionnaireListView from "../questionnaireList/QuestionnaireListView";
 import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 import AnswerList from './AnswerList';
-import TabularListView from './../conclusion/TabularListView';
+import TabularListView from './../common/TabularListView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/QuestionAnswerView')

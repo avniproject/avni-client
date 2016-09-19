@@ -25,7 +25,7 @@ class SyncButton extends AbstractComponent {
 
     render() {
         return (
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end'}}>
                 <TouchableHighlight>
                     <View style={CHSStyles.Global.actionButtonWrapper}>
                         {this.renderComponent(this.state.syncing, (

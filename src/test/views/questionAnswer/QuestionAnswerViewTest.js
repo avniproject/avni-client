@@ -13,7 +13,7 @@ import Diabetes from "../../resources/diabetes.json";
 import Concepts from "../../resources/sample-concepts.json";
 import _ from "lodash";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
-import TabularListView from "../../../js/views/conclusion/TabularListView";
+import TabularListView from "../../../js/views/common/TabularListView";
 
 describe('Question Answer View Test', () => {
 
