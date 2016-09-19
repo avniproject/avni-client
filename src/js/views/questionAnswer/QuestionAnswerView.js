@@ -24,7 +24,7 @@ import QuestionnaireListView from "../questionnaireList/QuestionnaireListView";
 import DurationComponent from './DurationComponent';
 import _ from 'lodash';
 import AnswerList from './AnswerList';
-import TabularListView from './../common/TabularListView';
+import QuestionAnswerTabView from './../common/QuestionAnswerTabView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/QuestionAnswerView')
@@ -151,8 +151,9 @@ class QuestionAnswerView extends Component {
                                    nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
                                    validationFn={this.validate}
                     />
-                    <TabularListView data={AppState.questionnaireAnswers.toArray()}
-                                     message={"answersConfirmationTitle"}/>
+                    <QuestionAnswerTabView questionnaire={this.props.params.questionnaire}
+                                           data={AppState.questionnaireAnswers.toArray()}
+                                           message={"answersConfirmationTitle"}/>
                 </View>
             </ScrollView>
         );

@@ -11,6 +11,9 @@ class General {
 
     static isNilOrEmpty(value) {
         return _.isNil(value) || _.isEmpty(_.trim(value));
+    }
+
+    static emptyFunction() {
 
     }
 

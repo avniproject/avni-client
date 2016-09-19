@@ -1,4 +1,4 @@
-import {View, ListView, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, ListView, Text, StyleSheet, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AbstractComponent from '../../framework/view/AbstractComponent';
@@ -15,20 +15,29 @@ class TabularListView extends AbstractComponent {
     static propTypes = {
         data: React.PropTypes.array.isRequired,
         message: React.PropTypes.string.isRequired,
+        handleClick: React.PropTypes.func,
     };
+
+    handleClick(index) {
+        return _.isNil(this.props.handleClick) ? General.emptyFunction : ()=>this.props.handleClick(index);
+    }
 
     renderRow(rowData) {
         return (
-            <View style={CHSStyles.Global.listRow}>
-                <View style={CHSStyles.Global.listCellContainer}>
-                    <Text
-                        style={CHSStyles.Global.listCell}>{this.I18n.t(rowData.key)}</Text>
+            <TouchableHighlight onPress={this.handleClick(rowData.index)}>
+                <View style={CHSStyles.Global.listRow}>
+
+                    <View style={CHSStyles.Global.listCellContainer}>
+                        <Text
+                            style={CHSStyles.Global.listCell}>{this.I18n.t(rowData.key)}</Text>
+                    </View>
+                    <View style={CHSStyles.Global.listCellContainer}>
+                        <Text
+                            style={CHSStyles.Global.listCell}>{General.formatValue(rowData.value)}</Text>
+                    </View>
+
                 </View>
-                <View style={CHSStyles.Global.listCellContainer}>
-                    <Text
-                        style={CHSStyles.Global.listCell}>{General.formatValue(rowData.value)}</Text>
-                </View>
-            </View>);
+            </TouchableHighlight>);
     }
 
     render() {

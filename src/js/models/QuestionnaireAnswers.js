@@ -42,7 +42,8 @@ class QuestionnaireAnswers {
         return Array.from(this.questionAnswers.entries())
             .filter(([question, answer])=> !this.isAnswerEmpty(answer))
             .map(([question, answer])=> QuestionAnswer.newInstance(question, answer))
-            .map((questionAnswer) => _.merge({}, {
+            .map((questionAnswer, index) => _.merge({}, {
+                index: index,
                 key: questionAnswer.question,
                 value: questionAnswer.answerAsString()
             }));

@@ -7,8 +7,10 @@ import * as CHSStyles from "../primitives/GlobalStyles"
 import WizardButtons from '../primitives/WizardButtons'
 import ConfirmationView from "./ConfirmationView";
 import MessageService from '../../service/MessageService';
-import TabularListView from '../common/TabularListView';
+import QuestionAnswerTabView from '../common/QuestionAnswerTabView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import QuestionAnswerView from "../questionAnswer/QuestionAnswerView";
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -73,11 +75,16 @@ class DecisionView extends Component {
                 />
                 <View style={CHSStyles.Global.mainSection}>
                     {this.renderDecisions(this.decisions)}
-                    <WizardButtons hasQuestionBefore={true} nextParams={{decisions: this.decisions}} parent={this}
+                    <WizardButtons hasQuestionBefore={true} nextParams={{
+                        questionnaire: this.props.params.questionnaire,
+                        decisions: this.decisions
+                    }} parent={this}
                                    nextView={ConfirmationView}/>
                 </View>
-                <TabularListView data={AppState.questionnaireAnswers.toArray()}
-                                 message={"answersConfirmationTitle"}/>
+                <QuestionAnswerTabView
+                    questionnaire={this.props.params.questionnaire}
+                    data={AppState.questionnaireAnswers.toArray()}
+                    message={"answersConfirmationTitle"}/>
             </ScrollView>
         );
     }
