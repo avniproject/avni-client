@@ -9,18 +9,18 @@ class BatchRequest {
         this.fire = this.fire.bind(this);
     }
 
-    get(endpoint, cb) {
-        this.requestQueue.push(()=>httpGet(endpoint, cb));
+    get(endpoint, cb, errorHandler) {
+        this.requestQueue.push(()=>httpGet(endpoint, cb, errorHandler));
     }
 
     post(endpoint, filecontents, cb) {
         this.requestQueue.push(()=>httpPost(endpoint, filecontents, cb));
     }
 
-    fire(finalCallback) {
+    fire(finalCallback, errorCallback) {
         const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), ()=> {}, 1);
         const notify = () => callbackQueue.pop()();
-        this.requestQueue.map((request) => request().then(notify));
+        this.requestQueue.map((request) => request().then(notify).catch(errorCallback));
     }
 }
 

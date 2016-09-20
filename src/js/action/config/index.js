@@ -2,7 +2,7 @@ import Actions from '../../action';
 import ConfigService from "../../service/ConfigService";
 
 const getConfig = function (state, action, beans) {
-    beans.get(ConfigService).getAllFilesAndSave(action.cb);
+    beans.get(ConfigService).getAllFilesAndSave(action.cb, action.errorHandler);
     return state;
 };
 

@@ -18,6 +18,7 @@
   "validationError": "Validation Error",
   "numericValueValidation": "Is not a valid number or is out of range {{range}}",
   "emptyValidationMessage": "There is no value specified",
+  "syncError": "Sync Failed",
   "settings": "Settings",
   "close": "X",
   "serverURL": "Server URL",

@@ -34,19 +34,20 @@ class ConfigService extends BaseService {
 
     getFileFrom(moduleURL) {
         return {
-            with: (moduleName) => (fileName) => this.batchGet(`${moduleURL}/${moduleName}/${fileName}`, (response) =>
-                this.typeMapping.get(fileName)(response, moduleName))
+            with: (moduleName, errorHandler) =>
+                (fileName) => this.batchGet(`${moduleURL}/${moduleName}/${fileName}`, (response) =>
+                    this.typeMapping.get(fileName)(response, moduleName), errorHandler)
         };
     }
 
-    getAllFilesAndSave(cb) {
+    getAllFilesAndSave(cb, errorHandler) {
         const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
         get(`${configURL}/modules.json`, (response) => {
             const fileTypes = Array.from(this.typeMapping.keys());
             response.modules
-                .map((moduleName)=> fileTypes.map(this.getFileFrom(`${configURL}/modules`).with(moduleName)));
-            this.fire(cb);
-        });
+                .map((moduleName)=> fileTypes.map(this.getFileFrom(`${configURL}/modules`).with(moduleName, errorHandler)));
+            this.fire(cb, errorHandler);
+        }, errorHandler);
     }
 }
 

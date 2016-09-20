@@ -33,6 +33,7 @@ class AbstractComponent extends Component {
         return component;
     }
 
+
 }
 
 export default AbstractComponent;
