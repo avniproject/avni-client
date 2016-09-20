@@ -16,7 +16,7 @@
   "deleteConfirmation": "Do you want to delete all saved sessions?",
   "numberOfSessions": "There are currently {{count}} sessions.",
   "validationError": "Validation Error",
-  "numericValueValidation": "Is not a number or is out of range {{range}}",
+  "numericValueValidation": "Is not a valid number or is out of range {{range}}",
   "emptyValidationMessage": "There is no value specified",
   "settings": "Settings",
   "close": "X",

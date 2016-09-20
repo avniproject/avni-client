@@ -26,6 +26,10 @@ class Answer {
         return isNaN(this.value);
     }
 
+    get isNotAnInteger() {
+        return !Number.isInteger(parseFloat(this.value));
+    }
+
     static newInstances(answer) {
         if (_.isNil(answer)) return;
         var answers = [];
