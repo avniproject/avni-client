@@ -3,7 +3,7 @@ import {AppRegistry, StyleSheet, View} from 'react-native';
 import React, {Component} from 'react';
 import App from './src/js/App';
 
-class OpenCHSClient extends Component {
+class OpenCHS extends Component {
 
     static styles = StyleSheet.create({
         container: {
@@ -16,11 +16,11 @@ class OpenCHSClient extends Component {
 
     render() {
         return (
-            <View style={OpenCHSClient.styles.container}>
+            <View style={OpenCHS.styles.container}>
                 <App />
             </View>
         );
     }
 }
 console.ignoredYellowBox = ['Warning: You are manually calling'];
-AppRegistry.registerComponent('OpenCHSClient', () => OpenCHSClient);
+AppRegistry.registerComponent('OpenCHS', () => OpenCHS);

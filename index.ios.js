@@ -11,7 +11,7 @@ import React, {
   View
 } from 'react-native';
 
-class OpenCHSClient extends Component {
+class OpenCHS extends Component {
   render() {
     return (
       <View style={styles.container}>
@@ -49,4 +49,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('OpenCHSClient', () => OpenCHSClient);
+AppRegistry.registerComponent('OpenCHS', () => OpenCHS);

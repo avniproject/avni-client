@@ -1,4 +1,4 @@
-rootProject.name = 'OpenCHSClient'
+rootProject.name = 'OpenCHS'
 
 include ':app'
 include ':react-native-fabric'
