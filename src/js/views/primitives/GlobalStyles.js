@@ -4,7 +4,8 @@ import Colors from '../primitives/Colors';
 export let Global = StyleSheet.create({
     mainSection: {
         marginHorizontal: 5,
-        marginTop: 15
+        marginTop: 15,
+        flex: 1
     },
     navButtonHidden: {
         height: 0

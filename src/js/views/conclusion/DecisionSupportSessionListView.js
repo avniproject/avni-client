@@ -45,7 +45,7 @@ class DecisionSupportSessionListView extends Component {
 
     static renderSummaryFieldHeader(summaryField) {
         return (
-            <View style={CHSStyles.Global.listCellContainer}>
+            <View key={summaryField.summaryFieldName} style={CHSStyles.Global.listCellContainer}>
                 <Text style={CHSStyles.Global.columnHeader}>{summaryField.summaryFieldName}</Text>
             </View>);
     }
@@ -131,12 +131,16 @@ class DecisionSupportSessionListView extends Component {
     render() {
         const questionnaireService = this.context.getService(QuestionnaireService);
         const questionnaires = questionnaireService.getQuestionnaireNames();
-
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(questionnaires);
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <AppHeader title={this.I18n.t("allQuestionnaireSessionsSummary")} parent={this}/>
                 <View style={CHSStyles.Global.mainSection}>
-                    {questionnaires.map(this.renderSessions.bind(this))}
+                    <ListView
+                        enableEmptySections={true}
+                        dataSource={ds}
+                        renderRow={this.renderSessions.bind(this)}
+                    />
                 </View>
             </View>
         );
