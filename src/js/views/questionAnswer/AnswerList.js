@@ -1,4 +1,4 @@
-import {View, Text} from 'react-native';
+import {View, Text, ListView} from 'react-native';
 import React, {Component} from 'react';
 import AnswerOption from './AnswerOption';
 import AppState from "../../hack/AppState";
@@ -27,12 +27,17 @@ class AnswerList extends Component {
     }
 
     render() {
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(this.props.answers);
         return (
-            <View>
-                {this.props.answers.map((option) => (
-                    <AnswerOption optionPressed={this.optionPressed} key={option.name} answer={option.name}
-                                  isSelected={this.state.answerListModel.isSelected(option.name)}
-                    />))}
+            <View style={{flex: 1}}>
+                <ListView
+                    enableEmptySections={true}
+                    dataSource={ds}
+                    renderRow={(answer)=><AnswerOption optionPressed={this.optionPressed} key={answer.name}
+                                                       answer={answer.name}
+                                                       isSelected={this.state.answerListModel.isSelected(answer.name)}
+                    />}
+                />
             </View>
         );
     }

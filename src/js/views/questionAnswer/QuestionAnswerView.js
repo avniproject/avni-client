@@ -134,12 +134,12 @@ class QuestionAnswerView extends Component {
         if (_.isNil(AppState.questionnaireAnswers.currentAnswer.value))
             AppState.questionnaireAnswers.currentAnswerValue = this.question.defaultValue;
         return (
-            <ScrollView keyboardShouldPersistTaps={true}>
+            <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
                 <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)} parent={this}
                            onTitlePressed={this.onTitlePress}/>
-                <View style={[CHSStyles.Global.mainSection]}>
+                <ScrollView style={[CHSStyles.Global.mainSection]}>
                     <Question question={this.question} locale={this.locale}/>
-                    <View>
+                    <View style={{flex: 1}}>
                         {this.renderAnswer(this.question)}
                     </View>
                     <PreviousNextSave hasQuestionBefore={!this.question.isFirstQuestion}
@@ -154,8 +154,8 @@ class QuestionAnswerView extends Component {
                     <QuestionAnswerTabView questionnaire={this.props.params.questionnaire}
                                            data={AppState.questionnaireAnswers.toArray()}
                                            message={"answersConfirmationTitle"}/>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
         );
     }
 }
