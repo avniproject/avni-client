@@ -9,6 +9,10 @@ class BatchRequest {
         this.fire = this.fire.bind(this);
     }
 
+    none() {
+
+    }
+
     get(endpoint, cb, errorHandler) {
         this.requestQueue.push(()=>httpGet(endpoint, cb, errorHandler));
     }
@@ -18,9 +22,13 @@ class BatchRequest {
     }
 
     fire(finalCallback, errorCallback) {
-        const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), ()=> {}, 1);
+        const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), this.none, 1);
         const notify = () => callbackQueue.pop()();
-        this.requestQueue.map((request) => request().then(notify).catch(errorCallback));
+        const notifyError = (message)=> {
+            callbackQueue[0] = ()=> errorCallback(message);
+            notify();
+        };
+        this.requestQueue.map((request) => request().then(notify).catch(notifyError));
     }
 }
 

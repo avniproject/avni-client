@@ -16,10 +16,10 @@ class ExportService extends BaseService {
         this.post = batchRequests.post;
     }
 
-    exportAll(done) {
+    exportAll(done, errorHandler) {
         const exportURL = `${this.getService(SettingsService).getServerURL()}/export`;
         this.getService(QuestionnaireService).getQuestionnaireNames().map(this.exportFileTo(exportURL));
-        setTimeout(()=>this.fire(done), 500);
+        this.fire(done, errorHandler);
     }
 
     exportFileTo(exportURL) {

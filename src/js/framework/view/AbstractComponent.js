@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, StyleSheet} from 'react-native';
+import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
 
 class AbstractComponent extends Component {
@@ -7,6 +7,7 @@ class AbstractComponent extends Component {
         super(props, context);
         this.renderComponent = this.renderComponent.bind(this);
         this.spinnerDefaults = Map({color: 'white', size: 'small'});
+        this.showError = this.showError.bind(this);
     }
 
     static styles = StyleSheet.create({
@@ -31,6 +32,20 @@ class AbstractComponent extends Component {
         if (loading) return (
             <ActivityIndicator style={AbstractComponent.styles.spinner} color={color} size={size}/>);
         return component;
+    }
+
+    showError(errorMessage) {
+        if (this.state.error) {
+            return (Alert.alert(this.I18n.t(errorMessage), this.state.errorMessage,
+                [
+                    {
+                        text: 'Ok', onPress: () => {
+                        this.setState({error: false, errorMessage: undefined});
+                    }
+                    }
+                ]
+            ));
+        }
     }
 
 

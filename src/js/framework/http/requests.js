@@ -30,7 +30,6 @@ let _post = (endpoint, file, cb) => {
     console.log(`Posting To ${endpoint}`);
     return fetchFactory(endpoint, "POST", {body: file})
         .then(cb)
-        .catch((message) => console.log(`Calling ${endpoint} gave error: ${message}`));
 };
 
 export let post = _post;

@@ -15,6 +15,7 @@ class QuestionnaireToolbar extends AbstractComponent {
         this.I18n = context.getService(MessageService).getI18n();
         this.onExportPress = this.onExportPress.bind(this);
         this._exporting = this._exporting.bind(this);
+        this.raiseError = this.raiseError.bind(this);
         this.state = {
             toolbarItems: {
                 "viewSavedSessions": {
@@ -43,9 +44,18 @@ class QuestionnaireToolbar extends AbstractComponent {
         });
     }
 
+    raiseError(message) {
+        this.setState({
+                toolbarItems: Object.assign({}, this.state.toolbarItems,
+                    {"export": Object.assign({}, this.state.toolbarItems.export, {"loading": false})}),
+                error: true, errorMessage: `${message}`
+            },
+        );
+    }
+
     onExportPress = () => {
         this._exporting(true);
-        this.context.getService(ExportService).exportAll(()=> this._exporting(false));
+        this.context.getService(ExportService).exportAll(()=> this._exporting(false), this.raiseError);
     };
 
     onDeleteSessionsPress = () => {
@@ -81,7 +91,8 @@ class QuestionnaireToolbar extends AbstractComponent {
                 buttonText={buttonText}/>));
         return (
             <View style={this.props.styles.questionnaireToolBarMain}>
-                    {toolbarItems}
+                {this.showError("exportError")}
+                {toolbarItems}
             </View>
         );
     }
