@@ -45,6 +45,8 @@ ci-test:
 release:
 	cd android; ./gradlew assembleRelease
 
+release-offline:
+	cd android; ./gradlew --offline assembleRelease
 log:
 	adb logcat *:S ReactNative:V ReactNativeJS:V
 
