@@ -65,12 +65,12 @@ class DecisionView extends Component {
     render() {
         this.decisions = this.context.getService(RuleEvaluationService).getDecision(AppState.questionnaireAnswers.questionnaireName);
         return (
-            <ScrollView keyboardShouldPersistTaps={true}>
+            <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
                 <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)}
                            onTitlePressed={this.onViewSavedSessionsPress}
                            parent={this}
                 />
-                <View style={CHSStyles.Global.mainSection}>
+                <ScrollView style={CHSStyles.Global.mainSection}>
                     {this.renderDecisions(this.decisions)}
                     <PreviousNextSave hasQuestionBefore={true}
                                       nextParams={{
@@ -78,12 +78,12 @@ class DecisionView extends Component {
                                           decisions: this.decisions
                                       }}
                                       parent={this}/>
-                </View>
-                <QuestionAnswerTabView
-                    questionnaire={this.props.params.questionnaire}
-                    data={AppState.questionnaireAnswers.toArray()}
-                    message={"answersConfirmationTitle"}/>
-            </ScrollView>
+                    <QuestionAnswerTabView
+                        questionnaire={this.props.params.questionnaire}
+                        data={AppState.questionnaireAnswers.toArray()}
+                        message={"answersConfirmationTitle"}/>
+                </ScrollView>
+            </View>
         );
     }
 }
