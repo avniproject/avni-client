@@ -137,7 +137,7 @@ class QuestionAnswerView extends Component {
             <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
                 <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)} parent={this}
                            onTitlePressed={this.onTitlePress}/>
-                <ScrollView style={[CHSStyles.Global.mainSection]}>
+                <ScrollView style={[CHSStyles.Global.mainSection]} keyboardShouldPersistTaps={true}>
                     <Question question={this.question} locale={this.locale}/>
                     <View style={{flex: 1}}>
                         {this.renderAnswer(this.question)}
