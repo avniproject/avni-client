@@ -19,8 +19,6 @@ class SimpleQuestionnaire {
         return new Question(questionConfiguration, questionConcept, questionIndex === 0, questionIndex === this.questionnaire.questions.length - 1);
     }
 
-    getQuestion
-
     get questions() {
         return this.questionnaire.questions;
     }
