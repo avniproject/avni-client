@@ -24,6 +24,7 @@ class DecisionSupportSessionListView extends Component {
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
+        this.renderSummaryFieldHeader.bind(this);
     }
 
     viewName() {
@@ -43,10 +44,10 @@ class DecisionSupportSessionListView extends Component {
             </View>);
     }
 
-    static renderSummaryFieldHeader(summaryField) {
+    renderSummaryFieldHeader(summaryField) {
         return (
             <View key={summaryField.summaryFieldName} style={CHSStyles.Global.listCellContainer}>
-                <Text style={CHSStyles.Global.columnHeader}>{summaryField.summaryFieldName}</Text>
+                <Text style={CHSStyles.Global.columnHeader}>{this.I18n.t(summaryField.summaryFieldName)}</Text>
             </View>);
     }
 
@@ -122,7 +123,7 @@ class DecisionSupportSessionListView extends Component {
         return (<View>
             <View style={CHSStyles.Global.listRow}>
                 <Text style={CHSStyles.Global.columnHeader}>{this.I18n.t('date')}</Text>
-                {completeQuestionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryFieldHeader(summaryField))}
+                {completeQuestionnaire.summaryFields.map((summaryField) => this.renderSummaryFieldHeader(summaryField))}
             </View>
             <Text style={CHSStyles.Global.listRowSeparator}/>
         </View>);
