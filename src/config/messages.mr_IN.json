@@ -1,7 +1,12 @@
 {
   "saveAndRestart": "सेव",
+  "next": "पुढे >>",
+  "previous": "<< मागे",
   "restart": "पुनः सुरू",
   "viewSavedSessions": "डाटा पाहा",
+  "allQuestionnaireSessionsSummary": "पेशन्ट ची माहिती",
+  "zeroNumberOfSessions": "पेशन्ट ची माहिती भरलेली नाही आहे ",
+  "session": "{{questionnaireName}} - on {{saveDate}}",
   "deleteSessions": "डाटा डीलीट",
   "export": "डाउनलोड",
   "answersConfirmationTitle": "दिलेले उत्तर",
@@ -11,5 +16,9 @@
   "validationError": "फॉर्म वर चुक आहे ",
   "numericValueValidation": "कृपया {{range}} मधील नंबर टाका",
   "emptyValidationMessage": "ह्या प्रश्नाचे उत्तर देणे अनिवार्य आहे ",
-  "settings": "सेटिंग"
+  "settings": "सेटिंग",
+  "close": "X",
+  "months": "महिने",
+  "years": "वर्ष",
+  "date": "दिनांक"
 }
