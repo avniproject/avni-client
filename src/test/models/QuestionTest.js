@@ -73,17 +73,17 @@ describe('QuestionTest', () => {
         expect(question.isMandatory).is.true;
     });
 
-    it('isRangeViolated is false float values', ()=> {
+    it('isRangeViolated is true for float values', ()=> {
         const question = new Question({"mandatory": false}, {
             "datatype": {"name": "Numeric"},
             "lowAbsolute": 0,
             "hiAbsolute": 50
         });
         expect(question.isRangeViolated(new Answer("20"))).to.be.false;
-        expect(question.isRangeViolated(new Answer("20.012"))).to.be.true;
-        expect(question.isRangeViolated(new Answer("1.1"))).to.be.true;
+        expect(question.isRangeViolated(new Answer("20.012"))).to.be.false;
+        expect(question.isRangeViolated(new Answer("1.1"))).to.be.false;
         expect(question.isRangeViolated(new Answer("1.0"))).to.be.false;
-        expect(question.isRangeViolated(new Answer("0.1"))).to.be.true;
-        expect(question.isRangeViolated(new Answer(".1"))).to.be.true;
+        expect(question.isRangeViolated(new Answer("0.1"))).to.be.false;
+        expect(question.isRangeViolated(new Answer(".1"))).to.be.false;
     });
 });
