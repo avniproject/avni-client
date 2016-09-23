@@ -27,7 +27,6 @@ let _getText = (endpoint, cb, errorHandler) => {
 };
 
 let _post = (endpoint, file, cb) => {
-    console.log(`Posting To ${endpoint}`);
     return fetchFactory(endpoint, "POST", {body: file})
         .then(cb)
 };
@@ -35,6 +34,5 @@ let _post = (endpoint, file, cb) => {
 export let post = _post;
 
 export let get = (endpoint, cb, errorHandler) => {
-    console.log(`Calling ${endpoint}`);
     return new Map([[true, _get], [false, _getText]]).get(endpoint.endsWith(".json"))(endpoint, cb, errorHandler);
 };

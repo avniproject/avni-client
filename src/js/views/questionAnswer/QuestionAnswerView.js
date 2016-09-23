@@ -118,7 +118,6 @@ class QuestionAnswerView extends Component {
 
         if (this.question.isLastQuestion) {
             const validationResult = this.context.getService(RuleEvaluationService).validate(AppState.questionnaireAnswers.questionnaireName);
-            console.log(validationResult);
             return {status: validationResult.passed, message: validationResult.message}
         }
         return {status: true};
