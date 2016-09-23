@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import AppHeader from '../primitives/AppHeader';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
@@ -36,11 +36,11 @@ class DecisionSupportSessionView extends Component {
         }));
 
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <AppHeader parent={this} title={this.I18n.t("session", {saveDate: General.formatDate(session.saveDate), questionnaireName: session.questionnaire.name})}/>
-                <View style={CHSStyles.Global.mainSection}>
+                <ScrollView style={CHSStyles.Global.mainSection}>
                     <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
-                </View>
+                </ScrollView>
             </View>
         );
     }

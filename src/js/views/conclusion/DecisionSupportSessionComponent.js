@@ -32,7 +32,7 @@ class DecisionSupportSessionComponent extends AbstractComponent {
         });
         const QAComponent = this.props.questionnaire ? QuestionAnswerTabView : TabularListView;
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <QAComponent questionnaire={this.props.questionnaire}
                              data={this.props.questionAnswers}
                              message={"answersConfirmationTitle"}/>
