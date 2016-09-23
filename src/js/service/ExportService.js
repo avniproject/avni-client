@@ -19,15 +19,14 @@ class ExportService extends BaseService {
     exportAll(done, errorHandler) {
         const exportURL = `${this.getService(SettingsService).getServerURL()}/export`;
         this.getService(QuestionnaireService).getQuestionnaireNames().map(this.exportFileTo(exportURL));
-        this.fire(done, errorHandler);
+        setTimeout(()=>this.fire(done, errorHandler), 1000);
     }
 
     exportFileTo(exportURL) {
         return (questionnaire) => {
             const fileContents = this.exportContents(questionnaire);
             const fileName = `${General.replaceAndroidIncompatibleChars(questionnaire.name)}_${General.getTimeStamp()}.csv`;
-            this.post(`${exportURL}/${fileName}`, fileContents, ()=> {
-            });
+            this.post(`${exportURL}/${fileName}`, fileContents, ()=> {});
         }
     }
 
