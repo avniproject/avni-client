@@ -56,16 +56,18 @@ class DurationComponent extends Component {
             flex: 1
         },
         pressedButtonWrapper: {
-            borderColor: 'slategrey'
+            borderColor: '#616161'
         },
         notPressedButtonWrapper: {
-            borderColor: 'lightgrey'
+            borderColor: '#f5f5f5'
         },
         pressedButton: {
-            backgroundColor: 'slategrey'
+            backgroundColor: '#616161',
+            color: "#f5f5f5"
         },
         notPressedButton: {
-            backgroundColor: 'lightgrey'
+            backgroundColor: '#f5f5f5',
+            color: "#e0e0e0"
         }
     });
 
