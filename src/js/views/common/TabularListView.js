@@ -1,4 +1,4 @@
-import {View, ListView, Text, StyleSheet, TouchableHighlight} from 'react-native';
+import {View, ListView, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AbstractComponent from '../../framework/view/AbstractComponent';
@@ -29,7 +29,7 @@ class TabularListView extends AbstractComponent {
     }
 
     renderRow(rowData) {
-        const WrappingComponent = this.clickable() ? TouchableHighlight : View;
+        const WrappingComponent = this.clickable() ? TouchableNativeFeedback : View;
         return (
             <WrappingComponent onPress={this.handleClick(rowData.index)}>
                 <View style={CHSStyles.Global.listRow}>
@@ -53,8 +53,9 @@ class TabularListView extends AbstractComponent {
         const dsClone = ds.cloneWithRows(this.props.data);
 
         return (
-            <View style={CHSStyles.Global.listViewContainer}>
+            <View style={CHSStyles.Global.listViewContainer} keyboardShouldPersistTaps={true}>
                 <ListView
+                    keyboardShouldPersistTaps={true}
                     dataSource={dsClone}
                     renderRow={(rowData) => this.renderRow(rowData)}
                     enableEmptySections={true}
@@ -65,7 +66,7 @@ class TabularListView extends AbstractComponent {
                         style={{
                             height: adjacentRowHighlighted ? 1 : 2,
                             backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
-                        }}></Text>}
+                        }}/>}
                 />
             </View>
         );

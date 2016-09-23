@@ -1,5 +1,5 @@
 import Path from '../../framework/routing/Path';
-import {View, Text, StyleSheet, ListView, TouchableHighlight} from 'react-native';
+import {View, Text, StyleSheet, ListView, TouchableNativeFeedback} from 'react-native';
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AppHeader from '../primitives/AppHeader';
@@ -55,14 +55,14 @@ class DecisionSupportSessionListView extends Component {
         const rowIDSuffix = `${questionnaire.name}${rowID}`;
         return (
             <View key={`1${rowIDSuffix}`}>
-                <TouchableHighlight onPress={() => this.onSessionRowPress(session)} key={`2${rowIDSuffix}`}>
+                <TouchableNativeFeedback onPress={() => this.onSessionRowPress(session)} key={`2${rowIDSuffix}`}>
                     <View style={CHSStyles.Global.listRow} key={`3${rowIDSuffix}`}>
                         <Text
                             style={CHSStyles.Global.listCell}
                             key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}</Text>
                         {questionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryField(summaryField, session, questionnaire, rowID))}
                     </View>
-                </TouchableHighlight>
+                </TouchableNativeFeedback>
             </View>);
     }
 

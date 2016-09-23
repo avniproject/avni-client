@@ -43,6 +43,7 @@ export let Global = StyleSheet.create({
     },
     listViewHeader: {
         fontSize: 20,
+        fontWeight: 'bold',
         backgroundColor: Colors.TertiaryColor,
         color: '#555555',
         textAlign: 'center'
@@ -50,6 +51,8 @@ export let Global = StyleSheet.create({
     listRow: {
         flex: 1,
         flexDirection: 'row',
+        paddingTop: 9,
+        paddingBottom: 9,
         marginLeft: 5
     },
     listCellContainer: {
