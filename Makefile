@@ -22,6 +22,9 @@ deps:
 test:
 	npm test
 
+tests:
+	make test
+
 coverage:
 	npm run coverage
 

@@ -35,11 +35,9 @@ class QuestionAnswer {
             }
             else str = Duration.fromAnswer(this.answers[0]).toString(i18n);
         } else {
-            var values = [];
-            this.answers.map((answer) => {
-                values.push(i18n ? i18n.t(answer.value, {defaultValue: answer.value}) : answer.value);
-            });
-            str = values.toString();
+            str = this.answers.map((answer) =>
+                i18n ? i18n.t(answer.value, {defaultValue: answer.value}) : answer.value
+            ).toString();
         }
         return str;
     }
