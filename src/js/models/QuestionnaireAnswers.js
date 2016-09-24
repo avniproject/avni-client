@@ -68,8 +68,8 @@ class QuestionnaireAnswers {
         return General.isNilOrEmpty(value);
     }
 
-    createRuleContext() {
-        return new RuleContext(this.questionAnswers);
+    createRuleContext(i18n) {
+        return new RuleContext(this.questionAnswers, i18n);
     }
 
     get questionnaireUUID() {

@@ -2,6 +2,7 @@ import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import DecisionConfigService from "./DecisionConfigService";
 import AppState from '../hack/AppState';
+import MessageService from "./MessageService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -9,8 +10,12 @@ class RuleEvaluationService extends BaseService {
         super(db, beanStore);
     }
 
+    init() {
+        this.I18n = this.getService(MessageService).getI18n();
+    }
+
     getDecision(questionnaireName) {
-        const param = AppState.questionnaireAnswers.createRuleContext();
+        const param = AppState.questionnaireAnswers.createRuleContext(this.I18n);
         const evalExpression = this.evalExpression(questionnaireName, 'getDecision');
         return eval(evalExpression);
     }
@@ -22,7 +27,7 @@ class RuleEvaluationService extends BaseService {
     }
 
     validate(questionnaireName) {
-        const param = AppState.questionnaireAnswers.createRuleContext();
+        const param = AppState.questionnaireAnswers.createRuleContext(this.I18n);
         const evalExpression = this.evalExpression(questionnaireName, 'validate');
         return eval(evalExpression);
     }

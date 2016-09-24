@@ -1,12 +1,10 @@
 import {Text, StyleSheet, View, Image, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
-import MessageService from '../../service/MessageService';
 import Colors from '../primitives/Colors';
 
 class AnswerOption extends Component {
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static propTypes = {
@@ -68,7 +66,7 @@ class AnswerOption extends Component {
         return (
             <View style={AnswerOption.styles.answerRow}>
                 <Text style={AnswerOption.styles.item} onPress={() => this.props.optionPressed(this.props.answer)}>
-                    {this.I18n.t(this.props.answer)}
+                    {this.props.answer}
                 </Text>
                 <View style={AnswerOption.styles.checkImageContainer}>
                     {this.displayCheckImage()}

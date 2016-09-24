@@ -1,4 +1,5 @@
 import BaseService from './BaseService.js'
+import _ from 'lodash';
 import Service from '../framework/bean/Service';
 import I18n from 'react-native-i18n';
 import Messages_en from '../../config/messages.en.json';
@@ -17,6 +18,7 @@ class MessageService extends BaseService {
             mr_IN: Messages_mr_IN,
             hi_IN: Messages_hi_IN
         };
+        this.I18n.inDefaultLocale = (key)=>_.findKey(this.I18n.translations[this.I18n.locale], (t)=>t === key);
     }
 
     init() {
