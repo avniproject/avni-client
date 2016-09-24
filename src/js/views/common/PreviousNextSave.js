@@ -59,7 +59,7 @@ class PreviousNext extends Component {
     }
 
     render() {
-        const previous = {text: "previous", visible: this.props.hasQuestionBefore || !this.props.nextView, func: this.onPrevious};
+        const previous = {text: "previous", visible: true, func: this.onPrevious};
         const next = {text: "next", visible: true, func: this.onNext};
         const save = {text: "saveAndRestart", visible: !this.props.nextView, func: this.onSave};
         var buttons = [previous];
