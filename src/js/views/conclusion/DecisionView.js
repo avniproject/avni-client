@@ -8,6 +8,7 @@ import PreviousNextSave from '../common/PreviousNextSave';
 import MessageService from '../../service/MessageService';
 import QuestionAnswerTabView from '../common/QuestionAnswerTabView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import _ from 'lodash';
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -32,34 +33,47 @@ class DecisionView extends Component {
     static styles = StyleSheet.create({
         summary: {
             fontSize: 24,
-            color: '#0C59CF'
+            color: '#0C59CF',
+            marginTop: 4
         },
         decision: {
             fontSize: 20,
             color: '#0C59CF'
+        },
+        alert: {
+            fontSize: 20,
+            color: '#ff0000'
         }
     });
 
     renderAlert(decision) {
         if (decision.alert !== undefined) {
-            return (<Text style={{fontSize: 26, marginTop: 10, color: '#ff0000'}}>{decision.alert}</Text>);
+            return (<Text style={DecisionView.styles.alert}>{decision.alert}</Text>);
         }
     }
 
     renderDecisions(decisions) {
+        var displayedDecisionNames = [];
         return decisions.map((decision, idx) => {
-            return this.renderDecision(decision, idx);
+            return this.renderDecision(decision, idx, displayedDecisionNames);
         });
     }
 
-    renderDecision(decision, idx) {
+    renderDecision(decision, idx, displayedDecisionNames) {
         return (
             <View key={idx}>
-                <Text style={DecisionView.styles.summary}>{this.I18n.t(decision.name)}</Text>
+                {this.renderDecisionHeader(decision, displayedDecisionNames)}
                 <Text style={DecisionView.styles.decision}>{decision.value}</Text>
                 {this.renderAlert(decision)}
             </View>
         );
+    }
+
+    renderDecisionHeader(decision, displayedDecisionNames) {
+        if (displayedDecisionNames.indexOf(decision.name) === -1) {
+            displayedDecisionNames.push(decision.name);
+            return (<Text style={DecisionView.styles.summary}>{this.I18n.t(decision.name)}</Text>);
+        }
     }
 
     render() {
