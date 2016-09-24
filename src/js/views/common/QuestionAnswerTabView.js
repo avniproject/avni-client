@@ -17,10 +17,10 @@ class QuestionAnswerTabView extends AbstractComponent {
         questionnaire: React.PropTypes.object.isRequired,
     };
 
-    handleTabClick(questionIndex) {
+    handleTabClick(question, answer, questionIndex) {
         TypedTransition.from(this).with({
             questionnaire: this.props.questionnaire,
-            questionNumber: questionIndex
+            questionNumber: this.props.questionnaire.getQuestionIndex(question)
         }).to(QuestionAnswerView);
     }
 

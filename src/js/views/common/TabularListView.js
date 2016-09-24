@@ -24,15 +24,15 @@ class TabularListView extends AbstractComponent {
         return !_.isNil(this.props.handleClick);
     }
 
-    handleClick(index) {
-        return this.clickable() ? ()=> this.props.handleClick(index) : General.emptyFunction;
+    handleClick(key, value, index) {
+        return this.clickable() ? ()=> this.props.handleClick(key, value, index) : General.emptyFunction;
     }
 
     renderRow(rowData) {
         const WrappingComponent = this.clickable() ? TouchableNativeFeedback : View;
 
         return (
-            <WrappingComponent onPress={this.handleClick(rowData.index)}>
+            <WrappingComponent onPress={this.handleClick(rowData.key, rowData.value, rowData.index)}>
                 <View style={CHSStyles.Global.listRow}>
 
                     <View style={CHSStyles.Global.listCellContainer}>

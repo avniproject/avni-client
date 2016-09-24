@@ -1,5 +1,6 @@
 import SummaryField from "./SummaryField";
 import Question from "./Question";
+import _ from 'lodash';
 
 class SimpleQuestionnaire {
     static Numeric = "Numeric";
@@ -17,6 +18,10 @@ class SimpleQuestionnaire {
         var questionConfiguration = this.questionnaire.questions[questionIndex];
         const questionConcept = this.conceptService.getConceptByName(questionConfiguration.name);
         return new Question(questionConfiguration, questionConcept, questionIndex === 0, questionIndex === this.questionnaire.questions.length - 1);
+    }
+
+    getQuestionIndex(searchQuestion) {
+        return _.values(this.questionnaire.questions).findIndex((question)=>searchQuestion === question.name);
     }
 
     get questions() {

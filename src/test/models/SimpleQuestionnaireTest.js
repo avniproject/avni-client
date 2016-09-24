@@ -42,4 +42,13 @@ describe('Simple Question', () => {
         expect(simpleQuestionnaire.summaryFields[0].summaryFieldType).to.equal(SummaryField.Question);
         expect(simpleQuestionnaire.summaryFields[1].summaryFieldType).to.equal(SummaryField.DecisionKey);
     });
+
+
+    it('Should Get Correct Index Given Question Name', () => {
+        var simpleQuestionnaire = new SimpleQuestionnaire(SampleQuestionnaire,
+            makeConceptService('Multiple Choice Question 1'));
+        expect(simpleQuestionnaire.getQuestionIndex('Multiple Choice Question 1')).to.equal(0);
+        expect(simpleQuestionnaire.getQuestionIndex('Numeric Question')).to.equal(1);
+        expect(simpleQuestionnaire.getQuestionIndex('Date of Birth')).to.equal(2);
+    });
 });
