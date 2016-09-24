@@ -22,7 +22,7 @@ describe('PreviousNextSave View Test', () => {
         }
     };
 
-    it('It should just show 1 button if hasBeforeQuestion is false', () => {
+    it('It should just show 2 buttons if hasBeforeQuestion is false', () => {
         const wrapper = shallow(<PreviousNextSave hasQuestionBefore={false}
                                                   nextParams={{}}
                                                   parent={{}}
@@ -31,7 +31,7 @@ describe('PreviousNextSave View Test', () => {
         const buttons = wrapper.node.props.buttons;
         expect(buttons.length).to.be.equal(2);
         expect(buttons[0].text).to.be.equal("previous");
-        expect(buttons[0].visible).to.be.false;
+        expect(buttons[0].visible).to.be.true;
         expect(buttons[1].text).to.be.equal("next");
         expect(buttons[1].visible).to.be.true;
     });
