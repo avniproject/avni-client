@@ -6,9 +6,10 @@ import Duration from './Duration';
 import General from '../utility/General';
 
 class QuestionnaireAnswers {
-    constructor(questionnaire) {
+    constructor(questionnaire, i18n) {
         this.questionAnswers = new Map();
         this.questionnaire = questionnaire;
+        this.i18n = i18n;
     }
 
     set(question, answer) {
@@ -45,7 +46,7 @@ class QuestionnaireAnswers {
             .map((questionAnswer, index) => _.merge({}, {
                 index: index,
                 key: questionAnswer.question,
-                value: questionAnswer.answerAsString()
+                value: questionAnswer.answerAsString(this.i18n)
             }));
     }
 
@@ -68,8 +69,8 @@ class QuestionnaireAnswers {
         return General.isNilOrEmpty(value);
     }
 
-    createRuleContext(i18n) {
-        return new RuleContext(this.questionAnswers, i18n);
+    createRuleContext() {
+        return new RuleContext(this.questionAnswers);
     }
 
     get questionnaireUUID() {

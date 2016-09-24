@@ -4,7 +4,6 @@ import AnswerOption from './AnswerOption';
 import AppState from "../../hack/AppState";
 import SingleSelectAnswerListModel from "../viewmodel/SingleSelectAnswerListModel";
 import MultiSelectAnswerListModel from "../viewmodel/MultiSelectAnswerListModel";
-import MessageService from "../../service/MessageService";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
 class AnswerList extends AbstractComponent {
@@ -19,7 +18,6 @@ class AnswerList extends AbstractComponent {
         const viewModel = props.isMultiSelect ? new MultiSelectAnswerListModel(AppState.questionnaireAnswers.currentAnswer.value) : new SingleSelectAnswerListModel(AppState.questionnaireAnswers.currentAnswer.value);
         this.state = {answerListModel: viewModel};
         this.optionPressed = this.optionPressed.bind(this);
-        this.I18n = context.getService(MessageService).getI18n();
     }
 
     optionPressed(option) {
@@ -30,7 +28,7 @@ class AnswerList extends AbstractComponent {
     }
 
     render() {
-        const answers = this.props.answers.map((answer)=>this.I18n.t(answer.name));
+        const answers = this.props.answers.map((answer)=>answer.name);
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(answers);
         return (
             <View style={{flex: 1}}>

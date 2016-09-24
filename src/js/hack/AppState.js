@@ -9,8 +9,8 @@ class AppState {
         return instance;
     }
     
-    startQuestionnaireSession(questionnaire) {
-        this.questionnaireAnswers = new QuestionnaireAnswers(questionnaire);
+    startQuestionnaireSession(questionnaire, i18n) {
+        this.questionnaireAnswers = new QuestionnaireAnswers(questionnaire, i18n);
     }
 }
 export default new AppState();

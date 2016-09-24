@@ -26,16 +26,19 @@ class QuestionAnswer {
         return General.toExportable(this.answerAsString());
     }
 
-    answerAsString() {
+    answerAsString(i18n) {
         var str;
         if (this.answers.length === 1) {
-            if (_.isNil(this.answers[0].unit)) str = _(this.answers[0].value).toString();
-            else str = Duration.fromAnswer(this.answers[0]).toString();
+            if (_.isNil(this.answers[0].unit)) {
+                str = this.answers[0].value.toString();
+                str = i18n ? i18n.t(str, {defaultValue: str}) : str;
+            }
+            else str = Duration.fromAnswer(this.answers[0]).toString(i18n);
         } else {
             var values = [];
-            _(this.answers.map((answer) => {
-                values.push(answer.value);
-            }));
+            this.answers.map((answer) => {
+                values.push(i18n ? i18n.t(answer.value, {defaultValue: answer.value}) : answer.value);
+            });
             str = values.toString();
         }
         return str;

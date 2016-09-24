@@ -10,12 +10,8 @@ class RuleEvaluationService extends BaseService {
         super(db, beanStore);
     }
 
-    init() {
-        this.I18n = this.getService(MessageService).getI18n();
-    }
-
     getDecision(questionnaireName) {
-        const param = AppState.questionnaireAnswers.createRuleContext(this.I18n);
+        const param = AppState.questionnaireAnswers.createRuleContext();
         const evalExpression = this.evalExpression(questionnaireName, 'getDecision');
         return eval(evalExpression);
     }
@@ -27,7 +23,7 @@ class RuleEvaluationService extends BaseService {
     }
 
     validate(questionnaireName) {
-        const param = AppState.questionnaireAnswers.createRuleContext(this.I18n);
+        const param = AppState.questionnaireAnswers.createRuleContext();
         const evalExpression = this.evalExpression(questionnaireName, 'validate');
         return eval(evalExpression);
     }

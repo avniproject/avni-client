@@ -27,5 +27,7 @@
   "syncConfig": "Sync Config",
   "months": "Months",
   "years": "Years",
-  "date": "Date"
+  "date": "Date",
+  "Month": "Months",
+  "Year": "Years"
 }

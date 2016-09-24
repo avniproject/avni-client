@@ -32,7 +32,7 @@ class DecisionSupportSessionView extends Component {
         const session = this.props.params.session;
         const questionAnswers = session.questionAnswers.map((questionAnswer) => _.merge({}, {
             key: questionAnswer.question,
-            value: questionAnswer.answerAsString()
+            value: questionAnswer.answerAsString(this.I18n)
         }));
 
         return (

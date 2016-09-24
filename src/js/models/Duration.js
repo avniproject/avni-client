@@ -44,8 +44,8 @@ class Duration {
         return this._durationValue;
     }
 
-    toString() {
-        return `${this.durationValueAsString} ${this.durationUnit}s`;
+    toString(i18n) {
+        return i18n ? `${this.durationValueAsString} ${i18n.t(this.durationUnit)}` : `${this.durationValueAsString} ${this.durationUnit}s`;
     }
 
     get isEmpty() {
