@@ -1,4 +1,4 @@
-import {StyleSheet, Text, Image, View, TouchableHighlight, Navigator} from 'react-native';
+import {StyleSheet, Text, Image, View, TouchableNativeFeedback, Navigator} from 'react-native';
 import React, {Component} from 'react';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import Colors from '../primitives/Colors';
@@ -71,12 +71,16 @@ class AppHeader extends Component {
         return (
             <View>
                 <View style={AppHeader.styles.main}>
-                    <TouchableHighlight style={AppHeader.styles.icon} onPress={onPress}>
-                        {this.renderImage()}
-                    </TouchableHighlight>
-                    <TouchableHighlight onPress={this.props.onTitlePressed} style={{width: 50, flex: 1}}>
-                        <Text style={AppHeader.styles.header}>{this.props.title}</Text>
-                    </TouchableHighlight>
+                    <TouchableNativeFeedback style={AppHeader.styles.icon} onPress={onPress}>
+                        <View style={{flex: 1}}>
+                            {this.renderImage()}
+                        </View>
+                    </TouchableNativeFeedback>
+                    <TouchableNativeFeedback onPress={this.props.onTitlePressed} style={{width: 50, flex: 1}}>
+                        <View style={{flex: 1}}>
+                            <Text style={AppHeader.styles.header}>{this.props.title}</Text>
+                        </View>
+                    </TouchableNativeFeedback>
                     <View style={AppHeader.styles.icon}>
                         {/*Do Not Remove This View*/}
                     </View>
