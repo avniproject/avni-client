@@ -30,6 +30,7 @@ class TabularListView extends AbstractComponent {
 
     renderRow(rowData) {
         const WrappingComponent = this.clickable() ? TouchableNativeFeedback : View;
+
         return (
             <WrappingComponent onPress={this.handleClick(rowData.index)}>
                 <View style={CHSStyles.Global.listRow}>
@@ -40,7 +41,7 @@ class TabularListView extends AbstractComponent {
                     </View>
                     <View style={CHSStyles.Global.listCellContainer}>
                         <Text
-                            style={CHSStyles.Global.listCell}>{General.formatValue(rowData.value)}</Text>
+                            style={CHSStyles.Global.listCell}>{rowData.value}</Text>
                     </View>
 
                 </View>
