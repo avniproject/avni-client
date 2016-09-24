@@ -47,14 +47,14 @@ class DecisionView extends Component {
     }
 
     renderDecisions(decisions) {
-        return decisions.map((decision) => {
-            return this.renderDecision(decision);
+        return decisions.map((decision, idx) => {
+            return this.renderDecision(decision, idx);
         });
     }
 
-    renderDecision(decision) {
+    renderDecision(decision, idx) {
         return (
-            <View key={decision.name}>
+            <View key={idx}>
                 <Text style={DecisionView.styles.summary}>{this.I18n.t(decision.name)}</Text>
                 <Text style={DecisionView.styles.decision}>{decision.value}</Text>
                 {this.renderAlert(decision)}
