@@ -26,12 +26,15 @@ class AppHeader extends Component {
         main: {
             backgroundColor: Colors.Primary,
             height: 60,
-            flexDirection: 'row'
+            flexDirection: 'row',
+            flex: 1,
+            justifyContent: 'space-between'
         },
         icon: {
-            flex: 0.13,
-            margin: 3,
-            marginTop: 5
+            flex: 1,
+            padding: 3,
+            paddingTop: 5,
+            alignSelf: "flex-end"
         },
         header: {
             color: '#FFFFFF',
@@ -75,9 +78,7 @@ class AppHeader extends Component {
                         <Text style={AppHeader.styles.header}>{this.props.title}</Text>
                     </TouchableHighlight>
                     <View style={AppHeader.styles.icon}>
-                        <Image
-                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/mentalstate48.png')}
-                        />
+                        {/*Do Not Remove This View*/}
                     </View>
                 </View>
             </View>
