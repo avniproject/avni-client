@@ -39,7 +39,7 @@ class AbstractComponent extends Component {
             return (Alert.alert(this.I18n.t(errorMessage), this.state.errorMessage,
                 [
                     {
-                        text: 'Ok', onPress: () => {
+                        text: this.I18n.t('ok'), onPress: () => {
                         this.setState({error: false, errorMessage: undefined});
                     }
                     }

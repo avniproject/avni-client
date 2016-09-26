@@ -40,7 +40,7 @@ class PreviousNext extends Component {
                 Alert.alert(this.I18n.t("validationError"), validationResult.message,
                     [
                         {
-                            text: 'OK', onPress: () => {
+                            text: this.I18n.t('ok'), onPress: () => {
                         }
                         }
                     ]

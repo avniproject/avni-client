@@ -65,12 +65,12 @@ class QuestionnaireToolbar extends AbstractComponent {
             this.I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
             [
                 {
-                    text: 'Yes', onPress: () => {
+                    text: this.I18n.t('yes'), onPress: () => {
                     service.deleteAll()
                 }
                 },
                 {
-                    text: 'No', onPress: () => {
+                    text: this.I18n.t('no'), onPress: () => {
                 }, style: 'cancel'
                 }
             ]
