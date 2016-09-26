@@ -57,9 +57,6 @@ class DecisionSupportSessionListView extends Component {
             <View key={`1${rowIDSuffix}`}>
                 <TouchableNativeFeedback onPress={() => this.onSessionRowPress(session)} key={`2${rowIDSuffix}`}>
                     <View style={CHSStyles.Global.listRow} key={`3${rowIDSuffix}`}>
-                        <Text
-                            style={CHSStyles.Global.listCell}
-                            key={`4${rowIDSuffix}`}>{General.formatDate(session.saveDate)}</Text>
                         {questionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryField(summaryField, session, questionnaire, rowID))}
                     </View>
                 </TouchableNativeFeedback>
@@ -122,7 +119,6 @@ class DecisionSupportSessionListView extends Component {
     renderColumnHeaders(completeQuestionnaire) {
         return (<View>
             <View style={CHSStyles.Global.listRow}>
-                <Text style={CHSStyles.Global.columnHeader}>{this.I18n.t('date')}</Text>
                 {completeQuestionnaire.summaryFields.map((summaryField) => this.renderSummaryFieldHeader(summaryField))}
             </View>
             <Text style={CHSStyles.Global.listRowSeparator}/>
