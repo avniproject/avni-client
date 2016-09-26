@@ -21,7 +21,7 @@ class DecisionSupportSessionService extends BaseService {
     getAll(questionnaireUUID) {
         const allSessions = this.db.objects(DecisionSupportSession.schema.name);
         const expression = `questionnaireUUID = \"${questionnaireUUID}\"`;
-        var questionnaireSessions = allSessions.filtered(expression);
+        var questionnaireSessions = allSessions.filtered(expression).sorted("saveDate").slice(0, 100);
         var questionnaire = this.getService(QuestionnaireService).getQuestionnaire(questionnaireUUID);
         return questionnaireSessions.map((questionnaireSession) => {
             questionnaireSession.questionnaire = questionnaire.questionnaire;

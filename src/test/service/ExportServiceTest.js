@@ -56,3 +56,16 @@ describe('Export Service', () => {
         expect(contents).to.contain("Answer 1,Answer 2,Paracetamol");
     });
 });
+
+/*
+ for (var i = 0; i < 2000; i++) {
+ var decisionSupportSession = new DecisionSupportSession();
+ decisionSupportSession.questionnaireUUID = "81ab405a-4c31-11e6-beb8-9e71128cae77";
+ decisionSupportSession.questionAnswers = [new QuestionAnswer("Name", [new Answer("thisisname")]),
+ new QuestionAnswer("Date of visit", [new Answer(General.isoFormat(new Date()))]),
+ new QuestionAnswer("Village", [new Answer("Jijgaon")])];
+ decisionSupportSession.decisions = [{name: "Treatment", code: "X4", value: "ghjsdgfhdsgfhjdsgfdsgfhjdsgfggfdhdsfgdsfg"}];
+ decisionSupportSession.saveDate = new Date();
+ db.write(() => db.create(DecisionSupportSession.schema.name, decisionSupportSession));
+ }
+ */
