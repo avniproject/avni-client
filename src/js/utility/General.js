@@ -1,5 +1,7 @@
 import Duration from "../models/Duration";
 import _ from 'lodash';
+import moment from "moment";
+
 class General {
     static formatDateTime(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -15,6 +17,10 @@ class General {
 
     static emptyFunction() {
 
+    }
+
+    static getSafeTimeStamp() {
+        return moment().format('MMM_Do_YYYY_h_mm_ss_a');
     }
 
     static getTimeStamp() {

@@ -6,6 +6,7 @@ import SettingsService from './SettingsService';
 import QuestionnaireService from './QuestionnaireService';
 import DecisionSupportSessionService from './DecisionSupportSessionService';
 import BatchRequest from '../framework/http/BatchRequest';
+import RNFetchBlob from 'react-native-fetch-blob';
 
 @Service("exportService")
 class ExportService extends BaseService {
@@ -14,6 +15,14 @@ class ExportService extends BaseService {
         const batchRequests = new BatchRequest();
         this.fire = batchRequests.fire;
         this.post = batchRequests.post;
+    }
+
+    downloadAll(done, errorHandler) {
+        const downloadDir = `${RNFetchBlob.fs.dirs.DownloadDir}`;
+        this.getService(QuestionnaireService).getQuestionnaireNames().map((questionnaire)=>
+            RNFetchBlob.fs.createFile(`${downloadDir}/${General.replaceAndroidIncompatibleChars(questionnaire.name)}_${General.getSafeTimeStamp()}.csv`, this.exportContents(questionnaire)).catch(errorHandler)
+        );
+        setTimeout(()=>done(), 1000);
     }
 
     exportAll(done, errorHandler) {
@@ -26,7 +35,8 @@ class ExportService extends BaseService {
         return (questionnaire) => {
             const fileContents = this.exportContents(questionnaire);
             const fileName = `${General.replaceAndroidIncompatibleChars(questionnaire.name)}_${General.getTimeStamp()}.csv`;
-            this.post(`${exportURL}/${fileName}`, fileContents, ()=> {});
+            this.post(`${exportURL}/${fileName}`, fileContents, ()=> {
+            });
         }
     }
 

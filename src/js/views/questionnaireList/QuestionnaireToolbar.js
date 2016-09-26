@@ -24,11 +24,7 @@ class QuestionnaireToolbar extends AbstractComponent {
                     loading: false
                 },
                 "export": {handlePress: this.onExportPress, buttonText: "export", loading: false},
-                "deleteSessions": {
-                    handlePress: this.onDeleteSessionsPress,
-                    buttonText: "deleteSessions",
-                    loading: false
-                }
+                "download": {handlePress: this.onDownloadPress, buttonText: "download", loading: false}
             }
         };
     }
@@ -44,10 +40,20 @@ class QuestionnaireToolbar extends AbstractComponent {
         });
     }
 
+    _downloading(loading) {
+        this.setState({
+            toolbarItems: Object.assign({}, this.state.toolbarItems,
+                {"download": Object.assign({}, this.state.toolbarItems.download, {"loading": loading})})
+        });
+    }
+
     raiseError(message) {
         this.setState({
                 toolbarItems: Object.assign({}, this.state.toolbarItems,
-                    {"export": Object.assign({}, this.state.toolbarItems.export, {"loading": false})}),
+                    {
+                        "export": Object.assign({}, this.state.toolbarItems.export, {"loading": false}),
+                        "download": Object.assign({}, this.state.toolbarItems.download, {"loading": false})
+                    }),
                 error: true, errorMessage: `${message}`
             },
         );
@@ -58,23 +64,9 @@ class QuestionnaireToolbar extends AbstractComponent {
         this.context.getService(ExportService).exportAll(()=> this._exporting(false), this.raiseError);
     };
 
-    onDeleteSessionsPress = () => {
-        const service = this.context.getService(DecisionSupportSessionService);
-        Alert.alert(
-            this.I18n.t('deleteConfirmation'),
-            this.I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                    service.deleteAll()
-                }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                }, style: 'cancel'
-                }
-            ]
-        )
+    onDownloadPress = () => {
+        this._downloading(true);
+        this.context.getService(ExportService).downloadAll(()=> this._downloading(false), this.raiseError);
     };
 
     onViewSavedSessionsPress = () => {
