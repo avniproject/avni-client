@@ -33,5 +33,6 @@
   "ok": "Ok",
   "yes": "Yes",
   "no": "No",
-  "savedOn": "Saved on {{saveDate}}"
+  "savedOn": "Saved on {{saveDate}}",
+  "download": "Download"
 }
