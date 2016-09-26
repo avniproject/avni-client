@@ -25,7 +25,7 @@ describe('Question Answer', () => {
     it('Answer As String Exportable', () => {
         expect(qa_string.answerAsExportableString()).to.equal('xyz');
         expect(qa_strings.answerAsExportableString()).to.equal('"x,y"');
-        expect(qa_date.answerAsExportableString()).to.equal('2011-04-09');
+        expect(qa_date.answerAsExportableString()).to.equal('09-04-2011');
         expect(qa_duration.answerAsExportableString()).to.equal('2 Years');
     });
 
@@ -33,7 +33,7 @@ describe('Question Answer', () => {
         const i18n = {t: (t)=>`pre-${t}-suf`};
         expect(qa_string.answerAsString(i18n)).to.equal('pre-xyz-suf');
         expect(qa_strings.answerAsString(i18n)).to.equal('pre-x-suf,pre-y-suf');
-        expect(qa_date.answerAsString(i18n)).to.equal('pre-2011-04-09-suf');
+        expect(qa_date.answerAsString(i18n)).to.equal('pre-09-04-2011-suf');
         expect(qa_duration.answerAsString(i18n)).to.equal('2 pre-Year-suf');
     });
 });

@@ -2,6 +2,7 @@ import Answer from './Answer';
 import Duration from "./Duration";
 import _ from 'lodash';
 import General from '../utility/General';
+import moment from "moment";
 
 class QuestionAnswer {
     static schema = {
@@ -29,7 +30,11 @@ class QuestionAnswer {
     answerAsString(i18n) {
         var str;
         if (this.answers.length === 1) {
-            if (_.isNil(this.answers[0].unit)) {
+            if (moment(this.answers[0].value, "YYYY-MM-DD", true).isValid()) {
+                str = General.formatDate(new Date(this.answers[0].value));
+                str = i18n ? i18n.t(str, {defaultValue: str}) : str;
+            }
+            else if (_.isNil(this.answers[0].unit)) {
                 str = this.answers[0].value.toString();
                 str = i18n ? i18n.t(str, {defaultValue: str}) : str;
             }
