@@ -25,7 +25,6 @@ class AppHeader extends Component {
     static styles = StyleSheet.create({
         main: {
             backgroundColor: Colors.Primary,
-            height: 60,
             flexDirection: 'row',
             flex: 1,
             justifyContent: 'space-between'

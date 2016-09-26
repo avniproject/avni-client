@@ -37,8 +37,11 @@ class DecisionSupportSessionView extends Component {
 
         return (
             <View style={{flex: 1}}>
-                <AppHeader parent={this} title={this.I18n.t("session", {saveDate: General.formatDate(session.saveDate), questionnaireName: session.questionnaire.name})}/>
+                <AppHeader parent={this}
+                           title={this.I18n.t("session", {questionnaireName: this.I18n.t(session.questionnaire.name)})}/>
+                <Text>{this.I18n.t("savedOn", {saveDate: General.formatDate(session.saveDate)})}</Text>
                 <ScrollView style={CHSStyles.Global.mainSection}>
+
                     <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
                 </ScrollView>
             </View>

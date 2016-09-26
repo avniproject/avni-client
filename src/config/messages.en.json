@@ -32,5 +32,6 @@
   "Year": "Years",
   "ok": "Ok",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "savedOn": "Saved on {{saveDate}}"
 }
