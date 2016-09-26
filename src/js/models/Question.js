@@ -52,12 +52,13 @@ class Question {
     }
 
     get defaultValue() {
-        const defaultValues = new Map([[SimpleQuestionnaire.Numeric, ''],
+        var defaultValues = new Map([[SimpleQuestionnaire.Numeric, ''],
             [SimpleQuestionnaire.Duration, new Duration(null, Duration.Year)],
             [SimpleQuestionnaire.Text, ''],
             [SimpleQuestionnaire.Coded, []],
-            [SimpleQuestionnaire.Date, undefined]]);
+            [SimpleQuestionnaire.Date, this.questionConfiguration.default === "Today" ? new Date() : undefined]]);
 
+        console.log(this.questionConfiguration);
         return defaultValues.get(this.questionDataType);
     }
 }
