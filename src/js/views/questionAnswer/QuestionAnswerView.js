@@ -150,8 +150,7 @@ class QuestionAnswerView extends Component {
                                       nextView={this.question.isLastQuestion ? DecisionView : QuestionAnswerView}
                                       validationFn={this.validate}
                     />
-                    <Text style={{height: 3, backgroundColor: '#CCCCCC'}}/>
-                    <View style={{marginTop: 30}}>
+                    <View style={{marginTop: 40}}>
                         <QuestionAnswerTabView questionnaire={this.props.params.questionnaire}
                                                data={AppState.questionnaireAnswers.toArray()}
                                                message={"answersConfirmationTitle"}/>
