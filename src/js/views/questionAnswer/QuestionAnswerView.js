@@ -80,7 +80,8 @@ class QuestionAnswerView extends Component {
             </TouchableHighlight>);
         else {
             return (<AnswerList locale={this.locale} answers={this.question.answers}
-                                isMultiSelect={this.question.isMultiSelect}/>);
+                                isMultiSelect={this.question.isMultiSelect} currentAnswers={AppState.questionnaireAnswers.currentAnswer.value}
+                                answerHolder={AppState.questionnaireAnswers}/>);
         }
     };
 

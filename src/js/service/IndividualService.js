@@ -1,7 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Concept} from "../models/Concept";
-import MessageService from "./MessageService";
+import Individual from "../models/Individual";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -9,7 +8,13 @@ class IndividualService extends BaseService {
         super(db, beanStore);
     }
 
-    init() {
+    save(individual) {
+        const db = this.db;
+        db.write(() => db.create(Individual.schema.name, individual));
+    }
+
+    search(criteria) {
+        this.db.objects(Individual.schema.name).filtered(`name = \"${conceptName}\"`);
     }
 }
 

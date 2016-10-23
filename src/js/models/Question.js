@@ -57,8 +57,6 @@ class Question {
             [SimpleQuestionnaire.Text, ''],
             [SimpleQuestionnaire.Coded, []],
             [SimpleQuestionnaire.Date, this.questionConfiguration.default === "Today" ? new Date() : undefined]]);
-
-        console.log(this.questionConfiguration);
         return defaultValues.get(this.questionDataType);
     }
 }

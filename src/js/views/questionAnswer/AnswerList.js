@@ -10,12 +10,14 @@ class AnswerList extends AbstractComponent {
     static propTypes = {
         answers: React.PropTypes.object.isRequired,
         locale: React.PropTypes.string.isRequired,
-        isMultiSelect: React.PropTypes.bool.isRequired
+        isMultiSelect: React.PropTypes.bool.isRequired,
+        currentAnswers: React.PropTypes.array.isRequired,
+        answerHolder: React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
-        const viewModel = props.isMultiSelect ? new MultiSelectAnswerListModel(AppState.questionnaireAnswers.currentAnswer.value) : new SingleSelectAnswerListModel(AppState.questionnaireAnswers.currentAnswer.value);
+        const viewModel = props.isMultiSelect ? new MultiSelectAnswerListModel(props.currentAnswers) : new SingleSelectAnswerListModel(props.currentAnswers);
         this.state = {answerListModel: viewModel};
         this.optionPressed = this.optionPressed.bind(this);
     }
@@ -23,11 +25,12 @@ class AnswerList extends AbstractComponent {
     optionPressed(option) {
         var answersListModel = this.state.answerListModel;
         answersListModel.toggleSelection(option);
-        AppState.questionnaireAnswers.currentAnswerValue = answersListModel.chosenAnswers;
+        this.props.answerHolder.currentAnswerValue = answersListModel.chosenAnswers;
         this.setState({answerListModel: answersListModel});
     }
 
     render() {
+        console.log(this.props.answers);
         const answers = this.props.answers.map((answer)=>answer.name);
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(answers);
         return (
