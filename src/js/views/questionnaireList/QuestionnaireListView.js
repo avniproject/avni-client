@@ -1,4 +1,4 @@
-import {StyleSheet, View, DrawerLayoutAndroid, Dimensions} from 'react-native';
+import {StyleSheet, View, DrawerLayoutAndroid, Text} from 'react-native';
 import React from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path, {PathRoot} from '../../framework/routing/Path';
@@ -11,7 +11,7 @@ import MessageService from '../../service/MessageService';
 import Colors from '../primitives/Colors';
 
 @PathRoot
-@Path('/diseaseList')
+@Path('/questionnaireList')
 class QuestionnaireListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);

@@ -34,5 +34,8 @@
   "yes": "Yes",
   "no": "No",
   "savedOn": "Saved on {{saveDate}}",
-  "download": "Download"
+  "download": "Download",
+  "individualSearch": "Individual Search",
+  "name": "Name",
+  "age": "Age"
 }

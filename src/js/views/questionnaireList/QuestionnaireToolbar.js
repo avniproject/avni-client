@@ -8,6 +8,7 @@ import MessageService from "../../service/MessageService";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
 import _ from 'lodash';
 import ExportService from "../../service/ExportService";
+import IndividualSearchView from "../individual/IndividualSearchView";
 
 class QuestionnaireToolbar extends AbstractComponent {
     constructor(props, context) {
@@ -24,7 +25,8 @@ class QuestionnaireToolbar extends AbstractComponent {
                     loading: false
                 },
                 "export": {handlePress: this.onExportPress, buttonText: "export", loading: false},
-                "download": {handlePress: this.onDownloadPress, buttonText: "download", loading: false}
+                "download": {handlePress: this.onDownloadPress, buttonText: "download", loading: false},
+                "individualSearch": {handlePress: this.onIndividualSearchPress, buttonText: "individualSearch", loading: false}
             }
         };
     }
@@ -71,6 +73,10 @@ class QuestionnaireToolbar extends AbstractComponent {
 
     onViewSavedSessionsPress = () => {
         TypedTransition.from(this).to(DecisionSupportSessionListView);
+    };
+
+    onIndividualSearchPress = () => {
+        TypedTransition.from(this).to(IndividualSearchView);
     };
 
     render() {
