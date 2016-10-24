@@ -12,6 +12,10 @@ class ReferenceDataService extends BaseService {
         this.db.write(()=> db.create(schema, referenceData, true));
         return referenceData;
     }
+
+    getAll(schema) {
+        return this.db.objects(schema);
+    }
 }
 
 export default ReferenceDataService;

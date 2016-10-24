@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
+import * as CHSStyles from "../../views/primitives/GlobalStyles";
 
 class AbstractComponent extends Component {
     constructor(props, context) {
@@ -48,7 +49,11 @@ class AbstractComponent extends Component {
         }
     }
 
-
+    static _renderSeparator(rowNumber, rowID, total) {
+        if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) return (
+            <View key={rowID}/>);
+        return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator}/>);
+    }
 }
 
 export default AbstractComponent;

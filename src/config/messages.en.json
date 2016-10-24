@@ -37,5 +37,9 @@
   "download": "Download",
   "individualSearch": "Individual Search",
   "name": "Name",
-  "age": "Age"
+  "age": "Age",
+  "lowestAddressLevel": "Village",
+  "search": "Search",
+  "individualSearchResults": "Individual Search Results",
+  "zeroNumberOfResults": "No individuals found"
 }

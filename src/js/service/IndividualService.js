@@ -14,7 +14,7 @@ class IndividualService extends BaseService {
     }
 
     search(criteria) {
-        this.db.objects(Individual.schema.name).filtered(`name = \"${conceptName}\"`);
+        return this.db.objects(Individual.schema.name).filtered(criteria.getFilterCriteria());
     }
 }
 

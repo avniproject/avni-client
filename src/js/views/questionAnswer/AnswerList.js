@@ -9,7 +9,6 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 class AnswerList extends AbstractComponent {
     static propTypes = {
         answers: React.PropTypes.object.isRequired,
-        locale: React.PropTypes.string.isRequired,
         isMultiSelect: React.PropTypes.bool.isRequired,
         currentAnswers: React.PropTypes.array.isRequired,
         answerHolder: React.PropTypes.object.isRequired
@@ -30,9 +29,7 @@ class AnswerList extends AbstractComponent {
     }
 
     render() {
-        console.log(this.props.answers);
-        const answers = this.props.answers.map((answer)=>answer.name);
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(answers);
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(this.props.answers);
         return (
             <View style={{flex: 1}}>
                 <ListView

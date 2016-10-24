@@ -26,6 +26,7 @@ import _ from 'lodash';
 import AnswerList from './AnswerList';
 import QuestionAnswerTabView from './../common/QuestionAnswerTabView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import SettingsService from "../../service/SettingsService";
 
 @Path('/QuestionAnswerView')
 class QuestionAnswerView extends Component {
@@ -51,7 +52,6 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.locale = this.context.getDB().objects('Settings')[0]["locale"]["selectedLocale"];
         this.questionnaire = this.props.params.questionnaire;
         this.I18n = context.getService(MessageService).getI18n();
         this.state = {};
@@ -79,7 +79,7 @@ class QuestionAnswerView extends Component {
                 <Text style={{fontSize: 24, fontWeight: 'bold'}}>{this.dateDisplay()}</Text>
             </TouchableHighlight>);
         else {
-            return (<AnswerList locale={this.locale} answers={this.question.answers}
+            return (<AnswerList answers={this.question.answers.map((answer)=>answer.name)}
                                 isMultiSelect={this.question.isMultiSelect} currentAnswers={AppState.questionnaireAnswers.currentAnswer.value}
                                 answerHolder={AppState.questionnaireAnswers}/>);
         }
@@ -138,7 +138,7 @@ class QuestionAnswerView extends Component {
                 <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)} parent={this}
                            onTitlePressed={this.onTitlePress}/>
                 <ScrollView style={[CHSStyles.Global.mainSection]} keyboardShouldPersistTaps={true}>
-                    <Question question={this.question} locale={this.locale}/>
+                    <Question question={this.question}/>
                     <View style={{flex: 1}}>
                         {this.renderAnswer(this.question)}
                     </View>

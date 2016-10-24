@@ -1,17 +1,17 @@
-import Path from '../../framework/routing/Path';
-import {View, Text, StyleSheet, ListView, TouchableNativeFeedback} from 'react-native';
-import React, {Component} from 'react';
-import General from '../../utility/General';
-import AppHeader from '../primitives/AppHeader';
-import MessageService from '../../service/MessageService';
-import QuestionnaireService from '../../service/QuestionnaireService';
-import DecisionSupportSessionService from '../../service/DecisionSupportSessionService';
+import Path from "../../framework/routing/Path";
+import {View, Text, StyleSheet, ListView, TouchableNativeFeedback} from "react-native";
+import React, {Component} from "react";
+import AppHeader from "../primitives/AppHeader";
+import MessageService from "../../service/MessageService";
+import QuestionnaireService from "../../service/QuestionnaireService";
+import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
-import * as CHSStyles from '../primitives/GlobalStyles';
+import * as CHSStyles from "../primitives/GlobalStyles";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 
 @Path('/DecisionSupportSessionListView')
-class DecisionSupportSessionListView extends Component {
+class DecisionSupportSessionListView extends AbstractComponent {
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };
@@ -91,16 +91,10 @@ class DecisionSupportSessionListView extends Component {
                             </View>
                         )
                     }}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => DecisionSupportSessionListView._renderSeparator(rowID, `S${questionnaire.name}${rowID}`, sessions.length)}
+                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => AbstractComponent._renderSeparator(rowID, `S${questionnaire.name}${rowID}`, sessions.length)}
                 />
                 {this.renderZeroSessionMessageIfNeeded(sessions)}
             </View>);
-    }
-
-    static _renderSeparator(rowNumber, rowID, total) {
-        if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) return (
-            <View key={rowID}/>);
-        return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator}/>);
     }
 
     renderZeroSessionMessageIfNeeded(sessions) {
@@ -109,7 +103,7 @@ class DecisionSupportSessionListView extends Component {
                 <View>
                     <Text
                         style={CHSStyles.Global.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfSessions')}</Text>
-                    {DecisionSupportSessionListView._renderSeparator(0)}
+                    {AbstractComponent._renderSeparator(0)}
                 </View>
             );
         else
