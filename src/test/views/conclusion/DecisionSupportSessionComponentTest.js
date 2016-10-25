@@ -4,21 +4,10 @@ import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import DecisionSupportSessionComponent from '../../../js/views/conclusion/DecisionSupportSessionComponent';
 import TabularListView from '../../../js/views/common/TabularListView';
+import TestContext from "../testframework/TestContext";
 
 describe('DecisionSupportSessionComponent View Test', () => {
-    function getService() {
-        return {
-            "getI18n": function () {
-                return {
-                    t: function (t) {
-                        return t;
-                    }
-                };
-            },
-        };
-    }
-
-    const context = {getService: getService, navigator: ()=> ({})};
+    const context = new TestContext();
     it('Should call Tabular List View with proper params', () => {
         const decisionData = [{name: "Weight", value: 12}, {
             name: "Height",

@@ -3,24 +3,11 @@ import {View, ListView, TouchableHighlight} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import TabularListView from '../../../js/views/common/TabularListView';
+import TestContext from "../testframework/TestContext";
 
 describe('Tabular List View Test', () => {
-    function getService() {
-        return {
-            "getI18n": function () {
-                return {
-                    t: function (t) {
-                        return t;
-                    }
-                };
-            }
-        };
-    }
+    const context = new TestContext();
 
-    const context = {
-        getService: getService, navigator: ()=> {
-        }
-    };
     it('Should not render blank view if data is empty array', () => {
         const wrapper = shallow(<TabularListView data={[]} message={"none"}/>, {context});
         expect(wrapper.equals(<View/>)).to.be.true;
