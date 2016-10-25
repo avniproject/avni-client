@@ -11,7 +11,7 @@ import * as CHSStyles from "../primitives/GlobalStyles";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
 @Path('/DecisionSupportSessionListView')
-class DecisionSupportSessionListView extends AbstractComponent {
+class DecisionSupportSessionListView extends Component {
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };
@@ -93,17 +93,16 @@ class DecisionSupportSessionListView extends AbstractComponent {
                     }}
                     renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => AbstractComponent._renderSeparator(rowID, `S${questionnaire.name}${rowID}`, sessions.length)}
                 />
-                {this.renderZeroSessionMessageIfNeeded(sessions)}
+                {this.renderZeroSessionMessageIfNeeded(questionnaire, sessions)}
             </View>);
     }
 
-    renderZeroSessionMessageIfNeeded(sessions) {
+    renderZeroSessionMessageIfNeeded(questionnaire, sessions) {
         if (sessions.length === 0)
             return (
                 <View>
                     <Text
                         style={CHSStyles.Global.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfSessions')}</Text>
-                    {AbstractComponent._renderSeparator(0)}
                 </View>
             );
         else

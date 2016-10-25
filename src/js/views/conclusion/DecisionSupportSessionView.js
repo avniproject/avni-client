@@ -41,7 +41,6 @@ class DecisionSupportSessionView extends Component {
                            title={this.I18n.t("session", {questionnaireName: this.I18n.t(session.questionnaire.name)})}/>
                 <Text>{this.I18n.t("savedOn", {saveDate: General.formatDate(session.saveDate)})}</Text>
                 <ScrollView style={CHSStyles.Global.mainSection}>
-
                     <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
                 </ScrollView>
             </View>

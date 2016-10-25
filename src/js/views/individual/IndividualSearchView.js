@@ -21,7 +21,7 @@ class IndividualSearchView extends AbstractComponent {
         super(props, context);
 
         var individualSearchCriteria = new IndividualSearchCriteria();
-        this.state = {criteria: individualSearchCriteria};
+        this.state = {criteria: individualSearchCriteria, addressLevels: []};
     }
 
     viewName() {
@@ -35,7 +35,6 @@ class IndividualSearchView extends AbstractComponent {
             return addressLevel.title;
         });
 
-        console.log(titles);
         return (
             <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
                 <AppHeader title={I18n.t("individualSearch")} parent={this}/>
@@ -46,12 +45,12 @@ class IndividualSearchView extends AbstractComponent {
                     </View>
                     <View>
                         <Text>{I18n.t("age")}</Text>
-                        <TextInput keyboardType='numeric' onChangeText={(text) => this.state.criteria.age = text}></TextInput>
+                        <TextInput keyboardType='numeric' onChangeText={(text) => this.state.criteria.ageInYears = text}></TextInput>
                     </View>
                     <View>
                         <Text>{I18n.t("lowestAddressLevel")}</Text>
                         <AnswerList answers={titles}
-                                    isMultiSelect={false} currentAnswers={this.state}
+                                    isMultiSelect={false} currentAnswers={this.state.addressLevels}
                                     answerHolder={this.state}/>
                     </View>
                     <View>
