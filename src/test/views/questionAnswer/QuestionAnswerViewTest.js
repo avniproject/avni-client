@@ -25,8 +25,7 @@ describe('Question Answer View Test', () => {
                         return t;
                     }
                 };
-            },
-            "questionnaire": new QuestionnaireService(undefined, undefined, undefined)
+            }
         };
     }
 
@@ -38,11 +37,6 @@ describe('Question Answer View Test', () => {
     it('should have `Multiple Choice Question 1` as the first question', () => {
         const context = {
             navigator: ()=> ({}),
-            getDB: ()=> ({
-                objects: function () {
-                    return [{"locale": {"selectedLocale": "en"}}]
-                }
-            }),
             getService: getService
         };
 
@@ -63,11 +57,6 @@ describe('Question Answer View Test', () => {
     it('when Numeric is the first question', () => {
         const context = {
             navigator: ()=> ({}),
-            getDB: ()=> ({
-                objects: function () {
-                    return [{"locale": {"selectedLocale": "en"}}]
-                }
-            }),
             getService: getService
         };
 
