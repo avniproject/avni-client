@@ -6,6 +6,8 @@ import * as CHSStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import AppHeader from "../primitives/AppHeader";
 import Individual from "../../models/Individual";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import IndividualEncounterView from "./IndividualEncounterView";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -69,7 +71,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-
+        TypedTransition.from(this).with({individual: individual}).to(IndividualEncounterView);
     }
 }
 
