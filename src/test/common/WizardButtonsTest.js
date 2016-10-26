@@ -3,24 +3,10 @@ import {View, ListView, TouchableHighlight} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import WizardButtons from '../../js/views/common/WizardButtons';
+import TestContext from "../views/testframework/TestContext";
 
 describe('WizardButtons View Test', () => {
-    function getService() {
-        return {
-            "getI18n": function () {
-                return {
-                    t: function (t) {
-                        return t;
-                    }
-                };
-            }
-        };
-    }
-
-    const context = {
-        getService: getService, navigator: ()=> {
-        }
-    };
+    const context = new TestContext();
 
     it('It should show no button if the button array passed is empty', () => {
         const wrapper = shallow(<WizardButtons buttons={[]}/>, {context});

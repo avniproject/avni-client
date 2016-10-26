@@ -27,7 +27,7 @@ class IndividualSearchResultsView extends AbstractComponent {
             <View key={`1${rowID}`}>
                 <TouchableNativeFeedback onPress={() => this.onResultRowPress(individual)} key={`2${rowID}`}>
                     <View style={CHSStyles.Global.listRow} key={`3${rowID}`}>
-                        {`${individual.name}, Age: ${Individual.getAge(individual)}, ${individual.gender}`}
+                        <Text>{individual.toSummaryString()}</Text>
                     </View>
                 </TouchableNativeFeedback>
             </View>);

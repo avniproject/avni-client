@@ -3,24 +3,10 @@ import {View, ListView, TouchableHighlight} from 'react-native';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 import PreviousNextSave from '../../js/views/common/PreviousNextSave';
+import TestContext from "../views/testframework/TestContext";
 
 describe('PreviousNextSave View Test', () => {
-    function getService() {
-        return {
-            "getI18n": function () {
-                return {
-                    t: function (t) {
-                        return t;
-                    }
-                };
-            }
-        };
-    }
-
-    const context = {
-        getService: getService, navigator: ()=> {
-        }
-    };
+    const context = new TestContext();
 
     it('It should just show 2 buttons if hasBeforeQuestion is false', () => {
         const wrapper = shallow(<PreviousNextSave hasQuestionBefore={false}
