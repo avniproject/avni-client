@@ -19,6 +19,7 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.I18n = this.context.getService(MessageService).getI18n();
     }
 
     renderRowAResult(individual, rowID) {
@@ -45,13 +46,11 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     render() {
-        const I18n = this.context.getService(MessageService).getI18n();
-
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const dsClone = ds.cloneWithRows(this.props.params.searchResults);
 
         return (<View style={{flex: 1}}>
-            <AppHeader title={I18n.t("individualSearchResults")} parent={this}/>
+            <AppHeader title={this.I18n.t("individualSearchResults")} parent={this}/>
             <ScrollView style={[CHSStyles.Global.mainSection]}>
                 <ListView
                     enableEmptySections={true}
