@@ -14,31 +14,16 @@ import Concepts from "../../resources/sample-concepts.json";
 import _ from "lodash";
 import AnswerList from "../../../js/views/questionAnswer/AnswerList";
 import QuestionAnswerTabView from "../../../js/views/common/QuestionAnswerTabView";
+import TestContext from "../testframework/TestContext";
 
 describe('Question Answer View Test', () => {
-
-    function getService() {
-        return {
-            "getI18n": function () {
-                return {
-                    t: function (t) {
-                        return t;
-                    }
-                };
-            }
-        };
-    }
-
     function makeConceptService(conceptName) {
         const conceptToRet = _.find(Concepts, (concept)=>concept.name === conceptName);
         return {getConceptByName: () => conceptToRet};
     }
 
     it('should have `Multiple Choice Question 1` as the first question', () => {
-        const context = {
-            navigator: ()=> ({}),
-            getService: getService
-        };
+        const context = new TestContext();
 
         var simpleQuestionnaire = new SimpleQuestionnaire(SampleQuestionnaire, makeConceptService("Multiple Choice Question 1"));
         AppState.startQuestionnaireSession(simpleQuestionnaire);
@@ -55,10 +40,7 @@ describe('Question Answer View Test', () => {
     });
 
     it('when Numeric is the first question', () => {
-        const context = {
-            navigator: ()=> ({}),
-            getService: getService
-        };
+        const context = new TestContext();
 
         var simpleQuestionnaire = new SimpleQuestionnaire(Diabetes, makeConceptService("Numeric Question"));
         AppState.startQuestionnaireSession(simpleQuestionnaire);
