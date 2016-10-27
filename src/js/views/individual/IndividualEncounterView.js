@@ -1,7 +1,9 @@
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
+import * as CHSStyles from "../primitives/GlobalStyles";
+import AppHeader from "../primitives/AppHeader";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -18,7 +20,14 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     render() {
-        return (<View />);
+        return (
+            <View style={{flex: 1}}>
+                <AppHeader title={this.props.params.individual.name} parent={this}/>
+                <ScrollView style={[CHSStyles.Global.mainSection]}>
+
+                </ScrollView>
+            </View>
+        );
     }
 }
 

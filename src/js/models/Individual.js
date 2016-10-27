@@ -24,13 +24,13 @@ class Individual {
         return individual;
     }
 
-    static getAge(individual) {
+    static getDisplayAge(individual) {
         var ageInYears = moment().diff(individual.dateOfBirth, 'years');
         return ageInYears > 0 ? `${ageInYears} years` : `${moment().diff(individual.dateOfBirth, 'months')} months`;
     }
 
     toSummaryString() {
-        return `${this.name}, Age: ${Individual.getAge(this)}, ${this.gender}`;
+        return `${this.name}, Age: ${Individual.getDisplayAge(this)}, ${this.gender}`;
     }
 }
 
