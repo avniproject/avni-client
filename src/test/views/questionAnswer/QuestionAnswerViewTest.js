@@ -5,7 +5,7 @@ import {shallow} from 'enzyme';
 import TestContext from "../testframework/TestContext";
 import QuestionAnswerView from "../../../js/views/questionAnswer/QuestionAnswerView";
 import SimpleQuestionnaire from "../../../js/models/SimpleQuestionnaire";
-import AppState from "../../../js/hack/AppState"
+import AppState from "../../../js/hack/AppState";
 import SampleQuestionnaire from "../../resources/sample-questionnaire.json";
 import ConceptService from "../../../js/service/ConceptService";
 import QuestionAnswerControl from "../../../js/views/questionAnswer/QuestionAnswerControl";

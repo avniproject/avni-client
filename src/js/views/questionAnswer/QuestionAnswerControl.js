@@ -26,9 +26,9 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 class QuestionAnswerControl extends AbstractComponent {
     static propTypes = {
-        onNext: React.PropTypes.func.isRequired,
+        questionnaire: React.PropTypes.object.isRequired,
         questionNumber: React.PropTypes.number.isRequired,
-        questionnaire: React.PropTypes.object.isRequired
+        onNext: React.PropTypes.func.isRequired,
     };
 
     static styles = StyleSheet.create({
@@ -124,7 +124,7 @@ class QuestionAnswerControl extends AbstractComponent {
                     {this.renderAnswer(this.question)}
                 </View>
                 <PreviousNextSave hasQuestionBefore={!this.question.isFirstQuestion}
-                                  parent={this}
+                                  onPrevious={() => {TypedTransition.from(this.props.parent).goBack()}}
                                   onNext={() => {this.props.onNext(this.question.isLastQuestion)}}
                                   validationFn={this.validate}
                 />

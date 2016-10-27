@@ -16,7 +16,7 @@ class PreviousNext extends Component {
     static propTypes = {
         hasQuestionBefore: React.PropTypes.bool.isRequired,
         nextParams: React.PropTypes.object,
-        parent: React.PropTypes.object.isRequired,
+        onPrevious: React.PropTypes.func.isRequired,
         onNext: React.PropTypes.func.isRequired,
         validationFn: React.PropTypes.func
     };
@@ -30,7 +30,7 @@ class PreviousNext extends Component {
     }
 
     onPrevious() {
-        TypedTransition.from(this.props.parent).goBack();
+        this.props.onPrevious();
     };
 
     onNext() {

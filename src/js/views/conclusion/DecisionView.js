@@ -8,7 +8,7 @@ import PreviousNextSave from '../common/PreviousNextSave';
 import MessageService from '../../service/MessageService';
 import QuestionAnswerTabView from '../common/QuestionAnswerTabView';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import _ from 'lodash';
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/DecisionView')
 class DecisionView extends Component {
@@ -91,7 +91,7 @@ class DecisionView extends Component {
                                           questionnaire: this.props.params.questionnaire,
                                           decisions: this.decisions
                                       }}
-                                      parent={this}/>
+                                      onPrevious={() => {TypedTransition.from(this.props.parent).goBack()}}/>
                     <QuestionAnswerTabView
                         questionnaire={this.props.params.questionnaire}
                         data={AppState.questionnaireAnswers.toArray()}

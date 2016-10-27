@@ -2,9 +2,10 @@ import {View, StyleSheet, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
-import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from "../primitives/AppHeader";
 import IndividualHeader from "../individual/IndividualHeader";
+import QuestionAnswerControl from "../questionAnswer/QuestionAnswerControl";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -22,12 +23,12 @@ class IndividualEncounterView extends AbstractComponent {
 
     render() {
         return (
-            <View style={{flex: 1}}>
+            <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
                 <AppHeader title={this.props.params.individual.name} parent={this}/>
                 <IndividualHeader individual={this.props.params.individual}/>
-                <ScrollView style={[CHSStyles.Global.mainSection]}>
-
-                </ScrollView>
+                <QuestionAnswerControl questionnaire={this.props.params.questionnaire} questionNumber={this.props.params.questionNumber}
+                                       onNext={() => {}}
+                                       onPrevious={() => {TypedTransition.from(this).goBack()}}/>
             </View>
         );
     }

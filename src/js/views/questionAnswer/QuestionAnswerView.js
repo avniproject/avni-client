@@ -30,7 +30,6 @@ class QuestionAnswerView extends Component {
 
     constructor(props, context) {
         super(props, context);
-        this.questionnaire = this.props.params.questionnaire;
         this.I18n = context.getService(MessageService).getI18n();
         this.state = {};
     }

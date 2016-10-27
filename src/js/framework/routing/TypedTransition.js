@@ -11,7 +11,7 @@ export default class TypedTransition {
     }
 
     to(viewClass, sceneConfig) {
-        require("dismissKeyboard")();
+        this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
 
         const path = viewClass.path();
@@ -24,8 +24,15 @@ export default class TypedTransition {
     }
 
     goBack() {
-        require("dismissKeyboard")();
+        this.safeDismissKeyboard();
         this.view.context.navigator().pop();
+    }
+
+    safeDismissKeyboard() {
+        try {
+            require("dismissKeyboard")();
+        } catch (e) {
+        }
     }
 
     static from(view) {
@@ -36,13 +43,13 @@ export default class TypedTransition {
     }
 
     toBeginning() {
-        require("dismissKeyboard")();
+        this.safeDismissKeyboard();
         this.view.context.navigator().popToTop();
         return this;
     }
 
     resetTo(viewClass) {
-        require("dismissKeyboard")();
+        this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const path = viewClass.path();
         var route = {path, queryParams: this.queryParams || {}};

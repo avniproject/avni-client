@@ -11,7 +11,7 @@ describe('PreviousNextSave View Test', () => {
     it('It should just show 2 buttons if hasBeforeQuestion is false', () => {
         const wrapper = shallow(<PreviousNextSave hasQuestionBefore={false}
                                                   nextParams={{}}
-                                                  parent={{}}
+                                                  onPrevious={() => {}}
                                                   nextView={()=> {
                                                   }}/>, {context});
         const buttons = wrapper.node.props.buttons;
@@ -25,7 +25,7 @@ describe('PreviousNextSave View Test', () => {
     it('It should  show 2 buttons next and previous if hasBeforeQuestion is true', () => {
         const wrapper = shallow(<PreviousNextSave hasQuestionBefore={true}
                                                   nextParams={{}}
-                                                  parent={{}}
+                                                  onPrevious={() => {}}
                                                   nextView={()=> {
                                                   }}/>, {context});
         const buttons = wrapper.node.props.buttons;
@@ -39,7 +39,7 @@ describe('PreviousNextSave View Test', () => {
     it('It should  show 2 buttons next and save if nextView is undefined', () => {
         const wrapper = shallow(<PreviousNextSave hasQuestionBefore={false}
                                                   nextParams={{}}
-                                                  parent={{}}
+                                                  onPrevious={() => {}}
                                                   nextView={undefined}/>, {context});
         const buttons = wrapper.node.props.buttons;
         expect(buttons.length).to.be.equal(2);
