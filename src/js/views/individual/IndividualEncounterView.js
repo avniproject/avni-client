@@ -4,6 +4,7 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
 import * as CHSStyles from "../primitives/GlobalStyles";
 import AppHeader from "../primitives/AppHeader";
+import IndividualHeader from "../individual/IndividualHeader";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -23,6 +24,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <View style={{flex: 1}}>
                 <AppHeader title={this.props.params.individual.name} parent={this}/>
+                <IndividualHeader individual={this.props.params.individual}/>
                 <ScrollView style={[CHSStyles.Global.mainSection]}>
 
                 </ScrollView>

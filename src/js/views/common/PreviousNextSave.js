@@ -15,9 +15,9 @@ class PreviousNext extends Component {
 
     static propTypes = {
         hasQuestionBefore: React.PropTypes.bool.isRequired,
-        nextParams: React.PropTypes.object.isRequired,
+        nextParams: React.PropTypes.object,
         parent: React.PropTypes.object.isRequired,
-        nextView: React.PropTypes.func,
+        onNext: React.PropTypes.func.isRequired,
         validationFn: React.PropTypes.func
     };
 
@@ -48,8 +48,7 @@ class PreviousNext extends Component {
                 return;
             }
         }
-        var typedTransition = TypedTransition.from(this.props.parent);
-        typedTransition.with(this.props.nextParams).to(this.props.nextView);
+        this.props.onNext();
     };
 
     onSave() {
