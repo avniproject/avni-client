@@ -1,10 +1,9 @@
-import AddressLevel from "../models/AddressLevel";
+import EntitySyncStatus from "../models/EntitySyncStatus";
 
 class SetupData {
-    static setup(refDataService) {
-        refDataService.save(AddressLevel.schema.name, AddressLevel.create("Jinjgaon", 1));
-        refDataService.save(AddressLevel.schema.name, AddressLevel.create("Nijhma", 1));
-        refDataService.save(AddressLevel.schema.name, AddressLevel.create("Naya Gaon", 1));
+    static setup(entitySyncStatusService) {
+        entitySyncStatusService.save(EntitySyncStatus.create("Concept", EntitySyncStatus.REALLY_OLD_DATE));
+        entitySyncStatusService.save(EntitySyncStatus.create("Gender", EntitySyncStatus.REALLY_OLD_DATE));
     }
 }
 

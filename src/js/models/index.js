@@ -10,7 +10,9 @@ import DecisionData from "./DecisionConfig";
 import Individual from "./Individual";
 import AddressLevel from "./AddressLevel";
 import UserDefinedIndividualProperty from "./UserDefinedIndividualProperty";
+import Gender from "./Gender";
+import EntitySyncStatus from "./EntitySyncStatus";
 
 export default {
-    schema: [LocaleMapping, Locale, Settings, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, StringObject, Questionnaire, ConceptName, ConceptDatatype, ConceptAnswer, Concept, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, Individual]
+    schema: [LocaleMapping, Locale, Settings, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, StringObject, Questionnaire, ConceptName, ConceptDatatype, ConceptAnswer, Concept, Gender, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, Individual, EntitySyncStatus]
 };

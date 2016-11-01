@@ -5,13 +5,13 @@ import * as CHSStyles from "../primitives/GlobalStyles";
 import Path from "../../framework/routing/Path";
 import AppHeader from '../primitives/AppHeader';
 import MessageService from "../../service/MessageService";
-import ReferenceDataService from "../../service/ReferenceDataService";
 import AddressLevel from "../../models/AddressLevel";
 import AnswerList from "../../views/questionAnswer/AnswerList";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
+import BaseService from "../../service/BaseService";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -30,7 +30,7 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
-        const addressLevels = this.context.getService(ReferenceDataService).getAll(AddressLevel.schema.name);
+        const addressLevels = this.context.getService(BaseService).getAll(AddressLevel.schema.name);
         const titles = addressLevels.map((addressLevel) => {
             return addressLevel.title;
         });

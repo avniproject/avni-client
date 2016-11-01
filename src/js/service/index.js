@@ -1,3 +1,4 @@
+export * from './BaseService';
 export * from './ConceptService';
 export * from './QuestionnaireService';
 export * from './DecisionSupportSessionService';
@@ -6,4 +7,4 @@ export * from './SettingsService';
 export * from './MessageService';
 export * from './DecisionConfigService';
 export * from './ConfigService';
-export * from './ReferenceDataService';
+export * from './EntitySyncStatusService';

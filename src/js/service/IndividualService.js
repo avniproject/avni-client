@@ -8,9 +8,8 @@ class IndividualService extends BaseService {
         super(db, beanStore);
     }
 
-    save(individual) {
-        const db = this.db;
-        db.write(() => db.create(Individual.schema.name, individual));
+    getSchema() {
+        return Individual.schema.name;
     }
 
     search(criteria) {

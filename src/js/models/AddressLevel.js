@@ -1,7 +1,9 @@
 class AddressLevel {
     static schema = {
         name: "AddressLevel",
+        primaryKey: 'uuid',
         properties: {
+            uuid: "string",
             title: "string",
             level: "int",
             parentAddressLevel: {type: "AddressLevel", optional: true}

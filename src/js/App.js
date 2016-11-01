@@ -8,7 +8,7 @@ import './service';
 import AppState from './hack/AppState'; //Required Import
 import AppStoreFactory from './store/AppStore';
 import SetupData from "./hack/SetupData";
-import ReferenceDataService from "./service/ReferenceDataService";
+import EntitySyncStatusService from "./service/EntitySyncStatusService";
 
 export default class App extends Component {
 
@@ -20,7 +20,7 @@ export default class App extends Component {
         this.appStore = AppStoreFactory(this.beans);
         this.routes = PathRegistry.routes();
 
-        // SetupData.setup(this.beans.get(ReferenceDataService));
+        SetupData.setup(this.beans.get(EntitySyncStatusService));
     }
 
     static childContextTypes = {
