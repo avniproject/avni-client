@@ -9,9 +9,9 @@ import AppState from './hack/AppState'; //Required Import
 import AppStoreFactory from './store/AppStore';
 import SetupData from "./hack/SetupData";
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
+import EntityMetaData from "./service/EntityMetaData";
 
 export default class App extends Component {
-
     constructor(props, context) {
         super(props, context);
         this.db = new Realm(models);
@@ -20,7 +20,7 @@ export default class App extends Component {
         this.appStore = AppStoreFactory(this.beans);
         this.routes = PathRegistry.routes();
 
-        SetupData.setup(this.beans.get(EntitySyncStatusService));
+        SetupData.setup(this.beans.get(EntitySyncStatusService), EntityMetaData.model);
     }
 
     static childContextTypes = {

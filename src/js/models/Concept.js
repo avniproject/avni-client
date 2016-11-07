@@ -38,8 +38,21 @@ export class Concept {
             datatype: {"type": "ConceptDatatype"},
             answers: {"type": "list", "objectType": "ConceptAnswer"},
             lowAbsolute: {"type": 'int', optional: true},
-            hiAbsolute: {"type": 'int', optional: true}
+            hiAbsolute: {"type": 'int', optional: true},
+            lowNormal: {"type": 'int', optional: true},
+            hiNormal: {"type": 'int', optional: true}
         }
     };
 
+    static create(conceptResource) {
+        var concept = new Concept();
+        concept.name = conceptResource.name;
+        concept.uuid = conceptResource.uuid;
+        concept.datatype = conceptResource.dataType;
+        concept.lowAbsolute = conceptResource.lowAbsolute;
+        concept.hiAbsolute = conceptResource.highAbsolute;
+        concept.lowAbsolute = conceptResource.lowNormal;
+        concept.hiNormal = conceptResource.highNormal;
+        return concept;
+    }
 }

@@ -4,8 +4,7 @@ class Gender {
         primaryKey: 'uuid',
         properties: {
             uuid: "string",
-            title: "string",
-            lastModifiedDateTime: "date"
+            name: "string"
         }
     };
 
@@ -13,7 +12,6 @@ class Gender {
         var gender = new Gender();
         gender.name = genderResource.name;
         gender.uuid = genderResource.uuid;
-        gender.lastModifiedDateTime = genderResource.lastModifiedDateTime;
         return gender;
     }
 }

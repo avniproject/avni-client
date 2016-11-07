@@ -5,11 +5,14 @@ import Colors from '../primitives/Colors';
 import MessageService from '../../service/MessageService';
 import SettingsView from "../settings/SettingsView";
 import UIConfiguration from "../viewmodel/UIConfiguration";
+import SyncService from "../../service/SyncService";
+import EntityMetaData from "../../service/EntityMetaData";
 
 class AppHeader extends Component {
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
+        this.sync = this.sync.bind(this);
     }
 
     static contextTypes = {
@@ -60,6 +63,11 @@ class AppHeader extends Component {
             return (<Image source={require('../../../../android/app/src/main/res/mipmap-mdpi/back_50.png')}/>);
     }
 
+    sync() {
+        var syncService = this.context.getService(SyncService);
+        syncService.sync(EntityMetaData.model);
+    };
+
     render() {
         const topLeftActionMap = {
             "Settings": this.onSettingsPress,
@@ -81,7 +89,7 @@ class AppHeader extends Component {
                         </View>
                     </TouchableNativeFeedback>
                     <View style={AppHeader.styles.icon}>
-                        {/*Do Not Remove This View*/}
+                        <Text onPress={this.sync}>Sync</Text>
                     </View>
                 </View>
             </View>

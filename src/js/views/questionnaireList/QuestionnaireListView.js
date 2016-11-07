@@ -15,7 +15,6 @@ import Colors from '../primitives/Colors';
 class QuestionnaireListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
-        console.log(context.getService(MessageService).getI18n);
         this.I18n = context.getService(MessageService).getI18n();
     }
 

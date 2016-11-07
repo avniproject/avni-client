@@ -8,3 +8,4 @@ export * from './MessageService';
 export * from './DecisionConfigService';
 export * from './ConfigService';
 export * from './EntitySyncStatusService';
+export * from './SyncService';

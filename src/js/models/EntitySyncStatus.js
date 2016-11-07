@@ -3,14 +3,17 @@ class EntitySyncStatus {
 
     static schema = {
         name: 'EntitySyncStatus',
+        primaryKey: 'uuid',
         properties: {
+            uuid: "string",
             entityName: 'string',
             loadedSince: 'date'
         }
     };
 
-    static create(entityName, date) {
+    static create(entityName, date, uuid) {
         var entitySyncStatus = new EntitySyncStatus();
+        entitySyncStatus.uuid = uuid;
         entitySyncStatus.entityName = entityName;
         entitySyncStatus.loadedSince = date;
         return entitySyncStatus;

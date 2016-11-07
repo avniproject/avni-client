@@ -3,8 +3,8 @@ import Gender from "../models/Gender";
 
 class EntityMetaData {
     static model = [
-        {entityName: "Concept", entityClass: Concept, resourceName: "concept"},
-        {entityName: "Gender", entityClass: Gender, resourceName: "gender"}];
+        {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "metadata"},
+        {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "metadata"}];
 }
 
 export default EntityMetaData;

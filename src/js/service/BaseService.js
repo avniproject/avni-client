@@ -12,11 +12,17 @@ class BaseService {
         return this.beanStore.getBean(name);
     }
 
-    save(entity, schema) {
+    saveOrUpdate(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
         const db = this.db;
-        this.db.write(()=> db.create(schema, entity));
+        this.db.write(()=> db.create(schema, entity, true));
+        return entity;
+    }
+
+    save(entity) {
+        const db = this.db;
+        this.db.write(()=> db.create(this.getSchema(), entity));
         return entity;
     }
 
@@ -25,6 +31,7 @@ class BaseService {
     }
 
     getSchema() {
+        throw "getSchema should be overridden";
     }
 }
 
