@@ -40,7 +40,7 @@ export let get = (endpoint, cb, errorHandler) => {
 export let getJSON = (endpoint, cb, errorHandler) => {
     if (errorHandler === undefined)
         errorHandler = (arg) => {
-            console.log(arg);
+            console.log(`${arg}`);
         };
     return _get(endpoint, cb, errorHandler);
 };

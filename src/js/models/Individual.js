@@ -1,33 +1,39 @@
 import moment from "moment";
 import ResourceUtil from "../utility/ResourceUtil";
+import AddressLevel from "./AddressLevel";
+import Gender from "./Gender";
 
 class Individual {
     static schema = {
         name: "Individual",
+        primaryKey: 'uuid',
         properties: {
+            uuid: "string",
             name: "string",
             dateOfBirth: "date",
             dateOfBirthEstimated: "bool",
-            gender: "string",
-            lowestAddressLevel: {type: "list", objectType: "AddressLevel"},
+            gender: {type: "Gender"},
+            lowestAddressLevel: {type: "AddressLevel"},
             detailedAddress: {type: "string", optional: true},
             userDefined: {type: "list", objectType: "UserDefinedIndividualProperty"}
         }
     };
 
-    static create(name, dateOfBirth, gender, lowestAddressLevel) {
+    static newInstance(uuid, name, dateOfBirth, dateOfBirthEstimated, gender, lowestAddressLevel) {
         var individual = new Individual();
+        individual.uuid = uuid;
         individual.name = name;
         individual.dateOfBirth = dateOfBirth;
-        individual.dateOfBirthEstimated = false;
+        individual.dateOfBirthEstimated = dateOfBirthEstimated;
         individual.gender = gender;
         individual.lowestAddressLevel = lowestAddressLevel;
         return individual;
     }
 
     static fromResource(individualResource, entityService) {
-        var addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor("address"));
-        return Individual.create(individualResource.name, individualResource.dateOfBirth, individualResource.dateOfBirthEstimated, addressLevel);
+        var addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "address"), AddressLevel.schema.name);
+        var gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "gender"), Gender.schema.name);
+        return Individual.newInstance(individualResource.uuid, individualResource.name, new Date(individualResource.dateOfBirth), individualResource.dateOfBirthEstimated, gender, addressLevel);
     }
 
     static getDisplayAge(individual) {

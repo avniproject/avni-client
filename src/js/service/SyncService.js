@@ -32,19 +32,23 @@ class SyncService extends BaseService {
         const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
             return entityMetaData.type === "tx";
         });
-        this.pullData(allReferenceDataMetaData, () => this.pullData(allTxDataMetaData));
+        this.pullData(allReferenceDataMetaData, () => this.pullData(allTxDataMetaData, () => {}));
     }
 
     pullData(unprocessedEntityMetaData, onComplete) {
         var entityMetaData = unprocessedEntityMetaData.pop();
-        if (_.isNil(entityMetaData)) onComplete();
+        if (_.isNil(entityMetaData)) {
+            onComplete(unprocessedEntityMetaData, onComplete);
+            return;
+        }
 
         var entitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
-
+        console.log(`${entitySyncStatus.entityName} was last loaded up to "${entitySyncStatus.loadedSince}"`);
         this.conventionalRestClient.loadData(entityMetaData, entitySyncStatus.loadedSince, 0,
             unprocessedEntityMetaData,
             (resourcesWithSameTimeStamp, entityModel) => this.persist(resourcesWithSameTimeStamp, entityModel),
-            (entityMetaData, workingAllEntitiesMetaData) => this.pullData(entityMetaData, workingAllEntitiesMetaData), []);
+            (workingAllEntitiesMetaData) => this.pullData(workingAllEntitiesMetaData, onComplete),
+            []);
     }
 
     persist(resourcesWithSameTimeStamp, entityModel) {
@@ -53,15 +57,12 @@ class SyncService extends BaseService {
             this.entityService.saveOrUpdate(entity, entityModel.entityName);
         });
 
-        console.log(`Saved: ${resourcesWithSameTimeStamp.length} entities`);
-
         var currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);
 
         var entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.name = entityModel.entityName;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(resourcesWithSameTimeStamp[0]["lastModifiedDateTime"]);
-        console.log(`Saving: ${entitySyncStatus}`);
         this.entitySyncStatusService.saveOrUpdate(entitySyncStatus);
     }
 }

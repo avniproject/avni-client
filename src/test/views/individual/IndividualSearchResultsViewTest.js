@@ -22,7 +22,7 @@ describe('IndividualSearchResultsViewTest', () => {
     it('some results', () => {
         const wrapper = shallow(<IndividualSearchResultsView params=
                                                                  {{
-                                                                     searchResults: [Individual.create("chandan", moment().subtract(5, 'years').toDate(), "Male", AddressLevel.create("Jinjgaon", 1))]
+                                                                     searchResults: [Individual.newInstance('d5b08dab-0974-4871-8962-ac644de0b489', "chandan", moment().subtract(5, 'years').toDate(), false, "Male", AddressLevel.create("f65e1478-324e-41d7-a0c2-f2d9d780cf43", "Jinjgaon", 1))]
                                                                  }}/>, {context});
         expect(wrapper.containsMatchingElement(<Text>zeroNumberOfResults</Text>)).to.equal(false, wrapper.debug());
     });

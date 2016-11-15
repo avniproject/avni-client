@@ -14,10 +14,10 @@ class BaseService {
         return this.beanStore.getBean(name);
     }
 
-    findByKey(keyName, keyValue, schema) {
-        if (_.isNil(schema)) schema = this.getSchema();
+    findByKey(keyName, keyValue, schemaName) {
+        if (_.isNil(schemaName)) schemaName = this.getSchema();
 
-        var entities = this.db.objects(schema).filtered(`${keyName}="${keyValue}"`);
+        var entities = this.db.objects(schemaName).filtered(`${keyName}="${keyValue}"`);
         return entities.length === 1 ? entities[0] : undefined;
     }
 

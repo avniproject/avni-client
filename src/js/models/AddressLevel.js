@@ -10,12 +10,17 @@ class AddressLevel {
         }
     };
 
-    static create(title, level, parentAddressLevel) {
+    static create(uuid, title, level, parentAddressLevel) {
         const addressLevel = new AddressLevel();
+        addressLevel.uuid = uuid;
         addressLevel.title = title;
         addressLevel.level = level;
         addressLevel.parentAddressLevel = parentAddressLevel;
         return addressLevel;
+    }
+
+    static fromResource(resource) {
+        return AddressLevel.create(resource["uuid"], resource["title"], resource["level"]);
     }
 }
 
