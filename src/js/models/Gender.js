@@ -8,7 +8,7 @@ class Gender {
         }
     };
 
-    static create(genderResource) {
+    static fromResource(genderResource) {
         var gender = new Gender();
         gender.name = genderResource.name;
         gender.uuid = genderResource.uuid;

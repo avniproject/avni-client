@@ -12,6 +12,7 @@ import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import BaseService from "../../service/BaseService";
+import EntityService from "../../service/EntityService";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -30,7 +31,7 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
-        const addressLevels = this.context.getService(BaseService).getAll(AddressLevel.schema.name);
+        const addressLevels = this.context.getService(EntityService).getAll(AddressLevel.schema.name);
         const titles = addressLevels.map((addressLevel) => {
             return addressLevel.title;
         });

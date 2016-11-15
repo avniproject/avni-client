@@ -44,7 +44,7 @@ export class Concept {
         }
     };
 
-    static create(conceptResource) {
+    static fromResource(conceptResource) {
         var concept = new Concept();
         concept.name = conceptResource.name;
         concept.uuid = conceptResource.uuid;

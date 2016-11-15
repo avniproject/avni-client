@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 class BaseService {
     constructor(db, beanStore) {
         this.db = db;
@@ -10,6 +12,13 @@ class BaseService {
 
     getService(name) {
         return this.beanStore.getBean(name);
+    }
+
+    findByKey(keyName, keyValue, schema) {
+        if (_.isNil(schema)) schema = this.getSchema();
+
+        var entities = this.db.objects(schema).filtered(`${keyName}="${keyValue}"`);
+        return entities.length === 1 ? entities[0] : undefined;
     }
 
     saveOrUpdate(entity, schema) {

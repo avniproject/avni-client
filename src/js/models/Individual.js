@@ -1,4 +1,5 @@
 import moment from "moment";
+import ResourceUtil from "../utility/ResourceUtil";
 
 class Individual {
     static schema = {
@@ -22,6 +23,11 @@ class Individual {
         individual.gender = gender;
         individual.lowestAddressLevel = lowestAddressLevel;
         return individual;
+    }
+
+    static fromResource(individualResource, entityService) {
+        var addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor("address"));
+        return Individual.create(individualResource.name, individualResource.dateOfBirth, individualResource.dateOfBirthEstimated, addressLevel);
     }
 
     static getDisplayAge(individual) {

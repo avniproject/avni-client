@@ -12,6 +12,7 @@ class SyncService extends BaseService {
     //Push all tx data
     //Check app updates
     //Get metadata/configuration
+    //Save txdata
     //Get txdata for the catchment
 
     constructor(db, context) {
@@ -25,28 +26,30 @@ class SyncService extends BaseService {
     }
 
     sync(allEntitiesMetaData) {
-        this.syncAllMetadataAndReferenceData(allEntitiesMetaData);
+        const allReferenceDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
+            return entityMetaData.type === "reference";
+        });
+        const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
+            return entityMetaData.type === "tx";
+        });
+        this.pullData(allReferenceDataMetaData, () => this.pullData(allTxDataMetaData));
     }
 
-    syncAllMetadataAndReferenceData(allEntitiesMetaData) {
-        this.syncMetadataAndReferenceData(allEntitiesMetaData.slice());
-    }
-
-    syncMetadataAndReferenceData(workingAllEntitiesMetaData) {
-        var entityMetaData = workingAllEntitiesMetaData.pop();
-        if (_.isNil(entityMetaData)) return;
+    pullData(unprocessedEntityMetaData, onComplete) {
+        var entityMetaData = unprocessedEntityMetaData.pop();
+        if (_.isNil(entityMetaData)) onComplete();
 
         var entitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
 
         this.conventionalRestClient.loadData(entityMetaData, entitySyncStatus.loadedSince, 0,
-            workingAllEntitiesMetaData,
-            (resourcesWithSameTimeStamp, entityModel) => this.persistSynchedReferenceEntities(resourcesWithSameTimeStamp, entityModel),
-            (entityMetaData, workingAllEntitiesMetaData) => this.syncMetadataAndReferenceData(entityMetaData, workingAllEntitiesMetaData), []);
+            unprocessedEntityMetaData,
+            (resourcesWithSameTimeStamp, entityModel) => this.persist(resourcesWithSameTimeStamp, entityModel),
+            (entityMetaData, workingAllEntitiesMetaData) => this.pullData(entityMetaData, workingAllEntitiesMetaData), []);
     }
 
-    persistSynchedReferenceEntities(resourcesWithSameTimeStamp, entityModel) {
+    persist(resourcesWithSameTimeStamp, entityModel) {
         resourcesWithSameTimeStamp.forEach((resource) => {
-            var entity = entityModel.entityClass.create(resource);
+            var entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
             this.entityService.saveOrUpdate(entity, entityModel.entityName);
         });
 
