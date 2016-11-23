@@ -11,9 +11,9 @@ import _ from "lodash";
 class SyncService extends BaseService {
     //Push all tx data
     //Check app updates
-    //Get metadata/configuration
-    //Save txdata
-    //Get txdata for the catchment
+    //Pull metadata
+    //Pull configuration
+    //Pull txdata for the catchment
 
     constructor(db, context) {
         super(db, context);
@@ -32,13 +32,24 @@ class SyncService extends BaseService {
         const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
             return entityMetaData.type === "tx";
         });
-        this.pullData(allReferenceDataMetaData, () => this.pullData(allTxDataMetaData, () => {}));
+
+        var onCompleteFn = () => {};
+        var pullTxDataFn = () => this.pullData(allTxDataMetaData, onCompleteFn);
+        var pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
+        var pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn);
+        var pushTxDataFn = () => this.pushTxData(allTxDataMetaData, pullReferenceDataFn);
+
+        pushTxDataFn();
+    }
+
+    pullConfiguration(onComplete) {
+        onComplete();
     }
 
     pullData(unprocessedEntityMetaData, onComplete) {
         var entityMetaData = unprocessedEntityMetaData.pop();
         if (_.isNil(entityMetaData)) {
-            onComplete(unprocessedEntityMetaData, onComplete);
+            onComplete();
             return;
         }
 
@@ -64,6 +75,10 @@ class SyncService extends BaseService {
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(resourcesWithSameTimeStamp[0]["lastModifiedDateTime"]);
         this.entitySyncStatusService.saveOrUpdate(entitySyncStatus);
+    }
+
+    pushTxData(allTxDataMetaData, onComplete) {
+        onComplete();
     }
 }
 

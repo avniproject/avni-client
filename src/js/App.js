@@ -9,7 +9,7 @@ import AppState from './hack/AppState'; //Required Import
 import AppStoreFactory from './store/AppStore';
 import SetupData from "./hack/SetupData";
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
-import EntityMetaData from "./service/EntityMetaData";
+import EntityMetaData from "./models/EntityMetaData";
 
 export default class App extends Component {
     constructor(props, context) {

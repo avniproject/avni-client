@@ -1,4 +1,5 @@
 import moment from "moment";
+import _ from "lodash";
 
 class IndividualSearchCriteria {
     //to be made configurable perhaps later
@@ -11,7 +12,12 @@ class IndividualSearchCriteria {
     }
 
     getFilterCriteria() {
-        return `name CONTAINS[c] "${this.name}" AND (dateOfBirth >= $0 OR dateOfBirth <= $1 ) AND lowestAddressLevel.title == "${this.lowestAddressLevel}"`;
+        var criteria = `name CONTAINS[c] "${this.name}"`;
+        if (!_.isNil(this.ageInYears))
+            criteria = criteria + ` AND (dateOfBirth >= $0 OR dateOfBirth <= $1 )`;
+        if (!_.isNil(this.lowestAddressLevel))
+            criteria = criteria + ` AND lowestAddressLevel.title == "${this.lowestAddressLevel}"`;
+        return criteria;
     }
 
     getMaxDateOfBirth() {

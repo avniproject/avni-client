@@ -8,15 +8,6 @@ export class ConceptName {
     }
 }
 
-export class ConceptDatatype {
-    static schema = {
-        name: 'ConceptDatatype',
-        properties: {
-            name: 'string'
-        }
-    }
-}
-
 export class ConceptAnswer {
     static schema = {
         name: 'ConceptAnswer',
@@ -35,7 +26,7 @@ export class Concept {
             uuid: 'string',
             name: 'string',
             conceptNames: {"type": "list", "objectType": "ConceptName"},
-            datatype: {"type": "ConceptDatatype"},
+            datatype: "string",
             answers: {"type": "list", "objectType": "ConceptAnswer"},
             lowAbsolute: {"type": 'int', optional: true},
             hiAbsolute: {"type": 'int', optional: true},
@@ -46,6 +37,10 @@ export class Concept {
 
     static fromResource(conceptResource) {
         var concept = new Concept();
+        var conceptName = new ConceptName();
+        conceptName.name = conceptResource.name;
+        conceptName.locale = "en";
+        concept.conceptNames = [conceptName];
         concept.name = conceptResource.name;
         concept.uuid = conceptResource.uuid;
         concept.datatype = conceptResource.dataType;

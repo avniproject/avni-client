@@ -1,6 +1,7 @@
 import Duration from "../models/Duration";
 import _ from 'lodash';
 import moment from "moment";
+import ResourceUtil from "./ResourceUtil";
 
 class General {
     static formatDateTime(date) {
@@ -77,6 +78,26 @@ class General {
 
     static formatRange(question) {
         return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
+    }
+
+    static assignFields(source, dest, directCopyFields, dateFields, referenceUUIDFields) {
+        if (!_.isNil(directCopyFields)) {
+            directCopyFields.forEach((fieldName) => {
+                dest[fieldName] = source[fieldName];
+            });
+        }
+        if (!_.isNil(dateFields)) {
+            dateFields.forEach((fieldName) => {
+                dest[fieldName] = new Date(source[fieldName]);
+            });
+        }
+        if (!_.isNil(referenceUUIDFields)) {
+            referenceUUIDFields.forEach((fieldName) => {
+                dest[fieldName] = ResourceUtil.getUUIDFor(source, fieldName);
+            });
+        }
+
+        return dest;
     }
 }
 

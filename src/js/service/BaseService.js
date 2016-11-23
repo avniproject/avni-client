@@ -42,6 +42,18 @@ class BaseService {
     getSchema() {
         throw "getSchema should be overridden";
     }
+
+    clearDataIn(entities) {
+        const db = this.db;
+
+        entities.forEach((entity) => {
+            console.log(`Deleting all data from ${entity.schema.name}`);
+            db.write(() => {
+                var objects = db.objects(entity.schema.name);
+                db.delete(objects);
+            });
+        });
+    }
 }
 
 export default BaseService;

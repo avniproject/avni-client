@@ -1,4 +1,4 @@
-import React, {Component, View} from 'react';
+import React, {Component, View, Text} from 'react';
 import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
 import * as CHSStyles from "../../views/primitives/GlobalStyles";

@@ -31,8 +31,8 @@ class Individual {
     }
 
     static fromResource(individualResource, entityService) {
-        var addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "address"), AddressLevel.schema.name);
-        var gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "gender"), Gender.schema.name);
+        var addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
+        var gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
         return Individual.newInstance(individualResource.uuid, individualResource.name, new Date(individualResource.dateOfBirth), individualResource.dateOfBirthEstimated, gender, addressLevel);
     }
 
@@ -42,7 +42,7 @@ class Individual {
     }
 
     toSummaryString() {
-        return `${this.name}, Age: ${Individual.getDisplayAge(this)}, ${this.gender}`;
+        return `${this.name}, Age: ${Individual.getDisplayAge(this)}, ${this.gender.name}`;
     }
 }
 

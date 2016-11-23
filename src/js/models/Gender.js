@@ -1,3 +1,5 @@
+import General from "../utility/General";
+
 class Gender {
     static schema = {
         name: "Gender",
@@ -8,11 +10,8 @@ class Gender {
         }
     };
 
-    static fromResource(genderResource) {
-        var gender = new Gender();
-        gender.name = genderResource.name;
-        gender.uuid = genderResource.uuid;
-        return gender;
+    static fromResource(resource) {
+        return General.assignFields(resource, new Gender(), ["uuid", "name"]);
     }
 }
 

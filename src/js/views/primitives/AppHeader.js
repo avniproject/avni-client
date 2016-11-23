@@ -6,7 +6,7 @@ import MessageService from '../../service/MessageService';
 import SettingsView from "../settings/SettingsView";
 import UIConfiguration from "../viewmodel/UIConfiguration";
 import SyncService from "../../service/SyncService";
-import EntityMetaData from "../../service/EntityMetaData";
+import EntityMetaData from "../../models/EntityMetaData";
 
 class AppHeader extends Component {
     constructor(props, context) {

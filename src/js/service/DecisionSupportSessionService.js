@@ -35,14 +35,7 @@ class DecisionSupportSessionService extends BaseService {
     }
 
     deleteAll() {
-        const db = this.db;
-
-        [DecisionSupportSession.schema.name, QuestionAnswer.schema.name, Decision.schema.name, Answer.schema.name].forEach((entityName) => {
-            db.write(() => {
-                var objects = db.objects(entityName);
-                db.delete(objects);
-            });
-        });
+        this.clearDataIn(DecisionSupportSession, QuestionAnswer, Decision, Answer);
     }
 }
 

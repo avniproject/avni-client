@@ -8,7 +8,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Actions from "../../action/index";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
 import MessageService from "../../service/MessageService";
-
+import EntityService from "../../service/EntityService";
+import EntityMetaData from "../../models/EntityMetaData";
 
 class SettingsForm extends AbstractComponent {
     constructor(props, context) {
@@ -47,6 +48,25 @@ class SettingsForm extends AbstractComponent {
         )
     };
 
+    onDeleteSchema = () => {
+        const service = this.context.getService(EntityService);
+        Alert.alert(
+            this.I18n.t('deleteSchemaConfirmationTitle'),
+            this.I18n.t("This will remove the reference, configuration and transaction data"),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                        service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+                    }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {},
+                    style: 'cancel'
+                }
+            ]
+        )
+    };
+
     static propTypes = {
         onServerURLChanged: React.PropTypes.func.isRequired,
         settings: React.PropTypes.object.isRequired,
@@ -67,8 +87,9 @@ class SettingsForm extends AbstractComponent {
                     availableValues={this.props.settings.locale.availableValues}
                 />
                 <View style={{flex: 1, flexDirection: 'row', justifyContent: "space-around"}}>
-                <SettingsButton onPress={this._triggerSync} buttonText={"syncConfig"} loading={this.state.syncing}/>
-                <SettingsButton onPress={this.onDeleteSessionsPress} buttonText={"deleteSessions"} loading={false}/>
+                    <SettingsButton onPress={this._triggerSync} buttonText={"syncConfig"} loading={this.state.syncing}/>
+                    <SettingsButton onPress={this.onDeleteSessionsPress} buttonText={"deleteSessions"} loading={false}/>
+                    <SettingsButton onPress={this.onDeleteSchema} buttonText={"deleteSchema"} loading={false}/>
                 </View>
             </View>
         );

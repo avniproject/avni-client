@@ -1,6 +1,6 @@
 class ResourceUtil {
     static getUUIDFor(resource, property) {
-        return resource["_links"][`${property}UUID`]["href"];
+        return resource["_links"][`${property}`]["href"];
     }
 }
 

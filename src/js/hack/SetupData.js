@@ -5,6 +5,7 @@ class SetupData {
     static setup(entitySyncStatusService, entityMetaDataModel) {
         entityMetaDataModel.forEach(function(entity) {
             if (_.isNil(entitySyncStatusService.get(entity.entityName))) {
+                console.log(`Setting up base entity sync status for ${entity.entityName}`);
                 entitySyncStatusService.save(EntitySyncStatus.create(entity.entityName, EntitySyncStatus.REALLY_OLD_DATE, SetupData.randomUUID()));
             }
         });
