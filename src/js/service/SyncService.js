@@ -66,6 +66,11 @@ class SyncService extends BaseService {
         resourcesWithSameTimeStamp.forEach((resource) => {
             var entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
             this.entityService.saveOrUpdate(entity, entityModel.entityName);
+
+            if (!_.isNil(entityModel.parent)) {
+                const parentEntity = entityModel.parent.entityClass.associateChild(entity, entityModel.entityClass, resource, this.getService(EntityService));
+                this.entityService.saveOrUpdate(parentEntity, entityModel.parent.entityName);
+            }
         });
 
         var currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);

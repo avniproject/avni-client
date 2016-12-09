@@ -20,7 +20,7 @@ export default class App extends Component {
         this.appStore = AppStoreFactory(this.beans);
         this.routes = PathRegistry.routes();
 
-        SetupData.setup(this.beans.get(EntitySyncStatusService), EntityMetaData.model);
+        SetupData.setup(this.beans.get(EntitySyncStatusService), EntityMetaData.model());
     }
 
     static childContextTypes = {

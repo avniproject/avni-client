@@ -65,7 +65,7 @@ class AppHeader extends Component {
 
     sync() {
         var syncService = this.context.getService(SyncService);
-        syncService.sync(EntityMetaData.model);
+        syncService.sync(EntityMetaData.model());
     };
 
     render() {

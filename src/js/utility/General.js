@@ -2,6 +2,7 @@ import Duration from "../models/Duration";
 import _ from 'lodash';
 import moment from "moment";
 import ResourceUtil from "./ResourceUtil";
+import Observation from "../models/Observation";
 
 class General {
     static formatDateTime(date) {
@@ -80,7 +81,7 @@ class General {
         return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
     }
 
-    static assignFields(source, dest, directCopyFields, dateFields, referenceUUIDFields) {
+    static assignFields(source, dest, directCopyFields, dateFields, observationField) {
         if (!_.isNil(directCopyFields)) {
             directCopyFields.forEach((fieldName) => {
                 dest[fieldName] = source[fieldName];
@@ -91,13 +92,31 @@ class General {
                 dest[fieldName] = new Date(source[fieldName]);
             });
         }
-        if (!_.isNil(referenceUUIDFields)) {
-            referenceUUIDFields.forEach((fieldName) => {
-                dest[fieldName] = ResourceUtil.getUUIDFor(source, fieldName);
-            });
+        if (!_.isNil(observationField)) {
+            var observations = [];
+            if (!_.isNil(source[observationField])) {
+                source[observationField].forEach((observationResource) => {
+                    var observation = new Observation();
+                    observation.conceptUUID = observationResource["conceptUUID"];
+                    observation.valueJSON = `${observationResource["value"]}`;
+                    observations.push(observation);
+                });
+            }
+            dest[observationField] = observations;
         }
 
         return dest;
+    }
+
+    static pick(from, attributes, listAttributes) {
+        var picked = _.pick(from, attributes);
+        if (!_.isNil(listAttributes)) {
+            listAttributes.forEach((listAttribute) => {
+                picked[listAttribute] = [];
+                from[listAttribute].forEach((item) => picked[listAttribute].push(item));
+            });
+        }
+        return picked;
     }
 }
 

@@ -12,22 +12,46 @@ import ProgramEnrolment from "./ProgramEnrolment";
 import ProgramEncounter from "./ProgramEncounter";
 import EncounterType from "./EncounterType";
 import Encounter from "./Encounter";
+import ProgramOutcome from "./ProgramOutcome";
 
 class EntityMetaData {
-    //order is important
-    static model = [
-        {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference"},
-        {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference"},
-        {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference"},
-        {entityName: "Program", entityClass: Program, resourceName: "program", type: "reference"},
-        {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference"},
-        {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference"},
+    static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference"};
+    static followupType = {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference"};
+    static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference"};
+    static program = {entityName: "Program", entityClass: Program, resourceName: "program", type: "reference"};
+    static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference"};
+    static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference"};
+    static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference"};
+    static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"};
 
-        {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx"},
-        {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx"},
-        {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx"},
-        {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"}
-    ];
+    static encounter() {
+        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual}
+    };
+
+    static programEnrolment() {
+        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual};
+    }
+
+    static programEncounter() {
+        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment()};
+    }
+
+    //order is important. last entity in each (tx and ref) with be executed first
+    static model() {
+        return [
+            EntityMetaData.addressLevel,
+            EntityMetaData.followupType,
+            EntityMetaData.encounterType,
+            EntityMetaData.program,
+            EntityMetaData.programOutcome,
+            EntityMetaData.gender,
+            EntityMetaData.concept,
+            EntityMetaData.encounter(),
+            EntityMetaData.programEncounter(),
+            EntityMetaData.programEnrolment(),
+            EntityMetaData.individual
+        ];
+    };
 
     static entitiesLoadedFromServer() {
         return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping, Locale], (first, second) => {
