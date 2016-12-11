@@ -13,8 +13,10 @@ class ProgramEnrolment extends BaseEntity {
             uuid: 'string',
             program: 'Program',
             enrolmentDateTime: 'date',
+            programLeaveDateTime: 'date',
             programOutcome: 'ProgramOutcome',
             enrolmentProfile: {type: 'list', objectType: 'Observation'},
+            programLeaveObservations: {type: 'list', objectType: 'Observation'},
             encounters: {type: 'list', objectType: 'ProgramEncounter'}
         }
     };
@@ -23,7 +25,7 @@ class ProgramEnrolment extends BaseEntity {
         var program = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
         var programOutcome = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programOutcome"), ProgramOutcome.schema.name);
 
-        var programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime"], "enrolmentProfile");
+        var programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime"], ["enrolmentProfile", "programLeaveObservations"]);
         programEnrolment.program = program;
         programEnrolment.programOutcome = programOutcome;
 

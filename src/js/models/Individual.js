@@ -5,8 +5,7 @@ import Gender from "./Gender";
 import General from "../utility/General";
 import BaseEntity from "./BaseEntity";
 import ProgramEnrolment from "./ProgramEnrolment";
-import Encounter from './Encounter';
-import _ from "lodash";
+import Encounter from "./Encounter";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -40,7 +39,7 @@ class Individual extends BaseEntity {
         var addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         var gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
-        var individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthEstimated"], ["dateOfBirth"], "customProfile");
+        var individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthEstimated"], ["dateOfBirth"], ["customProfile"]);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;

@@ -81,7 +81,7 @@ class General {
         return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
     }
 
-    static assignFields(source, dest, directCopyFields, dateFields, observationField) {
+    static assignFields(source, dest, directCopyFields, dateFields, observationFields) {
         if (!_.isNil(directCopyFields)) {
             directCopyFields.forEach((fieldName) => {
                 dest[fieldName] = source[fieldName];
@@ -92,17 +92,19 @@ class General {
                 dest[fieldName] = new Date(source[fieldName]);
             });
         }
-        if (!_.isNil(observationField)) {
-            var observations = [];
-            if (!_.isNil(source[observationField])) {
-                source[observationField].forEach((observationResource) => {
-                    var observation = new Observation();
-                    observation.conceptUUID = observationResource["conceptUUID"];
-                    observation.valueJSON = `${observationResource["value"]}`;
-                    observations.push(observation);
-                });
-            }
-            dest[observationField] = observations;
+        if (!_.isNil(observationFields)) {
+            observationFields.forEach((observationField) => {
+                var observations = [];
+                if (!_.isNil(source[observationField])) {
+                    source[observationField].forEach((observationResource) => {
+                        var observation = new Observation();
+                        observation.conceptUUID = observationResource["conceptUUID"];
+                        observation.valueJSON = `${observationResource["value"]}`;
+                        observations.push(observation);
+                    });
+                }
+                dest[observationField] = observations;
+            });
         }
 
         return dest;

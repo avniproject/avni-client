@@ -21,7 +21,7 @@ class ProgramEncounter {
         var followupType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "followupTypeUUID"), FollowupType.schema.name);
         var programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
 
-        var programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], "observations");
+        var programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], ["observations"]);
         programEncounter.followupType = followupType;
         programEncounter.programEnrolment = programEnrolment;
 

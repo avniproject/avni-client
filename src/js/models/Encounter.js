@@ -20,7 +20,7 @@ class Encounter {
         var encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
 
-        var encounter = General.assignFields(resource, new Encounter(), ["uuid"], ["encounterDateTime"], "observations");
+        var encounter = General.assignFields(resource, new Encounter(), ["uuid"], ["encounterDateTime"], ["observations"]);
         encounter.encounterType = encounterType;
         encounter.individual = individual;
         return encounter;
