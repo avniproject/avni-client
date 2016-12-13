@@ -28,8 +28,7 @@ class AppHeader extends Component {
     static styles = StyleSheet.create({
         main: {
             backgroundColor: Colors.Primary,
-            flexDirection: 'row',
-            flex: 1,
+            flexDirection: 'row',  
             justifyContent: 'space-between'
         },
         icon: {
@@ -69,6 +68,7 @@ class AppHeader extends Component {
     };
 
     render() {
+        console.log("AppHeader");
         const topLeftActionMap = {
             "Settings": this.onSettingsPress,
             "Back": this.onBackPress

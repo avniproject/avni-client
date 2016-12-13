@@ -17,7 +17,6 @@ class SettingsView extends Component {
         formItem: {
             marginBottom: 10,
             marginHorizontal: 10,
-            flex: 1,
             flexDirection: 'row',
             alignItems: 'flex-end'
         },
