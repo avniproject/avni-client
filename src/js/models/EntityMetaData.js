@@ -13,8 +13,12 @@ import ProgramEncounter from "./ProgramEncounter";
 import EncounterType from "./EncounterType";
 import Encounter from "./Encounter";
 import ProgramOutcome from "./ProgramOutcome";
+import Form from "./application/Form";
+import FormElementGroup from "./application/FormElementGroup";
+import FormElement from "./application/FormElement";
 
 class EntityMetaData {
+    static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference"};
     static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference"};
     static followupType = {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference"};
     static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference"};
@@ -32,6 +36,14 @@ class EntityMetaData {
         return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual};
     }
 
+    static formElement() {
+        return {entityName: "FormElement", entityClass: FormElement, resourceName: "formElement", type: "reference", parent: EntityMetaData.formElementGroup()};
+    }
+
+    static formElementGroup() {
+        return {entityName: "FormElementGroup", entityClass: FormElementGroup, resourceName: "formElementGroup", type: "reference", parent: EntityMetaData.form};
+    };
+
     static programEncounter() {
         return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment()};
     }
@@ -39,6 +51,10 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first
     static model() {
         return [
+            EntityMetaData.form,
+            EntityMetaData.formElementGroup(),
+            EntityMetaData.formElement(),
+
             EntityMetaData.addressLevel,
             EntityMetaData.followupType,
             EntityMetaData.encounterType,
@@ -46,6 +62,7 @@ class EntityMetaData {
             EntityMetaData.programOutcome,
             EntityMetaData.gender,
             EntityMetaData.concept,
+
             EntityMetaData.encounter(),
             EntityMetaData.programEncounter(),
             EntityMetaData.programEnrolment(),

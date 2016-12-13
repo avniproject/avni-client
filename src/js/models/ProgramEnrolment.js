@@ -4,6 +4,8 @@ import Program from './Program';
 import ProgramOutcome from './ProgramOutcome';
 import ProgramEncounter from "./ProgramEncounter";
 import BaseEntity from "./BaseEntity";
+import Individual from './Individual';
+import _ from "lodash";
 
 class ProgramEnrolment extends BaseEntity {
     static schema = {
@@ -13,21 +15,27 @@ class ProgramEnrolment extends BaseEntity {
             uuid: 'string',
             program: 'Program',
             enrolmentDateTime: 'date',
-            programLeaveDateTime: 'date',
+            programExitDateTime: 'date',
             programOutcome: 'ProgramOutcome',
+            individual: 'Individual',
             enrolmentProfile: {type: 'list', objectType: 'Observation'},
-            programLeaveObservations: {type: 'list', objectType: 'Observation'},
+            programExitObservations: {type: 'list', objectType: 'Observation'},
             encounters: {type: 'list', objectType: 'ProgramEncounter'}
         }
     };
 
     static fromResource(resource, entityService) {
         var program = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
-        var programOutcome = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programOutcome"), ProgramOutcome.schema.name);
+        const programOutcomeUUID = ResourceUtil.getUUIDFor(resource, "programOutcomeUUID");
+        var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
 
-        var programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime"], ["enrolmentProfile", "programLeaveObservations"]);
+        var programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime", "programExitDateTime"], ["enrolmentProfile", "programExitObservations"]);
         programEnrolment.program = program;
-        programEnrolment.programOutcome = programOutcome;
+        programEnrolment.individual = individual;
+
+        if (!_.isNil(programOutcomeUUID)) {
+            programEnrolment.programOutcome = entityService.findByKey("uuid", programOutcomeUUID, ProgramOutcome.schema.name);
+        }
 
         return programEnrolment;
     }

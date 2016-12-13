@@ -1,5 +1,5 @@
 {
-  "serverURL": "http://192.168.1.2:5000/openchs",
+  "serverURL": "http://192.168.73.1:8080",
   "locale": {
     "selectedLocale": "mr_IN",
     "availableValues": [
