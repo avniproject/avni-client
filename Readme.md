@@ -20,6 +20,7 @@ installed. If you have homebrew installed just run
 
 
 # Running
+Ensure that you have CRASHLYTICS_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key. 
 To run the application `make run-android`
 In the application set the server url of the config location by going to the settings view. If you are using emulator then you would need to use IP address. e.g. http://10.0.0.3:3000/openchs 
 
