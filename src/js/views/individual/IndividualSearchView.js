@@ -14,10 +14,6 @@ import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text} from "n
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
-    static style = {
-        inputGroup: {marginTop: 37, flex: 1},
-    };
-
     static propTypes = {};
 
     constructor(props, context) {
@@ -39,29 +35,34 @@ class IndividualSearchView extends AbstractComponent {
         });
 
         return (
-            <Content style={GlobalStyles.mainContent}>
-                <Grid style={{marginTop: 32}}>
+            <Content style={[GlobalStyles.mainContent]}>
+                <Grid style={{marginTop: 16}}>
                     <Row style={GlobalStyles.formElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text>{I18n.t("name")}</Text>
+                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}} onChangeText={(text) => this.state.criteria.name = text}/>
                             </Row>
                         </Grid>
                     </Row>
-                    <Row style={IndividualSearchView.style.formElement}>
-                        <Col>
-                            <Text>{I18n.t("age")}</Text>
-                            <TextInput style={{flex: 1}} onChangeText={(text) => this.state.criteria.ageInYears = text}/>
-                        </Col>
+                    <Row style={GlobalStyles.formElement}>
+                        <Grid>
+                            <Row style={GlobalStyles.formElementLabelContainer}>
+                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
+                            </Row>
+                            <Row style={GlobalStyles.formElementTextContainer}>
+                                <TextInput style={{flex: 1}}
+                                           onChangeText={(text) => this.state.criteria.ageInYears = text}/>
+                            </Row>
+                        </Grid>
                     </Row>
                     <Button block onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
                     {/*<Row style={{backgroundColor: '#00f', height: 100}}>*/}
-                        {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
-                        {/*<CheckBox checked={false}/>*/}
-                        {/*<Text>Daily Stand Up</Text>*/}
+                    {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
+                    {/*<CheckBox checked={false}/>*/}
+                    {/*<Text>Daily Stand Up</Text>*/}
                     {/*</Row>*/}
                 </Grid>
             </Content>
