@@ -15,7 +15,7 @@ import io.realm.react.RealmReactPackage;
 import com.smixx.fabric.FabricPackage;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-
+import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +44,7 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        SoLoader.init(this, /* native exopackage */ false);
         Fabric.with(this, new Crashlytics());
     }
 
