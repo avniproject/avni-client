@@ -1,4 +1,4 @@
-import {View, StyleSheet, ScrollView, TextInput, Text} from "react-native";
+import {View, StyleSheet, ScrollView, TextInput} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -9,13 +9,12 @@ import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import EntityService from "../../service/EntityService";
-import {List, ListItem, Button, InputGroup, Input, Content, CheckBox, Grid, Col, Row} from "native-base";
+import {GlobalStyles} from '../primitives/GlobalStyles';
+import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
     static style = {
-        mainContent: {marginHorizontal: 24},
-        formElement: {marginBottom: 24, marginLeft: 0, height: 72},
         inputGroup: {marginTop: 37, flex: 1},
     };
 
@@ -32,7 +31,6 @@ class IndividualSearchView extends AbstractComponent {
         return "IndividualSearchView";
     }
 
-
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
         const addressLevels = this.context.getService(EntityService).getAll(AddressLevel.schema.name);
@@ -41,15 +39,15 @@ class IndividualSearchView extends AbstractComponent {
         });
 
         return (
-            <Content style={IndividualSearchView.style.mainContent}>
+            <Content style={GlobalStyles.mainContent}>
                 <Grid style={{marginTop: 32}}>
-                    <Row style={IndividualSearchView.style.formElement}>
+                    <Row style={GlobalStyles.formElement}>
                         <Grid>
-                            <Row>
+                            <Row style={GlobalStyles.formElementLabelContainer}>
                                 <Text>{I18n.t("name")}</Text>
                             </Row>
-                            <Row>
-                                <TextInput style={{flex: 1}} onChangeText={(text) => this.state.criteria.name = text}></TextInput>
+                            <Row style={GlobalStyles.formElementTextContainer}>
+                                <TextInput style={{flex: 1}} onChangeText={(text) => this.state.criteria.name = text}/>
                             </Row>
                         </Grid>
                     </Row>
