@@ -86,11 +86,6 @@ class SettingsForm extends AbstractComponent {
                     selectedValue={this.props.settings.locale.selectedLocale}
                     availableValues={this.props.settings.locale.availableValues}
                 />
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: "space-around"}}>
-                    <SettingsButton onPress={this._triggerSync} buttonText={"syncConfig"} loading={this.state.syncing}/>
-                    <SettingsButton onPress={this.onDeleteSessionsPress} buttonText={"deleteSessions"} loading={false}/>
-                    <SettingsButton onPress={this.onDeleteSchema} buttonText={"deleteSchema"} loading={false}/>
-                </View>
             </View>
         );
     }

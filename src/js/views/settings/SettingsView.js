@@ -1,13 +1,15 @@
-import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet} from 'react-native';
-import React, {Component} from 'react';
-import Path from '../../framework/routing/Path';
-import SettingsForm from './SettingsForm';
-import SettingsHeader from './SettingsHeader';
-import SettingsService from '../../service/SettingsService';
+import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet} from "react-native";
+import React, {Component} from "react";
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import Path from "../../framework/routing/Path";
+import SettingsForm from "./SettingsForm";
+import SettingsService from "../../service/SettingsService";
+import {Content} from "native-base";
 
 @Path('/settings')
-class SettingsView extends Component {
+class SettingsView extends AbstractComponent {
     static styles = StyleSheet.create({
+        mainContent: {marginHorizontal: 24},
         main: {
             flexDirection: 'column'
         },
@@ -58,15 +60,14 @@ class SettingsView extends Component {
 
     render() {
         return (
-            <View style={[SettingsView.styles.main]}>
-                <SettingsHeader parent={this}/>
+            <Content style={SettingsView.styles.mainContent}>
                 <SettingsForm
                     settings={this.settings}
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
                     getService={this.context.getService}
                 />
-            </View>
+            </Content>
         );
     }
 }
