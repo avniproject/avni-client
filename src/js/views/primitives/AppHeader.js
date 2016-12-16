@@ -7,6 +7,7 @@ import SettingsView from "../settings/SettingsView";
 import UIConfiguration from "../viewmodel/UIConfiguration";
 import SyncService from "../../service/SyncService";
 import EntityMetaData from "../../models/EntityMetaData";
+import {Tabs, Header, Title, Button, Icon} from 'native-base';
 
 class AppHeader extends Component {
     constructor(props, context) {
@@ -28,7 +29,7 @@ class AppHeader extends Component {
     static styles = StyleSheet.create({
         main: {
             backgroundColor: Colors.Primary,
-            flexDirection: 'row',  
+            flexDirection: 'row',
             justifyContent: 'space-between'
         },
         icon: {
@@ -74,24 +75,15 @@ class AppHeader extends Component {
             "Back": this.onBackPress
         };
 
-        const onPress = topLeftActionMap[UIConfiguration.TopLeftActionMap[this.props.parent.viewName()]];
+        // const onPress = topLeftActionMap[UIConfiguration.TopLeftActionMap[this.props.parent.viewName()]];
+
         return (
-            <View>
-                <View style={AppHeader.styles.main}>
-                    <TouchableNativeFeedback style={AppHeader.styles.icon} onPress={onPress}>
-                        <View style={{flex: 1}}>
-                            {this.renderImage()}
-                        </View>
-                    </TouchableNativeFeedback>
-                    <TouchableNativeFeedback onPress={this.props.onTitlePressed} style={{width: 50, flex: 1}}>
-                        <View style={{flex: 1}}>
-                            <Text style={AppHeader.styles.header}>{this.props.title}</Text>
-                        </View>
-                    </TouchableNativeFeedback>
-                    <View style={AppHeader.styles.icon}>
-                        <Text onPress={this.sync}>Sync</Text>
-                    </View>
-                </View>
+            <View style={{flex: 1, flexDirection: 'row'}}>
+                <Tabs style={{flex: 0.8}}>
+                    <SettingsView tabLabel='Menu'/>
+                    <SettingsView tabLabel='Home'/>
+                </Tabs>
+                <Button style={{flex: 0.2}}> Click Me! </Button>
             </View>
         );
     }

@@ -1,7 +1,7 @@
 import {StyleSheet, View, DrawerLayoutAndroid, Text} from 'react-native';
 import React from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
-import Path, {PathRoot} from '../../framework/routing/Path';
+import Path from '../../framework/routing/Path';
 import QuestionnaireList from './QuestionnaireList';
 import QuestionnaireToolbar from './QuestionnaireToolbar';
 import AppHeader from '../primitives/AppHeader';
@@ -10,7 +10,6 @@ import {Global} from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 import Colors from '../primitives/Colors';
 
-@PathRoot
 @Path('/questionnaireList')
 class QuestionnaireListView extends AbstractComponent {
     constructor(props, context) {
