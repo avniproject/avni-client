@@ -7,7 +7,7 @@ import QuestionnaireService from "../../service/QuestionnaireService";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
-import * as CHSStyles from "../primitives/GlobalStyles";
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
 @Path('/DecisionSupportSessionListView')
@@ -37,17 +37,17 @@ class DecisionSupportSessionListView extends Component {
 
     static renderSummaryField(summaryField, session, questionnaire, rowID) {
         return (
-            <View style={CHSStyles.Global.listCellContainer}
+            <View style={GlobalStyles.listCellContainer}
                   key={`1.1${questionnaire.name}${summaryField.summaryFieldName}${rowID}`}>
                 <Text key={`1.2${questionnaire.name}${rowID}`}
-                      style={CHSStyles.Global.listCell}>{summaryField.getValueFrom(session)}</Text>
+                      style={GlobalStyles.listCell}>{summaryField.getValueFrom(session)}</Text>
             </View>);
     }
 
     renderSummaryFieldHeader(summaryField) {
         return (
-            <View key={summaryField.summaryFieldName} style={CHSStyles.Global.listCellContainer}>
-                <Text style={CHSStyles.Global.columnHeader}>{this.I18n.t(summaryField.summaryFieldName)}</Text>
+            <View key={summaryField.summaryFieldName} style={GlobalStyles.listCellContainer}>
+                <Text style={GlobalStyles.columnHeader}>{this.I18n.t(summaryField.summaryFieldName)}</Text>
             </View>);
     }
 
@@ -56,7 +56,7 @@ class DecisionSupportSessionListView extends Component {
         return (
             <View key={`1${rowIDSuffix}`}>
                 <TouchableNativeFeedback onPress={() => this.onSessionRowPress(session)} key={`2${rowIDSuffix}`}>
-                    <View style={CHSStyles.Global.listRow} key={`3${rowIDSuffix}`}>
+                    <View style={GlobalStyles.listRow} key={`3${rowIDSuffix}`}>
                         {questionnaire.summaryFields.map((summaryField) => DecisionSupportSessionListView.renderSummaryField(summaryField, session, questionnaire, rowID))}
                     </View>
                 </TouchableNativeFeedback>
@@ -74,7 +74,7 @@ class DecisionSupportSessionListView extends Component {
         const dsClone = ds.cloneWithRows(sessions);
 
         return (
-            <View key={questionnaire.uuid} style={CHSStyles.Global.listViewContainer}>
+            <View key={questionnaire.uuid} style={GlobalStyles.listViewContainer}>
                 <ListView
                     enableEmptySections={true}
                     dataSource={dsClone}
@@ -83,7 +83,7 @@ class DecisionSupportSessionListView extends Component {
                         return (
                             <View>
                                 <View>
-                                    <Text style={CHSStyles.Global.listViewHeader}>
+                                    <Text style={GlobalStyles.listViewHeader}>
                                         {this.I18n.t(questionnaire.name)}
                                     </Text>
                                 </View>
@@ -102,7 +102,7 @@ class DecisionSupportSessionListView extends Component {
             return (
                 <View>
                     <Text
-                        style={CHSStyles.Global.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfSessions')}</Text>
+                        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfSessions')}</Text>
                 </View>
             );
         else
@@ -111,10 +111,10 @@ class DecisionSupportSessionListView extends Component {
 
     renderColumnHeaders(completeQuestionnaire) {
         return (<View>
-            <View style={CHSStyles.Global.listRow}>
+            <View style={GlobalStyles.listRow}>
                 {completeQuestionnaire.summaryFields.map((summaryField) => this.renderSummaryFieldHeader(summaryField))}
             </View>
-            <Text style={CHSStyles.Global.listRowSeparator}/>
+            <Text style={GlobalStyles.listRowSeparator}/>
         </View>);
     }
 
@@ -125,7 +125,7 @@ class DecisionSupportSessionListView extends Component {
         return (
             <View style={{flex: 1}}>
                 <AppHeader title={this.I18n.t("allQuestionnaireSessionsSummary")} parent={this}/>
-                <View style={CHSStyles.Global.mainSection}>
+                <View style={GlobalStyles.mainSection}>
                     <ListView
                         enableEmptySections={true}
                         dataSource={ds}

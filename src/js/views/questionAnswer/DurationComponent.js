@@ -2,9 +2,7 @@ import {Text, StyleSheet, View, TouchableHighlight, TextInput} from 'react-nativ
 import React, {Component} from 'react';
 import AppState from "../../hack/AppState";
 import MessageService from "../../service/MessageService";
-import * as CHSStyles from "../primitives/GlobalStyles";
-import Duration from '../../models/Duration';
-import _ from 'lodash';
+import {GlobalStyles} from "../primitives/GlobalStyles";
 
 class DurationComponent extends Component {
     constructor(props, context) {
@@ -103,13 +101,13 @@ class DurationComponent extends Component {
                 <TouchableHighlight style={DurationComponent.styles.durationButtonTouchable}>
                     <View style={[DurationComponent.styles.durationButtonWrapper, DurationComponent.styles.durationLeftButtonWrapper, monthButtonWrapperStyle]}>
                         <Text onPress={this.onMonthPress}
-                              style={[CHSStyles.Global.toggleButton, monthButtonStyle, DurationComponent.styles.durationButton]}>{this.I18n.t("months")}</Text>
+                              style={[GlobalStyles.toggleButton, monthButtonStyle, DurationComponent.styles.durationButton]}>{this.I18n.t("months")}</Text>
                     </View>
                 </TouchableHighlight>
                 <TouchableHighlight style={DurationComponent.styles.durationButtonTouchable}>
                     <View style={[DurationComponent.styles.durationButtonWrapper, DurationComponent.styles.durationRightButtonWrapper, yearButtonWrapperStyle]}>
                         <Text onPress={this.onYearPress}
-                              style={[CHSStyles.Global.toggleButton, yearButtonStyle, DurationComponent.styles.durationButton]}>{this.I18n.t("years")}</Text>
+                              style={[GlobalStyles.toggleButton, yearButtonStyle, DurationComponent.styles.durationButton]}>{this.I18n.t("years")}</Text>
                     </View>
                 </TouchableHighlight>
             </View>);

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import Question from './Question.js';
 import AppState from "../../hack/AppState";
-import * as CHSStyles from "../primitives/GlobalStyles"
+import {GlobalStyles} from "../primitives/GlobalStyles"
 import PreviousNextSave from '../common/PreviousNextSave';
 import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';
@@ -118,7 +118,7 @@ class QuestionAnswerControl extends AbstractComponent {
         if (_.isNil(AppState.questionnaireAnswers.currentAnswer.value))
             AppState.questionnaireAnswers.currentAnswerValue = this.question.defaultValue;
         return (
-            <ScrollView style={[CHSStyles.Global.mainSection]} keyboardShouldPersistTaps={true}>
+            <ScrollView style={[GlobalStyles.mainSection]} keyboardShouldPersistTaps={true}>
                 <Question question={this.question}/>
                 <View style={{flex: 1}}>
                     {this.renderAnswer(this.question)}

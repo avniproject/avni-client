@@ -5,7 +5,6 @@ RN.NativeModules['RNFetchBlob'] = {'locale': 'en_GB'};
 
 require('babel-core/register')({
     ignore: function (filename) {
-        console.log(filename);
         if (filename.indexOf("node_modules") === -1) {
             return false;
         } else if (filename.indexOf("node_modules") !== -1 && filename.indexOf("react-native-i18n") !== -1) {

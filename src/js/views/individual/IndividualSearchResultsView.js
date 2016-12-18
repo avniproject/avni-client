@@ -2,7 +2,7 @@ import {View, StyleSheet, ListView, ScrollView, Text, TouchableNativeFeedback} f
 import React, {Component} from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
-import * as CHSStyles from "../primitives/GlobalStyles";
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import AppHeader from "../primitives/AppHeader";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -26,7 +26,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     renderRowAResult(individual, rowID) {
         return (
             <TouchableNativeFeedback onPress={() => this.onResultRowPress(individual)} key={`2${rowID}`}>
-                <View style={CHSStyles.Global.listRow} key={`3${rowID}`}>
+                <View style={GlobalStyles.listRow} key={`3${rowID}`}>
                     <Text>{individual.toSummaryString()}</Text>
                 </View>
             </TouchableNativeFeedback>);
@@ -37,7 +37,7 @@ class IndividualSearchResultsView extends AbstractComponent {
             return (
                 <View>
                     <Text
-                        style={CHSStyles.Global.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfResults')}</Text>
+                        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfResults')}</Text>
                 </View>
             );
         else
@@ -50,7 +50,7 @@ class IndividualSearchResultsView extends AbstractComponent {
 
         return (<View style={{flex: 1}}>
             <AppHeader title={this.I18n.t("individualSearchResults")} parent={this}/>
-            <View style={[CHSStyles.Global.mainSection]}>
+            <View style={[GlobalStyles.mainSection]}>
                 <ListView
                     enableEmptySections={true}
                     dataSource={dsClone}
@@ -59,7 +59,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                     renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => {
                         if (rowID === (this.props.params.searchResults.length - 1))
                             return (<View key={`S${rowID}`}/>);
-                        return (<Text key={`S${rowID}`} style={CHSStyles.Global.listRowSeparator}/>)
+                        return (<Text key={`S${rowID}`} style={GlobalStyles.listRowSeparator}/>)
                     }}
                 />
                 {this.renderZeroResultsMessageIfNeeded()}

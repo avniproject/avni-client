@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {Global} from "../primitives/GlobalStyles";
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import {TouchableHighlight, View, Text} from 'react-native';
 import MessageService from '../../service/MessageService';
 
@@ -22,9 +22,9 @@ class QuestionnaireToolbarItem extends AbstractComponent {
         return (
             <TouchableHighlight onPress={this.props.handlePress}
                                 style={this.props.styles.toolbarButtonContainer}>
-                <View style={Global.actionButtonWrapper}>
+                <View style={GlobalStyles.actionButtonWrapper}>
                     {this.renderComponent(this.props.loading, (
-                        <Text style={Global.actionButton}>{this.I18n.t(this.props.buttonText)}</Text>))}
+                        <Text style={GlobalStyles.actionButton}>{this.I18n.t(this.props.buttonText)}</Text>))}
                 </View>
             </TouchableHighlight>);
     }

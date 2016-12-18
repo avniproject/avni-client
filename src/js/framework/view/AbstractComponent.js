@@ -1,7 +1,6 @@
 import React, {Component, View, Text} from 'react';
 import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
-import * as CHSStyles from "../../views/primitives/GlobalStyles";
 
 class AbstractComponent extends Component {
     constructor(props, context) {
@@ -15,7 +14,11 @@ class AbstractComponent extends Component {
         spinner: {
             justifyContent: 'center',
             alignSelf: 'center',
-        }
+        },
+        listRowSeparator: {
+            height: 2,
+            backgroundColor: '#14e4d5'
+        },
     });
 
     static contextTypes = {
@@ -53,7 +56,7 @@ class AbstractComponent extends Component {
         if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) {
             return (<View key={rowID}/>);
         }
-        return (<Text key={rowID} style={CHSStyles.Global.listRowSeparator}/>);
+        return (<Text key={rowID} style={AbstractComponent.styles.listRowSeparator}/>);
     }
 }
 

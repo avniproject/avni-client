@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
 import AppHeader from '../primitives/AppHeader';
-import * as CHSStyles from "../primitives/GlobalStyles"
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import PreviousNextSave from '../common/PreviousNextSave';
 import MessageService from '../../service/MessageService';
 import QuestionAnswerTabView from '../common/QuestionAnswerTabView';
@@ -84,7 +84,7 @@ class DecisionView extends Component {
                            onTitlePressed={this.onViewSavedSessionsPress}
                            parent={this}
                 />
-                <ScrollView style={CHSStyles.Global.mainSection}>
+                <ScrollView style={GlobalStyles.mainSection}>
                     {this.renderDecisions(this.decisions)}
                     <PreviousNextSave hasQuestionBefore={true}
                                       nextParams={{

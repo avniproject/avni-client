@@ -1,6 +1,6 @@
 import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'react-native';
 import React, {Component} from 'react';
-import * as CHSStyles from "../primitives/GlobalStyles";
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 
 class WizardButtons extends Component {
@@ -21,10 +21,10 @@ class WizardButtons extends Component {
     render() {
         const buttons = this.props.buttons.map((button, idx)=>(
             <TouchableHighlight key={idx}
-                                style={button.visible ? CHSStyles.Global.navButtonVisible : CHSStyles.Global.navButtonHidden}>
-                <View style={CHSStyles.Global.actionButtonWrapper}>
+                                style={button.visible ? GlobalStyles.navButtonVisible : GlobalStyles.navButtonHidden}>
+                <View style={GlobalStyles.actionButtonWrapper}>
                     <Text onPress={button.func}
-                          style={[CHSStyles.Global.actionButton]}>{this.I18n.t(button.text)}</Text>
+                          style={[GlobalStyles.actionButton]}>{this.I18n.t(button.text)}</Text>
                 </View>
             </TouchableHighlight>
         ));

@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import AppHeader from '../primitives/AppHeader';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import Path from "../../framework/routing/Path";
-import * as CHSStyles from "../primitives/GlobalStyles";
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import _ from 'lodash';
 import General from '../../utility/General';
 import MessageService from "../../service/MessageService";
@@ -40,7 +40,7 @@ class DecisionSupportSessionView extends Component {
                 <AppHeader parent={this}
                            title={this.I18n.t("session", {questionnaireName: this.I18n.t(session.questionnaire.name)})}/>
                 <Text>{this.I18n.t("savedOn", {saveDate: General.formatDate(session.saveDate)})}</Text>
-                <ScrollView style={CHSStyles.Global.mainSection}>
+                <ScrollView style={GlobalStyles.mainSection}>
                     <DecisionSupportSessionComponent questionAnswers={questionAnswers} decisions={session.decisions}/>
                 </ScrollView>
             </View>

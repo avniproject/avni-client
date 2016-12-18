@@ -25,21 +25,23 @@ class SyncService extends BaseService {
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
     }
 
-    sync(allEntitiesMetaData) {
-        const allReferenceDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
-            return entityMetaData.type === "reference";
-        });
-        const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
-            return entityMetaData.type === "tx";
-        });
+    sync(start, done) {
+        start();
+        return (allEntitiesMetaData) => {
+            const allReferenceDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
+                return entityMetaData.type === "reference";
+            });
+            const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
+                return entityMetaData.type === "tx";
+            });
 
-        var onCompleteFn = () => {};
-        var pullTxDataFn = () => this.pullData(allTxDataMetaData, onCompleteFn);
-        var pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
-        var pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn);
-        var pushTxDataFn = () => this.pushTxData(allTxDataMetaData, pullReferenceDataFn);
+            const pullTxDataFn = () => this.pullData(allTxDataMetaData, done);
+            const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
+            const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn);
+            const pushTxDataFn = () => this.pushTxData(allTxDataMetaData, pullReferenceDataFn);
 
-        pushTxDataFn();
+            pushTxDataFn();
+        }
     }
 
     pullConfiguration(onComplete) {
@@ -47,13 +49,13 @@ class SyncService extends BaseService {
     }
 
     pullData(unprocessedEntityMetaData, onComplete) {
-        var entityMetaData = unprocessedEntityMetaData.pop();
+        const entityMetaData = unprocessedEntityMetaData.pop();
         if (_.isNil(entityMetaData)) {
             onComplete();
             return;
         }
 
-        var entitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
+        const entitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
         console.log(`${entitySyncStatus.entityName} was last loaded up to "${entitySyncStatus.loadedSince}"`);
         this.conventionalRestClient.loadData(entityMetaData, entitySyncStatus.loadedSince, 0,
             unprocessedEntityMetaData,

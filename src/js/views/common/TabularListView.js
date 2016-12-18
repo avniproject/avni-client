@@ -2,7 +2,7 @@ import {View, ListView, Text, StyleSheet, TouchableNativeFeedback} from 'react-n
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AbstractComponent from '../../framework/view/AbstractComponent';
-import * as CHSStyles from '../primitives/GlobalStyles';
+import {GlobalStyles} from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 import _ from 'lodash';
 
@@ -33,15 +33,15 @@ class TabularListView extends AbstractComponent {
 
         return (
             <WrappingComponent onPress={this.handleClick(rowData.key, rowData.value, rowData.index)}>
-                <View style={CHSStyles.Global.listRow}>
+                <View style={GlobalStyles.listRow}>
 
-                    <View style={CHSStyles.Global.listCellContainer}>
+                    <View style={GlobalStyles.listCellContainer}>
                         <Text
-                            style={CHSStyles.Global.listCell}>{this.I18n.t(rowData.key)}</Text>
+                            style={GlobalStyles.listCell}>{this.I18n.t(rowData.key)}</Text>
                     </View>
-                    <View style={CHSStyles.Global.listCellContainer}>
+                    <View style={GlobalStyles.listCellContainer}>
                         <Text
-                            style={CHSStyles.Global.listCell}>{rowData.value}</Text>
+                            style={GlobalStyles.listCell}>{rowData.value}</Text>
                     </View>
 
                 </View>
@@ -54,14 +54,14 @@ class TabularListView extends AbstractComponent {
         const dsClone = ds.cloneWithRows(this.props.data);
 
         return (
-            <View style={CHSStyles.Global.listViewContainer} keyboardShouldPersistTaps={true}>
+            <View style={GlobalStyles.listViewContainer} keyboardShouldPersistTaps={true}>
                 <ListView
                     keyboardShouldPersistTaps={true}
                     dataSource={dsClone}
                     renderRow={(rowData) => this.renderRow(rowData)}
                     enableEmptySections={true}
                     renderHeader={() => <Text
-                        style={CHSStyles.Global.listViewHeader}>{this.I18n.t(this.props.message)}</Text>}
+                        style={GlobalStyles.listViewHeader}>{this.I18n.t(this.props.message)}</Text>}
                     renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text
                         key={rowID}
                         style={{
