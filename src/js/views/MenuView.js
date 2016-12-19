@@ -92,7 +92,7 @@ class MenuView extends AbstractComponent {
                             <Text>Sync Data</Text>
                         </Col>
                         <Col>
-                            <Button onPress={this.settingsView} transparent large>
+                            <Button onPress={() => this.settingsView()} transparent large>
                                 <Icon name='settings'/>
                             </Button>
                             <Text>Config settings</Text>
