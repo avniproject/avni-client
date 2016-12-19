@@ -1,4 +1,3 @@
-import {Text, ListView} from 'react-native';
 import React from 'react';
 import {expect} from 'chai';
 import {shallow} from 'enzyme';
@@ -7,6 +6,7 @@ import TestContext from "../testframework/TestContext";
 import Individual from "../../../js/models/Individual";
 import AddressLevel from "../../../js/models/AddressLevel";
 import moment from "moment";
+import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button} from 'native-base';
 
 describe('IndividualSearchResultsViewTest', () => {
     const context = new TestContext();

@@ -75,6 +75,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                           }>
                     </List>
                 </Content>
+                {this.renderZeroResultsMessageIfNeeded()}
             </Container>
         );
     }
