@@ -10,7 +10,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import EntityService from "../../service/EntityService";
 import {GlobalStyles} from '../primitives/GlobalStyles';
-import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
+import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text, Container} from "native-base";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -35,8 +35,8 @@ class IndividualSearchView extends AbstractComponent {
         });
 
         return (
-            <Content style={[GlobalStyles.mainContent]}>
-                <Grid style={{marginTop: 16}}>
+            <Content>
+                <Grid style={{marginTop: 16, marginHorizontal: 24}}>
                     <Row style={GlobalStyles.formElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
@@ -59,11 +59,9 @@ class IndividualSearchView extends AbstractComponent {
                         </Grid>
                     </Row>
                     <Button block onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
-                    {/*<Row style={{backgroundColor: '#00f', height: 100}}>*/}
                     {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
                     {/*<CheckBox checked={false}/>*/}
                     {/*<Text>Daily Stand Up</Text>*/}
-                    {/*</Row>*/}
                 </Grid>
             </Content>
         );

@@ -1,4 +1,4 @@
-import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated} from 'react-native';
+import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from '../framework/routing/Path';
@@ -7,39 +7,18 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
 import EntityMetaData from '../models/EntityMetaData';
+import {GlobalStyles} from './primitives/GlobalStyles';
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     static styles = StyleSheet.create({
-        mainContent: {marginHorizontal: 24},
-        main: {
-            flexDirection: 'column'
-        },
-        form: {
-            marginTop: 40
-        },
-        formItem: {
-            marginBottom: 10,
-            marginHorizontal: 10,
-            flexDirection: 'row',
-            alignItems: 'flex-end'
-        },
-        formItemLabel: {
-            fontSize: 20,
-            color: '#e93a2c',
-            flex: 0.18
-        },
-        formItemInput: {
-            height: 40,
-            borderColor: '#e93a2c',
-            borderWidth: 3,
-            flex: 0.7
-        }
+        icon: {color: '#009688', opacity: 0.8, fontSize: 48, justifyContent: 'center'},
+        iconLabel: {fontSize: 20, color: '#fff', justifyContent: 'center'}
     });
 
     constructor(props, context) {
         super(props, context);
-        this.state = {syncing: false};
+        this.state = {syncing: false, error: false};
     }
 
     settingsView() {
@@ -69,8 +48,6 @@ class MenuView extends AbstractComponent {
     }
 
     renderSyncButton() {
-        console.log(this.state);
-
         if (this.state.syncing) {
             const interpolatedRotateAnimation = this._animatedValue.interpolate({
                 inputRange: [0, 100],
@@ -79,32 +56,38 @@ class MenuView extends AbstractComponent {
 
             return (
                 <Animated.View style={{transform: [{rotate: interpolatedRotateAnimation}]}}>
-                    <Icon name='sync' style={{fontSize: 40}}/>
+                    <Icon name='sync' style={MenuView.styles.icon}/>
                 </Animated.View>);
         } else if (!this.state.syncing && this.state.error) {
-            return (<Icon name='sync-problem' style={{fontSize: 40}}/>);
+            return (<Icon name='sync-problem' style={MenuView.styles.icon}/>);
         } else {
-            return (<Icon name='sync' style={{fontSize: 40}}/>);
+            return (<Icon name='sync' style={MenuView.styles.icon}/>);
         }
     }
 
     render() {
         return (
-            <Content style={SettingsView.styles.mainContent}>
-                <Grid>
+            <Content style={{backgroundColor: '#212121'}}>
+                <Grid style={{marginHorizontal: 29, marginTop: 71}}>
                     <Row>
-                        <Col>
-                            <Button transparent large onPress={this.sync.bind(this)}>
+                        <Col style={{marginHorizontal: 29}}>
+                            <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                                 {this.renderSyncButton()}
                             </Button>
-                            <Text>Sync Data</Text>
+                            <Text style={MenuView.styles.iconLabel}>Sync Data</Text>
                         </Col>
-                        <Col>
+                        <Col style={{marginHorizontal: 29}}>
                             <Button onPress={() => this.settingsView()} transparent large>
-                                <Icon name='settings'/>
+                                <Icon name='settings' style={MenuView.styles.icon}/>
                             </Button>
-                            <Text>Config settings</Text>
+                            <Text style={MenuView.styles.iconLabel}>Settings</Text>
                         </Col>
+                        <Col style={{marginHorizontal: 29}}>
+                        </Col>
+                    </Row>
+                    {/*{hack for the background color}*/}
+                    <Row>
+                        <Col><View style={{height: 800}}></View></Col>
                     </Row>
                 </Grid>
             </Content>

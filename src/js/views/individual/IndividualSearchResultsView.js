@@ -58,7 +58,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                   <Grid>
                                       <Col size={1.5}>
                                           <Thumbnail size={68}
-                                                     source={require('../../../../android/app/src/main/res/mipmap-mdpi/Arvind_Kejriwal_777.jpg')}/>
+                                                     source={require('../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg')}/>
                                       </Col>
                                       <Col size={5}>
                                           <Row><Text>{item.name}</Text></Row>

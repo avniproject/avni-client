@@ -24,7 +24,7 @@ class LandingView extends AbstractComponent {
     render() {
         return (
             <Container theme={theme}>
-                <Content>
+                <Content style={{backgroundColor: '#fff'}}>
                     <Tabs>
                         <IndividualSearchView tabLabel='Home'/>
                         <MenuView tabLabel='Menu'/>
