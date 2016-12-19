@@ -25,30 +25,28 @@ class SyncService extends BaseService {
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
     }
 
-    sync(start, done) {
+    sync(allEntitiesMetaData, start, done, onError) {
         start();
-        return (allEntitiesMetaData) => {
-            const allReferenceDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
-                return entityMetaData.type === "reference";
-            });
-            const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
-                return entityMetaData.type === "tx";
-            });
+        const allReferenceDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
+            return entityMetaData.type === "reference";
+        });
+        const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
+            return entityMetaData.type === "tx";
+        });
 
-            const pullTxDataFn = () => this.pullData(allTxDataMetaData, done);
-            const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
-            const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn);
-            const pushTxDataFn = () => this.pushTxData(allTxDataMetaData, pullReferenceDataFn);
+        const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
+        const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
+        const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
+        const pushTxDataFn = () => this.pushTxData(allTxDataMetaData, pullReferenceDataFn);
 
-            pushTxDataFn();
-        }
+        pushTxDataFn();
     }
 
     pullConfiguration(onComplete) {
         onComplete();
     }
 
-    pullData(unprocessedEntityMetaData, onComplete) {
+    pullData(unprocessedEntityMetaData, onComplete, onError) {
         const entityMetaData = unprocessedEntityMetaData.pop();
         if (_.isNil(entityMetaData)) {
             onComplete();
@@ -61,7 +59,7 @@ class SyncService extends BaseService {
             unprocessedEntityMetaData,
             (resourcesWithSameTimeStamp, entityModel) => this.persist(resourcesWithSameTimeStamp, entityModel),
             (workingAllEntitiesMetaData) => this.pullData(workingAllEntitiesMetaData, onComplete),
-            []);
+            [], onError);
     }
 
     persist(resourcesWithSameTimeStamp, entityModel) {

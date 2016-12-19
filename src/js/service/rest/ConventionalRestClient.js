@@ -7,7 +7,7 @@ class ConventionalRestClient {
         this.settingsService = settingsService;
     }
 
-    loadData(entityModel, lastUpdatedLocally, pageNumber, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp) {
+    loadData(entityModel, lastUpdatedLocally, pageNumber, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError) {
         const url = `${this.settingsService.getServerURL()}/${entityModel.resourceName}/search/lastModified?lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}&size=5&page=${pageNumber}&sort=lastModifiedDateTime,asc`;
         console.log(`Calling: ${url}`);
         getJSON(url, (response) => {
@@ -26,14 +26,14 @@ class ConventionalRestClient {
             });
 
             if (this.morePagesForThisResource(response)) {
-                this.loadData(entityModel.resourceName, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp);
+                this.loadData(entityModel.resourceName, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError);
             } else if (resourcesWithSameTimestamp.length > 0) {
                 executePerResourcesWithSameTimestamp(resourcesWithSameTimestamp, entityModel);
                 executeNextResource(allEntityMetaData);
             } else {
                 executeNextResource(allEntityMetaData);
             }
-        });
+        }, onError);
     }
 
     morePagesForThisResource(response) {

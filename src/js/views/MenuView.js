@@ -52,19 +52,25 @@ class MenuView extends AbstractComponent {
             toValue: 1000,
             duration: 20000
         }).start();
-        this.setState({syncing: true});
+        this.setState({syncing: true, error: false});
     }
 
     _postSync() {
-        setTimeout(() => this.setState({syncing: false}), 5000);
+        setTimeout(() => this.setState({syncing: false, error: false}), 5000);
+    }
+
+    _onError(error) {
+        this.setState({syncing: false, error: true});
     }
 
     sync() {
         const syncService = this.context.getService(SyncService);
-        syncService.sync(this._preSync.bind(this), this._postSync.bind(this))(EntityMetaData.model());
+        syncService.sync(EntityMetaData.model(), this._preSync.bind(this), this._postSync.bind(this), this._onError.bind(this));
     }
 
     renderSyncButton() {
+        console.log(this.state);
+
         if (this.state.syncing) {
             const interpolatedRotateAnimation = this._animatedValue.interpolate({
                 inputRange: [0, 100],
@@ -75,6 +81,8 @@ class MenuView extends AbstractComponent {
                 <Animated.View style={{transform: [{rotate: interpolatedRotateAnimation}]}}>
                     <Icon name='sync' style={{fontSize: 40}}/>
                 </Animated.View>);
+        } else if (!this.state.syncing && this.state.error) {
+            return (<Icon name='sync-problem' style={{fontSize: 40}}/>);
         } else {
             return (<Icon name='sync' style={{fontSize: 40}}/>);
         }
