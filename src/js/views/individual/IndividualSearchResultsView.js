@@ -1,4 +1,4 @@
-import {View, StyleSheet, ListView, ScrollView, Text, TouchableNativeFeedback} from 'react-native';
+import {View, StyleSheet, ListView, ScrollView, TouchableNativeFeedback} from 'react-native';
 import React, {Component} from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
@@ -7,6 +7,8 @@ import MessageService from "../../service/MessageService";
 import AppHeader from "../primitives/AppHeader";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView";
+import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button} from 'native-base';
+import Individual from "../../models/Individual"
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -47,24 +49,34 @@ class IndividualSearchResultsView extends AbstractComponent {
     render() {
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const dsClone = ds.cloneWithRows(this.props.params.searchResults);
-
-        return (<View style={{flex: 1}}>
-            <AppHeader title={this.I18n.t("individualSearchResults")} parent={this}/>
-            <View style={[GlobalStyles.mainSection]}>
-                <ListView
-                    enableEmptySections={true}
-                    dataSource={dsClone}
-                    renderRow={(searchResult, sectionID, rowID) => this.renderRowAResult(searchResult, rowID)}
-                    renderHeader={() => <View />}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => {
-                        if (rowID === (this.props.params.searchResults.length - 1))
-                            return (<View key={`S${rowID}`}/>);
-                        return (<Text key={`S${rowID}`} style={GlobalStyles.listRowSeparator}/>)
-                    }}
-                />
-                {this.renderZeroResultsMessageIfNeeded()}
-            </View>
-        </View>);
+        return (
+            <Container>
+                <Content>
+                    <List dataArray={this.props.params.searchResults}
+                          renderRow={(item) =>
+                              <ListItem>
+                                  <Grid>
+                                      <Col size={1.5}>
+                                          <Thumbnail size={68}
+                                                     source={require('../../../../android/app/src/main/res/mipmap-mdpi/Arvind_Kejriwal_777.jpg')}/>
+                                      </Col>
+                                      <Col size={5}>
+                                          <Row><Text>{item.name}</Text></Row>
+                                          <Row>
+                                              <Text note>{item.gender.name + " | " + Individual.getDisplayAge(item)}</Text>
+                                          </Row>
+                                      </Col>
+                                      <Col size={2}>
+                                          <Row style={{justifyContent: 'flex-end'}}><Text>{item.lowestAddressLevel.title}</Text></Row>
+                                          <Row style={{justifyContent: 'flex-end'}}><Button disabled  style={{width: 74, height: 22, backgroundColor: '#f6a623'}}>Nutrition</Button><Button disabled  style={{width: 74, height: 22, backgroundColor: '#4990e2'}}>Diabetes</Button></Row>
+                                      </Col>
+                                  </Grid>
+                              </ListItem>
+                          }>
+                    </List>
+                </Content>
+            </Container>
+        );
     }
 
     onResultRowPress(individual) {
