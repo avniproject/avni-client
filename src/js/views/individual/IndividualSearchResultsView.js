@@ -90,12 +90,12 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <Content>
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
-                              <ListItem style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17}}>
+                              <ListItem style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height:102}}>
                                   <Grid>
-                                      <Col size={1.5}>
+                                      <Col style={{width: 68}}>
                                           {this.getImage(item)}
                                       </Col>
-                                      <Col size={5}>
+                                      <Col style={{paddingLeft:16}}>
                                           <Row><Text style={{fontSize: 24}}>{item.name}</Text></Row>
                                           <Row>
                                               <Text style={{fontSize: 14}} note>{item.gender.name}</Text>
@@ -103,7 +103,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                               <Text style={{fontSize: 14}} note>{Individual.getDisplayAge(item)}</Text>
                                           </Row>
                                       </Col>
-                                      <Col size={2}>
+                                      <Col style={{width: 246}}>
                                           <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 24}}>{item.lowestAddressLevel.title}</Text></Row>
                                           <Row style={{justifyContent: 'flex-end'}}>{item.enrolments.map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
                                       </Col>
