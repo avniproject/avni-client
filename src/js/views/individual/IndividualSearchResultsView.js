@@ -64,16 +64,16 @@ class IndividualSearchResultsView extends AbstractComponent {
     getImage(individual){
        if (individual.gender.name === 'Male'){
            if (moment().diff(individual.dateOfBirth, 'years') > 30){
-               return <Thumbnail size={68}
+               return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
            }
            else {
-               return <Thumbnail size={68}
+               return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
            }
        }
        else if (individual.gender.name === 'Female'){
-           return <Thumbnail size={68}
+           return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                              source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
        }
 
