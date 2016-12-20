@@ -48,25 +48,6 @@ class SettingsForm extends AbstractComponent {
         )
     };
 
-    onDeleteSchema = () => {
-        const service = this.context.getService(EntityService);
-        Alert.alert(
-            this.I18n.t('deleteSchemaConfirmationTitle'),
-            this.I18n.t("This will remove the reference, configuration and transaction data"),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-                    }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {},
-                    style: 'cancel'
-                }
-            ]
-        )
-    };
-
     static propTypes = {
         onServerURLChanged: React.PropTypes.func.isRequired,
         settings: React.PropTypes.object.isRequired,

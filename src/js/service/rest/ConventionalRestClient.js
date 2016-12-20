@@ -14,12 +14,13 @@ class ConventionalRestClient {
             var resources = response["_embedded"][`${entityModel.resourceName}`];
 
             _.forEach(resources, (resource) => {
-                console.log(resourcesWithSameTimestamp.length);
+                console.log(`Number of resources with same timestamp: ${resourcesWithSameTimestamp.length}`);
                 if (resourcesWithSameTimestamp.length === 0)
                     resourcesWithSameTimestamp.push(resource);
                 else if (resourcesWithSameTimestamp.length > 0 && resourcesWithSameTimestamp[0]["lastModifiedDateTime"] === resource["lastModifiedDateTime"])
                     resourcesWithSameTimestamp.push(resource);
                 else {
+                    console.log(`Executing ${resourcesWithSameTimestamp.length} resources`);
                     executePerResourcesWithSameTimestamp(resourcesWithSameTimestamp, entityModel);
                     resourcesWithSameTimestamp = [resource];
                 }

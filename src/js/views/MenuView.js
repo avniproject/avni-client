@@ -1,4 +1,4 @@
-import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated, ScrollView} from 'react-native';
+import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated, ScrollView, Alert} from 'react-native';
 import React, {Component} from 'react';
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from '../framework/routing/Path';
@@ -8,6 +8,8 @@ import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
 import EntityMetaData from '../models/EntityMetaData';
 import {GlobalStyles} from './primitives/GlobalStyles';
+import EntityService from "../service/EntityService";
+import MessageService from "../service/MessageService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -19,6 +21,7 @@ class MenuView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false, error: false};
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     settingsView() {
@@ -65,6 +68,25 @@ class MenuView extends AbstractComponent {
         }
     }
 
+    onDeleteSchema = () => {
+        const service = this.context.getService(EntityService);
+        Alert.alert(
+            this.I18n.t('deleteSchemaConfirmationTitle'),
+            this.I18n.t("This will remove the reference, configuration and transaction data"),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                    service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+                }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {},
+                    style: 'cancel'
+                }
+            ]
+        )
+    };
+
     render() {
         return (
             <Content style={{backgroundColor: '#212121'}}>
@@ -83,6 +105,10 @@ class MenuView extends AbstractComponent {
                             <Text style={MenuView.styles.iconLabel}>Settings</Text>
                         </Col>
                         <Col style={{marginHorizontal: 29}}>
+                            <Button transparent large onPress={this.onDeleteSchema.bind(this)} style={{justifyContent: 'center'}}>
+                                <Icon name='delete' style={MenuView.styles.icon}/>
+                            </Button>
+                            <Text style={MenuView.styles.iconLabel}>Delete Data</Text>
                         </Col>
                     </Row>
                     {/*{hack for the background color}*/}

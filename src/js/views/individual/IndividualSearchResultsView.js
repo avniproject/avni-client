@@ -76,9 +76,7 @@ class IndividualSearchResultsView extends AbstractComponent {
            return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                              source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
        }
-
     }
-
 
     render() {
         return (

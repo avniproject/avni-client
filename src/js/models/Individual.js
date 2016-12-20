@@ -51,12 +51,15 @@ class Individual extends BaseEntity {
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualUUID"), Individual.schema.name);
         individual = General.pick(individual, ["uuid"], ["enrolments", "encounters"]);
 
+        console.log(`Number of enrolments: ${individual.enrolments.length}`);
         if (childEntityClass === ProgramEnrolment)
             BaseEntity.addNewChild(child, individual.enrolments);
         else if (childEntityClass === Encounter)
             BaseEntity.addNewChild(child, individual.encounters);
         else
             throw `${childEntityClass.name} not support by ${Individual.name}`;
+
+        console.log(`Number of enrolments: ${individual.enrolments.length}`);
         return individual;
     }
 

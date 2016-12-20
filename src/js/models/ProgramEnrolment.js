@@ -25,11 +25,11 @@ class ProgramEnrolment extends BaseEntity {
     };
 
     static fromResource(resource, entityService) {
-        var program = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
+        const program = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
         const programOutcomeUUID = ResourceUtil.getUUIDFor(resource, "programOutcomeUUID");
-        var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
+        const individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
 
-        var programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime", "programExitDateTime"], ["enrolmentProfile", "programExitObservations"]);
+        const programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime", "programExitDateTime"], ["enrolmentProfile", "programExitObservations"]);
         programEnrolment.program = program;
         programEnrolment.individual = individual;
 
