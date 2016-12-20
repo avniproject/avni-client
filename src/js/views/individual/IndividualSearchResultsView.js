@@ -96,15 +96,15 @@ class IndividualSearchResultsView extends AbstractComponent {
                                           {this.getImage(item)}
                                       </Col>
                                       <Col style={{paddingLeft:16}}>
-                                          <Row><Text style={{fontSize: 24}}>{item.name}</Text></Row>
+                                          <Row><Text style={{fontSize: 16}}>{item.name}</Text></Row>
                                           <Row>
-                                              <Text style={{fontSize: 14}} note>{item.gender.name}</Text>
+                                              <Text style={{fontSize: 12}} note>{item.gender.name}</Text>
                                               <Text style={{paddingLeft: 8, paddingRight: 8}}>|</Text>
-                                              <Text style={{fontSize: 14}} note>{Individual.getDisplayAge(item)}</Text>
+                                              <Text style={{fontSize: 12}} note>{Individual.getDisplayAge(item)}</Text>
                                           </Row>
                                       </Col>
                                       <Col style={{width: 246}}>
-                                          <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 24}}>{item.lowestAddressLevel.title}</Text></Row>
+                                          <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 16}}>{item.lowestAddressLevel.title}</Text></Row>
                                           <Row style={{justifyContent: 'flex-end'}}>{item.enrolments.map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
                                       </Col>
                                   </Grid>

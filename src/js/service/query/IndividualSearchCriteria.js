@@ -12,17 +12,29 @@ class IndividualSearchCriteria {
     }
 
     getFilterCriteria() {
-        var criteria = `name CONTAINS[c] "${this.name}"`;
-        if (!_.isNil(this.ageInYears))
-            criteria = criteria + ` AND (dateOfBirth >= $0 OR dateOfBirth <= $1 )`;
-        if (!_.isNil(this.lowestAddressLevel))
-            criteria = criteria + ` AND lowestAddressLevel.title == "${this.lowestAddressLevel}"`;
+        var criteria = "";
+        if(!_.isUndefined(this.name)) {
+            criteria = `name CONTAINS[c] "${this.name}"`;
+        }
+        if (!_.isNil(this.ageInYears)) {
+            if(!_.isEmpty(criteria)) {
+                criteria = criteria + ' AND '
+            }
+            criteria = criteria + `(dateOfBirth <= $0 AND dateOfBirth >= $1 )`;
+        }
+        if (!_.isNil(this.lowestAddressLevel)) {
+            if(!_.isEmpty(criteria)) {
+                criteria = criteria + ' AND '
+            }
+            criteria = criteria + `lowestAddressLevel.title == "${this.lowestAddressLevel}"`;
+        }
+        console.log(criteria);
         return criteria;
     }
 
     getMaxDateOfBirth() {
-        const maxAgeInYears = this.ageInYears + IndividualSearchCriteria.ageBufferForSearchInYears;
-        return moment().add(maxAgeInYears, 'years').toDate();
+        const maxAgeInYears = parseInt(this.ageInYears) + IndividualSearchCriteria.ageBufferForSearchInYears;
+        return moment().subtract(maxAgeInYears, 'years').toDate();
     }
 
     getMinDateOfBirth() {
