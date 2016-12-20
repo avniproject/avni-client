@@ -40,6 +40,6 @@
   "age": "Age (in years)",
   "lowestAddressLevel": "Village",
   "search": "SEARCH",
-  "individualSearchResults": "Individual Search Results",
+  "SearchResults": "Search Results",
   "zeroNumberOfResults": "No individuals found"
 }
