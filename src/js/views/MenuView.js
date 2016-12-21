@@ -5,6 +5,7 @@ import Path from '../framework/routing/Path';
 import {Content, Grid, Col, Row, Button, Icon} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
+import RegistrationView from "./individual/IndividualRegisterView";
 import SyncService from "../service/SyncService";
 import EntityMetaData from '../models/EntityMetaData';
 import {GlobalStyles} from './primitives/GlobalStyles';
@@ -26,6 +27,10 @@ class MenuView extends AbstractComponent {
 
     settingsView() {
         TypedTransition.from(this).to(SettingsView);
+    }
+
+    registrationView() {
+        TypedTransition.from(this).to(RegistrationView);
     }
 
     _preSync() {
@@ -109,6 +114,14 @@ class MenuView extends AbstractComponent {
                                 <Icon name='delete' style={MenuView.styles.icon}/>
                             </Button>
                             <Text style={MenuView.styles.iconLabel}>Delete Data</Text>
+                        </Col>
+                    </Row>
+                    <Row style={{marginTop: 30}}>
+                        <Col style={{marginHorizontal: 29}}>
+                            <Button transparent large onPress={()=> this.registrationView()} style={{justifyContent: 'center'}}>
+                                <Icon name='person-add' style={MenuView.styles.icon}/>
+                            </Button>
+                            <Text style={MenuView.styles.iconLabel}>Register</Text>
                         </Col>
                     </Row>
                     {/*{hack for the background color}*/}
