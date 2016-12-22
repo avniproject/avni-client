@@ -21,6 +21,7 @@ export default class App extends Component {
         this.routes = PathRegistry.routes();
 
         SetupData.setup(this.beans.get(EntitySyncStatusService), EntityMetaData.model());
+        console.ignoredYellowBox = ['Warning: Each child in an array or iterator should have a unique "key" prop.']
     }
 
     static childContextTypes = {

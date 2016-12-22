@@ -5,10 +5,11 @@ import Path from "../../framework/routing/Path";
 import {GlobalStyles} from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import IndividualEncounterView from "./IndividualEncounterView";
+import IndividualEncounterView from "./IndividualEncounterLandingView";
 import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button, Header, Title, Icon} from 'native-base';
 import Individual from "../../models/Individual";
 import moment from "moment";
+import themes from "../primitives/themes"
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -23,6 +24,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.I18n = this.context.getService(MessageService).getI18n();
+
     }
 
     renderRowAResult(individual, rowID) {
@@ -80,17 +82,17 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     render() {
         return (
-            <Container>
+            <Container theme={themes}>
                 <Header style={{backgroundColor: '#212121'}}>
                     <Button transparent onPress={() => {TypedTransition.from(this).goBack()}}>
-                        <Icon name='ios-arrow-back' />
+                        <Icon name='keyboard-arrow-left' />
                     </Button>
-                    <Title>{this.I18n.t("SearchResults")}</Title>
+                    <Title>{this.I18n.t("searchResults")}</Title>
                 </Header>
                 <Content>
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
-                              <ListItem style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height:102}}>
+                              <ListItem key={item.uuid} style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height:102}} onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: 68}}>
                                           {this.getImage(item)}

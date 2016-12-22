@@ -28,7 +28,6 @@ class IndividualSearchCriteria {
             }
             criteria = criteria + `lowestAddressLevel.title == "${this.lowestAddressLevel}"`;
         }
-        console.log(criteria);
         return criteria;
     }
 

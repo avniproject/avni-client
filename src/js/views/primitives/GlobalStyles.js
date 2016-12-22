@@ -6,7 +6,7 @@ export let GlobalStyles = StyleSheet.create({
     formElement: {marginBottom: 24, marginLeft: 0, height: 72, marginTop: 16},
     formElementLabelContainer: {height: 16},
     formElementTextContainer: {height: 36},
-    formElementLabel: {fontSize: 13},
+    formElementLabel: {fontSize: 16},
 
     mainSection: {
         marginHorizontal: 5,

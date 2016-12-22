@@ -41,7 +41,8 @@
   "lowestAddressLevel": "Village",
   "search": "SEARCH",
   "register": "REGISTER",
-  "SearchResults": "Search Results",
+  "searchResults": "Search Results",
   "zeroNumberOfResults": "No individuals found",
-  "date_of_birth": "Date of Birth"
+  "dateOfBirth": "Date of Birth",
+  "patientProfile": "Patient Profile"
 }
