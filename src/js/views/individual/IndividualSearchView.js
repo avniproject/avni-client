@@ -69,6 +69,7 @@ class IndividualSearchView extends AbstractComponent {
 
     searchIndividual() {
         // this.state.criteria.lowestAddressLevel = this.state.currentAnswerValue;
+        this.state.criteria.name = "ra";
         const results = this.context.getService(IndividualService).search(this.state.criteria);
         TypedTransition.from(this).with({searchResults: results}).to(IndividualSearchResultsView);
     }

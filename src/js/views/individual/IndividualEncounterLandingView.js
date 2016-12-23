@@ -10,6 +10,7 @@ import {
 } from "native-base";
 import {GlobalStyles} from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
+import IndividualEncounterView from "./IndividualEncounterView"
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -25,6 +26,11 @@ class IndividualEncounterLandingView extends AbstractComponent {
         super(props, context);
         this.I18n = this.context.getService(MessageService).getI18n();
     }
+
+    next() {
+        TypedTransition.from(this).to(IndividualEncounterView);
+    }
+
 
 
     render() {
@@ -104,7 +110,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                     PREVIOUS
                                 </Button>
 
-                                <Button primary style={{flex:0.5, marginLeft: 8}}>NEXT</Button>
+                                <Button primary style={{flex:0.5, marginLeft: 8}} onPress={() => this.next()}>NEXT</Button>
                             </Row>
                         </Grid>
 </Row>
