@@ -10,6 +10,7 @@ import {
 import {GlobalStyles} from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendation"
+import Individual from "../../models/Individual";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -27,7 +28,11 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     next() {
-        TypedTransition.from(this).to(SystemRecommendationView);
+        TypedTransition.from(this).with({individual: this.props.params.individual}).to(SystemRecommendationView);
+    }
+
+    previous() {
+        TypedTransition.from(this).goBack();
     }
 
 
@@ -40,7 +45,7 @@ class IndividualEncounterView extends AbstractComponent {
                     }}>
                         <Icon name='keyboard-arrow-left'/>
                     </Button>
-                    <Title>Ramesh KP</Title>
+                    <Title>{this.props.params.individual.name}</Title>
                 </Header>
                 <Content>
                     <Grid>
@@ -54,12 +59,12 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <Grid>
                                 <Row style={{height: 24}}>
-                                    <Col><Text style={GlobalStyles.formElementLabel}>Ramesh KP</Text></Col>
+                                    <Col><Text style={GlobalStyles.formElementLabel}>{this.props.params.individual.name}</Text></Col>
                                     <Col style={{width: 100}}><Text
-                                        style={GlobalStyles.formElementLabel}>Gulbarga</Text></Col>
+                                        style={GlobalStyles.formElementLabel}>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
                                 </Row>
                                 <Row style={{height: 24}}>
-                                    <Col><Text style={{fontSize: 14}}>Male | 40 years</Text></Col>
+                                    <Col><Text style={{fontSize: 14}}>{this.props.params.individual.gender.name} | {Individual.getDisplayAge(this.props.params.individual)}</Text></Col>
                                     <Col style={{width: 100}}></Col>
                                 </Row>
                             </Grid>
@@ -89,7 +94,7 @@ class IndividualEncounterView extends AbstractComponent {
                         <Row style={{paddingLeft: 24, paddingRight: 24, marginTop: 30}}>
                             <Button primary
                                     style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
-                                    textStyle={{color: '#212121'}}>
+                                    textStyle={{color: '#212121'}} onPress={() => this.previous()}>
                                 PREVIOUS
                             </Button>
 

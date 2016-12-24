@@ -92,7 +92,9 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <Content>
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
-                              <ListItem key={item.uuid} style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height:102}} onPress={() => this.onResultRowPress(item)}>
+                              <ListItem key={item.uuid}
+                                        style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height:102}}
+                                        onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: 68}}>
                                           {this.getImage(item)}

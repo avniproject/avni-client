@@ -9,6 +9,7 @@ import {
 } from "native-base";
 import {GlobalStyles} from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
+import Individual from "../../models/Individual";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -29,6 +30,10 @@ class SystemRecommendationView extends AbstractComponent {
         TypedTransition.from(this).to(IndividualEncounterView);
     }
 
+    previous() {
+        TypedTransition.from(this).goBack();
+    }
+
 
     render() {
         return (
@@ -39,18 +44,18 @@ class SystemRecommendationView extends AbstractComponent {
                     }}>
                         <Icon name='keyboard-arrow-left'/>
                     </Button>
-                    <Title>Ramesh KP</Title>
+                    <Title>{this.props.params.individual.name}</Title>
                 </Header>
                 <Content>
                     <Grid>
                         <Row style={{backgroundColor: '#f7f7f7', paddingLeft: 24, paddingRight: 24, paddingTop:12, paddingBottom:12, height: 74}}>
                             <Grid>
                                 <Row style={{height: 24}}>
-                                    <Col><Text style={GlobalStyles.formElementLabel}>Ramesh KP</Text></Col>
-                                    <Col style={{width: 100}}><Text style={GlobalStyles.formElementLabel}>Gulbarga</Text></Col>
+                                    <Col><Text style={GlobalStyles.formElementLabel}>{this.props.params.individual.name}</Text></Col>
+                                    <Col style={{width: 100}}><Text style={GlobalStyles.formElementLabel}>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
                                 </Row>
                                 <Row style={{height: 24}}>
-                                    <Col><Text style={{fontSize:14}}>Male | 40 years</Text></Col>
+                                    <Col><Text style={{fontSize:14}}>{this.props.params.individual.gender.name} | {Individual.getDisplayAge(this.props.params.individual)}</Text></Col>
                                     <Col style={{width: 100}}></Col>
                                 </Row>
                             </Grid>
@@ -70,7 +75,7 @@ class SystemRecommendationView extends AbstractComponent {
                         <Row style={{paddingLeft: 24, paddingRight: 24, marginTop: 30}}>
                             <Button primary
                                     style={{flex:0.5, backgroundColor: '#e0e0e0'}}
-                                    textStyle={{color: '#212121'}}>
+                                    textStyle={{color: '#212121'}} onPress={() => this.previous()}>
                                 PREVIOUS
                             </Button>
 
