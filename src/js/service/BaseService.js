@@ -29,9 +29,11 @@ class BaseService {
         return entity;
     }
 
-    save(entity) {
+    save(entity, schema) {
+        if (schema === undefined) schema = this.getSchema();
+
         const db = this.db;
-        this.db.write(()=> db.create(this.getSchema(), entity));
+        this.db.write(()=> db.create(schema, entity));
         return entity;
     }
 

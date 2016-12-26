@@ -11,6 +11,7 @@ import EntityMetaData from '../models/EntityMetaData';
 import {GlobalStyles} from './primitives/GlobalStyles';
 import EntityService from "../service/EntityService";
 import MessageService from "../service/MessageService";
+import EntitySyncStatusService from "../service/EntitySyncStatusService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -69,12 +70,13 @@ class MenuView extends AbstractComponent {
         } else if (!this.state.syncing && this.state.error) {
             return (<Icon name='sync-problem' style={MenuView.styles.icon}/>);
         } else {
-            return (<Icon name='sync' style={MenuView.styles.icon}/>);
+            return (<Icon name='add' style={MenuView.styles.icon}/>);
         }
     }
 
     onDeleteSchema = () => {
         const service = this.context.getService(EntityService);
+        const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         Alert.alert(
             this.I18n.t('deleteSchemaConfirmationTitle'),
             this.I18n.t("This will remove the reference, configuration and transaction data"),
@@ -82,6 +84,7 @@ class MenuView extends AbstractComponent {
                 {
                     text: this.I18n.t('yes'), onPress: () => {
                     service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+                    entitySyncStatusService.setup(EntityMetaData.model());
                 }
                 },
                 {

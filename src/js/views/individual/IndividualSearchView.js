@@ -37,7 +37,7 @@ class IndividualSearchView extends AbstractComponent {
         return (
             <Content>
                 <Grid style={{marginTop: 16, marginHorizontal: 24}}>
-                    <Row style={GlobalStyles.formElement}>
+                    <Row style={GlobalStyles.formTextElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
                                 <Text style={GlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
@@ -47,7 +47,7 @@ class IndividualSearchView extends AbstractComponent {
                             </Row>
                         </Grid>
                     </Row>
-                    <Row style={GlobalStyles.formElement}>
+                    <Row style={GlobalStyles.formTextElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
                                 <Text style={GlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
@@ -58,8 +58,46 @@ class IndividualSearchView extends AbstractComponent {
                             </Row>
                         </Grid>
                     </Row>
+                    <Row style={GlobalStyles.formCheckboxElement}>
+                        <Grid>
+                            <Row style={GlobalStyles.formElementLabelContainer}>
+                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
+                            </Row>
+                            <Row style={{backgroundColor: '#009688', height: 36}}>
+                                <Col style={{flexGrow: 1}}>
+                                    <Grid>
+                                        <Row>
+                                            <CheckBox checked={false}/>
+                                            <Text style={{justifyContent: 'flex-start', marginLeft: 10}}>Daily Stand Up</Text>
+                                        </Row>
+                                    </Grid>
+                                </Col>
+                                <Col style={{flexGrow: 2}}>
+                                </Col>
+                                <Col style={{flexGrow: 1}}>
+                                    <Grid>
+                                        <Row>
+                                            <CheckBox checked={false}/>
+                                            <Text>Daily Stand Up</Text>
+                                        </Row>
+                                    </Grid>
+                                </Col>
+                            </Row>
+                            <Row style={{backgroundColor: '#009688', height: 36}}>
+                                <Col>
+                                    <Grid>
+                                        <Col>
+                                            <CheckBox checked={false}/>
+                                        </Col>
+                                        <Col>
+                                            <Text>Daily Stand Up</Text>
+                                        </Col>
+                                    </Grid>
+                                </Col>
+                            </Row>
+                        </Grid>
+                    </Row>
                     <Button block onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
-                    {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
                     {/*<CheckBox checked={false}/>*/}
                     {/*<Text>Daily Stand Up</Text>*/}
                 </Grid>

@@ -31,4 +31,10 @@ describe('General', () => {
         expect(General.isNilOrEmpty('HelloWorld')).is.false;
         expect(General.isNilOrEmpty({})).is.false;
     });
+
+    it('randomUUID', () => {
+        var randomUUID1 = General.randomUUID();
+        var randomUUID2 = General.randomUUID();
+        expect(randomUUID1).is.not.equal(randomUUID2);
+    });
 });

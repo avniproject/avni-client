@@ -5,7 +5,7 @@ import Path, {PathRoot} from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
 import {Tabs, Container, Content} from "native-base";
-import theme from "./primitives/themes";
+import themes from "./primitives/themes";
 import Playground from './Playground';
 
 @Path('/landingView')
@@ -23,7 +23,7 @@ class LandingView extends AbstractComponent {
 
     render() {
         return (
-            <Container theme={theme}>
+            <Container theme={themes}>
                 <Content style={{backgroundColor: '#fff'}}>
                     <Tabs>
                         <IndividualSearchView tabLabel='Home'/>

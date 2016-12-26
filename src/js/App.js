@@ -7,7 +7,6 @@ import './views';
 import './service';
 import AppState from './hack/AppState'; //Required Import
 import AppStoreFactory from './store/AppStore';
-import SetupData from "./hack/SetupData";
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import EntityMetaData from "./models/EntityMetaData";
 
@@ -20,7 +19,8 @@ export default class App extends Component {
         this.appStore = AppStoreFactory(this.beans);
         this.routes = PathRegistry.routes();
 
-        SetupData.setup(this.beans.get(EntitySyncStatusService), EntityMetaData.model());
+        const entitySyncStatusService = this.beans.get(EntitySyncStatusService);
+        entitySyncStatusService.setup(EntityMetaData.model());
         console.ignoredYellowBox = ['Warning: Each child in an array or iterator should have a unique "key" prop.']
     }
 
