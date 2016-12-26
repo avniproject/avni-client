@@ -19,7 +19,7 @@ class IndividualSearchView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
 
-        var individualSearchCriteria = new IndividualSearchCriteria();
+        const individualSearchCriteria = new IndividualSearchCriteria();
         this.state = {criteria: individualSearchCriteria, addressLevels: []};
     }
 
@@ -27,10 +27,32 @@ class IndividualSearchView extends AbstractComponent {
         return "IndividualSearchView";
     }
 
+    renderAddressLevelCheckboxes(addressLevelTitles) {
+        var jsx = [];
+        for (var i = 0; i < addressLevelTitles.length;) {
+            jsx.push((<Row style={{backgroundColor: '#009688', height: 36}}>
+                <Col style={{flexGrow: 1}}>
+                    <Row>
+                        <CheckBox/>
+                        <Text style={{fontSize: 16, justifyContent: 'flex-start', marginLeft: 11}}>{addressLevelTitles[i++]}</Text>
+                    </Row>
+                </Col>
+                <Col style={{flexGrow: 2}}/>
+                <Col style={{flexGrow: 1}}>
+                    <Row>
+                        <CheckBox/>
+                        <Text style={{fontSize: 16, justifyContent: 'flex-start', marginLeft: 11}}>{addressLevelTitles[i++]}</Text>
+                    </Row>
+                </Col>
+            </Row>));
+        }
+        return jsx;
+    }
+
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
         const addressLevels = this.context.getService(EntityService).getAll(AddressLevel.schema.name);
-        const titles = addressLevels.map((addressLevel) => {
+        const addressLevelTitles = addressLevels.map((addressLevel) => {
             return addressLevel.title;
         });
 
@@ -63,38 +85,7 @@ class IndividualSearchView extends AbstractComponent {
                             <Row style={GlobalStyles.formElementLabelContainer}>
                                 <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
                             </Row>
-                            <Row style={{backgroundColor: '#009688', height: 36}}>
-                                <Col style={{flexGrow: 1}}>
-                                    <Grid>
-                                        <Row>
-                                            <CheckBox checked={false}/>
-                                            <Text style={{justifyContent: 'flex-start', marginLeft: 10}}>Daily Stand Up</Text>
-                                        </Row>
-                                    </Grid>
-                                </Col>
-                                <Col style={{flexGrow: 2}}>
-                                </Col>
-                                <Col style={{flexGrow: 1}}>
-                                    <Grid>
-                                        <Row>
-                                            <CheckBox checked={false}/>
-                                            <Text>Daily Stand Up</Text>
-                                        </Row>
-                                    </Grid>
-                                </Col>
-                            </Row>
-                            <Row style={{backgroundColor: '#009688', height: 36}}>
-                                <Col>
-                                    <Grid>
-                                        <Col>
-                                            <CheckBox checked={false}/>
-                                        </Col>
-                                        <Col>
-                                            <Text>Daily Stand Up</Text>
-                                        </Col>
-                                    </Grid>
-                                </Col>
-                            </Row>
+                            {this.renderAddressLevelCheckboxes(addressLevelTitles)}
                         </Grid>
                     </Row>
                     <Button block onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
