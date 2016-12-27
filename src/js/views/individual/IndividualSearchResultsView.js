@@ -24,7 +24,6 @@ class IndividualSearchResultsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.I18n = this.context.getService(MessageService).getI18n();
-
     }
 
     renderRowAResult(individual, rowID) {
@@ -48,44 +47,46 @@ class IndividualSearchResultsView extends AbstractComponent {
             return (<View/>);
     }
 
-    renderProgram(program, index){
+    renderProgram(program, index) {
         //TODO this code to go away when association of colour is done with programs
         var colour = "#f6a623";
-        if (index % 3 === 0)
-        {colour = "#4990e2"}
-        else if (index % 3 === 1)
-        { colour = "#4caf50"}
-
-
+        if (index % 3 === 0) {
+            colour = "#4990e2"
+        }
+        else if (index % 3 === 1) {
+            colour = "#4caf50"
+        }
 
         return (
-            <Button disabled  style={{marginLeft: 8, width: 74, height: 22, backgroundColor: colour}}>{program.name}</Button>
+            <Button disabled style={{marginLeft: 8, width: 74, height: 22, backgroundColor: colour}}>{program.name}</Button>
         );
     }
 
-    getImage(individual){
-       if (individual.gender.name === 'Male'){
-           if (moment().diff(individual.dateOfBirth, 'years') > 30){
-               return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
-                                 source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
-           }
-           else {
-               return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
-                                 source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
-           }
-       }
-       else if (individual.gender.name === 'Female'){
-           return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
-                             source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
-       }
+    getImage(individual) {
+        if (individual.gender.name === 'Male') {
+            if (moment().diff(individual.dateOfBirth, 'years') > 30) {
+                return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
+                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
+            }
+            else {
+                return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
+                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
+            }
+        }
+        else if (individual.gender.name === 'Female') {
+            return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
+                              source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
+        }
     }
 
     render() {
         return (
             <Container theme={themes}>
                 <Header style={{backgroundColor: '#212121'}}>
-                    <Button transparent onPress={() => {TypedTransition.from(this).goBack()}}>
-                        <Icon name='keyboard-arrow-left' />
+                    <Button transparent onPress={() => {
+                        TypedTransition.from(this).goBack()
+                    }}>
+                        <Icon name='keyboard-arrow-left'/>
                     </Button>
                     <Title>{this.I18n.t("searchResults")}</Title>
                 </Header>
@@ -93,13 +94,13 @@ class IndividualSearchResultsView extends AbstractComponent {
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
-                                        style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height:102}}
+                                        style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height: 102}}
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: 68}}>
                                           {this.getImage(item)}
                                       </Col>
-                                      <Col style={{paddingLeft:16}}>
+                                      <Col style={{paddingLeft: 16}}>
                                           <Row><Text style={{fontSize: 16}}>{item.name}</Text></Row>
                                           <Row>
                                               <Text style={{fontSize: 12}} note>{item.gender.name}</Text>
@@ -109,7 +110,8 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       </Col>
                                       <Col style={{width: 246}}>
                                           <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 16}}>{item.lowestAddressLevel.title}</Text></Row>
-                                          <Row style={{justifyContent: 'flex-end'}}>{item.enrolments.map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
+                                          <Row
+                                              style={{justifyContent: 'flex-end'}}>{item.enrolments.map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
                                       </Col>
                                   </Grid>
                               </ListItem>

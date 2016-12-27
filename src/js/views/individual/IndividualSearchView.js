@@ -3,14 +3,11 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import MessageService from "../../service/MessageService";
-import AddressLevel from "../../models/AddressLevel";
-import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
-import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
-import EntityService from "../../service/EntityService";
-import {GlobalStyles} from '../primitives/GlobalStyles';
-import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text, Container} from "native-base";
+import {GlobalStyles} from "../primitives/GlobalStyles";
+import {Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
+import Actions from "../../action/index";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -18,13 +15,23 @@ class IndividualSearchView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-
-        const individualSearchCriteria = new IndividualSearchCriteria();
-        this.state = {criteria: individualSearchCriteria, addressLevels: []};
+        this.unsubscribe = context.getStore().subscribe(this.handleChange.bind(this));
     }
 
     viewName() {
         return "IndividualSearchView";
+    }
+
+    componentWillMount() {
+        this.dispatchAction(Actions.START_NEW_INDIVIDUAL_SEARCH);
+    }
+
+    handleChange() {
+        this.setState({
+            addressLevels: this.context.getStore().getState().individualSearch.addressLevels,
+            searchCriteria: this.context.getStore().getState().individualSearch.searchCriteria,
+            loading: false
+        });
     }
 
     renderAddressLevelCheckboxes(addressLevelTitles) {
@@ -51,8 +58,7 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
-        const addressLevels = this.context.getService(EntityService).getAll(AddressLevel.schema.name);
-        const addressLevelTitles = addressLevels.map((addressLevel) => {
+        const addressLevelTitles = this.state.addressLevels.map((addressLevel) => {
             return addressLevel.title;
         });
 
@@ -65,7 +71,11 @@ class IndividualSearchView extends AbstractComponent {
                                 <Text style={GlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
-                                <TextInput style={{flex: 1}} onChangeText={(text) => this.state.criteria.name = text}/>
+                                <TextInput style={{flex: 1}}
+                                           value={this.state.searchCriteria.name}
+                                           onChangeText={(text) => {
+                                                this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"name": text});
+                                }}></TextInput>
                             </Row>
                         </Grid>
                     </Row>
@@ -76,7 +86,10 @@ class IndividualSearchView extends AbstractComponent {
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
-                                           onChangeText={(text) => this.state.criteria.ageInYears = text}/>
+                                           value={this.state.searchCriteria.age}
+                                           onChangeText={(text) => {
+                                               this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"age": text});
+                                           }}></TextInput>
                             </Row>
                         </Grid>
                     </Row>
@@ -97,10 +110,8 @@ class IndividualSearchView extends AbstractComponent {
     }
 
     searchIndividual() {
-        // this.state.criteria.lowestAddressLevel = this.state.currentAnswerValue;
-        this.state.criteria.name = "ra";
-        const results = this.context.getService(IndividualService).search(this.state.criteria);
-        TypedTransition.from(this).with({searchResults: results}).to(IndividualSearchResultsView);
+        this.dispatchAction(Actions.SEARCH_INDIVIDUALS);
+        TypedTransition.from(this).to(IndividualSearchResultsView);
     }
 }
 

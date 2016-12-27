@@ -2,6 +2,8 @@ import {createStore, combineReducers} from 'redux';
 import initReducers from '../reducer';
 
 function AppStoreFactory(beans) {
-    return createStore(combineReducers(initReducers(beans)));
+    const reducers = initReducers(beans);
+    console.log(reducers);
+    return createStore(combineReducers(reducers));
 }
 export default AppStoreFactory;

@@ -21,7 +21,7 @@ export default class App extends Component {
 
         const entitySyncStatusService = this.beans.get(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
-        console.ignoredYellowBox = ['Warning: Each child in an array or iterator should have a unique "key" prop.']
+        console.ignoredYellowBox = ['Warning: Each child in an array or iterator should have a unique "key" prop.'];
     }
 
     static childContextTypes = {
