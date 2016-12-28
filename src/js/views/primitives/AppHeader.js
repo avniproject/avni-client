@@ -69,7 +69,6 @@ class AppHeader extends Component {
     };
 
     render() {
-        console.log("AppHeader");
         const topLeftActionMap = {
             "Settings": this.onSettingsPress,
             "Back": this.onBackPress

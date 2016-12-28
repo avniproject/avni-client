@@ -1,6 +1,7 @@
 import React, {Component, View, Text} from 'react';
 import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
+import {Dimensions} from "react-native";
 
 class AbstractComponent extends Component {
     constructor(props, context) {
@@ -8,6 +9,7 @@ class AbstractComponent extends Component {
         this.renderComponent = this.renderComponent.bind(this);
         this.spinnerDefaults = Map({color: 'white', size: 'small'});
         this.showError = this.showError.bind(this);
+        this.windowWidth = Dimensions.get('window').width;
     }
 
     static styles = StyleSheet.create({
@@ -57,6 +59,12 @@ class AbstractComponent extends Component {
             return (<View key={rowID}/>);
         }
         return (<Text key={rowID} style={AbstractComponent.styles.listRowSeparator}/>);
+    }
+
+    getStyle(style) {
+        console.log(`STYLE: ${style}`);
+        style.fontSize = (style.fontSize * this.windowWidth) / 600;
+        return style;
     }
 }
 

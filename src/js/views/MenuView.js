@@ -8,22 +8,22 @@ import SettingsView from "./settings/SettingsView";
 import RegistrationView from "./individual/IndividualRegisterView";
 import SyncService from "../service/SyncService";
 import EntityMetaData from '../models/EntityMetaData';
-import {GlobalStyles} from './primitives/GlobalStyles';
 import EntityService from "../service/EntityService";
 import MessageService from "../service/MessageService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
-    static styles = StyleSheet.create({
-        icon: {color: '#009688', opacity: 0.8, fontSize: 48, justifyContent: 'center'},
-        iconLabel: {fontSize: 20, color: '#fff', justifyContent: 'center'}
-    });
-
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false, error: false};
         this.I18n = context.getService(MessageService).getI18n();
+        this.createStyles();
+    }
+
+    createStyles() {
+        this.iconLabelStyle = this.addFontSize({color: '#fff', justifyContent: 'center'}, 20);
+        this.iconStyle = this.addFontSize({color: '#009688', opacity: 0.8, justifyContent: 'center'}, 48);
     }
 
     settingsView() {
@@ -65,12 +65,12 @@ class MenuView extends AbstractComponent {
 
             return (
                 <Animated.View style={{transform: [{rotate: interpolatedRotateAnimation}]}}>
-                    <Icon name='sync' style={MenuView.styles.icon}/>
+                    <Icon name='sync' style={this.iconStyle}/>
                 </Animated.View>);
         } else if (!this.state.syncing && this.state.error) {
-            return (<Icon name='sync-problem' style={MenuView.styles.icon}/>);
+            return (<Icon name='sync-problem' style={this.iconStyle}/>);
         } else {
-            return (<Icon name='add' style={MenuView.styles.icon}/>);
+            return (<Icon name='add' style={this.iconStyle}/>);
         }
     }
 
@@ -95,6 +95,12 @@ class MenuView extends AbstractComponent {
         )
     };
 
+    addFontSize(style, size) {
+        // var a = {color: '#fff', justifyContent: 'center', fontSize: 20};
+        style.fontSize = size * this.windowWidth / 600;
+        return style;
+    };
+
     render() {
         return (
             <Content style={{backgroundColor: '#212121'}}>
@@ -104,27 +110,27 @@ class MenuView extends AbstractComponent {
                             <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                                 {this.renderSyncButton()}
                             </Button>
-                            <Text style={MenuView.styles.iconLabel}>Sync Data</Text>
+                            <Text style={this.iconLabelStyle}>Sync Data</Text>
                         </Col>
                         <Col style={{marginHorizontal: 29}}>
                             <Button onPress={() => this.settingsView()} transparent large>
-                                <Icon name='settings' style={MenuView.styles.icon}/>
+                                <Icon name='settings' style={this.iconStyle}/>
                             </Button>
-                            <Text style={MenuView.styles.iconLabel}>Settings</Text>
+                            <Text style={this.iconLabelStyle}>Settings</Text>
                         </Col>
                         <Col style={{marginHorizontal: 29}}>
                             <Button transparent large onPress={this.onDeleteSchema.bind(this)} style={{justifyContent: 'center'}}>
-                                <Icon name='delete' style={MenuView.styles.icon}/>
+                                <Icon name='delete' style={this.iconStyle}/>
                             </Button>
-                            <Text style={MenuView.styles.iconLabel}>Delete Data</Text>
+                            <Text style={this.iconLabelStyle}>Delete Data</Text>
                         </Col>
                     </Row>
                     <Row style={{marginTop: 30}}>
                         <Col style={{marginHorizontal: 29}}>
                             <Button transparent large onPress={()=> this.registrationView()} style={{justifyContent: 'center'}}>
-                                <Icon name='person-add' style={MenuView.styles.icon}/>
+                                <Icon name='person-add' style={this.iconStyle}/>
                             </Button>
-                            <Text style={MenuView.styles.iconLabel}>Register</Text>
+                            <Text style={this.iconLabelStyle}>Register</Text>
                         </Col>
                     </Row>
                     {/*{hack for the background color}*/}

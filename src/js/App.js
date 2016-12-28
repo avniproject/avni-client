@@ -1,3 +1,4 @@
+import {Dimensions} from "react-native";
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
@@ -22,6 +23,8 @@ export default class App extends Component {
         const entitySyncStatusService = this.beans.get(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
         console.ignoredYellowBox = ['Warning: Each child in an array or iterator should have a unique "key" prop.'];
+
+        console.log(`DEVICE HEIGHT=${Dimensions.get('window').height} WIDTH=${Dimensions.get('window').width}`);
     }
 
     static childContextTypes = {
