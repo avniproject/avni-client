@@ -51,8 +51,8 @@ class SystemRecommendationView extends AbstractComponent {
                         <Row style={{backgroundColor: '#f7f7f7', paddingLeft: 24, paddingRight: 24, paddingTop:12, paddingBottom:12, height: 74}}>
                             <Grid>
                                 <Row style={{height: 24}}>
-                                    <Col><Text style={GlobalStyles.formElementLabel}>{this.props.params.individual.name}</Text></Col>
-                                    <Col style={{width: 100}}><Text style={GlobalStyles.formElementLabel}>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
+                                    <Col><Text>{this.props.params.individual.name}</Text></Col>
+                                    <Col style={{width: 100}}><Text>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
                                 </Row>
                                 <Row style={{height: 24}}>
                                     <Col><Text style={{fontSize:14}}>{this.props.params.individual.gender.name} | {Individual.getDisplayAge(this.props.params.individual)}</Text></Col>

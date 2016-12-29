@@ -11,6 +11,7 @@ import EntityMetaData from '../models/EntityMetaData';
 import EntityService from "../service/EntityService";
 import MessageService from "../service/MessageService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
+import DynamicGlobalStyles from '../views/primitives/DynamicGlobalStyles';
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -22,8 +23,8 @@ class MenuView extends AbstractComponent {
     }
 
     createStyles() {
-        this.iconLabelStyle = this.addFontSize({color: '#fff', justifyContent: 'center'}, 20);
-        this.iconStyle = this.addFontSize({color: '#009688', opacity: 0.8, justifyContent: 'center'}, 48);
+        this.iconLabelStyle = DynamicGlobalStyles.addFontSize({color: '#fff', justifyContent: 'center'}, 20);
+        this.iconStyle = DynamicGlobalStyles.addFontSize({color: '#009688', opacity: 0.8, justifyContent: 'center'}, 48);
     }
 
     settingsView() {
@@ -93,12 +94,6 @@ class MenuView extends AbstractComponent {
                 }
             ]
         )
-    };
-
-    addFontSize(style, size) {
-        // var a = {color: '#fff', justifyContent: 'center', fontSize: 20};
-        style.fontSize = size * this.windowWidth / 600;
-        return style;
     };
 
     render() {

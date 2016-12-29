@@ -20,6 +20,10 @@ class IndividualService extends BaseService {
                 criteria.getMinDateOfBirth(),
                 criteria.getMaxDateOfBirth()).slice(0, 100)
     }
+
+    register(individual) {
+        this.db.write(() => db.create(Individual.schema.name, individual));
+    }
 }
 
 export default IndividualService;

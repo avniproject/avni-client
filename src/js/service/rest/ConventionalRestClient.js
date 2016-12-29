@@ -40,6 +40,9 @@ class ConventionalRestClient {
     morePagesForThisResource(response) {
         return response["page"]["number"] < (response["page"]["totalPages"] - 1);
     }
+
+    postEntity() {
+    }
 }
 
 export default ConventionalRestClient;

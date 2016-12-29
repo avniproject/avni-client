@@ -9,8 +9,9 @@ import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import EntityService from "../../service/EntityService";
-import {GlobalStyles} from '../primitives/GlobalStyles';
+import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text, Container} from "native-base";
+import themes from "../primitives/themes";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -21,6 +22,8 @@ class IndividualRegisterView extends AbstractComponent {
 
         var individualSearchCriteria = new IndividualSearchCriteria();
         this.state = {criteria: individualSearchCriteria, addressLevels: []};
+
+        this.contentGridMarginStyle = {marginTop: DynamicGlobalStyles.resize(16), marginHorizontal: DynamicGlobalStyles.resize(24)};
     }
 
     viewName() {
@@ -35,46 +38,59 @@ class IndividualRegisterView extends AbstractComponent {
         });
 
         return (
-            <Content>
-                <Grid style={{marginTop: 16, marginHorizontal: 24}}>
-                    <Row style={GlobalStyles.formElement}>
-                        <Grid>
-                            <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
-                            </Row>
-                            <Row style={GlobalStyles.formElementTextContainer}>
-                                <TextInput style={{flex: 1}} onChangeText={(text) => this.state.criteria.name = text}/>
-                            </Row>
-                        </Grid>
-                    </Row>
-                    <Row style={GlobalStyles.formElement}>
-                        <Grid>
-                            <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
-                            </Row>
-                            <Row style={GlobalStyles.formElementTextContainer}>
-                                <TextInput style={{flex: 1}}
-                                           onChangeText={(text) => this.state.criteria.ageInYears = text}/>
-                            </Row>
-                        </Grid>
-                    </Row>
-                    <Row style={GlobalStyles.formElement}>
-                        <Grid>
-                            <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
-                            </Row>
-                            <Row style={GlobalStyles.formElementTextContainer}>
-                                <TextInput style={{flex: 1}}
-                                           onChangeText={(text) => this.state.criteria.ageInYears = text}/>
-                            </Row>
-                        </Grid>
-                    </Row>
-                    <Button block onPress={() => this.registerIndividual()}>{I18n.t("register")}</Button>
-                    {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
-                    {/*<CheckBox checked={false}/>*/}
-                    {/*<Text>Daily Stand Up</Text>*/}
-                </Grid>
-            </Content>
+            <Container theme={themes}>
+                <Content>
+                    <Grid style={this.contentGridMarginStyle}>
+                        <Row>
+                            <Col>
+                                <Row>
+                                    <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
+                                </Row>
+                                <Row>
+                                    <TextInput style={DynamicGlobalStyles.formElementTextInput} onChangeText={(text) => this.state.criteria.name = text}/>
+                                </Row>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Grid>
+                                <Row>
+                                    <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("dateOfBirth")}</Text>
+                                </Row>
+                                <Row>
+                                    <TextInput style={{flex: 1, height: DynamicGlobalStyles.resizeHeight(44), marginRight: DynamicGlobalStyles.resize(50)}}
+                                               onChangeText={(text) => this.state.criteria.ageInYears = text}/>
+                                    <View style={{flexDirection: 'column-reverse'}}>
+                                        <CheckBox/>
+                                    </View>
+                                    <View style={{marginRight: DynamicGlobalStyles.resize(15)}}/>
+                                    <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("dateOfBirthVerified")}</Text>
+                                </Row>
+                            </Grid>
+                        </Row>
+                        <Row>
+                            <Grid>
+                                <Row>
+                                    <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
+                                </Row>
+                                <Row>
+                                    <TextInput style={DynamicGlobalStyles.formElementTextInput}
+                                               onChangeText={(text) => this.state.criteria.ageInYears = text}/>
+                                    <Button>{I18n.t("years")}</Button>
+                                    <Button>{I18n.t("months")}</Button>
+                                </Row>
+                            </Grid>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Button block onPress={() => this.registerIndividual()}>{I18n.t("register")}</Button>
+                            </Col>
+                        </Row>
+                        {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
+                        {/*<CheckBox checked={false}/>*/}
+                        {/*<Text>Daily Stand Up</Text>*/}
+                    </Grid>
+                </Content>
+            </Container>
         );
     }
 

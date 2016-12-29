@@ -83,6 +83,7 @@ class SyncService extends BaseService {
     }
 
     pushTxData(allTxDataMetaData, onComplete) {
+        this.conventionalRestClient.postEntity();
         onComplete();
     }
 }

@@ -13,6 +13,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView"
 import Individual from "../../models/Individual";
 import moment from "moment";
+import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -54,8 +55,6 @@ class IndividualEncounterLandingView extends AbstractComponent {
         }
     }
 
-
-
     render() {
         return (
             <Container theme={themes}>
@@ -88,7 +87,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                         <Row>
                             <Grid style={{backgroundColor: '#ffffff', paddingLeft:10, paddingRight: 10}}>
                             <Row style={{backgroundColor: '#ffffff'}}>
-                                <Text style={GlobalStyles.formElementLabel}>{this.I18n.t("date")}</Text>
+                                <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("date")}</Text>
                             </Row>
                             <Row>
                                 <InputGroup style={{flex: 1}} borderType='underline'>
@@ -96,7 +95,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                 </InputGroup>
                             </Row>
                             <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                                <Text style={GlobalStyles.formElementLabel}>Complaint</Text>
+                                <Text style={DynamicGlobalStyles.formElementLabel}>Complaint</Text>
                             </Row>
                             <Row style={{
                                 padding: 28,

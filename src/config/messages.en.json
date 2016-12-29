@@ -28,8 +28,7 @@
   "months": "Months",
   "years": "Years",
   "date": "Date",
-  "Month": "Months",
-  "Year": "Years",
+  "Month": "Month",
   "ok": "Ok",
   "yes": "Yes",
   "no": "No",
@@ -44,5 +43,6 @@
   "searchResults": "Search Results",
   "zeroNumberOfResults": "No individuals found",
   "dateOfBirth": "Date of Birth",
+  "dateOfBirthVerified": "Verified",
   "generalConsultation": "General Consultation"
 }

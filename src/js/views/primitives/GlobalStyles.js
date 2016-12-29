@@ -3,11 +3,10 @@ import Colors from '../primitives/Colors';
 
 export let GlobalStyles = StyleSheet.create({
     mainContent: {marginHorizontal: 24},
-    formTextElement: {marginLeft: 0, height: 72, marginTop: 16},
+    formTextElement: {marginLeft: 0, height: 73, marginTop: 16},
     formCheckboxElement: {marginLeft: 0, marginTop: 16},
     formElementLabelContainer: {height: 16},
     formElementTextContainer: {height: 36},
-    formElementLabel: {fontSize: 16},
 
     mainSection: {
         marginHorizontal: 5,

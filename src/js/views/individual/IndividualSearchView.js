@@ -6,6 +6,7 @@ import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import {GlobalStyles} from "../primitives/GlobalStyles";
+import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import {Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
 import Actions from "../../action/index";
 import _ from 'lodash';
@@ -79,7 +80,7 @@ class IndividualSearchView extends AbstractComponent {
                     <Row style={GlobalStyles.formTextElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
+                                <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
@@ -91,7 +92,7 @@ class IndividualSearchView extends AbstractComponent {
                     <Row style={GlobalStyles.formTextElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
+                                <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
@@ -103,7 +104,7 @@ class IndividualSearchView extends AbstractComponent {
                     <Row style={GlobalStyles.formCheckboxElement}>
                         <Grid>
                             <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevels")}</Text>
+                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
                             </Row>
                             {this.renderAddressLevelCheckboxes(addressLevels)}
                         </Grid>

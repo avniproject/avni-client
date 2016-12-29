@@ -73,7 +73,7 @@ export default {
 
     // Check Box
     checkboxBgColor: '#CB202D',
-    checkboxSize: 23,
+    checkboxSize: 16,
     checkboxTickColor: '#fff',
 
 

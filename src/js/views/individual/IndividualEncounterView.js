@@ -8,6 +8,7 @@ import {
     List, ListItem, Radio, View
 } from "native-base";
 import {GlobalStyles} from '../primitives/GlobalStyles';
+import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendation"
 import Individual from "../../models/Individual";
@@ -59,9 +60,9 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <Grid>
                                 <Row style={{height: 24}}>
-                                    <Col><Text style={GlobalStyles.formElementLabel}>{this.props.params.individual.name}</Text></Col>
+                                    <Col><Text style={DynamicGlobalStyles.formElementLabel}>{this.props.params.individual.name}</Text></Col>
                                     <Col style={{width: 100}}><Text
-                                        style={GlobalStyles.formElementLabel}>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
+                                        style={DynamicGlobalStyles.formElementLabel}>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
                                 </Row>
                                 <Row style={{height: 24}}>
                                     <Col><Text style={{fontSize: 14}}>{this.props.params.individual.gender.name} | {Individual.getDisplayAge(this.props.params.individual)}</Text></Col>
@@ -73,16 +74,16 @@ class IndividualEncounterView extends AbstractComponent {
                             <Grid>
                                 <Row>
                                     <Grid>
-                                        <Row><Text style={GlobalStyles.formElementLabel}>Pallor</Text></Row>
+                                        <Row><Text style={DynamicGlobalStyles.formElementLabel}>Pallor</Text></Row>
                                         <Row>
                                             <Grid>
                                                 <Row>
                                                     <Radio selected={false}/>
-                                                    <Text style={GlobalStyles.formElementLabel}>PRESENT</Text>
+                                                    <Text style={DynamicGlobalStyles.formElementLabel}>PRESENT</Text>
                                                 </Row>
                                             </Grid>
                                             <Grid><Row><Radio selected={false}/>
-                                                <Text style={GlobalStyles.formElementLabel}>ABSENT</Text>
+                                                <Text style={DynamicGlobalStyles.formElementLabel}>ABSENT</Text>
                                             </Row></Grid></Row>
                                     </Grid>
                                 </Row>
