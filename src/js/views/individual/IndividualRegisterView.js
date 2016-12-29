@@ -10,7 +10,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import EntityService from "../../service/EntityService";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import {List, ListItem, Button, Content, CheckBox, Grid, Col, Row, Text, Container} from "native-base";
+import {List, ListItem, Content, CheckBox, Grid, Col, Row, Text, Container, Button, Radio} from "native-base";
 import themes from "../primitives/themes";
 
 @Path('/individualRegister')
@@ -75,8 +75,14 @@ class IndividualRegisterView extends AbstractComponent {
                                 <Row>
                                     <TextInput style={DynamicGlobalStyles.formElementTextInput}
                                                onChangeText={(text) => this.state.criteria.ageInYears = text}/>
-                                    <Button>{I18n.t("years")}</Button>
-                                    <Button>{I18n.t("months")}</Button>
+                                    <View style={{flexDirection: 'column-reverse'}}>
+                                        <Radio/>
+                                    </View>
+                                    <Text>{I18n.t("years")}</Text>
+                                    <View style={{flexDirection: 'column-reverse'}}>
+                                        <Radio/>
+                                    </View>
+                                    <Text>{I18n.t("months")}</Text>
                                 </Row>
                             </Grid>
                         </Row>
