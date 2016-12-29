@@ -5,31 +5,53 @@ class IndividualSearchCriteria {
     //to be made configurable perhaps later
     static ageBufferForSearchInYears = 4;
 
-    constructor(name, age, lowestAddressLevel) {
-        this.name = name;
-        this.ageInYears = age;
-        this.lowestAddressLevel = lowestAddressLevel;
+    static empty(){
+        let individualSearchCriteria = new IndividualSearchCriteria();
+        individualSearchCriteria.lowestAddressLevels = new Set();
+        return individualSearchCriteria;
+    }
+
+    static create(name, age, lowestAddressLevels) {
+        let individualSearchCriteria = new IndividualSearchCriteria();
+        individualSearchCriteria.name = name;
+        individualSearchCriteria.ageInYears = age;
+        individualSearchCriteria.lowestAddressLevels = new Set(lowestAddressLevels);
+        return individualSearchCriteria;
     }
 
     getFilterCriteria() {
-        var criteria = "";
-        if(!_.isUndefined(this.name)) {
-            criteria = `name CONTAINS[c] "${this.name}"`;
+        let criteria = [];
+        if (!_.isEmpty(this.name)) {
+            criteria.push(`name CONTAINS[c] "${this.name}"`);
         }
-        if (!_.isNil(this.ageInYears)) {
-            if(!_.isEmpty(criteria)) {
-                criteria = criteria + ' AND '
-            }
-            criteria = criteria + `(dateOfBirth <= $0 AND dateOfBirth >= $1 )`;
+        if (!_.isEmpty(this.ageInYears)) {
+            criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
-        if (!_.isNil(this.lowestAddressLevel)) {
-            if(!_.isEmpty(criteria)) {
-                criteria = criteria + ' AND '
-            }
-            criteria = criteria + `lowestAddressLevel.title == "${this.lowestAddressLevel}"`;
+        if (this.lowestAddressLevels.size != 0) {
+            let addressLevelCriteria = [];
+            this.lowestAddressLevels.forEach((addressLevel) =>
+            {addressLevelCriteria.push(`lowestAddressLevel.title == "${addressLevel}"`)});
+            criteria.push("( " + addressLevelCriteria.join(" OR ") + ")");
         }
-        return criteria;
+        return criteria.join(" AND ");
     }
+
+    addAgeCriteria(age) {
+        this.ageInYears = age;
+    }
+
+    addNameCriteria(name) {
+        this.name = name;
+    }
+
+    addLowestAddress(lowestAddress) {
+        this.lowestAddressLevels.add(lowestAddress);
+    }
+
+    removeLowestAddress(lowestAddress) {
+        this.lowestAddressLevels.delete(lowestAddress);
+    }
+
 
     getMaxDateOfBirth() {
         const maxAgeInYears = parseInt(this.ageInYears) + IndividualSearchCriteria.ageBufferForSearchInYears;

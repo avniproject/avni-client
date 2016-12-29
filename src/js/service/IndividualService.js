@@ -14,7 +14,8 @@ class IndividualService extends BaseService {
     }
 
     search(criteria) {
-        return this.db.objects(Individual.schema.name)
+        return _.isEmpty(criteria.getFilterCriteria()) ? this.db.objects(Individual.schema.name).slice(0, 100) :
+            this.db.objects(Individual.schema.name)
             .filtered(criteria.getFilterCriteria(),
                 criteria.getMinDateOfBirth(),
                 criteria.getMaxDateOfBirth()).slice(0, 100)

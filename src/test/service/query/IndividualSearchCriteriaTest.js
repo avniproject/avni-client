@@ -4,7 +4,7 @@ import IndividualSearchCriteria from "../../../js/service/query/IndividualSearch
 describe('IndividualSearchCriteria', () => {
     it('getFilterCriteria', () => {
         console.log(new Date());
-        var criteria = new IndividualSearchCriteria("ga", 23, "Jinjgaon");
+        var criteria = IndividualSearchCriteria.create("ga", 23, ["Jinjgaon"]);
         var filterCriteria = criteria.getFilterCriteria();
         console.log(filterCriteria);
     });

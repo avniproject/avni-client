@@ -95,7 +95,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                     <Input defaultValue={moment().format('DD-MMM-YYYY')} />
                                 </InputGroup>
                             </Row>
-                            <Row style={{backgroundColor: '#ffffff', borderStyle: 'dotted', marginTop: 10, marginBottom: 10}}>
+                            <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                                 <Text style={GlobalStyles.formElementLabel}>Complaint</Text>
                             </Row>
                             <Row style={{

@@ -8,6 +8,7 @@ import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import {GlobalStyles} from "../primitives/GlobalStyles";
 import {Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
 import Actions from "../../action/index";
+import _ from 'lodash';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -27,41 +28,51 @@ class IndividualSearchView extends AbstractComponent {
     }
 
     handleChange() {
-        this.setState({
-            addressLevels: this.context.getStore().getState().individualSearch.addressLevels,
-            searchCriteria: this.context.getStore().getState().individualSearch.searchCriteria,
-            loading: false
-        });
+        this.setState(this.context.getStore().getState().individualSearch);
     }
 
-    renderAddressLevelCheckboxes(addressLevelTitles) {
-        var jsx = [];
-        for (var i = 0; i < addressLevelTitles.length;) {
-            jsx.push((<Row style={{backgroundColor: '#009688', height: 36}}>
-                <Col style={{flexGrow: 1}}>
-                    <Row>
-                        <CheckBox/>
-                        <Text style={{fontSize: 16, justifyContent: 'flex-start', marginLeft: 11}}>{addressLevelTitles[i++]}</Text>
-                    </Row>
-                </Col>
-                <Col style={{flexGrow: 2}}/>
-                <Col style={{flexGrow: 1}}>
-                    <Row>
-                        <CheckBox/>
-                        <Text style={{fontSize: 16, justifyContent: 'flex-start', marginLeft: 11}}>{addressLevelTitles[i++]}</Text>
-                    </Row>
-                </Col>
-            </Row>));
-        }
-        return jsx;
+    renderAddressLevelCheckboxes(addressLevels) {
+        return _.chunk(addressLevels, 2)
+            .map(([address1, address2]) =>
+                (<Row
+                    style={{
+                        padding: 28,
+                        backgroundColor: '#ffffff',
+                        height: 360,
+                        borderWidth: 1
+                    }}>
+                    <Col style={{flexGrow: 1}}>
+                        <Row>
+                            <CheckBox checked={address1.checked}
+                                      onPress={this.toggleVillageSelection(address1)}/>
+                            <Text style={{
+                                fontSize: 16,
+                                justifyContent: 'flex-start',
+                                marginLeft: 11
+                            }}>{address1.title}</Text>
+                        </Row>
+                    </Col>
+                    <Col style={{flexGrow: 2}}/>
+                    <Col style={{flexGrow: 1}}>
+                        <Row>
+                            <CheckBox checked={address2.checked} onPress={this.toggleVillageSelection(address2)}/>
+                            <Text style={{
+                                fontSize: 16,
+                                justifyContent: 'flex-start',
+                                marginLeft: 11
+                            }}>{address2.title}</Text>
+                        </Row>
+                    </Col>
+                </Row>)
+            );
     }
 
     render() {
+        console.log("IndividualSearchView.render");
         const I18n = this.context.getService(MessageService).getI18n();
-        const addressLevelTitles = this.state.addressLevels.map((addressLevel) => {
-            return addressLevel.title;
-        });
-
+        let addressLevels = this.state.addressLevels.map((addressLevel) =>
+            Object.assign({checked: this.state.searchCriteria.lowestAddressLevels.has(addressLevel.title)}, addressLevel));
+        console.log(addressLevels);
         return (
             <Content>
                 <Grid style={{marginTop: 16, marginHorizontal: 24}}>
@@ -73,9 +84,7 @@ class IndividualSearchView extends AbstractComponent {
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
                                            value={this.state.searchCriteria.name}
-                                           onChangeText={(text) => {
-                                                this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"name": text});
-                                }}></TextInput>
+                                           onChangeText={(text) => this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"name": text})}/>
                             </Row>
                         </Grid>
                     </Row>
@@ -87,31 +96,41 @@ class IndividualSearchView extends AbstractComponent {
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
                                            value={this.state.searchCriteria.age}
-                                           onChangeText={(text) => {
-                                               this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"age": text});
-                                           }}></TextInput>
+                                           onChangeText={(text) => this.dispatchAction(Actions.ENTER_AGE_CRITERIA, {"age": text})}/>
                             </Row>
                         </Grid>
                     </Row>
                     <Row style={GlobalStyles.formCheckboxElement}>
                         <Grid>
-                            <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
+                            <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevels")}</Text>
                             </Row>
-                            {this.renderAddressLevelCheckboxes(addressLevelTitles)}
+                            {this.renderAddressLevelCheckboxes(addressLevels)}
                         </Grid>
                     </Row>
-                    <Button block onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
-                    {/*<CheckBox checked={false}/>*/}
-                    {/*<Text>Daily Stand Up</Text>*/}
+                    <Row style={{marginTop: 30, marginBottom: 30}}>
+                        <Col>
+                            <Button block
+                                    onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
+                        </Col>
+                    </Row>
                 </Grid>
             </Content>
         );
     }
 
     searchIndividual() {
-        this.dispatchAction(Actions.SEARCH_INDIVIDUALS);
-        TypedTransition.from(this).to(IndividualSearchResultsView);
+        this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
+            cb: (results) => TypedTransition.from(this).with({
+                searchResults: results
+            }).to(IndividualSearchResultsView)
+        });
+    }
+
+    toggleVillageSelection(addressLevel) {
+        return ()=> {
+            this.dispatchAction(addressLevel.checked ? Actions.REMOVE_ADDRESS_LEVEL_CRITERIA : Actions.ADD_ADDRESS_LEVEL_CRITERIA, {"address_level" : addressLevel.title});
+        }
     }
 }
 

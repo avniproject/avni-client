@@ -8,35 +8,50 @@ const getAddressLevels = function (state, action, beans) {
 };
 
 let newStateBasedOnOldState = function (state) {
-    return {addressLevels: state.addressLevels, searchCriteria: state.searchCriteria, individualSearchResults: state.individualSearchResults};
+    return Object.assign({}, state);
 };
 
 const enterNameCriteria = function (state, action, beans) {
-    var newState = newStateBasedOnOldState(state);
-    newState.searchCriteria.name = action.name;
+    let newState = newStateBasedOnOldState(state);
+    newState.searchCriteria.addNameCriteria(action.name);
     return newState;
 };
 
 const enterAgeCriteria = function (state, action, beans) {
-    var newState = newStateBasedOnOldState(state);
-    newState.searchCriteria.age = action.age;
+    let newState = newStateBasedOnOldState(state);
+    newState.searchCriteria.addAgeCriteria(action.age);
+    return newState;
+};
+
+const addAddressLevelCriteria = function (state, action, beans) {
+    let newState = newStateBasedOnOldState(state);
+    newState.searchCriteria.addLowestAddress(action.address_level);
+    return newState;
+};
+
+const removeAddressLevelCriteria = function (state, action, beans) {
+    let newState = newStateBasedOnOldState(state);
+    newState.searchCriteria.removeLowestAddress(action.address_level);
     return newState;
 };
 
 const startNewIndividualSearch = function (state, action, beans) {
-    var newState = newStateBasedOnOldState(state);
+    let newState = newStateBasedOnOldState(state);
     newState.addressLevels = getAddressLevels(state, action, beans);
     return newState;
 };
 
 const searchIndividuals = function (state, action, beans) {
-    var newState = newStateBasedOnOldState(state);
-    newState.individualSearchResults = beans.get(IndividualService).search(state.searchCriteria);
-    return newState;
+    const individualSearchResults = beans.get(IndividualService).search(state.searchCriteria);
+    action.cb(individualSearchResults);
+    return Object.assign(state, {});
 };
 
 export default new Map([[Actions.START_NEW_INDIVIDUAL_SEARCH, startNewIndividualSearch],
     [Actions.ENTER_NAME_CRITERIA, enterNameCriteria],
     [Actions.ENTER_AGE_CRITERIA, enterAgeCriteria],
     [Actions.SEARCH_INDIVIDUALS, searchIndividuals],
+    [Actions.ADD_ADDRESS_LEVEL_CRITERIA, addAddressLevelCriteria],
+    [Actions.REMOVE_ADDRESS_LEVEL_CRITERIA, removeAddressLevelCriteria]
+
 ]);
