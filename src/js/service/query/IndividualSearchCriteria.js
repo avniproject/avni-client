@@ -1,5 +1,6 @@
 import moment from "moment";
 import _ from "lodash";
+import BaseEntity from '../../models/BaseEntity';
 
 class IndividualSearchCriteria {
     //to be made configurable perhaps later
@@ -7,7 +8,7 @@ class IndividualSearchCriteria {
 
     static empty(){
         let individualSearchCriteria = new IndividualSearchCriteria();
-        individualSearchCriteria.lowestAddressLevels = new Set();
+        individualSearchCriteria.lowestAddressLevels = [];
         return individualSearchCriteria;
     }
 
@@ -15,7 +16,7 @@ class IndividualSearchCriteria {
         let individualSearchCriteria = new IndividualSearchCriteria();
         individualSearchCriteria.name = name;
         individualSearchCriteria.ageInYears = age;
-        individualSearchCriteria.lowestAddressLevels = new Set(lowestAddressLevels);
+        individualSearchCriteria.lowestAddressLevels = lowestAddressLevels;
         return individualSearchCriteria;
     }
 
@@ -27,7 +28,7 @@ class IndividualSearchCriteria {
         if (!_.isEmpty(this.ageInYears)) {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
-        if (this.lowestAddressLevels.size != 0) {
+        if (this.lowestAddressLevels.length != 0) {
             let addressLevelCriteria = [];
             this.lowestAddressLevels.forEach((addressLevel) =>
             {addressLevelCriteria.push(`lowestAddressLevel.title == "${addressLevel}"`)});
@@ -44,14 +45,12 @@ class IndividualSearchCriteria {
         this.name = name;
     }
 
-    addLowestAddress(lowestAddress) {
-        this.lowestAddressLevels.add(lowestAddress);
+    toggleLowestAddress(lowestAddress) {
+        if (BaseEntity.collectionHasEntity(this.lowestAddressLevels, lowestAddress))
+            BaseEntity.removeFromCollection(this.lowestAddressLevels, lowestAddress);
+        else
+            this.lowestAddressLevels.push(lowestAddress);
     }
-
-    removeLowestAddress(lowestAddress) {
-        this.lowestAddressLevels.delete(lowestAddress);
-    }
-
 
     getMaxDateOfBirth() {
         const maxAgeInYears = parseInt(this.ageInYears) + IndividualSearchCriteria.ageBufferForSearchInYears;

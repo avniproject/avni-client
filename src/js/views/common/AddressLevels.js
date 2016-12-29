@@ -6,26 +6,40 @@ import {CheckBox, Col, Row, Text, Grid} from "native-base";
 import Actions from "../../action/index";
 import {GlobalStyles} from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
+import BaseEntity from '../../models/BaseEntity';
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
-        addressLevels: React.PropTypes.array.isRequired
+        multiSelect: React.PropTypes.bool.isRequired,
+        selectedAddressLevels: React.PropTypes.array.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
     }
 
-    toggleVillageSelection(addressLevel) {
+    toggleAddressLevelSelection(addressLevel) {
         return () => {
-            this.dispatchAction(addressLevel.checked ? Actions.REMOVE_ADDRESS_LEVEL_CRITERIA : Actions.ADD_ADDRESS_LEVEL_CRITERIA, {"address_level": addressLevel.title});
+            this.dispatchAction(Actions.TOGGLE_ADDRESS_LEVEL_CRITERIA, {"address_level": addressLevel});
         }
     }
 
+    componentWillMount() {
+        this.refreshState();
+    }
+
+    refreshState() {
+        this.setState({addressLevels: this.getContextState().addressLevels});
+    }
+
+    handleChange() {
+        this.refreshState();
+    }
+
     renderChoices() {
-        return _.chunk(this.props.addressLevels, 2)
-            .map(([address1, address2]) =>
-                (<Row
+        const props = this.props;
+        return _.chunk(this.state.addressLevels, 2).map(([address1, address2]) => {
+                return (<Row
                     style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
@@ -34,8 +48,8 @@ class AddressLevels extends AbstractComponent {
                     }}>
                     <Col style={{flexGrow: 1}}>
                         <Row>
-                            <CheckBox checked={address1.checked}
-                                      onPress={this.toggleVillageSelection(address1)}/>
+                            <CheckBox checked={BaseEntity.collectionHasEntity(props.selectedAddressLevels, address1)}
+                                      onPress={this.toggleAddressLevelSelection(address1)}/>
                             <Text style={{
                                 fontSize: 16,
                                 justifyContent: 'flex-start',
@@ -46,7 +60,7 @@ class AddressLevels extends AbstractComponent {
                     <Col style={{flexGrow: 2}}/>
                     <Col style={{flexGrow: 1}}>
                         <Row>
-                            <CheckBox checked={address2.checked} onPress={this.toggleVillageSelection(address2)}/>
+                            <CheckBox checked={BaseEntity.collectionHasEntity(props.selectedAddressLevels, address2)} onPress={this.toggleAddressLevelSelection(address2)}/>
                             <Text style={{
                                 fontSize: 16,
                                 justifyContent: 'flex-start',
@@ -54,7 +68,7 @@ class AddressLevels extends AbstractComponent {
                             }}>{address2.title}</Text>
                         </Row>
                     </Col>
-                </Row>)
+                </Row>)}
             );
     }
 

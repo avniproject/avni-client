@@ -12,6 +12,7 @@ import EntityService from "../../service/EntityService";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import {List, ListItem, Content, CheckBox, Grid, Col, Row, Text, Container, Button, Radio} from "native-base";
 import themes from "../primitives/themes";
+import AddressLevels from '../common/AddressLevels';
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -87,13 +88,13 @@ class IndividualRegisterView extends AbstractComponent {
                             </Grid>
                         </Row>
                         <Row>
+                            <AddressLevels addressLevels={{}}/>
+                        </Row>
+                        <Row>
                             <Col>
                                 <Button block onPress={() => this.registerIndividual()}>{I18n.t("register")}</Button>
                             </Col>
                         </Row>
-                        {/*<Text>{I18n.t("lowestAddressLevel")}</Text>*/}
-                        {/*<CheckBox checked={false}/>*/}
-                        {/*<Text>Daily Stand Up</Text>*/}
                     </Grid>
                 </Content>
             </Container>

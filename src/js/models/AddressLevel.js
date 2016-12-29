@@ -1,4 +1,7 @@
-class AddressLevel {
+import _ from "lodash";
+import BaseEntity from "./BaseEntity";
+
+class AddressLevel extends BaseEntity {
     static schema = {
         name: "AddressLevel",
         primaryKey: 'uuid',
