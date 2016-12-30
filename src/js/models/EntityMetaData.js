@@ -51,9 +51,9 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first
     static model() {
         return [
-            EntityMetaData.form,
-            EntityMetaData.formElementGroup(),
             EntityMetaData.formElement(),
+            EntityMetaData.formElementGroup(),
+            EntityMetaData.form,
 
             EntityMetaData.addressLevel,
             EntityMetaData.followupType,

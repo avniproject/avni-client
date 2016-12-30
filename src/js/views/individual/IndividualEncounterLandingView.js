@@ -14,6 +14,7 @@ import IndividualEncounterView from "./IndividualEncounterView"
 import moment from "moment";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import IndividualProfile from "../common/IndividualProfile"
+import FormElement from "../form/FormElement"
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -28,6 +29,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.I18n = this.context.getService(MessageService).getI18n();
+        this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
     }
 
     next() {
@@ -38,7 +40,19 @@ class IndividualEncounterLandingView extends AbstractComponent {
         TypedTransition.from(this).goBack();
     }
 
+    componentWillMount() {
+        this.refreshState();
+    }
+
+
+    refreshState() {
+        console.log("Setting the state");
+        this.setState({formElementGroup: this.getContextState("individualEncounterForm")[0].formElementGroups[0]});
+    }
+
+
     render() {
+        console.log(this.state.formElementGroup.formElements.length);
         return (
             <Container theme={themes}>
                 <Header style={{backgroundColor: '#212121'}}>
@@ -64,35 +78,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                     <Input defaultValue={moment().format('DD-MMM-YYYY')} />
                                 </InputGroup>
                             </Row>
-                            <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                                <Text style={DynamicGlobalStyles.formElementLabel}>Complaint</Text>
-                            </Row>
-                            <Row style={{
-                                padding: 28,
-                                backgroundColor: '#ffffff',
-                                height: 360,
-                                borderWidth: 1
-                            }}>
-                                <Col>
-                                    {['Fever', 'Chloroquine Resistant', 'Bodyache', 'Headache', 'Giddyness'
-                                        , 'Diarrhoea', 'Wound', 'Ringworm'].map(
-                                        function (item) {
-                                            return <Row>
-                                                <CheckBox/>
-                                                <Text style={{fontSize: 16, marginLeft:11}}>{item}</Text>
-                                            </Row>;
-                                        })}
-                                </Col>
-                                <Col>
-                                    {['Vomiting', 'Cough', 'Cold', 'Acidity', 'Abdominal Pain', 'Pregnancy'
-                                        , 'Scabies', 'Boils'].map(
-                                        function (item) {
-                                            return <Row><CheckBox/>
-                                                <Text style={{fontSize: 16, marginLeft:11}}>{item}</Text>
-                                            </Row>;
-                                        })}
-                                </Col>
-                            </Row>
+                            <FormElement element={this.state.formElementGroup.formElements[0]}/>
                             <Row style={{marginTop: 30, marginBottom:30}}>
                                 <Button primary
                                         style={{flex:0.5, backgroundColor: '#e0e0e0'}}

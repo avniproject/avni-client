@@ -21,6 +21,7 @@ class Form {
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formUUID"), Form.schema.name);
+        console.log(form);
         form = General.pick(form, ["uuid"], ["formElementGroups"]);
 
         if (childEntityClass === FormElementGroup)
