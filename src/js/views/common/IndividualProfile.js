@@ -15,18 +15,6 @@ class IndividualProfile extends AbstractComponent {
         super(props, context);
     }
 
-    componentWillMount() {
-        this.refreshState();
-    }
-
-    refreshState() {
-        this.setState({addressLevels: this.getContextState().addressLevels});
-    }
-
-    handleChange() {
-        this.refreshState();
-    }
-
     getImage(individual){
         if (individual.gender.name === 'Male'){
             if (moment().diff(individual.dateOfBirth, 'years') > 30){
