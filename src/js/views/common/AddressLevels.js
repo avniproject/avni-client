@@ -21,7 +21,7 @@ class AddressLevels extends AbstractComponent {
 
     toggleAddressLevelSelection(addressLevel) {
         return () => {
-            this.dispatchAction(this.props.actionName, {"address_level": addressLevel});
+            this.dispatchAction(this.props.actionName, {value: addressLevel});
         }
     }
 
@@ -81,10 +81,10 @@ class AddressLevels extends AbstractComponent {
     getSelectComponent(addressLevel) {
         if (this.props.multiSelect)
             return (<CheckBox checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
-                          onPress={() => this.toggleAddressLevelSelection(addressLevel)}/>);
+                          onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
         else
             return (<Radio selected={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
-                              onPress={() => this.toggleAddressLevelSelection(addressLevel)}/>);
+                              onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
     }
 }
 

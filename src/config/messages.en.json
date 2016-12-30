@@ -44,5 +44,6 @@
   "zeroNumberOfResults": "No individuals found",
   "dateOfBirth": "Date of Birth",
   "dateOfBirthVerified": "Verified",
-  "generalConsultation": "General Consultation"
+  "generalConsultation": "General Consultation",
+   "chooseADate": "Choose a date"
 }

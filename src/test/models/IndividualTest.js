@@ -3,7 +3,8 @@ import Individual from "../../js/models/Individual";
 
 describe('IndividualTest', () => {
     it('getDisplayAge', () => {
-        expect(Individual.getDisplayAge({dateOfBirth: '1981-01-01'})).contains("years");
-        console.log(Individual.getDisplayAge({dateOfBirth: '2016-08-01'}));
+        var individual = new Individual();
+        individual.dateOfBirth = '1981-01-01';
+        expect(individual.getAge().toString()).contains("Years");
     });
 });

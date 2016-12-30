@@ -19,7 +19,7 @@ class IndividualHeader extends AbstractComponent {
                 <Text>{this.props.individual.lowestAddressLevel.title}</Text>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                <Text>{`${this.props.individual.gender} | ${Individual.getDisplayAge(this.props.individual)}`}</Text>
+                <Text>{`${this.props.individual.gender} | ${this.props.individual.getAge().toString()}`}</Text>
                 <Text>Programs-Enrolled</Text>
             </View>
         </View>);

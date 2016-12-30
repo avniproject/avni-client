@@ -6,6 +6,7 @@ import General from "../utility/General";
 import BaseEntity from "./BaseEntity";
 import ProgramEnrolment from "./ProgramEnrolment";
 import Encounter from "./Encounter";
+import Duration from "./Duration";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -62,12 +63,17 @@ class Individual extends BaseEntity {
     }
 
     static getDisplayAge(individual) {
-        const ageInYears = moment().diff(individual.dateOfBirth, 'years');
-        return ageInYears > 0 ? `${ageInYears} years` : `${moment().diff(individual.dateOfBirth, 'months')} months`;
+        const age = individual.getAge();
+        return age.toString();
+    }
+
+    getAge() {
+        const ageInYears = moment().diff(this.dateOfBirth, 'years');
+        return ageInYears > 0 ? Duration.inYear(ageInYears) : Duration.inMonth(moment().diff(this.dateOfBirth, 'months'));
     }
 
     toSummaryString() {
-        return `${this.name}, Age: ${Individual.getDisplayAge(this)}, ${this.gender.name}`;
+        return `${this.name}, Age: ${this.getAge().toString()}, ${this.gender.name}`;
     }
 
     setDateOfBirth(date) {

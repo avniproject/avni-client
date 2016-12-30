@@ -19,7 +19,7 @@ const enterAgeCriteria = function (state, action, beans) {
 
 const toggleAddressLevelCriteria = function (state, action, beans) {
     let newState = newStateBasedOnOldState(state);
-    newState.searchCriteria.toggleLowestAddress(action.address_level);
+    newState.searchCriteria.toggleLowestAddress(action.value);
     return newState;
 };
 

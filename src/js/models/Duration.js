@@ -4,6 +4,14 @@ class Duration {
     static Month = "Month";
     static Year = "Year";
 
+    static inMonth(value) {
+        return new Duration(value, Duration.Month);
+    }
+
+    static inYear(value) {
+        return new Duration(value, Duration.Year);
+    }
+
     constructor(durationValue, durationUnit) {
         this._durationValue = durationValue;
         this.durationUnit = durationUnit;

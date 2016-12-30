@@ -105,7 +105,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                           <Row>
                                               <Text style={{fontSize: 12}} note>{item.gender.name}</Text>
                                               <Text style={{paddingLeft: 8, paddingRight: 8}}>|</Text>
-                                              <Text style={{fontSize: 12}} note>{Individual.getDisplayAge(item)}</Text>
+                                              <Text style={{fontSize: 12}} note>{item.getAge().toString()}</Text>
                                           </Row>
                                       </Col>
                                       <Col style={{width: 246}}>

@@ -48,7 +48,7 @@ class IndividualProfile extends AbstractComponent {
                             fontSize: 14,
                             color: '#fff',
                             justifyContent: 'center'
-                        }}>{this.props.individual.gender.name}, {Individual.getDisplayAge(this.props.individual)}
+                        }}>{this.props.individual.gender.name}, {this.props.individual.getAge().toString()}
                             | {this.props.individual.lowestAddressLevel.title}
                         </Text>
                     </Row>
@@ -70,7 +70,7 @@ class IndividualProfile extends AbstractComponent {
                     </Row>
                     <Row style={{height: 24}}>
                         <Col><Text style={{fontSize: 14}}>
-                            {this.props.individual.gender.name} | {Individual.getDisplayAge(this.props.individual)}</Text></Col>
+                            {this.props.individual.gender.name} | {this.props.individual.getAge().toString()}</Text></Col>
                         <Col style={{width: 100}}></Col>
                     </Row>
                 </Grid>

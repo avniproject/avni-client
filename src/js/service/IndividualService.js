@@ -2,6 +2,7 @@ import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import Individual from "../models/Individual";
 import _ from 'lodash';
+import General from "../utility/General";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -22,6 +23,8 @@ class IndividualService extends BaseService {
     }
 
     register(individual) {
+        const db = this.db;
+        individual.uuid = General.randomUUID();
         this.db.write(() => db.create(Individual.schema.name, individual));
     }
 }
