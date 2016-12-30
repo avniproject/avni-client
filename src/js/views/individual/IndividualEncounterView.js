@@ -3,15 +3,11 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import React, {Component} from 'react';
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {
-    Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon,
-    List, ListItem, Radio, View
-} from "native-base";
-import {GlobalStyles} from '../primitives/GlobalStyles';
+import {Text, Button, Content, Grid, Row, Container, Header, Title, Icon, Radio} from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendation"
-import Individual from "../../models/Individual";
+import PatientProfile from "../common/PatientProfile"
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -58,17 +54,7 @@ class IndividualEncounterView extends AbstractComponent {
                             paddingBottom: 12,
                             height: 74
                         }}>
-                            <Grid>
-                                <Row style={{height: 24}}>
-                                    <Col><Text style={DynamicGlobalStyles.formElementLabel}>{this.props.params.individual.name}</Text></Col>
-                                    <Col style={{width: 100}}><Text
-                                        style={DynamicGlobalStyles.formElementLabel}>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
-                                </Row>
-                                <Row style={{height: 24}}>
-                                    <Col><Text style={{fontSize: 14}}>{this.props.params.individual.gender.name} | {Individual.getDisplayAge(this.props.params.individual)}</Text></Col>
-                                    <Col style={{width: 100}}></Col>
-                                </Row>
-                            </Grid>
+                            <PatientProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
                         <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12}}>
                             <Grid>

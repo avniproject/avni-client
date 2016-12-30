@@ -3,13 +3,11 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import React, {Component} from 'react';
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
+import PatientProfile from "../common/PatientProfile"
 import {
-    Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon,
-    List, ListItem, Radio
+    Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon
 } from "native-base";
-import {GlobalStyles} from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
-import Individual from "../../models/Individual";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -49,16 +47,7 @@ class SystemRecommendationView extends AbstractComponent {
                 <Content>
                     <Grid>
                         <Row style={{backgroundColor: '#f7f7f7', paddingLeft: 24, paddingRight: 24, paddingTop:12, paddingBottom:12, height: 74}}>
-                            <Grid>
-                                <Row style={{height: 24}}>
-                                    <Col><Text>{this.props.params.individual.name}</Text></Col>
-                                    <Col style={{width: 100}}><Text>{this.props.params.individual.lowestAddressLevel.title}</Text></Col>
-                                </Row>
-                                <Row style={{height: 24}}>
-                                    <Col><Text style={{fontSize:14}}>{this.props.params.individual.gender.name} | {Individual.getDisplayAge(this.props.params.individual)}</Text></Col>
-                                    <Col style={{width: 100}}></Col>
-                                </Row>
-                            </Grid>
+                            <PatientProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
                         <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop:12, paddingBottom:12}}>
                             <Grid>

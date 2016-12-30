@@ -6,14 +6,14 @@ import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import {
     Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input, Thumbnail
+    Input
 } from "native-base";
 import {GlobalStyles} from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView"
-import Individual from "../../models/Individual";
 import moment from "moment";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import PatientProfile from "../common/PatientProfile"
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -38,23 +38,6 @@ class IndividualEncounterLandingView extends AbstractComponent {
         TypedTransition.from(this).goBack();
     }
 
-    getImage(individual){
-        if (individual.gender.name === 'Male'){
-            if (moment().diff(individual.dateOfBirth, 'years') > 30){
-                return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin : 28}}
-                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
-            }
-            else {
-                return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin : 28}}
-                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
-            }
-        }
-        else if (individual.gender.name === 'Female'){
-            return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin : 28}}
-                              source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
-        }
-    }
-
     render() {
         return (
             <Container theme={themes}>
@@ -69,20 +52,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 <Content style={{backgroundColor: '#212121'}}>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>
-                            <Grid>
-                                <Row style={{justifyContent: 'center', height:131}}>
-                                    {this.getImage(this.props.params.individual)}
-                                </Row>
-                                <Row style={{justifyContent: 'center', height:30}}><Text style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.params.individual.name} | {this.props.params.individual.id}</Text></Row>
-                                <Row style={{justifyContent: 'center', height:30}}>
-                                    <Text style={{textAlignVertical: 'top', fontSize: 14, color: '#fff', justifyContent: 'center'}}>{this.props.params.individual.gender.name}, {Individual.getDisplayAge(this.props.params.individual)} | {this.props.params.individual.lowestAddressLevel.title}
-                                    </Text>
-                                </Row>
-                                <Row style={{justifyContent: 'center', height: 40}}>
-                                    <Button bordered style={{marginLeft: 8, height: 26, justifyContent: 'center'}}><Icon name="mode-edit" />Edit Profile</Button>
-                                    <Button bordered style={{marginLeft: 8, height: 26, justifyContent: 'center'}}><Icon name="add" />Enroll Patient</Button>
-                                </Row>
-                            </Grid>
+                            <PatientProfile landingView={true} individual={this.props.params.individual}/>
                         </Row>
                         <Row>
                             <Grid style={{backgroundColor: '#ffffff', paddingLeft:10, paddingRight: 10}}>
