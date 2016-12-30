@@ -33,5 +33,5 @@ export default new Map([
     [Actions.ENTER_NAME_CRITERIA, enterNameCriteria],
     [Actions.ENTER_AGE_CRITERIA, enterAgeCriteria],
     [Actions.SEARCH_INDIVIDUALS, searchIndividuals],
-    [Actions.TOGGLE_ADDRESS_LEVEL_CRITERIA, toggleAddressLevelCriteria],
+    [Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, toggleAddressLevelCriteria],
 ]);

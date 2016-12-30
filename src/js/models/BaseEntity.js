@@ -20,6 +20,10 @@ class BaseEntity {
             return item.uuid === entity.uuid;
         });
     }
+
+    equals(other) {
+        return !_.isNil(other) && (other.uuid === this.uuid);
+    }
 }
 
 export default BaseEntity;

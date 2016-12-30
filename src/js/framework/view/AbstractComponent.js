@@ -31,8 +31,8 @@ class AbstractComponent extends Component {
         this.context.getStore().dispatch({"type": action, ...params});
     }
 
-    getContextState() {
-        return this.context.getStore().getState();
+    getContextState(param) {
+        return this.context.getStore().getState()[param];
     }
 
     renderComponent(loading, component, color = this.spinnerDefaults.get("color"),

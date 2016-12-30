@@ -125,7 +125,7 @@ class MenuView extends AbstractComponent {
                             <Button transparent large onPress={()=> this.registrationView()} style={{justifyContent: 'center'}}>
                                 <Icon name='person-add' style={this.iconStyle}/>
                             </Button>
-                            <Text style={this.iconLabelStyle}>Register</Text>
+                            <Text style={this.iconLabelStyle} onPress={()=> this.registrationView()}>Register</Text>
                         </Col>
                     </Row>
                     {/*{hack for the background color}*/}

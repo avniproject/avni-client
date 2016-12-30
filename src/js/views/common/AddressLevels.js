@@ -2,25 +2,26 @@ import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
-import {CheckBox, Col, Row, Text, Grid} from "native-base";
-import Actions from "../../action/index";
+import {CheckBox, Col, Row, Text, Grid, Radio} from "native-base";
 import {GlobalStyles} from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
-import BaseEntity from '../../models/BaseEntity';
+import BaseEntity from "../../models/BaseEntity";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
         multiSelect: React.PropTypes.bool.isRequired,
-        selectedAddressLevels: React.PropTypes.array.isRequired
+        selectedAddressLevels: React.PropTypes.array.isRequired,
+        actionName: React.PropTypes.string.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
+        this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
     }
 
     toggleAddressLevelSelection(addressLevel) {
         return () => {
-            this.dispatchAction(Actions.TOGGLE_ADDRESS_LEVEL_CRITERIA, {"address_level": addressLevel});
+            this.dispatchAction(this.props.actionName, {"address_level": addressLevel});
         }
     }
 
@@ -29,11 +30,7 @@ class AddressLevels extends AbstractComponent {
     }
 
     refreshState() {
-        this.setState({addressLevels: this.getContextState().addressLevels});
-    }
-
-    handleChange() {
-        this.refreshState();
+        this.setState({addressLevels: this.getContextState("addressLevels")});
     }
 
     renderChoices() {
@@ -48,8 +45,7 @@ class AddressLevels extends AbstractComponent {
                     }}>
                     <Col style={{flexGrow: 1}}>
                         <Row>
-                            <CheckBox checked={BaseEntity.collectionHasEntity(props.selectedAddressLevels, address1)}
-                                      onPress={this.toggleAddressLevelSelection(address1)}/>
+                            {this.getSelectComponent(address1)}
                             <Text style={{
                                 fontSize: 16,
                                 justifyContent: 'flex-start',
@@ -60,7 +56,7 @@ class AddressLevels extends AbstractComponent {
                     <Col style={{flexGrow: 2}}/>
                     <Col style={{flexGrow: 1}}>
                         <Row>
-                            <CheckBox checked={BaseEntity.collectionHasEntity(props.selectedAddressLevels, address2)} onPress={this.toggleAddressLevelSelection(address2)}/>
+                            {this.getSelectComponent(address2)}
                             <Text style={{
                                 fontSize: 16,
                                 justifyContent: 'flex-start',
@@ -80,6 +76,15 @@ class AddressLevels extends AbstractComponent {
             </Row>
             {this.renderChoices()}
         </Grid>);
+    }
+
+    getSelectComponent(addressLevel) {
+        if (this.props.multiSelect)
+            return (<CheckBox checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
+                          onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
+        else
+            return (<Radio selected={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
+                              onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
     }
 }
 

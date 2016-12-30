@@ -1,6 +1,7 @@
 import General from "../utility/General";
+import BaseEntity from "./BaseEntity";
 
-class Gender {
+class Gender extends BaseEntity {
     static schema = {
         name: "Gender",
         primaryKey: 'uuid',

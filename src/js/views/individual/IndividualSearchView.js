@@ -17,7 +17,7 @@ class IndividualSearchView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.unsubscribe = context.getStore().subscribe(this.handleChange.bind(this));
+        this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
     }
 
     viewName() {
@@ -30,10 +30,6 @@ class IndividualSearchView extends AbstractComponent {
 
     refreshState() {
         this.setState({individualSearch: this.context.getStore().getState().individualSearch});
-    }
-
-    handleChange() {
-        this.refreshState();
     }
 
     render() {
@@ -66,7 +62,7 @@ class IndividualSearchView extends AbstractComponent {
                         </Grid>
                     </Row>
                     <Row style={GlobalStyles.formCheckboxElement}>
-                        <AddressLevels multiSelect={false} selectedAddressLevels={this.state.individualSearch.searchCriteria.lowestAddressLevels}/>
+                        <AddressLevels multiSelect={true} selectedAddressLevels={this.state.individualSearch.searchCriteria.lowestAddressLevels} actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL}/>
                     </Row>
                     <Row style={{marginTop: 30, marginBottom: 30}}>
                         <Col>
