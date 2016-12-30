@@ -13,7 +13,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView"
 import moment from "moment";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import PatientProfile from "../common/PatientProfile"
+import IndividualProfile from "../common/IndividualProfile"
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -52,7 +52,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 <Content style={{backgroundColor: '#212121'}}>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>
-                            <PatientProfile landingView={true} individual={this.props.params.individual}/>
+                            <IndividualProfile landingView={true} individual={this.props.params.individual}/>
                         </Row>
                         <Row>
                             <Grid style={{backgroundColor: '#ffffff', paddingLeft:10, paddingRight: 10}}>

@@ -7,7 +7,7 @@ import {Text, Button, Content, Grid, Row, Container, Header, Title, Icon, Radio}
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendation"
-import PatientProfile from "../common/PatientProfile"
+import IndividualProfile from "../common/IndividualProfile"
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -54,7 +54,7 @@ class IndividualEncounterView extends AbstractComponent {
                             paddingBottom: 12,
                             height: 74
                         }}>
-                            <PatientProfile landingView={false} individual={this.props.params.individual}/>
+                            <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
                         <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12}}>
                             <Grid>

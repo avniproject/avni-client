@@ -3,7 +3,7 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import React, {Component} from 'react';
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import PatientProfile from "../common/PatientProfile"
+import IndividualProfile from "../common/IndividualProfile"
 import {
     Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon
 } from "native-base";
@@ -47,7 +47,7 @@ class SystemRecommendationView extends AbstractComponent {
                 <Content>
                     <Grid>
                         <Row style={{backgroundColor: '#f7f7f7', paddingLeft: 24, paddingRight: 24, paddingTop:12, paddingBottom:12, height: 74}}>
-                            <PatientProfile landingView={false} individual={this.props.params.individual}/>
+                            <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
                         <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop:12, paddingBottom:12}}>
                             <Grid>

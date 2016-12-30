@@ -4,9 +4,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, Button, Grid, Row, Col, Icon, Thumbnail} from "native-base";
 import Individual from "../../models/Individual";
 import moment from "moment";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 
-class PatientProfile extends AbstractComponent {
+class IndividualProfile extends AbstractComponent {
     static propTypes = {
         landingView: React.PropTypes.bool.isRequired,
         individual: React.PropTypes.object.isRequired
@@ -92,4 +91,4 @@ class PatientProfile extends AbstractComponent {
     }
 }
 
-export default PatientProfile;
+export default IndividualProfile;
