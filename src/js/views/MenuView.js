@@ -71,7 +71,7 @@ class MenuView extends AbstractComponent {
         } else if (!this.state.syncing && this.state.error) {
             return (<Icon name='sync-problem' style={this.iconStyle}/>);
         } else {
-            return (<Icon name='add' style={this.iconStyle}/>);
+            return (<Icon name='sync' style={this.iconStyle}/>);
         }
     }
 

@@ -6,11 +6,11 @@ import MessageService from "../../service/MessageService";
 import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import {List, ListItem, Content, CheckBox, Grid, Col, Row, Text, Container, Button, Radio} from "native-base";
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import {Content, CheckBox, Grid, Col, Row, Text, Container, Button, Radio} from "native-base";
 import themes from "../primitives/themes";
-import AddressLevels from '../common/AddressLevels';
-import Actions from "../../action/index";
+import AddressLevels from "../common/AddressLevels";
+import {Actions} from "../../action/individual/IndividualRegisterActions";
 import _ from "lodash";
 
 @Path('/individualRegister')
@@ -49,7 +49,7 @@ class IndividualRegisterView extends AbstractComponent {
                                 </Row>
                                 <Row>
                                     <TextInput style={DynamicGlobalStyles.formElementTextInput}
-                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTER_ENTER_INDIVIDUAL_DATA_ELEMENTS, {name: text})}/>
+                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_NAME, {value: text})}/>
                                 </Row>
                             </Col>
                         </Row>
@@ -60,9 +60,10 @@ class IndividualRegisterView extends AbstractComponent {
                                 </Row>
                                 <Row>
                                     <TextInput style={{flex: 1, height: DynamicGlobalStyles.resizeHeight(44), marginRight: DynamicGlobalStyles.resize(50)}}
-                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTER_ENTER_INDIVIDUAL_DATA_ELEMENTS, {dataOfBirth: text})}/>
+                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB, {value: text})}>{this.state.individual.dateOfBirth}</TextInput>
                                     <View style={{flexDirection: 'column-reverse'}}>
-                                        <CheckBox/>
+                                        <CheckBox checked={this.state.individual.dateOfBirthVerified}
+                                                  onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.state.individual.dateOfBirthVerified})}/>
                                     </View>
                                     <View style={{marginRight: DynamicGlobalStyles.resize(15)}}/>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("dateOfBirthVerified")}</Text>
@@ -76,15 +77,15 @@ class IndividualRegisterView extends AbstractComponent {
                                 </Row>
                                 <Row>
                                     <TextInput style={DynamicGlobalStyles.formElementTextInput}
-                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTER_ENTER_INDIVIDUAL_DATA_ELEMENTS, {age: text})}/>
+                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}>{this.state.age}</TextInput>
                                     <View style={{flexDirection: 'column-reverse'}}>
                                         <Radio selected={this.state.ageProvidedInYears}
-                                               onPress={() => this.dispatchAction(Actions.REGISTER_ENTER_INDIVIDUAL_DATA_ELEMENTS, {ageProvidedInYears: true})}/>
+                                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
                                     </View>
                                     <Text>{I18n.t("years")}</Text>
                                     <View style={{flexDirection: 'column-reverse'}}>
                                         <Radio selected={!this.state.ageProvidedInYears}
-                                               onPress={() => this.dispatchAction(Actions.REGISTER_ENTER_INDIVIDUAL_DATA_ELEMENTS, {ageProvidedInYears: false})}/>
+                                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
                                     </View>
                                     <Text>{I18n.t("months")}</Text>
                                 </Row>
@@ -100,7 +101,7 @@ class IndividualRegisterView extends AbstractComponent {
                                         <Row>
                                             <View style={{flexDirection: 'column-reverse'}}>
                                                 <Radio selected={gender.equals(this.state.individual.gender)}
-                                                       onPress={() => this.dispatchAction(Actions.REGISTER_ENTER_INDIVIDUAL_DATA_ELEMENTS, {"gender": gender})}/>
+                                                       onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_GENDER, {value: gender})}/>
                                             </View>
                                             <Text>{I18n.t(gender.name)}</Text>
                                         </Row>);
@@ -109,7 +110,7 @@ class IndividualRegisterView extends AbstractComponent {
                         </Row>
                         <Row>
                             <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
-                                           multiSelect={false} actionName={Actions.TOGGLE_INDIVIDUAL_REGISTER_ADDRESS_LEVEL}/>
+                                           multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}/>
                         </Row>
                         <Row>
                             <Col>
