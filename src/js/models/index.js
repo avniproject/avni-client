@@ -1,5 +1,5 @@
 import Settings from "./Settings";
-import LocaleMapping from "./Locale";
+import LocaleMapping from "./LocaleMapping";
 import Concept, {ConceptAnswer} from "./Concept";
 import Decision from "./Decision";
 import Individual from "./Individual";

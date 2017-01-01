@@ -5,7 +5,7 @@ import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
 import Settings from "../models/Settings";
 import _ from 'lodash';
-import LocaleMapping from '../models/Locale';
+import LocaleMapping from '../models/LocaleMapping';
 
 @Service("settingsService")
 class SettingsService extends BaseService {

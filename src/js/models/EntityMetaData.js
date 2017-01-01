@@ -4,7 +4,7 @@ import AddressLevel from "./AddressLevel";
 import Individual from "./Individual";
 import AllSchema from "./index";
 import _ from "lodash";
-import {LocaleMapping} from "./Locale";
+import LocaleMapping from "./LocaleMapping";
 import Settings from "./Settings";
 import Program from "./Program";
 import ProgramEnrolment from "./ProgramEnrolment";

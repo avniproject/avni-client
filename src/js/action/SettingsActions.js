@@ -1,7 +1,7 @@
 import SettingsService from "../service/SettingsService";
 import _ from 'lodash';
 import EntityService from "../service/EntityService";
-import LocaleMapping from '../models/Locale';
+import LocaleMapping from '../models/LocaleMapping';
 import Settings from '../models/Settings';
 import General from "../utility/General";
 

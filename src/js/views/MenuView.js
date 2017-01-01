@@ -108,7 +108,7 @@ class MenuView extends AbstractComponent {
                     entitySyncStatusService.setup(EntityMetaData.model());
                 }
                 },
-                {
+                {   
                     text: this.I18n.t('no'), onPress: () => {
                 },
                     style: 'cancel'
