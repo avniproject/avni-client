@@ -6,6 +6,7 @@ import MessageService from "../../service/MessageService";
 import IndividualService from "../../service/IndividualService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import {Content, CheckBox, Grid, Col, Row, Text, Container, Button, Radio} from "native-base";
 import themes from "../primitives/themes";
 import AddressLevels from "../common/AddressLevels";
@@ -20,7 +21,7 @@ class IndividualRegisterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.contentGridMarginStyle = {marginTop: DynamicGlobalStyles.resize(16), marginHorizontal: DynamicGlobalStyles.resize(24)};
+        this.contentGridMarginStyle = {marginTop: DynamicGlobalStyles.resizeHeight(16), marginHorizontal: DynamicGlobalStyles.resizeWidth(24)};
         this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
         this.I18n = context.getService(MessageService).getI18n();
     }
@@ -42,7 +43,7 @@ class IndividualRegisterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <Grid style={this.contentGridMarginStyle}>
-                        <Row>
+                        <Row style={DynamicGlobalStyles.formRow}>
                             <Col>
                                 <Row>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("name")}</Text>
@@ -53,28 +54,24 @@ class IndividualRegisterView extends AbstractComponent {
                                 </Row>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row style={DynamicGlobalStyles.formRow}>
                             <Grid>
                                 <Row>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("dateOfBirth")}</Text>
                                 </Row>
                                 <Row>
                                     <Text onPress={this.showPicker.bind(this, 'simple', {date: this.state.individual.dateOfBirth})}
-                                          style={{
-                                              flex: 1,
-                                              height: DynamicGlobalStyles.resizeHeight(44),
-                                              marginRight: DynamicGlobalStyles.resize(50)
-                                          }}>{this.dateDisplay(this.state.individual.dateOfBirth)}</Text>
+                                          style={[DynamicGlobalStyles.formElementTextInput, {marginRight: DynamicGlobalStyles.resizeWidth(50), fontSize: 16}]}>{this.dateDisplay(this.state.individual.dateOfBirth)}</Text>
                                     <View style={{flexDirection: 'column-reverse'}}>
                                         <CheckBox checked={this.state.individual.dateOfBirthVerified}
                                                   onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.state.individual.dateOfBirthVerified})}/>
                                     </View>
-                                    <View style={{marginRight: DynamicGlobalStyles.resize(15)}}/>
+                                    <View style={{marginRight: DynamicGlobalStyles.resizeWidth(15)}}/>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("dateOfBirthVerified")}</Text>
                                 </Row>
                             </Grid>
                         </Row>
-                        <Row>
+                        <Row style={DynamicGlobalStyles.formRow}>
                             <Grid>
                                 <Row>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("age")}</Text>
@@ -86,16 +83,16 @@ class IndividualRegisterView extends AbstractComponent {
                                         <Radio selected={this.state.ageProvidedInYears}
                                                onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
                                     </View>
-                                    <Text>{this.I18n.t("years")}</Text>
+                                    <Text style={GlobalStyles.formRadioText}>{this.I18n.t("years")}</Text>
                                     <View style={{flexDirection: 'column-reverse'}}>
                                         <Radio selected={!this.state.ageProvidedInYears}
                                                onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
                                     </View>
-                                    <Text>{this.I18n.t("months")}</Text>
+                                    <Text style={GlobalStyles.formRadioText}>{this.I18n.t("months")}</Text>
                                 </Row>
                             </Grid>
                         </Row>
-                        <Row>
+                        <Row style={DynamicGlobalStyles.formRow}>
                             <Grid>
                                 <Row>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("gender")}</Text>
@@ -107,16 +104,16 @@ class IndividualRegisterView extends AbstractComponent {
                                                 <Radio selected={gender.equals(this.state.individual.gender)}
                                                        onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_GENDER, {value: gender})}/>
                                             </View>
-                                            <Text>{this.I18n.t(gender.name)}</Text>
+                                            <Text style={GlobalStyles.formRadioText}>{this.I18n.t(gender.name)}</Text>
                                         </Row>);
                                 })}
                             </Grid>
                         </Row>
-                        <Row>
+                        <Row style={DynamicGlobalStyles.formRow}>
                             <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
                                            multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}/>
                         </Row>
-                        <Row>
+                        <Row style={DynamicGlobalStyles.formRow}>
                             <Col>
                                 <Button block onPress={this.registerIndividual()}>{this.I18n.t("register")}</Button>
                             </Col>

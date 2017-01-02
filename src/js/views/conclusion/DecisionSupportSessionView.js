@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import AppHeader from '../primitives/AppHeader';
 import DecisionSupportSessionComponent from './DecisionSupportSessionComponent';
 import Path from "../../framework/routing/Path";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import _ from 'lodash';
 import General from '../../utility/General';
 import MessageService from "../../service/MessageService";

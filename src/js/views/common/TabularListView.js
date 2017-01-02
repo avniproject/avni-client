@@ -2,7 +2,7 @@ import {View, ListView, Text, StyleSheet, TouchableNativeFeedback} from 'react-n
 import React, {Component} from 'react';
 import General from '../../utility/General';
 import AbstractComponent from '../../framework/view/AbstractComponent';
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 import _ from 'lodash';
 

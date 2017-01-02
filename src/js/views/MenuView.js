@@ -22,9 +22,12 @@ class MenuView extends AbstractComponent {
         this.createStyles();
     }
 
+    static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: 16};
+    static iconStyle = {color: '#009688', opacity: 0.8, justifyContent: 'center', fontSize: 48};
+
     createStyles() {
-        this.iconLabelStyle = DynamicGlobalStyles.addFontSize({color: '#fff', justifyContent: 'center'}, 20);
-        this.iconStyle = DynamicGlobalStyles.addFontSize({color: '#009688', opacity: 0.8, justifyContent: 'center'}, 48);
+        this.mainContainerStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29), marginTop: DynamicGlobalStyles.resizeHeight(71)};
+        this.columnStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29)};
     }
 
     settingsView() {
@@ -76,7 +79,7 @@ class MenuView extends AbstractComponent {
         } else if (!this.state.syncing && this.state.error) {
             return (<Icon name='sync-problem' style={this.iconStyle}/>);
         } else {
-            return (<Icon name='sync' style={this.iconStyle}/>);
+            return (<Icon name='sync' style={MenuView.iconStyle}/>);
         }
     }
 
@@ -104,33 +107,33 @@ class MenuView extends AbstractComponent {
     render() {
         return (
             <Content style={{backgroundColor: '#212121'}}>
-                <Grid style={{marginHorizontal: 29, marginTop: 71}}>
+                <Grid style={this.mainContainerStyle}>
                     <Row>
-                        <Col style={{marginHorizontal: 29}}>
+                        <Col style={this.columnStyle}>
                             <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                                 {this.renderSyncButton()}
                             </Button>
-                            <Text style={this.iconLabelStyle}>Sync Data</Text>
+                            <Text style={MenuView.iconLabelStyle}>Sync Data</Text>
                         </Col>
-                        <Col style={{marginHorizontal: 29}}>
+                        <Col style={this.columnStyle}>
                             <Button onPress={() => this.settingsView()} transparent large>
-                                <Icon name='settings' style={this.iconStyle}/>
+                                <Icon name='settings' style={MenuView.iconStyle}/>
                             </Button>
-                            <Text style={this.iconLabelStyle}>Settings</Text>
+                            <Text style={MenuView.iconLabelStyle}>Settings</Text>
                         </Col>
-                        <Col style={{marginHorizontal: 29}}>
+                        <Col style={this.columnStyle}>
                             <Button transparent large onPress={this.onDeleteSchema.bind(this)} style={{justifyContent: 'center'}}>
-                                <Icon name='delete' style={this.iconStyle}/>
+                                <Icon name='delete' style={MenuView.iconStyle}/>
                             </Button>
-                            <Text style={this.iconLabelStyle}>Delete Data</Text>
+                            <Text style={MenuView.iconLabelStyle}>Delete Data</Text>
                         </Col>
                     </Row>
                     <Row style={{marginTop: 30}}>
-                        <Col style={{marginHorizontal: 29}}>
+                        <Col style={this.columnStyle}>
                             <Button transparent large onPress={()=> this.registrationView()} style={{justifyContent: 'center'}}>
-                                <Icon name='person-add' style={this.iconStyle}/>
+                                <Icon name='person-add' style={MenuView.iconStyle}/>
                             </Button>
-                            <Text style={this.iconLabelStyle} onPress={()=> this.registrationView()}>Register</Text>
+                            <Text style={MenuView.iconLabelStyle} onPress={()=> this.registrationView()}>Register</Text>
                         </Col>
                     </Row>
                     {/*{hack for the background color}*/}

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import Question from './Question.js';
 import AppState from "../../hack/AppState";
-import {GlobalStyles} from "../primitives/GlobalStyles"
+import GlobalStyles from "../primitives/GlobalStyles"
 import PreviousNextSave from '../common/PreviousNextSave';
 import General from '../../utility/General';
 import SimpleQuestionnaire from '../../models/SimpleQuestionnaire';

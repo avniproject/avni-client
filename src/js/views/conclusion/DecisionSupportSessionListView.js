@@ -7,7 +7,7 @@ import QuestionnaireService from "../../service/QuestionnaireService";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import DecisionSupportSessionView from "./DecisionSupportSessionView";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
 @Path('/DecisionSupportSessionListView')

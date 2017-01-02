@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
 import AppHeader from '../primitives/AppHeader';
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import PreviousNextSave from '../common/PreviousNextSave';
 import MessageService from '../../service/MessageService';
 import QuestionAnswerTabView from '../common/QuestionAnswerTabView';

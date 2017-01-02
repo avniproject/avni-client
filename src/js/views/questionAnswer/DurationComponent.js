@@ -2,7 +2,7 @@ import {Text, StyleSheet, View, TouchableHighlight, TextInput} from 'react-nativ
 import React, {Component} from 'react';
 import AppState from "../../hack/AppState";
 import MessageService from "../../service/MessageService";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 
 class DurationComponent extends Component {
     constructor(props, context) {

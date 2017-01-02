@@ -1,6 +1,6 @@
 import {StyleSheet, View, Text, TouchableHighlight} from 'react-native';
 import React, {Component} from 'react';
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MessageService from '../../service/MessageService';
 

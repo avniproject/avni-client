@@ -1,12 +1,13 @@
 import {StyleSheet} from 'react-native';
 import Colors from '../primitives/Colors';
 
-export let GlobalStyles = StyleSheet.create({
+export default GlobalStyles = StyleSheet.create({
     mainContent: {marginHorizontal: 24},
     formTextElement: {marginLeft: 0, height: 73, marginTop: 16},
     formCheckboxElement: {marginLeft: 0, marginTop: 16},
     formElementLabelContainer: {height: 16},
     formElementTextContainer: {height: 36},
+    formRadioText: {fontSize: 16},
 
     mainSection: {
         marginHorizontal: 5,

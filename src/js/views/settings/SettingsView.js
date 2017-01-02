@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import SettingsForm from "./SettingsForm";
 import SettingsService from "../../service/SettingsService";
 import {Content} from "native-base";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {

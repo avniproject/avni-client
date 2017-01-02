@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import {CheckBox, Col, Row, Text, Grid, Radio} from "native-base";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import BaseEntity from "../../models/BaseEntity";
 
@@ -42,7 +42,7 @@ class AddressLevels extends AbstractComponent {
                         backgroundColor: '#ffffff',
                         borderWidth: 1
                     }}>
-                    <Col style={{flexGrow: 1}}>
+                    <Col style={{flex: 1}}>
                         <Row>
                             {this.getSelectComponent(address1)}
                             <Text style={{
@@ -52,8 +52,8 @@ class AddressLevels extends AbstractComponent {
                             }}>{address1.title}</Text>
                         </Row>
                     </Col>
-                    <Col style={{flexGrow: 2}}/>
-                    <Col style={{flexGrow: 1}}>
+                    <Col style={{flex: 2}}/>
+                    <Col style={{flex: 1}}>
                         <Row>
                             {this.getSelectComponent(address2)}
                             <Text style={{

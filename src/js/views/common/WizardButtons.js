@@ -1,6 +1,6 @@
 import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'react-native';
 import React, {Component} from 'react';
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 
 class WizardButtons extends Component {

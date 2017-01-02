@@ -2,7 +2,7 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import {View} from 'react-native';
 import React from 'react';
 import Path from "../../framework/routing/Path";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterLandingView";

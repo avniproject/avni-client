@@ -6,7 +6,7 @@ import QuestionnaireList from './QuestionnaireList';
 import QuestionnaireToolbar from './QuestionnaireToolbar';
 import AppHeader from '../primitives/AppHeader';
 import SettingsView from '../settings/SettingsView';
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
 import Colors from '../primitives/Colors';
 

@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
-import {GlobalStyles} from "../primitives/GlobalStyles";
+import GlobalStyles from "../primitives/GlobalStyles";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import {Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
 import Actions from "../../action/index";

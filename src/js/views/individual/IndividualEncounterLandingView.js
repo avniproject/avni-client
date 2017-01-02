@@ -8,7 +8,7 @@ import {
     Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
     Input
 } from "native-base";
-import {GlobalStyles} from '../primitives/GlobalStyles';
+import GlobalStyles from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView"
 import moment from "moment";
