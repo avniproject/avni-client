@@ -22,6 +22,10 @@ class MenuView extends AbstractComponent {
         this.createStyles();
     }
 
+    viewName() {
+        return "MenuView";
+    }
+
     static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: 16};
     static iconStyle = {color: '#009688', opacity: 0.8, justifyContent: 'center', fontSize: 48};
 

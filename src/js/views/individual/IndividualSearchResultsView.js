@@ -1,15 +1,14 @@
-import AbstractComponent from '../../framework/view/AbstractComponent';
-import {View} from 'react-native';
-import React from 'react';
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import {View} from "react-native";
+import React from "react";
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterLandingView";
-import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button, Header, Title, Icon} from 'native-base';
-import Individual from "../../models/Individual";
+import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button, Header, Title, Icon} from "native-base";
 import moment from "moment";
-import themes from "../primitives/themes"
+import themes from "../primitives/themes";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {

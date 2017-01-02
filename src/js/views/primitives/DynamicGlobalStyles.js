@@ -11,6 +11,7 @@ class DynamicGlobalStyles {
                     this.formElementLabel = {fontSize: 12, height: this.resizeHeight(38), textAlignVertical: 'center', color: '#15151575'};
                     this.formElementTextInput = {flex: 1, height: this.resizeHeight(44)};
                 this.formCheckboxElement = {marginLeft: 0, marginTop: this.resizeHeight(16)};
+                this.formRadioText = {fontSize: 16, marginLeft: this.resizeWidth(10)}
         // @formatter:on
     }
 

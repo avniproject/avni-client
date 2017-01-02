@@ -16,20 +16,11 @@ class IndividualSearchView extends AbstractComponent {
     static propTypes = {};
 
     constructor(props, context) {
-        super(props, context);
-        this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
+        super(props, context, "individualSearch");
     }
 
     viewName() {
         return "IndividualSearchView";
-    }
-
-    componentWillMount() {
-        this.refreshState();
-    }
-
-    refreshState() {
-        this.setState({individualSearch: this.context.getStore().getState().individualSearch});
     }
 
     render() {
@@ -44,7 +35,7 @@ class IndividualSearchView extends AbstractComponent {
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
-                                           value={this.state.individualSearch.searchCriteria.name}
+                                           value={this.state.searchCriteria.name}
                                            onChangeText={(text) => this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"name": text})}/>
                             </Row>
                         </Grid>
@@ -56,13 +47,13 @@ class IndividualSearchView extends AbstractComponent {
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
-                                           value={this.state.individualSearch.searchCriteria.age}
+                                           value={this.state.searchCriteria.age}
                                            onChangeText={(text) => this.dispatchAction(Actions.ENTER_AGE_CRITERIA, {"age": text})}/>
                             </Row>
                         </Grid>
                     </Row>
                     <Row style={GlobalStyles.formCheckboxElement}>
-                        <AddressLevels multiSelect={true} selectedAddressLevels={this.state.individualSearch.searchCriteria.lowestAddressLevels} actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL}/>
+                        <AddressLevels multiSelect={true} selectedAddressLevels={this.state.searchCriteria.lowestAddressLevels} actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL}/>
                     </Row>
                     <Row style={{marginTop: 30, marginBottom: 30}}>
                         <Col>

@@ -14,19 +14,18 @@ class AddressLevels extends AbstractComponent {
         actionName: React.PropTypes.string.isRequired
     };
 
+    viewName() {
+        return "AddressLevels";
+    }
+
     constructor(props, context) {
-        super(props, context);
-        this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
+        super(props, context, "addressLevels");
     }
 
     toggleAddressLevelSelection(addressLevel) {
         return () => {
             this.dispatchAction(this.props.actionName, {value: addressLevel});
         }
-    }
-
-    componentWillMount() {
-        this.refreshState();
     }
 
     refreshState() {
@@ -68,6 +67,7 @@ class AddressLevels extends AbstractComponent {
     }
 
     render() {
+        console.log(`AddressLevels.render`);
         const I18n = this.context.getService(MessageService).getI18n();
         return (<Grid>
             <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>

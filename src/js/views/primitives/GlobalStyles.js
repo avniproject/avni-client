@@ -7,7 +7,6 @@ export default GlobalStyles = StyleSheet.create({
     formCheckboxElement: {marginLeft: 0, marginTop: 16},
     formElementLabelContainer: {height: 16},
     formElementTextContainer: {height: 36},
-    formRadioText: {fontSize: 16},
 
     mainSection: {
         marginHorizontal: 5,
