@@ -58,7 +58,7 @@ class SyncService extends BaseService {
         this.conventionalRestClient.loadData(entityMetaData, entitySyncStatus.loadedSince, 0,
             unprocessedEntityMetaData,
             (resourcesWithSameTimeStamp, entityModel) => this.persist(resourcesWithSameTimeStamp, entityModel),
-            (workingAllEntitiesMetaData) => this.pullData(workingAllEntitiesMetaData, onComplete),
+            (workingAllEntitiesMetaData) => this.pullData(workingAllEntitiesMetaData, onComplete, onError),
             [], onError);
     }
 

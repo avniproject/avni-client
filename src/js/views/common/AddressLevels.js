@@ -40,7 +40,6 @@ class AddressLevels extends AbstractComponent {
                     style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
-                        height: 360,
                         borderWidth: 1
                     }}>
                     <Col style={{flexGrow: 1}}>

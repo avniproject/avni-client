@@ -38,9 +38,10 @@ export let get = (endpoint, cb, errorHandler) => {
 };
 
 export let getJSON = (endpoint, cb, errorHandler) => {
-    if (errorHandler === undefined)
+    if (errorHandler === undefined) {
         errorHandler = (arg) => {
-            console.log(`${arg}`);
+            console.log(`Automatically defined error handler: ${arg}`);
         };
+    }
     return _get(endpoint, cb, errorHandler);
 };

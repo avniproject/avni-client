@@ -46,7 +46,6 @@ class IndividualRegisterActions {
     }
 
     enterIndividualAddressLevel(state, action) {
-        console.log(action.value);
         return IndividualRegisterActions._setValue(state, (newState) => {
             newState.individual.lowestAddressLevel = action.value;
         });

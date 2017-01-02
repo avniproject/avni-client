@@ -49,12 +49,17 @@ class MenuView extends AbstractComponent {
     }
 
     _onError(error) {
+        console.log(`Error happened during sync: ${error}`);
         this.setState({syncing: false, error: true});
     }
 
     sync() {
-        const syncService = this.context.getService(SyncService);
-        syncService.sync(EntityMetaData.model(), this._preSync.bind(this), this._postSync.bind(this), this._onError.bind(this));
+        try {
+            const syncService = this.context.getService(SyncService);
+            syncService.sync(EntityMetaData.model(), this._preSync.bind(this), this._postSync.bind(this), this._onError.bind(this));
+        } catch (e) {
+            this._onError(e);
+        }
     }
 
     renderSyncButton() {

@@ -11,7 +11,7 @@ class ConventionalRestClient {
         const url = `${this.settingsService.getServerURL()}/${entityModel.resourceName}/search/lastModified?lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}&size=5&page=${pageNumber}&sort=lastModifiedDateTime,asc`;
         console.log(`Calling: ${url}`);
         getJSON(url, (response) => {
-            var resources = response["_embedded"][`${entityModel.resourceName}`];
+            const resources = response["_embedded"][`${entityModel.resourceName}`];
 
             _.forEach(resources, (resource) => {
                 console.log(`Number of resources with same timestamp: ${resourcesWithSameTimestamp.length}`);
