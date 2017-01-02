@@ -9,6 +9,7 @@ import IndividualEncounterView from "./IndividualEncounterLandingView";
 import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button, Header, Title, Icon} from "native-base";
 import moment from "moment";
 import themes from "../primitives/themes";
+import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -64,16 +65,16 @@ class IndividualSearchResultsView extends AbstractComponent {
     getImage(individual) {
         if (individual.gender.name === 'Male') {
             if (moment().diff(individual.dateOfBirth, 'years') > 30) {
-                return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
+                return <Thumbnail size={DynamicGlobalStyles.resizeWidth(68)} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                                   source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
             }
             else {
-                return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
+                return <Thumbnail size={DynamicGlobalStyles.resizeWidth(68)} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                                   source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
             }
         }
         else if (individual.gender.name === 'Female') {
-            return <Thumbnail size={68} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
+            return <Thumbnail size={DynamicGlobalStyles.resizeWidth(68)} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
                               source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
         }
     }
@@ -93,21 +94,21 @@ class IndividualSearchResultsView extends AbstractComponent {
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
-                                        style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: 17, padding: 17, height: 102}}
+                                        style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: DynamicGlobalStyles.resizeWidth(17), padding: DynamicGlobalStyles.resizeWidth(17), height: DynamicGlobalStyles.resizeHeight(102)}}
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
-                                      <Col style={{width: 68}}>
+                                      <Col style={{width: DynamicGlobalStyles.resizeWidth(68)}}>
                                           {this.getImage(item)}
                                       </Col>
-                                      <Col style={{paddingLeft: 16}}>
+                                      <Col style={{paddingLeft: DynamicGlobalStyles.resizeWidth(16)}}>
                                           <Row><Text style={{fontSize: 16}}>{item.name}</Text></Row>
                                           <Row>
                                               <Text style={{fontSize: 12}} note>{item.gender.name}</Text>
-                                              <Text style={{paddingLeft: 8, paddingRight: 8}}>|</Text>
+                                              <Text style={{paddingLeft: DynamicGlobalStyles.resizeWidth(8), paddingRight: DynamicGlobalStyles.resizeWidth(8)}}>|</Text>
                                               <Text style={{fontSize: 12}} note>{item.getAge().toString()}</Text>
                                           </Row>
                                       </Col>
-                                      <Col style={{width: 246}}>
+                                      <Col style={{width: DynamicGlobalStyles.resizeWidth(246)}}>
                                           <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 16}}>{item.lowestAddressLevel.title}</Text></Row>
                                           <Row
                                               style={{justifyContent: 'flex-end'}}>{item.enrolments.map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
