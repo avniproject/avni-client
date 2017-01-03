@@ -1,6 +1,6 @@
 import {View, StyleSheet, ScrollView, TextInput} from 'react-native';
 import React, {Component} from 'react';
-import MessageService from "../../service/MessageService";
+
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
@@ -14,7 +14,7 @@ import IndividualEncounterView from "./IndividualEncounterView"
 import moment from "moment";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import IndividualProfile from "../common/IndividualProfile"
-import FormElement from "../form/FormElement"
+import FormElementGroup from "../form/FormElementGroup"
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -27,9 +27,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context);
-        this.I18n = this.context.getService(MessageService).getI18n();
-        this.unsubscribe = context.getStore().subscribe(this.refreshState.bind(this));
+        super(props, context, "individualEncounter");
     }
 
     next() {
@@ -40,19 +38,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
         TypedTransition.from(this).goBack();
     }
 
-    componentWillMount() {
-        this.refreshState();
-    }
-
-
-    refreshState() {
-        console.log("Setting the state");
-        this.setState({formElementGroup: this.getContextState("individualEncounterForm")[0].formElementGroups[0]});
-    }
-
-
     render() {
-        console.log(this.state.formElementGroup.formElements.length);
         return (
             <Container theme={themes}>
                 <Header style={{backgroundColor: '#212121'}}>
@@ -78,18 +64,17 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                     <Input defaultValue={moment().format('DD-MMM-YYYY')} />
                                 </InputGroup>
                             </Row>
-                            <FormElement element={this.state.formElementGroup.formElements[0]}/>
+                            <FormElementGroup group={this.state.form[0].formElementGroups[0]}/>
                             <Row style={{marginTop: 30, marginBottom:30}}>
                                 <Button primary
                                         style={{flex:0.5, backgroundColor: '#e0e0e0'}}
                                         textStyle={{color: '#212121'}} onPress={() => this.previous()}>
                                     PREVIOUS
                                 </Button>
-
                                 <Button primary style={{flex:0.5, marginLeft: 8}} onPress={() => this.next()}>NEXT</Button>
                             </Row>
                         </Grid>
-</Row>
+                    </Row>
                     </Grid>
                 </Content>
             </Container>

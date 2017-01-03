@@ -19,37 +19,52 @@ class FormElement extends AbstractComponent {
     }
 
     render() {
-        console.log(this.props.element.name);
-        return (
-            <View><Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-            <Text style={DynamicGlobalStyles.formElementLabel}>Complaint</Text>
-        </Row>
-        <Row style={{
-            padding: 28,
-                backgroundColor: '#ffffff',
-                height: 360,
-                borderWidth: 1
-        }}>
-    <Col>
-        {['Fever', 'Chloroquine Resistant', 'Bodyache', 'Headache', 'Giddyness'
-            , 'Diarrhoea', 'Wound', 'Ringworm'].map(
-            function (item) {
-                return <Row>
-                    <CheckBox/>
-                    <Text style={{fontSize: 16, marginLeft:11}}>{item}</Text>
-                </Row>;
-            })}
-    </Col>
-        <Col>
-            {['Vomiting', 'Cough', 'Cold', 'Acidity', 'Abdominal Pain', 'Pregnancy'
-                , 'Scabies', 'Boils'].map(
-                function (item) {
-                    return <Row><CheckBox/>
-                        <Text style={{fontSize: 16, marginLeft:11}}>{item}</Text>
-                    </Row>;
-                })}
-        </Col>
-    </Row></View>);
+        if (this.props.element.concept.datatype === 'numeric') {
+            return (
+                <View>
+                    <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                        <Text style={DynamicGlobalStyles.formElementLabel}>Complaint</Text>
+                    </Row>
+                    <Row>
+                        <InputGroup style={{flex: 1}} borderType='underline'>
+                            <Input/>
+                        </InputGroup>
+                    </Row>
+
+                </View>)
+        }
+        else if(this.props.element.concept.datatype === 'multiselect') {
+            return (
+                <View><Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                    <Text style={DynamicGlobalStyles.formElementLabel}>Complaint</Text>
+                </Row>
+                    <Row style={{
+                        padding: 28,
+                        backgroundColor: '#ffffff',
+                        height: 360,
+                        borderWidth: 1
+                    }}>
+                        <Col>
+                            {['Fever', 'Chloroquine Resistant', 'Bodyache', 'Headache', 'Giddyness'
+                                , 'Diarrhoea', 'Wound', 'Ringworm'].map(
+                                function (item) {
+                                    return <Row>
+                                        <CheckBox/>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{item}</Text>
+                                    </Row>;
+                                })}
+                        </Col>
+                        <Col>
+                            {['Vomiting', 'Cough', 'Cold', 'Acidity', 'Abdominal Pain', 'Pregnancy'
+                                , 'Scabies', 'Boils'].map(
+                                function (item) {
+                                    return <Row><CheckBox/>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{item}</Text>
+                                    </Row>;
+                                })}
+                        </Col>
+                    </Row></View>);
+        }
     }
 }
 

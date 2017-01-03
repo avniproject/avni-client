@@ -2,6 +2,7 @@ import React, {Component, View, Text} from 'react';
 import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
 import _ from "lodash";
+import MessageService from "../../service/MessageService";
 
 class AbstractComponent extends Component {
     constructor(props, context, topLevelStateVariable) {
@@ -10,6 +11,7 @@ class AbstractComponent extends Component {
         this.spinnerDefaults = Map({color: 'white', size: 'small'});
         this.showError = this.showError.bind(this);
         this.topLevelStateVariable = topLevelStateVariable;
+        this.I18n = this.context.getService(MessageService).getI18n();
     }
 
     static styles = StyleSheet.create({

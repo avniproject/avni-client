@@ -35,7 +35,7 @@ class IndividualProfile extends AbstractComponent {
     render() {
         return this.props.landingView ?
             (
-                <Grid>
+                <Grid style={{backgroundColor: '#212121'}}>
                     <Row style={{justifyContent: 'center', height: 131}}>
                         {this.getImage(this.props.individual)}
                     </Row>

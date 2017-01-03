@@ -58,6 +58,7 @@ class MenuView extends AbstractComponent {
     _onError(error) {
         console.log(`Error happened during sync: ${error}`);
         this.setState({syncing: false, error: true});
+        console.log(error);
     }
 
     sync() {
