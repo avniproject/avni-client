@@ -1,4 +1,4 @@
-import {Concept} from "./Concept";
+import {Concept, ConceptAnswer} from "./Concept";
 import Gender from "./Gender";
 import AddressLevel from "./AddressLevel";
 import Individual from "./Individual";
@@ -46,7 +46,11 @@ class EntityMetaData {
 
     static programEncounter() {
         return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment()};
-    }
+    };
+
+    static conceptAnswer() {
+        return {entityName: "ConceptAnswer", entityClass: ConceptAnswer, resourceName: "conceptAnswer", type: "reference", parent: EntityMetaData.concept};
+    };
 
     //order is important. last entity in each (tx and ref) with be executed first
     static model() {
@@ -61,6 +65,7 @@ class EntityMetaData {
             EntityMetaData.program,
             EntityMetaData.programOutcome,
             EntityMetaData.gender,
+            EntityMetaData.conceptAnswer(),
             EntityMetaData.concept,
 
             EntityMetaData.encounter(),

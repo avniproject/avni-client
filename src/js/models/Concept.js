@@ -1,3 +1,7 @@
+import BaseEntity from './BaseEntity';
+import ResourceUtil from "./../utility/ResourceUtil";
+import General from './../utility/General';
+
 export class ConceptName {
     static schema = {
         name: 'ConceptName',
@@ -16,6 +20,17 @@ export class ConceptAnswer {
             uuid: {"type": 'string', "optional": true}
         }
     }
+
+    static fromResource(resource, entityService) {
+        console.log("printing ConceptAnswer conceptResource");
+        console.log(resource);
+        var conceptAnswer = new ConceptAnswer();
+        var conceptAnswerConcept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
+        conceptAnswer.name = conceptAnswerConcept.name;
+        conceptAnswer.uuid = resource.uuid;
+        return conceptAnswer ;
+    }
+
 }
 
 export class Concept {
@@ -36,6 +51,8 @@ export class Concept {
     };
 
     static fromResource(conceptResource) {
+        console.log("printing Concept conceptResource");
+        console.log(conceptResource);
         var concept = new Concept();
         var conceptName = new ConceptName();
         conceptName.name = conceptResource.name;
@@ -50,4 +67,17 @@ export class Concept {
         concept.hiNormal = conceptResource.highNormal;
         return concept;
     }
+
+    static associateChild(child, childEntityClass, childResource, entityService) {
+        var concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "conceptUUID"), Concept.schema.name);
+        console.log(concept);
+        concept = General.pick(concept, ["uuid"], ["answers"]);
+
+        if (childEntityClass === ConceptAnswer)
+            BaseEntity.addNewChild(child, concept.answers);
+        else
+            throw `${childEntityClass.name} not support by ${Concept.name}`;
+        return concept;
+    }
+
 }

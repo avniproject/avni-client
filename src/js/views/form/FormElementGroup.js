@@ -20,9 +20,11 @@ class FormElementGroup extends AbstractComponent {
     }
 
     render() {
+        console.log(this.props.group.formElements.length);
         return (<View>
                 {
                     this.props.group.formElements.map((formElement) => {
+                        console.log(formElement.concept.name);
                         return <FormElement element={formElement}/>
                     })
                 }
