@@ -5,13 +5,19 @@ import _ from "lodash";
 import MessageService from "../../service/MessageService";
 
 class AbstractComponent extends Component {
+    static contextTypes = {
+        navigator: React.PropTypes.func.isRequired,
+        getService: React.PropTypes.func.isRequired,
+        getStore: React.PropTypes.func
+    };
+
     constructor(props, context, topLevelStateVariable) {
         super(props, context);
         this.renderComponent = this.renderComponent.bind(this);
         this.spinnerDefaults = Map({color: 'white', size: 'small'});
         this.showError = this.showError.bind(this);
         this.topLevelStateVariable = topLevelStateVariable;
-        this.I18n = this.context.getService(MessageService).getI18n();
+        this.I18n = context.getService(MessageService).getI18n();
     }
 
     static styles = StyleSheet.create({
@@ -24,12 +30,6 @@ class AbstractComponent extends Component {
             backgroundColor: '#14e4d5'
         },
     });
-
-    static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func
-    };
 
     dispatchAction(action, params) {
         this.context.getStore().dispatch({"type": action, ...params});
