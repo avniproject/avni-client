@@ -19,28 +19,31 @@ class FormElement extends AbstractComponent {
     }
 
     renderAnswers() {
-        return _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2]) => {
-            return (
-                    <Row style={{
+        return(<Grid style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
                         height: 360,
                         borderWidth: 1
-                    }}>
-                        <Col>
+                    }}>{
+            _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2]) => {
+                        return (
                             <Row>
-                                <CheckBox/>
-                                <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
+                                <Col>
+                                    <Row>
+                                        <CheckBox/>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
+                                    </Row>
+                                </Col>
+                                <Col>
+                                    <Row>
+                                        <CheckBox/>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
+                                    </Row>
+                                </Col>
                             </Row>
-                        </Col>
-                        <Col>
-                            <Row>
-                                <CheckBox/>
-                                <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
-                            </Row>
-                        </Col>
-                    </Row>)}
-        );
+                        )})
+                    }
+        </Grid>);
 
     }
     render() {

@@ -22,8 +22,6 @@ export class ConceptAnswer {
     }
 
     static fromResource(resource, entityService) {
-        console.log("printing ConceptAnswer conceptResource");
-        console.log(resource);
         var conceptAnswer = new ConceptAnswer();
         var conceptAnswerConcept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
         conceptAnswer.name = conceptAnswerConcept.name;
@@ -51,8 +49,6 @@ export class Concept {
     };
 
     static fromResource(conceptResource) {
-        console.log("printing Concept conceptResource");
-        console.log(conceptResource);
         var concept = new Concept();
         var conceptName = new ConceptName();
         conceptName.name = conceptResource.name;

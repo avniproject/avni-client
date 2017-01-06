@@ -13,8 +13,10 @@ class ConventionalRestClient {
         getJSON(url, (response) => {
             const resources = response["_embedded"][`${entityModel.resourceName}`];
 
+            console.log(resources.length);
             _.forEach(resources, (resource) => {
                 console.log(`Number of resources with same timestamp: ${resourcesWithSameTimestamp.length}`);
+                console.log(resource.name);
                 if (resourcesWithSameTimestamp.length === 0)
                     resourcesWithSameTimestamp.push(resource);
                 else if (resourcesWithSameTimestamp.length > 0 && resourcesWithSameTimestamp[0]["lastModifiedDateTime"] === resource["lastModifiedDateTime"])
@@ -27,7 +29,7 @@ class ConventionalRestClient {
             });
 
             if (this.morePagesForThisResource(response)) {
-                this.loadData(entityModel.resourceName, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError);
+                this.loadData(entityModel, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError);
             } else if (resourcesWithSameTimestamp.length > 0) {
                 executePerResourcesWithSameTimestamp(resourcesWithSameTimestamp, entityModel);
                 executeNextResource(allEntityMetaData);
