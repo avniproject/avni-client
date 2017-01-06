@@ -1,4 +1,4 @@
-import {getJSON} from '../../framework/http/requests';
+import {getJSON, post} from '../../framework/http/requests';
 import _ from "lodash";
 import moment from "moment";
 
@@ -41,7 +41,24 @@ class ConventionalRestClient {
         return response["page"]["number"] < (response["page"]["totalPages"] - 1);
     }
 
-    postEntity() {
+    postEntity(getNextItem, onCompleteCurrentItem, onComplete, onError) {
+        const nextItem = getNextItem();
+        if (_.isNil(nextItem)) {
+            console.log(`No items in the EntityQueue`);
+            onComplete();
+            return;
+        }
+
+        const url = `${this.settingsService.getServerURL()}/${nextItem.metaData.resourceName}s`;
+        post(url, nextItem.resource, (response) => {
+            if (!_.isNil(response.ok) && !response.ok) {
+                console.log(response);
+                onError();
+            } else {
+                onCompleteCurrentItem();
+                this.postEntity(getNextItem, onCompleteCurrentItem, onComplete, onError);
+            }
+        }, onError);
     }
 }
 

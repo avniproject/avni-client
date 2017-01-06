@@ -1,9 +1,9 @@
 import _ from "lodash";
 
 class BaseService {
-    constructor(db, beanStore) {
+    constructor(db, context) {
         this.db = db;
-        this.beanStore = beanStore;
+        this.context = context;
         this.init = this.init.bind(this);
     }
 
@@ -11,7 +11,7 @@ class BaseService {
     }
 
     getService(name) {
-        return this.beanStore.getBean(name);
+        return this.context.getBean(name);
     }
 
     findByKey(keyName, keyValue, schemaName) {

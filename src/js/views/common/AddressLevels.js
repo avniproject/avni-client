@@ -67,7 +67,6 @@ class AddressLevels extends AbstractComponent {
     }
 
     render() {
-        console.log(`AddressLevels.render`);
         const I18n = this.context.getService(MessageService).getI18n();
         return (<Grid>
             <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>

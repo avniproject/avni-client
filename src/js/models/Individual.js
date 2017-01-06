@@ -7,6 +7,7 @@ import BaseEntity from "./BaseEntity";
 import ProgramEnrolment from "./ProgramEnrolment";
 import Encounter from "./Encounter";
 import Duration from "./Duration";
+import _ from "lodash";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -24,6 +25,14 @@ class Individual extends BaseEntity {
             customProfile: {type: 'list', objectType: 'Observation'}
         }
     };
+
+    get toResource() {
+        var resource = _.pick(this, ["uuid", "name", "dateOfBirthVerified"]);
+        resource.dateOfBirth = moment(this.dateOfBirth).format('YYYY-MM-DD');
+        resource["genderUUID"] = this.gender.uuid;
+        resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
+        return resource;
+    }
 
     static newInstance(uuid, name, dateOfBirth, dateOfBirthVerified, gender, lowestAddressLevel) {
         var individual = new Individual();

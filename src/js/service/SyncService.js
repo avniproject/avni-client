@@ -6,6 +6,7 @@ import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
 import EntitySyncStatus from "../models/EntitySyncStatus";
 import _ from "lodash";
+import EntityQueueService from "./EntityQueueService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -37,9 +38,7 @@ class SyncService extends BaseService {
         const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
         const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
         const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
-        const pushTxDataFn = () => this.pushTxData(allTxDataMetaData, pullReferenceDataFn);
-
-        pushTxDataFn();
+        this.pushTxData(allTxDataMetaData, pullReferenceDataFn, onError);
     }
 
     pullConfiguration(onComplete) {
@@ -73,7 +72,7 @@ class SyncService extends BaseService {
             }
         });
 
-        var currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);
 
         var entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.name = entityModel.entityName;
@@ -82,9 +81,24 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.saveOrUpdate(entitySyncStatus);
     }
 
-    pushTxData(allTxDataMetaData, onComplete) {
-        this.conventionalRestClient.postEntity();
-        onComplete();
+    pushTxData(allTxDataMetaData, onComplete, onError) {
+        this.conventionalRestClient.postEntity(() => this.getNextItem(allTxDataMetaData), () => this.deleteTopQueueItem(), onComplete, onError);
+    }
+
+    getNextItem(allTxDataMetaData) {
+        var nextQueueItem = this.getService(EntityQueueService).getNextQueuedItem();
+        if (_.isNil(nextQueueItem)) {
+            return null;
+        }
+        nextQueueItem.resource = nextQueueItem.entity.toResource;
+        nextQueueItem.metaData = _.find(allTxDataMetaData, function (item) {
+            return item.entityName === nextQueueItem.entityName;
+        });
+        return nextQueueItem;
+    }
+
+    deleteTopQueueItem() {
+        this.getService(EntityQueueService).popTopQueueItem();
     }
 }
 

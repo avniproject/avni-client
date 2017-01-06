@@ -26,9 +26,18 @@ let _getText = (endpoint, cb, errorHandler) => {
         .catch(errorHandler);
 };
 
-let _post = (endpoint, file, cb) => {
-    return fetchFactory(endpoint, "POST", {body: file})
-        .then(cb)
+let _post = (endpoint, file, cb, errorHandler) => {
+    const body = JSON.stringify(file);
+    console.log(`Posting: ${body} to ${endpoint}`);
+    if (errorHandler === undefined) {
+        errorHandler = (arg) => {
+            console.log(`Automatically defined error handler: ${arg}`);
+        };
+    }
+
+    var params = makeHeader("json");
+    params.body = body;
+    return fetchFactory(endpoint, "POST", params).then(cb).catch(errorHandler);
 };
 
 export let post = _post;
