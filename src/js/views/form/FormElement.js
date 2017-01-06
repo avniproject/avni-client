@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import {
     Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input
+    Input, Radio
 } from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 
@@ -18,11 +18,10 @@ class FormElement extends AbstractComponent {
         super(props, context);
     }
 
-    renderAnswers() {
+    renderMultiselectAnswers() {
         return(<Grid style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
-                        height: 360,
                         borderWidth: 1
                     }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2]) => {
@@ -46,8 +45,35 @@ class FormElement extends AbstractComponent {
         </Grid>);
 
     }
+
+    renderSingleSelectAnswers() {
+        return(<Grid style={{
+                        padding: 28,
+                        backgroundColor: '#ffffff',
+                        borderWidth: 1
+                    }}>{
+            _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2]) => {
+                        return (
+                            <Row>
+                                <Col>
+                                    <Row>
+                                        <Radio/>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
+                                    </Row>
+                                </Col>
+                                <Col>
+                                    <Row>
+                                        <Radio/>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        )})
+                    }
+        </Grid>);
+
+    }
     render() {
-        console.log(this.props.element.concept.datatype);
         if (this.props.element.concept.datatype === 'numeric') {
             return (
                 <View>
@@ -63,13 +89,22 @@ class FormElement extends AbstractComponent {
                 </View>)
         }
         else if(this.props.element.concept.datatype === 'multiselect') {
-            console.log(this.props.element.concept.answers);
             return (
                 <View>
                     <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                         <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
                     </Row>
-                {this.renderAnswers()}
+                {this.renderMultiselectAnswers()}
+                </View>);
+        }
+        else if (this.props.element.concept.datatype === 'singleselect') {
+            console.log("Single select form element");
+            return (
+                <View>
+                    <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                        <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
+                    </Row>
+                    {this.renderSingleSelectAnswers()}
                 </View>);
         }
     }
