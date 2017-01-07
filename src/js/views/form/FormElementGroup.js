@@ -1,13 +1,10 @@
 import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import moment from "moment";
-import {
-    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input
-} from "native-base";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import FormElement from './FormElement'
+import MultiSelectFormElement from './MultiSelectFormElement';
+import SingleSelectFormElement from './SingleSelectFormElement';
+import NumericFormElement from './NumericFormElement';
+import Actions from "../../action/index";
 
 
 class FormElementGroup extends AbstractComponent {
@@ -20,12 +17,17 @@ class FormElementGroup extends AbstractComponent {
     }
 
     render() {
-        console.log(this.props.group.formElements.length);
         return (<View>
                 {
                     this.props.group.formElements.map((formElement) => {
-                        console.log(formElement.concept.name);
-                        return <FormElement element={formElement}/>
+                        switch (formElement.concept.datatype){
+                            case 'numeric' :
+                                return <NumericFormElement element={formElement} />
+                            case 'multiselect':
+                                return <MultiSelectFormElement element={formElement}/>
+                            case 'singleselect':
+                                return <SingleSelectFormElement element={formElement} />
+                        }
                     })
                 }
             </View>
