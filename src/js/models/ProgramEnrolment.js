@@ -49,6 +49,10 @@ class ProgramEnrolment extends BaseEntity {
             throw `${childEntityClass.name} not support by ${ProgramEnrolment.name}`;
         return programEnrolment;
     }
+
+    static isActive(programEnrolment) {
+        return _.isNil(programEnrolment.programExitDateTime);
+    }
 }
 
 export default ProgramEnrolment;

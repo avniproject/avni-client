@@ -13,6 +13,7 @@ import {Actions} from "../../action/individual/IndividualRegisterActions";
 import _ from "lodash";
 import General from "../../utility/General";
 import LandingView from "../LandingView";
+import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -87,21 +88,11 @@ class IndividualRegisterView extends AbstractComponent {
                             </Grid>
                         </Row>
                         <Row style={DynamicGlobalStyles.formRow}>
-                            <Grid>
-                                <Row>
-                                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("gender")}</Text>
-                                </Row>
-                                {this.state.genders.map((gender) => {
-                                    return (
-                                        <Row>
-                                            <View style={{flexDirection: 'column-reverse'}}>
-                                                <Radio selected={gender.equals(this.state.individual.gender)}
-                                                       onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_GENDER, {value: gender})}/>
-                                            </View>
-                                            <Text style={DynamicGlobalStyles.formRadioText}>{this.I18n.t(gender.name)}</Text>
-                                        </Row>);
-                                })}
-                            </Grid>
+                            <RadioGroup action={Actions.REGISTRATION_ENTER_GENDER}
+                                        labelValues={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
+                                        label="gender"
+                                        selectionFn={(gender) => gender.equals(this.state.individual.gender)}
+                            />
                         </Row>
                         <Row style={DynamicGlobalStyles.formRow}>
                             <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}

@@ -8,13 +8,13 @@ import {
     Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
     Input
 } from "native-base";
-import GlobalStyles from '../primitives/GlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView"
 import moment from "moment";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import IndividualProfile from "../common/IndividualProfile"
-import FormElementGroup from "../form/FormElementGroup"
+import IndividualProfile from "../common/IndividualProfile";
+import FormElementGroup from "../form/FormElementGroup";
+import AppHeader from '../common/AppHeader';
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -41,15 +41,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
     render() {
         return (
             <Container theme={themes}>
-                <Header style={{backgroundColor: '#212121'}}>
-                    <Button transparent onPress={() => {
-                        TypedTransition.from(this).goBack()
-                    }}>
-                        <Icon name='keyboard-arrow-left'/>
-                    </Button>
-                    <Title>{this.I18n.t("generalConsultation")}</Title>
-                </Header>
                 <Content style={{backgroundColor: '#212121'}}>
+                    <AppHeader titleKey="generalConsultation" />
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>
                             <IndividualProfile landingView={true} individual={this.props.params.individual}/>

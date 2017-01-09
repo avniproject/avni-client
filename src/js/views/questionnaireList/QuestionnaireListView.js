@@ -4,7 +4,7 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from '../../framework/routing/Path';
 import QuestionnaireList from './QuestionnaireList';
 import QuestionnaireToolbar from './QuestionnaireToolbar';
-import AppHeader from '../primitives/AppHeader';
+import AppHeader from '../primitives/OldAppHeader';
 import SettingsView from '../settings/SettingsView';
 import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from '../../service/MessageService';
@@ -65,7 +65,7 @@ class QuestionnaireListView extends AbstractComponent {
     render() {
         return (
             <View style={QuestionnaireListView.styles.main}>
-                <AppHeader title={this.I18n.t("questionnaireList")} parent={this}/>
+                <AppHeader titleKey={this.I18n.t("questionnaireList")} parent={this}/>
                 <View style={[GlobalStyles.mainSection, QuestionnaireListView.styles.mainSection]}>
                     <DrawerLayoutAndroid
                         drawerWidth={300}

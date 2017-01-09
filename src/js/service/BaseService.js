@@ -14,10 +14,14 @@ class BaseService {
         return this.context.getBean(name);
     }
 
-    findByKey(keyName, keyValue, schemaName) {
+    findByUUID(uuid, schema) {
+        return this.findByKey("uuid", uuid, schema);
+    }
+
+    findByKey(keyName, value, schemaName) {
         if (_.isNil(schemaName)) schemaName = this.getSchema();
 
-        var entities = this.db.objects(schemaName).filtered(`${keyName}="${keyValue}"`);
+        var entities = this.db.objects(schemaName).filtered(`${keyName}="${value}"`);
         return entities.length === 1 ? entities[0] : undefined;
     }
 

@@ -64,7 +64,7 @@ class SettingsHeader extends Component {
                     <Image style={{marginLeft: 10}}
                            source={require('../../../../android/app/src/main/res/mipmap-mdpi/settings_50.png')}
                     />
-                    <Text style={SettingsHeader.styles.label}>
+                    <Text style={SettingsHeader.styles.labelKey}>
                         {this.I18n.t('settings')}
                     </Text>
                 </View>

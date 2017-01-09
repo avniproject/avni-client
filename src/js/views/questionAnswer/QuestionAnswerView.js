@@ -12,7 +12,7 @@ import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import DecisionView from "../conclusion/DecisionView";
 import AppState from "../../hack/AppState";
-import AppHeader from '../primitives/AppHeader';
+import AppHeader from '../primitives/OldAppHeader';
 import TypedTransition from '../../framework/routing/TypedTransition'
 import MessageService from '../../service/MessageService';
 import QuestionAnswerControl from "./QuestionAnswerControl";
@@ -40,7 +40,7 @@ class QuestionAnswerView extends Component {
 
     render() {
         return (<View style={{flex: 1}} keyboardShouldPersistTaps={true}>
-                <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)} parent={this}
+                <AppHeader titleKey={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)} parent={this}
                            onTitlePressed={this.onTitlePress}/>
                 <QuestionAnswerControl
                     questionNumber={this.props.params.questionNumber}

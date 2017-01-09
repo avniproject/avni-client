@@ -4,11 +4,12 @@ import Individual from "../models/Individual";
 import _ from 'lodash';
 import General from "../utility/General";
 import EntityQueue from "../models/EntityQueue";
+import Program from "../models/Program";
 
 @Service("individualService")
 class IndividualService extends BaseService {
-    constructor(db, beanStore) {
-        super(db, beanStore);
+    constructor(db, context) {
+        super(db, context);
     }
 
     getSchema() {
@@ -30,6 +31,12 @@ class IndividualService extends BaseService {
             db.create(Individual.schema.name, individual);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
         });
+    }
+
+    eligiblePrograms(individualUUID) {
+        const programs = this.getAll(Program.schema.name);
+        const individual = this.findByUUID(individualUUID, Individual.schema.name);
+        return Individual.eligiblePrograms(programs, individual);
     }
 }
 

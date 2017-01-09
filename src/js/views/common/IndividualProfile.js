@@ -1,9 +1,12 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Modal} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, Button, Grid, Row, Col, Icon, Thumbnail} from "native-base";
-import Individual from "../../models/Individual";
 import moment from "moment";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
+import {Actions} from "../../action/individual/IndividualProfileActions";
+import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -12,22 +15,27 @@ class IndividualProfile extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, "individualProfile");
     }
 
-    getImage(individual){
-        if (individual.gender.name === 'Male'){
-            if (moment().diff(individual.dateOfBirth, 'years') > 30){
-                return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin : 28}}
+    componentWillMount() {
+        this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {value: this.props.individual});
+        return super.componentWillMount();
+    }
+
+    getImage(individual) {
+        if (individual.gender.name === 'Male') {
+            if (moment().diff(individual.dateOfBirth, 'years') > 30) {
+                return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin: 28}}
                                   source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
             }
             else {
-                return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin : 28}}
+                return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin: 28}}
                                   source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
             }
         }
-        else if (individual.gender.name === 'Female'){
-            return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin : 28}}
+        else if (individual.gender.name === 'Female') {
+            return <Thumbnail size={75} style={{borderWidth: 2, borderColor: '#ffffff', margin: 28}}
                               source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
         }
     }
@@ -35,30 +43,46 @@ class IndividualProfile extends AbstractComponent {
     render() {
         return this.props.landingView ?
             (
-                <Grid style={{backgroundColor: '#212121'}}>
-                    <Row style={{justifyContent: 'center', height: 131}}>
-                        {this.getImage(this.props.individual)}
-                    </Row>
-                    <Row style={{justifyContent: 'center', height: 30}}><Text
-                        style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name}
-                        | {this.props.individual.id}</Text></Row>
-                    <Row style={{justifyContent: 'center', height: 30}}>
-                        <Text style={{
-                            textAlignVertical: 'top',
-                            fontSize: 14,
-                            color: '#fff',
-                            justifyContent: 'center'
-                        }}>{this.props.individual.gender.name}, {this.props.individual.getAge().toString()}
-                            | {this.props.individual.lowestAddressLevel.title}
-                        </Text>
-                    </Row>
-                    <Row style={{justifyContent: 'center', height: 40}}>
-                        <Button bordered style={{marginLeft: 8, height: 26, justifyContent: 'center'}}><Icon
-                            name="mode-edit"/>Edit Profile</Button>
-                        <Button bordered style={{marginLeft: 8, height: 26, justifyContent: 'center'}}><Icon
-                            name="add"/>Enroll Patient</Button>
-                    </Row>
-                </Grid>
+                <View>
+                    <Modal
+                        animationType={"slide"}
+                        transparent={false}
+                        visible={this.state.enrolment.enrolling}
+                        onRequestClose={() => {}}>
+                        <View>
+                            <RadioGroup action={Actions.PROGRAM_SELECTION}
+                                        selectionFn={(program) => _.isNil(this.state.enrolment.selectedProgram) ? false : this.state.enrolment.selectedProgram.uuid === program.uuid}
+                                        labelKey="selectProgram"
+                                        labelValuePairs={this.state.enrolment.programs.map((program) => new RadioLabelValue(program.name, program))}/>
+                            <Button onPress={() => this.dispatchAction(Actions.CHOOSE_PROGRAM)}>{this.I18n.t('enrol')}</Button>
+                        </View>
+                    </Modal>
+
+                    <Grid style={{backgroundColor: '#212121'}}>
+                        <Row style={{justifyContent: 'center', height: 131}}>
+                            {this.getImage(this.props.individual)}
+                        </Row>
+                        <Row style={{justifyContent: 'center', height: 30}}><Text
+                            style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name}
+                            | {this.props.individual.id}</Text></Row>
+                        <Row style={{justifyContent: 'center', height: 30}}>
+                            <Text style={{
+                                textAlignVertical: 'top',
+                                fontSize: 14,
+                                color: '#fff',
+                                justifyContent: 'center'
+                            }}>{this.props.individual.gender.name}, {this.props.individual.getAge().toString()}
+                                | {this.props.individual.lowestAddressLevel.title}
+                            </Text>
+                        </Row>
+                        <Row style={{justifyContent: 'center', height: 40}}>
+                            <Button bordered style={{marginLeft: 8, height: 26, justifyContent: 'center'}}><Icon
+                                name="mode-edit"/>{this.I18n.t('editProfile')}</Button>
+                            <Button bordered style={{marginLeft: 8, height: 26, justifyContent: 'center'}} onPress={() => this.enrol()}>
+                                <Icon name="add"/>{this.I18n.t('enrol')}</Button>
+                        </Row>
+                    </Grid>
+                </View>
             ) :
             (
                 <Grid>
@@ -76,6 +100,10 @@ class IndividualProfile extends AbstractComponent {
                 </Grid>
             );
 
+    }
+
+    enrol() {
+        this.dispatchAction(Actions.NEW_ENROLMENT);
     }
 }
 

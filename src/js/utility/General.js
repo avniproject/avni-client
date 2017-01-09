@@ -5,6 +5,12 @@ import ResourceUtil from "./ResourceUtil";
 import Observation from "../models/Observation";
 
 class General {
+    static setNewState(state, setter) {
+        let newState = Object.assign({}, state);
+        setter(newState);
+        return newState;
+    }
+
     static formatDateTime(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     }

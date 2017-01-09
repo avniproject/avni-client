@@ -2,7 +2,7 @@ import {View, Text, StyleSheet, ListView, ScrollView} from 'react-native';
 import React, {Component} from 'react';
 import Path from '../../framework/routing/Path';
 import AppState from '../../hack/AppState'
-import AppHeader from '../primitives/AppHeader';
+import AppHeader from '../primitives/OldAppHeader';
 import GlobalStyles from "../primitives/GlobalStyles";
 import PreviousNextSave from '../common/PreviousNextSave';
 import MessageService from '../../service/MessageService';
@@ -80,7 +80,7 @@ class DecisionView extends Component {
         this.decisions = this.context.getService(RuleEvaluationService).getDecision(AppState.questionnaireAnswers.questionnaireName);
         return (
             <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
-                <AppHeader title={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)}
+                <AppHeader titleKey={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)}
                            onTitlePressed={this.onViewSavedSessionsPress}
                            parent={this}
                 />

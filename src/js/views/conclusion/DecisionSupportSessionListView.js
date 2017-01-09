@@ -1,7 +1,7 @@
 import Path from "../../framework/routing/Path";
 import {View, Text, StyleSheet, ListView, TouchableNativeFeedback} from "react-native";
 import React, {Component} from "react";
-import AppHeader from "../primitives/AppHeader";
+import AppHeader from "../primitives/OldAppHeader";
 import MessageService from "../../service/MessageService";
 import QuestionnaireService from "../../service/QuestionnaireService";
 import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
@@ -124,7 +124,7 @@ class DecisionSupportSessionListView extends Component {
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(questionnaires);
         return (
             <View style={{flex: 1}}>
-                <AppHeader title={this.I18n.t("allQuestionnaireSessionsSummary")} parent={this}/>
+                <AppHeader titleKey={this.I18n.t("allQuestionnaireSessionsSummary")} parent={this}/>
                 <View style={GlobalStyles.mainSection}>
                     <ListView
                         enableEmptySections={true}

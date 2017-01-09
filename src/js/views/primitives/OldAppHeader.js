@@ -9,7 +9,7 @@ import SyncService from "../../service/SyncService";
 import EntityMetaData from "../../models/EntityMetaData";
 import {Tabs, Header, Title, Button, Icon} from 'native-base';
 
-class AppHeader extends Component {
+class OldAppHeader extends Component {
     constructor(props, context) {
         super(props, context);
         this.I18n = context.getService(MessageService).getI18n();
@@ -88,4 +88,4 @@ class AppHeader extends Component {
     }
 }
 
-export default AppHeader;
+export default OldAppHeader;

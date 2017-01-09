@@ -49,5 +49,8 @@
   "gender": "Gender",
   "Male": "Male",
   "Female": "Female",
-  "Other": "Other"
+  "Other": "Other",
+  "enrol": "Enrol in Program",
+  "editProfile": "Edit Profile",
+  "selectProgram": "Select Program"
 }

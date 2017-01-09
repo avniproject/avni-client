@@ -27,7 +27,7 @@ class Individual extends BaseEntity {
     };
 
     get toResource() {
-        var resource = _.pick(this, ["uuid", "name", "dateOfBirthVerified"]);
+        const resource = _.pick(this, ["uuid", "name", "dateOfBirthVerified"]);
         resource.dateOfBirth = moment(this.dateOfBirth).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
@@ -35,7 +35,7 @@ class Individual extends BaseEntity {
     }
 
     static newInstance(uuid, name, dateOfBirth, dateOfBirthVerified, gender, lowestAddressLevel) {
-        var individual = new Individual();
+        const individual = new Individual();
         individual.uuid = uuid;
         individual.name = name;
         individual.dateOfBirth = dateOfBirth;
@@ -49,7 +49,7 @@ class Individual extends BaseEntity {
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
-        var individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified"], ["dateOfBirth"], ["customProfile"]);
+        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified"], ["dateOfBirth"], ["customProfile"]);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
@@ -93,6 +93,19 @@ class Individual extends BaseEntity {
     setAge(age, isInYears) {
         this.dateOfBirth = moment().subtract(age, isInYears ? 'years' : 'months').toDate();
         this.dateOfBirthVerified = false;
+    }
+
+    static eligiblePrograms(allPrograms, individual) {
+        const eligiblePrograms = _.slice(allPrograms);
+
+        _.remove(eligiblePrograms, (program) => {
+            const find = _.find(individual.enrolments, (enrolment) => {
+                return enrolment.program.uuid === program.uuid && ProgramEnrolment.isActive(enrolment);
+            });
+            return find !== undefined;
+        });
+
+        return eligiblePrograms;
     }
 }
 
