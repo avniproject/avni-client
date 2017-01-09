@@ -6,6 +6,7 @@ import IndividualProfile from "../common/IndividualProfile";
 import Path from "../../framework/routing/Path";
 import {Content, Grid, Row, Container} from "native-base";
 import themes from "../primitives/themes";
+import ReducerKeys from "../../reducer";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -18,7 +19,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, ReducerKeys.programEnrolment);
     }
 
     render() {
@@ -28,6 +29,10 @@ class ProgramEnrolmentView extends AbstractComponent {
                 <Grid style={{marginLeft: 10, marginRight: 10}}>
                     <Row style={{height: 263}}>
                         <IndividualProfile landingView={false} individual={this.props.params.individual}/>
+                    </Row>
+                    <Row>
+                        <Button onPress={() => this.dispatchAction()}>{this.I18n.t('cancel')}</Button>
+                        <Button onPress={() => this.dispatchAction(Actions.DONOT_CHOOSE_PROGRAM)}>{this.I18n.t('confirm')}</Button>
                     </Row>
                 </Grid>
             </Content>

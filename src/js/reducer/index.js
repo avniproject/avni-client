@@ -9,8 +9,9 @@ import AddressLevel from "../models/AddressLevel";
 import Encounter from "../models/Encounter";
 import Form from "../models/application/Form";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
+import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/prorgam/ProgramEnrolmentActions';
 
-export default (beanStore) => {
+const reducerMapFn = function(beanStore) {
     let reducerMap = {};
 
     let add = function (actions, initState) {
@@ -24,6 +25,15 @@ export default (beanStore) => {
     reducerMap.individualRegister = add(IndividualRegisterActionMap, IndividualRegisterActions.getInitialState(beanStore));
     reducerMap.individualEncounter = add(new Map([]), {encounter: new Encounter(), form: beanStore.get(EntityService).getAll(Form.schema.name)});
     reducerMap.individualProfile = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
 
     return reducerMap;
-}
+};
+
+const reducerKeys = {
+    programEnrolment: "programEnrolment"
+};
+
+export {reducerMapFn as initReducers};
+
+export default reducerKeys;
