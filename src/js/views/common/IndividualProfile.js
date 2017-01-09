@@ -1,12 +1,14 @@
 import {View, StyleSheet, Modal} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, Button, Grid, Row, Col, Icon, Thumbnail} from "native-base";
+import {Text, Button, Grid, Row, Col, Icon, Thumbnail, Content, Container} from "native-base";
 import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import themes from "../primitives/themes";
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -46,16 +48,26 @@ class IndividualProfile extends AbstractComponent {
                 <View>
                     <Modal
                         animationType={"slide"}
-                        transparent={false}
+                        transparent={true}
                         visible={this.state.enrolment.enrolling}
-                        onRequestClose={() => {}}>
-                        <View>
-                            <RadioGroup action={Actions.PROGRAM_SELECTION}
-                                        selectionFn={(program) => _.isNil(this.state.enrolment.selectedProgram) ? false : this.state.enrolment.selectedProgram.uuid === program.uuid}
-                                        labelKey="selectProgram"
-                                        labelValuePairs={this.state.enrolment.programs.map((program) => new RadioLabelValue(program.name, program))}/>
-                            <Button onPress={() => this.dispatchAction(Actions.CHOOSE_PROGRAM)}>{this.I18n.t('enrol')}</Button>
-                        </View>
+                        onRequestClose={() => {
+                        }}>
+                        <Container theme={themes}>
+                            <Content contentContainerStyle={{marginTop: 100}}>
+                                <Grid>
+                                    <Row style={{backgroundColor: '#fff'}}>
+                                        <RadioGroup action={Actions.PROGRAM_SELECTION}
+                                                    selectionFn={(program) => _.isNil(this.state.enrolment.selectedProgram) ? false : this.state.enrolment.selectedProgram.uuid === program.uuid}
+                                                    labelKey="selectProgram"
+                                                    labelValuePairs={this.state.enrolment.programs.map((program) => new RadioLabelValue(program.name, program))}/>
+                                    </Row>
+                                    <Row style={{backgroundColor: '#fff'}}>
+                                        <Button onPress={() => this.enrolInProgram()}>{this.I18n.t('enrol')}</Button>
+                                        <Button onPress={() => this.dispatchAction(Actions.DONOT_CHOOSE_PROGRAM)}>{this.I18n.t('cancel')}</Button>
+                                    </Row>
+                                </Grid>
+                            </Content>
+                        </Container>
                     </Modal>
 
                     <Grid style={{backgroundColor: '#212121'}}>
@@ -99,11 +111,17 @@ class IndividualProfile extends AbstractComponent {
                     </Row>
                 </Grid>
             );
-
     }
 
     enrol() {
         this.dispatchAction(Actions.NEW_ENROLMENT);
+    }
+
+    enrolInProgram() {
+        this.dispatchAction(Actions.CHOOSE_PROGRAM, {
+            cb: () => TypedTransition.from(this).with(
+                {individual: this.props.individual, program: this.state.enrolment.selectedProgram}
+                ).to(ProgramEnrolmentView)})
     }
 }
 

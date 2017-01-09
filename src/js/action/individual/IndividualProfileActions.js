@@ -20,9 +20,19 @@ export class IndividualProfileActions {
         });
     }
 
-    static programConfirmation(state) {
-        return G.setNewState(state, function (newState) {
+    static programConfirmation(state, action) {
+        const confirmationState = G.setNewState(state, function (newState) {
+            newState.enrolment.enrolling = false;
             newState.confirmedProgram = true;
+        });
+        action.cb();
+        return confirmationState;
+    }
+
+    static donotChooseProgram(state) {
+        return G.setNewState(state, function (newState) {
+            newState.enrolment.enrolling = false;
+            newState.enrolment.selectedProgram = undefined;
         });
     }
 
@@ -42,6 +52,7 @@ const actions = {
     NEW_ENROLMENT: "bfff0282-c33f-47c5-9bee-ed129e1097cc",
     PROGRAM_SELECTION: "1c12b17b-b9ba-43a1-b42a-83c863969943",
     CHOOSE_PROGRAM: "c18669dc-5ad2-40e2-a4b9-7734df0c88dc",
+    DONOT_CHOOSE_PROGRAM: "3d221cbb-37aa-42e0-b27d-19eb0eb99e91"
 };
 
 export default new Map([
@@ -49,6 +60,7 @@ export default new Map([
     [actions.NEW_ENROLMENT, IndividualProfileActions.newEnrolment],
     [actions.PROGRAM_SELECTION, IndividualProfileActions.programSelection],
     [actions.CHOOSE_PROGRAM, IndividualProfileActions.programConfirmation],
+    [actions.DONOT_CHOOSE_PROGRAM, IndividualProfileActions.donotChooseProgram],
 ]);
 
 export {actions as Actions};

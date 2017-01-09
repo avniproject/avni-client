@@ -51,6 +51,8 @@
   "Female": "Female",
   "Other": "Other",
   "enrol": "Enrol in Program",
+  "cancel": "Cancel",
   "editProfile": "Edit Profile",
-  "selectProgram": "Select Program"
+  "selectProgram": "Select Program",
+  "enrolInSpecificProgram": "Enrol in {{program}}"
 }

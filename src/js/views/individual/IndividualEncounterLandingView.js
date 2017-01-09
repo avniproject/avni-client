@@ -42,7 +42,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#212121'}}>
-                    <AppHeader titleKey="generalConsultation" />
+                    <AppHeader title={this.I18n.t('generalConsultation')}/>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>
                             <IndividualProfile landingView={true} individual={this.props.params.individual}/>

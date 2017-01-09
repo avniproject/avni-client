@@ -24,7 +24,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     render() {
         return (<Container theme={themes}>
             <Content>
-                <AppHeader titleKey="enrol"/>
+                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.params.program.name})}/>
                 <Grid style={{marginLeft: 10, marginRight: 10}}>
                     <Row style={{height: 263}}>
                         <IndividualProfile landingView={false} individual={this.props.params.individual}/>

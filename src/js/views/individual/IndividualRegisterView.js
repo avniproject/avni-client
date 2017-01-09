@@ -89,8 +89,8 @@ class IndividualRegisterView extends AbstractComponent {
                         </Row>
                         <Row style={DynamicGlobalStyles.formRow}>
                             <RadioGroup action={Actions.REGISTRATION_ENTER_GENDER}
-                                        labelValues={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
-                                        label="gender"
+                                        labelValuePairs={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
+                                        labelKey="gender"
                                         selectionFn={(gender) => gender.equals(this.state.individual.gender)}
                             />
                         </Row>

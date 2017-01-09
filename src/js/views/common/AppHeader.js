@@ -6,7 +6,7 @@ import {Button, Header, Title, Icon} from "native-base";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
-        titleKey: React.PropTypes.string.isRequired
+        title: React.PropTypes.string.isRequired
     };
 
     constructor(props, context) {
@@ -20,7 +20,7 @@ class AppHeader extends AbstractComponent {
                 }}>
                     <Icon name='keyboard-arrow-left'/>
                 </Button>
-                <Title>{this.I18n.t(this.props.titleKey)}</Title>
+                <Title>{this.props.title}</Title>
             </Header>
         );
     }
