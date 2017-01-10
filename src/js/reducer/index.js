@@ -1,6 +1,7 @@
 import questionnaireActions from "../action/questionnaire";
 import IndividualSearchActions from "../action/individual/IndividualSearchActions";
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
+import IndividualEncounterActions from "../action/individual/IndividualEncounterActions";
 import configActions from "../action/config";
 import Reducer from "./Reducer";
 import IndividualSearchCriteria from "../service/query/IndividualSearchCriteria";
@@ -23,7 +24,7 @@ const reducerMapFn = function(beanStore) {
     reducerMap.individualSearch = add(IndividualSearchActions, {searchCriteria: IndividualSearchCriteria.empty(), individualSearchResults: []});
     reducerMap.addressLevels = add(new Map([]), beanStore.get(EntityService).getAll(AddressLevel.schema.name));
     reducerMap.individualRegister = add(IndividualRegisterActionMap, IndividualRegisterActions.getInitialState(beanStore));
-    reducerMap.individualEncounter = add(new Map([]), {encounter: new Encounter(), form: beanStore.get(EntityService).getAll(Form.schema.name)});
+    reducerMap.individualEncounter = add(IndividualEncounterActions, {encounter: Encounter.create(), form: beanStore.get(EntityService).getAll(Form.schema.name)});
     reducerMap.individualProfile = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
 

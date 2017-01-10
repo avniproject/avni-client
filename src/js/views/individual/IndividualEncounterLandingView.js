@@ -57,7 +57,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                     <Input defaultValue={moment().format('DD-MMM-YYYY')} />
                                 </InputGroup>
                             </Row>
-                            <FormElementGroup group={this.state.form[0].formElementGroups[0]}/>
+                            <FormElementGroup group={this.state.form[0].formElementGroups[0]}
+                                              encounter= {this.state.encounter}/>
                             <Row style={{marginTop: 30, marginBottom:30}}>
                                 <Button primary
                                         style={{flex:0.5, backgroundColor: '#e0e0e0'}}
