@@ -95,15 +95,16 @@ class General {
         }
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {
-                dest[fieldName] = new Date(source[fieldName]);
+                if (!_.isNil(source[fieldName]))
+                    dest[fieldName] = new Date(source[fieldName]);
             });
         }
         if (!_.isNil(observationFields)) {
             observationFields.forEach((observationField) => {
-                var observations = [];
+                const observations = [];
                 if (!_.isNil(source[observationField])) {
                     source[observationField].forEach((observationResource) => {
-                        var observation = new Observation();
+                        const observation = new Observation();
                         observation.conceptUUID = observationResource["conceptUUID"];
                         observation.valueJSON = `${observationResource["value"]}`;
                         observations.push(observation);
@@ -117,7 +118,7 @@ class General {
     }
 
     static pick(from, attributes, listAttributes) {
-        var picked = _.pick(from, attributes);
+        const picked = _.pick(from, attributes);
         if (!_.isNil(listAttributes)) {
             listAttributes.forEach((listAttribute) => {
                 picked[listAttribute] = [];

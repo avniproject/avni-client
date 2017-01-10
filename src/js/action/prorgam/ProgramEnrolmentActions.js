@@ -1,22 +1,43 @@
 import G from '../../utility/General';
+import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import ProgramEnrolment from "../../models/ProgramEnrolment";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
         return {};
     }
 
-    first(state, action, context) {
+    static confirm(state, action, context) {
+        return G.setNewState(state, function (newState) {
+            state.enrolment.individual = action.value;
+            context.get(ProgramEnrolmentService).enrol(state.enrolment);
+        });
+    }
+
+    static cancel(state, action, context) {
+        return state;
+    }
+
+    static newEnrolment(state, action, context) {
+        return G.setNewState(state, function(newState) {
+            newState.enrolment = new ProgramEnrolment();
+            newState.enrolment.program = action.value;
+        });
     }
 }
 
 const actions = {
-    FIRST: "ffe0f0bf-263d-451e-8972-f3b83081f75f"
+    CONFIRM: "6dd7b7bd-55ca-4b9b-8406-fe6ae2ea41c1",
+    CANCEL: "3f4c5299-95c8-4d36-8f09-43caf686e03a",
+    NEW_ENROLMENT_FOR_PROGRAM: "fbb2cd34-184a-4501-a39a-d5bcfb82f75d"
 };
 
 const _ProgramEnrolmentActions = new ProgramEnrolmentActions();
 
 export default new Map([
-    [actions.FIRST, _ProgramEnrolmentActions.first],
+    [actions.CONFIRM, ProgramEnrolmentActions.confirm],
+    [actions.CANCEL, ProgramEnrolmentActions.cancel],
+    [actions.NEW_ENROLMENT_FOR_PROGRAM, ProgramEnrolmentActions.newEnrolment]
 ]);
 
 export {actions as Actions};

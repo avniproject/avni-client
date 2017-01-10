@@ -10,7 +10,7 @@ class ProgramEncounter {
         properties: {
             uuid: 'string',
             followupType: 'FollowupType',
-            scheduledDateTime: 'date',
+            scheduledDateTime: {type: 'date', optional: true},
             actualDateTime: 'date',
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'}

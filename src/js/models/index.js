@@ -28,5 +28,7 @@ import EntityQueue from "./EntityQueue";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptName, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue]
+    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptName, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue],
+    schemaVersion: 2,
+    migration: function(oldDB, newDB) {}
 };

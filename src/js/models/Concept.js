@@ -66,7 +66,6 @@ export class Concept {
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "conceptUUID"), Concept.schema.name);
-        console.log(concept);
         concept = General.pick(concept, ["uuid"], ["answers"]);
 
         if (childEntityClass === ConceptAnswer)

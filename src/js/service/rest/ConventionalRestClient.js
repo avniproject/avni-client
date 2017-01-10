@@ -16,7 +16,6 @@ class ConventionalRestClient {
             console.log(resources.length);
             _.forEach(resources, (resource) => {
                 console.log(`Number of resources with same timestamp: ${resourcesWithSameTimestamp.length}`);
-                console.log(resource.name);
                 if (resourcesWithSameTimestamp.length === 0)
                     resourcesWithSameTimestamp.push(resource);
                 else if (resourcesWithSameTimestamp.length > 0 && resourcesWithSameTimestamp[0]["lastModifiedDateTime"] === resource["lastModifiedDateTime"])

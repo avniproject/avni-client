@@ -4,9 +4,10 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import Path from "../../framework/routing/Path";
-import {Content, Grid, Row, Container} from "native-base";
+import {Content, Grid, Row, Container, Button} from "native-base";
 import themes from "../primitives/themes";
 import ReducerKeys from "../../reducer";
+import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -22,6 +23,11 @@ class ProgramEnrolmentView extends AbstractComponent {
         super(props, context, ReducerKeys.programEnrolment);
     }
 
+    componentWillMount() {
+        this.dispatchAction(Actions.NEW_ENROLMENT_FOR_PROGRAM, {value: this.props.params.program});
+        return super.componentWillMount();
+    }
+
     render() {
         return (<Container theme={themes}>
             <Content>
@@ -31,8 +37,8 @@ class ProgramEnrolmentView extends AbstractComponent {
                         <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                     </Row>
                     <Row>
-                        <Button onPress={() => this.dispatchAction()}>{this.I18n.t('cancel')}</Button>
-                        <Button onPress={() => this.dispatchAction(Actions.DONOT_CHOOSE_PROGRAM)}>{this.I18n.t('confirm')}</Button>
+                        <Button onPress={() => this.dispatchAction(Actions.CANCEL)}>{this.I18n.t('cancel')}</Button>
+                        <Button onPress={() => this.dispatchAction(Actions.CONFIRM, {value: this.props.params.individual})}>{this.I18n.t('confirm')}</Button>
                     </Row>
                 </Grid>
             </Content>
