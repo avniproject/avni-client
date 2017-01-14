@@ -44,8 +44,6 @@ class FormElementGroup extends AbstractComponent {
             }
         );
         return _.isEmpty(observations) ? [] : observations[0].valueJSON.answer;
-
-
     }
 }
 

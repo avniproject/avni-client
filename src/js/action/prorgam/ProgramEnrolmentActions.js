@@ -9,8 +9,7 @@ export class ProgramEnrolmentActions {
 
     static confirm(state, action, context) {
         return G.setNewState(state, function (newState) {
-            state.enrolment.individual = action.value;
-            context.get(ProgramEnrolmentService).enrol(state.enrolment);
+            context.get(ProgramEnrolmentService).enrol(state.enrolment, action.value);
         });
     }
 

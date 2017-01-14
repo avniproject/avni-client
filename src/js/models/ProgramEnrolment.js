@@ -1,11 +1,12 @@
 import General from "../utility/General";
-import ResourceUtil from '../utility/ResourceUtil';
-import Program from './Program';
-import ProgramOutcome from './ProgramOutcome';
+import ResourceUtil from "../utility/ResourceUtil";
+import Program from "./Program";
+import ProgramOutcome from "./ProgramOutcome";
 import ProgramEncounter from "./ProgramEncounter";
 import BaseEntity from "./BaseEntity";
-import Individual from './Individual';
+import Individual from "./Individual";
 import _ from "lodash";
+import moment from "moment";
 
 class ProgramEnrolment extends BaseEntity {
     static schema = {
@@ -23,6 +24,16 @@ class ProgramEnrolment extends BaseEntity {
             encounters: {type: 'list', objectType: 'ProgramEncounter'}
         }
     };
+
+    get toResource() {
+        const resource = _.pick(this, ["uuid"]);
+        resource["programUUID"] = this.program.uuid;
+        resource.enrolmentDateTime = moment(this.enrolmentDateTime).format();
+        if (!_.isNil(this.programExitDateTime)) resource.programExitDateTime = moment(this.programExitDateTime).format();
+        if (!_.isNil(this.programOutcome)) resource["programOutcomeUUID"] = this.programOutcome.uuid;
+        resource["individualUUID"] = this.individual.uuid;
+        return resource;
+    }
 
     static fromResource(resource, entityService) {
         const program = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
