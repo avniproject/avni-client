@@ -24,7 +24,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.NEW_ENROLMENT_FOR_PROGRAM, {value: this.props.params.program});
+        this.dispatchAction(Actions.NEW_ENROLMENT_FOR_PROGRAM, this.props.params.program);
         return super.componentWillMount();
     }
 

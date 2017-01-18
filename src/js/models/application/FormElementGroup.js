@@ -11,13 +11,14 @@ class FormElementGroup {
         properties: {
             uuid: 'string',
             name: 'string',
+            displayOrder: 'int',
             formElements: {type: 'list', objectType: 'FormElement'},
             form: 'Form'
         }
     };
 
     static fromResource(resource, entityService) {
-        var formElementGroup = General.assignFields(resource, new FormElementGroup(), ["uuid", "name"]);
+        const formElementGroup = General.assignFields(resource, new FormElementGroup(), ["uuid", "name", "displayOrder"]);
         formElementGroup.form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
         return formElementGroup;
     }

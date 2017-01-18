@@ -7,7 +7,6 @@ import NumericFormElement from './NumericFormElement';
 import {Actions} from "../../action/individual/IndividualEncounterActions";
 import _ from "lodash";
 
-
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
         group: React.PropTypes.object.isRequired,

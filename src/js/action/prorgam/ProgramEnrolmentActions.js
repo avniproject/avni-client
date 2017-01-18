@@ -20,7 +20,7 @@ export class ProgramEnrolmentActions {
     static newEnrolment(state, action, context) {
         return G.setNewState(state, function(newState) {
             newState.enrolment = new ProgramEnrolment();
-            newState.enrolment.program = action.value;
+            newState.enrolment.program = action;
         });
     }
 }
