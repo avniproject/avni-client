@@ -12,7 +12,8 @@ import Observation from '../../models/Observation';
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.object.isRequired
+        observations: React.PropTypes.object.isRequired,
+        encounterNumber: React.PropTypes.number.isRequired
     };
 
     constructor(props, context) {
@@ -22,16 +23,16 @@ class Observations extends AbstractComponent {
     render() {
         const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
         return (
-            <View>
+            <View style={DGS.observations.component}>
                 {
                     observationRows.map((observationRow) => {
                         return (
-                            <Grid>
-                                <Row style={DGS.observations.observationRow}>
+                            <Grid style={DGS.observations.observationTable}>
+                                <Row style={DGS.observations.observationRowHeader}>
                                     {observationRow.map((observation) => {
                                         return (
                                             <Col>
-                                                <Text>{observation.concept.name}</Text>
+                                                <Text style={{textAlign: 'center', fontSize: 12}}>{observation.concept.name}</Text>
                                             </Col>
                                         );
                                     })}</Row>
@@ -39,7 +40,7 @@ class Observations extends AbstractComponent {
                                     {observationRow.map((observation) => {
                                         return (
                                             <Col>
-                                                <Text>{Observation.valueAsString(observation, this.context.getService(ConceptService))}</Text>
+                                                <Text style={{textAlign: 'center', fontSize: 16}}>{Observation.valueAsString(observation, this.context.getService(ConceptService))}</Text>
                                             </Col>
                                         );
                                     })}</Row>
@@ -48,6 +49,10 @@ class Observations extends AbstractComponent {
                 }
             </View>
         );
+    }
+
+    getBackgroundColor(encounterNumber) {
+        return encounterNumber % 2 ? '#f7f7f7' : '';
     }
 }
 

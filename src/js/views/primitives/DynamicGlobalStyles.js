@@ -13,12 +13,17 @@ class DynamicGlobalStyles {
                 this.formCheckboxElement = {marginLeft: 0, marginTop: this.resizeHeight(16)};
                 this.formRadioText = {fontSize: 16, marginLeft: this.resizeWidth(10)}
         // @formatter:on
+        this.createCommonStyles();
         this.createObservationsStyles();
+        this.createGeneralHistoryStyles();
     }
 
     createObservationsStyles() {
         this.observations = {
-            observationRow: {height: this.resizeHeight(44), borderWidth: 1, borderColor: '#00000012'}
+            observationRowHeader: {height: this.resizeHeight(44), borderWidth: 1, borderColor: '#00000012'},
+            observationRow: {height: this.resizeHeight(62), borderLeftWidth: 1, borderRightWidth: 1, borderBottomWidth: 1, borderColor: '#00000012'},
+            observationTable: {marginTop: this.resizeHeight(16)},
+            component: {backgroundColor: '#f7f7f7', marginBottom: this.resizeHeight(36)}
         }
     }
 
@@ -41,6 +46,19 @@ class DynamicGlobalStyles {
 
     numberOfRows(numberOfCells) {
         return numberOfCells % this.numberOfTableColumns() + 1;
+    }
+
+    createCommonStyles() {
+        this.common = {
+            content: {marginHorizontal: this.resizeWidth(24), marginTop: this.resizeHeight(16)}
+        }
+    }
+
+    createGeneralHistoryStyles() {
+        this.generalHistory = {
+            encounter: {backgroundColor: '#f7f7f7', marginTop: this.resizeHeight(16)},
+            encounterDateGrid: {marginBottom: this.resizeHeight(8)}
+        };
     }
 }
 
