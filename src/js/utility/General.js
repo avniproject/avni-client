@@ -1,8 +1,8 @@
 import Duration from "../models/Duration";
 import _ from 'lodash';
 import moment from "moment";
-import ResourceUtil from "./ResourceUtil";
 import Observation from "../models/Observation";
+import Concept from "../models/Concept";
 
 class General {
     static setNewState(state, setter) {
@@ -87,7 +87,7 @@ class General {
         return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
     }
 
-    static assignFields(source, dest, directCopyFields, dateFields, observationFields) {
+    static assignFields(source, dest, directCopyFields, dateFields, observationFields, entityService) {
         if (!_.isNil(directCopyFields)) {
             directCopyFields.forEach((fieldName) => {
                 dest[fieldName] = source[fieldName];
@@ -105,7 +105,7 @@ class General {
                 if (!_.isNil(source[observationField])) {
                     source[observationField].forEach((observationResource) => {
                         const observation = new Observation();
-                        observation.conceptUUID = observationResource["conceptUUID"];
+                        observation.concept = entityService.findByKey('uuid', observationResource["conceptUUID"], Concept.schema.name);
                         observation.valueJSON = `${observationResource["value"]}`;
                         observations.push(observation);
                     });

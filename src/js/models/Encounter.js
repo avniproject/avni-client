@@ -25,21 +25,21 @@ class Encounter {
     }
 
     static fromResource(resource, entityService) {
-        var encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
-        var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
+        const encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
+        const individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
 
-        var encounter = General.assignFields(resource, new Encounter(), ["uuid"], ["encounterDateTime"], ["observations"]);
+        const encounter = General.assignFields(resource, new Encounter(), ["uuid"], ["encounterDateTime"], ["observations"], entityService);
         encounter.encounterType = encounterType;
         encounter.individual = individual;
         return encounter;
     }
 
-    toggleMultiSelectAnswer(conceptUUID, answerUUID) {
+    toggleMultiSelectAnswer(concept, answerUUID) {
         let observation = _.find(this.observations, (observation) => {
-            return observation.conceptUUID = conceptUUID;
+            return observation.concept = concept;
         });
         if (_.isEmpty(observation)) {
-            observation = new Observation(conceptUUID, [{conceptUUID: answerUUID}]);
+            observation = new Observation(concept, [{conceptUUID: answerUUID}]);
             this.observations.push(observation);
         }
         else {

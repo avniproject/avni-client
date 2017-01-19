@@ -18,9 +18,9 @@ class FormElement extends AbstractComponent {
         super(props, context);
     }
 
-    toggleFormElementAnswerSelection(conceptUUID, answer) {
+    toggleFormElementAnswerSelection(concept, answer) {
         return () => {
-            this.dispatchAction(this.props.actionName, {conceptUUID: conceptUUID, answerUUID: answer.uuid});
+            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.uuid});
         }
     }
 
@@ -37,7 +37,7 @@ class FormElement extends AbstractComponent {
                                     <Row>
                                         <CheckBox
                                             checked={BaseEntity.collectionHasEntity(this.props.selectedAnswers, answer1)}
-                                            onPress={this.toggleFormElementAnswerSelection(this.props.element.concept.uuid, answer1)}/>
+                                            onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
                                         <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
                                     </Row>
                                 </Col>
@@ -45,7 +45,7 @@ class FormElement extends AbstractComponent {
                                     <Row>
                                         <CheckBox
                                             checked={BaseEntity.collectionHasEntity(this.props.selectedAnswers, answer2)}
-                                            onPress={this.toggleFormElementAnswerSelection(this.props.element.concept.uuid, answer2)}/>
+                                            onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
                                         <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
                                     </Row>
                                 </Col>

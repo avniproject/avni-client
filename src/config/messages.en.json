@@ -55,5 +55,6 @@
   "editProfile": "Edit Profile",
   "selectProgram": "Select Program",
   "enrolInSpecificProgram": "Enrol in {{program}}",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "generalHistory": "General History"
 }

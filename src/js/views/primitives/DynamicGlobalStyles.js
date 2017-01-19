@@ -27,6 +27,14 @@ class DynamicGlobalStyles {
         const resizedHeight = this.resizeHeight(size);
         return resizedHeight < 26 ? 26 : resizedHeight;
     }
+
+    numberOfTableColumns() {
+        return this.windowWidth / 110;
+    }
+
+    numberOfRows(numberOfCells) {
+        return numberOfCells % this.numberOfTableColumns() + 1;
+    }
 }
 
 export default new DynamicGlobalStyles();

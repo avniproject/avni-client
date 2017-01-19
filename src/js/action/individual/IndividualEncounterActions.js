@@ -7,7 +7,7 @@ class IndividualEncounterActions {
 
     toggleMultiSelectAnswer(state, action) {
         return IndividualEncounterActions._setValue(state, (newState) => {
-            newState.encounter.toggleMultiSelectAnswer(action.conceptUUID, action.answerUUID);
+            newState.encounter.toggleMultiSelectAnswer(action.concept, action.answerUUID);
         });
     }
 

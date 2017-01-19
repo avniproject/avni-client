@@ -37,9 +37,9 @@ class FormElementGroup extends AbstractComponent {
         );
     }
 
-    getSelectedAnswers(conceptUUID) {
+    getSelectedAnswers(concept) {
         let observations = this.props.encounter.observations.filter( (observation) => {
-             return observation.conceptUUID === conceptUUID;
+             return observation.concept.uuid === concept.uuid;
             }
         );
         return _.isEmpty(observations) ? [] : observations[0].valueJSON.answer;

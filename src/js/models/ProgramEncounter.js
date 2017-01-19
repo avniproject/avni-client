@@ -18,10 +18,10 @@ class ProgramEncounter {
     };
 
     static fromResource(resource, entityService) {
-        var followupType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "followupTypeUUID"), FollowupType.schema.name);
-        var programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
+        const followupType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "followupTypeUUID"), FollowupType.schema.name);
+        const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
 
-        var programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], ["observations"]);
+        const programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], ["observations"], entityService);
         programEncounter.followupType = followupType;
         programEncounter.programEnrolment = programEnrolment;
 
