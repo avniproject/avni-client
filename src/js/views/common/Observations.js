@@ -6,11 +6,13 @@ import {
     Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
     Input, Radio
 } from "native-base";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import DGS from '../primitives/DynamicGlobalStyles';
+import ConceptService from "../../service/ConceptService";
+import Observation from '../../models/Observation';
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.array.isRequired
+        observations: React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
@@ -18,22 +20,33 @@ class Observations extends AbstractComponent {
     }
 
     render() {
-        const observationRows = _.chunk(this.props.observations, DynamicGlobalStyles.numberOfRows(this.props.observations.length));
+        const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
         return (
-            <Grid>
+            <View>
                 {
                     observationRows.map((observationRow) => {
                         return (
-                            <Row>{observationRow.map((observation) => {
-                                return (
-                                    <Column>
-                                        <Text></Text>
-                                    </Column>
-                                );
-                            })}</Row>)
+                            <Grid>
+                                <Row style={DGS.observations.observationRow}>
+                                    {observationRow.map((observation) => {
+                                        return (
+                                            <Col>
+                                                <Text>{observation.concept.name}</Text>
+                                            </Col>
+                                        );
+                                    })}</Row>
+                                <Row style={DGS.observations.observationRow}>
+                                    {observationRow.map((observation) => {
+                                        return (
+                                            <Col>
+                                                <Text>{Observation.valueAsString(observation, this.context.getService(ConceptService))}</Text>
+                                            </Col>
+                                        );
+                                    })}</Row>
+                            </Grid>)
                     })
                 }
-            </Grid>
+            </View>
         );
     }
 }

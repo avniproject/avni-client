@@ -1,6 +1,6 @@
 import ResourceUtil from "../../utility/ResourceUtil";
 import FormElementGroup from './FormElementGroup';
-import {Concept} from '../Concept';
+import Concept from '../Concept';
 import General from '../../utility/General';
 
 class FormElement {

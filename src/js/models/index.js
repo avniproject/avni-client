@@ -1,6 +1,6 @@
 import Settings from "./Settings";
 import {Locale, LocaleMapping} from "./Locale";
-import {Concept, ConceptAnswer, ConceptName} from "./Concept";
+import Concept, {ConceptAnswer, ConceptName} from "./Concept";
 import {Questionnaire, QuestionnaireQuestion, StringObject} from "./Questionnaire";
 import DecisionSupportSession from "./DecisionSupportSession";
 import QuestionAnswer from "./QuestionAnswer";

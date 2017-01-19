@@ -13,6 +13,13 @@ class DynamicGlobalStyles {
                 this.formCheckboxElement = {marginLeft: 0, marginTop: this.resizeHeight(16)};
                 this.formRadioText = {fontSize: 16, marginLeft: this.resizeWidth(10)}
         // @formatter:on
+        this.createObservationsStyles();
+    }
+
+    createObservationsStyles() {
+        this.observations = {
+            observationRow: {height: this.resizeHeight(44), borderWidth: 1, borderColor: '#00000012'}
+        }
     }
 
     resizeWidth(size) {

@@ -1,4 +1,6 @@
 import _ from "lodash";
+import Concept from './Concept';
+import moment from "moment";
 
 class Observation {
     static schema = {
@@ -9,9 +11,11 @@ class Observation {
         }
     };
 
-    constructor(concept, answer){
-        this.concept = concept;
-        this.valueJSON = {answer : answer}
+    static create(concept, answer){
+        const observation = new Observation();
+        observation.concept = concept;
+        observation.valueJSON = {answer : answer};
+        return observation;
     }
 
     toggleMultiSelectAnswer(answer) {
@@ -34,6 +38,17 @@ class Observation {
         _.remove(collection, function (item) {
             return item.concept.uuid === entity;
         });
+    }
+
+    static valueAsString(observation, conceptService) {
+        switch (observation.concept.datatype) {
+            case Concept.dataType.Date:
+                return moment(observation.valueJSON.answer).format('DD-MMM-YYYY');
+            case Concept.dataType.Coded:
+                return _.isArray(observation.valueJSON.answer) ? _.join(observation.valueJSON.answer, ', ') : conceptService.getConceptByUUID(observation.valueJSON.answer.conceptUUID).name;
+            default:
+                return observation.valueJSON;
+        }
     }
 }
 

@@ -19,7 +19,7 @@ export class ConceptAnswer {
             name: 'string',
             uuid: {"type": 'string', "optional": true}
         }
-    }
+    };
 
     static fromResource(resource, entityService) {
         var conceptAnswer = new ConceptAnswer();
@@ -28,10 +28,9 @@ export class ConceptAnswer {
         conceptAnswer.uuid = resource.uuid;
         return conceptAnswer ;
     }
-
 }
 
-export class Concept {
+export default class Concept {
     static schema = {
         name: 'Concept',
         primaryKey: 'uuid',
@@ -48,9 +47,15 @@ export class Concept {
         }
     };
 
+    static dataType = {
+        Date: 'Date',
+        Duration: 'Duration',
+        Coded: 'Coded'
+    };
+
     static fromResource(conceptResource) {
-        var concept = new Concept();
-        var conceptName = new ConceptName();
+        const concept = new Concept();
+        const conceptName = new ConceptName();
         conceptName.name = conceptResource.name;
         conceptName.locale = "en";
         concept.conceptNames = [conceptName];

@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Concept} from "../models/Concept";
+import Concept from "../models/Concept";
 import MessageService from "./MessageService";
 
 @Service("conceptService")

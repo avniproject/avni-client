@@ -39,7 +39,7 @@ class Encounter {
             return observation.concept = concept;
         });
         if (_.isEmpty(observation)) {
-            observation = new Observation(concept, [{conceptUUID: answerUUID}]);
+            observation = Observation.create(concept, [{conceptUUID: answerUUID}]);
             this.observations.push(observation);
         }
         else {
