@@ -30,13 +30,13 @@ class Observation {
     //TODO the methods are very similar to the ones in BaseEntity. see if they can be merged
     collectionHasEntity(collection, entity) {
         return _.findIndex(collection, function (item) {
-                return item.concept.uuid === entity;
+                return item.uuid === entity;
             }) !== -1;
     }
 
     removeFromCollection(collection, entity) {
         _.remove(collection, function (item) {
-            return item.concept.uuid === entity;
+            return item.uuid === entity;
         });
     }
 

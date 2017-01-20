@@ -36,7 +36,7 @@ class Encounter {
 
     toggleMultiSelectAnswer(concept, answerUUID) {
         let observation = _.find(this.observations, (observation) => {
-            return observation.concept = concept;
+            return observation.concept.uuid === concept.uuid;
         });
         if (_.isEmpty(observation)) {
             observation = Observation.create(concept, [{conceptUUID: answerUUID}]);
