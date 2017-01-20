@@ -14,11 +14,10 @@ class AppHeader extends AbstractComponent {
     }
 
     render() {
-        //Mihir: why the icon is vertically center aligned
         return (
             <Header style={{backgroundColor: '#212121'}}>
                 <Button transparent onPress={() => TypedTransition.from(this).goBack()}>
-                    <Icon name='keyboard-arrow-left'/>
+                    <Icon style={{fontSize: 25}} name='keyboard-arrow-left'/>
                 </Button>
                 <Title>{this.props.title}</Title>
             </Header>

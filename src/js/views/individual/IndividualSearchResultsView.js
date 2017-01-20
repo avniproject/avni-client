@@ -10,6 +10,7 @@ import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, But
 import moment from "moment";
 import themes from "../primitives/themes";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import AppHeader from '../common/AppHeader';
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -82,15 +83,8 @@ class IndividualSearchResultsView extends AbstractComponent {
     render() {
         return (
             <Container theme={themes}>
-                <Header style={{backgroundColor: '#212121'}}>
-                    <Button transparent onPress={() => {
-                        TypedTransition.from(this).goBack()
-                    }}>
-                        <Icon name='keyboard-arrow-left'/>
-                    </Button>
-                    <Title>{this.I18n.t("searchResults")}</Title>
-                </Header>
                 <Content>
+                    <AppHeader title={this.I18n.t("searchResults")}/>
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}

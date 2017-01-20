@@ -8,7 +8,7 @@ import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import themes from "../primitives/themes";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
 
 class IndividualProfile extends AbstractComponent {
@@ -17,13 +17,11 @@ class IndividualProfile extends AbstractComponent {
         individual: React.PropTypes.object.isRequired
     };
 
-    //Mihir: how to change the color of font
-    static iconStyle = {fontSize: 14, color: '#009688'};
+    static buttonIconStyle = {fontSize: 14, color: '#009688'};
+    static buttonTextStyle = {fontSize: 14, color: '#009688'};
 
     constructor(props, context) {
         super(props, context, "individualProfile");
-        this.buttonStyle = {marginLeft: 8, height: DynamicGlobalStyles.resizeHeight(26), justifyContent: 'center'};
-        this.buttonRowStyle = {justifyContent: 'center', height: DynamicGlobalStyles.resizeHeight(40)};
     }
 
     componentWillMount() {
@@ -34,16 +32,16 @@ class IndividualProfile extends AbstractComponent {
     getImage(individual) {
         if (individual.gender.name === 'Male') {
             if (moment().diff(individual.dateOfBirth, 'years') > 30) {
-                return <Thumbnail size={DynamicGlobalStyles.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DynamicGlobalStyles.resizeHeight(28)}}
+                return <Thumbnail size={DGS.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DGS.resizeHeight(28)}}
                                   source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
             }
             else {
-                return <Thumbnail size={DynamicGlobalStyles.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DynamicGlobalStyles.resizeHeight(28)}}
+                return <Thumbnail size={DGS.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DGS.resizeHeight(28)}}
                                   source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
             }
         }
         else if (individual.gender.name === 'Female') {
-            return <Thumbnail size={DynamicGlobalStyles.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DynamicGlobalStyles.resizeHeight(28)}}
+            return <Thumbnail size={DGS.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DGS.resizeHeight(28)}}
                               source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
         }
     }
@@ -77,13 +75,13 @@ class IndividualProfile extends AbstractComponent {
                     </Modal>
 
                     <Grid style={{backgroundColor: '#212121'}}>
-                        <Row style={{justifyContent: 'center', height: DynamicGlobalStyles.resizeHeight(131)}}>
+                        <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
                             {this.getImage(this.props.individual)}
                         </Row>
-                        <Row style={{justifyContent: 'center', height: DynamicGlobalStyles.resizeHeight(30)}}><Text
+                        <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30)}}><Text
                             style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name}
                             | {this.props.individual.id}</Text></Row>
-                        <Row style={{justifyContent: 'center', height: DynamicGlobalStyles.resizeHeight(30), marginBottom: DynamicGlobalStyles.resizeHeight(14)}}>
+                        <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30), marginBottom: DGS.resizeHeight(14)}}>
                             <Text style={{
                                 textAlignVertical: 'top',
                                 fontSize: 14,
@@ -93,15 +91,15 @@ class IndividualProfile extends AbstractComponent {
                                 | {this.props.individual.lowestAddressLevel.title}
                             </Text>
                         </Row>
-                        <Row style={this.buttonRowStyle}>
-                            <Button bordered style={this.buttonStyle}>
-                                <Icon name="mode-edit" style={IndividualProfile.iconStyle}/>{this.I18n.t('editProfile')}</Button>
-                            <Button bordered style={this.buttonStyle} onPress={() => this.enrol()}>
-                                <Icon name="add" style={IndividualProfile.iconStyle}/>{this.I18n.t('enrol')}</Button>
+                        <Row style={DGS.generalHistory.buttonRowStyle}>
+                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}>
+                                <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle} />{this.I18n.t('editProfile')}</Button>
+                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.enrol()}>
+                                <Icon name="add" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('enrol')}</Button>
                         </Row>
-                        <Row style={this.buttonRowStyle}>
-                            <Button bordered style={this.buttonStyle} onPress={() => this.viewGeneralHistory()}>
-                                <Icon name="mode-edit" style={IndividualProfile.iconStyle}/>{this.I18n.t('generalHistory')}</Button>
+                        <Row style={DGS.generalHistory.buttonRowStyle}>
+                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.viewGeneralHistory()}>
+                                <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('generalHistory')}</Button>
                         </Row>
                     </Grid>
                 </Content>
