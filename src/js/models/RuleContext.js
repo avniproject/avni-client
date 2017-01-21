@@ -1,3 +1,5 @@
+//RuleContext could be used outside the this codebase by the decision support rules defined by disease modules and implementations
+
 class RuleContext {
     constructor(questionAnswers) {
         this.questionAnswers = questionAnswers;
@@ -8,8 +10,7 @@ class RuleContext {
     }
 
     getDurationInYears(questionName) {
-        var duration = this.questionAnswers.get(questionName);
-        return duration.inYears;
+        return this.questionAnswers.get(questionName).inYears;
     }
 }
 

@@ -50,7 +50,8 @@ export default class Concept {
     static dataType = {
         Date: 'Date',
         Duration: 'Duration',
-        Coded: 'Coded'
+        Coded: 'Coded',
+        Numeric: 'Numeric'
     };
 
     static fromResource(conceptResource) {
@@ -80,4 +81,10 @@ export default class Concept {
         return concept;
     }
 
+    static create(name, dataType) {
+        const concept = new Concept();
+        concept.name = name;
+        concept.datatype = dataType;
+        return concept;
+    }
 }

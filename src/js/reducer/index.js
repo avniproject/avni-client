@@ -29,13 +29,15 @@ const reducerMapFn = function(beanStore) {
     reducerMap.individualProfile = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
     reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.encounterRecommendation] = add(EncounterRecommendationActionsMap, EncounterRecommendationActions.getInitialState(beanStore));
 
     return reducerMap;
 };
 
 const reducerKeys = {
     programEnrolment: "programEnrolment",
-    individualGeneralHistory: "individualGeneralHistory"
+    individualGeneralHistory: "individualGeneralHistory",
+    encounterRecommendation: "encounterRecommendation"
 };
 
 export {reducerMapFn as initReducers};

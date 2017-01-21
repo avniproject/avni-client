@@ -49,7 +49,6 @@ class Encounter {
             }
         }
     }
-
 }
 
 export default Encounter;

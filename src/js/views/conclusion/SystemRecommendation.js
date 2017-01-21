@@ -1,13 +1,11 @@
-import MessageService from "../../service/MessageService";
-import AbstractComponent from '../../framework/view/AbstractComponent';
-import React, {Component} from 'react';
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import React, {Component} from "react";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import IndividualProfile from "../common/IndividualProfile"
-import {
-    Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon
-} from "native-base";
+import IndividualProfile from "../common/IndividualProfile";
+import {Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import IndividualEncounterView from "../individual/IndividualEncounterView";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -21,7 +19,6 @@ class SystemRecommendationView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = this.context.getService(MessageService).getI18n();
     }
 
     next() {
@@ -31,7 +28,6 @@ class SystemRecommendationView extends AbstractComponent {
     previous() {
         TypedTransition.from(this).goBack();
     }
-
 
     render() {
         return (

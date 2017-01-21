@@ -9,19 +9,20 @@ import _ from 'lodash';
 class ConfigService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
+        this.encounterDecisionFile = "encounterDecision.js";
+        this._createFileHandlers();
     }
 
-    getConfigs() {
-        return {
-            "encounterDecision.js": (response) => this.getService(DecisionConfigService).saveDecisionConfig("encounterDecision.js", response)
-        };
+    _createFileHandlers() {
+        this.fileHandlers = {};
+        this.fileHandlers[`${this.encounterDecisionFile}`] = (response) => this.getService(DecisionConfigService).saveDecisionConfig("encounterDecision.js", response);
     }
 
     getAllFilesAndSave(cb, errorHandler) {
         const batchRequest = new BatchRequest();
         const configURL = `${this.getService(SettingsService).getServerURL()}/ext`;
 
-        _.forOwn(this.getConfigs(), (handler, file) => {
+        _.forOwn(this.encounterDecisionFile, (handler, file) => {
             batchRequest.add(`${configURL}/${file}`, handler, errorHandler);
         });
         batchRequest.fire(cb, errorHandler);

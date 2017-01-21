@@ -77,7 +77,7 @@ class DecisionView extends Component {
     }
 
     render() {
-        this.decisions = this.context.getService(RuleEvaluationService).getDecision(AppState.questionnaireAnswers.questionnaireName);
+        this.decisions = this.context.getService(RuleEvaluationService).getEncounterDecision(AppState.questionnaireAnswers.questionnaireName);
         return (
             <View style={{flex: 1}} keyboardShouldPersistTaps={true}>
                 <AppHeader titleKey={this.I18n.t(AppState.questionnaireAnswers.questionnaireName)}

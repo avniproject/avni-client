@@ -1,8 +1,10 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import DecisionConfigService from "./DecisionConfigService";
-import AppState from '../hack/AppState';
-import MessageService from "./MessageService";
+import ConfigService from "./ConfigService";
+import _ from 'lodash';
+import DynamicDataResolver from "./DynamicDataResolver";
+import {getObservationValue} from '../service/decisionSupport/AdditionalFunctions';
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -10,21 +12,24 @@ class RuleEvaluationService extends BaseService {
         super(db, beanStore);
     }
 
-    getDecision(questionnaireName) {
-        const param = AppState.questionnaireAnswers.createRuleContext();
-        const evalExpression = this.evalExpression(questionnaireName, 'getDecision');
+    getEncounterDecision(encounter) {
+        if (_.isNil(encounter.prototype.dynamicDataResolver)) {
+            encounter.prototype.dynamicDataResolver = new DynamicDataResolver(this.context);
+            encounter.prototype.getObservationValue = getObservationValue;
+        }
+
+        const evalExpression = this.getEncounterDecisionEvalExpression('getDecision');
         return eval(evalExpression);
     }
 
-    evalExpression(questionnaireName, functionName) {
-        const decision = this.getService(DecisionConfigService)
-            .getDecisionConfig(questionnaireName);
-        return `${decision.decisionCode} ${functionName}(param);`;
+    getEncounterDecisionEvalExpression(functionName) {
+        const decisionConfig = this.getService(DecisionConfigService)
+            .getDecisionConfig(this.getService(ConfigService).encounterDecisionFile);
+        return `${decisionConfig.decisionCode} ${functionName}(encounter);`;
     }
 
-    validate(questionnaireName) {
-        const param = AppState.questionnaireAnswers.createRuleContext();
-        const evalExpression = this.evalExpression(questionnaireName, 'validate');
+    validate(encounter) {
+        const evalExpression = this.getEncounterDecisionEvalExpression('validate');
         return eval(evalExpression);
     }
 }

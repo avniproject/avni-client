@@ -10,14 +10,12 @@ class DecisionConfigService extends BaseService {
     }
 
     saveDecisionConfig(fileName, decisionCode) {
-        console.log(`DecisionCode: ${decisionCode} and Filename: ${fileName}`);
-
         const db = this.db;
         this.db.write(()=> db.create(DecisionConfig.schema.name, DecisionConfig.toDB(fileName, decisionCode), true));
     }
 
-    getDecisionConfig(questionnaireName) {
-        return this.db.objectForPrimaryKey(DecisionConfig.schema.name, `${questionnaireName.toLowerCase()}`);
+    getDecisionConfig(fileName) {
+        return this.db.objectForPrimaryKey(DecisionConfig.schema.name, `${fileName.toLowerCase()}`);
     }
 }
 

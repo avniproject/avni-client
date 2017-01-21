@@ -50,6 +50,10 @@ class Observation {
                 return observation.valueJSON;
         }
     }
+
+    getValue() {
+
+    }
 }
 
 export default Observation;
