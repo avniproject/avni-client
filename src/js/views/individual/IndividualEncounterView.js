@@ -25,13 +25,12 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     next() {
-        TypedTransition.from(this).with({individual: this.props.params.individual}).to(SystemRecommendationView);
+        TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.props.params.encounter}).to(SystemRecommendationView);
     }
 
     previous() {
         TypedTransition.from(this).goBack();
     }
-
 
     render() {
         return (

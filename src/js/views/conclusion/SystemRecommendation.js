@@ -6,6 +6,8 @@ import IndividualProfile from "../common/IndividualProfile";
 import {Text, Button, Content, Grid, Col, Row, Container, Header, Title, Icon} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "../individual/IndividualEncounterView";
+import {Actions} from '../../action/individual/EncounterRecommendationActions';
+import ReducerKeys from "../../reducer";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -18,7 +20,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, ReducerKeys.encounterRecommendation);
     }
 
     next() {
@@ -27,6 +29,11 @@ class SystemRecommendationView extends AbstractComponent {
 
     previous() {
         TypedTransition.from(this).goBack();
+    }
+
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, this.props.params.encounter);
+        return super.componentWillMount();
     }
 
     render() {

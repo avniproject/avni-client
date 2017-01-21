@@ -5,6 +5,7 @@ import ConfigService from "./ConfigService";
 import _ from 'lodash';
 import DynamicDataResolver from "./DynamicDataResolver";
 import {getObservationValue} from '../service/decisionSupport/AdditionalFunctions';
+import Encounter from "../models/Encounter";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -13,9 +14,9 @@ class RuleEvaluationService extends BaseService {
     }
 
     getEncounterDecision(encounter) {
-        if (_.isNil(encounter.prototype.dynamicDataResolver)) {
-            encounter.prototype.dynamicDataResolver = new DynamicDataResolver(this.context);
-            encounter.prototype.getObservationValue = getObservationValue;
+        if (_.isNil(Encounter.prototype.dynamicDataResolver)) {
+            Encounter.prototype.dynamicDataResolver = new DynamicDataResolver(this.context);
+            Encounter.prototype.getObservationValue = getObservationValue;
         }
 
         const evalExpression = this.getEncounterDecisionEvalExpression('getDecision');

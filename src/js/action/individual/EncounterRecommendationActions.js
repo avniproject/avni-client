@@ -8,7 +8,8 @@ export class EncounterRecommendationActions {
 
     static onLoad(state, action, context) {
         return G.setNewState(state, function(newState) {
-            context.get(RuleEvaluationService).getEncounterDecision();
+            newState.decision = context.get(RuleEvaluationService).getEncounterDecision(action);
+            console.log(newState.decision);
         });
     }
 }
