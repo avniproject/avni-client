@@ -7,6 +7,7 @@ import SettingsService from "./SettingsService";
 import EntitySyncStatus from "../models/EntitySyncStatus";
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
+import ConfigService from "./ConfigService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -24,6 +25,7 @@ class SyncService extends BaseService {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
+        this.configService = this.getService(ConfigService);
     }
 
     sync(allEntitiesMetaData, start, done, onError) {
@@ -36,13 +38,13 @@ class SyncService extends BaseService {
         });
 
         const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
-        const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn);
+        const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
         const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
         this.pushTxData(allTxDataMetaData, pullReferenceDataFn, onError);
     }
 
-    pullConfiguration(onComplete) {
-        onComplete();
+    pullConfiguration(onComplete, onError) {
+        this.configService.getAllFilesAndSave(onComplete, onError);
     }
 
     pullData(unprocessedEntityMetaData, onComplete, onError) {

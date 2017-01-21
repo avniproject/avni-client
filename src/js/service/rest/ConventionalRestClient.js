@@ -9,7 +9,6 @@ class ConventionalRestClient {
 
     loadData(entityModel, lastUpdatedLocally, pageNumber, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError) {
         const url = `${this.settingsService.getServerURL()}/${entityModel.resourceName}/search/lastModified?lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}&size=5&page=${pageNumber}&sort=lastModifiedDateTime,asc`;
-        console.log(`Calling: ${url}`);
         getJSON(url, (response) => {
             const resources = response["_embedded"][`${entityModel.resourceName}`];
 

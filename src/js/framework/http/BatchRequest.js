@@ -4,7 +4,7 @@ import _ from 'lodash';
 class BatchRequest {
     constructor() {
         this.requestQueue = [];
-        this.get = this.get.bind(this);
+        this.add = this.add.bind(this);
         this.post = this.post.bind(this);
         this.fire = this.fire.bind(this);
     }
@@ -13,7 +13,7 @@ class BatchRequest {
 
     }
 
-    get(endpoint, cb, errorHandler) {
+    add(endpoint, cb, errorHandler) {
         this.requestQueue.push(()=>httpGet(endpoint, cb, errorHandler));
     }
 
@@ -22,6 +22,7 @@ class BatchRequest {
     }
 
     fire(finalCallback, errorCallback) {
+        console.log(`BEFORE FIRING: ${this.requestQueue.length}`);
         const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), this.none, 1);
         const notify = () => callbackQueue.pop()();
         const notifyError = (message)=> {

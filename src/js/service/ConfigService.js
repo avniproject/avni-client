@@ -1,53 +1,30 @@
-import BaseService from './BaseService.js'
-import Service from '../framework/bean/Service';
-import QuestionnaireService from './QuestionnaireService';
-import ConceptService from './ConceptService';
-import SettingsService from './SettingsService';
-import DecisionConfigService from './DecisionConfigService';
-import {get} from '../framework/http/requests';
-import {Map} from 'immutable';
-import {comp} from 'transducers-js';
+import BaseService from "./BaseService.js";
+import Service from "../framework/bean/Service";
+import SettingsService from "./SettingsService";
+import DecisionConfigService from "./DecisionConfigService";
 import BatchRequest from "../framework/http/BatchRequest";
-
+import _ from 'lodash';
 
 @Service("configService")
 class ConfigService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
-        this.getAllFilesAndSave = this.getAllFilesAndSave.bind(this);
-        this.getFileFrom = this.getFileFrom.bind(this);
-        const batchRequests = new BatchRequest();
-        this.fire = batchRequests.fire;
-        this.batchGet = batchRequests.get;
     }
 
-    init() {
-        const conceptService = this.getService(ConceptService);
-        this.typeMapping = Map({
-            "questionnaire.json": this.getService(QuestionnaireService).saveQuestionnaire,
-            "decision.js": this.getService(DecisionConfigService).saveDecisionConfig,
-            "concepts.json": (concepts) => concepts.map((concept)=>
-                comp(conceptService.addConceptI18n,
-                    conceptService.saveConcept)(concept))
-        });
-    }
-
-    getFileFrom(moduleURL) {
+    getConfigs() {
         return {
-            with: (moduleName, errorHandler) =>
-                (fileName) => this.batchGet(`${moduleURL}/${moduleName}/${fileName}`, (response) =>
-                    this.typeMapping.get(fileName)(response, moduleName), errorHandler)
+            "encounterDecision.js": (response) => this.getService(DecisionConfigService).saveDecisionConfig("encounterDecision.js", response)
         };
     }
 
     getAllFilesAndSave(cb, errorHandler) {
-        const configURL = `${this.getService(SettingsService).getServerURL()}/fs/config`;
-        get(`${configURL}/modules.json`, (response) => {
-            const fileTypes = Array.from(this.typeMapping.keys());
-            response.modules
-                .map((moduleName)=> fileTypes.map(this.getFileFrom(`${configURL}/modules`).with(moduleName, errorHandler)));
-            this.fire(cb, errorHandler);
-        }, errorHandler);
+        const batchRequest = new BatchRequest();
+        const configURL = `${this.getService(SettingsService).getServerURL()}/ext`;
+
+        _.forOwn(this.getConfigs(), (handler, file) => {
+            batchRequest.add(`${configURL}/${file}`, handler, errorHandler);
+        });
+        batchRequest.fire(cb, errorHandler);
     }
 }
 

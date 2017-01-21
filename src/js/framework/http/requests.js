@@ -9,6 +9,7 @@ const makeHeader = (type) => new Map([['json', {
 
 
 let _get = (endpoint, cb, errorHandler) => {
+    console.log(`Calling: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("json"))
         .then((response) => {
             return response.json();
@@ -18,8 +19,13 @@ let _get = (endpoint, cb, errorHandler) => {
 };
 
 let _getText = (endpoint, cb, errorHandler) => {
+    console.log(`Calling getText: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("text"))
         .then((response) => {
+            if (response.ok === false) {
+                console.log(response);
+                throw new Error(`HTTP Status: ${response.status}`);
+            }
             return response.text();
         })
         .then(cb)
