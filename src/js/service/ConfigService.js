@@ -22,7 +22,7 @@ class ConfigService extends BaseService {
         const batchRequest = new BatchRequest();
         const configURL = `${this.getService(SettingsService).getServerURL()}/ext`;
 
-        _.forOwn(this.encounterDecisionFile, (handler, file) => {
+        _.forOwn(this.fileHandlers, (handler, file) => {
             batchRequest.add(`${configURL}/${file}`, handler, errorHandler);
         });
         batchRequest.fire(cb, errorHandler);
