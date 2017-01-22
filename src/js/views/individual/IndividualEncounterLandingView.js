@@ -31,7 +31,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     next() {
-        TypedTransition.from(this).with({individual: this.props.params.individual}).to(IndividualEncounterView);
+        const next = this.state.form[0].formElementGroups[0].next();
+        TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.state.encounter, formGroup: next}).to(IndividualEncounterView);
     }
 
     previous() {

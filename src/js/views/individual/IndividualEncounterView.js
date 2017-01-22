@@ -1,13 +1,15 @@
-import MessageService from "../../service/MessageService";
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import React, {Component} from 'react';
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import {Text, Button, Content, Grid, Row, Container, Header, Title, Icon, Radio} from "native-base";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import DGS from '../primitives/DynamicGlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendation"
 import IndividualProfile from "../common/IndividualProfile"
+import FormElementGroup from '../form/FormElementGroup';
+import {Actions} from '../../action/individual/EncounterActions';
+import ReducerKeys from "../../reducer";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -20,16 +22,31 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context);
-        this.I18n = this.context.getService(MessageService).getI18n();
+        super(props, context, ReducerKeys.encounter);
+    }
+
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, this.props.params.formElementGroup);
+        return super.componentWillMount();
     }
 
     next() {
-        TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.props.params.encounter}).to(SystemRecommendationView);
+        this.dispatchAction(Actions.NEXT, (nextFormElementGroup) => {
+            if (_.isNil(nextFormElementGroup))
+                TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.props.params.encounter}).to(SystemRecommendationView);
+            else
+                TypedTransition.from(this).with({
+                    individual: this.props.params.individual,
+                    encounter: this.props.params.encounter,
+                    formElementGroup: nextFormElementGroup
+                }).to(IndividualEncounterView);
+        });
     }
 
     previous() {
-        TypedTransition.from(this).goBack();
+        this.dispatchAction(Actions.PREVIOUS, {
+            cb: () => TypedTransition.from(this).goBack()
+        });
     }
 
     render() {
@@ -55,28 +72,7 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
-                        <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12}}>
-                            <Grid>
-                                <Row>
-                                    <Grid>
-                                        <Row><Text style={DynamicGlobalStyles.formElementLabel}>Pallor</Text></Row>
-                                        <Row>
-                                            <Grid>
-                                                <Row>
-                                                    <Radio selected={false}/>
-                                                    <Text style={DynamicGlobalStyles.formElementLabel}>PRESENT</Text>
-                                                </Row>
-                                            </Grid>
-                                            <Grid><Row><Radio selected={false}/>
-                                                <Text style={DynamicGlobalStyles.formElementLabel}>ABSENT</Text>
-                                            </Row></Grid></Row>
-                                    </Grid>
-                                </Row>
-                                <Row></Row>
-                                <Row></Row>
-                                <Row></Row>
-                            </Grid>
-                        </Row>
+                        <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formGroup}/>
                         <Row style={{paddingLeft: 24, paddingRight: 24, marginTop: 30}}>
                             <Button primary
                                     style={{flex: 0.5, backgroundColor: '#e0e0e0'}}

@@ -2,6 +2,7 @@ import General from '../../utility/General';
 import ResourceUtil from "../../utility/ResourceUtil";
 import BaseEntity from '../BaseEntity';
 import FormElementGroup from "./FormElementGroup";
+import _ from 'lodash';
 
 class Form {
     static schema = {
@@ -28,6 +29,22 @@ class Form {
         else
             throw `${childEntityClass.name} not support by ${Form.name}`;
         return form;
+    }
+
+    static create(name) {
+        const form = new Form();
+        form.name = name;
+        form.formElementGroups = [];
+        return form;
+    }
+
+    addFormElementGroup(formElementGroup) {
+        formElementGroup.form = this;
+        this.formElementGroups.push(formElementGroup);
+    }
+
+    formElementGroupAt(displayOrder) {
+        return _.find(this.formElementGroups, (formElementGroup) => formElementGroup.displayOrder === displayOrder);
     }
 }
 

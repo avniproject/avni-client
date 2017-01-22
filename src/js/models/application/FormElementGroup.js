@@ -33,6 +33,21 @@ class FormElementGroup {
             throw `${childEntityClass.name} not support by ${FormElementGroup.name}`;
         return formElementGroup;
     }
+
+    static create(name, displayOrder) {
+        const formElementGroup = new FormElementGroup();
+        formElementGroup.name = name;
+        formElementGroup.displayOrder = displayOrder;
+        return formElementGroup;
+    }
+
+    next() {
+        return this.form.formElementGroupAt(this.displayOrder + 1);
+    }
+
+    previous() {
+        return this.form.formElementGroupAt(this.displayOrder - 1);
+    }
 }
 
 export default FormElementGroup;

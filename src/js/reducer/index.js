@@ -13,6 +13,7 @@ import IndividualProfileActionMap, {IndividualProfileActions} from "../action/in
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/prorgam/ProgramEnrolmentActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import EncounterRecommendationActionsMap, {EncounterRecommendationActions} from "../action/individual/EncounterRecommendationActions";
+import EncounterActionsMap, {EncounterActions} from "../action/individual/EncounterActions";
 
 const reducerMapFn = function(beanStore) {
     let reducerMap = {};
@@ -31,6 +32,7 @@ const reducerMapFn = function(beanStore) {
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
     reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions.getInitialState(beanStore));
     reducerMap[reducerKeys.encounterRecommendation] = add(EncounterRecommendationActionsMap, EncounterRecommendationActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.encounter] = add(EncounterActionsMap, EncounterActions.getInitialState(beanStore));
 
     return reducerMap;
 };
@@ -38,7 +40,8 @@ const reducerMapFn = function(beanStore) {
 const reducerKeys = {
     programEnrolment: "programEnrolment",
     individualGeneralHistory: "individualGeneralHistory",
-    encounterRecommendation: "encounterRecommendation"
+    encounterRecommendation: "encounterRecommendation",
+    encounter: "encounter"
 };
 
 export {reducerMapFn as initReducers};
