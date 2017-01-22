@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import {Text, CheckBox, Grid, Col, Row } from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import BaseEntity from "../../models/BaseEntity";
+import Observation from "../../models/Observation";
 
 
 class FormElement extends AbstractComponent {
@@ -36,7 +36,7 @@ class FormElement extends AbstractComponent {
                                 <Col>
                                     <Row>
                                         <CheckBox
-                                            checked={BaseEntity.collectionHasEntity(this.props.selectedAnswers, answer1)}
+                                            checked={Observation.isAnswerAlreadyPresent(this.props.selectedAnswers, answer1.uuid)}
                                             onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
                                         <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
                                     </Row>
@@ -44,7 +44,7 @@ class FormElement extends AbstractComponent {
                                 <Col>
                                     <Row>
                                         <CheckBox
-                                            checked={BaseEntity.collectionHasEntity(this.props.selectedAnswers, answer2)}
+                                            checked={Observation.isAnswerAlreadyPresent(this.props.selectedAnswers, answer2.uuid)}
                                             onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
                                         <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
                                     </Row>

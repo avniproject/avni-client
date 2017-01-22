@@ -34,21 +34,39 @@ class Encounter {
         return encounter;
     }
 
+    toggleSingleSelectAnswer(concept, answerUUID) {
+        let observation = this.getObservation(concept);
+        if (_.isEmpty(observation)) {
+            observation = Observation.create(concept, {conceptUUID: answerUUID});
+            this.observations.push(observation);
+        }
+        else {
+            observation.toggleSingleSelectAnswer(answerUUID);
+            if (observation.hasNoAnswer()) {
+                this.observations.splice(observation);
+            }
+        }
+    }
+
     toggleMultiSelectAnswer(concept, answerUUID) {
-        let observation = _.find(this.observations, (observation) => {
-            return observation.concept.uuid === concept.uuid;
-        });
+        let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
             observation = Observation.create(concept, [{conceptUUID: answerUUID}]);
             this.observations.push(observation);
         }
         else {
             observation.toggleMultiSelectAnswer(answerUUID);
-            if (_.isEmpty(observation.valueJSON.answer)){
+            if (observation.hasNoAnswer()) {
                 this.observations.splice(observation);
             }
         }
     }
+    getObservation(concept){
+        return _.find(this.observations, (observation) => {
+            return observation.concept.uuid === concept.uuid;
+        });
+    }
+
 }
 
 export default Encounter;

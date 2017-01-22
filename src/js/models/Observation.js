@@ -18,25 +18,34 @@ class Observation {
         return observation;
     }
 
-    toggleMultiSelectAnswer(answer) {
-        if (this.collectionHasEntity(this.valueJSON.answer, answer)) {
-            this.removeFromCollection(this.valueJSON.answer, answer);
+
+    toggleMultiSelectAnswer(answerUUID) {
+        if (Observation.isAnswerAlreadyPresent(this.valueJSON.answer, answerUUID)) {
+            Observation.removeAnswer(this.valueJSON.answer, answerUUID);
         }
         else {
-            this.valueJSON.answer.push(answer);
+            this.valueJSON.answer.push(answerUUID);
+        }
+    }
+
+    toggleSingleSelectAnswer(answerUUID) {
+        if(this.valueJSON.answer.conceptUUID === answerUUID){
+            this.valueJSON = "";
+        }else {
+            this.valueJSON = {answer : {conceptUUID : answerUUID}};
         }
     }
 
     //TODO the methods are very similar to the ones in BaseEntity. see if they can be merged
-    collectionHasEntity(collection, entity) {
-        return _.findIndex(collection, function (item) {
-                return item.uuid === entity;
+    static isAnswerAlreadyPresent(selectedAnswers, answer) {
+        return _.findIndex(selectedAnswers, function (item) {
+                return item.conceptUUID === answer;
             }) !== -1;
     }
 
-    removeFromCollection(collection, entity) {
-        _.remove(collection, function (item) {
-            return item.uuid === entity;
+    static removeAnswer(selectedAnswers, answer) {
+        _.remove(selectedAnswers, function (item) {
+            return item.conceptUUID === answer;
         });
     }
 
@@ -51,9 +60,10 @@ class Observation {
         }
     }
 
-    getValue() {
-
+    hasNoAnswer(){
+        return _.isEmpty(this.valueJSON.answer)
     }
+
 }
 
 export default Observation;

@@ -26,10 +26,13 @@ class FormElementGroup extends AbstractComponent {
                                 return <NumericFormElement element={formElement} />
                             case 'multiselect':
                                 return <MultiSelectFormElement element={formElement}
-                                                               selectedAnswers={this.getSelectedAnswers(formElement.concept.uuid)}
+                                                               selectedAnswers={this.getSelectedAnswers(formElement.concept)}
                                                                actionName={Actions.TOGGLE_MULTISELECT_ANSWER}/>
                             case 'singleselect':
-                                return <SingleSelectFormElement element={formElement} />
+                                return <SingleSelectFormElement element={formElement}
+                                                                selectedAnswer={this.getSelectedAnswer(formElement.concept)}
+                                                                actionName={Actions.TOGGLE_SINGLESELECT_ANSWER}/>
+
                         }
                     })
                 }
@@ -43,6 +46,14 @@ class FormElementGroup extends AbstractComponent {
             }
         );
         return _.isEmpty(observations) ? [] : observations[0].valueJSON.answer;
+    }
+
+    getSelectedAnswer(concept) {
+        let observations = this.props.encounter.observations.filter( (observation) => {
+             return observation.concept.uuid === concept.uuid;
+            }
+        );
+        return _.isEmpty(observations) ? {} : observations[0].valueJSON.answer;
     }
 }
 

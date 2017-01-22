@@ -2,21 +2,26 @@ import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
-import {
-    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input, Radio
-} from "native-base";
+import {Text, Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import MultiSelectFormElement from './MultiSelectFormElement';
 
 
-class FormElement extends AbstractComponent {
+
+class SingleSelectFormElement extends AbstractComponent {
     static propTypes = {
-        element: React.PropTypes.object.isRequired
+        element: React.PropTypes.object.isRequired,
+        actionName : React.PropTypes.string.isRequired,
+        selectedAnswer : React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
+    }
+
+    toggleFormElementAnswerSelection(concept, answer) {
+        return () => {
+            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.uuid});
+        }
     }
 
     renderSingleSelectAnswers() {
@@ -30,13 +35,15 @@ class FormElement extends AbstractComponent {
                             <Row>
                                 <Col>
                                     <Row>
-                                        <Radio/>
+                                        <Radio selected= {!_.isEmpty(this.props.selectedAnswer) && this.props.selectedAnswer.conceptUUID === answer1.uuid}
+                                               onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
                                         <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
                                     </Row>
                                 </Col>
                                 <Col>
                                     <Row>
-                                        <Radio/>
+                                        <Radio selected={!_.isEmpty(this.props.selectedAnswer) && this.props.selectedAnswer.conceptUUID === answer2.uuid}
+                                               onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
                                         <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
                                     </Row>
                                 </Col>
@@ -57,4 +64,4 @@ class FormElement extends AbstractComponent {
     }
 }
 
-export default FormElement;
+export default SingleSelectFormElement;
