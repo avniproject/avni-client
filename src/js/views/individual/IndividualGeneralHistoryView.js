@@ -46,19 +46,30 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                         <View style={DGS.common.content}>
                             <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </View>
-                        {this.state.encounters.map((encounter) => {
-                            return (
-                                <View style={DGS.generalHistory.encounter}>
-                                    <View style={DGS.common.content}>
-                                        <Grid>
-                                            <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
-                                            <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
-                                        </Grid>
-                                        <Observations observations={encounter.observations} encounterNumber={encounterNumber}/>
-                                    </View>
+                        {this.state.encounters.length === 0 ?
+                            (<View style={DGS.generalHistory.encounter}>
+                                <View style={[DGS.common.content]}>
+                                    <Grid>
+                                        <Row style={{justifyContent: 'center'}}>
+                                            <Text style={{fontSize: 16}}>{this.I18n.t('noEncounters')}</Text>
+                                        </Row>
+                                    </Grid>
                                 </View>
-                            );
-                        })}</View>
+                            </View>)
+                            : this.state.encounters.map((encounter) => {
+                                return (
+                                    <View style={DGS.generalHistory.encounter}>
+                                        <View style={DGS.common.content}>
+                                            <Grid>
+                                                <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
+                                                <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
+                                            </Grid>
+                                            <Observations observations={encounter.observations} encounterNumber={encounterNumber}/>
+                                        </View>
+                                    </View>
+                                );
+                            })}
+                    </View>
                 </Content>
             </Container>
         );

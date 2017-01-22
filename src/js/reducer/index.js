@@ -12,6 +12,7 @@ import Form from "../models/application/Form";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/prorgam/ProgramEnrolmentActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
+import EncounterRecommendationActionsMap, {EncounterRecommendationActions} from "../action/individual/EncounterRecommendationActions";
 
 const reducerMapFn = function(beanStore) {
     let reducerMap = {};

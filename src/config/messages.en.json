@@ -57,5 +57,6 @@
   "selectProgram": "Select Program",
   "enrolInSpecificProgram": "Enrol in {{program}}",
   "confirm": "Confirm",
-  "generalHistory": "General History"
+  "generalHistory": "General History",
+  "noEncounters": "No previous visits"
 }
