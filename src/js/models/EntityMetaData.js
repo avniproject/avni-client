@@ -16,9 +16,11 @@ import ProgramOutcome from "./ProgramOutcome";
 import Form from "./application/Form";
 import FormElementGroup from "./application/FormElementGroup";
 import FormElement from "./application/FormElement";
+import FormMapping from "./application/FormMapping";
 
 class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference"};
+    static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference"};
     static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference"};
     static followupType = {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference"};
     static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference"};
@@ -55,6 +57,7 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first
     static model() {
         return [
+            EntityMetaData.formMapping,
             EntityMetaData.formElement(),
             EntityMetaData.formElementGroup(),
             EntityMetaData.form,

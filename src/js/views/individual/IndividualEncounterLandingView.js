@@ -31,7 +31,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     next() {
-        const next = this.state.form[0].formElementGroups[0].next();
+        const next = this.state.forms[0].formElementGroups[0].next();
         TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.state.encounter, formGroup: next}).to(IndividualEncounterView);
     }
 
@@ -58,7 +58,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                         <Input defaultValue={moment().format('DD-MMM-YYYY')}/>
                                     </InputGroup>
                                 </Row>
-                                <FormElementGroup group={this.state.form[0].formElementGroups[0]}
+                                <FormElementGroup group={this.state.forms[0].formElementGroups[0]}
                                                   encounter={this.state.encounter}/>
                                 <Row style={{marginTop: 30, marginBottom: 30}}>
                                     <Button primary

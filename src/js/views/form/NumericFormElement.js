@@ -11,7 +11,7 @@ import MultiSelectFormElement from './MultiSelectFormElement';
 import SingleSelectFormElement from './SingleSelectFormElement';
 
 
-class FormElement extends AbstractComponent {
+class NumericFormElement extends AbstractComponent {
     static propTypes = {
         element: React.PropTypes.object.isRequired
     };
@@ -44,4 +44,4 @@ class FormElement extends AbstractComponent {
     }
 }
 
-export default FormElement;
+export default NumericFormElement;

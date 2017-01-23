@@ -1,6 +1,6 @@
-import _ from "lodash";
-import ResourceUtil from '../../utility/ResourceUtil';
-import Form from './Form';
+import ResourceUtil from "../../utility/ResourceUtil";
+import Form from "./Form";
+import General from "../../utility/General";
 
 class FormMapping {
     static schema = {
@@ -9,19 +9,17 @@ class FormMapping {
         properties: {
             uuid: 'string',
             form: 'Form',
-            relatedEntity: 'string'
+            entityId: {type: 'int', optional: true}
         }
     };
 
     static fromResource(resource, entityService) {
-        var form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
-        var programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
+        const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
 
-        var programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], ["observations"]);
-        programEncounter.followupType = form;
-        programEncounter.programEnrolment = programEnrolment;
+        const formMapping = General.assignFields(resource, new FormMapping(), ["uuid", "entityId"]);
+        formMapping.followupType = form;
 
-        return programEncounter;
+        return formMapping;
     }
 }
 
