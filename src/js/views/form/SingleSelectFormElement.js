@@ -30,9 +30,9 @@ class SingleSelectFormElement extends AbstractComponent {
                         backgroundColor: '#ffffff',
                         borderWidth: 1
                     }}>{
-            _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2]) => {
+            _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                         return (
-                            <Row>
+                            <Row key={idx}>
                                 <Col>
                                     <Row>
                                         <Radio selected= {!_.isEmpty(this.props.selectedAnswer) && this.props.selectedAnswer.conceptUUID === answer1.uuid}

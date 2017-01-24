@@ -34,8 +34,9 @@ class AddressLevels extends AbstractComponent {
 
     renderChoices() {
         const props = this.props;
-        return _.chunk(this.state.addressLevels, 2).map(([address1, address2]) => {
+        return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
                 return (<Row
+                    key={idx}
                     style={{
                         padding: 28,
                         backgroundColor: '#ffffff',

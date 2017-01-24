@@ -59,7 +59,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         }
 
         return (
-            <Button disabled style={{marginLeft: 8, width: 74, height: 22, backgroundColor: colour}}>{program.name}</Button>
+            <Button key={index} disabled style={{marginLeft: 8, width: 74, height: 22, backgroundColor: colour}}>{program.name}</Button>
         );
     }
 

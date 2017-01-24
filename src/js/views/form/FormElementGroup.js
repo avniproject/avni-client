@@ -22,15 +22,17 @@ class FormElementGroup extends AbstractComponent {
     render() {
         return (<View>
                 {
-                    this.props.group.formElements.map((formElement) => {
+                    this.props.group.formElements.map((formElement, idx) => {
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
-                            return <NumericFormElement element={formElement}/>
+                            return <NumericFormElement key={idx} element={formElement}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.keyValues[FormElement.keys.Select] === FormElement.values.Multi) {
-                            return <MultiSelectFormElement element={formElement}
+                            return <MultiSelectFormElement key={idx}
+                                                           element={formElement}
                                                            selectedAnswers={this.getSelectedAnswers(formElement.concept)}
                                                            actionName={Actions.TOGGLE_MULTISELECT_ANSWER}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.keyValues[FormElement.keys.Select] === FormElement.values.Single) {
-                            return <SingleSelectFormElement element={formElement}
+                            return <SingleSelectFormElement key={idx}
+                                                            element={formElement}
                                                             selectedAnswer={this.getSelectedAnswer(formElement.concept)}
                                                             actionName={Actions.TOGGLE_SINGLESELECT_ANSWER}/>
                         }
@@ -41,16 +43,16 @@ class FormElementGroup extends AbstractComponent {
     }
 
     getSelectedAnswers(concept) {
-        let observations = this.props.encounter.observations.filter( (observation) => {
-             return observation.concept.uuid === concept.uuid;
+        let observations = this.props.encounter.observations.filter((observation) => {
+                return observation.concept.uuid === concept.uuid;
             }
         );
         return _.isEmpty(observations) ? [] : observations[0].valueJSON.answer;
     }
 
     getSelectedAnswer(concept) {
-        let observations = this.props.encounter.observations.filter( (observation) => {
-             return observation.concept.uuid === concept.uuid;
+        let observations = this.props.encounter.observations.filter((observation) => {
+                return observation.concept.uuid === concept.uuid;
             }
         );
         return _.isEmpty(observations) ? {} : observations[0].valueJSON.answer;
