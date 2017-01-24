@@ -21,7 +21,7 @@ class BaseService {
     findByKey(keyName, value, schemaName) {
         if (_.isNil(schemaName)) schemaName = this.getSchema();
 
-        var entities = this.db.objects(schemaName).filtered(`${keyName}="${value}"`);
+        const entities = this.db.objects(schemaName).filtered(`${keyName}="${value}"`);
         return entities.length === 1 ? entities[0] : undefined;
     }
 

@@ -30,13 +30,12 @@ class ConceptService extends BaseService {
 
     addConceptI18n(concept) {
         const messageService = this.getService(MessageService);
-        concept.conceptNames.map((conceptName) =>
-            messageService.addTranslation(conceptName.locale, concept.name, conceptName.name));
+        messageService.addTranslation('en', concept.name, concept.name);
     }
 
     saveConcept(concept) {
         const db = this.db;
-        this.db.write(()=> db.create(Concept.schema.name, concept, true));
+        this.db.write(() => db.create(Concept.schema.name, concept, true));
         return concept;
     }
 }

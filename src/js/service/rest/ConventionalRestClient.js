@@ -29,6 +29,7 @@ class ConventionalRestClient {
             if (this.morePagesForThisResource(response)) {
                 this.loadData(entityModel, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError);
             } else if (resourcesWithSameTimestamp.length > 0) {
+                console.log(`Executing sync action on: ${resourcesWithSameTimestamp.length} items for resource: ${entityModel.resourceName}`);
                 executePerResourcesWithSameTimestamp(resourcesWithSameTimestamp, entityModel);
                 executeNextResource(allEntityMetaData);
             } else {

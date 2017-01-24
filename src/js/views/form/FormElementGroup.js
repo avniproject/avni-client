@@ -7,6 +7,7 @@ import NumericFormElement from './NumericFormElement';
 import {Actions} from "../../action/individual/IndividualEncounterActions";
 import _ from "lodash";
 import Concept from '../../models/Concept';
+import FormElement from "../../models/application/FormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -22,18 +23,16 @@ class FormElementGroup extends AbstractComponent {
         return (<View>
                 {
                     this.props.group.formElements.map((formElement) => {
-                        switch (formElement.concept.datatype){
-                            case Concept.dataType.Numeric :
-                                return <NumericFormElement element={formElement} />
-                            case 'multiselect':
-                                return <MultiSelectFormElement element={formElement}
-                                                               selectedAnswers={this.getSelectedAnswers(formElement.concept)}
-                                                               actionName={Actions.TOGGLE_MULTISELECT_ANSWER}/>
-                            case 'singleselect':
-                                return <SingleSelectFormElement element={formElement}
-                                                                selectedAnswer={this.getSelectedAnswer(formElement.concept)}
-                                                                actionName={Actions.TOGGLE_SINGLESELECT_ANSWER}/>
-
+                        if (formElement.concept.datatype === Concept.dataType.Numeric) {
+                            return <NumericFormElement element={formElement}/>
+                        } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.keyValues[FormElement.keys.Select] === FormElement.values.Multi) {
+                            return <MultiSelectFormElement element={formElement}
+                                                           selectedAnswers={this.getSelectedAnswers(formElement.concept)}
+                                                           actionName={Actions.TOGGLE_MULTISELECT_ANSWER}/>
+                        } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.keyValues[FormElement.keys.Select] === FormElement.values.Single) {
+                            return <SingleSelectFormElement element={formElement}
+                                                            selectedAnswer={this.getSelectedAnswer(formElement.concept)}
+                                                            actionName={Actions.TOGGLE_SINGLESELECT_ANSWER}/>
                         }
                     })
                 }

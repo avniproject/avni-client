@@ -65,7 +65,7 @@ class SyncService extends BaseService {
 
     persist(resourcesWithSameTimeStamp, entityModel) {
         resourcesWithSameTimeStamp.forEach((resource) => {
-            var entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
+            const entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
             this.entityService.saveOrUpdate(entity, entityModel.entityName);
 
             if (!_.isNil(entityModel.parent)) {
@@ -76,7 +76,7 @@ class SyncService extends BaseService {
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);
 
-        var entitySyncStatus = new EntitySyncStatus();
+        const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.name = entityModel.entityName;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(resourcesWithSameTimeStamp[0]["lastModifiedDateTime"]);

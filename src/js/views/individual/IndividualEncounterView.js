@@ -10,6 +10,7 @@ import IndividualProfile from "../common/IndividualProfile"
 import FormElementGroup from '../form/FormElementGroup';
 import {Actions} from '../../action/individual/EncounterActions';
 import ReducerKeys from "../../reducer";
+import AppHeader from '../common/AppHeader';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -52,15 +53,8 @@ class IndividualEncounterView extends AbstractComponent {
     render() {
         return (
             <Container theme={themes}>
-                <Header style={{backgroundColor: '#212121'}}>
-                    <Button transparent onPress={() => {
-                        TypedTransition.from(this).goBack()
-                    }}>
-                        <Icon name='keyboard-arrow-left'/>
-                    </Button>
-                    <Title>{this.props.params.individual.name}</Title>
-                </Header>
                 <Content>
+                    <AppHeader title={this.props.params.individual.name}/>
                     <Grid>
                         <Row style={{
                             backgroundColor: '#f7f7f7',

@@ -1,6 +1,6 @@
 import Settings from "./Settings";
 import {Locale, LocaleMapping} from "./Locale";
-import Concept, {ConceptAnswer, ConceptName} from "./Concept";
+import Concept, {ConceptAnswer} from "./Concept";
 import {Questionnaire, QuestionnaireQuestion, StringObject} from "./Questionnaire";
 import DecisionSupportSession from "./DecisionSupportSession";
 import QuestionAnswer from "./QuestionAnswer";
@@ -29,7 +29,7 @@ import FormMapping from "./application/FormMapping";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptName, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue],
-    schemaVersion: 4,
+    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue],
+    schemaVersion: 8,
     migration: function(oldDB, newDB) {}
 };

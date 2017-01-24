@@ -1,7 +1,7 @@
 import ResourceUtil from "../../utility/ResourceUtil";
-import FormElementGroup from './FormElementGroup';
-import Concept from '../Concept';
-import General from '../../utility/General';
+import FormElementGroup from "./FormElementGroup";
+import Concept from "../Concept";
+import General from "../../utility/General";
 
 class FormElement {
     static schema = {
@@ -21,14 +21,27 @@ class FormElement {
     };
 
     static fromResource(resource, entityService) {
-        var formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formElementGroupUUID"), FormElementGroup.schema.name);
-        var concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptUUID"), Concept.schema.name);
+        const formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formElementGroupUUID"), FormElementGroup.schema.name);
+        const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptUUID"), Concept.schema.name);
 
-        var formElement = General.assignFields(resource, new FormElement(), ["uuid", "name", "displayOrder", "mandatory", "usedInSummary", "generated", "concept"], [], ["keyValues"]);
+        const formElement = General.assignFields(resource, new FormElement(), ["uuid", "name", "displayOrder", "mandatory", "usedInSummary", "generated"], []);
         formElement.formElementGroup = formElementGroup;
         formElement.concept = concept;
 
+        //remove orphan keyValues (because KeyValue doesn't have primary key
+        entityService.deleteObjects(resource["uuid"], FormElement.schema.name);
+        formElement.keyValues = eval(resource["keyValues"]);
+
         return formElement;
+    }
+
+    static keys = {
+        Select: 'MultiSelect'
+    };
+
+    static values = {
+        Single: 'Single',
+        Multi: 'Multi'
     }
 }
 
