@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import IndividualEncounterView from "./IndividualEncounterLandingView";
+import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button, Header, Title, Icon} from "native-base";
 import moment from "moment";
 import themes from "../primitives/themes";
@@ -118,7 +118,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-        TypedTransition.from(this).with({individual: individual}).to(IndividualEncounterView);
+        TypedTransition.from(this).with({individual: individual}).to(IndividualEncounterLandingView);
     }
 }
 

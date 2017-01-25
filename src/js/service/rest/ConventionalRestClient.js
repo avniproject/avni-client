@@ -11,8 +11,6 @@ class ConventionalRestClient {
         const url = `${this.settingsService.getServerURL()}/${entityModel.resourceName}/search/lastModified?lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}&size=5&page=${pageNumber}&sort=lastModifiedDateTime,asc`;
         getJSON(url, (response) => {
             const resources = response["_embedded"][`${entityModel.resourceName}`];
-
-            console.log(resources.length);
             _.forEach(resources, (resource) => {
                 console.log(`Number of resources with same timestamp: ${resourcesWithSameTimestamp.length}`);
                 if (resourcesWithSameTimestamp.length === 0)
@@ -20,7 +18,7 @@ class ConventionalRestClient {
                 else if (resourcesWithSameTimestamp.length > 0 && resourcesWithSameTimestamp[0]["lastModifiedDateTime"] === resource["lastModifiedDateTime"])
                     resourcesWithSameTimestamp.push(resource);
                 else {
-                    console.log(`Executing ${resourcesWithSameTimestamp.length} resources`);
+                    console.log(`Executing sync action on: ${resourcesWithSameTimestamp.length} items for resource: ${entityModel.resourceName}`);
                     executePerResourcesWithSameTimestamp(resourcesWithSameTimestamp, entityModel);
                     resourcesWithSameTimestamp = [resource];
                 }

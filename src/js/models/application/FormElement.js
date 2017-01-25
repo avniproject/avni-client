@@ -2,6 +2,8 @@ import ResourceUtil from "../../utility/ResourceUtil";
 import FormElementGroup from "./FormElementGroup";
 import Concept from "../Concept";
 import General from "../../utility/General";
+import _ from 'lodash';
+import KeyValue from "./KeyValue";
 
 class FormElement {
     static schema = {
@@ -29,14 +31,38 @@ class FormElement {
         formElement.concept = concept;
 
         //remove orphan keyValues (because KeyValue doesn't have primary key
-        entityService.deleteObjects(resource["uuid"], FormElement.schema.name);
-        formElement.keyValues = eval(resource["keyValues"]);
+        entityService.deleteObjects(resource["uuid"], FormElement.schema.name, "keyValues");
+        formElement.keyValues = resource["keyValues"];
 
         return formElement;
     }
 
+    isMultiSelect() {
+        const selectRecord = this.recordByKey(FormElement.keys.Select);
+        return _.isNil(selectRecord) ? false : selectRecord.value === FormElement.values.Multi;
+    }
+
+    recordByKey(key) {
+        return _.find(this.keyValues, (keyValue) => keyValue.key === key);
+    }
+
+    isSingleSelect() {
+        const selectRecord = this.recordByKey(FormElement.keys.Select);
+        return _.isNil(selectRecord) ? false : selectRecord.value === FormElement.values.Single;
+    }
+
+    get truthDisplayValue() {
+        return this.recordByKey(FormElement.keys.TrueValue).value;
+    }
+
+    get falseDisplayValue() {
+        return this.recordByKey(FormElement.keys.FalseValue).value;
+    }
+
     static keys = {
-        Select: 'MultiSelect'
+        Select: 'Select',
+        TrueValue: 'TrueValue',
+        FalseValue: 'FalseValue'
     };
 
     static values = {

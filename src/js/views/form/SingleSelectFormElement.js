@@ -5,8 +5,6 @@ import _ from "lodash";
 import {Text, Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 
-
-
 class SingleSelectFormElement extends AbstractComponent {
     static propTypes = {
         element: React.PropTypes.object.isRequired,

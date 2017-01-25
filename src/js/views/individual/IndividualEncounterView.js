@@ -1,16 +1,16 @@
-import AbstractComponent from '../../framework/view/AbstractComponent';
-import React, {Component} from 'react';
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import React, {Component} from "react";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Text, Button, Content, Grid, Row, Container, Header, Title, Icon, Radio} from "native-base";
-import DGS from '../primitives/DynamicGlobalStyles';
+import {Button, Content, Grid, Row, Container} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import SystemRecommendationView from "../conclusion/SystemRecommendation"
-import IndividualProfile from "../common/IndividualProfile"
-import FormElementGroup from '../form/FormElementGroup';
-import {Actions} from '../../action/individual/EncounterActions';
+import SystemRecommendationView from "../conclusion/SystemRecommendation";
+import IndividualProfile from "../common/IndividualProfile";
+import FormElementGroup from "../form/FormElementGroup";
+import {Actions} from "../../action/individual/EncounterActions";
 import ReducerKeys from "../../reducer";
-import AppHeader from '../common/AppHeader';
+import AppHeader from "../common/AppHeader";
+import _ from 'lodash';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -26,28 +26,20 @@ class IndividualEncounterView extends AbstractComponent {
         super(props, context, ReducerKeys.encounter);
     }
 
-    componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props.params.formElementGroup);
-        return super.componentWillMount();
-    }
-
     next() {
-        this.dispatchAction(Actions.NEXT, (nextFormElementGroup) => {
-            if (_.isNil(nextFormElementGroup))
-                TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.props.params.encounter}).to(SystemRecommendationView);
-            else
-                TypedTransition.from(this).with({
-                    individual: this.props.params.individual,
-                    encounter: this.props.params.encounter,
-                    formElementGroup: nextFormElementGroup
-                }).to(IndividualEncounterView);
-        });
+        const nextFormElementGroup = this.props.params.formElementGroup.next();
+        if (_.isNil(nextFormElementGroup))
+            TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.props.params.encounter}).to(SystemRecommendationView);
+        else
+            TypedTransition.from(this).with({
+                individual: this.props.params.individual,
+                encounter: this.props.params.encounter,
+                formElementGroup: nextFormElementGroup
+            }).to(IndividualEncounterView);
     }
 
     previous() {
-        this.dispatchAction(Actions.PREVIOUS, {
-            cb: () => TypedTransition.from(this).goBack()
-        });
+        TypedTransition.from(this).goBack();
     }
 
     render() {
@@ -66,7 +58,7 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
-                        <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formGroup}/>
+                        <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formElementGroup}/>
                         <Row style={{paddingLeft: 24, paddingRight: 24, marginTop: 30}}>
                             <Button primary
                                     style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
