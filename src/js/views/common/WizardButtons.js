@@ -23,7 +23,7 @@ class WizardButtons extends AbstractComponent {
                          style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
                                                        textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{this.I18n.t('previous')}</Button> : <View style={{flex: 0.5}}/>}
                 {this.props.next.visible ? <Button primary
-                                                   style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{this.I18n.t('next')}</Button> : <View/>}
+                                                   style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{this.I18n.t('next')}</Button> : <View style={{flex: 0.5}}/>}
             </Row>
         );
     }

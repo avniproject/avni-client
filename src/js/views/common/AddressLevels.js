@@ -6,6 +6,7 @@ import {CheckBox, Col, Row, Text, Grid, Radio} from "native-base";
 import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import BaseEntity from "../../models/BaseEntity";
+import DGS from '../primitives/DynamicGlobalStyles';
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -38,9 +39,10 @@ class AddressLevels extends AbstractComponent {
                 return (<Row
                     key={idx}
                     style={{
-                        padding: 28,
+                        padding: DGS.resizeWidth(28),
                         backgroundColor: '#ffffff',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderStyle: 'dashed'
                     }}>
                     <Col style={{flex: 1}}>
                         <Row>

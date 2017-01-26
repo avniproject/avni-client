@@ -11,6 +11,7 @@ import {Actions} from "../../action/individual/EncounterActions";
 import ReducerKeys from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import _ from 'lodash';
+import WizardButtons from '../common/WizardButtons';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -59,15 +60,8 @@ class IndividualEncounterView extends AbstractComponent {
                             <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </Row>
                         <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formElementGroup}/>
-                        <Row style={{paddingLeft: 24, paddingRight: 24, marginTop: 30}}>
-                            <Button primary
-                                    style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
-                                    textStyle={{color: '#212121'}} onPress={() => this.previous()}>
-                                PREVIOUS
-                            </Button>
-
-                            <Button primary style={{flex: 0.5, marginLeft: 8}} onPress={() => this.next()}>NEXT</Button>
-                        </Row>
+                        <WizardButtons previous={{func: () => this.previous(), visible: this.props.params.formElementGroup.displayOrder !== 1}}
+                                       next={{func: () => this.next(), visible: !this.props.params.formElementGroup.isLast}}/>
                     </Grid>
                 </Content>
             </Container>

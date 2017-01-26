@@ -45,7 +45,6 @@
   "dateOfBirth": "Date of Birth",
   "dateOfBirthVerified": "Verified",
   "generalConsultation": "General Consultation",
-  "generalHistory": "General History",
   "chooseADate": "Choose a date",
   "gender": "Gender",
   "Male": "Male",
@@ -58,5 +57,6 @@
   "enrolInSpecificProgram": "Enrol in {{program}}",
   "confirm": "Confirm",
   "generalHistory": "General History",
-  "noEncounters": "No previous visits"
+  "noEncounters": "No previous visits",
+  "registration": "Registration"
 }
