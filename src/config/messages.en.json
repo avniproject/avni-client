@@ -1,8 +1,8 @@
 {
   "questionnaireList": "Decision Support",
   "confirmation": "Confirmation",
-  "next": "Next >>",
-  "previous": "<< Previous",
+  "next": "NEXT",
+  "previous": "PREVIOUS",
   "restart": "Restart",
   "saveAndRestart": "Save",
   "export": "Export",

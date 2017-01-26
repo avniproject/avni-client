@@ -1,43 +1,30 @@
-import {StyleSheet, Text, View, TouchableHighlight, Navigator, Alert} from 'react-native';
-import React, {Component} from 'react';
-import GlobalStyles from "../primitives/GlobalStyles";
-import MessageService from '../../service/MessageService';
+import {View} from "react-native";
+import React, {Component} from "react";
+import {
+    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
+    Input, Radio
+} from "native-base";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 
-class WizardButtons extends Component {
-
+class WizardButtons extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService(MessageService).getI18n();
     }
 
-    static contextTypes = {
-        getService: React.PropTypes.func.isRequired
-    };
-
     static propTypes = {
-        buttons: React.PropTypes.array.isRequired,
+        previous: React.PropTypes.object.isRequired,
+        next: React.PropTypes.object.isRequired
     };
 
     render() {
-        const buttons = this.props.buttons.map((button, idx)=>(
-            <TouchableHighlight key={idx}
-                                style={button.visible ? GlobalStyles.navButtonVisible : GlobalStyles.navButtonHidden}>
-                <View style={GlobalStyles.actionButtonWrapper}>
-                    <Text onPress={button.func}
-                          style={[GlobalStyles.actionButton]}>{this.I18n.t(button.text)}</Text>
-                </View>
-            </TouchableHighlight>
-        ));
         return (
-            <View
-                style={{
-                    flexDirection: 'row',
-                    height: 50,
-                    justifyContent: 'space-between',
-                    marginTop: 30
-                }}>
-                {buttons}
-            </View>
+            <Row style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between'}}>
+                {this.props.previous.visible ? <Button primary
+                         style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
+                                                       textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{this.I18n.t('previous')}</Button> : <View style={{flex: 0.5}}/>}
+                {this.props.next.visible ? <Button primary
+                                                   style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{this.I18n.t('next')}</Button> : <View/>}
+            </Row>
         );
     }
 }

@@ -15,6 +15,7 @@ import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
 import AppHeader from '../common/AppHeader';
+import WizardButtons from '../common/WizardButtons';
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -40,6 +41,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     render() {
+        const formElementGroup = this.state.forms[0].formElementGroups[0];
         return (
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#212121'}}>
@@ -58,16 +60,10 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                         <Input defaultValue={moment().format('DD-MMM-YYYY')}/>
                                     </InputGroup>
                                 </Row>
-                                <FormElementGroup group={this.state.forms[0].formElementGroups[0]}
+                                <FormElementGroup group={formElementGroup}
                                                   encounter={this.state.encounter}/>
-                                <Row style={{marginTop: 30, marginBottom: 30}}>
-                                    <Button primary
-                                            style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
-                                            textStyle={{color: '#212121'}} onPress={() => this.previous()}>
-                                        PREVIOUS
-                                    </Button>
-                                    <Button primary style={{flex: 0.5, marginLeft: 8}} onPress={() => this.next()}>NEXT</Button>
-                                </Row>
+                                <WizardButtons previous={{func: () => this.previous(), visible: formElementGroup.displayOrder !== 1}}
+                                               next={{func: () => this.next(), visible: !formElementGroup.isLast}}/>
                             </Grid>
                         </Row>
                     </Grid>
