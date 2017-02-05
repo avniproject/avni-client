@@ -18,9 +18,9 @@ const enterAgeCriteria = function (state, action, beans) {
 };
 
 const toggleAddressLevelCriteria = function (state, action, beans) {
-    let newState = newStateBasedOnOldState(state);
-    newState.searchCriteria.toggleLowestAddress(action.value);
-    return newState;
+    // let newState = newStateBasedOnOldState(state);
+    state.searchCriteria.toggleLowestAddress(action.value);
+    return state;
 };
 
 const searchIndividuals = function (state, action, beans) {

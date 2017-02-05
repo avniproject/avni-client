@@ -4,7 +4,7 @@
   "next": "NEXT",
   "previous": "PREVIOUS",
   "restart": "Restart",
-  "saveAndRestart": "Save",
+  "save": "Save",
   "export": "Export",
   "answersConfirmationTitle": "Entered data",
   "allQuestionnaireSessionsSummary": "Your data",

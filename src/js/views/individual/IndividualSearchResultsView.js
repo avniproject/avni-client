@@ -24,7 +24,6 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.I18n = this.context.getService(MessageService).getI18n();
     }
 
     renderRowAResult(individual, rowID) {

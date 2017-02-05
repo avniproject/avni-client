@@ -61,7 +61,7 @@ class IndividualEncounterView extends AbstractComponent {
                         </Row>
                         <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formElementGroup}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: this.props.params.formElementGroup.displayOrder !== 1}}
-                                       next={{func: () => this.next(), visible: !this.props.params.formElementGroup.isLast}}/>
+                                       next={{func: () => this.next(), visible: true}}/>
                     </Grid>
                 </Content>
             </Container>

@@ -5,6 +5,7 @@ import {
     Input, Radio
 } from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import _ from 'lodash';
 
 class WizardButtons extends AbstractComponent {
     constructor(props, context) {
@@ -17,13 +18,15 @@ class WizardButtons extends AbstractComponent {
     };
 
     render() {
+        const previousButtonLabel = _.isNil(this.props.previous.label) ? this.I18n.t('previous') : this.props.previous.label;
+        const nextButtonLabel = _.isNil(this.props.next.label) ? this.I18n.t('next') : this.props.next.label;
         return (
             <Row style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between'}}>
                 {this.props.previous.visible ? <Button primary
                          style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
-                                                       textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{this.I18n.t('previous')}</Button> : <View style={{flex: 0.5}}/>}
+                                                       textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{previousButtonLabel}</Button> : <View style={{flex: 0.5}}/>}
                 {this.props.next.visible ? <Button primary
-                                                   style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{this.I18n.t('next')}</Button> : <View style={{flex: 0.5}}/>}
+                                                   style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{nextButtonLabel}</Button> : <View style={{flex: 0.5}}/>}
             </Row>
         );
     }

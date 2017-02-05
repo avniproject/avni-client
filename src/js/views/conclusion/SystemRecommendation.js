@@ -8,6 +8,8 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "../individual/IndividualEncounterView";
 import {Actions} from '../../action/individual/EncounterRecommendationActions';
 import ReducerKeys from "../../reducer";
+import WizardButtons from '../common/WizardButtons';
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -32,7 +34,8 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props.params.encounter);
+        const validationResult = this.context.getService(RuleEvaluationService).validateEncounter(this.props.params.encounter);
+        this.dispatchAction(Actions.ON_LOAD, validationResult);
         return super.componentWillMount();
     }
 
@@ -64,15 +67,8 @@ class SystemRecommendationView extends AbstractComponent {
                                 </Row>
                             </Grid>
                         </Row>
-                        <Row style={{paddingLeft: 24, paddingRight: 24, marginTop: 30}}>
-                            <Button primary
-                                    style={{flex:0.5, backgroundColor: '#e0e0e0'}}
-                                    textStyle={{color: '#212121'}} onPress={() => this.previous()}>
-                                PREVIOUS
-                            </Button>
-
-                            <Button primary style={{flex:0.5, marginLeft: 8}} onPress={() => this.next()}>SAVE</Button>
-                        </Row>
+                        <WizardButtons previous={{func: () => this.previous(), visible: true}}
+                                       next={{func: () => this.next(), visible: false, label: this.I18n.t('save')}}/>
                     </Grid>
                 </Content>
             </Container>

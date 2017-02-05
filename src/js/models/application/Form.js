@@ -46,6 +46,14 @@ class Form {
     formElementGroupAt(displayOrder) {
         return _.find(this.formElementGroups, (formElementGroup) => formElementGroup.displayOrder === displayOrder);
     }
+
+    static formTypes = {
+        IndividualProfile: 'IndividualProfile',
+        Encounter: 'Encounter',
+        ProgramEncounter: 'ProgramEncounter',
+        ProgramEnrolment: 'ProgramEnrolment',
+        ProgramExit: 'ProgramExit'
+    }
 }
 
 export default Form;

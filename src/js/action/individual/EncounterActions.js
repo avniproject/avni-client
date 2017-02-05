@@ -1,5 +1,3 @@
-import G from "../../utility/General";
-
 export class EncounterActions {
     static getInitialState() {
         return {
@@ -8,22 +6,19 @@ export class EncounterActions {
     }
 
     static onLoad(state, formElementGroup, context) {
-        return G.setNewState(state, function(newState) {
-            newState.formElementGroup = formElementGroup;
-        });
+        state.formElementGroup = formElementGroup;
+        return state;
     }
 
     static onPrevious(state, action, context) {
-        return G.setNewState(state, function(newState) {
-            newState.formElementGroup = state.formElementGroup.previous();
-        });
+        state.formElementGroup = state.formElementGroup.previous();
+        return state;
     }
 
     static onNext(state, cb, context) {
-        return G.setNewState(state, function(newState) {
-            newState.formElementGroup = state.formElementGroup.next();
-            cb(newState.formElementGroup);
-        });
+        state.formElementGroup = state.formElementGroup.next();
+        cb(state.formElementGroup);
+        return state;
     }
 }
 

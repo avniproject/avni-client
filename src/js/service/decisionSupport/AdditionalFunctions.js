@@ -8,11 +8,17 @@ const getObservationValue = function (conceptName) {
         return observation.concept.name === conceptName;
     });
 
+    if (_.isNil(observation)) {
+        console.log(`No observation found for concept: ${conceptName}`);
+        return undefined;
+    }
+
     switch (observation.concept.datatype) {
-        case Concept.dataType.Coded:
+        case Concept.dataType.Coded: {
             return _.isArray(observation.valueJSON.answer) ?
                 observation.valueJSON.answer.map((conceptRef) => Encounter.prototype.dynamicDataResolver.getConceptByUUID(conceptRef.conceptUUID).name) :
                 Encounter.prototype.dynamicDataResolver.getConceptByUUID(observation.valueJSON.answer.conceptUUID).name;
+        }
         default:
             return observation.valueJSON.answer;
     }

@@ -9,18 +9,24 @@ import Encounter from "../models/Encounter";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
-    constructor(db, beanStore) {
-        super(db, beanStore);
+    constructor(db, context) {
+        super(db, context);
+    }
+
+    init() {
+        this.decorateEncounter();
+        return super.init();
     }
 
     getEncounterDecision(encounter) {
+        return eval(this.getEncounterDecisionEvalExpression('getDecision'));
+    }
+
+    decorateEncounter() {
         if (_.isNil(Encounter.prototype.dynamicDataResolver)) {
             Encounter.prototype.dynamicDataResolver = new DynamicDataResolver(this.context);
             Encounter.prototype.getObservationValue = getObservationValue;
         }
-
-        const evalExpression = this.getEncounterDecisionEvalExpression('getDecision');
-        return eval(evalExpression);
     }
 
     getEncounterDecisionEvalExpression(functionName) {
@@ -29,9 +35,8 @@ class RuleEvaluationService extends BaseService {
         return `${decisionConfig.decisionCode} ${functionName}(encounter);`;
     }
 
-    validate(encounter) {
-        const evalExpression = this.getEncounterDecisionEvalExpression('validate');
-        return eval(evalExpression);
+    validateEncounter(encounter) {
+        return eval(this.getEncounterDecisionEvalExpression('validate'));
     }
 }
 

@@ -1,5 +1,7 @@
 import G from "../../utility/General";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import EntityService from "../../service/EntityService";
+import Encounter from "../../models/Encounter";
 
 export class EncounterRecommendationActions {
     static getInitialState() {
@@ -8,8 +10,6 @@ export class EncounterRecommendationActions {
 
     static onLoad(state, action, context) {
         return G.setNewState(state, function(newState) {
-            newState.decision = context.get(RuleEvaluationService).getEncounterDecision(action);
-            console.log(newState.decision);
         });
     }
 }

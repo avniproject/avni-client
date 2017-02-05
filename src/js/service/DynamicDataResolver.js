@@ -1,4 +1,3 @@
-import _ from "lodash";
 import ConceptService from "./ConceptService";
 
 class DynamicDataResolver {
@@ -7,7 +6,7 @@ class DynamicDataResolver {
     }
 
     getConceptByUUID(conceptUUID) {
-        return this.context.get(ConceptService).getConceptByUUID(conceptUUID);
+        return this.context.getBean(ConceptService).getConceptByUUID(conceptUUID);
     }
 }
 

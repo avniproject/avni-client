@@ -1,21 +1,19 @@
-import {View, StyleSheet, ScrollView, TextInput} from 'react-native';
-import React, {Component} from 'react';
-
-import AbstractComponent from '../../framework/view/AbstractComponent';
+import {View, StyleSheet, ScrollView, TextInput} from "react-native";
+import React, {Component} from "react";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {
-    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input
-} from "native-base";
+import {Text, Content, Grid, Row, Container, InputGroup, Input} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import IndividualEncounterView from "./IndividualEncounterView"
+import IndividualEncounterView from "./IndividualEncounterView";
 import moment from "moment";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
-import AppHeader from '../common/AppHeader';
-import WizardButtons from '../common/WizardButtons';
+import AppHeader from "../common/AppHeader";
+import WizardButtons from "../common/WizardButtons";
+import ReducerKeys from "../../reducer";
+import {Actions} from "../../action/individual/IndividualEncounterActions";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -28,11 +26,16 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, "individualEncounter");
+        super(props, context, ReducerKeys.individualEncounter);
+    }
+
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, this.props.params.individual);
+        return super.componentWillMount();
     }
 
     next() {
-        const next = this.state.forms[0].formElementGroups[0].next();
+        const next = this.state.form.formElementGroups[0].next();
         TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.state.encounter, formElementGroup: next}).to(IndividualEncounterView);
     }
 
@@ -41,7 +44,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     render() {
-        const formElementGroup = this.state.forms[0].formElementGroups[0];
+        const formElementGroup = this.state.form.formElementGroups[0];
         return (
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#212121'}}>
