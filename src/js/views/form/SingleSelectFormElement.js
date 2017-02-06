@@ -9,7 +9,7 @@ class SingleSelectFormElement extends AbstractComponent {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName : React.PropTypes.string.isRequired,
-        selectedAnswer : React.PropTypes.object.isRequired
+        singleCodedValue : React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
@@ -18,7 +18,7 @@ class SingleSelectFormElement extends AbstractComponent {
 
     toggleFormElementAnswerSelection(concept, answer) {
         return () => {
-            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.uuid});
+            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.concept.uuid});
         }
     }
 
@@ -33,16 +33,16 @@ class SingleSelectFormElement extends AbstractComponent {
                             <Row key={idx}>
                                 <Col>
                                     <Row>
-                                        <Radio selected= {!_.isEmpty(this.props.selectedAnswer) && this.props.selectedAnswer.conceptUUID === answer1.uuid}
+                                        <Radio selected= {this.props.singleCodedValue.hasValue(answer1.concept.uuid)}
                                                onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
-                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.concept.name}</Text>
                                     </Row>
                                 </Col>
                                 <Col>
                                     <Row>
-                                        <Radio selected={!_.isEmpty(this.props.selectedAnswer) && this.props.selectedAnswer.conceptUUID === answer2.uuid}
+                                        <Radio selected={this.props.singleCodedValue.hasValue(answer2.concept.uuid)}
                                                onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
-                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.concept.name}</Text>
                                     </Row>
                                 </Col>
                             </Row>

@@ -15,6 +15,8 @@ class BaseService {
     }
 
     findByUUID(uuid, schema) {
+        if (_.isNil(schema)) schema = this.getSchema();
+
         return this.findByKey("uuid", uuid, schema);
     }
 

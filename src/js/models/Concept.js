@@ -8,14 +8,13 @@ export class ConceptAnswer {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
-            name: 'string'
+            concept: 'Concept'
         }
     };
 
     static fromResource(resource, entityService) {
         const conceptAnswer = new ConceptAnswer();
-        const conceptAnswerConcept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
-        conceptAnswer.name = conceptAnswerConcept.name;
+        conceptAnswer.concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
         conceptAnswer.uuid = resource.uuid;
         return conceptAnswer;
     }

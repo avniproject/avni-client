@@ -36,7 +36,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
 
     next() {
         const next = this.state.form.formElementGroups[0].next();
-        TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.state.encounter, formElementGroup: next}).to(IndividualEncounterView);
+        TypedTransition.from(this).with({encounter: this.state.encounter, formElementGroup: next}).to(IndividualEncounterView);
     }
 
     previous() {
@@ -51,7 +51,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('generalConsultation')}/>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>
-                            <IndividualProfile landingView={true} individual={this.props.params.individual}/>
+                            <IndividualProfile landingView={true} individual={this.state.encounter.individual}/>
                         </Row>
                         <Row>
                             <Grid style={{backgroundColor: '#ffffff', paddingLeft: 10, paddingRight: 10}}>

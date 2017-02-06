@@ -1,7 +1,9 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import Encounter from "../models/Encounter";
+import Individual from "../models/Individual";
 import EncounterType from "../models/EncounterType";
+import IndividualService from "./IndividualService";
 
 @Service("individualEncounterService")
 class IndividualEncounterService extends BaseService {
@@ -14,9 +16,9 @@ class IndividualEncounterService extends BaseService {
         return this.db.objects(Encounter.schema.name).filtered(`individual.uuid="${individual.uuid}"`);
     }
 
-    newEncounter(individual) {
+    newEncounter(individualUUID) {
         const encounter = Encounter.create();
-        encounter.individual = individual;
+        encounter.individual = this.getService(IndividualService).findByUUID(individualUUID, Individual.schema.name);
         encounter.encounterType = this.getAll(EncounterType.schema.name)[0];
         return encounter;
     }

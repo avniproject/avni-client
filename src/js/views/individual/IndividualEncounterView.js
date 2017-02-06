@@ -29,11 +29,11 @@ class IndividualEncounterView extends AbstractComponent {
 
     next() {
         const nextFormElementGroup = this.props.params.formElementGroup.next();
-        if (_.isNil(nextFormElementGroup))
-            TypedTransition.from(this).with({individual: this.props.params.individual, encounter: this.props.params.encounter}).to(SystemRecommendationView);
+        if (_.isNil(nextFormElementGroup)) {
+            TypedTransition.from(this).with({encounter: this.props.params.encounter}).to(SystemRecommendationView);
+        }
         else
             TypedTransition.from(this).with({
-                individual: this.props.params.individual,
                 encounter: this.props.params.encounter,
                 formElementGroup: nextFormElementGroup
             }).to(IndividualEncounterView);
@@ -47,7 +47,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content>
-                    <AppHeader title={this.props.params.individual.name}/>
+                    <AppHeader title={this.props.params.encounter.individual.name}/>
                     <Grid>
                         <Row style={{
                             backgroundColor: '#f7f7f7',
@@ -57,7 +57,7 @@ class IndividualEncounterView extends AbstractComponent {
                             paddingBottom: 12,
                             height: 74
                         }}>
-                            <IndividualProfile landingView={false} individual={this.props.params.individual}/>
+                            <IndividualProfile landingView={false} individual={this.props.params.encounter.individual}/>
                         </Row>
                         <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formElementGroup}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: this.props.params.formElementGroup.displayOrder !== 1}}

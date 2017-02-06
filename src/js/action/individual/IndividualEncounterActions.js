@@ -14,9 +14,13 @@ export class IndividualEncounterActions {
     }
 
     static onLoad(state, individual, context) {
-        state.encounter = context.get(IndividualEncounterService).newEncounter(individual);
+        state.encounter = context.get(IndividualEncounterService).newEncounter(individual.uuid);
         state.form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
         return state;
+    }
+
+    static onNumericObs(state, action, context) {
+        state.encounter.addOrUpdateNumericObs(action.formElement.concept, action.value);
     }
 
     static getInitialState(context) {
@@ -29,13 +33,15 @@ export class IndividualEncounterActions {
 const actions = {
     TOGGLE_MULTISELECT_ANSWER: "c5407cf4-f37a-4568-9d56-ffba58a3bafe",
     TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
+    TEXT_INPUT_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
     ON_LOAD: "2bbad779-cbba-4778-a9c7-7da6a0b36a96"
 };
 
 export default new Map([
     [actions.TOGGLE_MULTISELECT_ANSWER, IndividualEncounterActions.toggleMultiSelectAnswer],
     [actions.TOGGLE_SINGLESELECT_ANSWER, IndividualEncounterActions.toggleSingleSelectAnswer],
-    [actions.ON_LOAD, IndividualEncounterActions.onLoad]
+    [actions.ON_LOAD, IndividualEncounterActions.onLoad],
+    [actions.TEXT_INPUT_CHANGE, IndividualEncounterActions.onNumericObs]
 ]);
 
 export {actions as Actions};

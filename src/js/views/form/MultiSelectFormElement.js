@@ -6,12 +6,11 @@ import {Text, CheckBox, Grid, Col, Row } from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import Observation from "../../models/Observation";
 
-
-class FormElement extends AbstractComponent {
+class MultiSelectFormElement extends AbstractComponent {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName : React.PropTypes.string.isRequired,
-        selectedAnswers : React.PropTypes.array.isRequired
+        multipleCodeValues : React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
@@ -20,11 +19,13 @@ class FormElement extends AbstractComponent {
 
     toggleFormElementAnswerSelection(concept, answer) {
         return () => {
-            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.uuid});
+            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.concept.uuid});
         }
     }
 
     renderMultiSelectAnswers() {
+        console.log(this.props.multipleCodeValues);
+
         return(<Grid style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
@@ -33,20 +34,20 @@ class FormElement extends AbstractComponent {
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                         return (
                             <Row key={idx}>
-                                <Col>
+                                    <Col>
                                     <Row>
                                         <CheckBox
-                                            checked={Observation.isAnswerAlreadyPresent(this.props.selectedAnswers, answer1.uuid)}
+                                            checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(answer1.concept.uuid)}
                                             onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
-                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.name}</Text>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.concept.name}</Text>
                                     </Row>
                                 </Col>
                                 <Col>
                                     <Row>
                                         <CheckBox
-                                            checked={Observation.isAnswerAlreadyPresent(this.props.selectedAnswers, answer2.uuid)}
+                                            checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(answer2.concept.uuid)}
                                             onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
-                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.name}</Text>
+                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.concept.name}</Text>
                                     </Row>
                                 </Col>
                             </Row>
@@ -68,4 +69,4 @@ class FormElement extends AbstractComponent {
 
 }
 
-export default FormElement;
+export default MultiSelectFormElement;

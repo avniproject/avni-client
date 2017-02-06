@@ -8,6 +8,8 @@ import NumericFormElement from './NumericFormElement';
 import {Actions} from "../../action/individual/IndividualEncounterActions";
 import _ from "lodash";
 import Concept from '../../models/Concept';
+import MultipleCodedValues from "../../models/observation/MultipleCodedValues";
+import SingleCodedValue from "../../models/observation/SingleCodedValue";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -24,16 +26,16 @@ class FormElementGroup extends AbstractComponent {
                 {
                     this.props.group.formElements.map((formElement, idx) => {
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
-                            return <NumericFormElement key={idx} element={formElement}/>
+                            return <NumericFormElement key={idx} element={formElement} actionName={Actions.TEXT_INPUT_CHANGE}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return <MultiSelectFormElement key={idx}
                                                            element={formElement}
-                                                           selectedAnswers={this.getSelectedAnswer(formElement.concept, [])}
+                                                           multipleCodeValues={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                                            actionName={Actions.TOGGLE_MULTISELECT_ANSWER}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
                             return <SingleSelectFormElement key={idx}
                                                             element={formElement}
-                                                            selectedAnswer={this.getSelectedAnswer(formElement.concept, {})}
+                                                            singleCodedValue={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                                             actionName={Actions.TOGGLE_SINGLESELECT_ANSWER}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Boolean) {
                             return <BooleanFormElement key={idx}
@@ -49,7 +51,7 @@ class FormElementGroup extends AbstractComponent {
 
     getSelectedAnswer(concept, nullReplacement) {
         const observation = this.findObservation(concept);
-        return _.isNil(observation) ? nullReplacement : observation.valueJSON.answer;
+        return _.isNil(observation) ? nullReplacement : observation.valueJSON;
     }
 
     findObservation(concept) {

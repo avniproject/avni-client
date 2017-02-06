@@ -4,6 +4,9 @@ import Individual from "./Individual";
 import ResourceUtil from "../utility/ResourceUtil";
 import _ from "lodash";
 import Observation from './Observation'
+import SingleCodedValue from './observation/SingleCodedValue';
+import MultipleCodedValue from './observation/MultipleCodedValues';
+import PrimitiveValue from "./observation/PrimitiveValue";
 
 class Encounter {
     static schema = {
@@ -37,7 +40,7 @@ class Encounter {
     toggleSingleSelectAnswer(concept, answerUUID) {
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
-            observation = Observation.create(concept, {conceptUUID: answerUUID});
+            observation = Observation.create(concept, new SingleCodedValue(answerUUID));
             this.observations.push(observation);
         }
         else {
@@ -51,7 +54,7 @@ class Encounter {
     toggleMultiSelectAnswer(concept, answerUUID) {
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
-            observation = Observation.create(concept, [{conceptUUID: answerUUID}]);
+            observation = Observation.create(concept, new MultipleCodedValue().push(answerUUID));
             this.observations.push(observation);
         }
         else {
@@ -61,12 +64,20 @@ class Encounter {
             }
         }
     }
+
     getObservation(concept){
         return _.find(this.observations, (observation) => {
             return observation.concept.uuid === concept.uuid;
         });
     }
 
+    addOrUpdateNumericObs(concept, value) {
+        const observation = this.getObservation(concept);
+        if (_.isEmpty(observation))
+            this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
+        else
+            observation.setPrimitiveAnswer(value);
+    }
 }
 
 export default Encounter;
