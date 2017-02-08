@@ -52,6 +52,10 @@ class FormElementGroup {
     get isLast() {
         return this.form.formElementGroups.length === this.displayOrder;
     }
+
+    get isFirst() {
+        return 1 === this.displayOrder;
+    }
 }
 
 export default FormElementGroup;

@@ -1,4 +1,3 @@
-import _ from "lodash";
 import moment from "moment";
 
 class PrimitiveValue {
@@ -12,6 +11,12 @@ class PrimitiveValue {
 
     getDisplayValue() {
         return this.answer;
+    }
+
+    cloneForNewEncounter() {
+        const primitiveValue = new PrimitiveValue();
+        primitiveValue.answer = this.answer;
+        return primitiveValue;
     }
 }
 

@@ -13,6 +13,13 @@ class EncounterType {
     static fromResource(resource) {
         return General.assignFields(resource, new EncounterType(), ["uuid", "name"]);
     }
+
+    clone() {
+        const encounterType = new EncounterType();
+        encounterType.uuid = this.uuid;
+        encounterType.name = this.name;
+        return encounterType;
+    }
 }
 
 export default EncounterType;

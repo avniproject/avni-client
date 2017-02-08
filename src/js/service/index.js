@@ -10,3 +10,4 @@ export * from './ConfigService';
 export * from './EntitySyncStatusService';
 export * from './SyncService';
 export * from './EntityQueueService';
+export * from './IndividualEncounterService';

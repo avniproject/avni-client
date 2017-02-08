@@ -71,12 +71,31 @@ class Encounter {
         });
     }
 
-    addOrUpdateNumericObs(concept, value) {
+    addOrUpdatePrimitiveObs(concept, value) {
         const observation = this.getObservation(concept);
         if (_.isEmpty(observation))
             this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
         else
             observation.setPrimitiveAnswer(value);
+    }
+
+    findObservation(concept) {
+        return _.find(this.observations, (observation) => {
+            return observation.concept.uuid === concept.uuid;
+        });
+    }
+
+    cloneForNewEncounter() {
+        const encounter = new Encounter();
+        encounter.uuid = this.uuid;
+        encounter.encounterType = this.encounterType.clone();
+        encounter.encounterDateTime = this.encounterDateTime;
+        encounter.individual = this.individual.cloneForNewEncounter();
+        encounter.observations = [];
+        this.observations.forEach((observation) => {
+            encounter.observations.push(observation.cloneForNewEncounter());
+        });
+        return encounter;
     }
 }
 

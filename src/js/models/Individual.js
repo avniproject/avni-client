@@ -111,6 +111,17 @@ class Individual extends BaseEntity {
 
         return eligiblePrograms;
     }
+
+    cloneForNewEncounter() {
+        const individual = new Individual();
+        individual.uuid = this.uuid;
+        individual.name = this.name;
+        individual.dateOfBirth = this.dateOfBirth;
+        individual.dateOfBirthVerified = this.dateOfBirthVerified;
+        individual.lowestAddressLevel = this.lowestAddressLevel.cloneForNewEncounter();
+        individual.gender = this.gender.clone();
+        return individual;
+    }
 }
 
 export default Individual;

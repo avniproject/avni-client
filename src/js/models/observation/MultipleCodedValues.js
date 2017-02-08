@@ -41,6 +41,16 @@ class MultipleCodedValues {
             return value.conceptUUID;
         });
     }
+
+    cloneForNewEncounter() {
+        const multipleCodedValues = new MultipleCodedValues();
+        multipleCodedValues.answer = [];
+        this.answer.forEach((obj) => {
+            multipleCodedValues.push(obj.conceptUUID);
+        });
+
+        return multipleCodedValues;
+    }
 }
 
 export default MultipleCodedValues;

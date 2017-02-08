@@ -3,6 +3,7 @@ import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
 import {Map} from 'immutable';
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
+import General from '../../utility/General';
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -74,7 +75,10 @@ class AbstractComponent extends Component {
     }
 
     refreshState() {
-        this.setState(this.getContextState(this.topLevelStateVariable));
+        const nextState = this.getContextState(this.topLevelStateVariable);
+        if (!General.areEqualShallow(nextState, this.state)) {
+            this.setState(nextState);
+        }
     }
 
     componentWillUnmount() {

@@ -12,6 +12,10 @@ class ConceptService extends BaseService {
         this.addConceptI18n = this.addConceptI18n.bind(this);
     }
 
+    getSchema() {
+        return Concept.schema.name;
+    }
+
     init() {
         this.getAllConcepts().map(this.addConceptI18n);
     }

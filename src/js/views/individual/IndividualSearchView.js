@@ -10,6 +10,7 @@ import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import {Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
 import Actions from "../../action/index";
 import AddressLevels from '../common/AddressLevels';
+import IndividualEncounterService from "../../service/IndividualEncounterService";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -25,6 +26,7 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
+
         return (
             <Content>
                 <Grid style={{marginTop: 16, marginHorizontal: 24}}>

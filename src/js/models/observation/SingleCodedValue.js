@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 class SingleCodedValue {
     constructor(answerUUID) {
         this.answer = {};
@@ -12,6 +10,13 @@ class SingleCodedValue {
 
     getValue() {
         return this.answer.conceptUUID;
+    }
+
+    cloneForNewEncounter() {
+        const singleCodedValue = new SingleCodedValue();
+        singleCodedValue.answer = {};
+        singleCodedValue.answer.conceptUUID = this.answer.conceptUUID;
+        return singleCodedValue;
     }
 }
 

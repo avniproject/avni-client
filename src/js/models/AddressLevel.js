@@ -1,4 +1,3 @@
-import _ from "lodash";
 import BaseEntity from "./BaseEntity";
 
 class AddressLevel extends BaseEntity {
@@ -24,6 +23,13 @@ class AddressLevel extends BaseEntity {
 
     static fromResource(resource) {
         return AddressLevel.create(resource["uuid"], resource["title"], resource["level"]);
+    }
+
+    cloneForNewEncounter() {
+        const addressLevel = new AddressLevel();
+        addressLevel.uuid = this.uuid;
+        addressLevel.title = this.title;
+        return addressLevel;
     }
 }
 

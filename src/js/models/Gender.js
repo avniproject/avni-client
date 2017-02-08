@@ -14,6 +14,13 @@ class Gender extends BaseEntity {
     static fromResource(resource) {
         return General.assignFields(resource, new Gender(), ["uuid", "name"]);
     }
+
+    clone() {
+        const gender = new Gender();
+        gender.uuid = this.uuid;
+        gender.name = this.name;
+        return gender;
+    }
 }
 
 export default Gender;

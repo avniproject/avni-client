@@ -73,4 +73,10 @@ export default class Concept {
         concept.datatype = dataType;
         return concept;
     }
+
+    cloneForNewEncounter() {
+        const concept = Concept.create(this.name, this.datatype);
+        concept.uuid = this.uuid;
+        return concept;
+    }
 }

@@ -2,16 +2,16 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import React, {Component} from "react";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Button, Content, Grid, Row, Container} from "native-base";
+import {Content, Grid, Row, Container} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import SystemRecommendationView from "../conclusion/SystemRecommendation";
+import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
-import {Actions} from "../../action/individual/EncounterActions";
+import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import ReducerKeys from "../../reducer";
 import AppHeader from "../common/AppHeader";
-import _ from 'lodash';
-import WizardButtons from '../common/WizardButtons';
+import WizardButtons from "../common/WizardButtons";
+import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -27,27 +27,34 @@ class IndividualEncounterView extends AbstractComponent {
         super(props, context, ReducerKeys.encounter);
     }
 
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, {encounter: this.props.params.encounter, formElementGroup: this.props.params.formElementGroup});
+        return super.componentWillMount();
+    }
+
     next() {
-        const nextFormElementGroup = this.props.params.formElementGroup.next();
-        if (_.isNil(nextFormElementGroup)) {
-            TypedTransition.from(this).with({encounter: this.props.params.encounter}).to(SystemRecommendationView);
-        }
-        else
-            TypedTransition.from(this).with({
-                encounter: this.props.params.encounter,
-                formElementGroup: nextFormElementGroup
-            }).to(IndividualEncounterView);
+        this.dispatchAction(Actions.NEXT, {
+            cb: (lastPage, encounter, formElementGroup, encounterDecisions) => {
+                if (lastPage)
+                    TypedTransition.from(this).with({encounter: encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
+                else
+                    TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(IndividualEncounterView);
+            }
+        });
     }
 
     previous() {
-        TypedTransition.from(this).goBack();
+        this.dispatchAction(Actions.PREVIOUS, (firstPage) => {
+            TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView);
+        });
     }
 
     render() {
+        console.log('IndividualEncounterView.render');
         return (
             <Container theme={themes}>
                 <Content>
-                    <AppHeader title={this.props.params.encounter.individual.name}/>
+                    <AppHeader title={this.state.encounter.individual.name}/>
                     <Grid>
                         <Row style={{
                             backgroundColor: '#f7f7f7',
@@ -57,10 +64,10 @@ class IndividualEncounterView extends AbstractComponent {
                             paddingBottom: 12,
                             height: 74
                         }}>
-                            <IndividualProfile landingView={false} individual={this.props.params.encounter.individual}/>
+                            <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                         </Row>
-                        <FormElementGroup encounter={this.props.params.encounter} group={this.props.params.formElementGroup}/>
-                        <WizardButtons previous={{func: () => this.previous(), visible: this.props.params.formElementGroup.displayOrder !== 1}}
+                        <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions}/>
+                        <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
                                        next={{func: () => this.next(), visible: true}}/>
                     </Grid>
                 </Content>

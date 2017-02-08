@@ -13,7 +13,9 @@ import FormElementGroup from "../form/FormElementGroup";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import ReducerKeys from "../../reducer";
-import {Actions} from "../../action/individual/IndividualEncounterActions";
+import {IndividualEncounterLandingViewActions as Actions} from "../../action/individual/EncounterActions";
+import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import _ from "lodash";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -26,25 +28,26 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualEncounter);
+        super(props, context, ReducerKeys.encounterLanding);
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props.params.individual);
+        if (!_.isNil(this.props.params.individualUUID))
+            this.dispatchAction(Actions.NEW_ENCOUNTER, {individualUUID: this.props.params.individualUUID});
         return super.componentWillMount();
     }
 
     next() {
-        const next = this.state.form.formElementGroups[0].next();
-        TypedTransition.from(this).with({encounter: this.state.encounter, formElementGroup: next}).to(IndividualEncounterView);
-    }
-
-    previous() {
-        TypedTransition.from(this).goBack();
+        this.dispatchAction(Actions.NEXT, {cb: (lastPage, encounter, formElementGroup, encounterDecisions) => {
+            if (lastPage)
+                TypedTransition.from(this).with({encounter: encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
+            else
+                TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(IndividualEncounterView);
+        }});
     }
 
     render() {
-        const formElementGroup = this.state.form.formElementGroups[0];
+        console.log('IndividualEncounterLandingView.render');
         return (
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#212121'}}>
@@ -63,10 +66,10 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                         <Input defaultValue={moment().format('DD-MMM-YYYY')}/>
                                     </InputGroup>
                                 </Row>
-                                <FormElementGroup group={formElementGroup}
-                                                  encounter={this.state.encounter}/>
-                                <WizardButtons previous={{func: () => this.previous(), visible: formElementGroup.displayOrder !== 1}}
-                                               next={{func: () => this.next(), visible: !formElementGroup.isLast}}/>
+                                <FormElementGroup group={this.state.formElementGroup}
+                                                  encounter={this.state.encounter} actions={Actions}/>
+                                <WizardButtons previous={{func: () => {}, visible: false}}
+                                               next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast}}/>
                             </Grid>
                         </Row>
                     </Grid>

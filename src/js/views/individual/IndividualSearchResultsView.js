@@ -117,7 +117,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-        TypedTransition.from(this).with({individual: individual}).to(IndividualEncounterLandingView);
+        TypedTransition.from(this).with({individualUUID: individual.uuid}).to(IndividualEncounterLandingView);
     }
 }
 

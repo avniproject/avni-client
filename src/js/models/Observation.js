@@ -51,6 +51,13 @@ class Observation {
     setPrimitiveAnswer(value) {
         this.valueJSON.answer = value;
     }
+
+    cloneForNewEncounter() {
+        const observation = new Observation();
+        observation.concept = this.concept.cloneForNewEncounter();
+        observation.valueJSON = this.valueJSON.cloneForNewEncounter();
+        return observation;
+    }
 }
 
 export default Observation;

@@ -24,8 +24,6 @@ class MultiSelectFormElement extends AbstractComponent {
     }
 
     renderMultiSelectAnswers() {
-        console.log(this.props.multipleCodeValues);
-
         return(<Grid style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
