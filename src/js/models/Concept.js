@@ -41,7 +41,8 @@ export default class Concept {
         Duration: 'Duration',
         Coded: 'Coded',
         Numeric: 'Numeric',
-        Boolean: 'Boolean'
+        Boolean: 'Boolean',
+        Text: 'Text'
     };
 
     static fromResource(conceptResource) {

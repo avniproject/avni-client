@@ -62,10 +62,10 @@ export class EncounterActions {
         var encounterDecisions;
 
         if (_.isNil(formElementGroup)) {
-            const validationResult = context.getBean(RuleEvaluationService).validateEncounter(encounter);
+            const validationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
             if (validationResult.passed) {
-                encounterDecisions = context.getBean(RuleEvaluationService).getEncounterDecision(encounter);
-                context.getBean(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
+                encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
+                context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
             }
         }
         action.cb(_.isNil(formElementGroup), encounter, formElementGroup, encounterDecisions);

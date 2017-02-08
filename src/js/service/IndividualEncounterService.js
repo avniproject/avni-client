@@ -7,6 +7,9 @@ import IndividualService from "./IndividualService";
 import ConceptService from "./ConceptService";
 import Observation from "../models/Observation";
 import PrimitiveValue from "../models/observation/PrimitiveValue";
+import _ from 'lodash';
+import G from '../utility/General';
+import EntityQueue from "../models/EntityQueue";
 
 @Service("individualEncounterService")
 class IndividualEncounterService extends BaseService {
@@ -25,6 +28,7 @@ class IndividualEncounterService extends BaseService {
 
     newEncounter(individualUUID) {
         const encounter = Encounter.create();
+        encounter.uuid = G.randomUUID();
         encounter.individual = this.getService(IndividualService).findByUUID(individualUUID, Individual.schema.name);
         encounter.encounterType = this.getAll(EncounterType.schema.name)[0];
         return encounter;
@@ -33,8 +37,24 @@ class IndividualEncounterService extends BaseService {
     addDecisions(encounter, decisions) {
         decisions.forEach((decision) => {
             var concept = this.getService(ConceptService).findByKey('name', decision.name);
+            if (_.isNil(concept))
+                throw Error(`No concept found for ${decision.name} when adding observations for decisions`);
             encounter.observations.push(Observation.create(concept, new PrimitiveValue(decision.value)));
         });
+    }
+
+    saveOrUpdate(encounter) {
+        encounter.encounterDateTime = new Date();
+        encounter.observations.forEach((observation) => {
+            observation.valueJSON = JSON.stringify(observation.valueJSON);
+        });
+
+        const db = this.db;
+        this.db.write(()=> {
+            db.create(Encounter.schema.name, encounter, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(encounter, Encounter.schema.name));
+        });
+        return encounter;
     }
 }
 

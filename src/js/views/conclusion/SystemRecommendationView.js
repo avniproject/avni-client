@@ -3,11 +3,10 @@ import React, {Component} from "react";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
-import {Content, Grid, Row, Container} from "native-base";
+import {Text, Content, Grid, Col, Row, Container} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ReducerKeys from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import IndividualEncounterService from "../../service/IndividualEncounterService";
 import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/individual/SystemRecommendationActions";
 
@@ -22,7 +21,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.encounter);
+        super(props, context, ReducerKeys.systemRecommendation);
     }
 
     save() {
@@ -42,11 +41,12 @@ class SystemRecommendationView extends AbstractComponent {
 
     render() {
         console.log(`SystemRecommendationView.render`);
+        console.log(this.state.encounterDecisions);
         var decisionNumber = 0;
         return (
             <Container theme={themes}>
-                <AppHeader title={this.state.encounter.individual.name}/>
                 <Content>
+                    <AppHeader title={this.state.encounter.individual.name}/>
                     <Grid>
                         <Row style={{backgroundColor: '#f7f7f7', paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, height: 74}}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>

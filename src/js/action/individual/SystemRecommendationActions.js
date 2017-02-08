@@ -14,10 +14,10 @@ export class SystemRecommendationActions {
 
     static onSave(state, action, context) {
         const newState = {};
-        newState.encounter = state.cloneForNewEncounter();
+        newState.encounter = state.encounter.cloneForNewEncounter();
         newState.encounterDecisions = state.encounterDecisions;
         newState.formElementGroup = state.formElementGroup;
-        context.getBean(IndividualEncounterService).save(newState.encounter);
+        context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
         return newState;
     }
 }

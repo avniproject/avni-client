@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, Row, InputGroup, Input} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import _ from 'lodash';
 
 class NumericFormElement extends AbstractComponent {
     static propTypes = {
@@ -22,7 +23,7 @@ class NumericFormElement extends AbstractComponent {
                 </Row>
                 <Row>
                     <InputGroup style={{flex: 1}} borderType='underline'>
-                        <Input onChangeText={(number) => this.onInputChange(number)} />
+                        <Input onChangeText={(number) => this.onInputChange(_.toNumber(number))} />
                     </InputGroup>
                 </Row>
             </View>);
