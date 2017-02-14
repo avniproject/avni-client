@@ -5,7 +5,7 @@ import {Text, Row, InputGroup, Input} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
 
-class NumericFormElement extends AbstractComponent {
+class NumericOrTextFormElement extends AbstractComponent {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired
@@ -34,4 +34,4 @@ class NumericFormElement extends AbstractComponent {
     }
 }
 
-export default NumericFormElement;
+export default NumericOrTextFormElement;
