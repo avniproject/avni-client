@@ -5,10 +5,11 @@ import {Text, Row, InputGroup, Input} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
 
-class NumericOrTextFormElement extends AbstractComponent {
+class NumericFormElement extends AbstractComponent {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired
+        actionName: React.PropTypes.string.isRequired,
+        value: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -23,7 +24,7 @@ class NumericOrTextFormElement extends AbstractComponent {
                 </Row>
                 <Row>
                     <InputGroup style={{flex: 1}} borderType='underline'>
-                        <Input onChangeText={(number) => this.onInputChange(_.toNumber(number))} />
+                        <Input keyboardType = 'numeric' value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(number) => this.onInputChange(number)} />
                     </InputGroup>
                 </Row>
             </View>);
@@ -34,4 +35,4 @@ class NumericOrTextFormElement extends AbstractComponent {
     }
 }
 
-export default NumericOrTextFormElement;
+export default NumericFormElement;

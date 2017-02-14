@@ -44,8 +44,11 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     previous() {
-        this.dispatchAction(Actions.PREVIOUS, (firstPage) => {
-            TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView);
+        this.dispatchAction(Actions.PREVIOUS, {
+        cb: (firstPage, encounter, formElementGroup) =>
+        {
+            TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView);
+        }
         });
     }
 

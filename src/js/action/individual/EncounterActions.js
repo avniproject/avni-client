@@ -49,10 +49,13 @@ export class EncounterActions {
         return newState;
     }
 
-    static onPrevious(state, cb, context) {
+    static onPrevious(state, action, context) {
         const newState = EncounterActions.clone(state);
+        const formElementGroup = newState.formElementGroup.previous();
+        const encounter = newState.encounter;
+
         newState.formElementGroup = state.formElementGroup.previous();
-        cb(newState.formElementGroup.isFirst());
+        action.cb(newState.formElementGroup.isFirst(), encounter, formElementGroup);
         return newState;
     }
 

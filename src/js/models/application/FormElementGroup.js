@@ -53,7 +53,7 @@ class FormElementGroup {
         return this.form.formElementGroups.length === this.displayOrder;
     }
 
-    get isFirst() {
+    isFirst() {
         return 1 === this.displayOrder;
     }
 }

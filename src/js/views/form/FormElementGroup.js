@@ -4,7 +4,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import MultiSelectFormElement from './MultiSelectFormElement';
 import SingleSelectFormElement from './SingleSelectFormElement';
 import BooleanFormElement from './BooleanFormElement';
-import NumericOrTextFormElement from './NumericOrTextFormElement';
+import NumericFormElement from './NumericFormElement';
+import TextFormElement from './TextFormElement';
 import DateFormElement from './DateFormElement';
 import _ from "lodash";
 import Concept from '../../models/Concept';
@@ -27,9 +28,16 @@ class FormElementGroup extends AbstractComponent {
                 {
                     this.props.group.formElements.map((formElement, idx) => {
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
-                            return <NumericOrTextFormElement key={idx} element={formElement} actionName={this.props.actions["TEXT_INPUT_CHANGE"]}/>
+                            return <NumericFormElement
+                                key={idx}
+                                element={formElement}
+                                value={this.getSelectedAnswer(formElement.concept, null)}
+                                actionName={this.props.actions["TEXT_INPUT_CHANGE"]}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Text) {
-                            return <NumericOrTextFormElement key={idx} element={formElement} actionName={this.props.actions["TEXT_INPUT_CHANGE"]}/>
+                            return <TextFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["TEXT_INPUT_CHANGE"]}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return <MultiSelectFormElement key={idx}
                                                            element={formElement}
