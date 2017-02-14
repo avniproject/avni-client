@@ -5,6 +5,7 @@ import MultiSelectFormElement from './MultiSelectFormElement';
 import SingleSelectFormElement from './SingleSelectFormElement';
 import BooleanFormElement from './BooleanFormElement';
 import NumericFormElement from './NumericFormElement';
+import DateFormElement from './DateFormElement';
 import _ from "lodash";
 import Concept from '../../models/Concept';
 import MultipleCodedValues from "../../models/observation/MultipleCodedValues";
@@ -42,6 +43,11 @@ class FormElementGroup extends AbstractComponent {
                                                        element={formElement}
                                                        value={this.getSelectedAnswer(formElement.concept, null)}
                                                        actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}/>
+                        } else if (formElement.concept.datatype === Concept.dataType.Date) {
+                            return <DateFormElement key={idx}
+                                                    element={formElement}
+                                                    actionName={this.props.actions["DATE_INPUT_CHANGE"]}
+                                                    dateValue={this.getSelectedAnswer(formElement.concept, null)}/>
                         }
                     })
                 }

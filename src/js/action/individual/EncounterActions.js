@@ -78,6 +78,12 @@ export class EncounterActions {
         newState.formElementGroup = action.formElementGroup;
         return newState;
     }
+
+    static onEncounterDateTimeChange(state, action, context) {
+        const newState = EncounterActions.clone(state);
+        newState.encounter.encounterDateTime = action.value;
+        return newState;
+    }
 }
 
 const individualEncounterLandingViewActions = {
@@ -86,7 +92,9 @@ const individualEncounterLandingViewActions = {
     TOGGLE_MULTISELECT_ANSWER: "a71ceb47-6a67-4caf-907d-2c93c985c64b",
     TOGGLE_SINGLESELECT_ANSWER: "e3a5f0ea-a5de-44d6-b07b-e5c9cf0d1d5f",
     TEXT_INPUT_CHANGE: '6d34e303-318c-4e53-83b0-42f673a0e369',
-    NEW_ENCOUNTER: '034f29e9-6204-49b3-b9fe-fec38851b966'
+    NEW_ENCOUNTER: '034f29e9-6204-49b3-b9fe-fec38851b966',
+    ENCOUNTER_DATE_TIME_CHANGE: '42101ad3-9e4f-46d0-913d-51f3d9c4cc66',
+    DATE_INPUT_CHANGE: '98eb574a-b721-4093-9296-a323537cd1e9'
 };
 
 const individualEncounterLandingViewActionsMap = new Map([
@@ -95,7 +103,10 @@ const individualEncounterLandingViewActionsMap = new Map([
     [individualEncounterLandingViewActions.TOGGLE_MULTISELECT_ANSWER, EncounterActions.toggleMultiSelectAnswer],
     [individualEncounterLandingViewActions.TOGGLE_SINGLESELECT_ANSWER, EncounterActions.toggleSingleSelectAnswer],
     [individualEncounterLandingViewActions.TEXT_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
-    [individualEncounterLandingViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter]
+    [individualEncounterLandingViewActions.DATE_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
+    [individualEncounterLandingViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
+    [individualEncounterLandingViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange]
+
 ]);
 
 const individualEncounterViewActions = {
@@ -104,6 +115,7 @@ const individualEncounterViewActions = {
     TOGGLE_MULTISELECT_ANSWER: "c5407cf4-f37a-4568-9d56-ffba58a3bafe",
     TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
     TEXT_INPUT_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
+    DATE_INPUT_CHANGE: 'ba886777-6f50-4e0b-8806-54c6d6b2e853',
     ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c'
 };
 
@@ -113,6 +125,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.TOGGLE_MULTISELECT_ANSWER, EncounterActions.toggleMultiSelectAnswer],
     [individualEncounterViewActions.TOGGLE_SINGLESELECT_ANSWER, EncounterActions.toggleSingleSelectAnswer],
     [individualEncounterViewActions.TEXT_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
+    [individualEncounterViewActions.DATE_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
     [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad]
 ]);

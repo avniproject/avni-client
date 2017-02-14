@@ -1,4 +1,4 @@
-import {View, StyleSheet, ScrollView, TextInput} from "react-native";
+import {View, StyleSheet, ScrollView, TextInput, DatePickerAndroid} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -6,7 +6,6 @@ import themes from "../primitives/themes";
 import {Text, Content, Grid, Row, Container, InputGroup, Input} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView";
-import moment from "moment";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
@@ -16,6 +15,7 @@ import ReducerKeys from "../../reducer";
 import {IndividualEncounterLandingViewActions as Actions} from "../../action/individual/EncounterActions";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import _ from "lodash";
+import General from "../../utility/General";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -57,14 +57,14 @@ class IndividualEncounterLandingView extends AbstractComponent {
                             <IndividualProfile landingView={true} individual={this.state.encounter.individual}/>
                         </Row>
                         <Row>
+                            {/* TODO use DateFormElement instead of below code */}
                             <Grid style={{backgroundColor: '#ffffff', paddingLeft: 10, paddingRight: 10}}>
                                 <Row style={{backgroundColor: '#ffffff'}}>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("date")}</Text>
                                 </Row>
                                 <Row>
-                                    <InputGroup style={{flex: 1}} borderType='underline'>
-                                        <Input defaultValue={moment().format('DD-MMM-YYYY')}/>
-                                    </InputGroup>
+                                    <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}
+                                          style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.state.encounter.encounterDateTime)}</Text>
                                 </Row>
                                 <FormElementGroup group={this.state.formElementGroup}
                                                   encounter={this.state.encounter} actions={Actions}/>
@@ -77,6 +77,18 @@ class IndividualEncounterLandingView extends AbstractComponent {
             </Container>
         );
     }
+
+    dateDisplay(date) {
+        return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date);
+    }
+
+    async showPicker(stateKey, options) {
+        const {action, year, month, day} = await DatePickerAndroid.open(options);
+        if (action !== DatePickerAndroid.dismissedAction) {
+            this.dispatchAction(Actions.ENCOUNTER_DATE_TIME_CHANGE, {value: new Date(year, month, day)});
+        }
+    }
+
 }
 
 export default IndividualEncounterLandingView;
