@@ -1,7 +1,7 @@
 import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, Row, InputGroup, Input} from "native-base";
+import {Text, Row, InputGroup, Input, Grid} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
 
@@ -18,8 +18,8 @@ class NumericFormElement extends AbstractComponent {
 
     render() {
         return (
-            <View>
-                <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+            <Grid>
+                <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10, borderStyle: 'dashed'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
                 </Row>
                 <Row>
@@ -27,7 +27,7 @@ class NumericFormElement extends AbstractComponent {
                         <Input keyboardType = 'numeric' value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(number) => this.onInputChange(number)} />
                     </InputGroup>
                 </Row>
-            </View>);
+            </Grid>);
     }
 
     onInputChange(number) {

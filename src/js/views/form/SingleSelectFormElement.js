@@ -26,7 +26,8 @@ class SingleSelectFormElement extends AbstractComponent {
         return(<Grid style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderStyle: 'dashed'
                     }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                         return (

@@ -1,5 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React, {Component} from "react";
+import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
@@ -55,7 +56,7 @@ class SystemRecommendationView extends AbstractComponent {
                             <Grid>
                                 {
                                     _.values(this.state.encounterDecisions).map((encounterDecision) => {
-                                        return <Row style={{backgroundColor: '#f7f7f7', paddingTop: 19, paddingBottom: 19}} key={decisionNumber++}>
+                                        return <Row style={{backgroundColor: '#f7f7f7', paddingTop: 19, paddingBottom: 19, paddingLeft:10}} key={decisionNumber++}>
                                             <Col>
                                                 <Text style={{fontSize: 14}}>{encounterDecision.value}</Text>
                                             </Col>
@@ -63,8 +64,10 @@ class SystemRecommendationView extends AbstractComponent {
                                     })}
                             </Grid>
                         </Row>
-                        <WizardButtons previous={{func: () => this.previous(), visible: true}}
+                        <View style={{marginLeft:24, marginRight:24}}>
+                            <WizardButtons previous={{func: () => this.previous(), visible: true}}
                                        next={{func: () => this.save(), visible: true, label: this.I18n.t('save')}}/>
+                        </View>
                     </Grid>
                 </Content>
             </Container>

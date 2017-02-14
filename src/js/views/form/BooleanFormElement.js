@@ -23,7 +23,7 @@ class BooleanFormElement extends AbstractComponent {
     }
 
     renderSingleSelectAnswers() {
-        return (<Grid style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1}}>
+        return (<Grid style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1, borderStyle: 'dashed'}}>
             <Row key={1}>
                 <Col>
                     <Row>

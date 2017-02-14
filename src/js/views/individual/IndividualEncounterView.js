@@ -1,5 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React, {Component} from "react";
+import {View, StyleSheet} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import {Content, Grid, Row, Container} from "native-base";
@@ -69,9 +70,11 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                         </Row>
-                        <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions}/>
-                        <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
+                        <View style={{marginLeft:24, marginRight:24}}>
+                            <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions}/>
+                            <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
                                        next={{func: () => this.next(), visible: true}}/>
+                        </View>
                     </Grid>
                 </Content>
             </Container>
