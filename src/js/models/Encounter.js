@@ -51,7 +51,7 @@ class Encounter {
         else {
             isSingleSelect ? observation.toggleSingleSelectAnswer(answerUUID) : observation.toggleMultiSelectAnswer(answerUUID);
             if (observation.hasNoAnswer()) {
-                this.observations.splice(observation);
+                _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
             }
             return null;
         }
@@ -90,10 +90,9 @@ class Encounter {
         encounter.encounterDateTime = this.encounterDateTime;
         encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneForNewEncounter();
         encounter.observations = [];
-        if (!_.isNil(this.individual))
-            this.observations.forEach((observation) => {
-                encounter.observations.push(observation.cloneForNewEncounter());
-            });
+        this.observations.forEach((observation) => {
+            encounter.observations.push(observation.cloneForNewEncounter());
+        });
         return encounter;
     }
 }

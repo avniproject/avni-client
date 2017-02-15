@@ -1,30 +1,13 @@
 import IndividualEncounterService from "../../service/IndividualEncounterService";
 import EntityService from "../../service/EntityService";
 import Form from "../../models/application/Form";
-import _ from 'lodash';
+import _ from "lodash";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import ValidationResult from "../../models/application/ValidationResult";
+import EncounterActionState from "../../state/EncounterActionState";
 
 export class EncounterActions {
     static getInitialState() {
-        return {
-            formElementGroup: null,
-            encounter: null,
-            validationResults: [],
-            encounterDecisions: null
-        };
-    }
-
-    static clone(state) {
-        const newState = {};
-        newState.encounter = state.encounter.cloneForNewEncounter();
-        newState.formElementGroup = state.formElementGroup;
-        newState.validationResults = [];
-        state.validationResults.forEach((validationResult) => {
-            newState.validationResults.push(validationResult.clone());
-        });
-        newState.encounterDecisions = null;
-        return newState;
+        return new EncounterActionState();
     }
 
     static onNewEncounter(state, action, context) {
@@ -36,35 +19,29 @@ export class EncounterActions {
     }
 
     static onPrimitiveObs(state, action, context) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         const validationResult = action.formElement.validate(action.value);
-        if (!validationResult.success) {
-            const existingValidationResult = _.find(newState.validationResults, (validationResult) => action.formElement.uuid === validationResult.formElementUUID);
-            if (_.isNil(existingValidationResult)) {
-                newState.validationResults.push(new ValidationResult(action.formElement.uuid, validationResult.message));
-            } else {
-                existingValidationResult.message = validationResult.message;
-            }
-        }
+        newState.handleValidationResult(validationResult, action.formElement.uuid);
         newState.encounter.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
         return newState;
     }
 
     static toggleMultiSelectAnswer(state, action) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         const observation = newState.encounter.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
-        action.formElement.validate(_.isNil(observation) ? null : observation.valueJSON.getValues());
+        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.valueJSON.getValues());
+        newState.handleValidationResult(validationResult, action.formElement.uuid);
         return newState;
     }
 
     static toggleSingleSelectAnswer(state, action) {
-        const newState = EncounterActions.clone(state);
-        state.encounter.toggleSingleSelectAnswer(action.concept, action.answerUUID);
+        const newState = state.clone();
+        newState.encounter.toggleSingleSelectAnswer(action.concept, action.answerUUID);
         return newState;
     }
 
     static onPrevious(state, action, context) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         const formElementGroup = newState.formElementGroup.previous();
         const encounter = newState.encounter;
 
@@ -98,7 +75,7 @@ export class EncounterActions {
     }
 
     static onEncounterDateTimeChange(state, action, context) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         newState.encounter.encounterDateTime = action.value;
         return newState;
     }
