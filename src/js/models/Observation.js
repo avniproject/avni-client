@@ -40,7 +40,7 @@ class Observation {
         } else if (observation.valueJSON.constructor === MultipleCodedValues) {
             return _.join(observation.valueJSON.getValues().map((value) => conceptService.getConceptByUUID(value).name), ', ');
         } else {
-            return observation.valueJSON.getDisplayValue();
+            return observation.valueJSON.getValue();
         }
     }
 

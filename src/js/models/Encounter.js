@@ -38,34 +38,30 @@ class Encounter {
     }
 
     toggleSingleSelectAnswer(concept, answerUUID) {
+        return this.toggleCodedAnswer(concept, answerUUID, true);
+    }
+
+    toggleCodedAnswer(concept, answerUUID, isSingleSelect) {
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
-            observation = Observation.create(concept, new SingleCodedValue(answerUUID));
+            observation = Observation.create(concept, isSingleSelect ? new SingleCodedValue(answerUUID) : new MultipleCodedValue().push(answerUUID));
             this.observations.push(observation);
+            return observation;
         }
         else {
-            observation.toggleSingleSelectAnswer(answerUUID);
+            isSingleSelect ? observation.toggleSingleSelectAnswer(answerUUID) : observation.toggleMultiSelectAnswer(answerUUID);
             if (observation.hasNoAnswer()) {
                 this.observations.splice(observation);
             }
+            return null;
         }
     }
 
     toggleMultiSelectAnswer(concept, answerUUID) {
-        let observation = this.getObservation(concept);
-        if (_.isEmpty(observation)) {
-            observation = Observation.create(concept, new MultipleCodedValue().push(answerUUID));
-            this.observations.push(observation);
-        }
-        else {
-            observation.toggleMultiSelectAnswer(answerUUID);
-            if (observation.hasNoAnswer()) {
-                this.observations.splice(observation);
-            }
-        }
+        return this.toggleCodedAnswer(concept, answerUUID, false);
     }
 
-    getObservation(concept){
+    getObservation(concept) {
         return _.find(this.observations, (observation) => {
             return observation.concept.uuid === concept.uuid;
         });
@@ -73,8 +69,10 @@ class Encounter {
 
     addOrUpdatePrimitiveObs(concept, value) {
         const observation = this.getObservation(concept);
-        if (_.isEmpty(observation))
+        if (_.isEmpty(observation) && !_.isEmpty(_.toString(value)))
             this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
+        else if (_.isEmpty(_.toString(value)))
+            this.observations.splice(observation);
         else
             observation.setPrimitiveAnswer(value);
     }
@@ -88,13 +86,14 @@ class Encounter {
     cloneForNewEncounter() {
         const encounter = new Encounter();
         encounter.uuid = this.uuid;
-        encounter.encounterType = this.encounterType.clone();
+        encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
         encounter.encounterDateTime = this.encounterDateTime;
-        encounter.individual = this.individual.cloneForNewEncounter();
+        encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneForNewEncounter();
         encounter.observations = [];
-        this.observations.forEach((observation) => {
-            encounter.observations.push(observation.cloneForNewEncounter());
-        });
+        if (!_.isNil(this.individual))
+            this.observations.forEach((observation) => {
+                encounter.observations.push(observation.cloneForNewEncounter());
+            });
         return encounter;
     }
 }

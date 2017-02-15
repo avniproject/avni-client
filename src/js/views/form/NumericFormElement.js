@@ -1,15 +1,16 @@
 import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, Row, InputGroup, Input, Grid} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
+import AbstractFormElement from "./AbstractFormElement";
 
-class NumericFormElement extends AbstractComponent {
+class NumericFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object
+        value: React.PropTypes.object,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -20,11 +21,11 @@ class NumericFormElement extends AbstractComponent {
         return (
             <Grid>
                 <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10, borderStyle: 'dashed'}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
+                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </Row>
                 <Row>
                     <InputGroup style={{flex: 1}} borderType='underline'>
-                        <Input keyboardType = 'numeric' value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(number) => this.onInputChange(number)} />
+                        <Input onChangeText={(number) => this.onInputChange(_.toNumber(number))} value={_.toString(this.props.value.getValue())}/>
                     </InputGroup>
                 </Row>
             </Grid>);

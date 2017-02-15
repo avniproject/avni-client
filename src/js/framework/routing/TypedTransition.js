@@ -1,4 +1,5 @@
 import invariant from 'invariant';
+import _ from 'lodash';
 
 export default class TypedTransition {
     constructor(view) {
@@ -10,7 +11,7 @@ export default class TypedTransition {
         return this;
     }
 
-    to(viewClass, sceneConfig) {
+    to(viewClass, sceneConfig, replacePrevious) {
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
 
@@ -19,7 +20,10 @@ export default class TypedTransition {
         if (sceneConfig !== undefined) {
             route.sceneConfig = sceneConfig;
         }
-        this.view.context.navigator().push(route);
+        if (replacePrevious)
+            this.view.context.navigator().replacePreviousAndPop(route);
+        else
+            this.view.context.navigator().push(route);
         return this;
     }
 

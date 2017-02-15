@@ -4,12 +4,14 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import {Text, Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import AbstractFormElement from "./AbstractFormElement";
 
-class SingleSelectFormElement extends AbstractComponent {
+class SingleSelectFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName : React.PropTypes.string.isRequired,
-        singleCodedValue : React.PropTypes.object.isRequired
+        singleCodedValue : React.PropTypes.object.isRequired,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -56,7 +58,7 @@ class SingleSelectFormElement extends AbstractComponent {
             return (
                 <View>
                     <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                        <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
+                        <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                     </Row>
                     {this.renderSingleSelectAnswers()}
                 </View>);

@@ -9,7 +9,7 @@ class PrimitiveValue {
         return moment(this.answer).format('DD-MMM-YYYY');
     }
 
-    getDisplayValue() {
+    getValue() {
         return this.answer;
     }
 

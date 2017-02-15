@@ -59,6 +59,22 @@ class FormElement {
         return this.recordByKey(FormElement.keys.FalseValue).value;
     }
 
+    validate(value) {
+        const failure = {success: false};
+        if (this.mandatory && _.isEmpty(_.toString(value))) {
+            failure.messageKey = 'emptyValidationMessage';
+        }
+        else if (this.concept.datatype === Concept.dataType.Numeric && isNaN(value)) {
+            failure.messageKey = 'numericValueValidation';
+        }
+        else if (this.concept.datatype === Concept.dataType.Numeric && this.concept.violatesRange(value)) {
+            failure.messageKey = 'numberOutOfRangeMessage';
+        } else {
+            return {success: true};
+        }
+        return failure;
+    }
+
     static keys = {
         Select: 'Select',
         TrueValue: 'TrueValue',

@@ -1,3 +1,4 @@
+import {Navigator} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React, {Component} from "react";
 import {View, StyleSheet} from "react-native";
@@ -45,12 +46,9 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     previous() {
-        this.dispatchAction(Actions.PREVIOUS, {
-        cb: (firstPage, encounter, formElementGroup) =>
-        {
-            TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView);
-        }
-        });
+        this.dispatchAction(Actions.PREVIOUS, {cb: (firstPage) => {
+            TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView, Navigator.SceneConfigs.FloatFromLeft, true);
+        }});
     }
 
     render() {
@@ -70,9 +68,8 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                         </Row>
-                        <View style={{marginLeft:24, marginRight:24}}>
-                            <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions}/>
-                            <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
+                        <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
+                        <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
                                        next={{func: () => this.next(), visible: true}}/>
                         </View>
                     </Grid>

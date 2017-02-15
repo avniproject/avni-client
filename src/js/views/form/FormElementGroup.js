@@ -11,12 +11,14 @@ import _ from "lodash";
 import Concept from '../../models/Concept';
 import MultipleCodedValues from "../../models/observation/MultipleCodedValues";
 import SingleCodedValue from "../../models/observation/SingleCodedValue";
+import PrimitiveValue from "../../models/observation/PrimitiveValue";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
         group: React.PropTypes.object.isRequired,
         encounter: React.PropTypes.object.isRequired,
-        actions: React.PropTypes.object.isRequired
+        actions: React.PropTypes.object.isRequired,
+        validationResults: React.PropTypes.array.isRequired
     };
 
     constructor(props, context) {
@@ -27,12 +29,10 @@ class FormElementGroup extends AbstractComponent {
         return (<View>
                 {
                     this.props.group.formElements.map((formElement, idx) => {
+                        const validationResult = _.find(this.props.validationResults, (validationResult) => validationResult.formElementUUID === formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
-                            return <NumericFormElement
-                                key={idx}
-                                element={formElement}
-                                value={this.getSelectedAnswer(formElement.concept, null)}
-                                actionName={this.props.actions["TEXT_INPUT_CHANGE"]}/>
+                            return <NumericFormElement key={idx} element={formElement} actionName={this.props.actions["TEXT_INPUT_CHANGE"]}
+                                                       value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())} validationResult={validationResult}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Text) {
                             return <TextFormElement
                                 key={idx}
@@ -42,17 +42,17 @@ class FormElementGroup extends AbstractComponent {
                             return <MultiSelectFormElement key={idx}
                                                            element={formElement}
                                                            multipleCodeValues={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
-                                                           actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}/>
+                                                           actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]} validationResult={validationResult}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
                             return <SingleSelectFormElement key={idx}
                                                             element={formElement}
                                                             singleCodedValue={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
-                                                            actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}/>
+                                                            actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]} validationResult={validationResult}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Boolean) {
                             return <BooleanFormElement key={idx}
                                                        element={formElement}
-                                                       value={this.getSelectedAnswer(formElement.concept, null)}
-                                                       actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}/>
+                            observationValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                            actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]} validationResult={validationResult}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Date) {
                             return <DateFormElement key={idx}
                                                     element={formElement}

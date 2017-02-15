@@ -103,7 +103,7 @@ class QuestionAnswerControl extends AbstractComponent {
 
         if (this.question.isLastQuestion) {
             const validationResult = this.context.getService(RuleEvaluationService).validate(AppState.questionnaireAnswers.questionnaireName);
-            return {status: validationResult.passed, message: validationResult.message}
+            return {status: validationResults.passed, message: validationResults.message}
         }
         return {status: true};
     };

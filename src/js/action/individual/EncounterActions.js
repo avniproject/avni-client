@@ -3,13 +3,14 @@ import EntityService from "../../service/EntityService";
 import Form from "../../models/application/Form";
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import ValidationResult from "../../models/application/ValidationResult";
 
 export class EncounterActions {
     static getInitialState() {
         return {
             formElementGroup: null,
             encounter: null,
-            validationResult: null,
+            validationResults: [],
             encounterDecisions: null
         };
     }
@@ -18,13 +19,16 @@ export class EncounterActions {
         const newState = {};
         newState.encounter = state.encounter.cloneForNewEncounter();
         newState.formElementGroup = state.formElementGroup;
-        newState.validationResult = null;
+        newState.validationResults = [];
+        state.validationResults.forEach((validationResult) => {
+            newState.validationResults.push(validationResult.clone());
+        });
         newState.encounterDecisions = null;
         return newState;
     }
 
     static onNewEncounter(state, action, context) {
-        const newState = {};
+        const newState = EncounterActions.getInitialState();
         newState.encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
         newState.formElementGroup = form.formElementGroups[0];
@@ -33,13 +37,23 @@ export class EncounterActions {
 
     static onPrimitiveObs(state, action, context) {
         const newState = EncounterActions.clone(state);
+        const validationResult = action.formElement.validate(action.value);
+        if (!validationResult.success) {
+            const existingValidationResult = _.find(newState.validationResults, (validationResult) => action.formElement.uuid === validationResult.formElementUUID);
+            if (_.isNil(existingValidationResult)) {
+                newState.validationResults.push(new ValidationResult(action.formElement.uuid, validationResult.message));
+            } else {
+                existingValidationResult.message = validationResult.message;
+            }
+        }
         newState.encounter.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
         return newState;
     }
 
     static toggleMultiSelectAnswer(state, action) {
         const newState = EncounterActions.clone(state);
-        newState.encounter.toggleMultiSelectAnswer(action.concept, action.answerUUID);
+        const observation = newState.encounter.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
+        action.formElement.validate(_.isNil(observation) ? null : observation.valueJSON.getValues());
         return newState;
     }
 
@@ -55,7 +69,7 @@ export class EncounterActions {
         const encounter = newState.encounter;
 
         newState.formElementGroup = state.formElementGroup.previous();
-        action.cb(newState.formElementGroup.isFirst(), encounter, formElementGroup);
+        action.cb(newState.formElementGroup.isFirst());
         return newState;
     }
 
@@ -70,13 +84,14 @@ export class EncounterActions {
                 encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
                 context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
             }
+        } else {
         }
         action.cb(_.isNil(formElementGroup), encounter, formElementGroup, encounterDecisions);
         return state;
     }
 
     static onEncounterViewLoad(state, action, context) {
-        const newState = {};
+        const newState = EncounterActions.getInitialState();
         newState.encounter = action.encounter.cloneForNewEncounter();
         newState.formElementGroup = action.formElementGroup;
         return newState;
@@ -90,7 +105,6 @@ export class EncounterActions {
 }
 
 const individualEncounterLandingViewActions = {
-    PREVIOUS: 'b7422f46-1574-41ba-b120-01cba1b0db7d',
     NEXT: '887877e7-b376-478d-8c75-c0bac210bcf8',
     TOGGLE_MULTISELECT_ANSWER: "a71ceb47-6a67-4caf-907d-2c93c985c64b",
     TOGGLE_SINGLESELECT_ANSWER: "e3a5f0ea-a5de-44d6-b07b-e5c9cf0d1d5f",
@@ -101,7 +115,6 @@ const individualEncounterLandingViewActions = {
 };
 
 const individualEncounterLandingViewActionsMap = new Map([
-    [individualEncounterLandingViewActions.PREVIOUS, EncounterActions.onPrevious],
     [individualEncounterLandingViewActions.NEXT, EncounterActions.onNext],
     [individualEncounterLandingViewActions.TOGGLE_MULTISELECT_ANSWER, EncounterActions.toggleMultiSelectAnswer],
     [individualEncounterLandingViewActions.TOGGLE_SINGLESELECT_ANSWER, EncounterActions.toggleSingleSelectAnswer],

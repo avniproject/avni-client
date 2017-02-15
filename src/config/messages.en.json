@@ -15,9 +15,12 @@
   "deleteSessions": "Delete Data",
   "deleteConfirmation": "Do you want to delete all saved sessions?",
   "numberOfSessions": "There are currently {{count}} sessions.",
+
   "validationError": "Validation Error",
-  "numericValueValidation": "Is not a valid number or is out of range {{range}}",
+  "numericValueValidation": "Is not a valid number",
   "emptyValidationMessage": "There is no value specified",
+  "numberOutOfRangeMessage": "The input number {{value}} out of allowed range",
+
   "syncError": "Sync Failed",
   "exportError": "Export Failed",
   "settings": "Settings",
@@ -58,5 +61,6 @@
   "confirm": "Confirm",
   "generalHistory": "General History",
   "noEncounters": "No previous visits",
-  "registration": "Registration"
+  "registration": "Registration",
+  "mandatory": "MANDATORY"
 }

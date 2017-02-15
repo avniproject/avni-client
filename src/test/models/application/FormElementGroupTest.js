@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import _ from "lodash";
+import {expect} from "chai";
 import FormElementGroup from "../../../js/models/application/FormElementGroup";
 import Form from "../../../js/models/application/Form";
 
@@ -20,5 +19,8 @@ describe('FormElementGroupTest', () => {
         expect(first.previous()).is.equal(undefined);
         expect(third.previous()).is.not.equal(undefined);
         expect(second.previous()).is.not.equal(undefined);
+
+        expect(first.isFirst).is.equal(true);
+        expect(second.isFirst).is.equal(false);
     });
 });

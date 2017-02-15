@@ -1,6 +1,7 @@
 import BaseEntity from './BaseEntity';
 import ResourceUtil from "./../utility/ResourceUtil";
 import General from './../utility/General';
+import _ from 'lodash';
 
 export class ConceptAnswer {
     static schema = {
@@ -79,5 +80,15 @@ export default class Concept {
         const concept = Concept.create(this.name, this.datatype);
         concept.uuid = this.uuid;
         return concept;
+    }
+
+    violatesRange(value) {
+        if (_.isNil(value)) return false;
+        if (isNaN(value)) return false;
+
+        if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
+
+        return (value < this.lowAbsolute || value > this.hiAbsolute);
+
     }
 }

@@ -67,7 +67,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                           style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.state.encounter.encounterDateTime)}</Text>
                                 </Row>
                                 <FormElementGroup group={this.state.formElementGroup}
-                                                  encounter={this.state.encounter} actions={Actions}/>
+                                                  encounter={this.state.encounter} actions={Actions} validationResults={this.state.validationResults}/>
                                 <WizardButtons previous={{func: () => {}, visible: false}}
                                                next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast}}/>
                             </Grid>

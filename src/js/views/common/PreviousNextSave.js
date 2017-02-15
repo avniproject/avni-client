@@ -36,8 +36,8 @@ class PreviousNext extends Component {
     onNext() {
         if (this.props.validationFn !== undefined) {
             var validationResult = this.props.validationFn();
-            if (!validationResult.status) {
-                Alert.alert(this.I18n.t("validationError"), validationResult.message,
+            if (!validationResults.status) {
+                Alert.alert(this.I18n.t("validationError"), validationResults.message,
                     [
                         {
                             text: this.I18n.t('ok'), onPress: () => {

@@ -4,38 +4,39 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import {Text, Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import AbstractFormElement from "./AbstractFormElement";
 
-class BooleanFormElement extends AbstractComponent {
+class BooleanFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object
+        observationValue: React.PropTypes.object.isRequired,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
         super(props, context);
     }
 
-    toggleFormElementAnswerSelection(concept, answer) {
-        return () => {
-            this.dispatchAction(this.props.actionName, {concept: concept, answer: answer});
-        }
+    toggleFormElementAnswerSelection(answer) {
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: answer});
     }
 
     renderSingleSelectAnswers() {
+        const value = this.props.observationValue.getValue();
         return (<Grid style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1, borderStyle: 'dashed'}}>
             <Row key={1}>
                 <Col>
                     <Row>
-                        <Radio selected={_.isNil(this.props.value) ? false : this.props.value}
-                               onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, true)}/>
+                        <Radio selected={_.isNil(value) ? false : value}
+                               onPress={() => this.toggleFormElementAnswerSelection(true)}/>
                         <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.truthDisplayValue}</Text>
                     </Row>
                 </Col>
                 <Col>
                     <Row>
-                        <Radio selected={_.isNil(this.props.value) ? false : this.props.value}
-                               onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, false)}/>
+                        <Radio selected={_.isNil(value) ? false : !value}
+                               onPress={() => this.toggleFormElementAnswerSelection(false)}/>
                         <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.falseDisplayValue}</Text>
                     </Row>
                 </Col>
@@ -48,7 +49,7 @@ class BooleanFormElement extends AbstractComponent {
         return (
             <View>
                 <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
+                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </Row>
                 {this.renderSingleSelectAnswers()}
             </View>);
