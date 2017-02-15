@@ -69,7 +69,7 @@ export class EncounterActions {
         const encounter = newState.encounter;
 
         newState.formElementGroup = state.formElementGroup.previous();
-        action.cb(newState.formElementGroup.isFirst());
+        action.cb(newState.formElementGroup.isFirst);
         return newState;
     }
 
