@@ -7,6 +7,7 @@ import Observation from './Observation'
 import SingleCodedValue from './observation/SingleCodedValue';
 import MultipleCodedValue from './observation/MultipleCodedValues';
 import PrimitiveValue from "./observation/PrimitiveValue";
+import moment from "moment";
 
 class Encounter {
     static schema = {
@@ -36,6 +37,15 @@ class Encounter {
         encounter.individual = individual;
         return encounter;
     }
+
+    get toResource() {
+        const resource = _.pick(this, ["uuid"]);
+        resource["encounterTypeUUID"] = this.encounterType.uuid;
+        resource.encounterDateTime = moment(this.encounterDateTime).format('YYYY-MM-DD');
+        resource["individualUUID"] = this.individual.uuid;
+        return resource;
+    }
+
 
     toggleSingleSelectAnswer(concept, answerUUID) {
         return this.toggleCodedAnswer(concept, answerUUID, true);
