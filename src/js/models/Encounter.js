@@ -41,19 +41,21 @@ class Encounter {
     get toResource() {
         const resource = _.pick(this, ["uuid"]);
         resource["encounterTypeUUID"] = this.encounterType.uuid;
-        resource.encounterDateTime = moment(this.encounterDateTime).format('YYYY-MM-DD');
         resource["individualUUID"] = this.individual.uuid;
+        resource.encounterDateTime = moment(this.encounterDateTime).format();
+        resource["observations"] = [];
+        this.observations.forEach((obs) => {
+            var obsResource = {conceptUUID: obs.concept.uuid, value: obs.getValue()};
+            resource["observations"].push(obsResource);
+        });
         return resource;
     }
-
 
     toggleSingleSelectAnswer(concept, answerUUID) {
         return this.toggleCodedAnswer(concept, answerUUID, true);
     }
 
     toggleCodedAnswer(concept, answerUUID, isSingleSelect) {
-        console.log("Encounter.toggleCodedAnswer");
-        console.log(concept);
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
             observation = Observation.create(concept, isSingleSelect ? new SingleCodedValue(answerUUID) : new MultipleCodedValue().push(answerUUID));

@@ -39,6 +39,7 @@ describe('EncounterActionsTest', () => {
 
         var newState = EncounterActions.onPrimitiveObs(state, {value: 1, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
+        expect(newState.encounter.observations[0].valueJSON.getValue()).is.equal(1);
         newState = EncounterActions.onPrimitiveObs(newState, {value: 11, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
     });

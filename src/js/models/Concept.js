@@ -46,6 +46,8 @@ export default class Concept {
         Text: 'Text'
     };
 
+    // static primitiveDataTypes = [Concept.dataType.Boolean, Concept.dataType.Coded, Concept.dataType.Numeric, Concept.dataType.Date, Concept.dataType.Text];
+
     static fromResource(conceptResource) {
         const concept = new Concept();
         concept.name = conceptResource.name;

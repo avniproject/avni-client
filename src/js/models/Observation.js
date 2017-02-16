@@ -3,6 +3,7 @@ import Concept from './Concept';
 import moment from "moment";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import MultipleCodedValues from "./observation/MultipleCodedValues";
+import PrimitiveValue from "./observation/PrimitiveValue";
 
 class Observation {
     static schema = {
@@ -57,6 +58,10 @@ class Observation {
         observation.concept = this.concept.cloneForNewEncounter();
         observation.valueJSON = this.valueJSON.cloneForNewEncounter();
         return observation;
+    }
+
+    getValue() {
+        return JSON.parse(this.valueJSON).answer;
     }
 }
 
