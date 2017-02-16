@@ -42,6 +42,8 @@ class Encounter {
     }
 
     toggleCodedAnswer(concept, answerUUID, isSingleSelect) {
+        console.log("Encounter.toggleCodedAnswer");
+        console.log(concept);
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
             observation = Observation.create(concept, isSingleSelect ? new SingleCodedValue(answerUUID) : new MultipleCodedValue().push(answerUUID));
@@ -71,10 +73,10 @@ class Encounter {
         const observation = this.getObservation(concept);
         if (_.isEmpty(observation) && !_.isEmpty(_.toString(value)))
             this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
-        else if (_.isEmpty(_.toString(value)))
+        else if (_.isEmpty(_.toString(value))) {
             this.observations.splice(observation);
-        else
-            observation.setPrimitiveAnswer(value);
+        } else
+        { observation.setPrimitiveAnswer(value);}
     }
 
     findObservation(concept) {

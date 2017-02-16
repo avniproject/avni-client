@@ -45,7 +45,7 @@ class Observation {
     }
 
     hasNoAnswer() {
-        return _.isEmpty(this.valueJSON.answer)
+        return _.isEmpty(this.valueJSON.answer);
     }
 
     setPrimitiveAnswer(value) {

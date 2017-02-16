@@ -107,6 +107,7 @@ const individualEncounterViewActions = {
     NEXT: '14bd2402-c588-4f16-9c63-05a85751977e',
     TOGGLE_MULTISELECT_ANSWER: "c5407cf4-f37a-4568-9d56-ffba58a3bafe",
     TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
+    TOGGLE_BOOLEAN_ANSWER: '2683f0bd-61d4-4e88-84c9-87e28daff0be',
     TEXT_INPUT_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
     DATE_INPUT_CHANGE: 'ba886777-6f50-4e0b-8806-54c6d6b2e853',
     ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c'
@@ -117,6 +118,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.NEXT, EncounterActions.onNext],
     [individualEncounterViewActions.TOGGLE_MULTISELECT_ANSWER, EncounterActions.toggleMultiSelectAnswer],
     [individualEncounterViewActions.TOGGLE_SINGLESELECT_ANSWER, EncounterActions.toggleSingleSelectAnswer],
+    [individualEncounterViewActions.TOGGLE_BOOLEAN_ANSWER, EncounterActions.onPrimitiveObs],
     [individualEncounterViewActions.TEXT_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
     [individualEncounterViewActions.DATE_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],

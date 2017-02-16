@@ -18,31 +18,40 @@ class BooleanFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    toggleFormElementAnswerSelection(answer) {
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: answer});
+    toggleFormElementAnswerSelection(value) {
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: value});
     }
 
     renderSingleSelectAnswers() {
-        const value = this.props.observationValue.getValue();
         return (<Grid style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1, borderStyle: 'dashed'}}>
             <Row key={1}>
                 <Col>
                     <Row>
-                        <Radio selected={_.isNil(value) ? false : value}
-                               onPress={() => this.toggleFormElementAnswerSelection(true)}/>
+                        <Radio selected={this.isTrueSelected()}
+                               onPress={() => this.toggleFormElementAnswerSelection(this.isTrueSelected() ? null : true)}/>
                         <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.truthDisplayValue}</Text>
                     </Row>
                 </Col>
                 <Col>
                     <Row>
-                        <Radio selected={_.isNil(value) ? false : !value}
-                               onPress={() => this.toggleFormElementAnswerSelection(false)}/>
+                        <Radio selected={this.isFalseSelected()}
+                               onPress={() => this.toggleFormElementAnswerSelection(this.isFalseSelected() ? null : false)}/>
                         <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.falseDisplayValue}</Text>
                     </Row>
                 </Col>
             </Row>
         </Grid>);
 
+    }
+
+    isFalseSelected(){
+        let value = this.props.observationValue.getValue();
+        return _.isNil(value) ? false : !value
+    }
+
+    isTrueSelected(){
+        let value = this.props.observationValue.getValue();
+        return _.isNil(value) ? false : value
     }
 
     render() {
