@@ -3,6 +3,7 @@ import {EncounterActions} from "../../js/action/individual/EncounterActions";
 import Encounter from "../../js/models/Encounter";
 import FormElement from "../../js/models/application/FormElement";
 import Concept, {ConceptAnswer} from "../../js/models/Concept";
+import EntityFactory from "../models/EntityFactory";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
@@ -17,6 +18,8 @@ let createIntialState = function (dataType, mandatory) {
     const state = EncounterActions.getInitialState();
     const formElement = createFormElement(dataType, mandatory, 'bfc28bad-5fac-4760-921d-eec83f52c3da');
     state.encounter = Encounter.create();
+    state.formElementGroup = EntityFactory.createFormElementGroup('', 1, EntityFactory.createForm());
+    state.formElementGroup.addFormElement(formElement);
     return {state, formElement};
 };
 
@@ -111,5 +114,14 @@ describe('EncounterActionsTest', () => {
         newState = EncounterActions.onPrimitiveObs(newState, {value: '', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(1);
         expect(newState.encounter.observations[0].getValue()).is.equal(14);
+    });
+
+    it('next should not be allowed if there are validation errors', () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        var newState = EncounterActions.onPrimitiveObs(state, {value: '', formElement: formElement});
+        newState = EncounterActions.onNext(newState);
+        verifyFormElementAndObservations(newState, 1, 0);
+        newState = EncounterActions.onPrimitiveObs(state, {value: 10, formElement: formElement});
+        verifyFormElementAndObservations(newState, 0, 1);
     });
 });

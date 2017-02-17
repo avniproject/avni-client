@@ -35,11 +35,8 @@ class FormElementGroup {
         return formElementGroup;
     }
 
-    static create(name, displayOrder) {
-        const formElementGroup = new FormElementGroup();
-        formElementGroup.name = name;
-        formElementGroup.displayOrder = displayOrder;
-        return formElementGroup;
+    addFormElement(formElement) {
+        this.formElements.push(formElement);
     }
 
     next() {

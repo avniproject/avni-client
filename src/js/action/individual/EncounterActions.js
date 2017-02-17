@@ -54,16 +54,17 @@ export class EncounterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        const formElementGroup = newState.formElementGroup.next();
+
         const encounter = newState.encounter;
 
         const validationResults = newState.formElementGroup.validateMandatoryFields(encounter);
-        if (validationResults.length !== 0) {
-            newState.handleValidationResults(validationResults);
+        newState.handleValidationResults(validationResults);
+        if (newState.validationResults.length !== 0) {
             return newState;
         }
 
         var encounterDecisions;
+        const formElementGroup = newState.formElementGroup.next();
         if (_.isNil(formElementGroup)) {
             const decisionSupportValidationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
             if (decisionSupportValidationResult.passed) {

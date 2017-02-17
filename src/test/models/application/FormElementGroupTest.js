@@ -1,15 +1,15 @@
 import {expect} from "chai";
-import FormElementGroup from "../../../js/models/application/FormElementGroup";
 import Form from "../../../js/models/application/Form";
+import EntityFactory from '../EntityFactory';
 
 describe('FormElementGroupTest', () => {
     it('previous and next', () => {
-        const form = Form.create('form1');
-        const first = FormElementGroup.create('foo', 1);
+        const form = EntityFactory.createForm('form1');
+        const first = EntityFactory.createFormElementGroup('foo', 1, form);
         form.addFormElementGroup(first);
-        const second = FormElementGroup.create('bar', 2);
+        const second = EntityFactory.createFormElementGroup('bar', 2, form);
         form.addFormElementGroup(second);
-        const third = FormElementGroup.create('baz', 3);
+        const third = EntityFactory.createFormElementGroup('baz', 3, form);
         form.addFormElementGroup(third);
 
         expect(first.next()).is.not.equal(undefined);

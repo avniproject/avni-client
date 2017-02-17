@@ -31,13 +31,6 @@ class Form {
         return form;
     }
 
-    static create(name) {
-        const form = new Form();
-        form.name = name;
-        form.formElementGroups = [];
-        return form;
-    }
-
     addFormElementGroup(formElementGroup) {
         formElementGroup.form = this;
         this.formElementGroups.push(formElementGroup);
