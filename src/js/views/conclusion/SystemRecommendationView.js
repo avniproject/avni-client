@@ -42,7 +42,6 @@ class SystemRecommendationView extends AbstractComponent {
 
     render() {
         console.log(`SystemRecommendationView.render`);
-        console.log(this.state.encounterDecisions);
         var decisionNumber = 0;
         return (
             <Container theme={themes}>
@@ -66,7 +65,7 @@ class SystemRecommendationView extends AbstractComponent {
                         </Row>
                         <View style={{marginLeft:24, marginRight:24}}>
                             <WizardButtons previous={{func: () => this.previous(), visible: true}}
-                                       next={{func: () => this.save(), visible: true, label: this.I18n.t('save')}}/>
+                                       next={{func: () => this.save(), visible: true, label: this.I18n.t('save')}} nextDisabled={false}/>
                         </View>
                     </Grid>
                 </Content>

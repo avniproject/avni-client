@@ -5,9 +5,9 @@ import {Text, Row} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
 import General from "../../utility/General";
+import AbstractFormElement from "./AbstractFormElement";
 
-
-class DateFormElement extends AbstractComponent {
+class DateFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
@@ -22,7 +22,7 @@ class DateFormElement extends AbstractComponent {
         return (
             <View>
                 <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
+                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </Row>
                 <Row>
                     <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}

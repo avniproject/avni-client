@@ -21,7 +21,7 @@ export class EncounterActions {
     static onPrimitiveObs(state, action, context) {
         const newState = state.clone();
         const validationResult = action.formElement.validate(action.value);
-        newState.handleValidationResult(validationResult, action.formElement.uuid);
+        newState.handleValidationResult(validationResult);
         newState.encounter.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
         return newState;
     }
@@ -29,14 +29,16 @@ export class EncounterActions {
     static toggleMultiSelectAnswer(state, action) {
         const newState = state.clone();
         const observation = newState.encounter.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
-        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.valueJSON.getValues());
-        newState.handleValidationResult(validationResult, action.formElement.uuid);
+        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValue());
+        newState.handleValidationResult(validationResult);
         return newState;
     }
 
     static toggleSingleSelectAnswer(state, action) {
         const newState = state.clone();
-        newState.encounter.toggleSingleSelectAnswer(action.concept, action.answerUUID);
+        const observation = newState.encounter.toggleSingleSelectAnswer(action.concept, action.answerUUID);
+        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValue());
+        newState.handleValidationResult(validationResult);
         return newState;
     }
 
@@ -51,20 +53,29 @@ export class EncounterActions {
     }
 
     static onNext(state, action, context) {
-        const formElementGroup = state.formElementGroup.next();
-        const encounter = state.encounter;
-        var encounterDecisions;
+        const newState = state.clone();
+        const formElementGroup = newState.formElementGroup.next();
+        const encounter = newState.encounter;
 
+        const validationResults = newState.formElementGroup.validateMandatoryFields(encounter);
+        if (validationResults.length !== 0) {
+            newState.handleValidationResults(validationResults);
+            return newState;
+        }
+
+        var encounterDecisions;
         if (_.isNil(formElementGroup)) {
-            const validationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
-            if (validationResult.passed) {
+            const decisionSupportValidationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
+            if (decisionSupportValidationResult.passed) {
                 encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
                 context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
+            } else {
+                action.validationErrorCB(decisionSupportValidationResult.message);
+                return newState;
             }
-        } else {
         }
         action.cb(_.isNil(formElementGroup), encounter, formElementGroup, encounterDecisions);
-        return state;
+        return newState;
     }
 
     static onEncounterViewLoad(state, action, context) {

@@ -39,7 +39,7 @@ class Observation {
         } else if (observation.valueJSON.constructor === SingleCodedValue) {
             return conceptService.getConceptByUUID(observation.valueJSON.getValue()).name;
         } else if (observation.valueJSON.constructor === MultipleCodedValues) {
-            return _.join(observation.valueJSON.getValues().map((value) => conceptService.getConceptByUUID(value).name), ', ');
+            return _.join(observation.getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
         } else {
             return observation.valueJSON.getValue();
         }
@@ -61,7 +61,8 @@ class Observation {
     }
 
     getValue() {
-        return JSON.parse(this.valueJSON).answer;
+        if (_.isString(this.valueJSON)) return JSON.parse(this.valueJSON).answer;
+        else return this.valueJSON.getValue();
     }
 }
 

@@ -4,8 +4,9 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, Row, InputGroup, Input} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
+import AbstractFormElement from "./AbstractFormElement";
 
-class TextFormElement extends AbstractComponent {
+class TextFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
@@ -20,7 +21,7 @@ class TextFormElement extends AbstractComponent {
         return (
             <View>
                 <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.props.element.name}</Text>
+                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </Row>
                 <Row>
                     <InputGroup style={{flex: 1}} borderType='underline'>
@@ -30,8 +31,8 @@ class TextFormElement extends AbstractComponent {
             </View>);
     }
 
-    onInputChange(number) {
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: number});
+    onInputChange(text) {
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: text});
     }
 }
 

@@ -69,7 +69,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                 <FormElementGroup group={this.state.formElementGroup}
                                                   encounter={this.state.encounter} actions={Actions} validationResults={this.state.validationResults}/>
                                 <WizardButtons previous={{func: () => {}, visible: false}}
-                                               next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast}}/>
+                                               next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast}} nextDisabled={this.state.validationResults.length !== 0}/>
                             </Grid>
                         </Row>
                     </Grid>

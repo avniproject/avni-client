@@ -1,7 +1,6 @@
-import {Navigator} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React, {Component} from "react";
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Navigator, Alert} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import {Content, Grid, Row, Container} from "native-base";
@@ -41,6 +40,15 @@ class IndividualEncounterView extends AbstractComponent {
                     TypedTransition.from(this).with({encounter: encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
                 else
                     TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(IndividualEncounterView);
+            },
+            validationErrorCB: (message) => {
+                Alert.alert(this.I18n.t("validationError"), message,
+                    [
+                        {
+                            text: this.I18n.t('ok'), onPress: () => {}
+                        }
+                    ]
+                );
             }
         });
     }
@@ -70,7 +78,7 @@ class IndividualEncounterView extends AbstractComponent {
                         </Row>
                         <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
-                                       next={{func: () => this.next(), visible: true}}/>
+                                       next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
                     </Grid>
                 </Content>
             </Container>

@@ -21,17 +21,17 @@ class EncounterActionState {
         return newState;
     }
 
-    handleValidationResult(validationResult, formElementUUID) {
-        if (validationResult.success) {
-            _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formElementUUID === formElementUUID);
-        } else {
-            const existingValidationResult = _.find(this.validationResults, (validationResult) => formElementUUID === validationResult.formElementUUID);
-            if (_.isNil(existingValidationResult)) {
-                this.validationResults.push(new ValidationResult(formElementUUID, validationResult.message));
-            } else {
-                existingValidationResult.message = validationResult.message;
-            }
+    handleValidationResult(validationResult) {
+        _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formElementUUID === validationResult.formElementUUID);
+        if (!validationResult.success) {
+            this.validationResults.push(validationResult);
         }
+    }
+
+    handleValidationResults(validationResults) {
+        validationResults.forEach((validationResult) => {
+            this.handleValidationResult(validationResult);
+        });
     }
 }
 

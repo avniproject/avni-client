@@ -3,6 +3,7 @@ import ResourceUtil from "../../utility/ResourceUtil";
 import Form from './Form';
 import BaseEntity from '../BaseEntity';
 import FormElement from "./FormElement";
+import _ from 'lodash';
 
 class FormElementGroup {
     static schema = {
@@ -55,6 +56,16 @@ class FormElementGroup {
 
     get isFirst() {
         return this.displayOrder === 1;
+    }
+
+    validateMandatoryFields(encounter) {
+        const validationResults = [];
+        this.formElements.forEach((formElement) => {
+            const observation = encounter.findObservation(formElement.concept);
+            const validationResult = formElement.validate(_.isNil(observation) ? null : observation.getValue());
+            validationResults.push(validationResult);
+        });
+        return validationResults;
     }
 }
 

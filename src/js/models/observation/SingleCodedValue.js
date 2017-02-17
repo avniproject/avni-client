@@ -9,7 +9,7 @@ class SingleCodedValue {
     }
 
     getValue() {
-        return this.answer.conceptUUID;
+        return this.answer;
     }
 
     cloneForNewEncounter() {

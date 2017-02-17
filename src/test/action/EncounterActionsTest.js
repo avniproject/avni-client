@@ -39,7 +39,7 @@ describe('EncounterActionsTest', () => {
 
         var newState = EncounterActions.onPrimitiveObs(state, {value: 1, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
-        expect(newState.encounter.observations[0].valueJSON.getValue()).is.equal(1);
+        expect(newState.encounter.observations[0].getValue()).is.equal(1);
         newState = EncounterActions.onPrimitiveObs(newState, {value: 11, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
     });
@@ -51,6 +51,12 @@ describe('EncounterActionsTest', () => {
 
         const newState = EncounterActions.onPrimitiveObs(state, {value: 1000, formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 1);
+    });
+
+    it('numeric field with a string', () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const newState = EncounterActions.onPrimitiveObs(state, {value: 'a', formElement: formElement});
+        expect(newState.encounter.observations[0].getValue()).is.equal('a');
     });
 
     it('validateMultiSelect field when it is mandatory', () => {
@@ -95,4 +101,15 @@ describe('EncounterActionsTest', () => {
         verifyFormElementAndObservations(newState, 0, 2);
     });
 
+    it('scenario - 2', () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const anotherNumericFormElement = createFormElement(Concept.dataType.Numeric, false, 'c2c3a7a7-6b6f-413b-8f4c-9785a6c04b5e');
+
+        var newState = EncounterActions.onPrimitiveObs(state, {value: 14, formElement: formElement});
+        newState = EncounterActions.onPrimitiveObs(newState, {value: 10, formElement: anotherNumericFormElement});
+        expect(newState.encounter.observations.length).is.equal(2);
+        newState = EncounterActions.onPrimitiveObs(newState, {value: '', formElement: anotherNumericFormElement});
+        expect(newState.encounter.observations.length).is.equal(1);
+        expect(newState.encounter.observations[0].getValue()).is.equal(14);
+    });
 });

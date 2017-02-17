@@ -18,21 +18,22 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     render() {
+        console.log(this.props.value);
         return (
             <Grid>
                 <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10, borderStyle: 'dashed'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </Row>
                 <Row>
-                    <InputGroup style={{flex: 1}} borderType='underline'>
-                        <Input onChangeText={(number) => this.onInputChange(_.toNumber(number))} value={_.toString(this.props.value.getValue())}/>
+                    <InputGroup style={{flex: 1, borderColor: _.isNil(this.props.validationResult) ? 'rgba(0, 0, 0, 0.12)' : '#d0011b'}} borderType='underline'>
+                        <Input onChangeText={(text) => this.onInputChange(text)} value={_.toString(this.props.value.getValue())}/>
                     </InputGroup>
                 </Row>
             </Grid>);
     }
 
-    onInputChange(number) {
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: number});
+    onInputChange(text) {
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: text});
     }
 }
 

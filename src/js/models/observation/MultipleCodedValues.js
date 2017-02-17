@@ -36,10 +36,8 @@ class MultipleCodedValues {
         }
     }
 
-    getValues() {
-        return this.answer.map((value) => {
-            return value.conceptUUID;
-        });
+    getValue() {
+        return this.answer;
     }
 
     cloneForNewEncounter() {

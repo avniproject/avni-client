@@ -1,13 +1,12 @@
-import _ from "lodash";
-
 class ValidationResult {
-    constructor(uuid, message) {
-        this.formElementUUID = uuid;
-        this.message = message;
+    constructor(success, formElementUUID, messageKey) {
+        this.success = success;
+        this.formElementUUID = formElementUUID;
+        this.messageKey = messageKey;
     }
 
     clone() {
-        return new ValidationResult(this.formElementUUID, this.message);
+        return new ValidationResult(this.success, this.formElementUUID, this.messageKey);
     }
 }
 

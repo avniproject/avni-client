@@ -4,6 +4,7 @@ import Concept from "../Concept";
 import General from "../../utility/General";
 import _ from 'lodash';
 import KeyValue from "./KeyValue";
+import ValidationResult from "./ValidationResult";
 
 class FormElement {
     static schema = {
@@ -60,7 +61,7 @@ class FormElement {
     }
 
     validate(value) {
-        const failure = {success: false};
+        const failure = new ValidationResult(false, this.uuid);
         if (this.mandatory &&
             ((this.concept.datatype !== Concept.dataType.Numeric && _.isEmpty(value)) ||
             (this.concept.datatype === Concept.dataType.Numeric && _.isEmpty(_.toString(value))))) {
@@ -72,7 +73,7 @@ class FormElement {
         else if (this.concept.datatype === Concept.dataType.Numeric && this.concept.violatesRange(value)) {
             failure.messageKey = 'numberOutOfRangeMessage';
         } else {
-            return {success: true};
+            return new ValidationResult(true, this.uuid, null);
         }
         return failure;
     }

@@ -86,9 +86,10 @@ class Encounter {
         if (_.isEmpty(observation) && !_.isEmpty(_.toString(value)))
             this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
         else if (_.isEmpty(_.toString(value))) {
-            this.observations.splice(observation);
-        } else
-        { observation.setPrimitiveAnswer(value);}
+            _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
+        } else {
+            observation.setPrimitiveAnswer(value);
+        }
     }
 
     findObservation(concept) {
