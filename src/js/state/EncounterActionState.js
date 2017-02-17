@@ -33,6 +33,16 @@ class EncounterActionState {
             this.handleValidationResult(validationResult);
         });
     }
+
+    moveNext() {
+        const formElementGroup = this.formElementGroup.next();
+        if (!_.isNil(formElementGroup))
+            this.formElementGroup = formElementGroup;
+    }
+
+    movePrevious() {
+        this.formElementGroup = this.formElementGroup.previous();
+    }
 }
 
 export default EncounterActionState;

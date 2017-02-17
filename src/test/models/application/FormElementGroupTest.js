@@ -1,6 +1,5 @@
 import {expect} from "chai";
-import Form from "../../../js/models/application/Form";
-import EntityFactory from '../EntityFactory';
+import EntityFactory from "../EntityFactory";
 
 describe('FormElementGroupTest', () => {
     it('previous and next', () => {

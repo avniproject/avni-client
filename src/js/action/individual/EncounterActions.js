@@ -44,10 +44,7 @@ export class EncounterActions {
 
     static onPrevious(state, action, context) {
         const newState = state.clone();
-        const formElementGroup = newState.formElementGroup.previous();
-        const encounter = newState.encounter;
-
-        newState.formElementGroup = state.formElementGroup.previous();
+        newState.movePrevious();
         action.cb(newState.formElementGroup.isFirst);
         return newState;
     }
@@ -63,9 +60,9 @@ export class EncounterActions {
             return newState;
         }
 
+        newState.moveNext();
         var encounterDecisions;
-        const formElementGroup = newState.formElementGroup.next();
-        if (_.isNil(formElementGroup)) {
+        if (state.formElementGroup.isLast) {
             const decisionSupportValidationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
             if (decisionSupportValidationResult.passed) {
                 encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
@@ -75,15 +72,12 @@ export class EncounterActions {
                 return newState;
             }
         }
-        action.cb(_.isNil(formElementGroup), encounter, formElementGroup, encounterDecisions);
+        action.cb(state.formElementGroup.isLast, encounterDecisions);
         return newState;
     }
 
     static onEncounterViewLoad(state, action, context) {
-        const newState = EncounterActions.getInitialState();
-        newState.encounter = action.encounter.cloneForNewEncounter();
-        newState.formElementGroup = action.formElementGroup;
-        return newState;
+        return state.clone();
     }
 
     static onEncounterDateTimeChange(state, action, context) {
@@ -93,28 +87,9 @@ export class EncounterActions {
     }
 }
 
-const individualEncounterLandingViewActions = {
-    NEXT: '887877e7-b376-478d-8c75-c0bac210bcf8',
-    TOGGLE_MULTISELECT_ANSWER: "a71ceb47-6a67-4caf-907d-2c93c985c64b",
-    TOGGLE_SINGLESELECT_ANSWER: "e3a5f0ea-a5de-44d6-b07b-e5c9cf0d1d5f",
-    TEXT_INPUT_CHANGE: '6d34e303-318c-4e53-83b0-42f673a0e369',
+const individualEncounterViewActions = {
     NEW_ENCOUNTER: '034f29e9-6204-49b3-b9fe-fec38851b966',
     ENCOUNTER_DATE_TIME_CHANGE: '42101ad3-9e4f-46d0-913d-51f3d9c4cc66',
-    DATE_INPUT_CHANGE: '98eb574a-b721-4093-9296-a323537cd1e9'
-};
-
-const individualEncounterLandingViewActionsMap = new Map([
-    [individualEncounterLandingViewActions.NEXT, EncounterActions.onNext],
-    [individualEncounterLandingViewActions.TOGGLE_MULTISELECT_ANSWER, EncounterActions.toggleMultiSelectAnswer],
-    [individualEncounterLandingViewActions.TOGGLE_SINGLESELECT_ANSWER, EncounterActions.toggleSingleSelectAnswer],
-    [individualEncounterLandingViewActions.TEXT_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
-    [individualEncounterLandingViewActions.DATE_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
-    [individualEncounterLandingViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
-    [individualEncounterLandingViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange]
-
-]);
-
-const individualEncounterViewActions = {
     PREVIOUS: '4ebe84f9-6230-42af-ba0d-88d78c05005a',
     NEXT: '14bd2402-c588-4f16-9c63-05a85751977e',
     TOGGLE_MULTISELECT_ANSWER: "c5407cf4-f37a-4568-9d56-ffba58a3bafe",
@@ -134,12 +109,12 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.TEXT_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
     [individualEncounterViewActions.DATE_INPUT_CHANGE, EncounterActions.onPrimitiveObs],
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
-    [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad]
+    [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
+    [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
+    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange]
 ]);
 
 export {
-    individualEncounterLandingViewActions as IndividualEncounterLandingViewActions,
-    individualEncounterLandingViewActionsMap as IndividualEncounterLandingViewActionsMap,
     individualEncounterViewActions as IndividualEncounterViewActions,
     individualEncounterViewActionsMap as IndividualEncounterViewActionsMap
 };

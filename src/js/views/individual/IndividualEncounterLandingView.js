@@ -12,7 +12,7 @@ import FormElementGroup from "../form/FormElementGroup";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import ReducerKeys from "../../reducer";
-import {IndividualEncounterLandingViewActions as Actions} from "../../action/individual/EncounterActions";
+import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import _ from "lodash";
 import General from "../../utility/General";
@@ -28,7 +28,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.encounterLanding);
+        super(props, context, ReducerKeys.encounter);
     }
 
     componentWillMount() {
@@ -38,11 +38,11 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     next() {
-        this.dispatchAction(Actions.NEXT, {cb: (lastPage, encounter, formElementGroup, encounterDecisions) => {
+        this.dispatchAction(Actions.NEXT, {cb: (lastPage, encounterDecisions) => {
             if (lastPage)
-                TypedTransition.from(this).with({encounter: encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
+                TypedTransition.from(this).with({encounter: this.state.encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
             else
-                TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(IndividualEncounterView);
+                TypedTransition.from(this).with().to(IndividualEncounterView);
         }});
     }
 

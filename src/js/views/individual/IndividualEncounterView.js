@@ -29,17 +29,17 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {encounter: this.props.params.encounter, formElementGroup: this.props.params.formElementGroup});
+        this.dispatchAction(Actions.ON_LOAD);
         return super.componentWillMount();
     }
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            cb: (lastPage, encounter, formElementGroup, encounterDecisions) => {
+            cb: (lastPage, encounterDecisions) => {
                 if (lastPage)
-                    TypedTransition.from(this).with({encounter: encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
+                    TypedTransition.from(this).with({encounter: this.state.encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
                 else
-                    TypedTransition.from(this).with({encounter: encounter, formElementGroup: formElementGroup}).to(IndividualEncounterView);
+                    TypedTransition.from(this).with().to(IndividualEncounterView);
             },
             validationErrorCB: (message) => {
                 Alert.alert(this.I18n.t("validationError"), message,
