@@ -23,24 +23,24 @@ class BooleanFormElement extends AbstractFormElement {
     }
 
     renderSingleSelectAnswers() {
-        return (<Grid style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1, borderStyle: 'dashed'}}>
-            <Row key={1}>
-                <Col>
-                    <Row>
+        return (<View style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1, borderStyle: 'dashed', flexDirection: 'column'}}>
+            <View key={1} style={{flexDirection: 'row'}}>
+                <View style={{flexDirection: 'column', flex: 0.5}}>
+                    <View style={{flexDirection: 'row'}}>
                         <Radio selected={this.isTrueSelected()}
                                onPress={() => this.toggleFormElementAnswerSelection(this.isTrueSelected() ? null : true)}/>
                         <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.truthDisplayValue}</Text>
-                    </Row>
-                </Col>
-                <Col>
-                    <Row>
+                    </View>
+                </View>
+                <View style={{flexDirection: 'column', flex: 0.5}}>
+                    <View style={{flexDirection: 'row'}}>
                         <Radio selected={this.isFalseSelected()}
                                onPress={() => this.toggleFormElementAnswerSelection(this.isFalseSelected() ? null : false)}/>
                         <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.falseDisplayValue}</Text>
-                    </Row>
-                </Col>
-            </Row>
-        </Grid>);
+                    </View>
+                </View>
+            </View>
+        </View>);
 
     }
 
@@ -56,10 +56,10 @@ class BooleanFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View>
-                <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+            <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
-                </Row>
+                </View>
                 {this.renderSingleSelectAnswers()}
             </View>);
     }

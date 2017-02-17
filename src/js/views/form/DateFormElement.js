@@ -21,18 +21,17 @@ class DateFormElement extends AbstractFormElement {
     render() {
         return (
             <View>
-                <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
-                </Row>
-                <Row>
+                </View>
+                <View>
                     <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}
                           style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.props.dateValue)}</Text>
-                </Row>
+                </View>
             </View>);
     }
 
     dateDisplay(date) {
-        console.log(date);
         return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date.answer);
     }
 

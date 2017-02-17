@@ -65,8 +65,8 @@ class IndividualEncounterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.state.encounter.individual.name}/>
-                    <Grid>
-                        <Row style={{
+                    <View style={{flexDirection: 'column'}}>
+                        <View style={{
                             backgroundColor: '#f7f7f7',
                             paddingLeft: 24,
                             paddingRight: 24,
@@ -75,11 +75,11 @@ class IndividualEncounterView extends AbstractComponent {
                             height: 74
                         }}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
-                        </Row>
+                        </View>
                         <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
                                        next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
-                    </Grid>
+                    </View>
                 </Content>
             </Container>
         );

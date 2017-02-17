@@ -26,45 +26,42 @@ class MultiSelectFormElement extends AbstractFormElement {
     }
 
     renderMultiSelectAnswers() {
-        return(<Grid style={{
+        return(<View style={{
                         padding: 28,
                         backgroundColor: '#ffffff',
                         borderWidth: 1,
-                        borderStyle: 'dashed'
+                        borderStyle: 'dashed',
+                        flexDirection: 'column'
                     }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                         return (
-                            <Row key={idx}>
-                                    <Col>
-                                    <Row>
-                                        <CheckBox
-                                            checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(answer1.concept.uuid)}
-                                            onPress={this.toggleFormElementAnswerSelection(answer1)}/>
-                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.concept.name}</Text>
-                                    </Row>
-                                </Col>
-                                <Col>
-                                    <Row>
-                                        <CheckBox
-                                            checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(answer2.concept.uuid)}
-                                            onPress={this.toggleFormElementAnswerSelection(answer2)}/>
-                                        <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.concept.name}</Text>
-                                    </Row>
-                                </Col>
-                            </Row>
+                            <View key={idx} style={{flexDirection: 'row'}}>
+                                <View style={{flex: 0.5, flexDirection: 'row'}}>
+                                    <CheckBox
+                                        checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(answer1.concept.uuid)}
+                                        onPress={this.toggleFormElementAnswerSelection(answer1)}/>
+                                    <Text style={{fontSize: 16, marginLeft: 11}}>{answer1.concept.name}</Text>
+                                </View>
+                                <View style={{flex: 0.5, flexDirection: 'row'}}>
+                                    <CheckBox
+                                        checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(answer2.concept.uuid)}
+                                        onPress={this.toggleFormElementAnswerSelection(answer2)}/>
+                                    <Text style={{fontSize: 16, marginLeft: 11}}>{answer2.concept.name}</Text>
+                                </View>
+                            </View>
                         )})
                     }
-        </Grid>);
+        </View>);
 
     }
 
     render() {
             return (
-                <View>
-                    <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                <View style={{flexDirection: 'column'}}>
+                    <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                         <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
-                    </Row>
-                {this.renderMultiSelectAnswers()}
+                    </View>
+                    {this.renderMultiSelectAnswers()}
                 </View>);
     }
 

@@ -19,15 +19,15 @@ class TextFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View>
-                <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+            <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
-                </Row>
-                <Row>
+                </View>
+                <View>
                     <InputGroup style={{flex: 1}} borderType='underline'>
                         <Input value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(number) => this.onInputChange(number)} />
                     </InputGroup>
-                </Row>
+                </View>
             </View>);
     }
 

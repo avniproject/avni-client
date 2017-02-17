@@ -22,7 +22,7 @@ class WizardButtons extends AbstractComponent {
         const previousButtonLabel = _.isNil(this.props.previous.label) ? this.I18n.t('previous') : this.props.previous.label;
         const nextButtonLabel = _.isNil(this.props.next.label) ? this.I18n.t('next') : this.props.next.label;
         return (
-            <Row style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between'}}>
+            <View style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between', flexDirection: 'row'}}>
                 {this.props.previous.visible ? <Button primary
                                                        style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
                                                        textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{previousButtonLabel}</Button> :
@@ -31,7 +31,7 @@ class WizardButtons extends AbstractComponent {
                                                    disabled={this.props.nextDisabled}
                                                    style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{nextButtonLabel}</Button> :
                     <View style={{flex: 0.5}}/>}
-            </Row>
+            </View>
         );
     }
 }
