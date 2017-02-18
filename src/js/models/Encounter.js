@@ -103,7 +103,7 @@ class Encounter {
         encounter.uuid = this.uuid;
         encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
         encounter.encounterDateTime = this.encounterDateTime;
-        encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneForNewEncounter();
+        encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneWithoutEncounters();
         encounter.observations = [];
         this.observations.forEach((observation) => {
             encounter.observations.push(observation.cloneForNewEncounter());

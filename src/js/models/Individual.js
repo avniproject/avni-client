@@ -112,7 +112,7 @@ class Individual extends BaseEntity {
         return eligiblePrograms;
     }
 
-    cloneForNewEncounter() {
+    cloneWithoutEncounters() {
         const individual = new Individual();
         individual.uuid = this.uuid;
         individual.name = this.name;

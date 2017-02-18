@@ -1,53 +1,61 @@
-import G from '../../utility/General';
 import Individual from "../../models/Individual";
 import Gender from "../../models/Gender";
 import EntityService from "../../service/EntityService";
 
 export class IndividualRegisterActions {
-    enterIndividualName(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.individual.name = action.value;
-        });
+    static clone(state) {
+        const newState = {};
+        newState.individual = state.individual.cloneWithoutEncounters();
+        newState.genders = state.genders;
+        newState.age = state.age;
+        newState.ageProvidedInYears = state.ageProvidedInYears;
+        return newState;
     }
 
-    enterIndividualDOB(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.individual.setDateOfBirth(action.value);
-            newState.age = newState.individual.getAge().durationValueAsString;
-            newState.ageProvidedInYears = newState.individual.getAge().isInYears;
-        });
+    static enterIndividualName(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.individual.name = action.value;
+        return newState;
     }
 
-    enterIndividualDOBVerified(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.individual.dateOfBirthVerified = action.value;
-        });
+    static enterIndividualDOB(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.individual.setDateOfBirth(action.value);
+        newState.age = newState.individual.getAge().durationValueAsString;
+        newState.ageProvidedInYears = newState.individual.getAge().isInYears;
+        return newState;
     }
 
-    enterIndividualAge(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.age = action.value;
-            newState.individual.setAge(action.value, state.ageProvidedInYears);
-        });
+    static enterIndividualDOBVerified(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.individual.dateOfBirthVerified = action.value;
+        return newState;
     }
 
-    enterIndividualAgeProvidedInYears(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.ageProvidedInYears = action.value;
-            newState.individual.setAge(state.age, action.value);
-        });
+    static enterIndividualAge(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.age = action.value;
+        newState.individual.setAge(action.value, state.ageProvidedInYears);
+        return newState;
     }
 
-    enterIndividualGender(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.individual.gender = action.value;
-        });
+    static enterIndividualAgeProvidedInYears(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.ageProvidedInYears = action.value;
+        newState.individual.setAge(state.age, action.value);
+        return newState;
     }
 
-    enterIndividualAddressLevel(state, action) {
-        return G.setNewState(state, (newState) => {
-            newState.individual.lowestAddressLevel = action.value;
-        });
+    static enterIndividualGender(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.individual.gender = action.value;
+        return newState;
+    }
+
+    static enterIndividualAddressLevel(state, action) {
+        const newState = IndividualRegisterActions.clone(state);
+        newState.individual.lowestAddressLevel = action.value;
+        return newState;
     }
 
     static getInitialState(context) {
@@ -65,16 +73,14 @@ const actions = {
     REGISTRATION_ENTER_ADDRESS_LEVEL: "REGISTRATION_ENTER_ADDRESS_LEVEL"
 };
 
-const individualRegisterActions = new IndividualRegisterActions();
-
 export default new Map([
-    [actions.REGISTRATION_ENTER_NAME, individualRegisterActions.enterIndividualName],
-    [actions.REGISTRATION_ENTER_DOB, individualRegisterActions.enterIndividualDOB],
-    [actions.REGISTRATION_ENTER_DOB_VERIFIED, individualRegisterActions.enterIndividualDOBVerified],
-    [actions.REGISTRATION_ENTER_AGE, individualRegisterActions.enterIndividualAge],
-    [actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, individualRegisterActions.enterIndividualAgeProvidedInYears],
-    [actions.REGISTRATION_ENTER_GENDER, individualRegisterActions.enterIndividualGender],
-    [actions.REGISTRATION_ENTER_ADDRESS_LEVEL, individualRegisterActions.enterIndividualAddressLevel]
+    [actions.REGISTRATION_ENTER_NAME, IndividualRegisterActions.enterIndividualName],
+    [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
+    [actions.REGISTRATION_ENTER_DOB_VERIFIED, IndividualRegisterActions.enterIndividualDOBVerified],
+    [actions.REGISTRATION_ENTER_AGE, IndividualRegisterActions.enterIndividualAge],
+    [actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, IndividualRegisterActions.enterIndividualAgeProvidedInYears],
+    [actions.REGISTRATION_ENTER_GENDER, IndividualRegisterActions.enterIndividualGender],
+    [actions.REGISTRATION_ENTER_ADDRESS_LEVEL, IndividualRegisterActions.enterIndividualAddressLevel]
 ]);
 
 export {actions as Actions};
