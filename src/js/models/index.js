@@ -6,7 +6,6 @@ import DecisionSupportSession from "./DecisionSupportSession";
 import QuestionAnswer from "./QuestionAnswer";
 import Answer from "./Answer";
 import Decision from "./Decision";
-import DecisionData from "./DecisionConfig";
 import Individual from "./Individual";
 import AddressLevel from "./AddressLevel";
 import UserDefinedIndividualProperty from "./UserDefinedIndividualProperty";
@@ -29,7 +28,7 @@ import FormMapping from "./application/FormMapping";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, DecisionData, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue],
+    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue],
     schemaVersion: 9,
     migration: function(oldDB, newDB) {}
 };

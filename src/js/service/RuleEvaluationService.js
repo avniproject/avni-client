@@ -1,7 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import DecisionConfigService from "./DecisionConfigService";
-import ConfigService from "./ConfigService";
+import ConfigFileService from "./ConfigFileService";
 import _ from 'lodash';
 import DynamicDataResolver from "./DynamicDataResolver";
 import {getObservationValue} from '../service/decisionSupport/AdditionalFunctions';
@@ -30,8 +29,7 @@ class RuleEvaluationService extends BaseService {
     }
 
     getEncounterDecisionEvalExpression(functionName) {
-        const decisionConfig = this.getService(DecisionConfigService)
-            .getDecisionConfig(this.getService(ConfigService).encounterDecisionFile);
+        const decisionConfig = this.getService(ConfigFileService).getDecisionConfig();
         return `${decisionConfig.decisionCode} ${functionName}(encounter);`;
     }
 

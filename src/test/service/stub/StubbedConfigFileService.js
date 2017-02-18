@@ -1,6 +1,4 @@
-import _ from "lodash";
-
-class StubbedDecisionConfigService {
+class StubbedConfigFileService {
     getDecisionConfig() {
         return {
             decisionCode: 'const getDecision = ' +
@@ -12,4 +10,4 @@ class StubbedDecisionConfigService {
     }
 }
 
-export default StubbedDecisionConfigService;
+export default StubbedConfigFileService;

@@ -1,4 +1,4 @@
-class DecisionConfig {
+class ConfigFile {
     static schema = {
         name: "DecisionConfig",
         primaryKey: "fileName",
@@ -13,4 +13,4 @@ class DecisionConfig {
     };
 }
 
-export default DecisionConfig;
+export default ConfigFile;

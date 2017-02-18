@@ -1,8 +1,8 @@
 import Actions from '../../action';
-import ConfigService from "../../service/ConfigService";
+import ConfigFileService from "../../service/ConfigFileService";
 
 const getConfig = function (state, action, beans) {
-    beans.get(ConfigService).getAllFilesAndSave(action.cb, action.errorHandler);
+    beans.get(ConfigFileService).getAllFilesAndSave(action.cb, action.errorHandler);
     return state;
 };
 
