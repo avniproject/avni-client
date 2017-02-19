@@ -49,7 +49,7 @@ let _post = (endpoint, file, cb, errorHandler) => {
 export let post = _post;
 
 export let get = (endpoint, cb, errorHandler) => {
-    return new Map([[true, _get], [false, _getText]]).get(endpoint.endsWith(".json"))(endpoint, cb, errorHandler);
+    return _getText(endpoint, cb, errorHandler);
 };
 
 export let getJSON = (endpoint, cb, errorHandler) => {

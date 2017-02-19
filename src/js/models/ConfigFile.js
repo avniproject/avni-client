@@ -1,16 +1,19 @@
 class ConfigFile {
     static schema = {
-        name: "DecisionConfig",
+        name: "ConfigFile",
         primaryKey: "fileName",
         properties: {
             fileName: "string",
-            decisionCode: "string"
+            contents: "string"
         }
     };
 
-    static toDB = (fileName, decisionCode) => {
-        return {"decisionCode": decisionCode, "fileName": fileName.toLowerCase()};
-    };
+    static create(fileName, contents) {
+        const configFile = new ConfigFile();
+        configFile.fileName = fileName.toLowerCase();
+        configFile.contents = contents;
+        return configFile;
+    }
 }
 
 export default ConfigFile;

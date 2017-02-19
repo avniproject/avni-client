@@ -6,6 +6,7 @@ import Messages_en from '../../config/messages.en.json';
 import SettingsService from '../service/SettingsService';
 import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
+import ConfigFileService from "./ConfigFileService";
 
 @Service("messageService")
 class MessageService extends BaseService {
@@ -23,6 +24,14 @@ class MessageService extends BaseService {
 
     init() {
         this.setLocale(this.getService(SettingsService).getLocale());
+        const configFileService = this.getService(ConfigFileService);
+        const customMessages = configFileService.getCustomMessages();
+        _.forOwn(customMessages, (translations, locale) => {
+            _.forOwn(translations, (value, key) => {
+                this.addTranslation(locale, key, value);
+            });
+        });
+
     }
 
     addTranslation(locale, key, value) {
