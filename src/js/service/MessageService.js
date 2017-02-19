@@ -26,12 +26,15 @@ class MessageService extends BaseService {
         this.setLocale(this.getService(SettingsService).getLocale());
         const configFileService = this.getService(ConfigFileService);
         const customMessages = configFileService.getCustomMessages();
+        this.addTranslationsFrom(customMessages);
+    }
+
+    addTranslationsFrom(customMessages) {
         _.forOwn(customMessages, (translations, locale) => {
             _.forOwn(translations, (value, key) => {
                 this.addTranslation(locale, key, value);
             });
         });
-
     }
 
     addTranslation(locale, key, value) {

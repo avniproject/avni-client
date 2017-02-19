@@ -4,6 +4,7 @@ import ConfigFile from '../models/ConfigFile';
 import BatchRequest from "../framework/http/BatchRequest";
 import _ from 'lodash';
 import SettingsService from "./SettingsService";
+import MessageService from "./MessageService";
 
 @Service("configFileService")
 class ConfigFileService extends BaseService {
@@ -24,14 +25,18 @@ class ConfigFileService extends BaseService {
     }
 
     getCustomMessages() {
-        const contents = this.db.objectForPrimaryKey(ConfigFile.schema.name, `${this.customMessageFile.toLowerCase()}`);
-        return _.isNil(contents) ? null : JSON.parse(contents);
+        const configFile = this.db.objectForPrimaryKey(ConfigFile.schema.name, `${this.customMessageFile.toLowerCase()}`);
+        return _.isNil(configFile) ? null : JSON.parse(configFile.contents);
     }
 
     _createFileHandlers() {
         this.fileHandlers = {};
         this.fileHandlers[`${this.encounterDecisionFile}`] = (response) => this.saveConfigFile(this.encounterDecisionFile, response);
-        this.fileHandlers[`${this.customMessageFile}`] = (response) => this.saveConfigFile(this.customMessageFile, response);
+        this.fileHandlers[`${this.customMessageFile}`] = (response) => {
+            this.saveConfigFile(this.customMessageFile, response);
+            const messageService = this.getService(MessageService);
+            messageService.addTranslationsFrom(this.getCustomMessages());
+        }
     }
 
     getAllFilesAndSave(cb, errorHandler) {
