@@ -29,14 +29,14 @@ class BooleanFormElement extends AbstractFormElement {
                     <View style={{flexDirection: 'row'}}>
                         <Radio selected={this.isTrueSelected()}
                                onPress={() => this.toggleFormElementAnswerSelection(this.isTrueSelected() ? null : true)}/>
-                        <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.truthDisplayValue}</Text>
+                        <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(this.props.element.truthDisplayValue)}</Text>
                     </View>
                 </View>
                 <View style={{flexDirection: 'column', flex: 0.5}}>
                     <View style={{flexDirection: 'row'}}>
                         <Radio selected={this.isFalseSelected()}
                                onPress={() => this.toggleFormElementAnswerSelection(this.isFalseSelected() ? null : false)}/>
-                        <Text style={{fontSize: 16, marginLeft: 11}}>{this.props.element.falseDisplayValue}</Text>
+                        <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(this.props.element.falseDisplayValue)}</Text>
                     </View>
                 </View>
             </View>

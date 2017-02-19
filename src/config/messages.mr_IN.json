@@ -29,5 +29,11 @@
   "yes": "होय",
   "no": "नाही",
   "syncConfig": "नया सेटिंग",
-  "download": "डाउनलोड"
+  "download": "डाउनलोड",
+  "gender": "लिंग",
+  "Male": "पुरुष",
+  "Female": "स्त्री",
+  "Other": "Other",
+  "name": "नाव",
+  "lowestAddressLevel": "गाव"
 }

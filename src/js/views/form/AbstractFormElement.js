@@ -7,7 +7,7 @@ class AbstractFormElement extends AbstractComponent {
 
     get label() {
         const mandatoryText = this.props.element.mandatory ? `  -  [${this.I18n.t("mandatory")}]` : '';
-        return `${this.props.element.name}${mandatoryText}`;
+        return `${this.I18n.t(this.props.element.name)}${mandatoryText}`;
     }
 }
 
