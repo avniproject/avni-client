@@ -4,6 +4,7 @@ import Individual from "./Individual";
 import ResourceUtil from "../utility/ResourceUtil";
 import _ from "lodash";
 import Observation from './Observation'
+import Concept from './Concept'
 import SingleCodedValue from './observation/SingleCodedValue';
 import MultipleCodedValue from './observation/MultipleCodedValues';
 import PrimitiveValue from "./observation/PrimitiveValue";
@@ -45,7 +46,16 @@ class Encounter {
         resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["observations"] = [];
         this.observations.forEach((obs) => {
-            var obsResource = {conceptUUID: obs.concept.uuid, value: obs.getValue()};
+            var obsResource = {conceptUUID: obs.concept.uuid};
+                if(obs.concept.datatype === Concept.dataType.Coded){
+                    if(obs.valueJSON.constructor === SingleCodedValue){
+                        obsResource.valueCoded = [obs.getValue().conceptUUID]
+                    }else {
+                        obsResource.valueCoded = obs.getValue().map((answer) => {return answer.conceptUUID});
+                    }
+                } else {
+                    obsResource.valuePrimitive = obs.getValue();
+                }
             resource["observations"].push(obsResource);
         });
         return resource;
