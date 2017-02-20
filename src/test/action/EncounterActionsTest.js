@@ -5,6 +5,7 @@ import Encounter from "../../js/models/Encounter";
 import FormElement from "../../js/models/application/FormElement";
 import Concept, {ConceptAnswer} from "../../js/models/Concept";
 import EntityFactory from "../models/EntityFactory";
+import Wizard from "../../js/state/Wizard";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
@@ -17,6 +18,7 @@ let createFormElement = function (dataType, mandatory, conceptUUID) {
 
 let createIntialState = function (dataType, mandatory) {
     const state = EncounterActions.getInitialState();
+    state.wizard = new Wizard(2, 1);
     const formElement = createFormElement(dataType, mandatory, 'bfc28bad-5fac-4760-921d-eec83f52c3da');
     state.encounter = Encounter.create();
     state.formElementGroup = EntityFactory.createFormElementGroup('', 1, EntityFactory.createForm());

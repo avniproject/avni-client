@@ -14,6 +14,7 @@ class EncounterActionState extends AbstractDataEntryState {
         newState.encounter = this.encounter.cloneForNewEncounter();
         super.clone(newState);
         newState.encounterDecisions = null;
+        newState.wizard = this.wizard.clone();
         return newState;
     }
 }

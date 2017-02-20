@@ -5,6 +5,7 @@ import _ from "lodash";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import Wizard from "../../state/Wizard";
 
 export class EncounterActions {
     static getInitialState() {
@@ -15,6 +16,7 @@ export class EncounterActions {
         const newState = EncounterActions.getInitialState();
         newState.encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
+        newState.wizard = new Wizard(form.formElementGroups.length, 1);
         newState.formElementGroup = form.formElementGroups[0];
         return newState;
     }
