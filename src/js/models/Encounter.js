@@ -9,8 +9,9 @@ import SingleCodedValue from './observation/SingleCodedValue';
 import MultipleCodedValue from './observation/MultipleCodedValues';
 import PrimitiveValue from "./observation/PrimitiveValue";
 import moment from "moment";
+import ObservationsHolder from "./ObservationsHolder";
 
-class Encounter {
+class Encounter extends ObservationsHolder {
     static schema = {
         name: 'Encounter',
         primaryKey: 'uuid',
@@ -59,53 +60,6 @@ class Encounter {
             resource["observations"].push(obsResource);
         });
         return resource;
-    }
-
-    toggleSingleSelectAnswer(concept, answerUUID) {
-        return this.toggleCodedAnswer(concept, answerUUID, true);
-    }
-
-    toggleCodedAnswer(concept, answerUUID, isSingleSelect) {
-        let observation = this.getObservation(concept);
-        if (_.isEmpty(observation)) {
-            observation = Observation.create(concept, isSingleSelect ? new SingleCodedValue(answerUUID) : new MultipleCodedValue().push(answerUUID));
-            this.observations.push(observation);
-            return observation;
-        }
-        else {
-            isSingleSelect ? observation.toggleSingleSelectAnswer(answerUUID) : observation.toggleMultiSelectAnswer(answerUUID);
-            if (observation.hasNoAnswer()) {
-                _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
-            }
-            return null;
-        }
-    }
-
-    toggleMultiSelectAnswer(concept, answerUUID) {
-        return this.toggleCodedAnswer(concept, answerUUID, false);
-    }
-
-    getObservation(concept) {
-        return _.find(this.observations, (observation) => {
-            return observation.concept.uuid === concept.uuid;
-        });
-    }
-
-    addOrUpdatePrimitiveObs(concept, value) {
-        const observation = this.getObservation(concept);
-        if (_.isEmpty(observation) && !_.isEmpty(_.toString(value)))
-            this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
-        else if (_.isEmpty(_.toString(value))) {
-            _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
-        } else {
-            observation.setPrimitiveAnswer(value);
-        }
-    }
-
-    findObservation(concept) {
-        return _.find(this.observations, (observation) => {
-            return observation.concept.uuid === concept.uuid;
-        });
     }
 
     cloneForNewEncounter() {

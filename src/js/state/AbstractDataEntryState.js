@@ -27,14 +27,21 @@ class AbstractDataEntryState {
         });
     }
 
-    moveNext() {
-        const formElementGroup = this.formElementGroup.next();
-        if (!_.isNil(formElementGroup))
-            this.formElementGroup = formElementGroup;
+    moveNext(getForm) {
+        this.wizard.moveNext();
+        if (this.wizard.isFirstFormPage()) {
+            const form = getForm();
+            this.formElementGroup = form.formElementGroups[0];
+        } else {
+            this.formElementGroup = this.formElementGroup.next();
+        }
     }
 
     movePrevious() {
-        this.formElementGroup = this.formElementGroup.previous();
+        this.wizard.movePrevious();
+        if (!this.wizard.isNonFormPage()) {
+            this.formElementGroup = this.formElementGroup.previous();
+        }
     }
 }
 

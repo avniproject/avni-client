@@ -26,8 +26,8 @@ class LandingView extends AbstractComponent {
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#fff'}}>
                     <Tabs>
-                        <IndividualSearchView tabLabel='Home'/>
                         <MenuView tabLabel='Menu'/>
+                        <IndividualSearchView tabLabel='Home'/>
                         <Playground tabLabel='Play'/>
                     </Tabs>
                 </Content>

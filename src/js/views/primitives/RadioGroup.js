@@ -21,21 +21,21 @@ class RadioGroup extends AbstractComponent {
 
     render() {
         return (
-            <Grid>
-                <Row>
+            <View>
+                <View>
                     <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}</Text>
-                </Row>
+                </View>
                 {this.props.labelValuePairs.map((radioLabelValue) => {
                     return (
-                        <Row style={{height: 22, marginVertical: DGS.resizeHeight(8)}}>
+                        <View style={{height: 22, marginVertical: DGS.resizeHeight(8), flexDirection: 'row'}} key={radioLabelValue.radioLabel}>
                             <View style={{flexDirection: 'column-reverse'}}>
                                 <Radio selected={this.props.selectionFn(radioLabelValue.value)}
                                        onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})}/>
                             </View>
                             <Text style={[DGS.formRadioText, {color: _.isNil(this.props.validationError) ? Colors.InputLabelNormal : Colors.ValidationError}]}>{this.I18n.t(radioLabelValue.radioLabel)}</Text>
-                        </Row>);
+                        </View>);
                 })}
-            </Grid>
+            </View>
         );
     }
 }

@@ -2,7 +2,6 @@ import {View, StyleSheet, ScrollView, TextInput, DatePickerAndroid, TouchableHig
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import TypedTransition from "../../framework/routing/TypedTransition";
 import DGS from "../primitives/DynamicGlobalStyles";
 import {Content, CheckBox, Text, Container, Radio, InputGroup, Input} from "native-base";
 import themes from "../primitives/themes";
@@ -11,14 +10,14 @@ import {Actions} from "../../action/individual/IndividualRegisterActions";
 import _ from "lodash";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import AppHeader from "../common/AppHeader";
-import IndividualRegisterFormView from "./IndividualRegisterFormView";
 import ReducerKeys from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import Individual from '../../models/Individual';
-import TextFormElement from '../form/TextFormElement';
-import General from '../../utility/General';
-import Colors from '../primitives/Colors';
+import Individual from "../../models/Individual";
+import TextFormElement from "../form/TextFormElement";
+import General from "../../utility/General";
+import Colors from "../primitives/Colors";
+import IndividualRegisterViewsMixin from './IndividualRegisterViewsMixin';
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -115,28 +114,12 @@ class IndividualRegisterView extends AbstractComponent {
                         </View>
                     </View>
                     <WizardButtons previous={{func: () => {}, visible: false}}
-                                   next={{func: () => this.next(), visible: !_.isNil(this.state.formElementGroup)}} nextDisabled={this.state.validationResults.length !== 0}/>
+                                   next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t(this.state.wizard.isLastPage() ? 'register' : 'next')}}
+                                   nextDisabled={this.state.validationResults.length !== 0}
+                    />
                 </Content>
             </Container>
         );
-    }
-
-    next() {
-        this.dispatchAction(Actions.NEXT, {
-            cb: (lastPage) => {
-                if (!lastPage)
-                    TypedTransition.from(this).with().to(IndividualRegisterFormView);
-            },
-            validationErrorCB: (message) => {
-                Alert.alert(this.I18n.t("validationError"), message,
-                    [
-                        {
-                            text: this.I18n.t('ok'), onPress: () => {}
-                        }
-                    ]
-                );
-            }
-        });
     }
 
     dateDisplay(date) {
@@ -148,11 +131,6 @@ class IndividualRegisterView extends AbstractComponent {
         if (action !== DatePickerAndroid.dismissedAction) {
             this.dispatchAction(Actions.REGISTRATION_ENTER_DOB, {value: new Date(year, month, day)});
         }
-    }
-
-    registerIndividual() {
-        const results = this.context.getService(IndividualService).register(this.state.individual);
-        TypedTransition.from(this).to(LandingView);
     }
 }
 

@@ -76,7 +76,7 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                         </View>
-                        <FormElementGroup encounter={this.state.encounter} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
+                        <FormElementGroup observationHolder={this.state.encounter} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
                                        next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
                     </View>

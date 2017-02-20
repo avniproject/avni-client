@@ -39,11 +39,11 @@ class SingleSelectFormElement extends AbstractFormElement {
                                    onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
                             <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer1.concept.name)}</Text>
                         </View>
-                        <View style={{flex: 0.5, flexDirection: 'row'}}>
-                            <Radio selected={this.props.singleCodedValue.hasValue(answer2.concept.uuid)}
-                                   onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
-                            <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer2.concept.name)}</Text>
-                        </View>
+                        {_.isNil(answer2) ? (<View/>) : (<View style={{flex: 0.5, flexDirection: 'row'}}>
+                                <Radio selected={this.props.singleCodedValue.hasValue(answer2.concept.uuid)}
+                                       onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
+                                <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer2.concept.name)}</Text>
+                            </View>)}
                     </View>
                 )
             })

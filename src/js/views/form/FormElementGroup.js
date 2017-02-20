@@ -16,7 +16,7 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
         group: React.PropTypes.object.isRequired,
-        encounter: React.PropTypes.object.isRequired,
+        observationHolder: React.PropTypes.object.isRequired,
         actions: React.PropTypes.object.isRequired,
         validationResults: React.PropTypes.array.isRequired
     };
@@ -33,13 +33,13 @@ class FormElementGroup extends AbstractComponent {
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return <NumericFormElement key={idx}
                                                        element={formElement}
-                                                       actionName={this.props.actions["TEXT_INPUT_CHANGE"]}
+                                                       actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                        value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                        validationResult={validationResult}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Text) {
                             return <TextFormElement key={idx}
                                                     element={formElement}
-                                                    actionName={this.props.actions["TEXT_INPUT_CHANGE"]}/>
+                                                    actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return <MultiSelectFormElement key={idx}
                                                            element={formElement}
@@ -54,11 +54,11 @@ class FormElementGroup extends AbstractComponent {
                             return <BooleanFormElement key={idx}
                                                        element={formElement}
                                                        observationValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                       actionName={this.props.actions["TOGGLE_BOOLEAN_ANSWER"]} validationResult={validationResult}/>
+                                                       actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]} validationResult={validationResult}/>
                         } else if (formElement.concept.datatype === Concept.dataType.Date) {
                             return <DateFormElement key={idx}
                                                     element={formElement}
-                                                    actionName={this.props.actions["DATE_INPUT_CHANGE"]}
+                                                    actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                     dateValue={this.getSelectedAnswer(formElement.concept, null)}/>
                         }
                     })
@@ -68,7 +68,7 @@ class FormElementGroup extends AbstractComponent {
     }
 
     getSelectedAnswer(concept, nullReplacement) {
-        const observation = this.props.encounter.findObservation(concept);
+        const observation = this.props.observationHolder.findObservation(concept);
         return _.isNil(observation) ? nullReplacement : observation.valueJSON;
     }
 }

@@ -9,8 +9,9 @@ import Encounter from "./Encounter";
 import Duration from "./Duration";
 import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
+import ObservationsHolder from "./ObservationsHolder";
 
-class Individual extends BaseEntity {
+class Individual extends ObservationsHolder {
     static schema = {
         name: "Individual",
         primaryKey: 'uuid',
@@ -23,7 +24,7 @@ class Individual extends BaseEntity {
             lowestAddressLevel: 'AddressLevel',
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
-            customProfile: {type: 'list', objectType: 'Observation'}
+            observations: {type: 'list', objectType: 'Observation'}
         }
     };
 
