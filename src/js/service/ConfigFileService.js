@@ -12,6 +12,7 @@ class ConfigFileService extends BaseService {
         super(db, beanStore);
         this.encounterDecisionFile = "encounterDecision.js";
         this.customMessageFile = "customMessages.json";
+        this.individualRegistrationFile = "individualRegistration.js";
         this._createFileHandlers();
     }
 
@@ -32,6 +33,7 @@ class ConfigFileService extends BaseService {
     _createFileHandlers() {
         this.fileHandlers = {};
         this.fileHandlers[`${this.encounterDecisionFile}`] = (response) => this.saveConfigFile(this.encounterDecisionFile, response);
+        this.fileHandlers[`${this.individualRegistrationFile}`] = (response) => this.saveConfigFile(this.individualRegistrationFile, response);
         this.fileHandlers[`${this.customMessageFile}`] = (response) => {
             this.saveConfigFile(this.customMessageFile, response);
             const messageService = this.getService(MessageService);

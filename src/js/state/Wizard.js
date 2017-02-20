@@ -2,6 +2,7 @@ class Wizard {
     constructor(numberOfPages, formStartsAt) {
         this.numberOfPages = numberOfPages;
         this.formStartsAt = formStartsAt;
+        this.currentPage = 1;
     }
 
     reset() {
@@ -40,6 +41,10 @@ class Wizard {
 
     isLastPage() {
         return this.numberOfPages === this.currentPage;
+    }
+
+    isFirstPage() {
+        return this.currentPage === 1;
     }
 }
 

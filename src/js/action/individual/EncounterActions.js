@@ -8,15 +8,18 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import Wizard from "../../state/Wizard";
 
 export class EncounterActions {
-    static getInitialState() {
-        return new EncounterActionState();
+    static getInitialState(context) {
+        const encounterActionState = new EncounterActionState();
+        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
+        encounterActionState.wizard = new Wizard(form.formElementGroups.length, 1);
+        return encounterActionState;
     }
 
     static onNewEncounter(state, action, context) {
-        const newState = EncounterActions.getInitialState();
+        const newState = state.clone();
         newState.encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
+        newState.wizard.reset();
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        newState.wizard = new Wizard(form.formElementGroups.length, 1);
         newState.formElementGroup = form.formElementGroups[0];
         return newState;
     }
@@ -30,28 +33,27 @@ export class EncounterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-
         const encounter = newState.encounter;
-
         const validationResults = newState.formElementGroup.validateMandatoryFields(encounter);
         newState.handleValidationResults(validationResults);
         if (newState.validationResults.length !== 0) {
             return newState;
         }
 
-        newState.moveNext();
-        var encounterDecisions;
-        if (state.formElementGroup.isLast) {
+        console.log(newState.wizard);
+        if (newState.wizard.isLastPage()) {
             const decisionSupportValidationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
             if (decisionSupportValidationResult.passed) {
-                encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
+                var encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
                 context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
+                action.validationSuccessful(encounterDecisions);
             } else {
-                action.validationErrorCB(decisionSupportValidationResult.message);
-                return newState;
+                action.validationError(decisionSupportValidationResult.message);
             }
+        } else {
+            newState.moveNext();
+            action.cb();
         }
-        action.cb(state.formElementGroup.isLast, encounterDecisions);
         return newState;
     }
 

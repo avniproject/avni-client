@@ -11,7 +11,7 @@ class EncounterActionState extends AbstractDataEntryState {
 
     clone() {
         const newState = new EncounterActionState();
-        newState.encounter = this.encounter.cloneForNewEncounter();
+        newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForNewEncounter();
         super.clone(newState);
         newState.encounterDecisions = null;
         newState.wizard = this.wizard.clone();

@@ -14,11 +14,14 @@ class RuleEvaluationService extends BaseService {
 
     init() {
         this.decorateEncounter();
+        const exports = eval(this.getEncounterDecisionEvalExpression());
+        this.encounterDecisionFn = exports.getDecision;
+        this.encounterValidationFn = exports.validate;
         return super.init();
     }
 
     getEncounterDecision(encounter) {
-        return eval(this.getEncounterDecisionEvalExpression('getDecision'));
+        return this.encounterDecisionFn(encounter);
     }
 
     decorateEncounter() {
@@ -28,13 +31,13 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getEncounterDecisionEvalExpression(functionName) {
+    getEncounterDecisionEvalExpression() {
         const decisionConfig = this.getService(ConfigFileService).getDecisionConfig();
-        return `${decisionConfig.decisionCode} ${functionName}(encounter);`;
+        return `${decisionConfig.contents}`;
     }
 
     validateEncounter(encounter) {
-        return eval(this.getEncounterDecisionEvalExpression('validate'));
+        return this.encounterValidationFn(encounter);
     }
 }
 

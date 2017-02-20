@@ -10,6 +10,7 @@ import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
 describe('RuleEvaluationServiceTest', () => {
     it('getEncounterDecision', () => {
         const ruleEvaluationService = new RuleEvaluationService({}, new TestContext());
+        ruleEvaluationService.init();
         const encounter = Encounter.create();
         encounter.observations.push(Observation.create(Concept.create("foo", Concept.dataType.Numeric), new PrimitiveValue(2)));
         const encounterDecision = ruleEvaluationService.getEncounterDecision(encounter);

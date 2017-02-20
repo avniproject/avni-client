@@ -3,6 +3,10 @@ import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 
 export class IndividualRegisterActions {
+    static getInitialState(context) {
+        return IndividualRegistrationState.createIntialState(context);
+    }
+
     static enterIndividualName(state, action) {
         const newState = state.clone(state);
         newState.individual.name = action.value;
@@ -54,10 +58,6 @@ export class IndividualRegisterActions {
         const newState = state.clone(state);
         newState.individual.lowestAddressLevel = action.value;
         return newState;
-    }
-
-    static getInitialState(context) {
-        return IndividualRegistrationState.createIntialState(context);
     }
 
     static onLoad(state, action, context) {

@@ -35,17 +35,22 @@ class IndividualEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            cb: (lastPage, encounterDecisions) => {
-                if (lastPage)
-                    TypedTransition.from(this).with({encounter: this.state.encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
-                else
-                    TypedTransition.from(this).with().to(IndividualEncounterView);
+            validationSuccessful: (encounterDecisions) => {
+                TypedTransition.from(this).with({
+                    encounter: this.state.encounter,
+                    previousFormElementGroup: this.state.formElementGroup,
+                    encounterDecisions: encounterDecisions
+                }).to(SystemRecommendationView);
             },
-            validationErrorCB: (message) => {
+            cb: () => {
+                TypedTransition.from(this).with().to(IndividualEncounterView);
+            },
+            validationError: (message) => {
                 Alert.alert(this.I18n.t("validationError"), message,
                     [
                         {
-                            text: this.I18n.t('ok'), onPress: () => {}
+                            text: this.I18n.t('ok'), onPress: () => {
+                        }
                         }
                     ]
                 );
@@ -54,9 +59,11 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     previous() {
-        this.dispatchAction(Actions.PREVIOUS, {cb: (firstPage) => {
-            TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView, Navigator.SceneConfigs.FloatFromLeft, true);
-        }});
+        this.dispatchAction(Actions.PREVIOUS, {
+            cb: (firstPage) => {
+                TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView, Navigator.SceneConfigs.FloatFromLeft, true);
+            }
+        });
     }
 
     render() {
@@ -76,8 +83,9 @@ class IndividualEncounterView extends AbstractComponent {
                         }}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                         </View>
-                        <FormElementGroup observationHolder={this.state.encounter} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
-                        <WizardButtons previous={{func: () => this.previous(), visible: this.state.formElementGroup.displayOrder !== 1}}
+                        <FormElementGroup observationHolder={this.state.encounter} group={this.state.formElementGroup} actions={Actions}
+                                          validationResults={this.state.validationResults}/>
+                        <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
                                        next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
                     </View>
                 </Content>
