@@ -17,9 +17,9 @@ class SingleSelectFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    toggleFormElementAnswerSelection(concept, answer) {
+    toggleFormElementAnswerSelection(formElement, answer) {
         return () => {
-            this.dispatchAction(this.props.actionName, {concept: concept, answerUUID: answer.concept.uuid});
+            this.dispatchAction(this.props.actionName, {formElement: formElement, answerUUID: answer.concept.uuid});
         }
     }
 
@@ -36,12 +36,12 @@ class SingleSelectFormElement extends AbstractFormElement {
                     <View key={idx} style={{flexDirection: 'row'}}>
                         <View style={{flex: 0.5, flexDirection: 'row'}}>
                             <Radio selected={this.props.singleCodedValue.hasValue(answer1.concept.uuid)}
-                                   onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer1)}/>
+                                   onPress={this.toggleFormElementAnswerSelection(this.props.element, answer1)}/>
                             <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer1.concept.name)}</Text>
                         </View>
                         {_.isNil(answer2) ? (<View/>) : (<View style={{flex: 0.5, flexDirection: 'row'}}>
                                 <Radio selected={this.props.singleCodedValue.hasValue(answer2.concept.uuid)}
-                                       onPress={this.toggleFormElementAnswerSelection(this.props.element.concept, answer2)}/>
+                                       onPress={this.toggleFormElementAnswerSelection(this.props.element, answer2)}/>
                                 <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer2.concept.name)}</Text>
                             </View>)}
                     </View>

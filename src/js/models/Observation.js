@@ -53,7 +53,7 @@ class Observation {
         this.valueJSON.answer = value;
     }
 
-    cloneForNewEncounter() {
+    cloneForEdit() {
         const observation = new Observation();
         observation.concept = this.concept.cloneForNewEncounter();
         observation.valueJSON = this.valueJSON.cloneForNewEncounter();

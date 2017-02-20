@@ -9,7 +9,7 @@ import Form from '../models/application/Form';
 class IndividualRegistrationState extends AbstractDataEntryState {
     static createIntialState(context) {
         const individualRegistrationState = new IndividualRegistrationState();
-        individualRegistrationState.individual = new Individual();
+        individualRegistrationState.individual = Individual.createSafeInstance();
         individualRegistrationState.genders = context.get(EntityService).getAll(Gender.schema.name);
         individualRegistrationState.ageProvidedInYears = true;
 
@@ -38,6 +38,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.wizard = this.wizard.clone();
         super.clone(newState);
         return newState;
+    }
+
+    get observationsHolder() {
+        return this.individual;
     }
 }
 

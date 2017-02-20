@@ -39,7 +39,10 @@ class FormElementGroup extends AbstractComponent {
                         } else if (formElement.concept.datatype === Concept.dataType.Text) {
                             return <TextFormElement key={idx}
                                                     element={formElement}
-                                                    actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}/>
+                                                    actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                                    value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                                    validationResult={validationResult}
+                            />
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return <MultiSelectFormElement key={idx}
                                                            element={formElement}

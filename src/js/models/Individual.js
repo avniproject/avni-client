@@ -28,6 +28,21 @@ class Individual extends ObservationsHolder {
         }
     };
 
+    static validationKeys = {
+        DOB: 'DOB',
+        GENDER: 'GENDER',
+        NAME: 'NAME',
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+    };
+
+    static createSafeInstance() {
+        const individual = new Individual();
+        individual.observations = [];
+        individual.encounters = [];
+        individual.enrolments = [];
+        return individual;
+    }
+
     get toResource() {
         const resource = _.pick(this, ["uuid", "name", "dateOfBirthVerified"]);
         resource.dateOfBirth = moment(this.dateOfBirth).format('YYYY-MM-DD');
@@ -114,24 +129,25 @@ class Individual extends ObservationsHolder {
     }
 
     validateName() {
-        return _.isEmpty(this.name) ? new ValidationResult(false, Individual.validationKeys.NAME, 'emptyValidationMessage') : ValidationResult.successful();
+        return _.isEmpty(this.name) ? new ValidationResult(false, Individual.validationKeys.NAME, 'emptyValidationMessage') : ValidationResult.successful(Individual.validationKeys.NAME);
     }
 
     validate() {
         const validationResults = [];
         validationResults.push(this.validateName());
         validationResults.push(this.validateDateOfBirth());
-        validationResults.push(_.isNil(this.gender) ? ValidationResult.failureForEmpty(Individual.validationKeys.GENDER) : ValidationResult.successful());
-        validationResults.push(_.isNil(this.lowestAddressLevel) ? ValidationResult.failureForEmpty(Individual.validationKeys.LOWEST_ADDRESS_LEVEL) : ValidationResult.successful());
+        validationResults.push(this.validateGender());
+        validationResults.push(this.validateAddress());
         return validationResults;
     }
 
-    static validationKeys = {
-        DOB: 'DOB',
-        GENDER: 'GENDER',
-        NAME: 'NAME',
-        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
-    };
+    validateAddress() {
+        return _.isNil(this.lowestAddressLevel) ? ValidationResult.failureForEmpty(Individual.validationKeys.LOWEST_ADDRESS_LEVEL) : ValidationResult.successful(Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
+    }
+
+    validateGender() {
+        return _.isNil(this.gender) ? ValidationResult.failureForEmpty(Individual.validationKeys.GENDER) : ValidationResult.successful(Individual.validationKeys.GENDER);
+    }
 
     static eligiblePrograms(allPrograms, individual) {
         const eligiblePrograms = _.slice(allPrograms);
@@ -154,6 +170,11 @@ class Individual extends ObservationsHolder {
         individual.dateOfBirthVerified = this.dateOfBirthVerified;
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
+        individual.observations = [];
+        this.observations.forEach((obs) => {
+            individual.observations.push(obs.cloneForEdit());
+        });
+
         return individual;
     }
 }

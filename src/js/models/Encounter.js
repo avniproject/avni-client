@@ -70,7 +70,7 @@ class Encounter extends ObservationsHolder {
         encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneWithoutEncounters();
         encounter.observations = [];
         this.observations.forEach((observation) => {
-            encounter.observations.push(observation.cloneForNewEncounter());
+            encounter.observations.push(observation.cloneForEdit());
         });
         return encounter;
     }

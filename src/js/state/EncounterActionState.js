@@ -17,6 +17,10 @@ class EncounterActionState extends AbstractDataEntryState {
         newState.wizard = this.wizard.clone();
         return newState;
     }
+
+    get observationsHolder() {
+        return this.encounter;
+    }
 }
 
 export default EncounterActionState;

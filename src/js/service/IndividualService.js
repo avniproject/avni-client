@@ -27,8 +27,11 @@ class IndividualService extends BaseService {
     register(individual) {
         const db = this.db;
         individual.uuid = General.randomUUID();
+        individual.observations.forEach((observation) => {
+            observation.valueJSON = JSON.stringify(observation.valueJSON);
+        });
         this.db.write(() => {
-            db.create(Individual.schema.name, individual);
+            db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
         });
     }

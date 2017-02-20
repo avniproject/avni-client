@@ -5,13 +5,13 @@ class ObservationsHolderActions {
         const newState = state.clone();
         const validationResult = action.formElement.validate(action.value);
         newState.handleValidationResult(validationResult);
-        newState.encounter.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
+        newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
         return newState;
     }
 
     static toggleMultiSelectAnswer(state, action) {
         const newState = state.clone();
-        const observation = newState.encounter.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
+        const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValue());
         newState.handleValidationResult(validationResult);
         return newState;
@@ -19,7 +19,7 @@ class ObservationsHolderActions {
 
     static toggleSingleSelectAnswer(state, action) {
         const newState = state.clone();
-        const observation = newState.encounter.toggleSingleSelectAnswer(action.concept, action.answerUUID);
+        const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValue());
         newState.handleValidationResult(validationResult);
         return newState;

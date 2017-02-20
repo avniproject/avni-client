@@ -18,6 +18,7 @@ import TextFormElement from "../form/TextFormElement";
 import General from "../../utility/General";
 import Colors from "../primitives/Colors";
 import IndividualRegisterViewsMixin from './IndividualRegisterViewsMixin';
+import PrimitiveValue from '../../models/observation/PrimitiveValue';
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -55,7 +56,7 @@ class IndividualRegisterView extends AbstractComponent {
                         <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
                                          element={new StaticFormElement('name')}
                                          validationResult={this.getValidationError(Individual.validationKeys.NAME)}
-                                         value={this.state.individual.name}/>
+                                         value={new PrimitiveValue(this.state.individual.name)}/>
                         <View style={[DGS.formRow, {flexDirection: 'column'}]}>
                             <View>
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}</Text>

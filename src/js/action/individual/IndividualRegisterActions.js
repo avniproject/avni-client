@@ -34,8 +34,7 @@ export class IndividualRegisterActions {
         const newState = state.clone(state);
         newState.age = action.value;
         newState.individual.setAge(action.value, state.ageProvidedInYears);
-        const validationResult = newState.individual.validateDateOfBirth();
-        newState.handleValidationResult(validationResult);
+        newState.handleValidationResult(newState.individual.validateDateOfBirth());
         return newState;
     }
 
@@ -43,20 +42,21 @@ export class IndividualRegisterActions {
         const newState = state.clone(state);
         newState.ageProvidedInYears = action.value;
         newState.individual.setAge(state.age, action.value);
-        const validationResult = newState.individual.validateDateOfBirth();
-        newState.handleValidationResult(validationResult);
+        newState.handleValidationResult(newState.individual.validateDateOfBirth());
         return newState;
     }
 
     static enterIndividualGender(state, action) {
         const newState = state.clone(state);
         newState.individual.gender = action.value;
+        newState.handleValidationResult(newState.individual.validateGender());
         return newState;
     }
 
     static enterIndividualAddressLevel(state, action) {
         const newState = state.clone(state);
         newState.individual.lowestAddressLevel = action.value;
+        newState.handleValidationResult(newState.individual.validateAddress());
         return newState;
     }
 
@@ -74,7 +74,7 @@ export class IndividualRegisterActions {
         if (newState.validationResults.length !== 0 && newState.wizard.isLastPage()) {
             action.validationFailed();
         } else if (newState.wizard.isLastPage()) {
-            context.getService(IndividualService).register(newState.individual);
+            context.get(IndividualService).register(newState.individual);
             action.saved();
         } else if (newState.validationResults.length === 0) {
             newState.moveNext(() => IndividualRegistrationState.getForm(context));
