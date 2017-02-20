@@ -23,6 +23,7 @@ class AddressLevels extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, "addressLevels");
+        this.inputTextStyle = {fontSize: 16, justifyContent: 'flex-start', marginLeft: 11};
     }
 
     toggleAddressLevelSelection(addressLevel) {
@@ -36,6 +37,8 @@ class AddressLevels extends AbstractComponent {
     }
 
     renderChoices() {
+        this.inputTextStyle.color = _.isNil(this.props.validationError) ? Colors.InputNormal : Colors.ValidationError;
+
         const props = this.props;
         return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
                 return (<Row
@@ -49,33 +52,27 @@ class AddressLevels extends AbstractComponent {
                     <Col style={{flex: 1}}>
                         <Row>
                             {this.getSelectComponent(address1)}
-                            <Text style={{
-                                fontSize: 16,
-                                justifyContent: 'flex-start',
-                                marginLeft: 11
-                            }}>{address1.title}</Text>
+                            <Text style={this.inputTextStyle}>{address1.title}</Text>
                         </Row>
                     </Col>
                     <Col style={{flex: 2}}/>
                     <Col style={{flex: 1}}>
-                        <Row>
-                            {this.getSelectComponent(address2)}
-                            <Text style={{
-                                fontSize: 16,
-                                justifyContent: 'flex-start',
-                                marginLeft: 11
-                            }}>{address2.title}</Text>
-                        </Row>
+                        {_.isNil(address2) ? <Row/> :
+                            <Row>
+                                {this.getSelectComponent(address2)}
+                                <Text style={this.inputTextStyle}>{address2.title}</Text>
+                            </Row>}
                     </Col>
-                </Row>)}
-            );
+                </Row>)
+            }
+        );
     }
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
         return (<Grid>
             <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                <Text style={[GlobalStyles.formElementLabel, {color: _.isNil(this.props.validationError) ? Colors.InputLabelNormal : Colors.ValidationError}]}>{I18n.t("lowestAddressLevel")}</Text>
+                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
             </Row>
             {this.renderChoices()}
         </Grid>);
@@ -84,10 +81,10 @@ class AddressLevels extends AbstractComponent {
     getSelectComponent(addressLevel) {
         if (this.props.multiSelect)
             return (<CheckBox checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
-                          onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
+                              onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
         else
             return (<Radio selected={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
-                              onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
+                           onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
     }
 }
 

@@ -14,10 +14,10 @@ class IndividualRegisterViewsMixin {
                 TypedTransition.from(view).with().to(IndividualRegisterFormView);
             },
             validationFailed: (message) => {
-                Alert.alert(this.I18n.t("validationError"), message,
+                Alert.alert(view.I18n.t("validationError"), message,
                     [
                         {
-                            text: this.I18n.t('ok'), onPress: () => {}
+                            text: view.I18n.t('ok'), onPress: () => {}
                         }
                     ]
                 );

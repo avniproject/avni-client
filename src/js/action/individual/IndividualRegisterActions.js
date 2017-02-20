@@ -71,15 +71,12 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         const validationResults = newState.individual.validate();
         newState.handleValidationResults(validationResults);
-        if (newState.validationResults.length !== 0) {
+        if (newState.validationResults.length !== 0 && newState.wizard.isLastPage()) {
             action.validationFailed();
-            return newState;
-        }
-
-        if (newState.wizard.isLastPage()) {
+        } else if (newState.wizard.isLastPage()) {
             context.getService(IndividualService).register(newState.individual);
             action.saved();
-        } else {
+        } else if (newState.validationResults.length === 0) {
             newState.moveNext(() => IndividualRegistrationState.getForm(context));
             action.movedNext();
         }
