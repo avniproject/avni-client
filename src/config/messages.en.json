@@ -10,16 +10,14 @@
   "allQuestionnaireSessionsSummary": "Your data",
   "session": "{{questionnaireName}} - on {{saveDate}}",
   "decisionsMadeBySystem": "Generated data",
-  "viewSavedSessions": "View Data",
-  "zeroNumberOfSessions": "There are no saved sessions",
-  "deleteSessions": "Delete Data",
   "deleteConfirmation": "Do you want to delete all saved sessions?",
-  "numberOfSessions": "There are currently {{count}} sessions.",
 
   "validationError": "Validation Error",
   "numericValueValidation": "Is not a valid number",
   "emptyValidationMessage": "There is no value specified",
   "numberOutOfRangeMessage": "The input number {{value}} out of allowed range",
+  "dateOfBirthCannotBeInFuture": "The date of birth cannot be in future",
+  "ageTooHigh": "Age is person is above 120 years",
 
   "syncError": "Sync Failed",
   "exportError": "Export Failed",

@@ -10,7 +10,8 @@ class TextFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object
+        value: React.PropTypes.string,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -24,7 +25,7 @@ class TextFormElement extends AbstractFormElement {
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </View>
                 <View>
-                    <InputGroup style={{flex: 1}} borderType='underline'>
+                    <InputGroup style={{flex: 1, borderColor: _.isNil(this.props.validationResult) ? 'rgba(0, 0, 0, 0.12)' : '#d0011b'}} borderType='underline'>
                         <Input value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(number) => this.onInputChange(number)} />
                     </InputGroup>
                 </View>

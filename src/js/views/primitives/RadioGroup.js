@@ -3,13 +3,16 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "./DynamicGlobalStyles";
 import {Text, Grid, Row, Radio} from "native-base";
+import _ from 'lodash';
+import Colors from '../primitives/Colors';
 
 class RadioGroup extends AbstractComponent {
     static propTypes = {
         action: React.PropTypes.string.isRequired,
         labelKey: React.PropTypes.string.isRequired,
         labelValuePairs: React.PropTypes.array.isRequired,
-        selectionFn: React.PropTypes.func.isRequired
+        selectionFn: React.PropTypes.func.isRequired,
+        validationError: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -29,7 +32,7 @@ class RadioGroup extends AbstractComponent {
                                 <Radio selected={this.props.selectionFn(radioLabelValue.value)}
                                        onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})}/>
                             </View>
-                            <Text style={DGS.formRadioText}>{this.I18n.t(radioLabelValue.radioLabel)}</Text>
+                            <Text style={[DGS.formRadioText, {color: _.isNil(this.props.validationError) ? Colors.InputLabelNormal : Colors.ValidationError}]}>{this.I18n.t(radioLabelValue.radioLabel)}</Text>
                         </Row>);
                 })}
             </Grid>

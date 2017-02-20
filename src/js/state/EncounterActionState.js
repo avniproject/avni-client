@@ -1,47 +1,20 @@
 import _ from "lodash";
 import ValidationResult from "../models/application/ValidationResult";
+import AbstractDataEntryState from "./AbstractDataEntryState";
 
-class EncounterActionState {
+class EncounterActionState extends AbstractDataEntryState {
     constructor() {
-        this.formElementGroup = null;
+        super();
         this.encounter = null;
-        this.validationResults = [];
         this.encounterDecisions = null;
     }
 
     clone() {
         const newState = new EncounterActionState();
         newState.encounter = this.encounter.cloneForNewEncounter();
-        newState.formElementGroup = this.formElementGroup;
-        newState.validationResults = [];
-        this.validationResults.forEach((validationResult) => {
-            newState.validationResults.push(validationResult.clone());
-        });
+        super.clone(newState);
         newState.encounterDecisions = null;
         return newState;
-    }
-
-    handleValidationResult(validationResult) {
-        _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formElementUUID === validationResult.formElementUUID);
-        if (!validationResult.success) {
-            this.validationResults.push(validationResult);
-        }
-    }
-
-    handleValidationResults(validationResults) {
-        validationResults.forEach((validationResult) => {
-            this.handleValidationResult(validationResult);
-        });
-    }
-
-    moveNext() {
-        const formElementGroup = this.formElementGroup.next();
-        if (!_.isNil(formElementGroup))
-            this.formElementGroup = formElementGroup;
-    }
-
-    movePrevious() {
-        this.formElementGroup = this.formElementGroup.previous();
     }
 }
 

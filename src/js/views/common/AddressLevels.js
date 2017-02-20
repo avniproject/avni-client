@@ -7,12 +7,14 @@ import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
+import Colors from '../primitives/Colors';
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
         multiSelect: React.PropTypes.bool.isRequired,
         selectedAddressLevels: React.PropTypes.array.isRequired,
-        actionName: React.PropTypes.string.isRequired
+        actionName: React.PropTypes.string.isRequired,
+        validationError: React.PropTypes.object
     };
 
     viewName() {
@@ -73,7 +75,7 @@ class AddressLevels extends AbstractComponent {
         const I18n = this.context.getService(MessageService).getI18n();
         return (<Grid>
             <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
+                <Text style={[GlobalStyles.formElementLabel, {color: _.isNil(this.props.validationError) ? Colors.InputLabelNormal : Colors.ValidationError}]}>{I18n.t("lowestAddressLevel")}</Text>
             </Row>
             {this.renderChoices()}
         </Grid>);

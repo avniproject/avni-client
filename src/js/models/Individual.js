@@ -8,6 +8,7 @@ import ProgramEnrolment from "./ProgramEnrolment";
 import Encounter from "./Encounter";
 import Duration from "./Duration";
 import _ from "lodash";
+import ValidationResult from "./application/ValidationResult";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -98,6 +99,38 @@ class Individual extends BaseEntity {
         this.dateOfBirth = moment().subtract(age, isInYears ? 'years' : 'months').toDate();
         this.dateOfBirthVerified = false;
     }
+
+    validateDateOfBirth() {
+        if (_.isNil(this.dateOfBirth)) {
+            return new ValidationResult(false, Individual.validationKeys.DOB, "emptyValidationMessage");
+        } else if (moment(this.dateOfBirth).isAfter(new Date())) {
+            return new ValidationResult(false, Individual.validationKeys.DOB, "dateOfBirthCannotBeInFuture");
+        } else if (this.getAgeInYears() > 120) {
+            return new ValidationResult(false, Individual.validationKeys.DOB, "ageTooHigh");
+        } else {
+            return new ValidationResult(true, Individual.validationKeys.DOB);
+        }
+    }
+
+    validateName() {
+        return _.isEmpty(this.name) ? new ValidationResult(false, Individual.validationKeys.NAME, 'emptyValidationMessage') : ValidationResult.successful();
+    }
+
+    validate() {
+        const validationResults = [];
+        validationResults.push(this.validateName());
+        validationResults.push(this.validateDateOfBirth());
+        validationResults.push(_.isNil(this.gender) ? ValidationResult.failureForEmpty(Individual.validationKeys.GENDER) : ValidationResult.successful());
+        validationResults.push(_.isNil(this.lowestAddressLevel) ? ValidationResult.failureForEmpty(Individual.validationKeys.LOWEST_ADDRESS_LEVEL) : ValidationResult.successful());
+        return validationResults;
+    }
+
+    static validationKeys = {
+        DOB: 'DOB',
+        GENDER: 'GENDER',
+        NAME: 'NAME',
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+    };
 
     static eligiblePrograms(allPrograms, individual) {
         const eligiblePrograms = _.slice(allPrograms);
