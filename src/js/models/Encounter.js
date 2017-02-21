@@ -46,19 +46,11 @@ class Encounter extends ObservationsHolder {
         resource["individualUUID"] = this.individual.uuid;
         resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["observations"] = [];
+        console.log(this.observations);
         this.observations.forEach((obs) => {
-            var obsResource = {conceptUUID: obs.concept.uuid};
-                if(obs.concept.datatype === Concept.dataType.Coded){
-                    if(obs.valueJSON.constructor === SingleCodedValue){
-                        obsResource.valueCoded = [obs.getValue().conceptUUID]
-                    }else {
-                        obsResource.valueCoded = obs.getValue().map((answer) => {return answer.conceptUUID});
-                    }
-                } else {
-                    obsResource.valuePrimitive = obs.getValue();
-                }
-            resource["observations"].push(obsResource);
+            resource["observations"].push(obs.toResource);
         });
+        console.log(resource);
         return resource;
     }
 

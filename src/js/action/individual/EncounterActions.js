@@ -40,13 +40,12 @@ export class EncounterActions {
             return newState;
         }
 
-        console.log(newState.wizard);
         if (newState.wizard.isLastPage()) {
             const decisionSupportValidationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
             if (decisionSupportValidationResult.passed) {
                 var encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
                 context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
-                action.validationSuccessful(encounterDecisions);
+                action.validationSuccessful(encounterDecisions, newState.encounter, newState.formElementGroup);
             } else {
                 action.validationError(decisionSupportValidationResult.message);
             }

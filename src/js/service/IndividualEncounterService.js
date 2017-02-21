@@ -44,11 +44,14 @@ class IndividualEncounterService extends BaseService {
     }
 
     saveOrUpdate(encounter) {
+        console.log("IndividualEncounterService.saveOrUpdate");
+        console.log(encounter.observations);
         encounter.encounterDateTime = new Date();
         encounter.observations.forEach((observation) => {
             observation.valueJSON = JSON.stringify(observation.valueJSON);
         });
 
+        console.log(encounter.observations);
         const db = this.db;
         this.db.write(()=> {
             db.create(Encounter.schema.name, encounter, true);

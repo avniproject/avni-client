@@ -49,6 +49,8 @@ class ConventionalRestClient {
         }
 
         const url = `${this.settingsService.getServerURL()}/${nextItem.metaData.resourceName}s`;
+        console.log("postEntity");
+        console.log(JSON.stringify(nextItem.resource));
         post(url, nextItem.resource, (response) => {
             if (!_.isNil(response.ok) && !response.ok) {
                 console.log(response);

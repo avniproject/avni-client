@@ -12,6 +12,10 @@ class SingleCodedValue {
         return this.answer;
     }
 
+    get toResource() {
+        return [this.answer.conceptUUID];
+    }
+
     cloneForNewEncounter() {
         const singleCodedValue = new SingleCodedValue();
         singleCodedValue.answer = {};

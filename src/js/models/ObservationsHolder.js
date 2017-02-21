@@ -20,13 +20,14 @@ class ObservationsHolder extends BaseEntity {
 
     addOrUpdatePrimitiveObs(concept, value) {
         const observation = this.getObservation(concept);
-        if (_.isEmpty(observation) && !_.isEmpty(_.toString(value)))
-            this.observations.push(Observation.create(concept, new PrimitiveValue(value)));
-        else if (_.isEmpty(_.toString(value))) {
+        if(!_.isEmpty(observation)) {
             _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
-        } else {
-            observation.setPrimitiveAnswer(value);
         }
+        if (!_.isEmpty(_.toString(value))) {
+            this.observations.push(Observation.create(concept, new PrimitiveValue(value, concept.datatype)));
+        }
+        console.log("ObservationsHolder.addOrUpdatePrimitiveObs");
+        console.log(value);
     }
 
     toggleSingleSelectAnswer(concept, answerUUID) {

@@ -35,10 +35,10 @@ class IndividualEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            validationSuccessful: (encounterDecisions) => {
+            validationSuccessful: (encounterDecisions, encounter, formElementGroup) => {
                 TypedTransition.from(this).with({
-                    encounter: this.state.encounter,
-                    previousFormElementGroup: this.state.formElementGroup,
+                    encounter: encounter,
+                    previousFormElementGroup: formElementGroup,
                     encounterDecisions: encounterDecisions
                 }).to(SystemRecommendationView);
             },

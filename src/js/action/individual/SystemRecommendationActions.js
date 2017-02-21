@@ -18,6 +18,7 @@ export class SystemRecommendationActions {
         newState.encounterDecisions = state.encounterDecisions;
         newState.formElementGroup = state.formElementGroup;
         context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
+        action.cb();
         return newState;
     }
 }

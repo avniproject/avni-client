@@ -1,8 +1,8 @@
 import _ from "lodash";
 
 class MultipleCodedValues {
-    constructor() {
-        this.answer = [];
+    constructor(answer) {
+        this.answer = _.isNil(answer) ? [] : answer;
     }
 
     push(answerUUID) {
@@ -38,6 +38,12 @@ class MultipleCodedValues {
 
     getValue() {
         return this.answer;
+    }
+
+    get toResource() {
+        return this.getValue().map((answer) => {
+            return answer.conceptUUID;
+        });
     }
 
     cloneForNewEncounter() {

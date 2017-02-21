@@ -1,8 +1,10 @@
 import moment from "moment";
+import _ from "lodash";
+import Concept from "../Concept";
 
 class PrimitiveValue {
-    constructor(value) {
-        this.answer = value;
+    constructor(value, datatype) {
+        this.answer = this.valueFromString(value, datatype);
     }
 
     asDisplayDate() {
@@ -13,10 +15,22 @@ class PrimitiveValue {
         return this.answer;
     }
 
+    get toResource() {
+        return this.answer;
+    }
+
     cloneForNewEncounter() {
         const primitiveValue = new PrimitiveValue();
         primitiveValue.answer = this.answer;
         return primitiveValue;
+    }
+
+    valueFromString(string, datatype) {
+        if (datatype === Concept.dataType.Numeric) {
+            return _.toNumber(string)
+        }
+        return string;
+
     }
 }
 
