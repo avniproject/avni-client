@@ -1,6 +1,6 @@
-import General from "../utility/General";
+import ReferenceEntity from "./ReferenceEntity";
 
-class Program {
+class Program extends ReferenceEntity {
     static schema = {
         name: 'Program',
         primaryKey: 'uuid',
@@ -11,7 +11,11 @@ class Program {
     };
 
     static fromResource(resource) {
-        return General.assignFields(resource, new Program(), ["uuid", "name"]);
+        return ReferenceEntity.fromResource(resource, new Program());
+    }
+
+    clone() {
+        return super.clone(new Program());
     }
 }
 

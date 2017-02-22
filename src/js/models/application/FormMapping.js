@@ -9,14 +9,14 @@ class FormMapping {
         properties: {
             uuid: 'string',
             form: 'Form',
-            entityId: {type: 'int', optional: true}
+            entityUUID: {type: 'string', optional: true}
         }
     };
 
     static fromResource(resource, entityService) {
         const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
 
-        const formMapping = General.assignFields(resource, new FormMapping(), ["uuid", "entityId"]);
+        const formMapping = General.assignFields(resource, new FormMapping(), ["uuid", "entityUUID"]);
         formMapping.followupType = form;
 
         return formMapping;

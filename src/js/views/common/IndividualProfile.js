@@ -10,6 +10,9 @@ import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import themes from "../primitives/themes";
 import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
+import {IndividualProfileActions as IPA} from "../../action/individual/IndividualProfileActions";
+import ReducerKeys from "../../reducer";
+import _ from 'lodash';
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -21,7 +24,7 @@ class IndividualProfile extends AbstractComponent {
     static buttonTextStyle = {fontSize: 14, color: '#009688'};
 
     constructor(props, context) {
-        super(props, context, "individualProfile");
+        super(props, context, ReducerKeys.individualProfile);
     }
 
     componentWillMount() {
@@ -53,21 +56,21 @@ class IndividualProfile extends AbstractComponent {
                     <Modal
                         animationType={"slide"}
                         transparent={true}
-                        visible={this.state.enrolment.enrolling}
+                        visible={[IPA.enrolFlow.LaunchedEnrol, IPA.enrolFlow.ProgramSelected].includes(this.state.enrolFlowState)}
                         onRequestClose={() => {
                         }}>
                         <Container theme={themes}>
                             <Content contentContainerStyle={{marginTop: 100}}>
                                 <Grid>
                                     <Row style={{backgroundColor: '#fff'}}>
-                                        <RadioGroup action={Actions.PROGRAM_SELECTION}
-                                                    selectionFn={(program) => _.isNil(this.state.enrolment.selectedProgram) ? false : this.state.enrolment.selectedProgram.uuid === program.uuid}
+                                        <RadioGroup action={Actions.SELECTED_PROGRAM}
+                                                    selectionFn={(program) => _.isNil(this.state.enrolment.program) ? false : this.state.enrolment.program.uuid === program.uuid}
                                                     labelKey="selectProgram"
-                                                    labelValuePairs={this.state.enrolment.programs.map((program) => new RadioLabelValue(program.name, program))}/>
+                                                    labelValuePairs={this.state.programs.map((program) => new RadioLabelValue(program.name, program))}/>
                                     </Row>
                                     <Row style={{backgroundColor: '#fff'}}>
-                                        <Button onPress={() => this.enrolInProgram()}>{this.I18n.t('enrol')}</Button>
-                                        <Button onPress={() => this.dispatchAction(Actions.DONOT_CHOOSE_PROGRAM)}>{this.I18n.t('cancel')}</Button>
+                                        <Button onPress={() => this.programSelectionConfirmed()}>{this.I18n.t('enrol')}</Button>
+                                        <Button onPress={() => this.dispatchAction(Actions.CANCELLED_PROGRAM_SELECTION)}>{this.I18n.t('cancel')}</Button>
                                     </Row>
                                 </Grid>
                             </Content>
@@ -93,12 +96,13 @@ class IndividualProfile extends AbstractComponent {
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
                             <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}>
-                                <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle} />{this.I18n.t('editProfile')}</Button>
-                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.enrol()}>
+                                <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('editProfile')}</Button>
+                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.launchChooseProgram()}>
                                 <Icon name="add" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('enrol')}</Button>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
-                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.viewGeneralHistory()}>
+                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}
+                                    onPress={() => this.viewGeneralHistory()}>
                                 <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('generalHistory')}</Button>
                         </Row>
                     </Grid>
@@ -125,18 +129,20 @@ class IndividualProfile extends AbstractComponent {
         this.dispatchAction(Actions.VIEW_GENERAL_HISTORY, {
             cb: () => TypedTransition.from(this).with(
                 {individual: this.props.individual}
-            ).to(IndividualGeneralHistoryView)})
+            ).to(IndividualGeneralHistoryView)
+        })
     }
 
-    enrol() {
-        this.dispatchAction(Actions.NEW_ENROLMENT);
+    launchChooseProgram() {
+        this.dispatchAction(Actions.LAUNCH_CHOOSE_PROGRAM);
     }
 
-    enrolInProgram() {
-        this.dispatchAction(Actions.CHOOSE_PROGRAM, {
-            cb: () => TypedTransition.from(this).with(
-                {individual: this.props.individual, program: this.state.enrolment.selectedProgram}
-                ).to(ProgramEnrolmentView)})
+    programSelectionConfirmed() {
+        this.dispatchAction(Actions.PROGRAM_SELECTION_CONFIRMED, {
+            cb: (newState) => TypedTransition.from(this).with(
+                {individual: this.props.individual, enrolment: newState.enrolment}
+            ).to(ProgramEnrolmentView)
+        })
     }
 }
 

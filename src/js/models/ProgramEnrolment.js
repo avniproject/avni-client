@@ -7,8 +7,9 @@ import BaseEntity from "./BaseEntity";
 import Individual from "./Individual";
 import _ from "lodash";
 import moment from "moment";
+import ObservationsHolder from "./ObservationsHolder";
 
-class ProgramEnrolment extends BaseEntity {
+class ProgramEnrolment extends ObservationsHolder {
     static schema = {
         name: 'ProgramEnrolment',
         primaryKey: 'uuid',
@@ -16,14 +17,22 @@ class ProgramEnrolment extends BaseEntity {
             uuid: 'string',
             program: 'Program',
             enrolmentDateTime: 'date',
+            observations: {type: 'list', objectType: 'Observation'},
             programExitDateTime: {type: 'date', optional: true},
-            programOutcome: {type: 'ProgramOutcome', optional: true},
-            individual: 'Individual',
-            enrolmentProfile: {type: 'list', objectType: 'Observation'},
             programExitObservations: {type: 'list', objectType: 'Observation'},
-            encounters: {type: 'list', objectType: 'ProgramEncounter'}
+            programOutcome: {type: 'ProgramOutcome', optional: true},
+            encounters: {type: 'list', objectType: 'ProgramEncounter'},
+            individual: 'Individual'
         }
     };
+
+    static createSafeInstance() {
+        const programEnrolment = new ProgramEnrolment();
+        programEnrolment.observations = [];
+        programEnrolment.programExitObservations = [];
+        programEnrolment.encounters = [];
+        return programEnrolment;
+    }
 
     get toResource() {
         const resource = _.pick(this, ["uuid"]);
@@ -40,7 +49,7 @@ class ProgramEnrolment extends BaseEntity {
         const programOutcomeUUID = ResourceUtil.getUUIDFor(resource, "programOutcomeUUID");
         const individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
 
-        const programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime", "programExitDateTime"], ["enrolmentProfile", "programExitObservations"]);
+        const programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime", "programExitDateTime"], ["observations", "programExitObservations"]);
         programEnrolment.program = program;
         programEnrolment.individual = individual;
 
@@ -63,6 +72,23 @@ class ProgramEnrolment extends BaseEntity {
 
     static isActive(programEnrolment) {
         return _.isNil(programEnrolment.programExitDateTime);
+    }
+
+    cloneForEdit() {
+        const programEnrolment = new ProgramEnrolment();
+        programEnrolment.program = _.isNil(this.program) ? null : this.program.clone();
+        programEnrolment.enrolmentDateTime = this.enrolmentDateTime;
+        programEnrolment.programExitDateTime = this.programExitDateTime;
+        programEnrolment.programOutcome = _.isNil(this.programOutcome) ? null : this.programOutcome.clone();
+        programEnrolment.individual = this.individual.cloneAsReference();
+        super.clone(programEnrolment);
+        programEnrolment.encounters = [];
+        this.encounters.forEach((enc) => {
+            const programEncounter = new ProgramEncounter();
+            programEncounter.uuid = enc.uuid;
+            programEnrolment.encounters.push(programEncounter);
+        });
+        return programEnrolment;
     }
 }
 

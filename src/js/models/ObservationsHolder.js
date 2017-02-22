@@ -51,6 +51,13 @@ class ObservationsHolder extends BaseEntity {
     toggleMultiSelectAnswer(concept, answerUUID) {
         return this.toggleCodedAnswer(concept, answerUUID, false);
     }
+
+    clone(observationsHolder) {
+        observationsHolder.observations = [];
+        this.observations.forEach((observation) => {
+            observationsHolder.observations.push(observation.cloneForEdit());
+        });
+    }
 }
 
 export default ObservationsHolder;

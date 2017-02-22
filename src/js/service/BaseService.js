@@ -20,10 +20,13 @@ class BaseService {
         return this.findByKey("uuid", uuid, schema);
     }
 
-    findByKey(keyName, value, schemaName) {
+    findAllByKey(keyName, value, schemaName) {
         if (_.isNil(schemaName)) schemaName = this.getSchema();
+        return this.db.objects(schemaName).filtered(`${keyName}="${value}"`);
+    }
 
-        const entities = this.db.objects(schemaName).filtered(`${keyName}="${value}"`);
+    findByKey(keyName, value, schemaName) {
+        const entities = this.findAllByKey(keyName, value, schemaName);
         return entities.length === 1 ? entities[0] : undefined;
     }
 

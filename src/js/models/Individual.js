@@ -163,18 +163,19 @@ class Individual extends ObservationsHolder {
     }
 
     cloneWithoutEncounters() {
+        const individual = this.cloneAsReference();
+        super.clone(individual);
+        return individual;
+    }
+
+    cloneAsReference() {
         const individual = new Individual();
         individual.uuid = this.uuid;
         individual.name = this.name;
         individual.dateOfBirth = this.dateOfBirth;
         individual.dateOfBirthVerified = this.dateOfBirthVerified;
-        individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
-        individual.observations = [];
-        this.observations.forEach((obs) => {
-            individual.observations.push(obs.cloneForEdit());
-        });
-
+        individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
         return individual;
     }
 }

@@ -1,42 +1,58 @@
 import G from '../../utility/General';
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
-import ProgramEnrolment from "../../models/ProgramEnrolment";
+import ProgramEnrolmentState from "./ProgramEnrolmentState";
+import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import Form from '../../models/application/Form';
+import EntityService from "../../service/EntityService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
-        return {};
+        return new ProgramEnrolmentState();
+    }
+
+    static onLoad(state, action, context) {
+        const newState = ProgramEnrolmentActions.getInitialState();
+        const form = context.get(EntityService).findByKey('formType', Form.formTypes.ProgramEnrolment, Form.schema.name);
+        // newState.formElementGroup =
+        newState.enrolment = action.enrolment;
+        return newState;
+    }
+
+    static enrolmentDateTimeChanged(state, action, context) {
+        const newState = state.clone();
+        newState.enrolment.enrolmentDateTime = action.value;
+        return newState;
     }
 
     static confirm(state, action, context) {
-        return G.setNewState(state, function (newState) {
-            context.get(ProgramEnrolmentService).enrol(state.enrolment, action.value);
-        });
+        context.get(ProgramEnrolmentService).launchChooseProgram(state.enrolment, action.value);
     }
 
     static cancel(state, action, context) {
         return state;
     }
-
-    static newEnrolment(state, action, context) {
-        return G.setNewState(state, function(newState) {
-            newState.enrolment = new ProgramEnrolment();
-            newState.enrolment.program = action;
-        });
-    }
 }
 
 const actions = {
-    CONFIRM: "6dd7b7bd-55ca-4b9b-8406-fe6ae2ea41c1",
-    CANCEL: "3f4c5299-95c8-4d36-8f09-43caf686e03a",
-    NEW_ENROLMENT_FOR_PROGRAM: "fbb2cd34-184a-4501-a39a-d5bcfb82f75d"
+    ON_LOAD: "PEA.ON_LOAD",
+    ENROLMENT_DATE_TIME_CHANGED: "PEA.ENROLMENT_DATE_TIME_CHANGED",
+    TOGGLE_MULTISELECT_ANSWER: "PEA.TOGGLE_MULTISELECT_ANSWER",
+    TOGGLE_SINGLESELECT_ANSWER: "PEA.TOGGLE_SINGLESELECT_ANSWER",
+    PRIMITIVE_VALUE_CHANGE: 'PEA.PRIMITIVE_VALUE_CHANGE',
+    CONFIRM: "PEA.CONFIRM",
+    CANCEL: "PEA.CANCEL",
 };
 
 const _ProgramEnrolmentActions = new ProgramEnrolmentActions();
 
 export default new Map([
+    [actions.ON_LOAD, ProgramEnrolmentActions.onLoad],
+    [actions.ENROLMENT_DATE_TIME_CHANGED, ProgramEnrolmentActions.enrolmentDateTimeChanged],
+    [actions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
+    [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
+    [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
     [actions.CONFIRM, ProgramEnrolmentActions.confirm],
     [actions.CANCEL, ProgramEnrolmentActions.cancel],
-    [actions.NEW_ENROLMENT_FOR_PROGRAM, ProgramEnrolmentActions.newEnrolment]
 ]);
 
 export {actions as Actions};

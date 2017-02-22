@@ -1,9 +1,8 @@
-import {View, StyleSheet,  DatePickerAndroid} from "react-native";
+import {View, StyleSheet, DatePickerAndroid} from "react-native";
 import React, {Component} from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, Row} from "native-base";
+import {Text} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
-import _ from 'lodash';
+import _ from "lodash";
 import General from "../../utility/General";
 import AbstractFormElement from "./AbstractFormElement";
 

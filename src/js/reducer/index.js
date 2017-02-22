@@ -28,7 +28,7 @@ const reducerMapFn = function (beanStore) {
     reducerMap.individualSearch = add(IndividualSearchActions, {searchCriteria: IndividualSearchCriteria.empty(), individualSearchResults: []});
     reducerMap.addressLevels = add(new Map([]), beanStore.get(EntityService).getAll(AddressLevel.schema.name));
     reducerMap[reducerKeys.individualRegister] = add(IndividualRegisterActionMap, IndividualRegisterActions.getInitialState(beanStore));
-    reducerMap.individualProfile = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.individualProfile] = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
     reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions.getInitialState(beanStore));
     reducerMap[reducerKeys.encounter] = add(IndividualEncounterViewActionsMap, EncounterActions.getInitialState(beanStore));
@@ -42,7 +42,8 @@ const reducerKeys = {
     individualGeneralHistory: "individualGeneralHistory",
     encounter: "encounter",
     systemRecommendation: "systemRecommendation",
-    individualRegister: "individualRegister"
+    individualRegister: "individualRegister",
+    individualProfile: 'individualProfile'
 };
 
 export {reducerMapFn as initReducers};

@@ -1,4 +1,6 @@
-class ProgramOutcome {
+import ReferenceEntity from "./ReferenceEntity";
+
+class ProgramOutcome extends ReferenceEntity {
     static schema = {
         name: 'ProgramOutcome',
         primaryKey: 'uuid',

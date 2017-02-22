@@ -58,10 +58,7 @@ class Encounter extends ObservationsHolder {
         encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
         encounter.encounterDateTime = this.encounterDateTime;
         encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneWithoutEncounters();
-        encounter.observations = [];
-        this.observations.forEach((observation) => {
-            encounter.observations.push(observation.cloneForEdit());
-        });
+        super.clone(encounter);
         return encounter;
     }
 }

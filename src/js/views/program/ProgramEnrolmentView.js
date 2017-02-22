@@ -4,10 +4,13 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import Path from "../../framework/routing/Path";
-import {Content, Grid, Row, Container, Button} from "native-base";
+import {Content, Container, Button} from "native-base";
 import themes from "../primitives/themes";
 import ReducerKeys from "../../reducer";
 import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
+import StaticFormElement from "../viewmodel/StaticFormElement";
+import DateFormElement from "../form/DateFormElement";
+import FormElementGroup from "../form/FormElementGroup";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -24,23 +27,27 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.NEW_ENROLMENT_FOR_PROGRAM, this.props.params.program);
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.params.enrolment});
         return super.componentWillMount();
+    }
+
+    next() {
+        this.dispatchAction(Actions.NEXT);
     }
 
     render() {
         return (<Container theme={themes}>
             <Content>
-                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.params.program.name})}/>
-                <Grid style={{marginLeft: 10, marginRight: 10}}>
-                    <Row style={{height: 263}}>
-                        <IndividualProfile landingView={false} individual={this.props.params.individual}/>
-                    </Row>
-                    <Row>
-                        <Button onPress={() => this.dispatchAction(Actions.CANCEL)}>{this.I18n.t('cancel')}</Button>
-                        <Button onPress={() => this.dispatchAction(Actions.CONFIRM, {value: this.props.params.individual})}>{this.I18n.t('confirm')}</Button>
-                    </Row>
-                </Grid>
+                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.state.enrolment.program.name})}/>
+                <View style={{marginLeft: 10, marginRight: 10, flowDirection: 'column'}}>
+                    <View style={{height: 263}}>
+                        <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/>
+                    </View>
+                    <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement()} dateValue={this.state.enrolment.enrolmentDateTime}/>
+                    <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment} validationResults={this.state.validationResults} />
+                    <WizardButtons previous={{visible: false}}
+                                   next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
+                </View>
             </Content>
         </Container>);
     }
