@@ -40,6 +40,10 @@ class Form {
         return _.find(this.formElementGroups, (formElementGroup) => formElementGroup.displayOrder === displayOrder);
     }
 
+    get numberOfPages() {
+        return this.formElementGroups.length;
+    }
+
     static formTypes = {
         IndividualProfile: 'IndividualProfile',
         Encounter: 'Encounter',

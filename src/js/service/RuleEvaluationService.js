@@ -15,8 +15,10 @@ class RuleEvaluationService extends BaseService {
     init() {
         this.decorateEncounter();
         const exports = eval(this.getEncounterDecisionEvalExpression());
-        this.encounterDecisionFn = exports.getDecision;
-        this.encounterValidationFn = exports.validate;
+        if (!_.isNil(exports)) {
+            this.encounterDecisionFn = exports.getDecision;
+            this.encounterValidationFn = exports.validate;
+        }
         return super.init();
     }
 
@@ -33,7 +35,9 @@ class RuleEvaluationService extends BaseService {
 
     getEncounterDecisionEvalExpression() {
         const decisionConfig = this.getService(ConfigFileService).getDecisionConfig();
-        return `${decisionConfig.contents}`;
+        if (!_.isNil(decisionConfig))
+            return `${decisionConfig.contents}`;
+        return null;
     }
 
     validateEncounter(encounter) {

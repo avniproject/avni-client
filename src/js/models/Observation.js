@@ -63,7 +63,6 @@ class Observation {
     getValue() {
         if (_.isString(this.valueJSON)) {
             let answer = JSON.parse(this.valueJSON).answer;
-            console.log(`${this.valueJSON} ${_.isArray(answer)} ${this.concept.datatype}`);
             if (this.concept.datatype === Concept.dataType.Coded) {
                 return _.isArray(answer) ? new MultipleCodedValues(answer) : new SingleCodedValue(answer.conceptUUID);
             } else {

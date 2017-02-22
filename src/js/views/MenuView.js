@@ -12,6 +12,7 @@ import EntityService from "../service/EntityService";
 import MessageService from "../service/MessageService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from '../views/primitives/DynamicGlobalStyles';
+import {IndividualEncounterViewActions as Actions} from "../action/individual/EncounterActions";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -53,6 +54,7 @@ class MenuView extends AbstractComponent {
 
     _postSync() {
         setTimeout(() => this.setState({syncing: false, error: false}), 5000);
+        this.dispatchAction(Actions.ON_SYNC)
     }
 
     _onError(error) {

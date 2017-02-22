@@ -11,8 +11,18 @@ export class EncounterActions {
     static getInitialState(context) {
         const encounterActionState = new EncounterActionState();
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        encounterActionState.wizard = new Wizard(form.formElementGroups.length, 1);
+        if(!_.isNil(form))
+            encounterActionState.wizard = new Wizard(form.numberOfPages, 1);
         return encounterActionState;
+    }
+
+    static onSync(state, action, context) {
+        const newState = state.clone();
+        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
+        if(!_.isNil(form))
+            newState.wizard = new Wizard(form.numberOfPages, 1);
+        return newState;
+
     }
 
     static onNewEncounter(state, action, context) {
@@ -75,7 +85,8 @@ const individualEncounterViewActions = {
     TOGGLE_MULTISELECT_ANSWER: "c5407cf4-f37a-4568-9d56-ffba58a3bafe",
     TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
     PRIMITIVE_VALUE_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
-    ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c'
+    ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c',
+    ON_SYNC: '23821a58-0cbb-40ba-a828-16110a153851'
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -87,7 +98,9 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
     [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
-    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange]
+    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
+    [individualEncounterViewActions.ON_SYNC, EncounterActions.onSync],
+
 ]);
 
 export {
