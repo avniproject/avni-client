@@ -47,10 +47,10 @@ describe('EncounterActionsTest', () => {
     it('validateNumericField without validation error', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 1, formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
         expect(newState.encounter.observations[0].getValueWrapper().getValue()).is.equal(1);
-        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: 11, formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '11', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
     });
 
@@ -100,7 +100,7 @@ describe('EncounterActionsTest', () => {
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         multiSelectFormElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer('ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f')];
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 1, formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
 
         newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: multiSelectFormElement});
@@ -118,8 +118,8 @@ describe('EncounterActionsTest', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
         const anotherNumericFormElement = createFormElement(Concept.dataType.Numeric, false, 'c2c3a7a7-6b6f-413b-8f4c-9785a6c04b5e');
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 14, formElement: formElement});
-        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: 10, formElement: anotherNumericFormElement});
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '14', formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '10', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(2);
         newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(1);
@@ -132,7 +132,9 @@ describe('EncounterActionsTest', () => {
         verifyFormElementAndObservations(newState, 1, 0);
         newState = EncounterActions.onNext(newState);
         verifyFormElementAndObservations(newState, 1, 0);
-        newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 10, formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        verifyFormElementAndObservations(newState, 0, 1);
+        newState = EncounterActions.onNext(newState, {cb: () => {}});
         verifyFormElementAndObservations(newState, 0, 1);
     });
 });

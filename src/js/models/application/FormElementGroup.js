@@ -59,7 +59,7 @@ class FormElementGroup {
         const validationResults = [];
         this.formElements.forEach((formElement) => {
             const observation = encounter.findObservation(formElement.concept);
-            const validationResult = formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
+            const validationResult = formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper().getValue());
             validationResults.push(validationResult);
         });
         return validationResults;

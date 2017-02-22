@@ -6,7 +6,7 @@ class ObservationsHolderActions {
         const newState = state.clone();
         const validationResult = action.formElement.validate(action.value);
         newState.handleValidationResult(validationResult);
-        if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && !_.isNumber(action.value))
+        if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
 
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
