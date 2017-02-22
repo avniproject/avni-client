@@ -30,7 +30,7 @@ export class EncounterActions {
         newState.encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
         newState.wizard.reset();
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        newState.formElementGroup = form.formElementGroups[0];
+        newState.formElementGroup = form.firstFormElementGroup;
         return newState;
     }
 

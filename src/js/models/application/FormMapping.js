@@ -16,8 +16,9 @@ class FormMapping {
     static fromResource(resource, entityService) {
         const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
 
-        const formMapping = General.assignFields(resource, new FormMapping(), ["uuid", "entityUUID"]);
-        formMapping.followupType = form;
+        const formMapping = General.assignFields(resource, new FormMapping(), ["uuid"]);
+        formMapping.entityUUID = ResourceUtil.getUUIDFor(resource, "entityUUID");
+        formMapping.form = form;
 
         return formMapping;
     }

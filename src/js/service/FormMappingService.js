@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import Form from '../models/application/Form';
+import FormMapping from "../models/application/FormMapping";
 
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
@@ -8,9 +8,9 @@ class FormMappingService extends BaseService {
         super(db, beanStore);
     }
 
-    findForm(formType, entityUUID) {
-        if (formType === Form.formTypes.ProgramEnrolment)
-            const forms = this.findAllByKey('formType', formType, Form.schema.name);
+    findForm(formType, entity) {
+        const formMapping = this.findByKey('entityUUID', entity.uuid, FormMapping.schema.name);
+        return formMapping.form;
     }
 }
 

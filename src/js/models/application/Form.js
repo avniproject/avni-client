@@ -44,6 +44,10 @@ class Form {
         return this.formElementGroups.length;
     }
 
+    get firstFormElementGroup() {
+        return this.formElementGroups.length === 0 ? null : this.formElementGroups[0];
+    }
+
     static formTypes = {
         IndividualProfile: 'IndividualProfile',
         Encounter: 'Encounter',

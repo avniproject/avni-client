@@ -31,7 +31,7 @@ class AbstractDataEntryState {
         this.wizard.moveNext();
         if (this.wizard.isFirstFormPage()) {
             const form = getForm();
-            this.formElementGroup = form.formElementGroups[0];
+            this.formElementGroup = form.firstFormElementGroup;
         } else {
             this.formElementGroup = this.formElementGroup.next();
         }

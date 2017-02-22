@@ -4,6 +4,7 @@ import ProgramEnrolmentState from "./ProgramEnrolmentState";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import Form from '../../models/application/Form';
 import EntityService from "../../service/EntityService";
+import FormMappingService from "../../service/FormMappingService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -12,9 +13,9 @@ export class ProgramEnrolmentActions {
 
     static onLoad(state, action, context) {
         const newState = ProgramEnrolmentActions.getInitialState();
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.ProgramEnrolment, Form.schema.name);
-        // newState.formElementGroup =
         newState.enrolment = action.enrolment;
+        const form = context.get(FormMappingService).findForm(Form.formTypes.ProgramEnrolment, newState.enrolment.program);
+        newState.formElementGroup = form.firstFormElementGroup;
         return newState;
     }
 
