@@ -72,7 +72,7 @@ class FormElementGroup extends AbstractComponent {
 
     getSelectedAnswer(concept, nullReplacement) {
         const observation = this.props.observationHolder.findObservation(concept);
-        return _.isNil(observation) ? nullReplacement : observation.valueJSON;
+        return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
     }
 }
 

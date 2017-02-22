@@ -26,8 +26,6 @@ class ObservationsHolder extends BaseEntity {
         if (!_.isEmpty(_.toString(value))) {
             this.observations.push(Observation.create(concept, new PrimitiveValue(value, concept.datatype)));
         }
-        console.log("ObservationsHolder.addOrUpdatePrimitiveObs");
-        console.log(value);
     }
 
     toggleSingleSelectAnswer(concept, answerUUID) {

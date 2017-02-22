@@ -46,11 +46,9 @@ class Encounter extends ObservationsHolder {
         resource["individualUUID"] = this.individual.uuid;
         resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["observations"] = [];
-        console.log(this.observations);
         this.observations.forEach((obs) => {
             resource["observations"].push(obs.toResource);
         });
-        console.log(resource);
         return resource;
     }
 

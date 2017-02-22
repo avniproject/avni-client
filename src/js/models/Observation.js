@@ -39,7 +39,7 @@ class Observation {
         } else if (observation.valueJSON.constructor === SingleCodedValue) {
             return conceptService.getConceptByUUID(observation.valueJSON.getValue()).name;
         } else if (observation.valueJSON.constructor === MultipleCodedValues) {
-            return _.join(observation.getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
+            return _.join(observation.getValueWrapper().getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
         } else {
             return observation.valueJSON.getValue();
         }
@@ -60,7 +60,7 @@ class Observation {
         return observation;
     }
 
-    getValue() {
+    getValueWrapper() {
         if (_.isString(this.valueJSON)) {
             let answer = JSON.parse(this.valueJSON).answer;
             if (this.concept.datatype === Concept.dataType.Coded) {
@@ -69,15 +69,15 @@ class Observation {
                 return new PrimitiveValue(answer, this.concept.datatype);
             }
         }
-        else return this.valueJSON.getValue();
+        else return this.valueJSON;
     }
 
     get toResource() {
         const obsResource = {conceptUUID: this.concept.uuid};
         if (this.concept.datatype === Concept.dataType.Coded)
-            obsResource.valueCoded = this.getValue().toResource;
+            obsResource.valueCoded = this.getValueWrapper().toResource;
         else
-            obsResource.valuePrimitive = this.getValue().toResource;
+            obsResource.valuePrimitive = this.getValueWrapper().toResource;
         return obsResource;
     }
 }

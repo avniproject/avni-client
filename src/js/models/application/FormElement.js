@@ -63,8 +63,7 @@ class FormElement {
     validate(value) {
         const failure = new ValidationResult(false, this.uuid);
         if (this.mandatory &&
-            ((this.concept.datatype !== Concept.dataType.Numeric && _.isEmpty(value)) ||
-            (this.concept.datatype === Concept.dataType.Numeric && _.isEmpty(_.toString(value))))) {
+            ((_.isEmpty(_.toString(value))))) {
             failure.messageKey = 'emptyValidationMessage';
         }
         else if (this.concept.datatype === Concept.dataType.Numeric && isNaN(value)) {

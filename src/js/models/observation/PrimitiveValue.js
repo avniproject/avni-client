@@ -1,4 +1,3 @@
-import moment from "moment";
 import _ from "lodash";
 import Concept from "../Concept";
 
@@ -30,7 +29,10 @@ class PrimitiveValue {
             return _.toNumber(string)
         }
         return string;
+    }
 
+    getValue() {
+        return this.answer;
     }
 }
 

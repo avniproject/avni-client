@@ -2,11 +2,14 @@ import {expect} from "chai";
 import {EncounterActions} from "../../js/action/individual/EncounterActions";
 import ObservationsHolderActions from "../../js/action/common/ObservationsHolderActions";
 import Encounter from "../../js/models/Encounter";
+import Observation from "../../js/models/Observation";
 import FormElement from "../../js/models/application/FormElement";
 import Concept, {ConceptAnswer} from "../../js/models/Concept";
 import EntityFactory from "../models/EntityFactory";
 import Wizard from "../../js/state/Wizard";
 import EncounterActionState from "../../js/state/EncounterActionState";
+import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
+
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
@@ -46,7 +49,7 @@ describe('EncounterActionsTest', () => {
 
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 1, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
-        expect(newState.encounter.observations[0].getValue()).is.equal(1);
+        expect(newState.encounter.observations[0].getValueWrapper().getValue()).is.equal(1);
         newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: 11, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
     });
@@ -63,7 +66,10 @@ describe('EncounterActionsTest', () => {
     it('numeric field with a string', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
         const newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 'a', formElement: formElement});
-        expect(newState.encounter.observations[0].getValue()).is.equal('a');
+        expect(newState.encounter.observations.length).is.equal(0);
+        newState.encounter.observations.push(Observation.create(formElement.concept, new PrimitiveValue(10, Concept.dataType.Numeric)));
+        const newerState = ObservationsHolderActions.onPrimitiveObs(newState, {value: 'a', formElement: formElement});
+        expect(newerState.encounter.observations[0].getValueWrapper().getValue()).is.equal(10);
     });
 
     it('validateMultiSelect field when it is mandatory', () => {
@@ -117,12 +123,13 @@ describe('EncounterActionsTest', () => {
         expect(newState.encounter.observations.length).is.equal(2);
         newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(1);
-        expect(newState.encounter.observations[0].getValue()).is.equal(14);
+        expect(newState.encounter.observations[0].getValueWrapper().getValue()).is.equal(14);
     });
 
     it('next should not be allowed if there are validation errors', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: formElement});
+        verifyFormElementAndObservations(newState, 1, 0);
         newState = EncounterActions.onNext(newState);
         verifyFormElementAndObservations(newState, 1, 0);
         newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 10, formElement: formElement});
