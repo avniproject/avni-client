@@ -54,7 +54,7 @@ class MenuView extends AbstractComponent {
 
     _postSync() {
         setTimeout(() => this.setState({syncing: false, error: false}), 5000);
-        this.dispatchAction(Actions.ON_SYNC)
+        this.dispatchAction(Actions.ON_SYNC_COMPLETED)
     }
 
     _onError(error) {

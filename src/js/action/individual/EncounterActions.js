@@ -9,27 +9,14 @@ import Wizard from "../../state/Wizard";
 
 export class EncounterActions {
     static getInitialState(context) {
-        const encounterActionState = new EncounterActionState();
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        if(!_.isNil(form))
-            encounterActionState.wizard = new Wizard(form.numberOfPages, 1);
-        return encounterActionState;
-    }
-
-    static onSync(state, action, context) {
-        const newState = state.clone();
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        if(!_.isNil(form))
-            newState.wizard = new Wizard(form.numberOfPages, 1);
-        return newState;
-
+        return new EncounterActionState();
     }
 
     static onNewEncounter(state, action, context) {
         const newState = state.clone();
         newState.encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
-        newState.wizard.reset();
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
+        newState.wizard = new Wizard(form.numberOfPages, 1);
         newState.formElementGroup = form.firstFormElementGroup;
         return newState;
     }
@@ -86,7 +73,7 @@ const individualEncounterViewActions = {
     TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
     PRIMITIVE_VALUE_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
     ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c',
-    ON_SYNC: '23821a58-0cbb-40ba-a828-16110a153851'
+    ON_SYNC_COMPLETED: 'ON_SYNC_COMPLETED'
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -98,8 +85,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
     [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
-    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
-    [individualEncounterViewActions.ON_SYNC, EncounterActions.onSync],
+    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange]
 
 ]);
 

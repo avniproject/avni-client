@@ -32,7 +32,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.LOAD_HISTORY, this.props.params.individual);
+        this.dispatchAction(Actions.LOAD_HISTORY, {individual: this.props.params.individual});
         return super.componentWillMount();
     }
 
