@@ -91,6 +91,5 @@ export default class Concept {
         if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
 
         return (value < this.lowAbsolute || value > this.hiAbsolute);
-
     }
 }

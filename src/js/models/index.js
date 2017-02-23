@@ -30,13 +30,21 @@ import ConfigFile from "./ConfigFile";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile],
-    schemaVersion: 13,
+    schemaVersion: 14,
     migration: function(oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
             oldObjects.forEach((decisionConfig) => {
                 newDB.create(ConfigFile.schema.name, ConfigFile.create(decisionConfig.fileName, decisionConfig.decisionCode), true);
             });
+        }
+        else if (oldDB.schemaVersion < 14) {
+            var oldObjects = oldDB.objects('AddressLevel');
+            var newObjects = newDB.objects('AddressLevel');
+
+            for (var i = 0; i < oldObjects.length; i++) {
+                newObjects[i].name = oldObjects[i].title;
+            }
         }
     }
 };

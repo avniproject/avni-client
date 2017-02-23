@@ -17,6 +17,10 @@ class Program extends ReferenceEntity {
     clone() {
         return super.clone(new Program());
     }
+
+    static addTranslation(program, messageService) {
+        messageService.addTranslation('en', program.name, program.name);
+    }
 }
 
 export default Program;

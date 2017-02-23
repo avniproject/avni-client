@@ -8,6 +8,7 @@ import EntitySyncStatus from "../models/EntitySyncStatus";
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import ConfigFileService from "./ConfigFileService";
+import MessageService from "./MessageService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -26,6 +27,7 @@ class SyncService extends BaseService {
         this.entityService = this.getService(EntityService);
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
         this.configFileService = this.getService(ConfigFileService);
+        this.messageService = this.getService(MessageService);
     }
 
     sync(allEntitiesMetaData, start, done, onError) {
@@ -67,6 +69,9 @@ class SyncService extends BaseService {
         resourcesWithSameTimeStamp.forEach((resource) => {
             const entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
             this.entityService.saveOrUpdate(entity, entityModel.entityName);
+            if (entityModel.nameTranslated) {
+                this.messageService.addTranslation('en', entity.name, entity.name);
+            }
 
             if (!_.isNil(entityModel.parent)) {
                 const parentEntity = entityModel.parent.entityClass.associateChild(entity, entityModel.entityClass, resource, this.getService(EntityService));

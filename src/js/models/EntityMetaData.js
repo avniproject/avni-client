@@ -19,39 +19,39 @@ import FormElement from "./application/FormElement";
 import FormMapping from "./application/FormMapping";
 
 class EntityMetaData {
-    static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference"};
-    static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference"};
-    static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference"};
-    static followupType = {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference"};
-    static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference"};
-    static program = {entityName: "Program", entityClass: Program, resourceName: "program", type: "reference"};
-    static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference"};
-    static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference"};
-    static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference"};
+    static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
+    static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference", nameTranslated: false};
+    static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference", nameTranslated: true};
+    static followupType = {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference", nameTranslated: true};
+    static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference", nameTranslated: false};
+    static program = {entityName: "Program", entityClass: Program, resourceName: "program", type: "reference", nameTranslated: true};
+    static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
+    static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference", nameTranslated: true};
+    static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"};
 
     static encounter() {
-        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual}
+        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
     };
 
     static programEnrolment() {
-        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual};
+        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
     }
 
     static formElement() {
-        return {entityName: "FormElement", entityClass: FormElement, resourceName: "formElement", type: "reference", parent: EntityMetaData.formElementGroup()};
+        return {entityName: "FormElement", entityClass: FormElement, resourceName: "formElement", type: "reference", parent: EntityMetaData.formElementGroup(), nameTranslated: false};
     }
 
     static formElementGroup() {
-        return {entityName: "FormElementGroup", entityClass: FormElementGroup, resourceName: "formElementGroup", type: "reference", parent: EntityMetaData.form};
+        return {entityName: "FormElementGroup", entityClass: FormElementGroup, resourceName: "formElementGroup", type: "reference", parent: EntityMetaData.form, nameTranslated: false};
     };
 
     static programEncounter() {
-        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment()};
+        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
     };
 
     static conceptAnswer() {
-        return {entityName: "ConceptAnswer", entityClass: ConceptAnswer, resourceName: "conceptAnswer", type: "reference", parent: EntityMetaData.concept};
+        return {entityName: "ConceptAnswer", entityClass: ConceptAnswer, resourceName: "conceptAnswer", type: "reference", parent: EntityMetaData.concept, nameTranslated: false};
     };
 
     //order is important. last entity in each (tx and ref) with be executed first
