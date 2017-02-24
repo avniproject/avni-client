@@ -35,13 +35,13 @@ class Observation {
 
     static valueAsString(observation, conceptService) {
         if (observation.concept.datatype === Concept.dataType.Date) {
-            return observation.valueJSON.asDisplayDate();
-        } else if (observation.valueJSON.constructor === SingleCodedValue) {
+            return observation.getValueWrapper().asDisplayDate();
+        } else if (observation.getValueWrapper().constructor === SingleCodedValue) {
             return conceptService.getConceptByUUID(observation.valueJSON.getValue()).name;
-        } else if (observation.valueJSON.constructor === MultipleCodedValues) {
+        } else if (observation.getValueWrapper().constructor === MultipleCodedValues) {
             return _.join(observation.getValueWrapper().getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
         } else {
-            return observation.valueJSON.getValue();
+            return _.toString(observation.getValueWrapper().getValue());
         }
     }
 
