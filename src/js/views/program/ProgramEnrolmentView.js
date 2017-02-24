@@ -11,6 +11,7 @@ import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/DateFormElement";
 import FormElementGroup from "../form/FormElementGroup";
+import WizardButtons from "../common/WizardButtons";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -43,7 +44,7 @@ class ProgramEnrolmentView extends AbstractComponent {
                     <View style={{height: 263}}>
                         <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/>
                     </View>
-                    <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement()} dateValue={this.state.enrolment.enrolmentDateTime}/>
+                    <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement('enrolmentDate')} dateValue={this.state.enrolment.enrolmentDateTime}/>
                     <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment} validationResults={this.state.validationResults} />
                     <WizardButtons previous={{visible: false}}
                                    next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>

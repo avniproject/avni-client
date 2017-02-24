@@ -14,7 +14,7 @@ export class ProgramEnrolmentActions {
     static onLoad(state, action, context) {
         const newState = ProgramEnrolmentActions.getInitialState();
         newState.enrolment = action.enrolment;
-        const form = context.get(FormMappingService).findForm(Form.formTypes.ProgramEnrolment, newState.enrolment.program);
+        const form = context.get(FormMappingService).findForm(newState.enrolment.program);
         newState.formElementGroup = form.firstFormElementGroup;
         return newState;
     }

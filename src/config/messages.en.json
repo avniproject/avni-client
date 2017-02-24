@@ -60,5 +60,6 @@
   "generalHistory": "General History",
   "noEncounters": "No previous visits",
   "registration": "Registration",
-  "mandatory": "MANDATORY"
+  "mandatory": "MANDATORY",
+  "enrolmentDate": "Enrolment Date"
 }

@@ -8,7 +8,7 @@ class FormMappingService extends BaseService {
         super(db, beanStore);
     }
 
-    findForm(formType, entity) {
+    findForm(entity) {
         const formMapping = this.findByKey('entityUUID', entity.uuid, FormMapping.schema.name);
         return formMapping.form;
     }
