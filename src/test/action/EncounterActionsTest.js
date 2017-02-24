@@ -10,7 +10,6 @@ import Wizard from "../../js/state/Wizard";
 import EncounterActionState from "../../js/state/EncounterActionState";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
 
-
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
     formElement.mandatory = mandatory;
