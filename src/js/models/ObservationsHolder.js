@@ -38,13 +38,13 @@ class ObservationsHolder extends BaseEntity {
             observation = Observation.create(concept, isSingleSelect ? new SingleCodedValue(answerUUID) : new MultipleCodedValues().push(answerUUID));
             this.observations.push(observation);
             return observation;
-        }
-        else {
+        } else {
             isSingleSelect ? observation.toggleSingleSelectAnswer(answerUUID) : observation.toggleMultiSelectAnswer(answerUUID);
             if (observation.hasNoAnswer()) {
                 _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
+                return null;
             }
-            return null;
+            return observation;
         }
     }
 

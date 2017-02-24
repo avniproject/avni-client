@@ -25,7 +25,7 @@ let createIntialState = function (dataType, mandatory) {
     state.wizard = new Wizard(2, 1);
     const formElement = createFormElement(dataType, mandatory, 'bfc28bad-5fac-4760-921d-eec83f52c3da');
     state.encounter = Encounter.create();
-    state.formElementGroup = EntityFactory.createFormElementGroup('', 1, EntityFactory.createForm());
+    state.formElementGroup = EntityFactory.createFormElementGroup('FooConcept', 1, EntityFactory.createForm());
     state.formElementGroup.addFormElement(formElement);
     return {state, formElement};
 };
@@ -42,6 +42,10 @@ let verifyFormElementAndObservations = function (newState, numberOfValidationErr
     expect(newState.validationResults.length).is.equal(numberOfValidationErrors, JSON.stringify(newState.validationResults));
     expect(newState.encounter.observations.length).is.equal(numberOfObs, JSON.stringify(newState.encounter.observations));
 };
+
+function verifyObservationValues(newState, numberOfValues) {
+    expect(newState.encounter.observations[0].getValueWrapper().getValue().length).is.equal(numberOfValues, JSON.stringify(newState.encounter.observations));
+}
 
 describe('EncounterActionsTest', () => {
     it('validateNumericField without validation error', () => {
@@ -75,11 +79,21 @@ describe('EncounterActionsTest', () => {
     it('validateMultiSelect field when it is mandatory', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Coded, true);
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
-        formElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer('ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f')];
+        const answerUUID2 = 'ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f';
+        formElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer(answerUUID2)];
         var newState = ObservationsHolderActions.toggleMultiSelectAnswer(state, {answerUUID: answerUUID, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
+        verifyObservationValues(newState, 1);
+
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID2, formElement: formElement});
+        verifyFormElementAndObservations(newState, 0, 1);
+        verifyObservationValues(newState, 2);
 
         newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: formElement});
+        verifyFormElementAndObservations(newState, 0, 1);
+        verifyObservationValues(newState, 1);
+
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID2, formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
     });
 
