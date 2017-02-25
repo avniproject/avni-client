@@ -40,14 +40,14 @@ class ProgramEnrolmentView extends AbstractComponent {
         return (<Container theme={themes}>
             <Content>
                 <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.state.enrolment.program.name})}/>
-                <View style={{marginLeft: 10, marginRight: 10, flowDirection: 'column'}}>
-                    <View style={{height: 263}}>
-                        <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/>
-                    </View>
-                    <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement('enrolmentDate')} dateValue={this.state.enrolment.enrolmentDateTime}/>
-                    <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment} validationResults={this.state.validationResults} />
+                <View style={{marginLeft: 10, marginRight: 10, flexDirection: 'column'}}>
+                    <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/>
+                    <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement('enrolmentDate')}
+                                     dateValue={this.state.enrolment.enrolmentDateTime}/>
+                    <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment}
+                                      validationResults={this.state.validationResults}/>
                     <WizardButtons previous={{visible: false}}
-                                   next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
+                                   next={{func: () => this.next(), visible: true, label: this.I18n.t(this.state.wizard.isLastPage() ? 'enrol' : 'next')}} nextDisabled={this.state.validationResults.length !== 0}/>
                 </View>
             </Content>
         </Container>);

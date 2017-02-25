@@ -20,12 +20,11 @@ let createFormElement = function (dataType, mandatory, conceptUUID) {
 };
 
 let createIntialState = function (dataType, mandatory) {
-    const state = new EncounterActionState();
-    state.wizard = new Wizard(2, 1);
     const formElement = createFormElement(dataType, mandatory, 'bfc28bad-5fac-4760-921d-eec83f52c3da');
+    const formElementGroup = EntityFactory.createFormElementGroup('FooConcept', 1, EntityFactory.createForm());
+    formElementGroup.addFormElement(formElement);
+    const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1));
     state.encounter = Encounter.create();
-    state.formElementGroup = EntityFactory.createFormElementGroup('FooConcept', 1, EntityFactory.createForm());
-    state.formElementGroup.addFormElement(formElement);
     return {state, formElement};
 };
 

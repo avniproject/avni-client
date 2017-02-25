@@ -10,10 +10,8 @@ class Wizard {
     }
 
     clone() {
-        const wizard = new Wizard();
-        wizard.numberOfPages = this.numberOfPages;
+        const wizard = new Wizard(this.numberOfPages, this.formStartsAt);
         wizard.currentPage = this.currentPage;
-        wizard.formStartsAt = this.formStartsAt;
         return wizard;
     }
 

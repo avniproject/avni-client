@@ -1,9 +1,10 @@
 import _ from "lodash";
 
 class AbstractDataEntryState {
-    constructor() {
-        this.validationResults = [];
-        this.formElementGroup = null;
+    constructor(validationResults, formElementGroup, wizard) {
+        this.validationResults = validationResults;
+        this.formElementGroup = formElementGroup;
+        this.wizard = wizard;
     }
 
     clone(newState) {
@@ -12,6 +13,7 @@ class AbstractDataEntryState {
             newState.validationResults.push(validationResult.clone());
         });
         newState.formElementGroup = this.formElementGroup;
+        newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
     }
 
     handleValidationResult(validationResult) {
@@ -27,14 +29,9 @@ class AbstractDataEntryState {
         });
     }
 
-    moveNext(getForm) {
+    moveNext() {
         this.wizard.moveNext();
-        if (this.wizard.isFirstFormPage()) {
-            const form = getForm();
-            this.formElementGroup = form.firstFormElementGroup;
-        } else {
-            this.formElementGroup = this.formElementGroup.next();
-        }
+        this.formElementGroup = this.formElementGroup.next();
     }
 
     movePrevious() {

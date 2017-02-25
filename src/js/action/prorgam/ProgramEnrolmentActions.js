@@ -1,22 +1,19 @@
-import G from '../../utility/General';
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import ProgramEnrolmentState from "./ProgramEnrolmentState";
-import ObservationsHolderActions from '../common/ObservationsHolderActions';
-import Form from '../../models/application/Form';
-import EntityService from "../../service/EntityService";
+import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
+import Wizard from "../../state/Wizard";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
-        return new ProgramEnrolmentState();
+        return {};
     }
 
     static onLoad(state, action, context) {
-        const newState = ProgramEnrolmentActions.getInitialState();
-        newState.enrolment = action.enrolment;
-        const form = context.get(FormMappingService).findForm(newState.enrolment.program);
-        newState.formElementGroup = form.firstFormElementGroup;
-        return newState;
+        const form = context.get(FormMappingService).findForm(action.enrolment.program);
+        const programEnrolmentState = new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1));
+        programEnrolmentState.enrolment = action.enrolment;
+        return programEnrolmentState;
     }
 
     static enrolmentDateTimeChanged(state, action, context) {
@@ -26,7 +23,9 @@ export class ProgramEnrolmentActions {
     }
 
     static confirm(state, action, context) {
+        const newState = state.clone();
         context.get(ProgramEnrolmentService).launchChooseProgram(state.enrolment, action.value);
+        return newState;
     }
 
     static cancel(state, action, context) {

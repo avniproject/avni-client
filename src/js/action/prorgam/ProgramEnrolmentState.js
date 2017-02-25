@@ -1,9 +1,8 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
-    constructor() {
-        super();
-        this.enrolment = null;
+    constructor(validationResults, formElementGroup, wizard) {
+        super(validationResults, formElementGroup, wizard);
     }
 
     clone() {

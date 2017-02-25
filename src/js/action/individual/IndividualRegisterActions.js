@@ -1,10 +1,26 @@
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import Individual from "../../models/Individual";
+import EntityService from "../../service/EntityService";
+import Gender from "../../models/Gender";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
-        return IndividualRegistrationState.createIntialState(context);
+        const individualRegistrationState = IndividualRegistrationState.createIntialState(context);
+        individualRegistrationState.individual = Individual.createSafeInstance();
+        individualRegistrationState.genders = context.get(EntityService).getAll(Gender.schema.name);
+        individualRegistrationState.ageProvidedInYears = true;
+
+        return individualRegistrationState;
+    }
+
+    static onLoad(state, action, context) {
+        const newState = state.clone(state);
+        newState.individual = new Individual();
+        newState.individual.observations = [];
+        newState.wizard.reset();
+        return newState;
     }
 
     static enterIndividualName(state, action) {
@@ -60,13 +76,6 @@ export class IndividualRegisterActions {
         return newState;
     }
 
-    static onLoad(state, action, context) {
-        const newState = state.clone(state);
-        newState.newRegistration();
-        newState.wizard.reset();
-        return newState;
-    }
-
     static onNext(state, action, context) {
         const newState = state.clone();
         const validationResults = newState.individual.validate();
@@ -77,7 +86,7 @@ export class IndividualRegisterActions {
             context.get(IndividualService).register(newState.individual);
             action.saved();
         } else if (newState.validationResults.length === 0) {
-            newState.moveNext(() => IndividualRegistrationState.getForm(context));
+            newState.moveNext();
             action.movedNext();
         }
         return newState;

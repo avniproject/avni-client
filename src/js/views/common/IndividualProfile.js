@@ -69,7 +69,7 @@ class IndividualProfile extends AbstractComponent {
                                                     labelValuePairs={this.state.programs.map((program) => new RadioLabelValue(program.name, program))}/>
                                     </Row>
                                     <Row style={{backgroundColor: '#fff'}}>
-                                        <Button onPress={() => this.programSelectionConfirmed()}>{this.I18n.t('enrol')}</Button>
+                                        <Button onPress={() => this.programSelectionConfirmed()}>{this.I18n.t('enrolInProgram')}</Button>
                                         <Button onPress={() => this.dispatchAction(Actions.CANCELLED_PROGRAM_SELECTION)}>{this.I18n.t('cancel')}</Button>
                                     </Row>
                                 </Grid>
@@ -98,7 +98,7 @@ class IndividualProfile extends AbstractComponent {
                             <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}>
                                 <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('editProfile')}</Button>
                             <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.launchChooseProgram()}>
-                                <Icon name="add" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('enrol')}</Button>
+                                <Icon name="add" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('enrolInProgram')}</Button>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
                             <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}
