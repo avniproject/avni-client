@@ -40,6 +40,32 @@ class AbstractDataEntryState {
             this.formElementGroup = this.formElementGroup.previous();
         }
     }
+
+    get observationsHolder() {}
+
+    handleNext(action, saveFn) {
+        const validationResults = _.union([this.observationsHolder.validate(), this.formElementGroup.validateMandatoryFields(this.observationsHolder)]);
+        this.handleValidationResults(validationResults);
+        if (this.validationResults.length !== 0 && this.wizard.isLastPage()) {
+            action.validationFailed();
+        } else if (this.wizard.isLastPage()) {
+            saveFn(this.individual);
+            action.saved();
+        } else if (this.validationResults.length === 0) {
+            this.moveNext();
+            action.movedNext();
+        }
+        return this;
+    }
+
+    static getValidationError(state, formElementIdentifier) {
+        return _.find(state.validationResults, (validationResult) => validationResult.formIdentifier === formElementIdentifier);
+    }
+
+    static hasValidationError(state, formElementIdentifier) {
+        const validationError = state.getValidationError(formElementIdentifier);
+        return !_.isNil(validationError);
+    }
 }
 
 export default AbstractDataEntryState;

@@ -78,18 +78,7 @@ export class IndividualRegisterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        const validationResults = newState.individual.validate();
-        newState.handleValidationResults(validationResults);
-        if (newState.validationResults.length !== 0 && newState.wizard.isLastPage()) {
-            action.validationFailed();
-        } else if (newState.wizard.isLastPage()) {
-            context.get(IndividualService).register(newState.individual);
-            action.saved();
-        } else if (newState.validationResults.length === 0) {
-            newState.moveNext();
-            action.movedNext();
-        }
-        return newState;
+        return newState.handleNext(action, (individual) => context.get(IndividualService).register(individual));
     }
 
     static onPrevious(state, action, context) {

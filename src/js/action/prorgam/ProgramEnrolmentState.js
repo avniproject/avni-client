@@ -11,6 +11,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         newState.enrolment = this.enrolment.cloneForEdit();
         return newState;
     }
+
+    get observationsHolder() {
+        return this.enrolment;
+    }
 }
 
 export default ProgramEnrolmentState;

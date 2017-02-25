@@ -62,7 +62,8 @@ class FormElementGroup extends AbstractComponent {
                             return <DateFormElement key={idx}
                                                     element={formElement}
                                                     actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
-                                                    dateValue={this.getSelectedAnswer(formElement.concept, null)}/>
+                                                    dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                                    validationResult={validationResult}/>
                         }
                     })
                 }

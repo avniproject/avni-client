@@ -8,6 +8,7 @@ import Individual from "./Individual";
 import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
+import ValidationResult from "./application/ValidationResult";
 
 class ProgramEnrolment extends ObservationsHolder {
     static schema = {
@@ -89,6 +90,16 @@ class ProgramEnrolment extends ObservationsHolder {
             programEnrolment.encounters.push(programEncounter);
         });
         return programEnrolment;
+    }
+
+    static validationKeys = {
+        ENROLMENT_DATE: 'ENROLMENT_DATE'
+    };
+
+    validate() {
+        const validationResults = [];
+        validationResults.push(this.validateField(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
+        return validationResults;
     }
 }
 

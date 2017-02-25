@@ -129,7 +129,7 @@ class Individual extends ObservationsHolder {
     }
 
     validateName() {
-        return _.isEmpty(this.name) ? new ValidationResult(false, Individual.validationKeys.NAME, 'emptyValidationMessage') : ValidationResult.successful(Individual.validationKeys.NAME);
+        return this.validateField(this.name, Individual.validationKeys.NAME);
     }
 
     validate() {
@@ -142,11 +142,11 @@ class Individual extends ObservationsHolder {
     }
 
     validateAddress() {
-        return _.isNil(this.lowestAddressLevel) ? ValidationResult.failureForEmpty(Individual.validationKeys.LOWEST_ADDRESS_LEVEL) : ValidationResult.successful(Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
+        return this.validateField(this.lowestAddressLevel, Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
     }
 
     validateGender() {
-        return _.isNil(this.gender) ? ValidationResult.failureForEmpty(Individual.validationKeys.GENDER) : ValidationResult.successful(Individual.validationKeys.GENDER);
+        return this.validateField(this.gender, Individual.validationKeys.GENDER);
     }
 
     static eligiblePrograms(allPrograms, individual) {

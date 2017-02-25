@@ -1,9 +1,8 @@
 import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, Row, InputGroup, Input} from "native-base";
+import {Text, InputGroup, Input} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
-import _ from 'lodash';
+import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 
 class TextFormElement extends AbstractFormElement {
@@ -25,7 +24,7 @@ class TextFormElement extends AbstractFormElement {
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </View>
                 <View>
-                    <InputGroup style={{flex: 1, borderColor: _.isNil(this.props.validationResult) ? 'rgba(0, 0, 0, 0.12)' : '#d0011b'}} borderType='underline'>
+                    <InputGroup style={{flex: 1, borderColor: this.borderColor}} borderType='underline'>
                         <Input value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} />
                     </InputGroup>
                 </View>

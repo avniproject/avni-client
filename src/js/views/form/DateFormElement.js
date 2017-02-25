@@ -10,7 +10,8 @@ class DateFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        dateValue : React.PropTypes.object
+        dateValue : React.PropTypes.object,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -25,13 +26,13 @@ class DateFormElement extends AbstractFormElement {
                 </View>
                 <View>
                     <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}
-                          style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.props.dateValue)}</Text>
+                          style={[DynamicGlobalStyles.formElementLabel, {color: this.textColor}]}>{this.dateDisplay(this.props.dateValue)}</Text>
                 </View>
             </View>);
     }
 
     dateDisplay(date) {
-        return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date.answer);
+        return _.isNil(date.getValue()) ? this.I18n.t("chooseADate") : General.formatDate(date.getValue());
     }
 
     async showPicker(stateKey, options) {

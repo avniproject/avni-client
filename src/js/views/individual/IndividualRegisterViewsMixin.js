@@ -8,10 +8,10 @@ class IndividualRegisterViewsMixin {
     static next(view) {
         view.dispatchAction(Actions.NEXT, {
             saved: () => {
-                TypedTransition.from(view).with().to(LandingView);
+                TypedTransition.from(view).to(LandingView);
             },
             movedNext: () => {
-                TypedTransition.from(view).with().to(IndividualRegisterFormView);
+                TypedTransition.from(view).to(IndividualRegisterFormView);
             },
             validationFailed: (message) => {
                 Alert.alert(view.I18n.t("validationError"), message,
