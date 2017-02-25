@@ -44,7 +44,7 @@ class AbstractDataEntryState {
     get observationsHolder() {}
 
     handleNext(action, saveFn) {
-        const validationResults = _.union([this.observationsHolder.validate(), this.formElementGroup.validateMandatoryFields(this.observationsHolder)]);
+        const validationResults = _.union(this.observationsHolder.validate(), this.formElementGroup.validateMandatoryFields(this.observationsHolder));
         this.handleValidationResults(validationResults);
         if (this.validationResults.length !== 0 && this.wizard.isLastPage()) {
             action.validationFailed();
@@ -63,7 +63,7 @@ class AbstractDataEntryState {
     }
 
     static hasValidationError(state, formElementIdentifier) {
-        const validationError = state.getValidationError(formElementIdentifier);
+        const validationError = AbstractDataEntryState.getValidationError(state, formElementIdentifier);
         return !_.isNil(validationError);
     }
 }

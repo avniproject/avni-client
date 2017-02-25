@@ -26,7 +26,10 @@ class BaseEntity {
         return !_.isNil(other) && (other.uuid === this.uuid);
     }
 
-    validateField(value, key) {
+    validateFieldForEmpty(value, key) {
+        if (value instanceof Date) {
+            return _.isNil(value) ? new ValidationResult(false, key, 'emptyValidationMessage') : ValidationResult.successful(key);
+        }
         return _.isEmpty(value) ? new ValidationResult(false, key, 'emptyValidationMessage') : ValidationResult.successful(key);
     }
 }

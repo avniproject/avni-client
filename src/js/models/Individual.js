@@ -129,7 +129,7 @@ class Individual extends ObservationsHolder {
     }
 
     validateName() {
-        return this.validateField(this.name, Individual.validationKeys.NAME);
+        return this.validateFieldForEmpty(this.name, Individual.validationKeys.NAME);
     }
 
     validate() {
@@ -142,11 +142,11 @@ class Individual extends ObservationsHolder {
     }
 
     validateAddress() {
-        return this.validateField(this.lowestAddressLevel, Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
+        return this.validateFieldForEmpty(this.lowestAddressLevel, Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
     }
 
     validateGender() {
-        return this.validateField(this.gender, Individual.validationKeys.GENDER);
+        return this.validateFieldForEmpty(this.gender, Individual.validationKeys.GENDER);
     }
 
     static eligiblePrograms(allPrograms, individual) {

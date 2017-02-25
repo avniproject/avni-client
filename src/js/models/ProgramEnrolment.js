@@ -98,7 +98,7 @@ class ProgramEnrolment extends ObservationsHolder {
 
     validate() {
         const validationResults = [];
-        validationResults.push(this.validateField(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
+        validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
         return validationResults;
     }
 }

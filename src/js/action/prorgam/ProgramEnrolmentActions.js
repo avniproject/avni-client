@@ -19,6 +19,7 @@ export class ProgramEnrolmentActions {
     static enrolmentDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.enrolment.enrolmentDateTime = action.value;
+        newState.handleValidationResults(newState.enrolment.validate());
         return newState;
     }
 

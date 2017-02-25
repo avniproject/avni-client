@@ -18,6 +18,10 @@ class StaticFormElementGroup {
     get isFirst() {
         return true;
     }
+
+    validateMandatoryFields() {
+        return [];
+    }
 }
 
 export default StaticFormElementGroup;
