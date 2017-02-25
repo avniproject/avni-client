@@ -15,14 +15,15 @@ class ProgramEnrolmentService extends BaseService {
         return ProgramEnrolment.schema.name;
     }
 
-    enrol(programEnrolment, individual) {
+    enrol(programEnrolment) {
         const db = this.db;
         programEnrolment.uuid = G.randomUUID();
-        programEnrolment.enrolmentDateTime = new Date();
         this.db.write(()=> {
-            const loadedIndividual = this.findByUUID(individual.uuid, Individual.schema.name);
-            programEnrolment.individual = loadedIndividual;
-            loadedIndividual.enrolments.push(programEnrolment);
+            db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+
+            const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
+            const loadedEnrolment = this.findByUUID(programEnrolment.uuid, ProgramEnrolment.schema.name);
+            loadedIndividual.enrolments.push(loadedEnrolment);
 
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

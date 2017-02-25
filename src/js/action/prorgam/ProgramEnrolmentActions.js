@@ -3,6 +3,7 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import _ from 'lodash';
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -10,6 +11,8 @@ export class ProgramEnrolmentActions {
     }
 
     static onLoad(state, action, context) {
+        if (!_.isNil(state.wizard)) return state.clone();
+
         const form = context.get(FormMappingService).findForm(action.enrolment.program);
         const programEnrolmentState = new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1));
         programEnrolmentState.enrolment = action.enrolment;

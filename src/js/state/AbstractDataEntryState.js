@@ -49,7 +49,7 @@ class AbstractDataEntryState {
         if (this.validationResults.length !== 0 && this.wizard.isLastPage()) {
             action.validationFailed();
         } else if (this.wizard.isLastPage()) {
-            saveFn(this.individual);
+            saveFn(this.observationsHolder);
             action.saved();
         } else if (this.validationResults.length === 0) {
             this.moveNext();

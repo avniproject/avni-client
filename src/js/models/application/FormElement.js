@@ -53,11 +53,13 @@ class FormElement {
     }
 
     get truthDisplayValue() {
-        return this.recordByKey(FormElement.keys.TrueValue).value;
+        const trueRecord = this.recordByKey(FormElement.keys.TrueValue);
+        return _.isNil(trueRecord) ? 'yes' : trueRecord.value;
     }
 
     get falseDisplayValue() {
-        return this.recordByKey(FormElement.keys.FalseValue).value;
+        const falseRecord = this.recordByKey(FormElement.keys.FalseValue);
+        return _.isNil(falseRecord) ? 'no' : falseRecord.value;
     }
 
     validate(value) {
