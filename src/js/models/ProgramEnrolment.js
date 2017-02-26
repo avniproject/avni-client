@@ -101,6 +101,10 @@ class ProgramEnrolment extends ObservationsHolder {
         validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
         return validationResults;
     }
+
+    get lastFulfilledEncounter() {
+        return this.encounters.length > 1 ? this.encounters[this.encounters.length - 2] : null;
+    }
 }
 
 export default ProgramEnrolment;

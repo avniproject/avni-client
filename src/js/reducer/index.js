@@ -11,10 +11,14 @@ import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/pror
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import {
     EncounterActions,
-    IndividualEncounterViewActions,
     IndividualEncounterViewActionsMap
 } from "../action/individual/EncounterActions";
 import SystemRecommendationActionMap, {SystemRecommendationActions} from '../action/individual/SystemRecommendationActions';
+import {
+    DashboardActions,
+    DashboardActionsMap
+} from "../action/prorgam/DashboardActions";
+
 
 const reducerMapFn = function (beanStore) {
     let reducerMap = {};
@@ -33,6 +37,7 @@ const reducerMapFn = function (beanStore) {
     reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions.getInitialState(beanStore));
     reducerMap[reducerKeys.encounter] = add(IndividualEncounterViewActionsMap, EncounterActions.getInitialState(beanStore));
     reducerMap[reducerKeys.systemRecommendation] = add(SystemRecommendationActionMap, SystemRecommendationActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.dashboard] = add(DashboardActionsMap, DashboardActions.getInitialState(beanStore));
 
     return reducerMap;
 };
@@ -43,7 +48,8 @@ const reducerKeys = {
     encounter: "encounter",
     systemRecommendation: "systemRecommendation",
     individualRegister: "individualRegister",
-    individualProfile: 'individualProfile'
+    individualProfile: 'individualProfile',
+    dashboard: 'dashboard'
 };
 
 export {reducerMapFn as initReducers};

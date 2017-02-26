@@ -13,6 +13,7 @@ import MessageService from "../service/MessageService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from '../views/primitives/DynamicGlobalStyles';
 import {IndividualEncounterViewActions as Actions} from "../action/individual/EncounterActions";
+import DashboardView from "./program/DashboardView";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -103,12 +104,23 @@ class MenuView extends AbstractComponent {
                 }
                 },
                 {
-                    text: this.I18n.t('no'), onPress: () => {},
+                    text: this.I18n.t('no'), onPress: () => {
+                },
                     style: 'cancel'
                 }
             ]
         )
     };
+
+    renderMenuItem(iconName, menuMessageKey, pressHandler) {
+        return (<Col style={this.columnStyle}>
+                <Button onPress={pressHandler} transparent large>
+                    <Icon name={iconName} style={MenuView.iconStyle}/>
+                </Button>
+                <Text style={MenuView.iconLabelStyle}>{menuMessageKey}</Text>
+            </Col>
+        );
+    }
 
     render() {
         return (
@@ -121,26 +133,13 @@ class MenuView extends AbstractComponent {
                             </Button>
                             <Text style={MenuView.iconLabelStyle}>Sync Data</Text>
                         </Col>
-                        <Col style={this.columnStyle}>
-                            <Button onPress={() => this.settingsView()} transparent large>
-                                <Icon name='settings' style={MenuView.iconStyle}/>
-                            </Button>
-                            <Text style={MenuView.iconLabelStyle}>Settings</Text>
-                        </Col>
-                        <Col style={this.columnStyle}>
-                            <Button transparent large onPress={this.onDeleteSchema.bind(this)} style={{justifyContent: 'center'}}>
-                                <Icon name='delete' style={MenuView.iconStyle}/>
-                            </Button>
-                            <Text style={MenuView.iconLabelStyle}>Delete Data</Text>
-                        </Col>
+                        {this.renderMenuItem('settings', 'Settings', () => this.settingsView())}
+                        {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}
                     </Row>
                     <Row style={{marginTop: 30}}>
-                        <Col style={this.columnStyle}>
-                            <Button transparent large onPress={()=> this.registrationView()} style={{justifyContent: 'center'}}>
-                                <Icon name='person-add' style={MenuView.iconStyle}/>
-                            </Button>
-                            <Text style={MenuView.iconLabelStyle} onPress={()=> this.registrationView()}>Register</Text>
-                        </Col>
+                        {this.renderMenuItem('person-add', 'Register', () => this.registrationView())}
+                        {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
+                        <Col style={this.columnStyle}/>
                     </Row>
                     {/*{hack for the background color}*/}
                     <Row>

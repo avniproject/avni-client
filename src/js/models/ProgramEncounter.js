@@ -11,7 +11,7 @@ class ProgramEncounter {
             uuid: 'string',
             followupType: 'FollowupType',
             scheduledDateTime: {type: 'date', optional: true},
-            actualDateTime: 'date',
+            actualDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'}
         }
