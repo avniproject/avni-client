@@ -14,10 +14,16 @@ class RuleEvaluationService extends BaseService {
 
     init() {
         this.decorateEncounter();
-        const exports = eval(this.getEncounterDecisionEvalExpression());
+        const configFileService = this.getService(ConfigFileService);
+
+        var exports = RuleEvaluationService.getExports(configFileService.getEncounterDecisionFile());
         if (!_.isNil(exports)) {
             this.encounterDecisionFn = exports.getDecision;
             this.encounterValidationFn = exports.validate;
+        }
+        exports = RuleEvaluationService.getExports(configFileService.getProgramEnrolmentFile());
+        if (!_.isNil(exports)) {
+            this.getNextScheduledDateFn = exports.getNextScheduledDate;
         }
         return super.init();
     }
@@ -33,15 +39,18 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getEncounterDecisionEvalExpression() {
-        const decisionConfig = this.getService(ConfigFileService).getDecisionConfig();
-        if (!_.isNil(decisionConfig))
-            return `${decisionConfig.contents}`;
+    static getExports(configFile) {
+        if (!_.isNil(configFile))
+            return eval(`${configFile.contents}`);
         return null;
     }
 
     validateEncounter(encounter) {
-        return this.encounterValidationFn(encounter);
+        return _.isNil(this.encounterValidationFn) ? null : this.encounterValidationFn(encounter);
+    }
+
+    getNextScheduledDate(enrolment) {
+        return _.isNil(this.getNextScheduledDateFn) ? null : this.getNextScheduledDateFn(enrolment);
     }
 }
 

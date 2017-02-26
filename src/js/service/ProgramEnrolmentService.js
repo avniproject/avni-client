@@ -6,6 +6,8 @@ import Individual from "../models/Individual";
 import EntityQueue from "../models/EntityQueue";
 import _ from 'lodash';
 import ProgramEncounterService from "./program/ProgramEncounterService";
+import RuleEvaluationService from "./RuleEvaluationService";
+import ProgramEncounter from "../models/ProgramEncounter";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -20,6 +22,16 @@ class ProgramEnrolmentService extends BaseService {
     enrol(programEnrolment) {
         const db = this.db;
         programEnrolment.uuid = G.randomUUID();
+
+        const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
+        if (!_.isNil(nextScheduledDate)) {
+            const programEncounter = new ProgramEncounter();
+            programEncounter.uuid = G.randomUUID();
+            programEncounter.scheduledDateTime = nextScheduledDate;
+            programEncounter.programEnrolment = programEnrolment;
+            programEnrolment.encounters.push(programEncounter);
+        }
+
         this.db.write(()=> {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 

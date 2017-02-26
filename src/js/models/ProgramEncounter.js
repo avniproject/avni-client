@@ -9,7 +9,6 @@ class ProgramEncounter {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
-            followupType: 'FollowupType',
             scheduledDateTime: {type: 'date', optional: true},
             actualDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',

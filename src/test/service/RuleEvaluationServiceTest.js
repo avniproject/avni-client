@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import _ from "lodash";
+import {expect} from "chai";
 import RuleEvaluationService from "../../js/service/RuleEvaluationService";
 import Encounter from "../../js/models/Encounter";
 import TestContext from "../views/testframework/TestContext";

@@ -33,8 +33,8 @@ describe('General', () => {
     });
 
     it('randomUUID', () => {
-        var randomUUID1 = General.randomUUID();
-        var randomUUID2 = General.randomUUID();
+        const randomUUID1 = General.randomUUID();
+        const randomUUID2 = General.randomUUID();
         expect(randomUUID1).is.not.equal(randomUUID2);
     });
 });
