@@ -54,6 +54,10 @@ class ProgramEnrolmentService extends BaseService {
         programSummary.program = program;
         return programSummary;
     }
+
+    getAllEnrolments(programUUID) {
+        return this.db.objects(ProgramEnrolment.schema.name).filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
+    }
 }
 
 export default ProgramEnrolmentService;

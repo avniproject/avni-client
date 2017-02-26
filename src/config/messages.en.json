@@ -70,5 +70,8 @@
   "openCases": "OPEN",
   "upcomingCases": "UPCOMING",
   "overdueCases": "OVERDUE",
-  "totalCases": "TOTAL"
+  "totalCases": "TOTAL",
+  "viewAll": "VIEW ALL",
+  "allEnrolmentsInProgram": "All enrolments in",
+  "enrolledOn": "Enrolment Date"
 }

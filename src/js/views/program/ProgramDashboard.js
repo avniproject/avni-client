@@ -1,9 +1,12 @@
 import {View, Text, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {List} from "native-base";
+import {List, Button, ListItem} from "native-base";
 import _ from "lodash";
 import Separator from '../primitives/Separator';
+import TypedTransition from "../../framework/routing/TypedTransition";
+import ProgramEnrolmentsView from "./ProgramEnrolmentsView";
+import moment from "moment";
 
 class ProgramDashboard extends AbstractComponent {
     static propTypes = {
@@ -16,12 +19,12 @@ class ProgramDashboard extends AbstractComponent {
 
     renderRow(programEncounter) {
         const lastFulfilledEncounter = programEncounter.programEnrolment.lastFulfilledEncounter;
-        return (<View style={{flexDirection: 'row'}}>
-            <Text style={{flex: 0.25}}>{programEncounter.scheduledDateTime}</Text>
+        return (<ListItem style={{flexDirection: 'row'}}>
+            <Text style={{flex: 0.25}}>{moment(programEncounter.scheduledDateTime).format('DD-MM-YYYY')}</Text>
             <Text style={{flex: 0.25}}>{programEncounter.programEnrolment.individual.name}</Text>
             <Text style={{flex: 0.25}}>{programEncounter.programEnrolment.individual.lowestAddressLevel.name}</Text>
             <Text style={{flex: 0.25}}>{_.isNil(lastFulfilledEncounter) ? '' : lastFulfilledEncounter.actualDateTime}</Text>
-        </View>);
+        </ListItem>);
     }
 
     render() {
@@ -49,6 +52,9 @@ class ProgramDashboard extends AbstractComponent {
                     <Text style={{flex: 0.25}}>{this.I18n.t('lastVisitDate')}</Text>
                 </View>
                 <List primaryText={''} dataArray={this.props.summary.openEncounters} renderRow={(programEncounter) => this.renderRow(programEncounter)} />
+                <View>
+                    <Button onPress={() => TypedTransition.from(this).with({programUUID: this.props.summary.program.uuid}).to(ProgramEnrolmentsView)}>{this.I18n.t('viewAll')}</Button>
+                </View>
             </View>
         );
     }
