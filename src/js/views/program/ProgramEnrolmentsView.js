@@ -8,6 +8,8 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEnrolmentsActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentsActions";
 import {Text, Content, Container, List, ListItem} from "native-base";
 import moment from "moment";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import ProgramEnrolmentDashboardView from "./ProgramEnrolmentDashboardView";
 
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
@@ -32,7 +34,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
         return (<ListItem style={{flexDirection: 'row'}}>
             <Text style={{flex: 1}}>{moment(programEnrolment.enrolmentDateTime).format('DD-MM-YYYY')}</Text>
             <Text style={{flex: 1}}>{programEnrolment.individual.name}</Text>
-            <Text style={{flex: 1}}>{programEnrolment.individual.lowestAddressLevel.name}</Text>
+            <Text style={{flex: 1}} onPress={() => TypedTransition.from(this).with({enrolmentUUID: programEnrolment.uuid}).to(ProgramEnrolmentDashboardView)}>{programEnrolment.individual.lowestAddressLevel.name}</Text>
         </ListItem>);
     }
 
@@ -46,7 +48,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
                         <Text style={{flex: 1}}>{this.I18n.t('name')}</Text>
                         <Text style={{flex: 1}}>{this.I18n.t('lowestAddressLevel')}</Text>
                     </View>
-                    <List primaryText={''} dataArray={this.state.enrolments} renderRow={(programEnnrolment) => this.renderRow(programEnnrolment)} />
+                    <List primaryText={''} dataArray={this.state.enrolments} renderRow={(programEnnrolment) => this.renderRow(programEnnrolment)}/>
                 </Content>
             </Container>
         );

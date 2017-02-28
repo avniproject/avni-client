@@ -73,5 +73,6 @@
   "totalCases": "TOTAL",
   "viewAll": "VIEW ALL",
   "allEnrolmentsInProgram": "All enrolments in",
-  "enrolledOn": "Enrolment Date"
+  "enrolledOn": "Enrolment Date",
+  "enrolmentAttributes": "Enrolment Attributes"
 }
