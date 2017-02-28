@@ -60,6 +60,12 @@ export class EncounterActions {
         newState.encounter.encounterDateTime = action.value;
         return newState;
     }
+
+    static onToggleShowingPreviousEncounter(state, action, context) {
+        const newState = state.clone();
+        newState.wizard.toggleShowPreviousEncounter();
+        return newState;
+    }
 }
 
 const individualEncounterViewActions = {
@@ -71,7 +77,8 @@ const individualEncounterViewActions = {
     TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
     PRIMITIVE_VALUE_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
     ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c',
-    ON_SYNC_COMPLETED: 'ON_SYNC_COMPLETED'
+    ON_SYNC_COMPLETED: 'ON_SYNC_COMPLETED',
+    TOGGLE_SHOWING_PREVIOUS_ENCOUNTER : '1107f87c-b230-445b-bc40-7e9765051cb7'
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -83,7 +90,9 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
     [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
-    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange]
+    [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
+    [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter]
+
 
 ]);
 

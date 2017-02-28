@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {View, StyleSheet, Navigator, Alert} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Content, Grid, Row, Container} from "native-base";
+import {Content, Grid, Row, Container, Button, Text, Icon} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualProfile from "../common/IndividualProfile";
@@ -72,17 +72,9 @@ class IndividualEncounterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.state.encounter.individual.name}/>
+
                     <View style={{flexDirection: 'column'}}>
-                        <View style={{
-                            backgroundColor: '#f7f7f7',
-                            paddingLeft: 24,
-                            paddingRight: 24,
-                            paddingTop: 12,
-                            paddingBottom: 12,
-                            height: 74
-                        }}>
-                            <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
-                        </View>
+                        {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
                         <FormElementGroup observationHolder={this.state.encounter} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
@@ -90,6 +82,62 @@ class IndividualEncounterView extends AbstractComponent {
                     </View>
                 </Content>
             </Container>
+        );
+    }
+
+    toggleExpandCollapse() {
+        this.dispatchAction(Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER);
+    }
+
+    getCollapsedView() {
+        return (
+            <View>
+                <View style={{
+                    backgroundColor: '#f7f7f7',
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    height: 74
+                }}>
+                    <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
+                </View>
+                <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
+                    <Button iconRight
+                            style={{position: 'absolute', width:81, height:22, backgroundColor: '#e0e0e0', bottom:-11}}
+                            onPress={() => this.toggleExpandCollapse()}
+                            textStyle={{color: '#212121'}}>
+                        <Text>Expand</Text>
+                        <Icon style={{color: '#212121'}} name='arrow-downward'/>
+                    </Button>
+                </View>
+            </View>
+        );
+    }
+
+    getExpandedView() {
+        return (
+            <View>
+                <View style={{
+                    backgroundColor: '#f7f7f7',
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    height: 449
+                }}>
+                    <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
+                </View>
+                <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
+                    <Button iconRight light
+                            style={{position: 'absolute', width:81, height:22, backgroundColor: '#e0e0e0', bottom:-11}}
+                            onPress={() => this.toggleExpandCollapse()}
+                            textStyle={{color: '#212121'}}>
+                        <Text>Collapse</Text>
+                        <Icon style={{color: '#212121'}} name='arrow-upward'/>
+                    </Button>
+                </View>
+            </View>
         );
     }
 }
