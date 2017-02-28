@@ -64,6 +64,7 @@ export class EncounterActions {
     static onToggleShowingPreviousEncounter(state, action, context) {
         const newState = state.clone();
         newState.wizard.toggleShowPreviousEncounter();
+        newState.encounters = context.get(IndividualEncounterService).getEncounters(state.encounter.individual);
         return newState;
     }
 }

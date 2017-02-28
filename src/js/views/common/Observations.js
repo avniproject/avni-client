@@ -31,7 +31,7 @@ class Observations extends AbstractComponent {
                                 <Row style={DGS.observations.observationRowHeader}>
                                     {observationRow.map((observation) => {
                                         return (
-                                            <Col>
+                                            <Col style={DGS.observations.observationColumn}>
                                                 <Text style={{textAlign: 'center', fontSize: 12}}>{observation.concept.name}</Text>
                                             </Col>
                                         );
@@ -39,7 +39,7 @@ class Observations extends AbstractComponent {
                                 <Row style={DGS.observations.observationRow}>
                                     {observationRow.map((observation) => {
                                         return (
-                                            <Col>
+                                            <Col style={DGS.observations.observationColumn}>
                                                 <Text style={{textAlign: 'center', fontSize: 16}}>{Observation.valueAsString(observation, this.context.getService(ConceptService))}</Text>
                                             </Col>
                                         );

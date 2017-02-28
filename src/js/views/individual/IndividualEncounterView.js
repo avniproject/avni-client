@@ -13,6 +13,10 @@ import ReducerKeys from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
+import moment from "moment";
+import DGS from '../primitives/DynamicGlobalStyles';
+import Observations from '../common/Observations';
+
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -123,10 +127,11 @@ class IndividualEncounterView extends AbstractComponent {
                     paddingLeft: 24,
                     paddingRight: 24,
                     paddingTop: 12,
-                    paddingBottom: 12,
-                    height: 449
+                    paddingBottom: 12
                 }}>
                     <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
+                    <Text style={{paddingLeft:10, paddingRight:10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}></Text>
+                    {this.showEncounterData()}
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight light
@@ -139,6 +144,35 @@ class IndividualEncounterView extends AbstractComponent {
                 </View>
             </View>
         );
+    }
+
+    showEncounterData(){
+        const encounterNumber = 0;
+       return ( <View>{this.state.encounters.length === 0 ?
+            (<View style={DGS.generalHistory.encounter}>
+                <View style={[DGS.common.content]}>
+                    <Grid>
+                        <Row style={{justifyContent: 'center'}}>
+                            <Text style={{fontSize: 16}}>{this.I18n.t('noEncounters')}</Text>
+                        </Row>
+                    </Grid>
+                </View>
+            </View>)
+            : this.state.encounters.map((encounter) => {
+                return (
+                    <View style={DGS.generalHistory.encounter}>
+                        <View style={DGS.common.content}>
+                            <Grid>
+                                <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
+                                <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
+                            </Grid>
+                            <Observations observations={encounter.observations} encounterNumber={encounterNumber}/>
+                        </View>
+                    </View>
+                );
+               })}</View>
+    );
+
     }
 }
 
