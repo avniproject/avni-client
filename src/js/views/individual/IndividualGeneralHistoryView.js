@@ -3,19 +3,13 @@ import React, {Component} from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import _ from "lodash";
 import {Actions} from '../../action/individual/IndividualGeneralHistoryActions';
-import Observations from '../common/Observations';
-import {
-    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input, Radio
-} from "native-base";
+import {Content, Container} from "native-base";
 import AppHeader from '../common/AppHeader';
 import IndividualProfile from '../common/IndividualProfile';
 import ReducerKeys from "../../reducer";
-import moment from "moment";
 import DGS from '../primitives/DynamicGlobalStyles';
-import Separator from '../primitives/Separator';
+import PreviousEncounter from '../common/PreviousEncounter'
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -37,7 +31,6 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     }
 
     render() {
-        const encounterNumber = 0;
         return (
             <Container theme={themes}>
                 <Content>
@@ -46,29 +39,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                         <View style={DGS.common.content}>
                             <IndividualProfile landingView={false} individual={this.props.params.individual}/>
                         </View>
-                        {this.state.encounters.length === 0 ?
-                            (<View style={DGS.generalHistory.encounter}>
-                                <View style={[DGS.common.content]}>
-                                    <Grid>
-                                        <Row style={{justifyContent: 'center'}}>
-                                            <Text style={{fontSize: 16}}>{this.I18n.t('noEncounters')}</Text>
-                                        </Row>
-                                    </Grid>
-                                </View>
-                            </View>)
-                            : this.state.encounters.map((encounter) => {
-                                return (
-                                    <View style={DGS.generalHistory.encounter}>
-                                        <View style={DGS.common.content}>
-                                            <Grid>
-                                                <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
-                                                <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
-                                            </Grid>
-                                            <Observations observations={encounter.observations} encounterNumber={encounterNumber}/>
-                                        </View>
-                                    </View>
-                                );
-                            })}
+                        <PreviousEncounter encounters={this.state.encounters}/>
                     </View>
                 </Content>
             </Container>

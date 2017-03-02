@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {View, StyleSheet, Navigator, Alert} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Content, Grid, Row, Container, Button, Text, Icon} from "native-base";
+import {Content, Container, Button, Text, Icon} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualProfile from "../common/IndividualProfile";
@@ -13,9 +13,7 @@ import ReducerKeys from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
-import moment from "moment";
-import DGS from '../primitives/DynamicGlobalStyles';
-import Observations from '../common/Observations';
+import PreviouEncounter from '../common/PreviousEncounter'
 
 
 @Path('/IndividualEncounterView')
@@ -74,7 +72,7 @@ class IndividualEncounterView extends AbstractComponent {
         console.log('IndividualEncounterView.render');
         return (
             <Container theme={themes}>
-                <Content>
+                <Content ref='abc'>
                     <AppHeader title={this.state.encounter.individual.name}/>
 
                     <View style={{flexDirection: 'column'}}>
@@ -89,7 +87,7 @@ class IndividualEncounterView extends AbstractComponent {
         );
     }
 
-    toggleExpandCollapse() {
+    toggleExpandCollapse = () => {
         this.dispatchAction(Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER);
     }
 
@@ -109,7 +107,7 @@ class IndividualEncounterView extends AbstractComponent {
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight
                             style={{position: 'absolute', width:81, height:22, backgroundColor: '#e0e0e0', bottom:-11}}
-                            onPress={() => this.toggleExpandCollapse()}
+                            onPress={this.toggleExpandCollapse}
                             textStyle={{color: '#212121'}}>
                         <Text>Expand</Text>
                         <Icon style={{color: '#212121'}} name='arrow-downward'/>
@@ -131,7 +129,7 @@ class IndividualEncounterView extends AbstractComponent {
                 }}>
                     <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                     <Text style={{paddingLeft:10, paddingRight:10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}></Text>
-                    {this.showEncounterData()}
+                    <PreviouEncounter encounters={this.state.encounters}/>
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight light
@@ -144,35 +142,6 @@ class IndividualEncounterView extends AbstractComponent {
                 </View>
             </View>
         );
-    }
-
-    showEncounterData(){
-        const encounterNumber = 0;
-       return ( <View>{this.state.encounters.length === 0 ?
-            (<View style={DGS.generalHistory.encounter}>
-                <View style={[DGS.common.content]}>
-                    <Grid>
-                        <Row style={{justifyContent: 'center'}}>
-                            <Text style={{fontSize: 16}}>{this.I18n.t('noEncounters')}</Text>
-                        </Row>
-                    </Grid>
-                </View>
-            </View>)
-            : this.state.encounters.map((encounter) => {
-                return (
-                    <View style={DGS.generalHistory.encounter}>
-                        <View style={DGS.common.content}>
-                            <Grid>
-                                <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
-                                <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
-                            </Grid>
-                            <Observations observations={encounter.observations} encounterNumber={encounterNumber}/>
-                        </View>
-                    </View>
-                );
-               })}</View>
-    );
-
     }
 }
 
