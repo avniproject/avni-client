@@ -15,7 +15,6 @@ class WizardButtons extends AbstractComponent {
     static propTypes = {
         previous: React.PropTypes.object.isRequired,
         next: React.PropTypes.object.isRequired,
-        nextDisabled: React.PropTypes.bool.isRequired
     };
 
     render() {
@@ -28,7 +27,6 @@ class WizardButtons extends AbstractComponent {
                                                        textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{previousButtonLabel}</Button> :
                     <View style={{flex: 0.5}}/>}
                 <Button primary
-                        disabled={this.props.nextDisabled}
                         style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{nextButtonLabel}</Button>
             </View>
         );

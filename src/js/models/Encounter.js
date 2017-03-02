@@ -3,11 +3,6 @@ import EncounterType from "./EncounterType";
 import Individual from "./Individual";
 import ResourceUtil from "../utility/ResourceUtil";
 import _ from "lodash";
-import Observation from './Observation'
-import Concept from './Concept'
-import SingleCodedValue from './observation/SingleCodedValue';
-import MultipleCodedValue from './observation/MultipleCodedValues';
-import PrimitiveValue from "./observation/PrimitiveValue";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
 

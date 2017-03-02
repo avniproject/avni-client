@@ -9,9 +9,11 @@ import EntityFactory from "../models/EntityFactory";
 import Wizard from "../../js/state/Wizard";
 import EncounterActionState from "../../js/state/EncounterActionState";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
+import ValidationResult from "../../js/models/application/ValidationResult";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
+    formElement.uuid = 'be5b6739-e812-4be5-b0f4-7c5865889883';
     formElement.mandatory = mandatory;
     const concept = Concept.create('', dataType);
     concept.uuid = conceptUUID;
@@ -138,15 +140,38 @@ describe('EncounterActionsTest', () => {
         expect(newState.encounter.observations[0].getValueWrapper().getValue()).is.equal(14);
     });
 
-    it('next should not be allowed if there are validation errors', () => {
+    it('next should not be allowed if there are validation errors in the same FEG', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
-        newState = EncounterActions.onNext(newState);
+        newState = EncounterActions.onNext(newState, {cb: () => {
+            expect('everything').to.not.be.ok;
+        }});
         verifyFormElementAndObservations(newState, 1, 0);
         newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
-        newState = EncounterActions.onNext(newState, {cb: () => {}});
+        newState = EncounterActions.onNext(newState, {cb: () => {
+            expect('everything').to.be.ok;
+        }});
         verifyFormElementAndObservations(newState, 0, 1);
     });
+
+    it('next should be allowed if there are no validation errors in the same FEG', () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+
+        var valueToBeModifiedInCallback = 1;
+        var anotherFormElement = createFormElement(Concept.dataType.Numeric, true, '1de2dfdf-1cd6-4506-a76d-1fe06751e7be');
+        anotherFormElement.uuid = '6c0630a4-fdc7-4c4b-939b-e07710ee92a0';
+        const anotherFormElementGroup = EntityFactory.createFormElementGroup('BarConcept', 1, EntityFactory.createForm());
+        anotherFormElementGroup.addFormElement(anotherFormElement);
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: anotherFormElement});
+        verifyFormElementAndObservations(newState, 1, 0);
+        var newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '10', formElement: formElement});
+        newState = EncounterActions.onNext(newState, {cb: () => {
+            valueToBeModifiedInCallback = 4;
+        }});
+        verifyFormElementAndObservations(newState, 1, 1);
+        expect(valueToBeModifiedInCallback).is.equal(4);
+    });
+
 });

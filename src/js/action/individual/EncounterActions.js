@@ -31,7 +31,7 @@ export class EncounterActions {
         const encounter = newState.encounter;
         const validationResults = newState.formElementGroup.validateMandatoryFields(encounter);
         newState.handleValidationResults(validationResults);
-        if (newState.validationResults.length !== 0) {
+        if (EncounterActions.anyFailedResultForCurrentFEG(validationResults, newState.formElementGroup)) {
             return newState;
         }
 
@@ -49,6 +49,15 @@ export class EncounterActions {
             action.cb();
         }
         return newState;
+    }
+
+    static anyFailedResultForCurrentFEG(validationResults, formElementGroup) {
+        const formUUIDs = formElementGroup.formElements.map((formElement) => {
+            return formElement.uuid
+        });
+        return _.some(validationResults, (validationResult) => {
+            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) != -1;
+        }) ;
     }
 
     static onEncounterViewLoad(state, action, context) {

@@ -80,7 +80,7 @@ class IndividualEncounterView extends AbstractComponent {
                         <FormElementGroup observationHolder={this.state.encounter} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
-                                       next={{func: () => this.next(), visible: true}} nextDisabled={this.state.validationResults.length !== 0}/>
+                                       next={{func: () => this.next(), visible: true}}/>
                     </View>
                 </Content>
             </Container>
