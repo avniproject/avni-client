@@ -34,10 +34,12 @@ class Observation {
     }
 
     static valueAsString(observation, conceptService) {
+        console.log('Observation.valueAsString');
         if (observation.concept.datatype === Concept.dataType.Date) {
             return observation.getValueWrapper().asDisplayDate();
         } else if (observation.getValueWrapper().constructor === SingleCodedValue) {
-            return conceptService.getConceptByUUID(observation.valueJSON.getValue()).name;
+            console.log(observation.getValueWrapper().getValue());
+            return conceptService.getConceptByUUID(observation.getValueWrapper().getValue().conceptUUID).name;
         } else if (observation.getValueWrapper().constructor === MultipleCodedValues) {
             return _.join(observation.getValueWrapper().getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
         } else {
