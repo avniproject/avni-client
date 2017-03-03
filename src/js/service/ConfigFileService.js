@@ -14,6 +14,7 @@ class ConfigFileService extends BaseService {
         this.customMessageFile = "customMessages.json";
         this.individualRegistrationFile = "individualRegistration.js";
         this.programEnrolmentFile = "programEnrolment.js";
+        this.programEncounterFile = "programEncounter.js";
         this._createFileHandlers();
     }
 
@@ -44,6 +45,7 @@ class ConfigFileService extends BaseService {
         this.fileHandlers[`${this.encounterDecisionFile}`] = (response) => this.saveConfigFile(this.encounterDecisionFile, response);
         this.fileHandlers[`${this.individualRegistrationFile}`] = (response) => this.saveConfigFile(this.individualRegistrationFile, response);
         this.fileHandlers[`${this.programEnrolmentFile}`] = (response) => this.saveConfigFile(this.programEnrolmentFile, response);
+        this.fileHandlers[`${this.programEncounterFile}`] = (response) => this.saveConfigFile(this.programEncounterFile, response);
         this.fileHandlers[`${this.customMessageFile}`] = (response) => {
             this.saveConfigFile(this.customMessageFile, response);
             const messageService = this.getService(MessageService);
