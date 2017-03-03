@@ -11,6 +11,7 @@ import moment from "moment";
 import themes from "../primitives/themes";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import AppHeader from '../common/AppHeader';
+import Fonts from "../primitives/Fonts";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -96,9 +97,9 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       <Col style={{paddingLeft: DynamicGlobalStyles.resizeWidth(16)}}>
                                           <Row><Text style={{fontSize: 16}}>{item.name}</Text></Row>
                                           <Row>
-                                              <Text style={{fontSize: 12}} note>{item.gender.name}</Text>
+                                              <Text style={{fontSize: Fonts.Normal}} note>{item.gender.name}</Text>
                                               <Text style={{paddingLeft: DynamicGlobalStyles.resizeWidth(8), paddingRight: DynamicGlobalStyles.resizeWidth(8)}}>|</Text>
-                                              <Text style={{fontSize: 12}} note>{item.getAge().toString()}</Text>
+                                              <Text style={{fontSize: Fonts.Normal}} note>{item.getAge().toString()}</Text>
                                           </Row>
                                       </Col>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(246)}}>

@@ -9,6 +9,7 @@ import {
 import DGS from '../primitives/DynamicGlobalStyles';
 import ConceptService from "../../service/ConceptService";
 import Observation from '../../models/Observation';
+import Fonts from '../primitives/Fonts';
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -32,7 +33,7 @@ class Observations extends AbstractComponent {
                                     {observationRow.map((observation) => {
                                         return (
                                             <Col style={DGS.observations.observationColumn}>
-                                                <Text style={{textAlign: 'center', fontSize: 12}}>{observation.concept.name}</Text>
+                                                <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{observation.concept.name}</Text>
                                             </Col>
                                         );
                                     })}</Row>

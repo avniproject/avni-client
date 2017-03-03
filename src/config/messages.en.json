@@ -74,5 +74,7 @@
   "viewAll": "VIEW ALL",
   "allEnrolmentsInProgram": "All enrolments in",
   "enrolledOn": "Enrolment Date",
-  "enrolmentAttributes": "Enrolment Attributes"
+  "enrolmentAttributes": "Enrolment Attributes",
+  "viewSchedule": "VIEW SCHEDULE",
+  "noOpenEncounters": "There are no pending visits"
 }

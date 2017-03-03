@@ -8,6 +8,7 @@ import themes from "../primitives/themes";
 import ProgramDashboard from "../program/ProgramDashboard";
 import {Content, Container} from "native-base";
 import AppHeader from "../common/AppHeader";
+import Colors from '../primitives/Colors';
 
 @Path('/DashboardView')
 class DashboardView extends AbstractComponent {
@@ -28,9 +29,9 @@ class DashboardView extends AbstractComponent {
 
     render() {
         return (
-            <Container theme={themes}>
+            <Container theme={themes} style={{backgroundColor: Colors.GreyBackground}}>
                 <Content>
-                    <AppHeader title={'dashboard'}/>
+                    <AppHeader title={this.I18n.t('dashboard')}/>
                     {this.state.programs.map((programSummary) => {
                         return <ProgramDashboard summary={programSummary}/>;
                     })}
