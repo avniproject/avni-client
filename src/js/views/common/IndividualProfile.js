@@ -91,7 +91,7 @@ class IndividualProfile extends AbstractComponent {
                                 color: '#fff',
                                 justifyContent: 'center'
                             }}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}
-                                | {this.props.individual.lowestAddressLevel.title}
+                                | {this.props.individual.lowestAddressLevel.name}
                             </Text>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
@@ -114,7 +114,7 @@ class IndividualProfile extends AbstractComponent {
                         <Col><Text
                             style={{fontSize: 16}}>{this.props.individual.name}</Text></Col>
                         <Col style={{width: 100}}><Text
-                            style={{fontSize: 16}}>{this.props.individual.lowestAddressLevel.title}</Text></Col>
+                            style={{fontSize: 16}}>{this.props.individual.lowestAddressLevel.name}</Text></Col>
                     </Row>
                     <Row style={{height: 24}}>
                         <Col><Text style={{fontSize: 14}}>

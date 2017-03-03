@@ -52,7 +52,7 @@ class AddressLevels extends AbstractComponent {
                     <Col style={{flex: 1}}>
                         <Row>
                             {this.getSelectComponent(address1)}
-                            <Text style={this.inputTextStyle}>{this.I18n.t(address1.title)}</Text>
+                            <Text style={this.inputTextStyle}>{this.I18n.t(address1.name)}</Text>
                         </Row>
                     </Col>
                     <Col style={{flex: 0.25}}/>
@@ -60,7 +60,7 @@ class AddressLevels extends AbstractComponent {
                         {_.isNil(address2) ? <Row/> :
                             <Row>
                                 {this.getSelectComponent(address2)}
-                                <Text style={this.inputTextStyle}>{this.I18n.t(address2.title)}</Text>
+                                <Text style={this.inputTextStyle}>{this.I18n.t(address2.name)}</Text>
                             </Row>}
                     </Col>
                 </Row>)

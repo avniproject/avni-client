@@ -31,7 +31,7 @@ class IndividualSearchCriteria {
         if (this.lowestAddressLevels.length != 0) {
             let addressLevelCriteria = [];
             this.lowestAddressLevels.forEach((addressLevel) =>
-            {addressLevelCriteria.push(`lowestAddressLevel.title == "${addressLevel}"`)});
+            {addressLevelCriteria.push(`lowestAddressLevel.name == "${addressLevel}"`)});
             criteria.push("( " + addressLevelCriteria.join(" OR ") + ")");
         }
         return criteria.join(" AND ");

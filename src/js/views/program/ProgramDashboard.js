@@ -65,14 +65,12 @@ class ProgramDashboard extends AbstractComponent {
                             <Text>{this.I18n.t('noOpenEncounters')}</Text>
                         </View>
                         :
-                        <View>
-                            <List primaryText={''} dataArray={this.props.summary.openEncounters} renderRow={(programEncounter) => this.renderRow(programEncounter)}/>
-                            <View style={DGS.card.action.self}>
-                                <Text style={DGS.card.action.button}
-                                      onPress={() => TypedTransition.from(this).with({programUUID: this.props.summary.program.uuid}).to(ProgramEnrolmentsView)}>{this.I18n.t('viewAll')}</Text>
-                            </View>
-                        </View>
+                        <List primaryText={''} dataArray={this.props.summary.openEncounters} renderRow={(programEncounter) => this.renderRow(programEncounter)}/>
                     }
+                    <View style={DGS.card.action.self}>
+                        <Text style={DGS.card.action.button}
+                              onPress={() => TypedTransition.from(this).with({programUUID: this.props.summary.program.uuid}).to(ProgramEnrolmentsView)}>{this.I18n.t('viewAll')}</Text>
+                    </View>
                 </Card>
             </View>
         );

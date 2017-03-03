@@ -7,6 +7,7 @@ import SettingsService from '../service/SettingsService';
 import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
 import ConfigFileService from "./ConfigFileService";
+import EntityMetaData from '../models/EntityMetaData';
 
 @Service("messageService")
 class MessageService extends BaseService {
@@ -24,6 +25,16 @@ class MessageService extends BaseService {
 
     init() {
         this.setLocale(this.getService(SettingsService).getLocale());
+
+        EntityMetaData.model().forEach((entityMetaData) => {
+            if (entityMetaData.nameTranslated) {
+                this.getAll(entityMetaData.entityName).forEach((entity) => {
+                    console.log(`Adding translation for ${entityMetaData.entityName} key ${entity.name}`);
+                    this.addTranslation('en', entity.name, entity.name);
+                });
+            }
+        });
+
         const configFileService = this.getService(ConfigFileService);
         const customMessages = configFileService.getCustomMessages();
         this.addTranslationsFrom(customMessages);

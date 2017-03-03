@@ -10,6 +10,8 @@ import {Text, Content, Container, List, ListItem} from "native-base";
 import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ProgramEnrolmentDashboardView from "./ProgramEnrolmentDashboardView";
+import DGS from '../primitives/DynamicGlobalStyles';
+import Separator from '../primitives/Separator';
 
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
@@ -43,12 +45,17 @@ class ProgramEnrolmentsView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={`${this.I18n.t('allEnrolmentsInProgram')}: ${this.state.programName}`}/>
-                    <View style={{flexDirection: 'row'}}>
-                        <Text style={{flex: 1}}>{this.I18n.t('enrolledOn')}</Text>
-                        <Text style={{flex: 1}}>{this.I18n.t('name')}</Text>
-                        <Text style={{flex: 1}}>{this.I18n.t('lowestAddressLevel')}</Text>
+                    <View style={{paddingHorizontal: DGS.resizeWidth(12.5), marginTop: DGS.resizeHeight(24)}}>
+                        <View style={{flexDirection: 'row'}}>
+                            <Text style={{flex: 1}}>{this.I18n.t('enrolledOn')}</Text>
+                            <Text style={{flex: 1}}>{this.I18n.t('name')}</Text>
+                            <Text style={{flex: 1}}>{this.I18n.t('lowestAddressLevel')}</Text>
+                        </View>
+                        <View style={{marginTop: DGS.resizeHeight(24)}}>
+                            <Separator/>
+                        </View>
+                        <List primaryText={''} dataArray={this.state.enrolments} renderRow={(programEnnrolment) => this.renderRow(programEnnrolment)}/>
                     </View>
-                    <List primaryText={''} dataArray={this.state.enrolments} renderRow={(programEnnrolment) => this.renderRow(programEnnrolment)}/>
                 </Content>
             </Container>
         );

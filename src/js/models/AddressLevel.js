@@ -6,7 +6,7 @@ class AddressLevel extends BaseEntity {
         primaryKey: 'uuid',
         properties: {
             uuid: "string",
-            title: "string",
+            name: "string",
             level: "int",
             parentAddressLevel: {type: "AddressLevel", optional: true}
         }
@@ -15,7 +15,7 @@ class AddressLevel extends BaseEntity {
     static create(uuid, title, level, parentAddressLevel) {
         const addressLevel = new AddressLevel();
         addressLevel.uuid = uuid;
-        addressLevel.title = title;
+        addressLevel.name = title;
         addressLevel.level = level;
         addressLevel.parentAddressLevel = parentAddressLevel;
         return addressLevel;
@@ -28,7 +28,7 @@ class AddressLevel extends BaseEntity {
     cloneForNewEncounter() {
         const addressLevel = new AddressLevel();
         addressLevel.uuid = this.uuid;
-        addressLevel.title = this.title;
+        addressLevel.name = this.name;
         return addressLevel;
     }
 }
