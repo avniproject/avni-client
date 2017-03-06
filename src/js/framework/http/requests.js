@@ -23,7 +23,7 @@ let _getText = (endpoint, cb, errorHandler) => {
     return fetchFactory(endpoint, "GET", makeHeader("text"))
         .then((response) => {
             if (!response.ok) {
-                console.log(`Error response received from server: ${response}`);
+                console.log(`Error for ${endpoint}: ${JSON.stringify(response)}`);
                 throw new Error(`HTTP Status: ${response.status}`);
             }
             return response.text();

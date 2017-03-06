@@ -29,7 +29,6 @@ class MessageService extends BaseService {
         EntityMetaData.model().forEach((entityMetaData) => {
             if (entityMetaData.nameTranslated) {
                 this.getAll(entityMetaData.entityName).forEach((entity) => {
-                    console.log(`Adding translation for ${entityMetaData.entityName} key ${entity.name}`);
                     this.addTranslation('en', entity.name, entity.name);
                 });
             }
