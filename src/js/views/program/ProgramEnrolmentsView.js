@@ -6,12 +6,11 @@ import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import {ProgramEnrolmentsActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentsActions";
-import {Text, Content, Container, List, ListItem} from "native-base";
+import {Content, Container} from "native-base";
 import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ProgramEnrolmentDashboardView from "./ProgramEnrolmentDashboardView";
-import DGS from '../primitives/DynamicGlobalStyles';
-import Separator from '../primitives/Separator';
+import TabularListView from "../common/TabularListView";
 
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
@@ -32,12 +31,12 @@ class ProgramEnrolmentsView extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    renderRow(programEnrolment) {
-        return (<ListItem style={{flexDirection: 'row'}}>
-            <Text style={{flex: 1}}>{moment(programEnrolment.enrolmentDateTime).format('DD-MM-YYYY')}</Text>
-            <Text style={{flex: 1}}>{programEnrolment.individual.name}</Text>
-            <Text style={{flex: 1}} onPress={() => TypedTransition.from(this).with({enrolmentUUID: programEnrolment.uuid}).to(ProgramEnrolmentDashboardView)}>{programEnrolment.individual.lowestAddressLevel.name}</Text>
-        </ListItem>);
+    static displayItemsForProgramEnrolment(programEnrolment) {
+        const displayItems = [];
+        displayItems.push(moment(programEnrolment.enrolmentDateTime).format('DD-MM-YYYY'));
+        displayItems.push(programEnrolment.individual.name);
+        displayItems.push(programEnrolment.individual.lowestAddressLevel.name);
+        return displayItems;
     }
 
     render() {
@@ -45,17 +44,12 @@ class ProgramEnrolmentsView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={`${this.I18n.t('allEnrolmentsInProgram')}: ${this.state.programName}`}/>
-                    <View style={{paddingHorizontal: DGS.resizeWidth(12.5), marginTop: DGS.resizeHeight(24)}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text style={{flex: 1}}>{this.I18n.t('enrolledOn')}</Text>
-                            <Text style={{flex: 1}}>{this.I18n.t('name')}</Text>
-                            <Text style={{flex: 1}}>{this.I18n.t('lowestAddressLevel')}</Text>
-                        </View>
-                        <View style={{marginTop: DGS.resizeHeight(24)}}>
-                            <Separator/>
-                        </View>
-                        <List primaryText={''} dataArray={this.state.enrolments} renderRow={(programEnnrolment) => this.renderRow(programEnnrolment)}/>
-                    </View>
+                    <TabularListView data={this.state.enrolments}
+                                     tableTitle={this.I18n.t('noEnrolments')}
+                                     getRow={ProgramEnrolmentsView.displayItemsForProgramEnrolment}
+                                     handleClick={(rowEntity) => TypedTransition.from(this).with({enrolmentUUID: rowEntity.uuid}).to(ProgramEnrolmentDashboardView)}
+                                     headerTitleKeys={['enrolledOn', 'name', 'lowestAddressLevel']}
+                    />
                 </Content>
             </Container>
         );

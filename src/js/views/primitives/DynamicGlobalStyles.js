@@ -69,7 +69,7 @@ class DynamicGlobalStyles {
 
     createCardStyles() {
         this.card = {
-            self: {marginTop: this.resizeHeight(8), paddingHorizontal: this.resizeWidth(12), paddingVertical: this.resizeHeight(18)},
+            self: {paddingHorizontal: this.resizeWidth(12), paddingVertical: this.resizeHeight(18), marginHorizontal: this.resizeWidth(12), marginTop: this.resizeHeight(8), borderRadius: 5},
             title: {fontSize: 20, color: Colors.InputNormal, marginTop: this.resizeHeight(4)},
             separator: {marginTop: this.resizeHeight(24)},
             aggregate: {

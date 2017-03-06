@@ -1,76 +1,56 @@
-import {View, ListView, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
-import React, {Component} from 'react';
-import General from '../../utility/General';
-import AbstractComponent from '../../framework/view/AbstractComponent';
-import GlobalStyles from "../primitives/GlobalStyles";
-import MessageService from '../../service/MessageService';
-import _ from 'lodash';
+import {View, Text, StyleSheet, TouchableNativeFeedback} from "react-native";
+import React, {Component} from "react";
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import _ from "lodash";
+import DGS from "../primitives/DynamicGlobalStyles";
+import Colors from "../primitives/Colors";
+import Fonts from "../primitives/Fonts";
+import Separator from "../primitives/Separator";
+import {List, ListItem} from "native-base";
 
 class TabularListView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService(MessageService).getI18n();
-        this.clickable = this.clickable.bind(this);
-        this.handleClick = this.handleClick.bind(this);
     }
 
     static propTypes = {
-        data: React.PropTypes.array.isRequired,
-        message: React.PropTypes.string.isRequired,
+        data: React.PropTypes.object.isRequired,
+        tableTitle: React.PropTypes.string.isRequired,
         handleClick: React.PropTypes.func,
+        getRow: React.PropTypes.func.isRequired,
+        headerTitleKeys: React.PropTypes.array.isRequired
     };
 
-    clickable() {
-        return !_.isNil(this.props.handleClick);
-    }
-
-    handleClick(key, value, index) {
-        return this.clickable() ? ()=> this.props.handleClick(key, value, index) : General.emptyFunction;
-    }
-
-    renderRow(rowData) {
-        const WrappingComponent = this.clickable() ? TouchableNativeFeedback : View;
-
-        return (
-            <WrappingComponent onPress={this.handleClick(rowData.key, rowData.value, rowData.index)}>
-                <View style={GlobalStyles.listRow}>
-
-                    <View style={GlobalStyles.listCellContainer}>
-                        <Text
-                            style={GlobalStyles.listCell}>{this.I18n.t(rowData.key)}</Text>
-                    </View>
-                    <View style={GlobalStyles.listCellContainer}>
-                        <Text
-                            style={GlobalStyles.listCell}>{rowData.value}</Text>
-                    </View>
-
-                </View>
-            </WrappingComponent>);
+    renderRow(rowEntity) {
+        const rowData = this.props.getRow(rowEntity);
+        return (<ListItem style={{flexDirection: 'row'}}>
+            {rowData.map((cell) => <Text style={{flex: 1}} onPress={() => this.props.handleClick(rowEntity)}>{cell}</Text>)}
+        </ListItem>);
     }
 
     render() {
-        if (_.isEmpty(this.props.data)) return (<View/>);
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const dsClone = ds.cloneWithRows(this.props.data);
-
-        return (
-            <View style={GlobalStyles.listViewContainer} keyboardShouldPersistTaps={true}>
-                <ListView
-                    keyboardShouldPersistTaps={true}
-                    dataSource={dsClone}
-                    renderRow={(rowData) => this.renderRow(rowData)}
-                    enableEmptySections={true}
-                    renderHeader={() => <Text
-                        style={GlobalStyles.listViewHeader}>{this.I18n.t(this.props.message)}</Text>}
-                    renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => <Text
-                        key={rowID}
-                        style={{
-                            height: adjacentRowHighlighted ? 1 : 2,
-                            backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
-                        }}/>}
-                />
+        if (_.isEmpty(this.props.data))
+            return (<View style={{flexDirection: 'row', justifyContent: 'center', marginTop: DGS.resizeHeight(10)}}>
+                <Text>{this.I18n.t('noOpenEncounters')}</Text>
             </View>
         );
+
+        return (
+            <View>
+                <Text style={DGS.card.table.title}>{this.props.tableTitle}</Text>
+                <View style={{flexDirection: 'row', marginTop: DGS.resizeHeight(26)}}>
+                    {this.props.headerTitleKeys.map((titleKey) => this.getTableHeaderCell(titleKey))}
+                </View>
+                <View style={{marginTop: DGS.resizeHeight(17.8)}}>
+                    <Separator/>
+                </View>
+                <List primaryText={''} dataArray={this.props.data} renderRow={(rowEntity) => this.renderRow(rowEntity)}/>
+            </View>
+        );
+    }
+
+    getTableHeaderCell(messageKey) {
+        return <Text style={{flex: 0.25, color: Colors.InputNormal, fontSize: Fonts.Normal}}>{this.I18n.t(messageKey)}</Text>;
     }
 }
 
