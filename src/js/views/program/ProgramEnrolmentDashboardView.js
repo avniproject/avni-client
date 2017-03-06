@@ -5,9 +5,10 @@ import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import IndividualProfile from '../common/IndividualProfile';
-import {ProgramEnrolmentDashboardActionsNames as Actions} from '../../action/prorgam/ProgramEnrolmentDashboardActions';
-import Observations from '../common/Observations';
+import IndividualProfile from "../common/IndividualProfile";
+import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentDashboardActions";
+import Observations from "../common/Observations";
+import {Text, Content, Container} from "native-base";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -42,11 +43,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         </View>
                         <Text>{this.I18n.t('enrolmentAttributes')}</Text>
                         <Observations observations={this.state.enrolment.observations} encounterNumber={0}/>
-                        {this.state.encounters.forEach((encounter) => {
-                            <View>
+                        {this.state.enrolment.encounters.forEach((encounter) => {
+                            return <View>
                                 <Text>{this.I18n.t('enrolmentAttributes')}</Text>
                                 <Observations observations={encounter.observations} encounterNumber={0}/>
-                            </View>
+                            </View>;
                         })}
                     </View>
                 </Content>

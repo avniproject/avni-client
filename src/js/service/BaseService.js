@@ -15,6 +15,7 @@ class BaseService {
     }
 
     findByUUID(uuid, schema) {
+        if (_.isEmpty(uuid)) throw Error("UUID is empty or null");
         if (_.isNil(schema)) schema = this.getSchema();
 
         return this.findByKey("uuid", uuid, schema);

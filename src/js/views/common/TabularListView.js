@@ -18,7 +18,8 @@ class TabularListView extends AbstractComponent {
         tableTitle: React.PropTypes.string.isRequired,
         handleClick: React.PropTypes.func,
         getRow: React.PropTypes.func.isRequired,
-        headerTitleKeys: React.PropTypes.array.isRequired
+        headerTitleKeys: React.PropTypes.array.isRequired,
+        emptyTableMessage: React.PropTypes.string.isRequired
     };
 
     renderRow(rowEntity) {
@@ -31,13 +32,13 @@ class TabularListView extends AbstractComponent {
     render() {
         if (_.isEmpty(this.props.data))
             return (<View style={{flexDirection: 'row', justifyContent: 'center', marginTop: DGS.resizeHeight(10)}}>
-                <Text>{this.I18n.t('noOpenEncounters')}</Text>
+                <Text>{this.props.emptyTableMessage}</Text>
             </View>
         );
 
         return (
             <View>
-                <Text style={DGS.card.table.title}>{this.props.tableTitle}</Text>
+                {_.isEmpty(this.props.tableTitle) ? <View/> : <Text style={DGS.card.table.title}>{this.props.tableTitle}</Text>}
                 <View style={{flexDirection: 'row', marginTop: DGS.resizeHeight(26)}}>
                     {this.props.headerTitleKeys.map((titleKey) => this.getTableHeaderCell(titleKey))}
                 </View>

@@ -11,6 +11,7 @@ import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ProgramEnrolmentDashboardView from "./ProgramEnrolmentDashboardView";
 import TabularListView from "../common/TabularListView";
+import DGS from "../primitives/DynamicGlobalStyles";
 
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
@@ -44,12 +45,15 @@ class ProgramEnrolmentsView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={`${this.I18n.t('allEnrolmentsInProgram')}: ${this.state.programName}`}/>
-                    <TabularListView data={this.state.enrolments}
-                                     tableTitle={this.I18n.t('noEnrolments')}
-                                     getRow={ProgramEnrolmentsView.displayItemsForProgramEnrolment}
-                                     handleClick={(rowEntity) => TypedTransition.from(this).with({enrolmentUUID: rowEntity.uuid}).to(ProgramEnrolmentDashboardView)}
-                                     headerTitleKeys={['enrolledOn', 'name', 'lowestAddressLevel']}
-                    />
+                    <View style={{paddingHorizontal: DGS.resizeWidth(12)}}>
+                        <TabularListView data={this.state.enrolments}
+                                         tableTitle={''}
+                                         getRow={ProgramEnrolmentsView.displayItemsForProgramEnrolment}
+                                         handleClick={(rowEntity) => TypedTransition.from(this).with({enrolmentUUID: rowEntity.uuid}).to(ProgramEnrolmentDashboardView)}
+                                         headerTitleKeys={['enrolledOn', 'name', 'lowestAddressLevel']}
+                                         emptyTableMessage={this.I18n.t('noEnrolments')}
+                        />
+                    </View>
                 </Content>
             </Container>
         );

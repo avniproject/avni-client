@@ -1,5 +1,5 @@
-import G from "../../utility/General";
 import EntityService from "../../service/EntityService";
+import ProgramEnrolment from '../../models/ProgramEnrolment';
 
 class ProgramEnrolmentDashboardActions {
     static getInitialState() {
@@ -7,9 +7,8 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onLoad(state, action, context) {
-        const newState = state.clone();
-        const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID);
-        newState.enrolment = enrolment;
+        const newState = {};
+        newState.enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         return newState;
     }
 }

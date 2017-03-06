@@ -170,12 +170,12 @@ export default {
 
 
     // List
-    listBorderColor: '#ddd',
-    listDividerBg: '#ddd',
+    listBorderColor: 'rgba(97, 97, 97, 0.20)',
+    listDividerBg: 'rgba(97, 97, 97, 0.20)',
     listItemHeight: 72,
-    listItemPadding: (Platform.OS === 'ios' ) ? 12 : 0,
-    listNoteColor: '#808080',
-    listNoteSize: 13,
+    listItemPadding: 0,
+    listNoteColor: '#4a4a4a',
+    listNoteSize: 14,
 
 
     // Progress Bar

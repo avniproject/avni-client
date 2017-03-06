@@ -53,7 +53,9 @@ class ProgramDashboard extends AbstractComponent {
                                      headerTitleKeys={['scheduledDate', 'name', 'lowestAddressLevel', 'lastVisitDate']}
                                      tableTitle={this.I18n.t('upcomingVisits')}
                                      handleClick={() => {}}
-                                     getRow={ProgramDashboard.displayItemsForProgramEncounters}/>
+                                     getRow={ProgramDashboard.displayItemsForProgramEncounters}
+                                     emptyTableMessage={this.I18n.t('noOpenEncounters')}
+                    />
                     <View style={DGS.card.action.self}>
                         <Text style={DGS.card.action.button}
                               onPress={() => TypedTransition.from(this).with({programUUID: this.props.summary.program.uuid}).to(ProgramEnrolmentsView)}>{this.I18n.t('viewAll')}</Text>
