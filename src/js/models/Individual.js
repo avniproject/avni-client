@@ -162,6 +162,10 @@ class Individual extends ObservationsHolder {
         return eligiblePrograms;
     }
 
+    addEncounter(encounter) {
+        this.encounters.push(encounter);
+    }
+
     cloneWithoutEncounters() {
         const individual = this.cloneAsReference();
         super.clone(individual);

@@ -34,7 +34,6 @@ class Observation {
     }
 
     static valueAsString(observation, conceptService) {
-        console.log('Observation.valueAsString');
         if (observation.concept.datatype === Concept.dataType.Date) {
             return observation.getValueWrapper().asDisplayDate();
         } else if (observation.getValueWrapper().constructor === SingleCodedValue) {

@@ -44,17 +44,19 @@ class IndividualEncounterService extends BaseService {
     }
 
     saveOrUpdate(encounter) {
-        console.log("IndividualEncounterService.saveOrUpdate");
-        console.log(encounter.observations);
         encounter.encounterDateTime = new Date();
         encounter.observations.forEach((observation) => {
             observation.valueJSON = JSON.stringify(observation.valueJSON);
         });
 
-        console.log(encounter.observations);
         const db = this.db;
         this.db.write(()=> {
             db.create(Encounter.schema.name, encounter, true);
+
+            const loadedEncounter = this.findByUUID(encounter.uuid, Encounter.schema.name);
+            const individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
+            individual.addEncounter(loadedEncounter);
+
             db.create(EntityQueue.schema.name, EntityQueue.create(encounter, Encounter.schema.name));
         });
         return encounter;
