@@ -17,8 +17,9 @@ export class IndividualRegisterActions {
 
     static onLoad(state, action, context) {
         const newState = state.clone(state);
-        newState.individual = new Individual();
-        newState.individual.observations = [];
+        newState.individual = Individual.createSafeInstance();
+        newState.age = "";
+        newState.ageProvidedInYears = true;
         newState.wizard.reset();
         return newState;
     }
