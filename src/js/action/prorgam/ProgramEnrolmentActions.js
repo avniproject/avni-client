@@ -13,7 +13,7 @@ export class ProgramEnrolmentActions {
     static onLoad(state, action, context) {
         if (!_.isNil(state.wizard)) return state.clone();
 
-        const form = context.get(FormMappingService).findForm(action.enrolment.program);
+        const form = context.get(FormMappingService).findFormForProgramEnrolment(action.enrolment.program);
         const programEnrolmentState = new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1));
         programEnrolmentState.enrolment = action.enrolment;
         return programEnrolmentState;

@@ -14,6 +14,15 @@ class BaseService {
         return this.context.getBean(name);
     }
 
+    findAllByKey(keyName, value, schemaName) {
+        return this.findAllByCriteria(`${keyName}="${value}"`, schemaName);
+    }
+
+    findAllByCriteria(filterCriteria, schema) {
+        if (_.isNil(schema)) schema = this.getSchema();
+        return this.db.objects(schema).filtered(filterCriteria);
+    }
+
     findByUUID(uuid, schema) {
         if (_.isEmpty(uuid)) throw Error("UUID is empty or null");
         if (_.isNil(schema)) schema = this.getSchema();
@@ -21,14 +30,20 @@ class BaseService {
         return this.findByKey("uuid", uuid, schema);
     }
 
-    findAllByKey(keyName, value, schemaName) {
-        if (_.isNil(schemaName)) schemaName = this.getSchema();
-        return this.db.objects(schemaName).filtered(`${keyName}="${value}"`);
+    findByCriteria(filterCriteria, schema) {
+        const allEntities = this.findAllByCriteria(filterCriteria, schema);
+        return this.getReturnValue(allEntities);
     }
 
     findByKey(keyName, value, schemaName) {
         const entities = this.findAllByKey(keyName, value, schemaName);
-        return entities.length === 1 ? entities[0] : undefined;
+        return this.getReturnValue(entities);
+    }
+
+    getReturnValue(entities) {
+        if (entities.length === 0) return undefined;
+        if (entities.length === 1) return entities[0];
+        return entities;
     }
 
     saveOrUpdate(entity, schema) {
