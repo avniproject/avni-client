@@ -27,7 +27,7 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {cb: (firstPage) => {
-            TypedTransition.from(this).to(firstPage ? IndividualRegisterView : IndividualRegisterFormView, Navigator.SceneConfigs.FloatFromLeft, true);
+            TypedTransition.from(this).to(firstPage ? IndividualRegisterView : IndividualRegisterFormView, true);
         }});
     }
 

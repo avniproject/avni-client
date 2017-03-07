@@ -11,15 +11,13 @@ export default class TypedTransition {
         return this;
     }
 
-    to(viewClass, sceneConfig, replacePrevious) {
+    to(viewClass, replacePrevious) {
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
 
         const path = viewClass.path();
         var route = {path, queryParams: this.queryParams || {}};
-        if (sceneConfig !== undefined) {
-            route.sceneConfig = sceneConfig;
-        }
+
         if (replacePrevious)
             this.view.context.navigator().replacePreviousAndPop(route);
         else

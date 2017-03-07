@@ -63,7 +63,7 @@ class IndividualEncounterView extends AbstractComponent {
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (firstPage) => {
-                TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView, Navigator.SceneConfigs.FloatFromLeft, true);
+                TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView, true);
             }
         });
     }
@@ -73,7 +73,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content ref='abc'>
-                    <AppHeader title={this.state.encounter.individual.name}/>
+                    <AppHeader title={this.state.encounter.individual.name} func={() => this.previous()}/>
 
                     <View style={{flexDirection: 'column'}}>
                         {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
