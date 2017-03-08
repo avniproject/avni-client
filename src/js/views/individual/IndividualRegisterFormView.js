@@ -31,6 +31,10 @@ class IndividualRegisterFormView extends AbstractComponent {
         }});
     }
 
+    shouldComponentUpdate(nextProps, nextState){
+        return !nextState.wizard.isNonFormPage()
+    }
+
     render() {
         return (
             <Container theme={themes}>

@@ -23,7 +23,9 @@ import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
-    static propTypes = {};
+    static propTypes = {
+        params: React.PropTypes.object.isRequired
+    };
 
     constructor(props, context) {
         super(props, context, ReducerKeys.individualRegister);
@@ -35,9 +37,16 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        if(this.props.params.startOfNewRegistration){
+            this.dispatchAction(Actions.ON_LOAD);
+        }
         super.componentWillMount();
     }
+
+    shouldComponentUpdate(nextProps, nextState){
+        return nextState.wizard.isNonFormPage()
+    }
+
 
     render() {
         return (

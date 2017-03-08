@@ -1,4 +1,5 @@
 import _ from "lodash";
+import StaticFormElementGroup from "../models/application/StaticFormElementGroup";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -36,9 +37,7 @@ class AbstractDataEntryState {
 
     movePrevious() {
         this.wizard.movePrevious();
-        if (!this.wizard.isNonFormPage()) {
-            this.formElementGroup = this.formElementGroup.previous();
-        }
+        this.formElementGroup = this.formElementGroup.previous();
     }
 
     get observationsHolder() {}

@@ -28,6 +28,16 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     get observationsHolder() {
         return this.individual;
     }
+
+    movePrevious() {
+        this.wizard.movePrevious();
+        if (!this.wizard.isNonFormPage()) {
+            this.formElementGroup = this.formElementGroup.previous();
+        } else {
+            this.formElementGroup = new StaticFormElementGroup(this.formElementGroup.form);
+        }
+    }
+
 }
 
 export default IndividualRegistrationState;

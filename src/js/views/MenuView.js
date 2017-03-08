@@ -41,7 +41,7 @@ class MenuView extends AbstractComponent {
     }
 
     registrationView() {
-        TypedTransition.from(this).to(RegistrationView);
+        TypedTransition.from(this).with({startOfNewRegistration: true}).to(RegistrationView);
     }
 
     _preSync() {
