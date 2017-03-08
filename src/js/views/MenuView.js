@@ -14,6 +14,7 @@ import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from '../views/primitives/DynamicGlobalStyles';
 import {IndividualEncounterViewActions as Actions} from "../action/individual/EncounterActions";
 import DashboardView from "./program/DashboardView";
+import Colors from './primitives/Colors';
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -29,7 +30,7 @@ class MenuView extends AbstractComponent {
     }
 
     static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: 16};
-    static iconStyle = {color: '#009688', opacity: 0.8, justifyContent: 'center', fontSize: 48};
+    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48};
 
     createStyles() {
         this.mainContainerStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29), marginTop: DynamicGlobalStyles.resizeHeight(71)};
@@ -124,7 +125,7 @@ class MenuView extends AbstractComponent {
 
     render() {
         return (
-            <Content style={{backgroundColor: '#212121'}}>
+            <Content style={{backgroundColor: Colors.Blackish}}>
                 <Grid style={this.mainContainerStyle}>
                     <Row>
                         <Col style={this.columnStyle}>

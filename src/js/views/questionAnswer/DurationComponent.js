@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import AppState from "../../hack/AppState";
 import MessageService from "../../service/MessageService";
 import GlobalStyles from "../primitives/GlobalStyles";
+import Colors from '../primitives/Colors';
 
 class DurationComponent extends Component {
     constructor(props, context) {
@@ -65,7 +66,7 @@ class DurationComponent extends Component {
         },
         notPressedButton: {
             backgroundColor: '#f5f5f5',
-            color: "#e0e0e0"
+            color: Colors.SecondaryActionButtonColor
         }
     });
 

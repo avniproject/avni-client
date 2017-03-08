@@ -4,6 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Button, Header, Title, Icon} from "native-base";
 import _ from 'lodash';
+import Colors from '../primitives/Colors';
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -24,7 +25,7 @@ class AppHeader extends AbstractComponent {
 
     render() {
         return (
-            <Header style={{backgroundColor: '#212121'}}>
+            <Header style={{backgroundColor: Colors.Blackish}}>
                 <Button transparent onPress={() => this.onPress()}>
                     <Icon style={{fontSize: 25}} name='keyboard-arrow-left'/>
                 </Button>

@@ -6,6 +6,7 @@ import {
 } from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
+import Colors from '../primitives/Colors';
 
 class WizardButtons extends AbstractComponent {
     constructor(props, context) {
@@ -23,7 +24,7 @@ class WizardButtons extends AbstractComponent {
         return (
             <View style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between', flexDirection: 'row'}}>
                 {this.props.previous.visible ? <Button primary
-                                                       style={{flex: 0.5, backgroundColor: '#e0e0e0'}}
+                                                       style={{flex: 0.5, backgroundColor: Colors.SecondaryActionButtonColor}}
                                                        textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{previousButtonLabel}</Button> :
                     <View style={{flex: 0.5}}/>}
                 <Button primary

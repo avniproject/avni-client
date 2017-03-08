@@ -12,6 +12,7 @@ import themes from "../primitives/themes";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import AppHeader from '../common/AppHeader';
 import Fonts from "../primitives/Fonts";
+import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -118,7 +119,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-        TypedTransition.from(this).with({individualUUID: individual.uuid}).to(IndividualEncounterLandingView);
+        TypedTransition.from(this).with({individualUUID: individual.uuid}).to(individual.hasActiveEnrolment ? ProgramEnrolmentDashboardView : IndividualEncounterLandingView);
     }
 }
 

@@ -8,7 +8,6 @@ import Individual from "./Individual";
 import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
-import ValidationResult from "./application/ValidationResult";
 
 class ProgramEnrolment extends ObservationsHolder {
     static schema = {
@@ -104,6 +103,10 @@ class ProgramEnrolment extends ObservationsHolder {
 
     get lastFulfilledEncounter() {
         return this.encounters.length > 1 ? this.encounters[this.encounters.length - 2] : null;
+    }
+
+    get isActive() {
+        return _.isNil(this.programExitDateTime);
     }
 }
 

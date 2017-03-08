@@ -77,5 +77,8 @@
   "enrolmentAttributes": "Enrolment Attributes",
   "viewSchedule": "VIEW SCHEDULE",
   "noOpenEncounters": "There are no pending visits",
-  "noEnrolments": "There are no enrolments in this program"
+  "noEnrolments": "There are no enrolments in this program",
+  "programList": "Program List",
+  "startProgramVisit": "Start Program Visit",
+  "startGeneralVisit": "Start General Visit"
 }

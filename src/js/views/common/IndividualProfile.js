@@ -13,6 +13,7 @@ import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistory
 import {IndividualProfileActions as IPA} from "../../action/individual/IndividualProfileActions";
 import ReducerKeys from "../../reducer";
 import _ from 'lodash';
+import Colors from '../primitives/Colors';
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -20,8 +21,8 @@ class IndividualProfile extends AbstractComponent {
         individual: React.PropTypes.object.isRequired
     };
 
-    static buttonIconStyle = {fontSize: 14, color: '#009688'};
-    static buttonTextStyle = {fontSize: 14, color: '#009688'};
+    static buttonIconStyle = {fontSize: 14, color: Colors.ActionButtonColor};
+    static buttonTextStyle = {fontSize: 14, color: Colors.ActionButtonColor};
 
     constructor(props, context) {
         super(props, context, ReducerKeys.individualProfile);
@@ -77,7 +78,7 @@ class IndividualProfile extends AbstractComponent {
                         </Container>
                     </Modal>
 
-                    <Grid style={{backgroundColor: '#212121'}}>
+                    <Grid style={{backgroundColor: Colors.Blackish}}>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
                             {this.getImage(this.props.individual)}
                         </Row>

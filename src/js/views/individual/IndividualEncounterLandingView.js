@@ -16,6 +16,7 @@ import {IndividualEncounterViewActions as Actions} from "../../action/individual
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import _ from "lodash";
 import General from "../../utility/General";
+import Colors from '../primitives/Colors';
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -50,7 +51,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
         console.log('IndividualEncounterLandingView.render');
         return (
             <Container theme={themes}>
-                <Content style={{backgroundColor: '#212121'}}>
+                <Content style={{backgroundColor: Colors.Blackish}}>
                     <AppHeader title={this.I18n.t('generalConsultation')}/>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>

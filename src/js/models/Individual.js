@@ -172,6 +172,14 @@ class Individual extends ObservationsHolder {
         return individual;
     }
 
+    get hasActiveEnrolment() {
+        return _.some(this.enrolments, (enrolment) => enrolment.isActive);
+    }
+
+    get firstActiveEnrolment() {
+        return _.find(this.enrolments, (enrolment) => enrolment.isActive);
+    }
+
     cloneAsReference() {
         const individual = new Individual();
         individual.uuid = this.uuid;

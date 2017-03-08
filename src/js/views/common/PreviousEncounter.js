@@ -43,7 +43,6 @@ class PreviousEncounter extends AbstractComponent {
                     );
                 })}</View>
         );
-
     }
 }
 

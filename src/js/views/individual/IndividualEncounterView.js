@@ -14,7 +14,7 @@ import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import PreviouEncounter from '../common/PreviousEncounter'
-
+import Colors from '../primitives/Colors';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -89,7 +89,7 @@ class IndividualEncounterView extends AbstractComponent {
 
     toggleExpandCollapse = () => {
         this.dispatchAction(Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER);
-    }
+    };
 
     getCollapsedView() {
         return (
@@ -106,7 +106,7 @@ class IndividualEncounterView extends AbstractComponent {
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight
-                            style={{position: 'absolute', width:81, height:22, backgroundColor: '#e0e0e0', bottom:-11}}
+                            style={{position: 'absolute', width:81, height:22, backgroundColor: Colors.SecondaryActionButtonColor, bottom:-11}}
                             onPress={this.toggleExpandCollapse}
                             textStyle={{color: '#212121'}}>
                         <Text>Expand</Text>
@@ -133,7 +133,7 @@ class IndividualEncounterView extends AbstractComponent {
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight light
-                            style={{position: 'absolute', width:81, height:22, backgroundColor: '#e0e0e0', bottom:-11}}
+                            style={{position: 'absolute', width:81, height:22, backgroundColor: Colors.SecondaryActionButtonColor, bottom:-11}}
                             onPress={() => this.toggleExpandCollapse()}
                             textStyle={{color: '#212121'}}>
                         <Text>Collapse</Text>
