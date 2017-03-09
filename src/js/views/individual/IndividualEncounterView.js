@@ -15,6 +15,7 @@ import WizardButtons from "../common/WizardButtons";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import PreviouEncounter from '../common/PreviousEncounter'
 import Colors from '../primitives/Colors';
+import EncounterActionState from '../../state/EncounterActionState';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -44,18 +45,19 @@ class IndividualEncounterView extends AbstractComponent {
                     encounterDecisions: encounterDecisions
                 }).to(SystemRecommendationView);
             },
-            cb: () => {
+            movedNext: () => {
                 TypedTransition.from(this).with().to(IndividualEncounterView);
             },
-            validationError: (message) => {
-                Alert.alert(this.I18n.t("validationError"), message,
-                    [
-                        {
-                            text: this.I18n.t('ok'), onPress: () => {
-                        }
-                        }
-                    ]
-                );
+            validationFailed: (newState) => {
+                if (EncounterActionState.hasOnlyExternalRuleError(this.state)) {
+                    Alert.alert(this.I18n.t("validationError"), newState.validationResults[0].message,
+                        [
+                            {
+                                text: this.I18n.t('ok'), onPress: () => {}
+                            }
+                        ]
+                    );
+                }
             }
         });
     }

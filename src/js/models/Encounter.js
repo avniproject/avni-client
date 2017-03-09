@@ -5,6 +5,7 @@ import ResourceUtil from "../utility/ResourceUtil";
 import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
+import ValidationResult from "./application/ValidationResult";
 
 class Encounter extends ObservationsHolder {
     static schema = {
@@ -55,6 +56,16 @@ class Encounter extends ObservationsHolder {
         encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneAsReference();
         super.clone(encounter);
         return encounter;
+    }
+
+    static validationKeys = {
+        ENCOUNTER_DATE_TIME: 'ENCOUNTER_DATE_TIME',
+        EXTERNAL_RULE: 'EXTERNAL_RULE'
+    };
+
+    validate() {
+        return _.isNil(this.encounterDateTime) ?
+            [new ValidationResult(false, Encounter.validationKeys.ENCOUNTER_DATE_TIME, "emptyValidationMessage")] : [ValidationResult.successful(Encounter.validationKeys.ENCOUNTER_DATE_TIME)];
     }
 }
 

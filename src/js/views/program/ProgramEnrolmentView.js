@@ -39,9 +39,14 @@ class ProgramEnrolmentView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            validationFailed: () => {},
-            saved: () => {TypedTransition.from(this).with({individualUUID: this.state.enrolment.individual.uuid}).to(IndividualEncounterLandingView)},
-            movedNext: () => {TypedTransition.from(this).to(ProgramEnrolmentView)}
+            validationFailed: () => {
+            },
+            completed: () => {
+                TypedTransition.from(this).with({individualUUID: this.state.enrolment.individual.uuid}).to(IndividualEncounterLandingView)
+            },
+            movedNext: () => {
+                TypedTransition.from(this).to(ProgramEnrolmentView)
+            }
         });
     }
 
@@ -50,14 +55,20 @@ class ProgramEnrolmentView extends AbstractComponent {
             <Content>
                 <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.state.enrolment.program.name})}/>
                 <View style={{marginLeft: 10, marginRight: 10, flexDirection: 'column'}}>
-                    {this.state.wizard.isFirstFormPage() ? <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/> : <View/>}
-                    <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement('enrolmentDate')}
-                                     dateValue={new PrimitiveValue(this.state.enrolment.enrolmentDateTime)}
-                                     validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEnrolment.validationKeys.ENROLMENT_DATE)}/>
+                    {this.state.wizard.isFirstFormPage() ?
+                        <View>
+                            <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/>
+                            <DateFormElement actionName={Actions.ENROLMENT_DATE_TIME_CHANGED} element={new StaticFormElement('enrolmentDate')}
+                                             dateValue={new PrimitiveValue(this.state.enrolment.enrolmentDateTime)}
+                                             validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEnrolment.validationKeys.ENROLMENT_DATE)}/>
+                        </View>
+                        :
+                        <View/>}
                     <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment}
                                       validationResults={this.state.validationResults}/>
                     <WizardButtons previous={{visible: false}}
-                                   next={{func: () => this.next(), visible: true, label: this.I18n.t(this.state.wizard.isLastPage() ? 'enrol' : 'next')}} nextDisabled={this.state.validationResults.length !== 0}/>
+                                   next={{func: () => this.next(), visible: true, label: this.I18n.t(this.state.wizard.isLastPage() ? 'enrol' : 'next')}}
+                                   nextDisabled={this.state.validationResults.length !== 0}/>
                 </View>
             </Content>
         </Container>);

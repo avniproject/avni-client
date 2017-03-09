@@ -1,6 +1,6 @@
 import _ from "lodash";
-import ValidationResult from "../models/application/ValidationResult";
 import AbstractDataEntryState from "./AbstractDataEntryState";
+import Encounter from "../models/Encounter";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -19,6 +19,14 @@ class EncounterActionState extends AbstractDataEntryState {
 
     get observationsHolder() {
         return this.encounter;
+    }
+
+    static hasOnlyExternalRuleError(state) {
+        return AbstractDataEntryState.hasValidationError(state, Encounter.validationKeys.EXTERNAL_RULE);
+    }
+
+    get staticFormElementIds() {
+        return this.wizard.isFirstPage() ? [Encounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
     }
 }
 

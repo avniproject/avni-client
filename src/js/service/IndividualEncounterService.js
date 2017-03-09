@@ -29,6 +29,7 @@ class IndividualEncounterService extends BaseService {
     newEncounter(individualUUID) {
         const encounter = Encounter.create();
         encounter.uuid = G.randomUUID();
+        encounter.encounterDateTime = new Date();
         encounter.individual = this.getService(IndividualService).findByUUID(individualUUID, Individual.schema.name);
         encounter.encounterType = this.getAll(EncounterType.schema.name)[0];
         return encounter;
@@ -44,7 +45,6 @@ class IndividualEncounterService extends BaseService {
     }
 
     saveOrUpdate(encounter) {
-        encounter.encounterDateTime = new Date();
         encounter.observations.forEach((observation) => {
             observation.valueJSON = JSON.stringify(observation.valueJSON);
         });

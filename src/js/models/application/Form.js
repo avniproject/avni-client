@@ -16,6 +16,12 @@ class Form {
         }
     };
 
+    static safeInstance() {
+        const form = new Form();
+        form.formElementGroups = [];
+        return form;
+    }
+
     static fromResource(resource) {
         return General.assignFields(resource, new Form(), ["uuid", "name", "formType"]);
     }
@@ -54,6 +60,10 @@ class Form {
         ProgramEncounter: 'ProgramEncounter',
         ProgramEnrolment: 'ProgramEnrolment',
         ProgramExit: 'ProgramExit'
+    };
+
+    addFormElementGroup(feg) {
+        this.formElementGroups.push(feg);
     }
 }
 

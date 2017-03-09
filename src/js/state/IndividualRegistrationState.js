@@ -4,6 +4,7 @@ import Wizard from "./Wizard";
 import _ from "lodash";
 import Form from "../models/application/Form";
 import StaticFormElementGroup from "../models/application/StaticFormElementGroup";
+import Individual from '../models/Individual';
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -38,6 +39,9 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         }
     }
 
+    get staticFormElementIds() {
+        return this.wizard.isFirstPage() ? _.keys(Individual.validationKeys) : [];
+    }
 }
 
 export default IndividualRegistrationState;

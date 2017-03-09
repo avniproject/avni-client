@@ -4,6 +4,7 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import Individual from "../../models/Individual";
 import EntityService from "../../service/EntityService";
 import Gender from "../../models/Gender";
+import StaticFormElementGroup from "../../models/application/StaticFormElementGroup";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {

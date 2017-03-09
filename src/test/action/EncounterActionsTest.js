@@ -27,6 +27,7 @@ let createIntialState = function (dataType, mandatory) {
     formElementGroup.addFormElement(formElement);
     const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1));
     state.encounter = Encounter.create();
+    state.encounter.encounterDateTime = new Date();
     return {state, formElement};
 };
 
@@ -144,15 +145,20 @@ describe('EncounterActionsTest', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
-        newState = EncounterActions.onNext(newState, {cb: () => {
-            expect('everything').to.not.be.ok;
-        }});
+        newState = EncounterActions.onNext(newState, {
+            movedNext: () => {
+                expect('everything').to.not.be.ok;
+            },
+            validationFailed: () => {}
+        });
         verifyFormElementAndObservations(newState, 1, 0);
         newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
-        newState = EncounterActions.onNext(newState, {cb: () => {
-            expect('everything').to.be.ok;
-        }});
+        newState = EncounterActions.onNext(newState, {
+            movedNext: () => {
+                expect('everything').to.be.ok;
+            }
+        });
         verifyFormElementAndObservations(newState, 0, 1);
     });
 
@@ -167,9 +173,11 @@ describe('EncounterActionsTest', () => {
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: anotherFormElement});
         verifyFormElementAndObservations(newState, 1, 0);
         var newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '10', formElement: formElement});
-        newState = EncounterActions.onNext(newState, {cb: () => {
-            valueToBeModifiedInCallback = 4;
-        }});
+        newState = EncounterActions.onNext(newState, {
+            movedNext: () => {
+                valueToBeModifiedInCallback = 4;
+            }
+        });
         verifyFormElementAndObservations(newState, 1, 1);
         expect(valueToBeModifiedInCallback).is.equal(4);
     });

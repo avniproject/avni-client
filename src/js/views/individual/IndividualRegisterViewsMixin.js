@@ -7,7 +7,7 @@ import {Actions} from "../../action/individual/IndividualRegisterActions";
 class IndividualRegisterViewsMixin {
     static next(view) {
         view.dispatchAction(Actions.NEXT, {
-            saved: () => {
+            completed: () => {
                 TypedTransition.from(view).to(LandingView);
             },
             movedNext: () => {

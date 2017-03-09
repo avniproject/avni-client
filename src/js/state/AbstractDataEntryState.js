@@ -1,5 +1,4 @@
 import _ from "lodash";
-import StaticFormElementGroup from "../models/application/StaticFormElementGroup";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -42,17 +41,17 @@ class AbstractDataEntryState {
 
     get observationsHolder() {}
 
-    handleNext(action, saveFn) {
-        const validationResults = _.union(this.observationsHolder.validate(), this.formElementGroup.validateMandatoryFields(this.observationsHolder));
+    handleNext(action, completionFn) {
+        const validationResults = _.union(this.observationsHolder.validate(), this.formElementGroup.validate(this.observationsHolder));
         this.handleValidationResults(validationResults);
-        if (this.validationResults.length !== 0 && this.wizard.isLastPage()) {
-            action.validationFailed();
-        } else if (this.wizard.isLastPage()) {
-            saveFn(this.observationsHolder);
-            action.saved();
-        } else if (this.validationResults.length === 0) {
+        if (this.anyFailedResultForCurrentFEG()) {
+            action.validationFailed(this);
+        } else if (this.validationResults.length === 0 && this.wizard.isLastPage()) {
+            completionFn(this.observationsHolder);
+            action.completed(this);
+        } else {
             this.moveNext();
-            action.movedNext();
+            action.movedNext(this);
         }
         return this;
     }
@@ -64,6 +63,17 @@ class AbstractDataEntryState {
     static hasValidationError(state, formElementIdentifier) {
         const validationError = AbstractDataEntryState.getValidationError(state, formElementIdentifier);
         return !_.isNil(validationError);
+    }
+
+    anyFailedResultForCurrentFEG() {
+        const formUUIDs = _.union(this.formElementGroup.formElementIds, this.staticFormElementIds);
+        return _.some(this.validationResults, (validationResult) => {
+            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) != -1;
+        });
+    }
+
+    get staticFormElementIds() {
+        return [];
     }
 }
 

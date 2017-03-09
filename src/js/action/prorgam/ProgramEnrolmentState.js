@@ -1,4 +1,5 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import ProgramEnrolment from '../../models/ProgramEnrolment';
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -14,6 +15,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     get observationsHolder() {
         return this.enrolment;
+    }
+
+    get staticFormElementIds() {
+        return this.wizard.isFirstPage() ? [ProgramEnrolment.validationKeys.ENROLMENT_DATE] : [];
     }
 }
 

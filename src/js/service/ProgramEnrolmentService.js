@@ -20,7 +20,6 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     enrol(programEnrolment) {
-        const db = this.db;
         programEnrolment.uuid = G.randomUUID();
 
         const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
@@ -32,6 +31,8 @@ class ProgramEnrolmentService extends BaseService {
             programEnrolment.encounters.push(programEncounter);
         }
 
+        const db = this.db;
+        console.log(programEnrolment);
         this.db.write(()=> {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 

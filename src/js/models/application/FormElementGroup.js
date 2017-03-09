@@ -55,14 +55,20 @@ class FormElementGroup {
         return this.displayOrder === 1;
     }
 
-    validateMandatoryFields(encounter) {
+    validate(observationHolder) {
         const validationResults = [];
         this.formElements.forEach((formElement) => {
-            const observation = encounter.findObservation(formElement.concept);
+            const observation = observationHolder.findObservation(formElement.concept);
             const validationResult = formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper().getValue());
             validationResults.push(validationResult);
         });
         return validationResults;
+    }
+
+    get formElementIds() {
+        return this.formElements.map((formElement) => {
+            return formElement.uuid
+        });
     }
 }
 

@@ -39,9 +39,9 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     next() {
-        this.dispatchAction(Actions.NEXT, {cb: (lastPage, encounterDecisions) => {
-            if (lastPage)
-                TypedTransition.from(this).with({encounter: this.state.encounter, previousFormElementGroup: this.state.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
+        this.dispatchAction(Actions.NEXT, {completed: (newState, encounterDecisions) => {
+            if (newState.wizard.isLastPage())
+                TypedTransition.from(this).with({encounter: newState.encounter, previousFormElementGroup: newState.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
             else
                 TypedTransition.from(this).with().to(IndividualEncounterView);
         }});

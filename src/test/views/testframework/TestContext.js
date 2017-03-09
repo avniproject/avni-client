@@ -3,6 +3,8 @@ import StubbedConceptService from "../../service/stub/StubbedConceptService";
 import StubbedConfigFileService from "../../service/stub/StubbedConfigFileService";
 import IndividualService from "../../../js/service/IndividualService";
 import StubbedIndividualService from "../../service/stub/StubbedIndividualService";
+import FormMappingService from "../../../js/service/FormMappingService";
+import StubbedFormMappingService from "../../service/stub/StubbedFormMappingService";
 
 class TestContext {
     getService(type) {
@@ -14,6 +16,8 @@ class TestContext {
             return new StubbedConfigFileService();
         else if (type === IndividualService)
             return new StubbedIndividualService();
+        else if (type === FormMappingService)
+            return new StubbedFormMappingService();
         return {
             getDecision: function () {
                 return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]

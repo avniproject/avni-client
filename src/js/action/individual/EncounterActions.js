@@ -29,35 +29,28 @@ export class EncounterActions {
     static onNext(state, action, context) {
         const newState = state.clone();
         const encounter = newState.encounter;
-        const validationResults = newState.formElementGroup.validateMandatoryFields(encounter);
-        newState.handleValidationResults(validationResults);
-        if (EncounterActions.anyFailedResultForCurrentFEG(validationResults, newState.formElementGroup)) {
-            return newState;
-        }
 
-        if (newState.wizard.isLastPage()) {
-            const decisionSupportValidationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
-            if (decisionSupportValidationResult.passed) {
-                var encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
-                context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
-                action.validationSuccessful(encounterDecisions, newState.encounter, newState.formElementGroup);
-            } else {
-                action.validationError(decisionSupportValidationResult.message);
-            }
-        } else {
-            newState.moveNext();
-            action.cb();
-        }
+        const customAction = {
+            validationFailed: () => {
+                action.validationFailed(newState);
+            },
+            completed: () => {
+                const validationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
+                newState.handleValidationResult(validationResult);
+                if (validationResult.success) {
+                    var encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
+                    context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
+                    action.completed(newState, encounterDecisions);
+                } else {
+                    action.validationFailed(newState);
+                }
+            },
+            movedNext: () => {
+                action.movedNext(newState);
+            },
+        };
+        newState.handleNext(customAction, () => {});
         return newState;
-    }
-
-    static anyFailedResultForCurrentFEG(validationResults, formElementGroup) {
-        const formUUIDs = formElementGroup.formElements.map((formElement) => {
-            return formElement.uuid
-        });
-        return _.some(validationResults, (validationResult) => {
-            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) != -1;
-        }) ;
     }
 
     static onEncounterViewLoad(state, action, context) {

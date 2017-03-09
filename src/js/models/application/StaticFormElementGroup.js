@@ -19,7 +19,11 @@ class StaticFormElementGroup {
         return true;
     }
 
-    validateMandatoryFields() {
+    validate() {
+        return [];
+    }
+
+    get formElementIds() {
         return [];
     }
 }
