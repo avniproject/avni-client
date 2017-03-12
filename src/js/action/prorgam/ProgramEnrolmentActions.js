@@ -4,6 +4,8 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from 'lodash';
+import EntityService from "../../service/EntityService";
+import ProgramEnrolment from '../../models/ProgramEnrolment';
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -11,12 +13,16 @@ export class ProgramEnrolmentActions {
     }
 
     static onLoad(state, action, context) {
-        if (!_.isNil(state.wizard)) return state.clone();
-
-        const form = context.get(FormMappingService).findFormForProgramEnrolment(action.enrolment.program);
-        const programEnrolmentState = new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1));
-        programEnrolmentState.enrolment = action.enrolment;
-        return programEnrolmentState;
+        if (state.hasEnrolmentChanged(action)) {
+            const form = context.get(FormMappingService).findFormForProgramEnrolment(action.enrolment.program);
+            const programEnrolmentState = new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1));
+            programEnrolmentState.enrolment = action.enrolment;
+            programEnrolmentState.newEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
+            return programEnrolmentState;
+        }
+        else {
+            return state.clone();
+        }
     }
 
     static enrolmentDateTimeChanged(state, action, context) {

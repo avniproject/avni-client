@@ -97,7 +97,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <View>
                 <View style={{
-                    backgroundColor: '#f7f7f7',
+                    backgroundColor: Colors.GreyContentBackground,
                     paddingLeft: 24,
                     paddingRight: 24,
                     paddingTop: 12,
@@ -123,7 +123,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <View>
                 <View style={{
-                    backgroundColor: '#f7f7f7',
+                    backgroundColor: Colors.GreyContentBackground,
                     paddingLeft: 24,
                     paddingRight: 24,
                     paddingTop: 12,

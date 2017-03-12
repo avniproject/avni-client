@@ -10,6 +10,7 @@ import DGS from '../primitives/DynamicGlobalStyles';
 import ConceptService from "../../service/ConceptService";
 import Observation from '../../models/Observation';
 import Fonts from '../primitives/Fonts';
+import Colors from '../primitives/Colors';
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -53,7 +54,7 @@ class Observations extends AbstractComponent {
     }
 
     getBackgroundColor(encounterNumber) {
-        return encounterNumber % 2 ? '#f7f7f7' : '';
+        return encounterNumber % 2 ? Colors.GreyContentBackground : '';
     }
 }
 

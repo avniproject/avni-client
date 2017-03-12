@@ -17,6 +17,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
 import ProgramEnrolment from '../../models/ProgramEnrolment';
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -42,10 +43,10 @@ class ProgramEnrolmentView extends AbstractComponent {
             validationFailed: () => {
             },
             completed: () => {
-                TypedTransition.from(this).with({individualUUID: this.state.enrolment.individual.uuid}).to(IndividualEncounterLandingView)
+                TypedTransition.from(this).resetTo(this.props.params.baseView);
             },
             movedNext: () => {
-                TypedTransition.from(this).to(ProgramEnrolmentView)
+                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
             }
         });
     }
@@ -66,12 +67,19 @@ class ProgramEnrolmentView extends AbstractComponent {
                         <View/>}
                     <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment}
                                       validationResults={this.state.validationResults}/>
-                    <WizardButtons previous={{visible: false}}
-                                   next={{func: () => this.next(), visible: true, label: this.I18n.t(this.state.wizard.isLastPage() ? 'enrol' : 'next')}}
-                                   nextDisabled={this.state.validationResults.length !== 0}/>
+                    <WizardButtons previous={{visible: !this.state.wizard.isFirstPage()}}
+                                   next={{func: () => this.next(), visible: true, label: this.I18n.t(this.nextButtonLabelKey)}}/>
                 </View>
             </Content>
         </Container>);
+    }
+
+    get nextButtonLabelKey() {
+        if (this.state.wizard.isLastPage()) {
+            return this.state.newEnrolment ? 'enrol' : 'save';
+        } else {
+            return 'next';
+        }
     }
 }
 

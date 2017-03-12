@@ -28,6 +28,7 @@ class ProgramEnrolment extends ObservationsHolder {
 
     static createSafeInstance() {
         const programEnrolment = new ProgramEnrolment();
+        programEnrolment.uuid = General.randomUUID();
         programEnrolment.observations = [];
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];

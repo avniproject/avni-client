@@ -10,6 +10,7 @@ import ReducerKeys from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/individual/SystemRecommendationActions";
+import Colors from '../primitives/Colors';
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -48,14 +49,14 @@ class SystemRecommendationView extends AbstractComponent {
                 <Content>
                     <AppHeader title={this.state.encounter.individual.name}/>
                     <Grid>
-                        <Row style={{backgroundColor: '#f7f7f7', paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, height: 74}}>
+                        <Row style={{backgroundColor: Colors.GreyContentBackground, paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, height: 74}}>
                             <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
                         </Row>
                         <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12}}>
                             <Grid>
                                 {
                                     _.values(this.state.encounterDecisions).map((encounterDecision) => {
-                                        return <Row style={{backgroundColor: '#f7f7f7', paddingTop: 19, paddingBottom: 19, paddingLeft:10}} key={decisionNumber++}>
+                                        return <Row style={{backgroundColor: Colors.GreyContentBackground, paddingTop: 19, paddingBottom: 19, paddingLeft:10}} key={decisionNumber++}>
                                             <Col>
                                                 <Text style={{fontSize: 14}}>{encounterDecision.value}</Text>
                                             </Col>

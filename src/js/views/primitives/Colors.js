@@ -11,6 +11,7 @@ class Colors {
     static Blackish = '#212121';
     static ActionButtonColor = '#009688';
     static SecondaryActionButtonColor = '#e0e0e0';
+    static GreyContentBackground = '#f7f7f7';
 }
 
 export default Colors;

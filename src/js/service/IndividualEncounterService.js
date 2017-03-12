@@ -45,10 +45,7 @@ class IndividualEncounterService extends BaseService {
     }
 
     saveOrUpdate(encounter) {
-        encounter.observations.forEach((observation) => {
-            observation.valueJSON = JSON.stringify(observation.valueJSON);
-        });
-
+        encounter.convertObsForSave();
         const db = this.db;
         this.db.write(()=> {
             db.create(Encounter.schema.name, encounter, true);

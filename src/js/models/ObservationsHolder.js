@@ -58,6 +58,12 @@ class ObservationsHolder extends BaseEntity {
             observationsHolder.observations.push(observation.cloneForEdit());
         });
     }
+
+    convertObsForSave() {
+        this.observations.forEach((observation) => {
+            observation.valueJSON = JSON.stringify(observation.valueJSON);
+        });
+    }
 }
 
 export default ObservationsHolder;

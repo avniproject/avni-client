@@ -20,14 +20,22 @@ class ProgramEnrolmentDashboardActions {
         }
         return newState;
     }
+
+    static onEditEnrolment(state, action, context) {
+        const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
+        action.cb(enrolment);
+        return state;
+    }
 }
 
 const ProgramEnrolmentDashboardActionsNames = {
-    ON_LOAD: 'PEDA.ON_LOAD'
+    ON_LOAD: 'PEDA.ON_LOAD',
+    ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT'
 };
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
+    [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
 ]);
 
 export {

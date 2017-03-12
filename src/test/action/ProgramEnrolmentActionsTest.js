@@ -7,9 +7,12 @@ import Individual from '../../js/models/Individual';
 
 describe('ProgramEnrolmentActionsTest', () => {
     it('next without filling enrolmentDateTime', () => {
-        const context = new TestContext();
-        var state = ProgramEnrolmentActions.getInitialState(context);
         const enrolment = ProgramEnrolment.createSafeInstance();
+        const serviceData = {};
+        serviceData[enrolment.uuid] = enrolment;
+        const context = new TestContext(serviceData);
+
+        var state = ProgramEnrolmentActions.getInitialState(context);
         enrolment.individual = Individual.createSafeInstance();
         state = ProgramEnrolmentActions.onLoad(state, {enrolment: enrolment}, context);
         state = ProgramEnrolmentActions.onNext(state, {

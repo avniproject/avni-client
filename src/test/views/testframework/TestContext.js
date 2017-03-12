@@ -5,8 +5,14 @@ import IndividualService from "../../../js/service/IndividualService";
 import StubbedIndividualService from "../../service/stub/StubbedIndividualService";
 import FormMappingService from "../../../js/service/FormMappingService";
 import StubbedFormMappingService from "../../service/stub/StubbedFormMappingService";
+import ProgramEnrolmentService from "../../../js/service/ProgramEnrolmentService";
+import StubbedProgramEnrolmentService from "../../service/stub/StubbedProgramEnrolmentService";
 
 class TestContext {
+    constructor(serviceData) {
+        this.serviceData = serviceData;
+    }
+
     getService(type) {
         if (type.name === "MessageService")
             return new StubbedMessageService();
@@ -18,6 +24,8 @@ class TestContext {
             return new StubbedIndividualService();
         else if (type === FormMappingService)
             return new StubbedFormMappingService();
+        else if (type === ProgramEnrolmentService)
+            return new StubbedProgramEnrolmentService(this.serviceData);
         return {
             getDecision: function () {
                 return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]

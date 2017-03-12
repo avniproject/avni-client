@@ -3,16 +3,16 @@ import {View} from "react-native";
 import React from "react";
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
-import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
-import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button, Header, Title, Icon} from "native-base";
+import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button} from "native-base";
 import moment from "moment";
 import themes from "../primitives/themes";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import AppHeader from '../common/AppHeader';
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import AppHeader from "../common/AppHeader";
 import Fonts from "../primitives/Fonts";
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
+import Colors from "../primitives/Colors";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -89,7 +89,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                     <List dataArray={this.props.params.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
-                                        style={{backgroundColor: '#f7f7f7', marginLeft: 0, paddingLeft: DynamicGlobalStyles.resizeWidth(17), padding: DynamicGlobalStyles.resizeWidth(17), height: DynamicGlobalStyles.resizeHeight(102)}}
+                                        style={{backgroundColor: Colors.GreyContentBackground, marginLeft: 0, paddingLeft: DynamicGlobalStyles.resizeWidth(17), padding: DynamicGlobalStyles.resizeWidth(17), height: DynamicGlobalStyles.resizeHeight(102)}}
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(68)}}>

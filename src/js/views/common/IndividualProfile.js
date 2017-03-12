@@ -14,6 +14,8 @@ import {IndividualProfileActions as IPA} from "../../action/individual/Individua
 import ReducerKeys from "../../reducer";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
+import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -140,9 +142,7 @@ class IndividualProfile extends AbstractComponent {
 
     programSelectionConfirmed() {
         this.dispatchAction(Actions.PROGRAM_SELECTION_CONFIRMED, {
-            cb: (newState) => TypedTransition.from(this).with(
-                {individual: this.props.individual, enrolment: newState.enrolment}
-            ).to(ProgramEnrolmentView)
+            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment)
         })
     }
 }

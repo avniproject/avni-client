@@ -27,7 +27,7 @@ class DynamicGlobalStyles {
             observationRow: {borderLeftWidth: 1, borderRightWidth: 1, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
             observationTable: {marginTop: this.resizeHeight(16)},
             observationColumn: {borderLeftWidth: 0.5, borderRightWidth: 0.5, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            component: {backgroundColor: '#f7f7f7', marginBottom: this.resizeHeight(36)}
+            component: {backgroundColor: Colors.GreyContentBackground, marginBottom: this.resizeHeight(36)}
         }
     }
 
@@ -60,7 +60,7 @@ class DynamicGlobalStyles {
 
     createGeneralHistoryStyles() {
         this.generalHistory = {
-            encounter: {backgroundColor: '#f7f7f7', marginTop: this.resizeHeight(16)},
+            encounter: {backgroundColor: Colors.GreyContentBackground, marginTop: this.resizeHeight(16)},
             encounterDateGrid: {marginBottom: this.resizeHeight(8)},
             buttonStyle: {marginLeft: 8, height: this.resizeHeight(26), justifyContent: 'center'},
             buttonRowStyle: {justifyContent: 'center', height: this.resizeHeight(40)}

@@ -14,6 +14,9 @@ import moment from "moment";
 import PreviousEncounter from '../common/PreviousEncounter';
 import Colors from '../primitives/Colors';
 import DGS from '../primitives/DynamicGlobalStyles';
+import TypedTransition from "../../framework/routing/TypedTransition";
+import ProgramEnrolmentView from "./ProgramEnrolmentView";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -34,6 +37,12 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return super.componentWillMount();
     }
 
+    editEnrolment() {
+        this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
+            CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
+        }});
+    }
+
     render() {
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
@@ -50,12 +59,15 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}} textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>
                         </View>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text>{this.I18n.t('enrolmentDate')}</Text>
-                            <Text>{moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}</Text>
+                        <View style={{backgroundColor: Colors.GreyContentBackground}}>
+                            <View style={{flexDirection: 'row'}}>
+                                <Text>{this.I18n.t('enrolmentDate')}</Text>
+                                <Text>{moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}</Text>
+                                <Button primary onPress={() => this.editEnrolment()}>{this.I18n.t('edit')}</Button>
+                            </View>
+                            <Text>{this.I18n.t('enrolmentAttributes')}</Text>
+                            <Observations observations={this.state.enrolment.observations} encounterNumber={0}/>
                         </View>
-                        <Text>{this.I18n.t('enrolmentAttributes')}</Text>
-                        <Observations observations={this.state.enrolment.observations} encounterNumber={0}/>
                         <PreviousEncounter encounters={this.state.enrolment.encounters} />
                     </Card>
                 </Content>

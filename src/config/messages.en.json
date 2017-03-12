@@ -80,5 +80,6 @@
   "noEnrolments": "There are no enrolments in this program",
   "programList": "Program List",
   "startProgramVisit": "Start Program Visit",
-  "startGeneralVisit": "Start General Visit"
+  "startGeneralVisit": "Start General Visit",
+  "edit": "Edit"
 }
