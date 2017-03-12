@@ -142,7 +142,7 @@ class IndividualProfile extends AbstractComponent {
 
     programSelectionConfirmed() {
         this.dispatchAction(Actions.PROGRAM_SELECTION_CONFIRMED, {
-            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment)
+            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.enrolment)
         })
     }
 }
