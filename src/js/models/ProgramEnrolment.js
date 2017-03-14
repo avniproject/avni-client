@@ -77,6 +77,7 @@ class ProgramEnrolment extends ObservationsHolder {
 
     cloneForEdit() {
         const programEnrolment = new ProgramEnrolment();
+        programEnrolment.uuid = this.uuid;
         programEnrolment.program = _.isNil(this.program) ? null : this.program.clone();
         programEnrolment.enrolmentDateTime = this.enrolmentDateTime;
         programEnrolment.programExitDateTime = this.programExitDateTime;

@@ -8,10 +8,9 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEnrolmentsActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentsActions";
 import {Content, Container} from "native-base";
 import moment from "moment";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import ProgramEnrolmentDashboardView from "./ProgramEnrolmentDashboardView";
 import TabularListView from "../common/TabularListView";
 import DGS from "../primitives/DynamicGlobalStyles";
+import CHSNavigator from '../../utility/CHSNavigator';
 
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
@@ -49,7 +48,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
                         <TabularListView data={this.state.enrolments}
                                          tableTitle={''}
                                          getRow={ProgramEnrolmentsView.displayItemsForProgramEnrolment}
-                                         handleClick={(rowEntity) => TypedTransition.from(this).with({enrolmentUUID: rowEntity.uuid}).to(ProgramEnrolmentDashboardView)}
+                                         handleClick={(rowEntity) => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, rowEntity.uuid)}
                                          headerTitleKeys={['enrolledOn', 'name', 'lowestAddressLevel']}
                                          emptyTableMessage={this.I18n.t('noEnrolments')}
                         />

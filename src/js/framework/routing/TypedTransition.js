@@ -1,5 +1,5 @@
-import invariant from 'invariant';
-import _ from 'lodash';
+import invariant from "invariant";
+import _ from "lodash";
 
 export default class TypedTransition {
     constructor(view) {
@@ -15,19 +15,27 @@ export default class TypedTransition {
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
 
-        const path = viewClass.path();
-        var route = {path, queryParams: this.queryParams || {}};
+        const route = this.createRoute(viewClass, this.queryParams);
 
         if (replacePrevious)
-            this.view.context.navigator().replacePreviousAndPop(route);
+            this.navigator.replacePreviousAndPop(route);
         else
-            this.view.context.navigator().push(route);
+            this.navigator.push(route);
         return this;
+    }
+
+    createRoute(viewClass, params) {
+        const path = viewClass.path();
+        return {path, queryParams: params || {}};
+    }
+
+    get navigator() {
+        return this.view.context.navigator();
     }
 
     goBack() {
         this.safeDismissKeyboard();
-        this.view.context.navigator().pop();
+        this.navigator.pop();
     }
 
     safeDismissKeyboard() {
@@ -46,16 +54,25 @@ export default class TypedTransition {
 
     toBeginning() {
         this.safeDismissKeyboard();
-        this.view.context.navigator().popToTop();
+        this.navigator.popToTop();
         return this;
     }
 
     resetTo(viewClass) {
         this.safeDismissKeyboard();
-        invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
+        invariant(viewClass.path, `Parameter ${viewClass} should have a function called path`);
         const path = viewClass.path();
         var route = {path, queryParams: this.queryParams || {}};
-        this.view.context.navigator().resetTo(route);
+        this.navigator.resetTo(route);
         return this;
+    }
+
+    wizardCompleted(wizardViewClass, newViewClass, params) {
+        this.safeDismissKeyboard();
+        const currentRoutes = this.navigator.getCurrentRoutes();
+        const count = _.sumBy(currentRoutes, (route) => wizardViewClass.path() === route.path ? 1 : 0);
+        const newRouteStack = _.dropRight(currentRoutes, count);
+        newRouteStack.push(this.createRoute(newViewClass, params));
+        this.navigator.immediatelyResetRouteStack(newRouteStack);
     }
 }

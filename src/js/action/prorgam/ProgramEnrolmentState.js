@@ -24,7 +24,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     hasEnrolmentChanged(action) {
-        return _.isNil(this.enrolment) ? true : this.enrolment.uuid === action.enrolment.uuid;
+        return _.isNil(this.enrolment) ? true : this.enrolment.uuid !== action.enrolment.uuid;
     }
 }
 

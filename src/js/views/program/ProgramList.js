@@ -51,7 +51,7 @@ class ProgramList extends AbstractComponent {
                 <View style={{flexDirection: 'row', marginTop: DGS.resizeHeight(9)}}>
                     {this.props.programs.map((program) => {
                         const buttonStyle = this.getButtonStyle(program);
-                        return <Button style={[ProgramList.style.programButton.self, buttonStyle.self]}
+                        return <Button key={program.name} style={[ProgramList.style.programButton.self, buttonStyle.self]}
                                        textStyle={buttonStyle.text}>{this.I18n.t(program.name)}</Button>
                 })}
                 </View>

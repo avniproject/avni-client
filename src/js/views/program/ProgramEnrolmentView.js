@@ -18,6 +18,7 @@ import IndividualEncounterLandingView from "../individual/IndividualEncounterLan
 import ProgramEnrolment from '../../models/ProgramEnrolment';
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import CHSNavigator from "../../utility/CHSNavigator";
+import ProgramEnrolmentDashboardView from "./ProgramEnrolmentDashboardView";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -43,15 +44,20 @@ class ProgramEnrolmentView extends AbstractComponent {
             validationFailed: () => {
             },
             completed: () => {
-                TypedTransition.from(this).resetTo(this.props.params.baseView);
+                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.state.enrolment.uuid);
             },
             movedNext: () => {
-                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
+                CHSNavigator.navigateToProgramEnrolmentView(this, this.state.enrolment);
             }
         });
     }
 
+    previous() {
+        TypedTransition.from(this).goBack();
+    }
+
     render() {
+        console.log('ProgramEnrolmentView.render');
         return (<Container theme={themes}>
             <Content>
                 <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.state.enrolment.program.name})}/>
@@ -67,7 +73,7 @@ class ProgramEnrolmentView extends AbstractComponent {
                         <View/>}
                     <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.state.enrolment}
                                       validationResults={this.state.validationResults}/>
-                    <WizardButtons previous={{visible: !this.state.wizard.isFirstPage()}}
+                    <WizardButtons previous={{visible: !this.state.wizard.isFirstPage(), func: () => this.previous()}}
                                    next={{func: () => this.next(), visible: true, label: this.I18n.t(this.nextButtonLabelKey)}}/>
                 </View>
             </Content>
