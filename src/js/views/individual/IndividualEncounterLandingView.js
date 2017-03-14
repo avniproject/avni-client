@@ -39,12 +39,20 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     next() {
-        this.dispatchAction(Actions.NEXT, {completed: (newState, encounterDecisions) => {
-            if (newState.wizard.isLastPage())
-                TypedTransition.from(this).with({encounter: newState.encounter, previousFormElementGroup: newState.formElementGroup, encounterDecisions: encounterDecisions}).to(SystemRecommendationView);
-            else
+        this.dispatchAction(Actions.NEXT, {
+            validationFailed: (newState) => {
+            },
+            movedNext: (newState) => {
                 TypedTransition.from(this).with().to(IndividualEncounterView);
-        }});
+            },
+            completed: (newState, encounterDecisions) => {
+                TypedTransition.from(this).with({
+                    encounter: newState.encounter,
+                    previousFormElementGroup: newState.formElementGroup,
+                    encounterDecisions: encounterDecisions
+                }).to(SystemRecommendationView);
+            }
+        });
     }
 
     render() {
@@ -69,7 +77,10 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                 </Row>
                                 <FormElementGroup group={this.state.formElementGroup}
                                                   observationHolder={this.state.encounter} actions={Actions} validationResults={this.state.validationResults}/>
-                                <WizardButtons previous={{func: () => {}, visible: false}}
+                                <WizardButtons previous={{
+                                    func: () => {
+                                    }, visible: false
+                                }}
                                                next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast}}/>
                             </Grid>
                         </Row>
