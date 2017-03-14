@@ -27,7 +27,7 @@ class Observation {
 
     toggleSingleSelectAnswer(answerUUID) {
         if (this.getValueWrapper().hasValue(answerUUID)) {
-            this.valueJSON = null;
+            this.valueJSON = {};
         } else {
             this.valueJSON = new SingleCodedValue(answerUUID);
         }
