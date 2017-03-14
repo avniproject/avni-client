@@ -3,6 +3,10 @@ import ProgramEnrolment from '../../models/ProgramEnrolment';
 import _ from 'lodash';
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
+    static empty() {
+        return new ProgramEnrolmentState([], null, null);
+    }
+
     constructor(validationResults, formElementGroup, wizard) {
         super(validationResults, formElementGroup, wizard);
     }
@@ -25,6 +29,11 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     hasEnrolmentChanged(action) {
         return _.isNil(this.enrolment) ? true : this.enrolment.uuid !== action.enrolment.uuid;
+    }
+
+    reset() {
+        super.reset();
+        this.enrolment = null;
     }
 }
 

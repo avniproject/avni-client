@@ -24,8 +24,7 @@ class ProgramEnrolmentService extends BaseService {
 
         const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
         if (!_.isNil(nextScheduledDate)) {
-            const programEncounter = new ProgramEncounter();
-            programEncounter.uuid = G.randomUUID();
+            const programEncounter = ProgramEncounter.createSafeInstance();
             programEncounter.scheduledDateTime = nextScheduledDate;
             programEncounter.programEnrolment = programEnrolment;
             programEnrolment.encounters.push(programEncounter);
@@ -36,8 +35,11 @@ class ProgramEnrolmentService extends BaseService {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 
             const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
-            const loadedEnrolment = this.findByUUID(programEnrolment.uuid, ProgramEnrolment.schema.name);
-            loadedIndividual.enrolments.push(loadedEnrolment);
+
+            if (!_.some(loadedIndividual.enrolments, (enrolment) => enrolment.uuid === programEnrolment.uuid)) {
+                const loadedEnrolment = this.findByUUID(programEnrolment.uuid, ProgramEnrolment.schema.name);
+                loadedIndividual.enrolments.push(loadedEnrolment);
+            }
 
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

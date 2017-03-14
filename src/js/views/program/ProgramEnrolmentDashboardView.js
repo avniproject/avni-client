@@ -39,6 +39,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     editEnrolment() {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
+            console.log(enrolment.observations);
             CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
         }});
     }

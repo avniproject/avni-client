@@ -22,11 +22,11 @@ class Observation {
     }
 
     toggleMultiSelectAnswer(answerUUID) {
-        this.valueJSON.toggleAnswer(answerUUID);
+        this.getValueWrapper().toggleAnswer(answerUUID);
     }
 
     toggleSingleSelectAnswer(answerUUID) {
-        if (this.valueJSON.hasValue(answerUUID)) {
+        if (this.getValueWrapper().hasValue(answerUUID)) {
             this.valueJSON = null;
         } else {
             this.valueJSON = new SingleCodedValue(answerUUID);
@@ -37,7 +37,6 @@ class Observation {
         if (observation.concept.datatype === Concept.dataType.Date) {
             return observation.getValueWrapper().asDisplayDate();
         } else if (observation.getValueWrapper().constructor === SingleCodedValue) {
-            console.log(observation.getValueWrapper().getValue());
             return conceptService.getConceptByUUID(observation.getValueWrapper().getValue().conceptUUID).name;
         } else if (observation.getValueWrapper().constructor === MultipleCodedValues) {
             return _.join(observation.getValueWrapper().getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
@@ -47,17 +46,13 @@ class Observation {
     }
 
     hasNoAnswer() {
-        return _.isEmpty(this.valueJSON.answer);
-    }
-
-    setPrimitiveAnswer(value) {
-        this.valueJSON.answer = value;
+        return _.isEmpty(this.getValueWrapper().answer);
     }
 
     cloneForEdit() {
         const observation = new Observation();
         observation.concept = this.concept.cloneForNewEncounter();
-        observation.valueJSON = this.valueJSON.cloneForNewEncounter();
+        observation.valueJSON = this.getValueWrapper().cloneForNewEncounter();
         return observation;
     }
 

@@ -2,9 +2,7 @@ import _ from "lodash";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
-        this.validationResults = validationResults;
-        this.formElementGroup = formElementGroup;
-        this.wizard = wizard;
+        this.setState(validationResults, formElementGroup, wizard);
     }
 
     clone(newState) {
@@ -74,6 +72,16 @@ class AbstractDataEntryState {
 
     get staticFormElementIds() {
         return [];
+    }
+
+    reset() {
+        this.setState([], null, null);
+    }
+
+    setState(validationResults, formElementGroup, wizard) {
+        this.validationResults = validationResults;
+        this.formElementGroup = formElementGroup;
+        this.wizard = wizard;
     }
 }
 

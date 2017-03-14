@@ -26,6 +26,13 @@ class ProgramEncounter {
 
         return programEncounter;
     }
+
+    static createSafeInstance() {
+        const programEncounter = new ProgramEncounter();
+        programEncounter.uuid = General.randomUUID();
+        programEncounter.observations = [];
+        return programEncounter;
+    }
 }
 
 export default ProgramEncounter;

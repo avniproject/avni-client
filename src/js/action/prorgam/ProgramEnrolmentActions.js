@@ -9,7 +9,7 @@ import ProgramEnrolment from '../../models/ProgramEnrolment';
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
-        return new ProgramEnrolmentState([], null, null);
+        return ProgramEnrolmentState.empty();
     }
 
     static onLoad(state, action, context) {
@@ -34,7 +34,10 @@ export class ProgramEnrolmentActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        return newState.handleNext(action, (enrolment) => context.get(ProgramEnrolmentService).enrol(enrolment));
+        return newState.handleNext(action, (enrolment) => {
+            context.get(ProgramEnrolmentService).enrol(enrolment);
+            newState.reset();
+        });
     }
 }
 
