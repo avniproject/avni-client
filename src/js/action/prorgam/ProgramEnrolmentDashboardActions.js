@@ -14,8 +14,7 @@ class ProgramEnrolmentDashboardActions {
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
             newState.enrolment = individual.firstActiveEnrolment;
-        }
-        else {
+        } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         }
         return newState;
@@ -26,16 +25,27 @@ class ProgramEnrolmentDashboardActions {
         action.cb(enrolment);
         return state;
     }
+
+    static onProgramChange(state, action, context) {
+        if (action.program.uuid === state.enrolment.program.uuid) return state;
+
+        const newState = {};
+        const entityService = context.get(EntityService);
+        newState.enrolment = state.enrolment.individual.findEnrolmentForProgram(action.program);
+        return newState;
+    }
 }
 
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
-    ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT'
+    ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
+    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE'
 };
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
+    [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_CHANGE, ProgramEnrolmentDashboardActions.onProgramChange],
 ]);
 
 export {

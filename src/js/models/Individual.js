@@ -190,6 +190,10 @@ class Individual extends ObservationsHolder {
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
         return individual;
     }
+
+    findEnrolmentForProgram(program) {
+        return _.find(this.enrolments, (enrolment) => enrolment.program.uuid === program.uuid);
+    }
 }
 
 export default Individual;

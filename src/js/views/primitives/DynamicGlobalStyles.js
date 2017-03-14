@@ -23,10 +23,10 @@ class DynamicGlobalStyles {
 
     createObservationsStyles() {
         this.observations = {
-            observationRowHeader: {height: this.resizeHeight(44), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            observationRow: {borderLeftWidth: 1, borderRightWidth: 1, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            observationTable: {marginTop: this.resizeHeight(16)},
-            observationColumn: {borderLeftWidth: 0.5, borderRightWidth: 0.5, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+            observationTable: {marginTop: this.resizeHeight(16), borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+            observationRowHeader: {height: this.resizeHeight(44), borderColor: 'rgba(0, 0, 0, 0.12)', borderTopWidth: 1, borderBottomWidth: 1},
+            observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+            observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
             component: {backgroundColor: Colors.GreyContentBackground, marginBottom: this.resizeHeight(36)}
         }
     }

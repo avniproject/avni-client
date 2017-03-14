@@ -38,10 +38,15 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     editEnrolment() {
-        this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
-            console.log(enrolment.observations);
-            CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
-        }});
+        this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
+            enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
+                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
+            }
+        });
+    }
+
+    programSelect(program) {
+        this.dispatchAction(Actions.ON_PROGRAM_CHANGE, {program: program});
     }
 
     render() {
@@ -53,23 +58,28 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
                         <View style={{flexDirection: 'row', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
                             <View style={{flex: 1, justifyContent: 'flex-start'}}>
-                                <ProgramList programs={this.state.enrolment.individual.enrolments.map((enrolment) => enrolment.program)} selectedProgram={this.state.enrolment.program}/>
+                                <ProgramList programs={this.state.enrolment.individual.enrolments.map((enrolment) => enrolment.program)}
+                                             selectedProgram={this.state.enrolment.program} onProgramSelect={(program) => this.programSelect(program)}/>
                             </View>
                             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
-                                <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}} textStyle={{color: 'white'}}>{this.I18n.t('startProgramVisit')}</Button>
-                                <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}} textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
+                                <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
+                                        textStyle={{color: 'white'}}>{this.I18n.t('startProgramVisit')}</Button>
+                                <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
+                                        textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>
                         </View>
-                        <View style={{backgroundColor: Colors.GreyContentBackground}}>
+                        <View
+                            style={{backgroundColor: Colors.GreyContentBackground, marginTop: DGS.resizeHeight(28), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingHorizontal: DGS.resizeWidth(13)}}>
                             <View style={{flexDirection: 'row'}}>
-                                <Text>{this.I18n.t('enrolmentDate')}</Text>
-                                <Text>{moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}</Text>
+                                <Text style={{marginTop: DGS.resizeHeight(18), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
                                 <Button primary onPress={() => this.editEnrolment()}>{this.I18n.t('edit')}</Button>
                             </View>
-                            <Text>{this.I18n.t('enrolmentAttributes')}</Text>
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>
+                            </View>
                             <Observations observations={this.state.enrolment.observations} encounterNumber={0}/>
                         </View>
-                        <PreviousEncounter encounters={this.state.enrolment.encounters} />
+                        <PreviousEncounter encounters={this.state.enrolment.encounters}/>
                     </Card>
                 </Content>
             </Container>

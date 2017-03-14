@@ -8,7 +8,8 @@ import Colors from '../primitives/Colors';
 class ProgramList extends AbstractComponent {
     static propTypes = {
         programs: React.PropTypes.array.isRequired,
-        selectedProgram: React.PropTypes.object.isRequired
+        selectedProgram: React.PropTypes.object.isRequired,
+        onProgramSelect: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -19,29 +20,34 @@ class ProgramList extends AbstractComponent {
         programButton: {
             self: {
                 height: DGS.resizeHeight(28),
-                marginRight: DGS.resizeWidth(8)
+                marginRight: DGS.resizeWidth(8),
+                borderRadius: 2
             }
         },
-        selectedProgramButton:  {
+        selectedProgramButton: {
             self: {
                 backgroundColor: '#f5a523',
             },
             text: {
                 color: '#ffffff',
+                fontSize: 14
             }
         },
         unselectedProgramButton: {
             self: {
+                borderWidth: 1,
                 borderColor: '#4990e2',
+                backgroundColor: 'white'
             },
             text: {
                 color: '#4a90e2',
+                fontSize: 14
             }
         }
     };
 
     getButtonStyle(program) {
-        return program.uuid === this.props.selectedProgram.uuid ? ProgramList.style.selectedProgramButton : ProgramList.style.programButton;
+        return program.uuid === this.props.selectedProgram.uuid ? ProgramList.style.selectedProgramButton : ProgramList.style.unselectedProgramButton;
     }
 
     render() {
@@ -51,9 +57,11 @@ class ProgramList extends AbstractComponent {
                 <View style={{flexDirection: 'row', marginTop: DGS.resizeHeight(9)}}>
                     {this.props.programs.map((program) => {
                         const buttonStyle = this.getButtonStyle(program);
-                        return <Button key={program.name} style={[ProgramList.style.programButton.self, buttonStyle.self]}
-                                       textStyle={buttonStyle.text}>{this.I18n.t(program.name)}</Button>
-                })}
+                        return <Button key={program.name}
+                                       style={[ProgramList.style.programButton.self, buttonStyle.self]}
+                                       textStyle={buttonStyle.text}
+                                       onPress={() => this.props.onProgramSelect(program)}>{this.I18n.t(program.name)}</Button>
+                    })}
                 </View>
             </View>
         );
