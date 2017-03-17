@@ -8,27 +8,27 @@ import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
 
-@Path('/ProgramEnrolmentView')
-class ProgramEnrolmentView extends AbstractComponent {
+@Path('/ProgramExitView')
+class ProgramExitView extends AbstractComponent {
     static propTypes = {
         params: React.PropTypes.object.isRequired
     };
 
     viewName() {
-        return "ProgramEnrolmentView";
+        return "ProgramExitView";
     }
 
     render() {
-        console.log('ProgramEnrolmentView.render');
+        console.log('ProgramExitView.render');
         const context = {
-            usage: ProgramEnrolmentState.UsageKeys.Enrol,
-            dateAction: Actions.ENROLMENT_DATE_TIME_CHANGED,
-            dateKey: 'enrolmentDate',
-            dateField: 'enrolmentDateTime',
-            dateValidationKey: ProgramEnrolment.validationKeys.ENROLMENT_DATE
+            usage: ProgramEnrolmentState.UsageKeys.Exit,
+            dateAction: Actions.EXIT_DATE_TIME_CHANGED,
+            dateKey: 'exitDate',
+            dateField: 'programExitDateTime',
+            dateValidationKey: ProgramEnrolment.validationKeys.EXIT_DATE
         };
-        return <ProgramFormComponent enrolment={this.props.params.enrolment} context={context} observationHolder={new ObservationsHolder(this.props.params.enrolment.observations)}/>;
+        return <ProgramFormComponent enrolment={this.props.params.enrolment} context={context} observationHolder={new ObservationsHolder(this.props.params.enrolment.programExitObservations)}/>;
     }
 }
 
-export default ProgramEnrolmentView;
+export default ProgramExitView;

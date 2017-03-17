@@ -23,6 +23,11 @@ class FormMappingService extends BaseService {
         const formMapping = this.findByCriteria(`entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEnrolment}"`);
         return formMapping.form;
     }
+
+    findFormForProgramExit(program) {
+        const formMapping = this.findByCriteria(`entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramExit}"`);
+        return formMapping.form;
+    }
 }
 
 export default FormMappingService;

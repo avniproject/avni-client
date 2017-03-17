@@ -16,6 +16,7 @@ import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import PreviouEncounter from '../common/PreviousEncounter'
 import Colors from '../primitives/Colors';
 import EncounterActionState from '../../state/EncounterActionState';
+import ObservationsHolder from "../../models/ObservationsHolder";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -79,7 +80,7 @@ class IndividualEncounterView extends AbstractComponent {
 
                     <View style={{flexDirection: 'column'}}>
                         {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
-                        <FormElementGroup observationHolder={this.state.encounter} group={this.state.formElementGroup} actions={Actions}
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
                                        next={{func: () => this.next(), visible: true}}/>

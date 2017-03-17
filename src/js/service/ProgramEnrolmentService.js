@@ -1,13 +1,13 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import G from "../utility/General";
 import ProgramEnrolment from "../models/ProgramEnrolment";
 import Individual from "../models/Individual";
 import EntityQueue from "../models/EntityQueue";
-import _ from 'lodash';
+import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import ProgramEncounter from "../models/ProgramEncounter";
+import ObservationsHolder from '../models/ObservationsHolder';
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -20,7 +20,8 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     enrol(programEnrolment) {
-        programEnrolment.convertObsForSave();
+        ObservationsHolder.convertObsForSave(programEnrolment.observations);
+        ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
 
         const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
         if (!_.isNil(nextScheduledDate)) {
@@ -43,6 +44,10 @@ class ProgramEnrolmentService extends BaseService {
 
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
+    }
+
+    exit() {
+
     }
 
     getProgramReport(program) {

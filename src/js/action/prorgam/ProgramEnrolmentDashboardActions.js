@@ -39,13 +39,13 @@ class ProgramEnrolmentDashboardActions {
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
-    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE'
+    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE',
 };
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
-    [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_CHANGE, ProgramEnrolmentDashboardActions.onProgramChange],
+    [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_CHANGE, ProgramEnrolmentDashboardActions.onProgramChange]
 ]);
 
 export {

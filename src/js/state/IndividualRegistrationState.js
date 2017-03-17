@@ -5,6 +5,7 @@ import _ from "lodash";
 import Form from "../models/application/Form";
 import StaticFormElementGroup from "../models/application/StaticFormElementGroup";
 import Individual from '../models/Individual';
+import ObservationsHolder from "../models/ObservationsHolder";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -27,6 +28,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     get observationsHolder() {
+        return new ObservationsHolder(this.individual.observations);
+    }
+
+    get parentEntity() {
         return this.individual;
     }
 

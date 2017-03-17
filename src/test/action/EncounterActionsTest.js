@@ -9,7 +9,6 @@ import EntityFactory from "../models/EntityFactory";
 import Wizard from "../../js/state/Wizard";
 import EncounterActionState from "../../js/state/EncounterActionState";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
-import ValidationResult from "../../js/models/application/ValidationResult";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();

@@ -6,8 +6,9 @@ import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
 import ValidationResult from "./application/ValidationResult";
+import BaseEntity from "./BaseEntity";
 
-class Encounter extends ObservationsHolder {
+class Encounter extends BaseEntity {
     static schema = {
         name: 'Encounter',
         primaryKey: 'uuid',
@@ -54,7 +55,7 @@ class Encounter extends ObservationsHolder {
         encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
         encounter.encounterDateTime = this.encounterDateTime;
         encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneAsReference();
-        super.clone(encounter);
+        encounter.observations = ObservationsHolder.clone(this.observations);
         return encounter;
     }
 

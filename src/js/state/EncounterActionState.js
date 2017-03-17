@@ -1,6 +1,7 @@
 import _ from "lodash";
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Encounter from "../models/Encounter";
+import ObservationsHolder from "../models/ObservationsHolder";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard) {
@@ -18,6 +19,10 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     get observationsHolder() {
+        return new ObservationsHolder(this.encounter.observations);
+    }
+
+    get parentEntity() {
         return this.encounter;
     }
 

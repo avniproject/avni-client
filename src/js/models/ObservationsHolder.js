@@ -5,7 +5,11 @@ import PrimitiveValue from "./observation/PrimitiveValue";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import MultipleCodedValues from "./observation/MultipleCodedValues";
 
-class ObservationsHolder extends BaseEntity {
+class ObservationsHolder {
+    constructor(observations) {
+        this.observations = observations;
+    }
+
     findObservation(concept) {
         return _.find(this.observations, (observation) => {
             return observation.concept.uuid === concept.uuid;
@@ -52,15 +56,16 @@ class ObservationsHolder extends BaseEntity {
         return this.toggleCodedAnswer(concept, answerUUID, false);
     }
 
-    clone(observationsHolder) {
-        observationsHolder.observations = [];
-        this.observations.forEach((observation) => {
-            observationsHolder.observations.push(observation.cloneForEdit());
+    static clone(observations) {
+        const newObservations = [];
+        observations.forEach((observation) => {
+            newObservations.push(observation.cloneForEdit());
         });
+        return newObservations;
     }
 
-    convertObsForSave() {
-        this.observations.forEach((observation) => {
+    static convertObsForSave(observations) {
+        observations.forEach((observation) => {
             observation.valueJSON = JSON.stringify(observation.valueJSON);
         });
     }

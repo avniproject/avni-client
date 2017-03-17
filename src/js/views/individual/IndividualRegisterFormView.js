@@ -12,6 +12,7 @@ import AppHeader from '../common/AppHeader';
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
 import IndividualRegisterViewsMixin from './IndividualRegisterViewsMixin';
+import ObservationsHolder from "../../models/ObservationsHolder";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -41,7 +42,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
                     <View style={{flexDirection: 'column'}}>
-                        <FormElementGroup observationHolder={this.state.individual} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: true}}
                                        next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t(this.state.wizard.isLastPage() ? 'register' : 'next')}} nextDisabled={this.state.validationResults.length !== 0}/>
                     </View>

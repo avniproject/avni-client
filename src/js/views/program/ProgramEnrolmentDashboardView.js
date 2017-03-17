@@ -45,6 +45,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         });
     }
 
+    exitProgram() {
+        CHSNavigator.navigateToExitProgram(this, this.state.enrolment);
+    }
+
     programSelect(program) {
         this.dispatchAction(Actions.ON_PROGRAM_CHANGE, {program: program});
     }
@@ -73,6 +77,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{marginTop: DGS.resizeHeight(18), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
                                 <Button primary onPress={() => this.editEnrolment()}>{this.I18n.t('edit')}</Button>
+                                <Button primary onPress={() => this.exitProgram()}>{this.I18n.t('exitProgram')}</Button>
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>

@@ -63,6 +63,7 @@
   "registration": "Registration",
   "mandatory": "MANDATORY",
   "enrolmentDate": "Enrolment Date",
+  "exitDate": "Exit Date",
   "dashboard": "My Dashboard",
   "upcomingVisits": "Upcoming Visits",
   "scheduledDate": "Scheduled",
@@ -81,5 +82,6 @@
   "programList": "Program List",
   "startProgramVisit": "Start Program Visit",
   "startGeneralVisit": "Start General Visit",
-  "edit": "Edit"
+  "edit": "Edit",
+  "exitProgram": "Exit Program"
 }

@@ -9,7 +9,7 @@ import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
 
-class ProgramEnrolment extends ObservationsHolder {
+class ProgramEnrolment extends BaseEntity {
     static schema = {
         name: 'ProgramEnrolment',
         primaryKey: 'uuid',
@@ -83,7 +83,8 @@ class ProgramEnrolment extends ObservationsHolder {
         programEnrolment.programExitDateTime = this.programExitDateTime;
         programEnrolment.programOutcome = _.isNil(this.programOutcome) ? null : this.programOutcome.clone();
         programEnrolment.individual = this.individual.cloneAsReference();
-        super.clone(programEnrolment);
+        programEnrolment.observations = ObservationsHolder.clone(this.observations);
+        programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = [];
         this.encounters.forEach((enc) => {
             const programEncounter = new ProgramEncounter();
@@ -94,7 +95,8 @@ class ProgramEnrolment extends ObservationsHolder {
     }
 
     static validationKeys = {
-        ENROLMENT_DATE: 'ENROLMENT_DATE'
+        ENROLMENT_DATE: 'ENROLMENT_DATE',
+        EXIT_DATE: 'EXIT_DATE',
     };
 
     validate() {

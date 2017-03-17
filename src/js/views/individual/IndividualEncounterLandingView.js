@@ -17,6 +17,7 @@ import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import _ from "lodash";
 import General from "../../utility/General";
 import Colors from '../primitives/Colors';
+import ObservationsHolder from "../../models/ObservationsHolder";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -76,7 +77,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                           style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.state.encounter.encounterDateTime)}</Text>
                                 </Row>
                                 <FormElementGroup group={this.state.formElementGroup}
-                                                  observationHolder={this.state.encounter} actions={Actions} validationResults={this.state.validationResults}/>
+                                                  observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions} validationResults={this.state.validationResults}/>
                                 <WizardButtons previous={{
                                     func: () => {
                                     }, visible: false

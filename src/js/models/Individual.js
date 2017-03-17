@@ -11,7 +11,7 @@ import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
 
-class Individual extends ObservationsHolder {
+class Individual extends BaseEntity {
     static schema = {
         name: "Individual",
         primaryKey: 'uuid',
@@ -168,7 +168,7 @@ class Individual extends ObservationsHolder {
 
     cloneWithoutEncounters() {
         const individual = this.cloneAsReference();
-        super.clone(individual);
+        individual.observations = ObservationsHolder.clone(this.observations);
         return individual;
     }
 

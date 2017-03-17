@@ -10,6 +10,7 @@ import PrimitiveValue from "../models/observation/PrimitiveValue";
 import _ from 'lodash';
 import G from '../utility/General';
 import EntityQueue from "../models/EntityQueue";
+import ObservationsHolder from '../models/ObservationsHolder';
 
 @Service("individualEncounterService")
 class IndividualEncounterService extends BaseService {
@@ -45,7 +46,7 @@ class IndividualEncounterService extends BaseService {
     }
 
     saveOrUpdate(encounter) {
-        encounter.convertObsForSave();
+        ObservationsHolder.convertObsForSave(encounter.observations);
         const db = this.db;
         this.db.write(()=> {
             db.create(Encounter.schema.name, encounter, true);

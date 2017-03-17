@@ -39,13 +39,15 @@ class AbstractDataEntryState {
 
     get observationsHolder() {}
 
+    get parentEntity() {}
+
     handleNext(action, completionFn) {
-        const validationResults = _.union(this.observationsHolder.validate(), this.formElementGroup.validate(this.observationsHolder));
+        const validationResults = _.union(this.parentEntity.validate(), this.formElementGroup.validate(this.observationsHolder));
         this.handleValidationResults(validationResults);
         if (this.anyFailedResultForCurrentFEG()) {
             action.validationFailed(this);
         } else if (this.validationResults.length === 0 && this.wizard.isLastPage()) {
-            completionFn(this.observationsHolder);
+            completionFn(this.parentEntity);
             action.completed(this);
         } else {
             this.moveNext();
