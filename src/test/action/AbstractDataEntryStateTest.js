@@ -17,7 +17,7 @@ describe('AbstractDataEntryStateTest', () => {
     });
 
     it('next when there are validation errors', () => {
-        const concept = Concept.create('c1', Concept.dataType.Boolean);
+        const concept = EntityFactory.createConcept('c1', Concept.dataType.Boolean);
         const formElement = EntityFactory.createFormElement('bar', true, concept);
         formElementGroup.addFormElement(formElement);
 
@@ -38,7 +38,7 @@ describe('AbstractDataEntryStateTest', () => {
     });
 
     it('single select form element data entry', () => {
-        const concept = Concept.create('c1', Concept.dataType.Coded);
+        const concept = EntityFactory.createConcept('c1', Concept.dataType.Coded);
         EntityFactory.addCodedAnswers(concept, ['a1', 'a2', 'a3']);
         const formElement = EntityFactory.createFormElement('bar', true, concept);
         formElementGroup.addFormElement(formElement);

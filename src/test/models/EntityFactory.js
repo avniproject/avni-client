@@ -36,7 +36,14 @@ class EntityFactory {
     }
 
     static addCodedAnswers(concept, answers) {
-        _.forEach(answers, (answer) => concept.addAnswer(Concept.create(answer, Concept.dataType.NA)));
+        _.forEach(answers, (answer) => concept.addAnswer(EntityFactory.createConcept(answer, Concept.dataType.NA)));
+    }
+    
+    static createConcept(name, dataType) {
+        const concept = Concept.create(name, dataType);
+        if (dataType === Concept.dataType.Coded)
+            concept.answers = [];
+        return concept;
     }
 }
 

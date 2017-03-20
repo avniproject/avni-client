@@ -7,11 +7,12 @@ import EncounterType from "../../js/models/EncounterType";
 import Individual from "../../js/models/Individual";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
 import SingleCodedValue from "../../js/models/observation/SingleCodedValue";
+import EntityFactory from "../models/EntityFactory";
 
 describe('EncounterTest', () => {
     it('toResource with valuePrimitive', () => {
         const encounter = Encounter.create();
-        encounter.observations.push(Observation.create(Concept.create('foo', Concept.dataType.Numeric), JSON.stringify(new PrimitiveValue('10', Concept.dataType.Numeric))));
+        encounter.observations.push(Observation.create(EntityFactory.createConcept('foo', Concept.dataType.Numeric), JSON.stringify(new PrimitiveValue('10', Concept.dataType.Numeric))));
         encounter.encounterType = new EncounterType();
         encounter.individual = new Individual();
         // expect(encounter.observations[0].getValue()).is.equal(10, JSON.stringify(encounter.observations));
@@ -23,7 +24,7 @@ describe('EncounterTest', () => {
 
     it('toResource with valueCoded', () => {
         const encounter = Encounter.create();
-        encounter.observations.push(Observation.create(Concept.create('foo', Concept.dataType.Coded), new SingleCodedValue('f945fade-a1f5-4091-92ca-8b7feea02672')));
+        encounter.observations.push(Observation.create(EntityFactory.createConcept('foo', Concept.dataType.Coded), new SingleCodedValue('f945fade-a1f5-4091-92ca-8b7feea02672')));
         encounter.encounterType = new EncounterType();
         encounter.individual = new Individual();
         expect(encounter.observations[0].getValueWrapper().getConceptUUID()).is.equal('f945fade-a1f5-4091-92ca-8b7feea02672', JSON.stringify(encounter.observations));

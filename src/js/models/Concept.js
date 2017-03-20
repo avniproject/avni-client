@@ -75,8 +75,6 @@ export default class Concept {
     static create(name, dataType) {
         const concept = new Concept();
         concept.name = name;
-        if (dataType === Concept.dataType.Coded)
-            concept.answers = [];
         concept.datatype = dataType;
         return concept;
     }

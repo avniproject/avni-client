@@ -53,6 +53,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     validateEntity() {
         return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.enrolment.validateEnrolment() : this.enrolment.validateExit();
     }
+
+    static isInitialised(programEnrolmentState) {
+        return !_.isNil(programEnrolmentState.enrolment);
+    }
 }
 
 export default ProgramEnrolmentState;

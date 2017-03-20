@@ -40,7 +40,6 @@ class ProgramFormComponent extends AbstractComponent {
     }
 
     render() {
-        console.log(this.props.state.enrolment.programExitObservations);
         return (<Container theme={themes}>
             <Content>
                 <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})}/>

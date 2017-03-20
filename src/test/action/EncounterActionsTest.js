@@ -16,7 +16,7 @@ let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
     formElement.uuid = 'be5b6739-e812-4be5-b0f4-7c5865889883';
     formElement.mandatory = mandatory;
-    const concept = Concept.create('', dataType);
+    const concept = EntityFactory.createConcept('', dataType);
     concept.uuid = conceptUUID;
     formElement.concept = concept;
     return formElement;

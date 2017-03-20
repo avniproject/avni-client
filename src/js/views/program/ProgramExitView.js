@@ -36,6 +36,10 @@ class ProgramExitView extends AbstractComponent {
         return "ProgramExitView";
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return ProgramEnrolmentState.isInitialised(nextState);
+    }
+
     render() {
         console.log('ProgramExitView.render');
         return <ProgramFormComponent state={this.state} context={ProgramExitView.context}/>;
