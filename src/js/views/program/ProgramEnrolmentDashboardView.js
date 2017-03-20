@@ -54,6 +54,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     render() {
+        var enrolments = _.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime);
+        _.reverse(enrolments);
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
@@ -62,8 +64,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
                         <View style={{flexDirection: 'row', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
                             <View style={{flex: 1, justifyContent: 'flex-start'}}>
-                                <ProgramList enrolments={this.state.enrolment.individual.enrolments}
-                                             selectedProgram={this.state.enrolment.program} onProgramSelect={(program) => this.programSelect(program)}/>
+                                <ProgramList enrolments={enrolments}
+                                             selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
                             </View>
                             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
                                 <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}

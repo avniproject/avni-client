@@ -71,10 +71,6 @@ class ProgramEnrolment extends BaseEntity {
         return programEnrolment;
     }
 
-    static isActive(programEnrolment) {
-        return _.isNil(programEnrolment.programExitDateTime);
-    }
-
     cloneForEdit() {
         const programEnrolment = new ProgramEnrolment();
         programEnrolment.uuid = this.uuid;

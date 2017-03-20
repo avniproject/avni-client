@@ -7,8 +7,8 @@ import Colors from '../primitives/Colors';
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
-        enrolments: React.PropTypes.object.isRequired,
-        selectedProgram: React.PropTypes.object.isRequired,
+        enrolments: React.PropTypes.array.isRequired,
+        selectedEnrolment: React.PropTypes.object.isRequired,
         onProgramSelect: React.PropTypes.func.isRequired
     };
 
@@ -21,7 +21,8 @@ class ProgramList extends AbstractComponent {
             self: {
                 height: DGS.resizeHeight(28),
                 marginRight: DGS.resizeWidth(8),
-                borderRadius: 2
+                borderRadius: 2,
+                marginTop: DGS.resizeHeight(8)
             }
         },
         selectedProgramButton: {
@@ -46,17 +47,17 @@ class ProgramList extends AbstractComponent {
         }
     };
 
-    getButtonStyle(program) {
-        return program.uuid === this.props.selectedProgram.uuid ? ProgramList.style.selectedProgramButton : ProgramList.style.unselectedProgramButton;
+    getButtonStyle(enrolment) {
+        return enrolment.uuid === this.props.selectedEnrolment.uuid ? ProgramList.style.selectedProgramButton : ProgramList.style.unselectedProgramButton;
     }
 
     render() {
         return (
             <View style={{flexDirection: 'column'}}>
                 <Text style={{fontSize: 16, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
-                <View style={{flexDirection: 'row', marginTop: DGS.resizeHeight(9)}}>
+                <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: DGS.resizeHeight(9)}}>
                     {this.props.enrolments.map((enrolment) => {
-                        const buttonStyle = this.getButtonStyle(enrolment.program);
+                        const buttonStyle = this.getButtonStyle(enrolment);
                         return <Button key={enrolment.uuid}
                                        style={[ProgramList.style.programButton.self, buttonStyle.self]}
                                        textStyle={buttonStyle.text}

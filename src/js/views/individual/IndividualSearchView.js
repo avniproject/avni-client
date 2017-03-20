@@ -25,15 +25,13 @@ class IndividualSearchView extends AbstractComponent {
     }
 
     render() {
-        const I18n = this.context.getService(MessageService).getI18n();
-
         return (
             <Content>
                 <Grid style={{marginTop: 16, marginHorizontal: 24}}>
                     <Row style={GlobalStyles.formTextElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("name")}</Text>
+                                <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("name")}</Text>
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
@@ -45,7 +43,7 @@ class IndividualSearchView extends AbstractComponent {
                     <Row style={GlobalStyles.formTextElement}>
                         <Grid>
                             <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={DynamicGlobalStyles.formElementLabel}>{I18n.t("age")}</Text>
+                                <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("age")}</Text>
                             </Row>
                             <Row style={GlobalStyles.formElementTextContainer}>
                                 <TextInput style={{flex: 1}}
@@ -60,7 +58,7 @@ class IndividualSearchView extends AbstractComponent {
                     <Row style={{marginTop: 30, marginBottom: 30}}>
                         <Col>
                             <Button block
-                                    onPress={() => this.searchIndividual()}>{I18n.t("search")}</Button>
+                                    onPress={() => this.searchIndividual()}>{this.I18n.t("search")}</Button>
                         </Col>
                     </Row>
                 </Grid>

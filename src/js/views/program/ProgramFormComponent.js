@@ -27,7 +27,7 @@ class ProgramFormComponent extends AbstractComponent {
             validationFailed: () => {
             },
             completed: () => {
-                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.state.enrolment.uuid);
+                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.state.enrolment.uuid, this.props.context.usage);
             },
             movedNext: () => {
                 this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? CHSNavigator.navigateToProgramEnrolmentView(this, this.props.state.enrolment) : CHSNavigator.navigateToExitProgram(this, this.props.state.enrolment);

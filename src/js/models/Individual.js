@@ -149,12 +149,12 @@ class Individual extends BaseEntity {
         return this.validateFieldForEmpty(this.gender, Individual.validationKeys.GENDER);
     }
 
-    static eligiblePrograms(allPrograms, individual) {
+    eligiblePrograms(allPrograms) {
         const eligiblePrograms = _.slice(allPrograms);
 
         _.remove(eligiblePrograms, (program) => {
-            const find = _.find(individual.enrolments, (enrolment) => {
-                return enrolment.program.uuid === program.uuid && ProgramEnrolment.isActive(enrolment);
+            const find = _.find(this.enrolments, (enrolment) => {
+                return enrolment.program.uuid === program.uuid && enrolment.isActive;
             });
             return find !== undefined;
         });

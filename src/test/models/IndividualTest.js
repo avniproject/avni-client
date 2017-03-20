@@ -27,6 +27,6 @@ describe('IndividualTest', () => {
         const allPrograms = [createProgram("8945c920-8ef0-4a22-ab4b-a153a44f8fc1"), createProgram("71a2d192-dea9-4d3b-bd4e-a6403a40e979"), enroledProgram];
         const individual = new Individual();
         individual.enrolments = [createEnrolment(enroledProgram)];
-        expect(Individual.eligiblePrograms(allPrograms, individual).length).is.equal(2);
+        expect(individual.eligiblePrograms(allPrograms).length).is.equal(2);
     });
 });
