@@ -19,10 +19,12 @@ class ProgramEnrolmentService extends BaseService {
         return ProgramEnrolment.schema.name;
     }
 
-    enrol(programEnrolment) {
+    static convertObsForSave(programEnrolment) {
         ObservationsHolder.convertObsForSave(programEnrolment.observations);
         ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
+    }
 
+    enrol(programEnrolment) {
         const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
         if (!_.isNil(nextScheduledDate)) {
             const programEncounter = ProgramEncounter.createSafeInstance();
@@ -46,8 +48,13 @@ class ProgramEnrolmentService extends BaseService {
         });
     }
 
-    exit() {
-
+    exit(programEnrolment) {
+        ProgramEnrolmentService.convertObsForSave(programEnrolment);
+        const db = this.db;
+        this.db.write(()=> {
+            db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+        });
     }
 
     getProgramReport(program) {

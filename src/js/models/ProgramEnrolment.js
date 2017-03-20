@@ -99,9 +99,15 @@ class ProgramEnrolment extends BaseEntity {
         EXIT_DATE: 'EXIT_DATE',
     };
 
-    validate() {
+    validateEnrolment() {
         const validationResults = [];
         validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
+        return validationResults;
+    }
+
+    validateExit() {
+        const validationResults = [];
+        validationResults.push(this.validateFieldForEmpty(this.programExitDateTime, ProgramEnrolment.validationKeys.EXIT_DATE));
         return validationResults;
     }
 

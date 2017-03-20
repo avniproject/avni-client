@@ -23,6 +23,14 @@ class SingleSelectFormElement extends AbstractFormElement {
         }
     }
 
+    renderAnswer(answer) {
+        return <View style={{flex: 0.5, flexDirection: 'row'}}>
+            <Radio selected={this.props.singleCodedValue.hasValue(answer.concept.uuid)}
+                   onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)}/>
+            <Text style={{fontSize: 16, marginLeft: 11, color: this.textColor}}>{this.I18n.t(answer.concept.name)}</Text>
+        </View>
+    }
+
     renderSingleSelectAnswers() {
         return (<View style={{
             padding: 28,
@@ -34,22 +42,13 @@ class SingleSelectFormElement extends AbstractFormElement {
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                 return (
                     <View key={idx} style={{flexDirection: 'row'}}>
-                        <View style={{flex: 0.5, flexDirection: 'row'}}>
-                            <Radio selected={this.props.singleCodedValue.hasValue(answer1.concept.uuid)}
-                                   onPress={this.toggleFormElementAnswerSelection(this.props.element, answer1)}/>
-                            <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer1.concept.name)}</Text>
-                        </View>
-                        {_.isNil(answer2) ? (<View style={{flex: 0.5}}/>) : (<View style={{flex: 0.5, flexDirection: 'row'}}>
-                                <Radio selected={this.props.singleCodedValue.hasValue(answer2.concept.uuid)}
-                                       onPress={this.toggleFormElementAnswerSelection(this.props.element, answer2)}/>
-                                <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(answer2.concept.name)}</Text>
-                            </View>)}
+                        {this.renderAnswer(answer1)}
+                        {_.isNil(answer2) ? <View style={{flex: 0.5}}/> : this.renderAnswer(answer2)}
                     </View>
                 )
             })
         }
         </View>);
-
     }
 
     render() {

@@ -4,7 +4,7 @@ import Encounter from "../../models/Encounter";
 
 //on encounter
 let getCodedAnswer = function (observation) {
-    return Encounter.prototype.dynamicDataResolver.getConceptByUUID(observation.valueJSON.answer.conceptUUID).name;
+    return Encounter.prototype.dynamicDataResolver.getConceptByUUID(observation.getValueWrapper().getConceptUUID()).name;
 };
 
 const getObservationValue = function (conceptName) {
@@ -19,15 +19,15 @@ const getObservationValue = function (conceptName) {
 
     switch (observation.concept.datatype) {
         case Concept.dataType.Coded: {
-            return _.isArray(observation.valueJSON.answer) ? getCodedAnswers(observation) : getCodedAnswer(observation);
+            return _.isArray(observation.getValue()) ? getCodedAnswers(observation) : getCodedAnswer(observation);
         }
         default:
-            return observation.valueJSON.answer;
+            return observation.getValue();
     }
 };
 
 let getCodedAnswers = function (observation) {
-    return observation.valueJSON.answer.map((conceptRef) => {
+    return observation.getValue().map((conceptRef) => {
         const concept = Encounter.prototype.dynamicDataResolver.getConceptByUUID(conceptRef.conceptUUID);
         if (_.isNil(concept))
             console.log('No concept found for UUID: ' + conceptRef.conceptUUID);

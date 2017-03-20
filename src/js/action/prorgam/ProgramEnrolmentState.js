@@ -36,12 +36,9 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         return this.applicableObservationsHolder;
     }
 
-    get parentEntity() {
-        return this.enrolment;
-    }
-
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [ProgramEnrolment.validationKeys.ENROLMENT_DATE] : [];
+        const validationKey = this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolment.validationKeys.ENROLMENT_DATE : ProgramEnrolment.validationKeys.EXIT_DATE;
+        return this.wizard.isFirstPage() ? [validationKey] : [];
     }
 
     hasEnrolmentChanged(action) {
@@ -51,6 +48,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     reset() {
         super.reset();
         this.enrolment = null;
+    }
+
+    validateEntity() {
+        return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.enrolment.validateEnrolment() : this.enrolment.validateExit();
     }
 }
 

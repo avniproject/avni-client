@@ -12,6 +12,7 @@ class AbstractDataEntryState {
         });
         newState.formElementGroup = this.formElementGroup;
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
+        return newState;
     }
 
     handleValidationResult(validationResult) {
@@ -39,15 +40,13 @@ class AbstractDataEntryState {
 
     get observationsHolder() {}
 
-    get parentEntity() {}
-
-    handleNext(action, completionFn) {
-        const validationResults = _.union(this.parentEntity.validate(), this.formElementGroup.validate(this.observationsHolder));
-        this.handleValidationResults(validationResults);
+    handleNext(action, validationResults, completionFn) {
+        const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));
+        this.handleValidationResults(allValidationResults);
         if (this.anyFailedResultForCurrentFEG()) {
             action.validationFailed(this);
         } else if (this.validationResults.length === 0 && this.wizard.isLastPage()) {
-            completionFn(this.parentEntity);
+            completionFn();
             action.completed(this);
         } else {
             this.moveNext();

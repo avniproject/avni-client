@@ -31,10 +31,6 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return new ObservationsHolder(this.individual.observations);
     }
 
-    get parentEntity() {
-        return this.individual;
-    }
-
     movePrevious() {
         this.wizard.movePrevious();
         if (!this.wizard.isNonFormPage()) {

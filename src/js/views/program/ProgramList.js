@@ -7,7 +7,7 @@ import Colors from '../primitives/Colors';
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
-        programs: React.PropTypes.array.isRequired,
+        enrolments: React.PropTypes.object.isRequired,
         selectedProgram: React.PropTypes.object.isRequired,
         onProgramSelect: React.PropTypes.func.isRequired
     };
@@ -55,12 +55,12 @@ class ProgramList extends AbstractComponent {
             <View style={{flexDirection: 'column'}}>
                 <Text style={{fontSize: 16, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
                 <View style={{flexDirection: 'row', marginTop: DGS.resizeHeight(9)}}>
-                    {this.props.programs.map((program) => {
-                        const buttonStyle = this.getButtonStyle(program);
-                        return <Button key={program.name}
+                    {this.props.enrolments.map((enrolment) => {
+                        const buttonStyle = this.getButtonStyle(enrolment.program);
+                        return <Button key={enrolment.uuid}
                                        style={[ProgramList.style.programButton.self, buttonStyle.self]}
                                        textStyle={buttonStyle.text}
-                                       onPress={() => this.props.onProgramSelect(program)}>{this.I18n.t(program.name)}</Button>
+                                       onPress={() => this.props.onProgramSelect(enrolment.program)}>{this.I18n.t(enrolment.program.name)}</Button>
                     })}
                 </View>
             </View>

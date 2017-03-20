@@ -5,6 +5,7 @@ import _ from 'lodash';
 import General from "../utility/General";
 import EntityQueue from "../models/EntityQueue";
 import Program from "../models/Program";
+import ObservationsHolder from '../models/ObservationsHolder';
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -27,9 +28,7 @@ class IndividualService extends BaseService {
     register(individual) {
         const db = this.db;
         individual.uuid = General.randomUUID();
-        individual.observations.forEach((observation) => {
-            observation.valueJSON = JSON.stringify(observation.valueJSON);
-        });
+        ObservationsHolder.convertObsForSave(individual.observations);
         this.db.write(() => {
             db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));

@@ -14,9 +14,8 @@ export class ProgramEnrolmentActions {
     }
 
     static onLoad(state, action, context) {
-        if (state.hasEnrolmentChanged(action)) {
+        if (state.hasEnrolmentChanged(action) || action.usage !== state.usage) {
             const formMappingService = context.get(FormMappingService);
-
             const form = action.usage === ProgramEnrolmentState.UsageKeys.Enrol ? formMappingService.findFormForProgramEnrolment(action.enrolment.program) : formMappingService.findFormForProgramExit(action.enrolment.program);
             const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
             return new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment);
@@ -29,22 +28,23 @@ export class ProgramEnrolmentActions {
     static enrolmentDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.enrolment.enrolmentDateTime = action.value;
-        newState.handleValidationResults(newState.enrolment.validate());
+        newState.handleValidationResults(newState.enrolment.validateEnrolment());
         return newState;
     }
 
     static exitDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.enrolment.programExitDateTime = action.value;
-        newState.handleValidationResults(newState.enrolment.validate());
+        newState.handleValidationResults(newState.enrolment.validateExit());
         return newState;
     }
 
     static onNext(state, action, context) {
         const programEnrolmentState = state.clone();
-        return programEnrolmentState.handleNext(action, (enrolment) => {
+        const validationResults = programEnrolmentState.validateEntity();
+        return programEnrolmentState.handleNext(action, validationResults, () => {
             const service = context.get(ProgramEnrolmentService);
-            programEnrolmentState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(enrolment) : service.exit(enrolment);
+            programEnrolmentState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(programEnrolmentState.enrolment) : service.exit(programEnrolmentState.enrolment);
             programEnrolmentState.reset();
         });
     }

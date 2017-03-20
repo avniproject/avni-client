@@ -80,8 +80,8 @@ export class IndividualRegisterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        return newState.handleNext(action, (individual) => {
-            context.get(IndividualService).register(individual);
+        return newState.handleNext(action, newState.individual.validate(), () => {
+            context.get(IndividualService).register(newState.individual);
         });
     }
 

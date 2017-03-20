@@ -37,7 +37,7 @@ class Observation {
         if (observation.concept.datatype === Concept.dataType.Date) {
             return observation.getValueWrapper().asDisplayDate();
         } else if (observation.getValueWrapper().constructor === SingleCodedValue) {
-            return conceptService.getConceptByUUID(observation.getValueWrapper().getValue().conceptUUID).name;
+            return conceptService.getConceptByUUID(observation.getValueWrapper().getConceptUUID()).name;
         } else if (observation.getValueWrapper().constructor === MultipleCodedValues) {
             return _.join(observation.getValueWrapper().getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
         } else {
@@ -75,6 +75,10 @@ class Observation {
         else
             obsResource.valuePrimitive = this.getValueWrapper().toResource;
         return obsResource;
+    }
+
+    getValue() {
+        return this.getValueWrapper().getValue();
     }
 }
 

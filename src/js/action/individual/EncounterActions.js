@@ -49,7 +49,7 @@ export class EncounterActions {
                 action.movedNext(newState);
             },
         };
-        newState.handleNext(customAction, () => {});
+        newState.handleNext(customAction, encounter.validate(), () => {});
         return newState;
     }
 

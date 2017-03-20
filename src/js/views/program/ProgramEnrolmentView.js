@@ -7,6 +7,7 @@ import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
+import ReducerKeys from "../../reducer";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -14,20 +15,30 @@ class ProgramEnrolmentView extends AbstractComponent {
         params: React.PropTypes.object.isRequired
     };
 
+    static usageContext = {
+        usage: ProgramEnrolmentState.UsageKeys.Enrol,
+        dateAction: Actions.ENROLMENT_DATE_TIME_CHANGED,
+        dateKey: 'enrolmentDate',
+        dateField: 'enrolmentDateTime',
+        dateValidationKey: ProgramEnrolment.validationKeys.ENROLMENT_DATE
+    };
+
+    constructor(props, context) {
+        super(props, context, ReducerKeys.programEnrolment);
+    }
+
     viewName() {
         return "ProgramEnrolmentView";
     }
 
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.params.enrolment, usage: ProgramEnrolmentView.usageContext.usage});
+        return super.componentWillMount();
+    }
+
     render() {
         console.log('ProgramEnrolmentView.render');
-        const context = {
-            usage: ProgramEnrolmentState.UsageKeys.Enrol,
-            dateAction: Actions.ENROLMENT_DATE_TIME_CHANGED,
-            dateKey: 'enrolmentDate',
-            dateField: 'enrolmentDateTime',
-            dateValidationKey: ProgramEnrolment.validationKeys.ENROLMENT_DATE
-        };
-        return <ProgramFormComponent enrolment={this.props.params.enrolment} context={context} observationHolder={new ObservationsHolder(this.props.params.enrolment.observations)}/>;
+        return <ProgramFormComponent state={this.state} context={ProgramEnrolmentView.usageContext}/>;
     }
 }
 

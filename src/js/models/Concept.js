@@ -43,7 +43,8 @@ export default class Concept {
         Coded: 'Coded',
         Numeric: 'Numeric',
         Boolean: 'Boolean',
-        Text: 'Text'
+        Text: 'Text',
+        NA: 'N/A'
     };
 
     // static primitiveDataTypes = [Concept.dataType.Boolean, Concept.dataType.Coded, Concept.dataType.Numeric, Concept.dataType.Date, Concept.dataType.Text];
@@ -74,6 +75,8 @@ export default class Concept {
     static create(name, dataType) {
         const concept = new Concept();
         concept.name = name;
+        if (dataType === Concept.dataType.Coded)
+            concept.answers = [];
         concept.datatype = dataType;
         return concept;
     }
@@ -91,5 +94,17 @@ export default class Concept {
         if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
 
         return (value < this.lowAbsolute || value > this.hiAbsolute);
+    }
+
+    addAnswer(concept) {
+        const conceptAnswer = new ConceptAnswer();
+        conceptAnswer.uuid = General.randomUUID();
+        conceptAnswer.concept = concept;
+        this.answers.push(conceptAnswer);
+        return conceptAnswer;
+    }
+
+    getPossibleAnswerConcept(name) {
+       return _.find(this.answers, (conceptAnswer) => conceptAnswer.concept.name === name);
     }
 }

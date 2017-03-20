@@ -7,6 +7,7 @@ import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
+import ReducerKeys from "../../reducer";
 
 @Path('/ProgramExitView')
 class ProgramExitView extends AbstractComponent {
@@ -14,20 +15,30 @@ class ProgramExitView extends AbstractComponent {
         params: React.PropTypes.object.isRequired
     };
 
+    constructor(props, context) {
+        super(props, context, ReducerKeys.programEnrolment);
+    }
+
+    static context = {
+        usage: ProgramEnrolmentState.UsageKeys.Exit,
+        dateAction: Actions.EXIT_DATE_TIME_CHANGED,
+        dateKey: 'exitDate',
+        dateField: 'programExitDateTime',
+        dateValidationKey: ProgramEnrolment.validationKeys.EXIT_DATE
+    };
+
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.params.enrolment, usage: ProgramExitView.context.usage});
+        return super.componentWillMount();
+    }
+
     viewName() {
         return "ProgramExitView";
     }
 
     render() {
         console.log('ProgramExitView.render');
-        const context = {
-            usage: ProgramEnrolmentState.UsageKeys.Exit,
-            dateAction: Actions.EXIT_DATE_TIME_CHANGED,
-            dateKey: 'exitDate',
-            dateField: 'programExitDateTime',
-            dateValidationKey: ProgramEnrolment.validationKeys.EXIT_DATE
-        };
-        return <ProgramFormComponent enrolment={this.props.params.enrolment} context={context} observationHolder={new ObservationsHolder(this.props.params.enrolment.programExitObservations)}/>;
+        return <ProgramFormComponent state={this.state} context={ProgramExitView.context}/>;
     }
 }
 

@@ -22,10 +22,6 @@ class EncounterActionState extends AbstractDataEntryState {
         return new ObservationsHolder(this.encounter.observations);
     }
 
-    get parentEntity() {
-        return this.encounter;
-    }
-
     static hasOnlyExternalRuleError(state) {
         return AbstractDataEntryState.hasValidationError(state, Encounter.validationKeys.EXTERNAL_RULE);
     }

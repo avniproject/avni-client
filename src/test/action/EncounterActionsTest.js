@@ -44,7 +44,7 @@ let verifyFormElementAndObservations = function (newState, numberOfValidationErr
 };
 
 function verifyObservationValues(newState, numberOfValues) {
-    expect(newState.encounter.observations[0].getValueWrapper().getValue().length).is.equal(numberOfValues, JSON.stringify(newState.encounter.observations));
+    expect(newState.encounter.observations[0].getValue().length).is.equal(numberOfValues, JSON.stringify(newState.encounter.observations));
 }
 
 describe('EncounterActionsTest', () => {
@@ -53,7 +53,7 @@ describe('EncounterActionsTest', () => {
 
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
-        expect(newState.encounter.observations[0].getValueWrapper().getValue()).is.equal(1);
+        expect(newState.encounter.observations[0].getValue()).is.equal(1);
         newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '11', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
     });
@@ -73,7 +73,7 @@ describe('EncounterActionsTest', () => {
         expect(newState.encounter.observations.length).is.equal(0);
         newState.encounter.observations.push(Observation.create(formElement.concept, new PrimitiveValue(10, Concept.dataType.Numeric)));
         const newerState = ObservationsHolderActions.onPrimitiveObs(newState, {value: 'a', formElement: formElement});
-        expect(newerState.encounter.observations[0].getValueWrapper().getValue()).is.equal(10);
+        expect(newerState.encounter.observations[0].getValue()).is.equal(10);
     });
 
     it('validateMultiSelect field when it is mandatory', () => {
@@ -137,7 +137,7 @@ describe('EncounterActionsTest', () => {
         expect(newState.encounter.observations.length).is.equal(2);
         newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(1);
-        expect(newState.encounter.observations[0].getValueWrapper().getValue()).is.equal(14);
+        expect(newState.encounter.observations[0].getValue()).is.equal(14);
     });
 
     it('next should not be allowed if there are validation errors in the same FEG', () => {

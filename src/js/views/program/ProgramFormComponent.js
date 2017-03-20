@@ -5,7 +5,6 @@ import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import {Content, Container} from "native-base";
 import themes from "../primitives/themes";
-import ReducerKeys from "../../reducer";
 import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/DateFormElement";
@@ -15,32 +14,23 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
+import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
-        enrolment: React.PropTypes.object.isRequired,
         context: React.PropTypes.object.isRequired,
-        observationHolder: React.PropTypes.object.isRequired
+        state: React.PropTypes.object.isRequired
     };
-
-    constructor(props, context) {
-        super(props, context, ReducerKeys.programEnrolment);
-    }
-
-    componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: this.props.context.usage});
-        return super.componentWillMount();
-    }
 
     next() {
         this.dispatchAction(Actions.NEXT, {
             validationFailed: () => {
             },
             completed: () => {
-                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.state.enrolment.uuid);
+                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.state.enrolment.uuid);
             },
             movedNext: () => {
-                CHSNavigator.navigateToProgramEnrolmentView(this, this.state.enrolment);
+                this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? CHSNavigator.navigateToProgramEnrolmentView(this, this.props.state.enrolment) : CHSNavigator.navigateToExitProgram(this, this.props.state.enrolment);
             }
         });
     }
@@ -50,22 +40,23 @@ class ProgramFormComponent extends AbstractComponent {
     }
 
     render() {
+        console.log(this.props.state.enrolment.programExitObservations);
         return (<Container theme={themes}>
             <Content>
-                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.state.enrolment.program.name})}/>
+                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})}/>
                 <View style={{marginLeft: 10, marginRight: 10, flexDirection: 'column'}}>
-                    {this.state.wizard.isFirstFormPage() ?
+                    {this.props.state.wizard.isFirstFormPage() ?
                         <View>
-                            <IndividualProfile landingView={false} individual={this.state.enrolment.individual}/>
+                            <IndividualProfile landingView={false} individual={this.props.state.enrolment.individual}/>
                             <DateFormElement actionName={this.props.context.dateAction} element={new StaticFormElement(this.props.context.dateKey)}
-                                             dateValue={new PrimitiveValue(this.state.enrolment[this.props.context.dateField])}
-                                             validationResult={AbstractDataEntryState.getValidationError(this.state, this.props.context.dateValidationKey)}/>
+                                             dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}
+                                             validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}/>
                         </View>
                         :
                         <View/>}
-                    <FormElementGroup actions={Actions} group={this.state.formElementGroup} observationHolder={this.props.observationHolder}
-                                      validationResults={this.state.validationResults}/>
-                    <WizardButtons previous={{visible: !this.state.wizard.isFirstPage(), func: () => this.previous()}}
+                    <FormElementGroup actions={Actions} group={this.props.state.formElementGroup} observationHolder={this.props.state.applicableObservationsHolder}
+                                      validationResults={this.props.state.validationResults}/>
+                    <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous()}}
                                    next={{func: () => this.next(), visible: true, label: this.I18n.t(this.nextButtonLabelKey)}}/>
                 </View>
             </Content>
@@ -73,8 +64,8 @@ class ProgramFormComponent extends AbstractComponent {
     }
 
     get nextButtonLabelKey() {
-        if (this.state.wizard.isLastPage()) {
-            return this.state.newEnrolment ? 'enrol' : 'save';
+        if (this.props.state.wizard.isLastPage()) {
+            return this.props.state.newEnrolment ? 'enrol' : 'save';
         } else {
             return 'next';
         }
