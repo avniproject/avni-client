@@ -1,36 +1,47 @@
 import StubbedMessageService from "../../service/stub/StubbedMessageService";
 import StubbedConceptService from "../../service/stub/StubbedConceptService";
 import StubbedConfigFileService from "../../service/stub/StubbedConfigFileService";
-import IndividualService from "../../../js/service/IndividualService";
 import StubbedIndividualService from "../../service/stub/StubbedIndividualService";
-import FormMappingService from "../../../js/service/FormMappingService";
 import StubbedFormMappingService from "../../service/stub/StubbedFormMappingService";
-import ProgramEnrolmentService from "../../../js/service/ProgramEnrolmentService";
 import StubbedProgramEnrolmentService from "../../service/stub/StubbedProgramEnrolmentService";
+import _ from 'lodash';
+import StubbedRuleEvaluationService from "../../service/stub/StubbedRuleEvaluationService";
+import MessageService from "../../../js/service/MessageService";
+import ConceptService from "../../../js/service/ConceptService";
+import ConfigFileService from "../../../js/service/ConfigFileService";
+import IndividualService from "../../../js/service/IndividualService";
+import FormMappingService from "../../../js/service/FormMappingService";
+import ProgramEnrolmentService from "../../../js/service/ProgramEnrolmentService";
+import RuleEvaluationService from "../../../js/service/RuleEvaluationService";
+import IndividualEncounterService from "../../../js/service/IndividualEncounterService";
+import StubbedIndividualEncounterService from "../../service/stub/StubbedIndividualEncounterService";
 
 class TestContext {
+    static stubs = new Map([
+        [MessageService, (serviceData) => new StubbedMessageService(serviceData)],
+        [ConceptService, (serviceData) => new StubbedConceptService(serviceData)],
+        [ConfigFileService, (serviceData) => new StubbedConfigFileService(serviceData)],
+        [IndividualService, (serviceData) => new StubbedIndividualService(serviceData)],
+        [FormMappingService, (serviceData) => new StubbedFormMappingService(serviceData)],
+        [ProgramEnrolmentService, (serviceData) => new StubbedProgramEnrolmentService(serviceData)],
+        [RuleEvaluationService, (serviceData) => new StubbedRuleEvaluationService(serviceData)],
+        [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)]
+    ]);
+
     constructor(serviceData) {
         this.serviceData = serviceData;
     }
 
     getService(type) {
-        if (type.name === "MessageService")
-            return new StubbedMessageService();
-        else if (type.name === "ConceptService")
-            return new StubbedConceptService();
-        else if (type.name === "ConfigFileService")
-            return new StubbedConfigFileService();
-        else if (type === IndividualService)
-            return new StubbedIndividualService();
-        else if (type === FormMappingService)
-            return new StubbedFormMappingService();
-        else if (type === ProgramEnrolmentService)
-            return new StubbedProgramEnrolmentService(this.serviceData);
-        return {
-            getDecision: function () {
-                return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
-            }
-        };
+        const stub = TestContext.stubs.get(type);
+        if (_.isNil(stub)) {
+            return {
+                getDecision: function () {
+                    return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
+                }
+            };
+        }
+        return stub(this.serviceData);
     }
 
     get(type) {

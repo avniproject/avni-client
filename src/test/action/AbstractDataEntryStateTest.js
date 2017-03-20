@@ -2,7 +2,7 @@ import {expect} from "chai";
 import EntityFactory from "../models/EntityFactory";
 import Wizard from "../../js/state/Wizard";
 import Concept from "../../js/models/Concept";
-import WizardActionStub from "./WizardActionStub";
+import WizardNextActionStub from "./WizardNextActionStub";
 import ValidationResult from "../../js/models/application/ValidationResult";
 import StubbedDataEntryState from "./StubbedDataEntryState";
 import Observation from "../../js/models/Observation";
@@ -22,17 +22,17 @@ describe('AbstractDataEntryStateTest', () => {
         formElementGroup.addFormElement(formElement);
 
         var dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), []);
-        var action = WizardActionStub.forValidationFailed();
+        var action = WizardNextActionStub.forValidationFailed();
         dataEntryState.handleNext(action, [ValidationResult.failureForEmpty('h')], () => {});
         action.assert();
 
         dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), []);
-        action = WizardActionStub.forValidationFailed();
+        action = WizardNextActionStub.forValidationFailed();
         dataEntryState.handleNext(action, [ValidationResult.successful('h')], () => {});
         action.assert();
 
         dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [Observation.create(concept, new PrimitiveValue(true))]);
-        action = WizardActionStub.forCompleted();
+        action = WizardNextActionStub.forCompleted();
         dataEntryState.handleNext(action, [ValidationResult.successful('h')], () => {});
         action.assert();
     });

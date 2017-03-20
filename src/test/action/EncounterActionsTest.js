@@ -9,6 +9,8 @@ import EntityFactory from "../models/EntityFactory";
 import Wizard from "../../js/state/Wizard";
 import EncounterActionState from "../../js/state/EncounterActionState";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
+import WizardNextActionStub from '../action/WizardNextActionStub';
+import TestContext from "../views/testframework/TestContext";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
@@ -20,14 +22,20 @@ let createFormElement = function (dataType, mandatory, conceptUUID) {
     return formElement;
 };
 
-let createIntialState = function (dataType, mandatory) {
-    const formElement = createFormElement(dataType, mandatory, 'bfc28bad-5fac-4760-921d-eec83f52c3da');
-    const formElementGroup = EntityFactory.createFormElementGroup('FooConcept', 1, EntityFactory.createForm());
+let createIntialState = function (dataType, firstFormElementMandatory, secondFormElementMandatory) {
+    const form = EntityFactory.createForm();
+    const formElementGroup = EntityFactory.createFormElementGroup('FooConcept', 1, form);
+    const formElement = createFormElement(dataType, firstFormElementMandatory, 'bfc28bad-5fac-4760-921d-eec83f52c3da');
     formElementGroup.addFormElement(formElement);
+
+    const formElementGroup2 = EntityFactory.createFormElementGroup('Bar', 2, form);
+    const formElement2 = createFormElement(dataType, secondFormElementMandatory, 'd1ab1bfd-aa13-4e86-ac67-9b46387ee446');
+    formElementGroup2.addFormElement(formElement2);
+
     const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1));
     state.encounter = Encounter.create();
     state.encounter.encounterDateTime = new Date();
-    return {state, formElement};
+    return {state, formElement, formElement2};
 };
 
 let createConceptAnswer = function (answerUUID) {
@@ -49,7 +57,7 @@ function verifyObservationValues(newState, numberOfValues) {
 
 describe('EncounterActionsTest', () => {
     it('validateNumericField without validation error', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
 
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
@@ -59,7 +67,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('validateNumericField with validation error', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
         formElement.concept.lowAbsolute = 10;
         formElement.concept.hiAbsolute = 100;
 
@@ -68,7 +76,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('numeric field with a string', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
         const newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 'a', formElement: formElement});
         expect(newState.encounter.observations.length).is.equal(0);
         newState.encounter.observations.push(Observation.create(formElement.concept, new PrimitiveValue(10, Concept.dataType.Numeric)));
@@ -77,7 +85,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('validateMultiSelect field when it is mandatory', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Coded, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Coded, true, false);
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         const answerUUID2 = 'ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f';
         formElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer(answerUUID2)];
@@ -98,7 +106,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('validateMultiSelect field when it is not mandatory', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Coded, false);
+        const {state, formElement} = createIntialState(Concept.dataType.Coded, false, false);
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         formElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer('ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f')];
         var newState = ObservationsHolderActions.toggleMultiSelectAnswer(state, {answerUUID: answerUUID, formElement: formElement});
@@ -109,7 +117,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('scenario - 1', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
         const multiSelectFormElement = createFormElement(Concept.dataType.Coded, true, 'c2c3a7a7-6b6f-413b-8f4c-9785a6c04b5e');
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         multiSelectFormElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer('ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f')];
@@ -129,7 +137,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('scenario - 2', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
         const anotherNumericFormElement = createFormElement(Concept.dataType.Numeric, false, 'c2c3a7a7-6b6f-413b-8f4c-9785a6c04b5e');
 
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '14', formElement: formElement});
@@ -141,44 +149,56 @@ describe('EncounterActionsTest', () => {
     });
 
     it('next should not be allowed if there are validation errors in the same FEG', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
         var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
-        newState = EncounterActions.onNext(newState, {
-            movedNext: () => {
-                expect('everything').to.not.be.ok;
-            },
-            validationFailed: () => {}
-        });
+        var action = WizardNextActionStub.forValidationFailed();
+        newState = EncounterActions.onNext(newState, action);
         verifyFormElementAndObservations(newState, 1, 0);
+        action.assert();
+
         newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
-        newState = EncounterActions.onNext(newState, {
-            movedNext: () => {
-                expect('everything').to.be.ok;
-            }
-        });
+
+        action = WizardNextActionStub.forMovedNext();
+        newState = EncounterActions.onNext(newState, action);
+        action.assert();
         verifyFormElementAndObservations(newState, 0, 1);
     });
 
     it('next should be allowed if there are no validation errors in the same FEG', () => {
-        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true);
+        const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 
-        var valueToBeModifiedInCallback = 1;
-        var anotherFormElement = createFormElement(Concept.dataType.Numeric, true, '1de2dfdf-1cd6-4506-a76d-1fe06751e7be');
-        anotherFormElement.uuid = '6c0630a4-fdc7-4c4b-939b-e07710ee92a0';
-        const anotherFormElementGroup = EntityFactory.createFormElementGroup('BarConcept', 1, EntityFactory.createForm());
-        anotherFormElementGroup.addFormElement(anotherFormElement);
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: anotherFormElement});
-        verifyFormElementAndObservations(newState, 1, 0);
-        var newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '10', formElement: formElement});
-        newState = EncounterActions.onNext(newState, {
-            movedNext: () => {
-                valueToBeModifiedInCallback = 4;
-            }
-        });
-        verifyFormElementAndObservations(newState, 1, 1);
-        expect(valueToBeModifiedInCallback).is.equal(4);
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '', formElement: formElement2});
+        var action = WizardNextActionStub.forMovedNext();
+        newState = EncounterActions.onNext(newState, action);
+        action.assert();
+        verifyFormElementAndObservations(newState, 0, 1);
     });
 
+    it('next on second view should be allowed without filling non-mandatory form element', () => {
+        const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, false);
+
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        var action = WizardNextActionStub.forMovedNext();
+        newState = EncounterActions.onNext(newState, action);
+
+        action = WizardNextActionStub.forCompleted();
+        newState = EncounterActions.onNext(newState, action, new TestContext());
+        action.assert();
+    });
+
+    it('next on second view should give validation error', () => {
+        const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
+
+        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        var action = WizardNextActionStub.forMovedNext();
+        newState = EncounterActions.onNext(newState, action);
+
+        action = WizardNextActionStub.forValidationFailed();
+        newState = EncounterActions.onNext(newState, action, new TestContext());
+        action.assert();
+        verifyFormElementAndObservations(newState, 1, 1);
+    });
 });

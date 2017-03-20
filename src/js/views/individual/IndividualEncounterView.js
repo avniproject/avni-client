@@ -39,10 +39,10 @@ class IndividualEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            validationSuccessful: (encounterDecisions, encounter, formElementGroup) => {
+            completed: (state, encounterDecisions) => {
                 TypedTransition.from(this).with({
-                    encounter: encounter,
-                    previousFormElementGroup: formElementGroup,
+                    encounter: state.encounter,
+                    previousFormElementGroup: state.formElementGroup,
                     encounterDecisions: encounterDecisions
                 }).to(SystemRecommendationView);
             },
@@ -80,7 +80,7 @@ class IndividualEncounterView extends AbstractComponent {
 
                     <View style={{flexDirection: 'column'}}>
                         {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup} actions={Actions}
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
                                        next={{func: () => this.next(), visible: true}}/>

@@ -1,10 +1,9 @@
 import IndividualEncounterService from "../../service/IndividualEncounterService";
 import EntityService from "../../service/EntityService";
 import Form from "../../models/application/Form";
-import _ from "lodash";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import EncounterActionState from "../../state/EncounterActionState";
-import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import Wizard from "../../state/Wizard";
 
 export class EncounterActions {
