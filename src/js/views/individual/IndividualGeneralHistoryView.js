@@ -37,7 +37,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('generalHistory')}/>
                     <View>
                         <View style={DGS.common.content}>
-                            <IndividualProfile landingView={false} individual={this.props.params.individual}/>
+                            <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.props.params.individual}/>
                         </View>
                         <PreviousEncounter encounters={this.state.encounters}/>
                     </View>

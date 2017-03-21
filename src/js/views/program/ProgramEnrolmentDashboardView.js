@@ -54,13 +54,14 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     render() {
+        console.log('ProgramEnrolmentDashboardView.render');
         var enrolments = _.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime);
         _.reverse(enrolments);
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
                     <AppHeader title={`${this.state.enrolment.individual.name}`}/>
-                    <IndividualProfile individual={this.state.enrolment.individual} landingView={true}/>
+                    <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
                     <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
                         <View style={{flexDirection: 'row', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
                             <View style={{flex: 1, justifyContent: 'flex-start'}}>
@@ -79,7 +80,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{marginTop: DGS.resizeHeight(18), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
                                 <Button primary onPress={() => this.editEnrolment()}>{this.I18n.t('edit')}</Button>
-                                <Button primary onPress={() => this.exitProgram()}>{this.I18n.t('exitProgram')}</Button>
+                                {this.state.enrolment.isActive ? <Button primary onPress={() => this.exitProgram()}>{this.I18n.t('exitProgram')}</Button> : <View/>}
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>

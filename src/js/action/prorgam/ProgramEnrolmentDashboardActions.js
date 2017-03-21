@@ -13,7 +13,7 @@ class ProgramEnrolmentDashboardActions {
         const entityService = context.get(EntityService);
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
-            newState.enrolment = individual.firstActiveEnrolment;
+            newState.enrolment = individual.firstActiveOrRecentEnrolment;
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         }

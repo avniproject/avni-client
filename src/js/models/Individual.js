@@ -166,8 +166,14 @@ class Individual extends BaseEntity {
         this.encounters.push(encounter);
     }
 
-    cloneWithoutEncounters() {
-        const individual = this.cloneAsReference();
+    cloneForEdit() {
+        const individual = new Individual();
+        individual.uuid = this.uuid;
+        individual.name = this.name;
+        individual.dateOfBirth = this.dateOfBirth;
+        individual.dateOfBirthVerified = this.dateOfBirthVerified;
+        individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
+        individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
         individual.observations = ObservationsHolder.clone(this.observations);
         return individual;
     }
@@ -176,19 +182,12 @@ class Individual extends BaseEntity {
         return _.some(this.enrolments, (enrolment) => enrolment.isActive);
     }
 
-    get firstActiveEnrolment() {
-        return _.find(this.enrolments, (enrolment) => enrolment.isActive);
+    get firstActiveOrRecentEnrolment() {
+        return _.find(_.reverse(_.sortBy(this.enrolments, (enrolment) => enrolment.enrolmentDateTime), (enrolment) => enrolment.isActive));
     }
 
-    cloneAsReference() {
-        const individual = new Individual();
-        individual.uuid = this.uuid;
-        individual.name = this.name;
-        individual.dateOfBirth = this.dateOfBirth;
-        individual.dateOfBirthVerified = this.dateOfBirthVerified;
-        individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
-        individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
-        return individual;
+    get hasEnrolments() {
+        return this.enrolments.length;
     }
 
     findEnrolmentForProgram(program) {

@@ -37,6 +37,10 @@ class IndividualEncounterView extends AbstractComponent {
         return super.componentWillMount();
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return !nextState.wizard.isFirstPage();
+    }
+
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, encounterDecisions) => {
@@ -47,7 +51,6 @@ class IndividualEncounterView extends AbstractComponent {
                 }).to(SystemRecommendationView);
             },
             movedNext: () => {
-                TypedTransition.from(this).with().to(IndividualEncounterView);
             },
             validationFailed: (newState) => {
                 if (EncounterActionState.hasOnlyExternalRuleError(this.state)) {
@@ -65,8 +68,9 @@ class IndividualEncounterView extends AbstractComponent {
 
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
-            cb: (firstPage) => {
-                TypedTransition.from(this).to(firstPage ? IndividualEncounterLandingView : IndividualEncounterView, true);
+            cb: (newState) => {
+                if (newState.wizard.isFirstPage())
+                    TypedTransition.from(this).goBack();
             }
         });
     }
@@ -105,7 +109,7 @@ class IndividualEncounterView extends AbstractComponent {
                     paddingBottom: 12,
                     height: 74
                 }}>
-                    <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
+                    <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight
@@ -130,7 +134,7 @@ class IndividualEncounterView extends AbstractComponent {
                     paddingTop: 12,
                     paddingBottom: 12
                 }}>
-                    <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
+                    <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
                     <Text style={{paddingLeft:10, paddingRight:10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}></Text>
                     <PreviouEncounter encounters={this.state.encounters}/>
                 </View>

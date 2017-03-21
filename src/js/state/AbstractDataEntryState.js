@@ -38,7 +38,8 @@ class AbstractDataEntryState {
         this.formElementGroup = this.formElementGroup.previous();
     }
 
-    get observationsHolder() {}
+    get observationsHolder() {
+    }
 
     handleNext(action, validationResults, completionFn) {
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));

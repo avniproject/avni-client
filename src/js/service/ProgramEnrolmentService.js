@@ -34,6 +34,7 @@ class ProgramEnrolmentService extends BaseService {
         }
 
         const db = this.db;
+        ProgramEnrolmentService.convertObsForSave(programEnrolment);
         this.db.write(()=> {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 

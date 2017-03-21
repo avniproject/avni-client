@@ -21,7 +21,7 @@ export class EncounterActions {
     static onPrevious(state, action, context) {
         const newState = state.clone();
         newState.movePrevious();
-        action.cb(newState.formElementGroup.isFirst);
+        action.cb(newState);
         return newState;
     }
 

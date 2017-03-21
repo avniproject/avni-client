@@ -50,7 +50,7 @@ class SystemRecommendationView extends AbstractComponent {
                     <AppHeader title={this.state.encounter.individual.name}/>
                     <Grid>
                         <Row style={{backgroundColor: Colors.GreyContentBackground, paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, height: 74}}>
-                            <IndividualProfile landingView={false} individual={this.state.encounter.individual}/>
+                            <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
                         </Row>
                         <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12}}>
                             <Grid>

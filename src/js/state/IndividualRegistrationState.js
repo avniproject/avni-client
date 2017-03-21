@@ -19,7 +19,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     clone() {
         const newState = new IndividualRegistrationState();
-        newState.individual = this.individual.cloneWithoutEncounters();
+        newState.individual = this.individual.cloneForEdit();
         newState.genders = this.genders;
         newState.age = this.age;
         newState.ageProvidedInYears = this.ageProvidedInYears;

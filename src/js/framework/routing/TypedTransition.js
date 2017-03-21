@@ -70,11 +70,15 @@ export default class TypedTransition {
     wizardCompleted(wizardViewClass, newViewClass, params) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
-        console.log(currentRoutes.length);
-        const count = _.sumBy(currentRoutes, (route) => wizardViewClass.path() === route.path ? 1 : 0);
-        console.log(count);
-        const newRouteStack = _.dropRight(currentRoutes, count);
+        const wizardCount = _.sumBy(currentRoutes, (route) => wizardViewClass.path() === route.path ? 1 : 0);
+        const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
+        const newRouteStack = _.dropRight(currentRoutes, wizardCount + existingNewViewClassCount);
         newRouteStack.push(this.createRoute(newViewClass, params));
         this.navigator.immediatelyResetRouteStack(newRouteStack);
+        console.log(`Intiial: ${currentRoutes.length}, Wizard: ${wizardCount}, NewView: ${existingNewViewClassCount}, Final: ${newRouteStack.length}`);
+    }
+
+    logRoutes() {
+        this.navigator.getCurrentRoutes().forEach((route) => console.log(route.path));
     }
 }

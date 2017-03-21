@@ -27,16 +27,18 @@ class ProgramFormComponent extends AbstractComponent {
             validationFailed: () => {
             },
             completed: () => {
-                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.state.enrolment.uuid, this.props.context.usage);
+                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.state.enrolment.individual.uuid, this.props.state.enrolment.uuid, this.props.context.usage);
             },
             movedNext: () => {
-                this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? CHSNavigator.navigateToProgramEnrolmentView(this, this.props.state.enrolment) : CHSNavigator.navigateToExitProgram(this, this.props.state.enrolment);
             }
         });
     }
 
     previous() {
-        TypedTransition.from(this).goBack();
+        this.dispatchAction(Actions.PREVIOUS, {
+            cb: (newState) => {
+            }
+        });
     }
 
     render() {
@@ -46,7 +48,7 @@ class ProgramFormComponent extends AbstractComponent {
                 <View style={{marginLeft: 10, marginRight: 10, flexDirection: 'column'}}>
                     {this.props.state.wizard.isFirstFormPage() ?
                         <View>
-                            <IndividualProfile landingView={false} individual={this.props.state.enrolment.individual}/>
+                            <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.state.enrolment.individual}/>
                             <DateFormElement actionName={this.props.context.dateAction} element={new StaticFormElement(this.props.context.dateKey)}
                                              dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}
                                              validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}/>

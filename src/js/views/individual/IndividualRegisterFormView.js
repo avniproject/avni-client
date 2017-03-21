@@ -27,12 +27,15 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     previous() {
-        this.dispatchAction(Actions.PREVIOUS, {cb: (firstPage) => {
-            TypedTransition.from(this).to(firstPage ? IndividualRegisterView : IndividualRegisterFormView, true);
-        }});
+        this.dispatchAction(Actions.PREVIOUS, {
+            cb: (newState) => {
+                if (newState.wizard.isFirstPage())
+                    TypedTransition.from(this).goBack();
+            }
+        });
     }
 
-    shouldComponentUpdate(nextProps, nextState){
+    shouldComponentUpdate(nextProps, nextState) {
         return !nextState.wizard.isNonFormPage()
     }
 
@@ -42,9 +45,13 @@ class IndividualRegisterFormView extends AbstractComponent {
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
                     <View style={{flexDirection: 'column'}}>
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup} actions={Actions} validationResults={this.state.validationResults}/>
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup}
+                                          actions={Actions} validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: true}}
-                                       next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t(this.state.wizard.isLastPage() ? 'register' : 'next')}} nextDisabled={this.state.validationResults.length !== 0}/>
+                                       next={{
+                                           func: () => IndividualRegisterViewsMixin.next(this),
+                                           label: this.I18n.t(this.state.wizard.isLastPage() ? 'register' : 'next')
+                                       }} nextDisabled={this.state.validationResults.length !== 0}/>
                     </View>
                 </Content>
             </Container>

@@ -88,7 +88,7 @@ export class IndividualRegisterActions {
     static onPrevious(state, action, context) {
         const newState = state.clone();
         newState.movePrevious();
-        action.cb(newState.wizard.isNonFormPage());
+        action.cb(newState);
         return newState;
     }
 }

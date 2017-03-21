@@ -49,12 +49,12 @@ class Encounter extends BaseEntity {
         return resource;
     }
 
-    cloneForNewEncounter() {
+    cloneForEdit() {
         const encounter = new Encounter();
         encounter.uuid = this.uuid;
         encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
         encounter.encounterDateTime = this.encounterDateTime;
-        encounter.individual = _.isNil(this.individual) ? null : this.individual.cloneAsReference();
+        encounter.individual = this.individual; //in encounter edit individual is not changed
         encounter.observations = ObservationsHolder.clone(this.observations);
         return encounter;
     }

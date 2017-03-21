@@ -48,6 +48,13 @@ export class ProgramEnrolmentActions {
             programEnrolmentState.reset();
         });
     }
+
+    static onPrevious(state, action, context) {
+        const newState = state.clone();
+        newState.movePrevious();
+        action.cb(newState);
+        return newState;
+    }
 }
 
 const actions = {
@@ -57,7 +64,8 @@ const actions = {
     TOGGLE_MULTISELECT_ANSWER: "PEA.TOGGLE_MULTISELECT_ANSWER",
     TOGGLE_SINGLESELECT_ANSWER: "PEA.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'PEA.PRIMITIVE_VALUE_CHANGE',
-    NEXT: 'PEA.NEXT'
+    NEXT: 'PEA.NEXT',
+    PREVIOUS: 'PEA.PREVIOUS'
 };
 
 export default new Map([
@@ -67,7 +75,8 @@ export default new Map([
     [actions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
-    [actions.NEXT, ProgramEnrolmentActions.onNext]
+    [actions.NEXT, ProgramEnrolmentActions.onNext],
+    [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious]
 ]);
 
 export {actions as Actions};

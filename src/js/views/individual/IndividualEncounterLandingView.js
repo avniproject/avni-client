@@ -26,7 +26,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     };
 
     viewName() {
-        return "IndividualEncounterLandingView";
+        return IndividualEncounterLandingView.name;
     }
 
     constructor(props, context) {
@@ -37,6 +37,10 @@ class IndividualEncounterLandingView extends AbstractComponent {
         if (!_.isNil(this.props.params.individualUUID))
             this.dispatchAction(Actions.NEW_ENCOUNTER, {individualUUID: this.props.params.individualUUID});
         return super.componentWillMount();
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextState.wizard.isFirstPage();
     }
 
     next() {
@@ -64,7 +68,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('generalConsultation')}/>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row style={{height: 263}}>
-                            <IndividualProfile landingView={true} individual={this.state.encounter.individual}/>
+                            <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.encounter.individual}/>
                         </Row>
                         <Row>
                             {/* TODO use DateFormElement instead of below code */}
@@ -77,7 +81,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                           style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.state.encounter.encounterDateTime)}</Text>
                                 </Row>
                                 <FormElementGroup group={this.state.formElementGroup}
-                                                  observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions} validationResults={this.state.validationResults}/>
+                                                  observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions}
+                                                  validationResults={this.state.validationResults}/>
                                 <WizardButtons previous={{
                                     func: () => {
                                     }, visible: false

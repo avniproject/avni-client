@@ -6,7 +6,7 @@ export class SystemRecommendationActions {
 
     static onLoad(state, action, context) {
         const newState = {};
-        newState.encounter = action.encounter.cloneForNewEncounter();
+        newState.encounter = action.encounter.cloneForEdit();
         newState.encounterDecisions = action.encounterDecisions;
         newState.formElementGroup = action.formElementGroup;
         return newState;
@@ -14,7 +14,7 @@ export class SystemRecommendationActions {
 
     static onSave(state, action, context) {
         const newState = {};
-        newState.encounter = state.encounter.cloneForNewEncounter();
+        newState.encounter = state.encounter.cloneForEdit();
         newState.encounterDecisions = state.encounterDecisions;
         newState.formElementGroup = state.formElementGroup;
         context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);

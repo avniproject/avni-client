@@ -78,7 +78,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.enrolmentDateTime = this.enrolmentDateTime;
         programEnrolment.programExitDateTime = this.programExitDateTime;
         programEnrolment.programOutcome = _.isNil(this.programOutcome) ? null : this.programOutcome.clone();
-        programEnrolment.individual = this.individual.cloneAsReference();
+        programEnrolment.individual = this.individual;
         programEnrolment.observations = ObservationsHolder.clone(this.observations);
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = [];

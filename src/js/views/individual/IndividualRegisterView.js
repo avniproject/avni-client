@@ -33,7 +33,7 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     viewName() {
-        return "IndividualRegisterView";
+        return IndividualRegisterView.name;
     }
 
     componentWillMount() {
@@ -44,9 +44,8 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        return nextState.wizard.isNonFormPage()
+        return nextState.wizard.isNonFormPage();
     }
-
 
     render() {
         return (

@@ -4,27 +4,30 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, Button, Grid, Row, Col, Icon, Thumbnail, Content, Container} from "native-base";
 import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
-import {Actions} from "../../action/individual/IndividualProfileActions";
+import {Actions, IndividualProfileActions as IPA} from "../../action/individual/IndividualProfileActions";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import themes from "../primitives/themes";
 import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
-import {IndividualProfileActions as IPA} from "../../action/individual/IndividualProfileActions";
 import ReducerKeys from "../../reducer";
-import _ from 'lodash';
-import Colors from '../primitives/Colors';
-import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
+import _ from "lodash";
+import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
-        landingView: React.PropTypes.bool.isRequired,
-        individual: React.PropTypes.object.isRequired
+        individual: React.PropTypes.object.isRequired,
+        viewContext: React.PropTypes.string.isRequired
     };
 
     static buttonIconStyle = {fontSize: 14, color: Colors.ActionButtonColor};
     static buttonTextStyle = {fontSize: 14, color: Colors.ActionButtonColor};
+
+    static viewContext = {
+        Program: 'Program',
+        General: 'General',
+        Wizard: 'Wizard'
+    };
 
     constructor(props, context) {
         super(props, context, ReducerKeys.individualProfile);
@@ -52,8 +55,13 @@ class IndividualProfile extends AbstractComponent {
         }
     }
 
+    renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
+        return <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={onPress}>
+            <Icon name={iconMode} style={IndividualProfile.buttonIconStyle}/>{this.I18n.t(displayTextMessageKey)}</Button>
+    }
+
     render() {
-        return this.props.landingView ?
+        return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <Content>
                     <Modal
@@ -98,15 +106,12 @@ class IndividualProfile extends AbstractComponent {
                             </Text>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
-                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}>
-                                <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('editProfile')}</Button>
-                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={() => this.launchChooseProgram()}>
-                                <Icon name="add" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('enrolInProgram')}</Button>
+                            {this.renderProfileActionButton('mode-edit', 'editProfile', () => {})}
+                            {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
-                            <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle}
-                                    onPress={() => this.viewGeneralHistory()}>
-                                <Icon name="mode-edit" style={IndividualProfile.buttonIconStyle}/>{this.I18n.t('generalHistory')}</Button>
+                            {this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory())}
+                            {this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program ? this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments()) : <View/>}
                         </Row>
                     </Grid>
                 </Content>
@@ -126,6 +131,10 @@ class IndividualProfile extends AbstractComponent {
                     </Row>
                 </Grid>
             );
+    }
+
+    viewEnrolments() {
+        CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid);
     }
 
     viewGeneralHistory() {
