@@ -1,9 +1,9 @@
 import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
-import EncounterType from "./EncounterType";
-import ProgramEnrolment from './ProgramEnrolment';
+import ProgramEnrolment from "./ProgramEnrolment";
+import AbstractEncounter from "./AbstractEncounter";
 
-class ProgramEncounter {
+class ProgramEncounter extends AbstractEncounter {
     static schema = {
         name: 'ProgramEncounter',
         primaryKey: 'uuid',
@@ -11,27 +11,36 @@ class ProgramEncounter {
             uuid: 'string',
             encounterType: 'EncounterType',
             scheduledDateTime: {type: 'date', optional: true},
-            actualDateTime: {type: 'date', optional: true},
+            encounterDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'}
         }
     };
 
     static fromResource(resource, entityService) {
-        const encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
-        const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
+        const programEncounter = AbstractEncounter.fromResource(resource, entityService, new ProgramEncounter());
 
-        const programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], ["observations"], entityService);
-        programEncounter.encounterType = encounterType;
-        programEncounter.programEnrolment = programEnrolment;
-
+        programEncounter.programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
+        programEncounter.scheduledDateTime = resource["scheduledDateTime"];
         return programEncounter;
+    }
+
+    get toResource() {
+        const resource = super.toResource;
+        resource["programEnrolmentUUID"] = this.programEnrolment.uuid;
+        return resource;
     }
 
     static createSafeInstance() {
         const programEncounter = new ProgramEncounter();
         programEncounter.uuid = General.randomUUID();
         programEncounter.observations = [];
+        return programEncounter;
+    }
+
+    cloneForEdit() {
+        const programEncounter = super.cloneForEdit(new ProgramEncounter());
+        programEncounter.programEnrolment = this.programEnrolment;
         return programEncounter;
     }
 }

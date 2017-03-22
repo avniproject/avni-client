@@ -1,6 +1,6 @@
 import _ from "lodash";
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import Encounter from "../models/Encounter";
+import AbstractEncounter from "../models/AbstractEncounter";
 import ObservationsHolder from "../models/ObservationsHolder";
 
 class EncounterActionState extends AbstractDataEntryState {
@@ -23,11 +23,11 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     static hasOnlyExternalRuleError(state) {
-        return AbstractDataEntryState.hasValidationError(state, Encounter.validationKeys.EXTERNAL_RULE);
+        return AbstractDataEntryState.hasValidationError(state, AbstractEncounter.validationKeys.EXTERNAL_RULE);
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [Encounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
+        return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
     }
 }
 

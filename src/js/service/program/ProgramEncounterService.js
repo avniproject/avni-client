@@ -11,7 +11,7 @@ class ProgramEncounterService extends BaseService {
 
     getProgramSummary(program) {
         const encounterSummary = {};
-        const unfulfilledEncounters = this.db.objects(ProgramEncounter.schema.name).filtered(`actualDateTime == null AND scheduledDateTime != null AND programEnrolment.program.uuid == \"${program.uuid}\"`).sorted('scheduledDateTime');
+        const unfulfilledEncounters = this.db.objects(ProgramEncounter.schema.name).filtered(`encounterDateTime == null AND scheduledDateTime != null AND programEnrolment.program.uuid == \"${program.uuid}\"`).sorted('scheduledDateTime');
         encounterSummary.upcoming = 0;
         encounterSummary.overdue = 0;
 

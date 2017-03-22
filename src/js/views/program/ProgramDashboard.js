@@ -25,7 +25,7 @@ class ProgramDashboard extends AbstractComponent {
         displayItems.push(programEncounter.programEnrolment.individual.name);
         displayItems.push(programEncounter.programEnrolment.individual.lowestAddressLevel.name);
         const lastFulfilledEncounter = programEncounter.programEnrolment.lastFulfilledEncounter;
-        displayItems.push(_.isNil(lastFulfilledEncounter) ? '' : lastFulfilledEncounter.actualDateTime.name);
+        displayItems.push(_.isNil(lastFulfilledEncounter) ? '' : lastFulfilledEncounter.encounterDateTime.name);
         return displayItems;
     }
 

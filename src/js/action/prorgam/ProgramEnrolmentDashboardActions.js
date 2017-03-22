@@ -4,6 +4,7 @@ import Individual from '../../models/Individual';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import ProgramEncounter from '../../models/ProgramEncounter';
+import FormMappingService from "../../service/FormMappingService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -19,8 +20,12 @@ class ProgramEnrolmentDashboardActions {
         return {encounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity)};
     }
 
+    static clone(state) {
+        return {encounterTypeState: state.encounterTypeState.clone()};
+    }
+
     static onLoad(state, action, context) {
-        const newState = {encounterTypeState: state.encounterTypeState.clone()};
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
         const entityService = context.get(EntityService);
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
@@ -29,9 +34,34 @@ class ProgramEnrolmentDashboardActions {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         }
 
-        const encounter = ProgramEncounter.createSafeInstance();
-        encounter.individual = action.value;
-        newState.encounterTypeState.entityParentSelected(context.get(IndividualService).eligiblePrograms(action.value.uuid), encounter);
+        const programEncounter = ProgramEncounter.createSafeInstance();
+        programEncounter.individual = action.value;
+        const encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
+        newState.encounterTypeState.entityParentSelected(encounterTypes, programEncounter);
+        return newState;
+    }
+
+    static launchChooseEncounterType(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.encounterTypeState.launchChooseEntityType();
+        return newState;
+    }
+
+    static onEncounterTypeSelected(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.encounterTypeState.selectedEntityType(action.value);
+        return newState;
+    }
+
+    static onCancelledEncounterTypeSelection(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.encounterTypeState.cancelledEntityTypeSelection(action.value);
+        return newState;
+    }
+
+    static onEncounterTypeConfirmed(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.encounterTypeState.entityTypeSelectionConfirmed(action.value);
         return newState;
     }
 

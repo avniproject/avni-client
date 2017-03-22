@@ -55,7 +55,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     startProgramEncounter() {
-        TypedTransition.from(this).to(ProgramEncounterView);
+        this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
     }
 
     render() {

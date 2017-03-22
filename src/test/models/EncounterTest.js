@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import _ from "lodash";
+import {expect} from "chai";
 import Encounter from "../../js/models/Encounter";
 import Observation from "../../js/models/Observation";
 import Concept from "../../js/models/Concept";

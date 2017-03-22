@@ -5,6 +5,7 @@ import _ from 'lodash';
 import DynamicDataResolver from "./DynamicDataResolver";
 import {getObservationValue} from '../service/decisionSupport/AdditionalFunctions';
 import Encounter from "../models/Encounter";
+import AbstractEncounter from "../models/AbstractEncounter";
 import ValidationResult from '../models/application/ValidationResult';
 
 @Service("ruleEvaluationService")
@@ -48,10 +49,10 @@ class RuleEvaluationService extends BaseService {
 
     validateEncounter(encounter) {
         if (_.isNil(this.encounterValidationFn)) {
-            return ValidationResult.successful(Encounter.validationKeys.EXTERNAL_RULE);
+            return ValidationResult.successful(AbstractEncounter.validationKeys.EXTERNAL_RULE);
         } else {
             const validationResult = this.encounterValidationFn(encounter);
-            validationResult.formIdentifier = Encounter.validationKeys.EXTERNAL_RULE;
+            validationResult.formIdentifier = AbstractEncounter.validationKeys.EXTERNAL_RULE;
             return validationResult;
         }
     }

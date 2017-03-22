@@ -3,6 +3,7 @@ import Service from "../framework/bean/Service";
 import FormMapping from "../models/application/FormMapping";
 import _ from 'lodash';
 import Form from '../models/application/Form';
+import EncounterType from "../models/EncounterType";
 
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
@@ -32,9 +33,11 @@ class FormMappingService extends BaseService {
         return this._findProgramRelatedForm(program, Form.formTypes.ProgramExit);
     }
 
-    findFormsForProgramEncounter(program) {
+    findEncounterTypesForProgram(program) {
         const formMappings = this.findAllByCriteria(`entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`);
-        return formMappings.map((formMapping) => formMapping.form);
+        return formMappings.map((formMapping) => {
+            return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
+        });
     }
 }
 

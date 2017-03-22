@@ -25,38 +25,33 @@ class EntityTypeChoiceState {
     }
 
     entityParentSelected(entityTypes, entity) {
-        const newState = this.clone();
-        newState.entity = entity;
-        newState.entityTypes = entityTypes;
-        newState.flowState = EntityTypeChoiceState.states.NotStarted;
-        return newState;
+        this.entity = entity;
+        this.entityTypes = entityTypes;
+        this.flowState = EntityTypeChoiceState.states.NotStarted;
+        return this;
     }
 
-    launchChooseEntityType(state, action) {
-        const newState = this.clone();
-        newState.flowState = EntityTypeChoiceState.states.Launched;
-        return newState;
+    launchChooseEntityType() {
+        this.flowState = EntityTypeChoiceState.states.Launched;
+        return this;
     }
 
     selectedEntityType(entityType) {
-        const newState = this.clone();
-        newState.flowState = EntityTypeChoiceState.states.EntityTypeSelected;
-        newState.entityTypeSelectionFn(entityType);
-        return newState;
+        this.flowState = EntityTypeChoiceState.states.EntityTypeSelected;
+        this.entityTypeSelectionFn(entityType);
+        return this;
     }
 
     cancelledEntityTypeSelection() {
-        const newState = this.clone();
-        newState.flowState = EntityTypeChoiceState.states.NotStarted;
-        newState.entityTypeSelectionFn(null);
-        return newState;
+        this.flowState = EntityTypeChoiceState.states.NotStarted;
+        this.entityTypeSelectionFn(null);
+        return this;
     }
 
     entityTypeSelectionConfirmed(action) {
-        const newState = this.clone();
-        newState.flowState = EntityTypeChoiceState.states.EntityTypeConfirmed;
-        action.cb(newState);
-        return newState;
+        this.flowState = EntityTypeChoiceState.states.EntityTypeConfirmed;
+        action.cb(this);
+        return this;
     }
 }
 
