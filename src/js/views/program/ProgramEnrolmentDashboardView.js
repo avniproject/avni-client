@@ -17,6 +17,7 @@ import DGS from '../primitives/DynamicGlobalStyles';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "./ProgramEnrolmentView";
 import CHSNavigator from "../../utility/CHSNavigator";
+import ProgramEncounterView from "./ProgramEncounterView";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
