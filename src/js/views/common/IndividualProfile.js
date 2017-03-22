@@ -1,19 +1,16 @@
 import {View, StyleSheet, Modal} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, Button, Grid, Row, Col, Icon, Thumbnail, Content, Container} from "native-base";
+import {Text, Button, Grid, Row, Col, Icon, Thumbnail, Content} from "native-base";
 import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {Actions, IndividualProfileActions as IPA} from "../../action/individual/IndividualProfileActions";
-import EntityTypeChoiceState from "../../action/common/EntityTypeChoiceState";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
-import themes from "../primitives/themes";
+import {Actions} from "../../action/individual/IndividualProfileActions";
 import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
 import ReducerKeys from "../../reducer";
-import _ from "lodash";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
+import EntityTypeSelector from "./EntityTypeSelector";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -65,30 +62,8 @@ class IndividualProfile extends AbstractComponent {
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <Content>
-                    <Modal
-                        animationType={"slide"}
-                        transparent={true}
-                        visible={[EntityTypeChoiceState.states.Launched, EntityTypeChoiceState.states.EntityTypeSelected].includes(this.state.flowState)}
-                        onRequestClose={() => {
-                        }}>
-                        <Container theme={themes}>
-                            <Content contentContainerStyle={{marginTop: 100}}>
-                                <Grid>
-                                    <Row style={{backgroundColor: '#fff'}}>
-                                        <RadioGroup action={Actions.SELECTED_PROGRAM}
-                                                    selectionFn={(program) => _.isNil(this.state.entity.program) ? false : this.state.entity.program.uuid === program.uuid}
-                                                    labelKey="selectProgram"
-                                                    labelValuePairs={this.state.entityTypes.map((program) => new RadioLabelValue(program.name, program))}/>
-                                    </Row>
-                                    <Row style={{backgroundColor: '#fff'}}>
-                                        <Button onPress={() => this.programSelectionConfirmed()}>{this.I18n.t('enrolInProgram')}</Button>
-                                        <Button onPress={() => this.dispatchAction(Actions.CANCELLED_PROGRAM_SELECTION)}>{this.I18n.t('cancel')}</Button>
-                                    </Row>
-                                </Grid>
-                            </Content>
-                        </Container>
-                    </Modal>
-
+                    <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
+                                        actions={Actions} labelKey='selectProgram' confirmActionLabelKey='enrolInProgram'/>
                     <Grid style={{backgroundColor: Colors.Blackish}}>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
                             {this.getImage(this.props.individual)}
@@ -107,12 +82,14 @@ class IndividualProfile extends AbstractComponent {
                             </Text>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
-                            {this.renderProfileActionButton('mode-edit', 'editProfile', () => {})}
+                            {this.renderProfileActionButton('mode-edit', 'editProfile', () => {
+                            })}
                             {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
                             {this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory())}
-                            {this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program ? this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments()) : <View/>}
+                            {this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program ? this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments()) :
+                                <View/>}
                         </Row>
                     </Grid>
                 </Content>
@@ -138,21 +115,15 @@ class IndividualProfile extends AbstractComponent {
         CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid);
     }
 
+    launchChooseProgram() {
+        this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
+    }
+
     viewGeneralHistory() {
         this.dispatchAction(Actions.VIEW_GENERAL_HISTORY, {
             cb: () => TypedTransition.from(this).with(
                 {individual: this.props.individual}
             ).to(IndividualGeneralHistoryView)
-        })
-    }
-
-    launchChooseProgram() {
-        this.dispatchAction(Actions.LAUNCH_CHOOSE_PROGRAM);
-    }
-
-    programSelectionConfirmed() {
-        this.dispatchAction(Actions.PROGRAM_SELECTION_CONFIRMED, {
-            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)
         })
     }
 }
