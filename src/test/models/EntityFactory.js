@@ -3,8 +3,17 @@ import Form from "../../js/models/application/Form";
 import FormElement from "../../js/models/application/FormElement";
 import _ from 'lodash';
 import Concept from "../../js/models/Concept";
+import Program from "../../js/models/Program";
+import General from '../../js/utility/General';
 
 class EntityFactory {
+    static createSafeProgram(name) {
+        const program = new Program();
+        program.uuid = General.randomUUID();
+        program.name = name;
+        return program;
+    }
+
     static createSafeFormElementGroup(form) {
         const formElementGroup = new FormElementGroup();
         formElementGroup.formElements = [];

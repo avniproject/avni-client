@@ -23,6 +23,7 @@ import {
     ProgramEnrolmentsActionsMap
 } from "../action/prorgam/ProgramEnrolmentsActions";
 import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} from '../action/prorgam/ProgramEnrolmentDashboardActions';
+import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/prorgam/ProgramEncounterActions';
 
 const reducerMapFn = function (beanStore) {
     let reducerMap = {};
@@ -44,6 +45,7 @@ const reducerMapFn = function (beanStore) {
     reducerMap[reducerKeys.dashboard] = add(DashboardActionsMap, DashboardActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolments] = add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolmentDashboard] = add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.programEncounter] = add(ProgramEncounterActionsMap, ProgramEncounterActions.getInitialState(beanStore));
 
     return reducerMap;
 };
@@ -57,7 +59,8 @@ const reducerKeys = {
     individualProfile: 'individualProfile',
     dashboard: 'dashboard',
     programEnrolments: 'programEnrolments',
-    programEnrolmentDashboard: 'programEnrolmentDashboard'
+    programEnrolmentDashboard: 'programEnrolmentDashboard',
+    programEncounter: 'programEncounter'
 };
 
 export {reducerMapFn as initReducers};

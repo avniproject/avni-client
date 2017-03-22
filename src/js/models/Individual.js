@@ -37,6 +37,7 @@ class Individual extends BaseEntity {
 
     static createSafeInstance() {
         const individual = new Individual();
+        individual.uuid = General.randomUUID();
         individual.observations = [];
         individual.encounters = [];
         individual.enrolments = [];

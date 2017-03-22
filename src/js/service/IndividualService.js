@@ -27,7 +27,6 @@ class IndividualService extends BaseService {
 
     register(individual) {
         const db = this.db;
-        individual.uuid = General.randomUUID();
         ObservationsHolder.convertObsForSave(individual.observations);
         this.db.write(() => {
             db.create(Individual.schema.name, individual, true);

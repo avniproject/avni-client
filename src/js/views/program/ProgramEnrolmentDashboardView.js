@@ -53,6 +53,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.ON_PROGRAM_CHANGE, {program: program});
     }
 
+    startProgramEncounter() {
+        TypedTransition.from(this).to(ProgramEncounterView);
+    }
+
     render() {
         console.log('ProgramEnrolmentDashboardView.render');
         var enrolments = _.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime);
@@ -70,7 +74,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             </View>
                             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
                                 <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                        textStyle={{color: 'white'}}>{this.I18n.t('startProgramVisit')}</Button>
+                                        textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button>
                                 <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
                                         textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>

@@ -1,69 +1,48 @@
 import IndividualService from "../../service/IndividualService";
+import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
+import _ from "lodash";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
 
 export class IndividualProfileActions {
-    static enrolFlow = {
-        NotStarted: 1,
-        LaunchedEnrol: 2,
-        ProgramSelected: 3,
-        ProgramConfirmed: 4
-    };
+    static setProgram(entityType) {
+        this.entity.program = entityType;
+    }
 
-    static clone(state) {
-        const newState = {};
-        newState.enrolment = state.enrolment.cloneForEdit();
-        newState.enrolFlowState = state.enrolFlowState;
-        newState.programs = state.programs;
-        return newState;
+    static cloneEntity(entity) {
+        if (!_.isNil(entity))
+            return entity.cloneForEdit();
     }
 
     static getInitialState() {
-        return {
-            enrolment: null,
-            programs: [],
-            enrolFlowState: IndividualProfileActions.enrolFlow.NotStarted
-        };
+        return new EntityTypeChoiceState(null, IndividualProfileActions.setProgram, IndividualProfileActions.cloneEntity);
     }
 
     static individualSelected(state, action, beans) {
-        const newState = {};
-        newState.enrolFlowState = IndividualProfileActions.enrolFlow.NotStarted;
-        newState.enrolment = ProgramEnrolment.createSafeInstance();
-        newState.enrolment.individual = action.value;
-        newState.programs = beans.get(IndividualService).eligiblePrograms(action.value.uuid);
-        return newState;
+        const newState = state.clone();
+        const enrolment = ProgramEnrolment.createSafeInstance();
+        enrolment.individual = action.value;
+        return newState.entityParentSelected(beans.get(IndividualService).eligiblePrograms(action.value.uuid), enrolment);
     }
 
     static launchChooseProgram(state, action) {
-        const newState = IndividualProfileActions.clone(state);
-        newState.enrolFlowState = IndividualProfileActions.enrolFlow.LaunchedEnrol;
-        return newState;
+        return state.clone().launchChooseEntityType();
     }
 
     static selectedProgram(state, action) {
-        const newState = IndividualProfileActions.clone(state);
-        newState.enrolment.program = action.value;
-        newState.enrolFlowState = IndividualProfileActions.enrolFlow.ProgramSelected;
-        return newState;
+        return state.clone().selectedEntityType(action.value);
     }
 
     static cancelledProgramSelection(state) {
-        const newState = IndividualProfileActions.clone(state);
-        newState.enrolFlowState = IndividualProfileActions.enrolFlow.NotStarted;
-        newState.enrolment.program = null;
-        return newState;
+        return state.clone().cancelledEntityTypeSelection();
     }
 
     static programSelectionConfirmed(state, action) {
-        const newState = IndividualProfileActions.clone(state);
-        newState.enrolFlowState = IndividualProfileActions.enrolFlow.ProgramConfirmed;
-        action.cb(newState);
-        return newState;
+        return state.clone().entityTypeSelectionConfirmed(action);
     }
 
     static viewGeneralHistory(state, action, context) {
         action.cb();
-        return IndividualProfileActions.clone(state);
+        return state.clone();
     }
 }
 

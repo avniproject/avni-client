@@ -5,6 +5,7 @@ import {Text, Button, Grid, Row, Col, Icon, Thumbnail, Content, Container} from 
 import moment from "moment";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Actions, IndividualProfileActions as IPA} from "../../action/individual/IndividualProfileActions";
+import EntityTypeChoiceState from "../../action/common/EntityTypeChoiceState";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import themes from "../primitives/themes";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -67,7 +68,7 @@ class IndividualProfile extends AbstractComponent {
                     <Modal
                         animationType={"slide"}
                         transparent={true}
-                        visible={[IPA.enrolFlow.LaunchedEnrol, IPA.enrolFlow.ProgramSelected].includes(this.state.enrolFlowState)}
+                        visible={[EntityTypeChoiceState.states.Launched, EntityTypeChoiceState.states.EntityTypeSelected].includes(this.state.flowState)}
                         onRequestClose={() => {
                         }}>
                         <Container theme={themes}>
@@ -75,9 +76,9 @@ class IndividualProfile extends AbstractComponent {
                                 <Grid>
                                     <Row style={{backgroundColor: '#fff'}}>
                                         <RadioGroup action={Actions.SELECTED_PROGRAM}
-                                                    selectionFn={(program) => _.isNil(this.state.enrolment.program) ? false : this.state.enrolment.program.uuid === program.uuid}
+                                                    selectionFn={(program) => _.isNil(this.state.entity.program) ? false : this.state.entity.program.uuid === program.uuid}
                                                     labelKey="selectProgram"
-                                                    labelValuePairs={this.state.programs.map((program) => new RadioLabelValue(program.name, program))}/>
+                                                    labelValuePairs={this.state.entityTypes.map((program) => new RadioLabelValue(program.name, program))}/>
                                     </Row>
                                     <Row style={{backgroundColor: '#fff'}}>
                                         <Button onPress={() => this.programSelectionConfirmed()}>{this.I18n.t('enrolInProgram')}</Button>
@@ -151,7 +152,7 @@ class IndividualProfile extends AbstractComponent {
 
     programSelectionConfirmed() {
         this.dispatchAction(Actions.PROGRAM_SELECTION_CONFIRMED, {
-            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.enrolment)
+            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)
         })
     }
 }
