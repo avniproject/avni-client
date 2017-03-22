@@ -6,7 +6,6 @@ import AllSchema from "./index";
 import _ from "lodash";
 import {LocaleMapping, Locale} from "./Locale";
 import Settings from "./Settings";
-import FollowupType from "./FollowupType";
 import Program from "./Program";
 import ProgramEnrolment from "./ProgramEnrolment";
 import ProgramEncounter from "./ProgramEncounter";
@@ -22,7 +21,6 @@ class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
     static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference", nameTranslated: false};
     static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", type: "reference", nameTranslated: true};
-    static followupType = {entityName: "FollowupType", entityClass: FollowupType, resourceName: "followupType", type: "reference", nameTranslated: true};
     static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference", nameTranslated: false};
     static program = {entityName: "Program", entityClass: Program, resourceName: "program", type: "reference", nameTranslated: true};
     static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
@@ -63,7 +61,6 @@ class EntityMetaData {
             EntityMetaData.form,
 
             EntityMetaData.addressLevel,
-            EntityMetaData.followupType,
             EntityMetaData.encounterType,
             EntityMetaData.program,
             EntityMetaData.programOutcome,

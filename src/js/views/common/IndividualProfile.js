@@ -63,7 +63,7 @@ class IndividualProfile extends AbstractComponent {
             (
                 <Content>
                     <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
-                                        actions={Actions} labelKey='selectProgram' confirmActionLabelKey='enrolInProgram'/>
+                                        actions={Actions} labelKey='selectProgram'/>
                     <Grid style={{backgroundColor: Colors.Blackish}}>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
                             {this.getImage(this.props.individual)}

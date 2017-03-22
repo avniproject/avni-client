@@ -1,6 +1,6 @@
 import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
-import FollowupType from "./FollowupType";
+import EncounterType from "./EncounterType";
 import ProgramEnrolment from './ProgramEnrolment';
 
 class ProgramEncounter {
@@ -9,6 +9,7 @@ class ProgramEncounter {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
+            encounterType: 'EncounterType',
             scheduledDateTime: {type: 'date', optional: true},
             actualDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',
@@ -17,11 +18,11 @@ class ProgramEncounter {
     };
 
     static fromResource(resource, entityService) {
-        const followupType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "followupTypeUUID"), FollowupType.schema.name);
+        const encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
         const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
 
         const programEncounter = General.assignFields(resource, new ProgramEncounter(), ["uuid"], ["scheduledDateTime", "actualDateTime"], ["observations"], entityService);
-        programEncounter.followupType = followupType;
+        programEncounter.encounterType = encounterType;
         programEncounter.programEnrolment = programEnrolment;
 
         return programEncounter;

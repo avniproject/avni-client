@@ -19,14 +19,22 @@ class FormMappingService extends BaseService {
         return formMapping.form;
     }
 
-    findFormForProgramEnrolment(program) {
-        const formMapping = this.findByCriteria(`entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEnrolment}"`);
+    _findProgramRelatedForm(program, formType) {
+        const formMapping = this.findByCriteria(`entityUUID="${program.uuid}" AND form.formType="${formType}"`);
         return formMapping.form;
     }
 
+    findFormForProgramEnrolment(program) {
+        return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment);
+    }
+
     findFormForProgramExit(program) {
-        const formMapping = this.findByCriteria(`entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramExit}"`);
-        return formMapping.form;
+        return this._findProgramRelatedForm(program, Form.formTypes.ProgramExit);
+    }
+
+    findFormsForProgramEncounter(program) {
+        const formMappings = this.findAllByCriteria(`entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`);
+        return formMappings.map((formMapping) => formMapping.form);
     }
 }
 

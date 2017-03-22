@@ -9,7 +9,8 @@ class FormMapping {
         properties: {
             uuid: 'string',
             form: 'Form',
-            entityUUID: {type: 'string', optional: true}
+            entityUUID: {type: 'string', optional: true},
+            observationsTypeEntityUUID: {type:'string', optional: true}
         }
     };
 
@@ -18,6 +19,7 @@ class FormMapping {
 
         const formMapping = General.assignFields(resource, new FormMapping(), ["uuid"]);
         formMapping.entityUUID = ResourceUtil.getUUIDFor(resource, "entityUUID");
+        formMapping.observationsTypeEntityUUID = ResourceUtil.getUUIDFor(resource, "observationsTypeEntityUUID");
         formMapping.form = form;
 
         return formMapping;

@@ -14,8 +14,7 @@ class EntityTypeSelector extends AbstractComponent {
         entityTypes: React.PropTypes.array.isRequired,
         selectedEntityType: React.PropTypes.object,
         actions: React.PropTypes.object.isRequired,
-        labelKey: React.PropTypes.string.isRequired,
-        confirmActionLabelKey: React.PropTypes.string.isRequired
+        labelKey: React.PropTypes.string.isRequired
     };
 
     constructor(props, context) {
@@ -46,7 +45,7 @@ class EntityTypeSelector extends AbstractComponent {
                                             labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
                             </Row>
                             <Row style={{backgroundColor: '#fff'}}>
-                                <Button onPress={() => this.entityTypeSelectionConfirmed()}>{this.I18n.t(this.props.confirmActionLabelKey)}</Button>
+                                <Button onPress={() => this.entityTypeSelectionConfirmed()}>{this.I18n.t('proceed')}</Button>
                                 <Button onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])}>{this.I18n.t('cancel')}</Button>
                             </Row>
                         </Grid>

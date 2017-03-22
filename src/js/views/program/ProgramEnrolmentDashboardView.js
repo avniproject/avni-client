@@ -9,15 +9,15 @@ import IndividualProfile from "../common/IndividualProfile";
 import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
 import {Text, Content, Container, Button, Card} from "native-base";
-import ProgramList from './ProgramList';
+import ProgramList from "./ProgramList";
 import moment from "moment";
-import PreviousEncounter from '../common/PreviousEncounter';
-import Colors from '../primitives/Colors';
-import DGS from '../primitives/DynamicGlobalStyles';
+import PreviousEncounter from "../common/PreviousEncounter";
+import Colors from "../primitives/Colors";
+import DGS from "../primitives/DynamicGlobalStyles";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import ProgramEnrolmentView from "./ProgramEnrolmentView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ProgramEncounterView from "./ProgramEncounterView";
+import EntityTypeSelector from '../common/EntityTypeSelector';
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -60,11 +60,13 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     render() {
         console.log('ProgramEnrolmentDashboardView.render');
-        var enrolments = _.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime);
-        _.reverse(enrolments);
+        var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
+        const encounterTypeState = this.state.encounterTypeState;
+
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
+                    <EntityTypeSelector actions={Actions} confirmActionLabelKey='chooseFollowupType' flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}/>
                     <AppHeader title={`${this.state.enrolment.individual.name}`}/>
                     <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
                     <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>

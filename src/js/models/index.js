@@ -11,7 +11,6 @@ import AddressLevel from "./AddressLevel";
 import UserDefinedIndividualProperty from "./UserDefinedIndividualProperty";
 import Gender from "./Gender";
 import EntitySyncStatus from "./EntitySyncStatus";
-import FollowupType from "./FollowupType";
 import ProgramEnrolment from "./ProgramEnrolment";
 import ProgramEncounter from "./ProgramEncounter";
 import Program from "./Program";
@@ -29,8 +28,8 @@ import ConfigFile from "./ConfigFile";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, FollowupType, EncounterType, Gender, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile],
-    schemaVersion: 18,
+    schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, EncounterType, Gender, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile],
+    schemaVersion: 20,
     migration: function(oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
