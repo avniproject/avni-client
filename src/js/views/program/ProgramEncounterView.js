@@ -23,7 +23,7 @@ class ProgramEncounterView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content>
-                    <AppHeader title={}/>
+                    <AppHeader title={''}/>
                 </Content>
             </Container>
         );
