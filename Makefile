@@ -63,7 +63,7 @@ ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 deploy:
 	make deps
 	make release
-	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/latest/openchs-client-$(ts).apk?publish=1
+	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/dev/openchs-client-$(ts).apk?publish=1
 
 database-client:
 	adb pull /data/data/com.openchsclient/files/default.realm
