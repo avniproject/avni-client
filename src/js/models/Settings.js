@@ -3,6 +3,7 @@ class Settings {
         name: 'Settings',
         properties: {
             serverURL: 'string',
+            catchment: 'string',
             locale: {"type": "Locale"}
         }
     };

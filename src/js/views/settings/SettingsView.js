@@ -26,6 +26,11 @@ class SettingsView extends AbstractComponent {
         this.setState({});
     };
 
+    onCatchmentChanged = (catchment) => {
+        this.service.saveCatchment(catchment);
+        this.setState({});
+    };
+
     render() {
         return (
             <Content style={GlobalStyles.mainContent}>
@@ -33,6 +38,7 @@ class SettingsView extends AbstractComponent {
                     settings={this.settings}
                     onServerURLChanged={this.onServerURLChanged}
                     onLocaleChanged={this.onLocaleChanged}
+                    onCatchmentChanged={this.onCatchmentChanged}
                     getService={this.context.getService}
                 />
             </Content>

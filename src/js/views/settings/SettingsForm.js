@@ -59,8 +59,14 @@ class SettingsForm extends AbstractComponent {
             <View style={SettingsView.styles.form}>
                 {this.showError("syncError")}
                 <SettingsFormField
+                    formLabel={this.I18n.t("serverURL")}
                     onChangeText={this.props.onServerURLChanged}
                     defaultValue={this.props.settings.serverURL}
+                />
+                <SettingsFormField
+                    formLabel={this.I18n.t("catchmentId")}
+                    onChangeText={this.props.onCatchmentChanged}
+                    defaultValue={this.props.settings.catchment}
                 />
                 <SettingsMultipleChoiceField
                     onChangeSelection={this.props.onLocaleChanged}

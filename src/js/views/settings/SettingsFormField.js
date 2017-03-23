@@ -10,7 +10,8 @@ class SettingsFormField extends Component {
 
     static propTypes = {
         onChangeText: React.PropTypes.func.isRequired,
-        defaultValue: React.PropTypes.string.isRequired
+        defaultValue: React.PropTypes.string.isRequired,
+        formLabel: React.PropTypes.string.isRequired
     };
 
     constructor(props, context) {
@@ -21,7 +22,7 @@ class SettingsFormField extends Component {
     render() {
         return (
             <View style={SettingsView.styles.formItem}>
-                <Text style={SettingsView.styles.formItemLabel}>{this.I18n.t("serverURL")}</Text>
+                <Text style={SettingsView.styles.formItemLabel}>{this.props.formLabel}</Text>
                 <TextInput
                     style={[SettingsView.styles.formItemInput, {fontSize: 20}]}
                     onChangeText={this.props.onChangeText}

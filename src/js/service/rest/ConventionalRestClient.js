@@ -8,7 +8,24 @@ class ConventionalRestClient {
     }
 
     loadData(entityModel, lastUpdatedLocally, pageNumber, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError) {
-        const url = `${this.settingsService.getServerURL()}/${entityModel.resourceName}/search/lastModified?lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}&size=5&page=${pageNumber}&sort=lastModifiedDateTime,asc`;
+        let urlParts = [];
+        urlParts.push(this.settingsService.getServerURL());
+        urlParts.push(entityModel.resourceName);
+        urlParts.push("search");
+        const resourceSearchFilterURL = entityModel.type === "tx"? entityModel.resourceSearchFilterURL : "lastModified";
+        urlParts.push(resourceSearchFilterURL);
+
+        let params = [];
+        if(entityModel.type === "tx"){
+            params.push(`catchmentId=${this.settingsService.getCatchment()}`);
+        }
+        params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}`);
+        params.push("size=5");
+        params.push(`page=${pageNumber}`);
+        params.push("sort=lastModifiedDateTime,asc");
+
+        const url = `${urlParts.join("/")}?${params.join("&")}`;
+
         getJSON(url, (response) => {
             const resources = response["_embedded"][`${entityModel.resourceName}`];
             _.forEach(resources, (resource) => {

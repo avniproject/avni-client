@@ -22,6 +22,10 @@ class SettingsService extends BaseService {
         return this.getSettings().serverURL;
     }
 
+    getCatchment() {
+        return this.getSettings().catchment;
+    }
+
     saveServerURL(serverURL) {
         const self = this;
         this.db.write(() => {
@@ -35,6 +39,13 @@ class SettingsService extends BaseService {
         this.db.write(() => {
             self.getSettings().locale.selectedLocale = locale;
             messageService.setLocale(locale);
+        });
+    }
+
+    saveCatchment(catchment) {
+        const self = this;
+        this.db.write(() => {
+            self.getSettings().catchment = catchment;
         });
     }
 

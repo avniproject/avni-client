@@ -24,6 +24,7 @@
   "settings": "Settings",
   "close": "X",
   "serverURL": "Server URL",
+  "catchmentId": "Catchment Id",
   "locale": "Locale",
   "syncConfig": "Sync Config",
   "months": "Months",
