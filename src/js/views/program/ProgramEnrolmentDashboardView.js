@@ -66,7 +66,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
-                    <EntityTypeSelector actions={Actions} confirmActionLabelKey='chooseFollowupType' flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}/>
+                    <EntityTypeSelector actions={Actions} confirmActionLabelKey='chooseFollowupType' flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEncounterView(this, newState.entity)}/>
                     <AppHeader title={`${this.state.enrolment.individual.name}`}/>
                     <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
                     <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
@@ -82,13 +82,13 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>
                         </View>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={{marginTop: DGS.resizeHeight(16), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
+                            <Button transparent textStyle={{fontSize: 14, color: Colors.ActionButtonColor}} onPress={() => this.editEnrolment()}>{`(${this.I18n.t('edit')})`}</Button>
+                            {this.state.enrolment.isActive ? <Button transparent textStyle={{fontSize: 14, color: Colors.ActionButtonColor}} onPress={() => this.exitProgram()}>{this.I18n.t('exitProgram')}</Button> : <View/>}
+                        </View>
                         <View
-                            style={{backgroundColor: Colors.GreyContentBackground, marginTop: DGS.resizeHeight(28), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingHorizontal: DGS.resizeWidth(13)}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={{marginTop: DGS.resizeHeight(18), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
-                                <Button primary onPress={() => this.editEnrolment()}>{this.I18n.t('edit')}</Button>
-                                {this.state.enrolment.isActive ? <Button primary onPress={() => this.exitProgram()}>{this.I18n.t('exitProgram')}</Button> : <View/>}
-                            </View>
+                            style={{backgroundColor: Colors.GreyContentBackground, marginTop: DGS.resizeHeight(14), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingHorizontal: DGS.resizeWidth(13)}}>
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>
                             </View>

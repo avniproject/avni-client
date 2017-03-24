@@ -82,14 +82,8 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         return newState.handleNext(action, newState.individual.validate(), () => {
             context.get(IndividualService).register(newState.individual);
+            newState.reset();
         });
-    }
-
-    static onPrevious(state, action, context) {
-        const newState = state.clone();
-        newState.movePrevious();
-        action.cb(newState);
-        return newState;
     }
 }
 
@@ -112,7 +106,7 @@ const actions = {
 export default new Map([
     [actions.ON_LOAD, IndividualRegisterActions.onLoad],
     [actions.NEXT, IndividualRegisterActions.onNext],
-    [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
+    [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
     [actions.REGISTRATION_ENTER_NAME, IndividualRegisterActions.enterIndividualName],
     [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
     [actions.REGISTRATION_ENTER_DOB_VERIFIED, IndividualRegisterActions.enterIndividualDOBVerified],

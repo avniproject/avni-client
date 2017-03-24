@@ -14,7 +14,8 @@ class EntityTypeSelector extends AbstractComponent {
         entityTypes: React.PropTypes.array.isRequired,
         selectedEntityType: React.PropTypes.object,
         actions: React.PropTypes.object.isRequired,
-        labelKey: React.PropTypes.string.isRequired
+        labelKey: React.PropTypes.string.isRequired,
+        onEntityTypeSelectionConfirmed: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -23,8 +24,8 @@ class EntityTypeSelector extends AbstractComponent {
 
     entityTypeSelectionConfirmed() {
         this.dispatchAction(this.props.actions['ENTITY_TYPE_SELECTION_CONFIRMED'], {
-            cb: (newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)
-        })
+            cb: (newState) => this.props.onEntityTypeSelectionConfirmed(newState)
+        });
     }
 
     render() {

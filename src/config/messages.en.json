@@ -53,6 +53,8 @@
   "Female": "Female",
   "Other": "Other",
   "enrolInProgram": "Enrol in Program",
+  "followupTypes": "Followup Types",
+  "proceed": "Proceed",
   "enrol": "ENROL",
   "cancel": "Cancel",
   "editProfile": "Edit Profile",
@@ -84,6 +86,6 @@
   "programList": "Program List",
   "startProgramVisit": "Start Program Visit",
   "startGeneralVisit": "Start General Visit",
-  "edit": "Edit",
+  "edit": "edit",
   "exitProgram": "Exit Program"
 }

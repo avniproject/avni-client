@@ -114,6 +114,11 @@ class ProgramEnrolment extends BaseEntity {
     get isActive() {
         return _.isNil(this.programExitDateTime);
     }
+
+    addEncounter(programEncounter) {
+        if (!_.some(this.encounters, (encounter) => encounter.uuid === programEncounter.uuid))
+            this.encounters.push(programEncounter);
+    }
 }
 
 export default ProgramEnrolment;

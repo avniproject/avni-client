@@ -28,6 +28,13 @@ class ObservationsHolderActions {
         newState.handleValidationResult(validationResult);
         return newState;
     }
+
+    static onPrevious(state, action, context) {
+        const newState = state.clone();
+        newState.movePrevious();
+        action.cb(newState);
+        return newState;
+    }
 }
 
 export default ObservationsHolderActions;

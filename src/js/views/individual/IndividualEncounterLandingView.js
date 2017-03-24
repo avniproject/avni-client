@@ -72,7 +72,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                         </Row>
                         <Row>
                             {/* TODO use DateFormElement instead of below code */}
-                            <Grid style={{backgroundColor: '#ffffff', paddingLeft: 10, paddingRight: 10}}>
+                            <Grid style={{backgroundColor: '#ffffff', paddingHorizontal: 10}}>
                                 <Row style={{backgroundColor: '#ffffff'}}>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("date")}</Text>
                                 </Row>

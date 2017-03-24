@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Concept from "../Concept";
+import moment from "moment";
 
 class PrimitiveValue {
     constructor(value, datatype) {

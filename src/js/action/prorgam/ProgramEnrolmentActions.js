@@ -48,13 +48,6 @@ export class ProgramEnrolmentActions {
             programEnrolmentState.reset();
         });
     }
-
-    static onPrevious(state, action, context) {
-        const newState = state.clone();
-        newState.movePrevious();
-        action.cb(newState);
-        return newState;
-    }
 }
 
 const actions = {
@@ -76,7 +69,7 @@ export default new Map([
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
-    [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious]
+    [actions.PREVIOUS, ObservationsHolderActions.onPrevious]
 ]);
 
 export {actions as Actions};

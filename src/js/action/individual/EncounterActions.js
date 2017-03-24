@@ -18,13 +18,6 @@ export class EncounterActions {
         return newState;
     }
 
-    static onPrevious(state, action, context) {
-        const newState = state.clone();
-        newState.movePrevious();
-        action.cb(newState);
-        return newState;
-    }
-
     static onNext(state, action, context) {
         const newState = state.clone();
         const encounter = newState.encounter;
@@ -84,7 +77,7 @@ const individualEncounterViewActions = {
 };
 
 const individualEncounterViewActionsMap = new Map([
-    [individualEncounterViewActions.PREVIOUS, EncounterActions.onPrevious],
+    [individualEncounterViewActions.PREVIOUS, ObservationsHolderActions.onPrevious],
     [individualEncounterViewActions.NEXT, EncounterActions.onNext],
     [individualEncounterViewActions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [individualEncounterViewActions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
@@ -94,8 +87,6 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.NEW_ENCOUNTER, EncounterActions.onNewEncounter],
     [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
     [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter]
-
-
 ]);
 
 export {

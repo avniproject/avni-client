@@ -35,7 +35,7 @@ class ProgramEnrolmentDashboardActions {
         }
 
         const programEncounter = ProgramEncounter.createSafeInstance();
-        programEncounter.individual = action.value;
+        programEncounter.programEnrolment = newState.enrolment;
         const encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
         newState.encounterTypeState.entityParentSelected(encounterTypes, programEncounter);
         return newState;
@@ -61,7 +61,7 @@ class ProgramEnrolmentDashboardActions {
 
     static onEncounterTypeConfirmed(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
-        newState.encounterTypeState.entityTypeSelectionConfirmed(action.value);
+        newState.encounterTypeState.entityTypeSelectionConfirmed(action);
         return newState;
     }
 

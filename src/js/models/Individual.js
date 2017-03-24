@@ -164,7 +164,8 @@ class Individual extends BaseEntity {
     }
 
     addEncounter(encounter) {
-        this.encounters.push(encounter);
+        if (!_.some(this.encounters, (existingEncounter) => existingEncounter.uuid === encounter.uuid))
+            this.encounters.push(encounter);
     }
 
     cloneForEdit() {

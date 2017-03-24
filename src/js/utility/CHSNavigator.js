@@ -4,6 +4,7 @@ import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDash
 import ProgramExitView from "../views/program/ProgramExitView";
 import ProgramEnrolmentState from '../action/prorgam/ProgramEnrolmentState';
 import _ from 'lodash';
+import ProgramEncounterView from "../views/program/ProgramEncounterView";
 
 class CHSNavigator {
     static navigateToProgramEnrolmentView(source, enrolment) {
@@ -22,6 +23,10 @@ class CHSNavigator {
 
     static navigateToExitProgram(source, enrolment) {
         TypedTransition.from(source).with({enrolment: enrolment}).to(ProgramExitView);
+    }
+
+    static navigateToProgramEncounterView(source, programEncounter) {
+        TypedTransition.from(source).with({programEncounter: programEncounter}).to(ProgramEncounterView);
     }
 }
 

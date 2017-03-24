@@ -1,7 +1,10 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
 import ProgramEncounter from "../../models/ProgramEncounter";
+import ProgramEnrolment from "../../models/ProgramEnrolment";
 import moment from "moment";
+import EntityQueue from "../../models/EntityQueue";
+import ObservationsHolder from '../../models/ObservationsHolder';
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -24,6 +27,21 @@ class ProgramEncounterService extends BaseService {
         });
         encounterSummary.openEncounters = unfulfilledEncounters;
         return encounterSummary;
+    }
+
+    saveOrUpdate(programEncounter) {
+        ObservationsHolder.convertObsForSave(programEncounter.observations);
+        const db = this.db;
+        this.db.write(()=> {
+            db.create(ProgramEncounter.schema.name, programEncounter, true);
+
+            const loadedEncounter = this.findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
+            const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
+            enrolment.addEncounter(loadedEncounter);
+
+            db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+        });
+        return programEncounter;
     }
 }
 
