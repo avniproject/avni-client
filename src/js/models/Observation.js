@@ -34,14 +34,18 @@ class Observation {
     }
 
     static valueAsString(observation, conceptService) {
+        const valueWrapper = observation.getValueWrapper();
+
         if (observation.concept.datatype === Concept.dataType.Date) {
-            return observation.getValueWrapper().asDisplayDate();
-        } else if (observation.getValueWrapper().constructor === SingleCodedValue) {
-            return conceptService.getConceptByUUID(observation.getValueWrapper().getConceptUUID()).name;
-        } else if (observation.getValueWrapper().constructor === MultipleCodedValues) {
-            return _.join(observation.getValueWrapper().getValue().map((value) => conceptService.getConceptByUUID(value.conceptUUID).name), ', ');
+            return valueWrapper.asDisplayDate();
+        } else if (valueWrapper.constructor === SingleCodedValue) {
+            return conceptService.getConceptByUUID(valueWrapper.getConceptUUID()).name;
+        } else if (valueWrapper.constructor === MultipleCodedValues) {
+            return _.join(valueWrapper.getValue().map((value) => {
+                return conceptService.getConceptByUUID(value).name;
+            }), ', ');
         } else {
-            return _.toString(observation.getValueWrapper().getValue());
+            return _.toString(valueWrapper.getValue());
         }
     }
 
@@ -51,8 +55,8 @@ class Observation {
 
     cloneForEdit() {
         const observation = new Observation();
-        observation.concept = this.concept.cloneForNewEncounter();
-        observation.valueJSON = this.getValueWrapper().cloneForNewEncounter();
+        observation.concept = this.concept.cloneForReference();
+        observation.valueJSON = this.getValueWrapper().cloneForEdit();
         return observation;
     }
 

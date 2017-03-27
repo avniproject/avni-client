@@ -6,7 +6,7 @@ import Wizard from '../state/Wizard';
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createDefaultNextButtonLabelKeyMap('save'));
+        super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createNextButtonLabelKeyMap('next', 'next', 'next'));
         this.encounter = encounter;
         this.encounterDecisions = null;
     }

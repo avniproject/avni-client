@@ -175,7 +175,7 @@ class Individual extends BaseEntity {
         individual.dateOfBirth = this.dateOfBirth;
         individual.dateOfBirthVerified = this.dateOfBirthVerified;
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
-        individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForNewEncounter();
+        individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForReference();
         individual.observations = ObservationsHolder.clone(this.observations);
         return individual;
     }

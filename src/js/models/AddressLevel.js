@@ -25,7 +25,7 @@ class AddressLevel extends BaseEntity {
         return AddressLevel.create(resource["uuid"], resource["title"], resource["level"]);
     }
 
-    cloneForNewEncounter() {
+    cloneForReference() {
         const addressLevel = new AddressLevel();
         addressLevel.uuid = this.uuid;
         addressLevel.name = this.name;

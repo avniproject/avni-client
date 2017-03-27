@@ -27,10 +27,10 @@ const getObservationValue = function (conceptName) {
 };
 
 let getCodedAnswers = function (observation) {
-    return observation.getValue().map((conceptRef) => {
-        const concept = Encounter.prototype.dynamicDataResolver.getConceptByUUID(conceptRef.conceptUUID);
+    return observation.getValue().map((conceptUUID) => {
+        const concept = Encounter.prototype.dynamicDataResolver.getConceptByUUID(conceptUUID);
         if (_.isNil(concept))
-            console.log('No concept found for UUID: ' + conceptRef.conceptUUID);
+            console.log('No concept found for UUID: ' + conceptUUID);
         return concept.name;
     });
 };

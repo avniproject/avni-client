@@ -19,7 +19,7 @@ class PrimitiveValue {
         return this.answer;
     }
 
-    cloneForNewEncounter() {
+    cloneForEdit() {
         const primitiveValue = new PrimitiveValue();
         primitiveValue.answer = this.answer;
         return primitiveValue;

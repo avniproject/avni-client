@@ -10,6 +10,7 @@ import IndividualProfile from '../common/IndividualProfile';
 import ReducerKeys from "../../reducer";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounter from '../common/PreviousEncounter'
+import _ from 'lodash';
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -26,8 +27,12 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.LOAD_HISTORY, {individual: this.props.params.individual});
+        this.dispatchAction(Actions.LOAD_HISTORY, {individualUUID: this.props.params.individualUUID});
         return super.componentWillMount();
+    }
+
+    shouldComponentUpdate(nextProps, state) {
+        return !_.isNil(state.individual);
     }
 
     render() {
@@ -37,9 +42,9 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('generalHistory')}/>
                     <View>
                         <View style={DGS.common.content}>
-                            <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.props.params.individual}/>
+                            <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual}/>
                         </View>
-                        <PreviousEncounter encounters={this.state.encounters}/>
+                        <PreviousEncounter encounters={this.state.individual.encounters}/>
                     </View>
                 </Content>
             </Container>

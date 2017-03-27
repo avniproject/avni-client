@@ -136,11 +136,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     viewGeneralHistory() {
-        this.dispatchAction(Actions.VIEW_GENERAL_HISTORY, {
-            cb: () => TypedTransition.from(this).with(
-                {individual: this.props.individual}
-            ).to(IndividualGeneralHistoryView)
-        })
+        TypedTransition.from(this).with({individualUUID: this.props.individual.uuid}).to(IndividualGeneralHistoryView);
     }
 }
 

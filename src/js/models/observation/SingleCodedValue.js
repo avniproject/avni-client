@@ -1,11 +1,10 @@
 class SingleCodedValue {
     constructor(answerUUID) {
-        this.answer = {};
-        this.answer.conceptUUID = answerUUID;
+        this.answer = answerUUID;
     }
 
     hasValue(answerUUID) {
-        return this.answer.conceptUUID === answerUUID;
+        return this.answer === answerUUID;
     }
 
     getValue() {
@@ -13,17 +12,16 @@ class SingleCodedValue {
     }
 
     get toResource() {
-        return [this.answer.conceptUUID];
+        return [this.answer];
     }
 
     getConceptUUID() {
-        return this.answer.conceptUUID;
+        return this.answer;
     }
 
-    cloneForNewEncounter() {
+    cloneForEdit() {
         const singleCodedValue = new SingleCodedValue();
-        singleCodedValue.answer = {};
-        singleCodedValue.answer.conceptUUID = this.answer.conceptUUID;
+        singleCodedValue.answer = this.answer;
         return singleCodedValue;
     }
 }

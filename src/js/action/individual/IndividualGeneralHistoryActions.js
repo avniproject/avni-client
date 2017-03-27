@@ -1,23 +1,12 @@
-import IndividualEncounterService from "../../service/IndividualEncounterService";
-import _ from "lodash";
+import IndividualService from "../../service/IndividualService";
 
 export class IndividualGeneralHistoryActions {
-    static clone(state) {
-        const newState = {};
-        newState.encounters = state.encounters;
-        return newState;
+    static getInitialState() {
+        return {};
     }
 
     static loadHistory(state, action, context) {
-        const newState = IndividualGeneralHistoryActions.clone(state);
-        newState.encounters = context.get(IndividualEncounterService).getEncounters(action.individual);
-        return newState;
-    }
-
-    static getInitialState() {
-        return {
-            encounters: []
-        };
+        return {individual: context.get(IndividualService).findByUUID(action.individualUUID)};
     }
 }
 

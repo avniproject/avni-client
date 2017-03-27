@@ -65,8 +65,8 @@ class SystemRecommendationView extends AbstractComponent {
                             </Grid>
                         </Row>
                         <View style={{marginLeft:24, marginRight:24}}>
-                            <WizardButtons previous={{func: () => this.previous(), visible: true}}
-                                       next={{func: () => this.save(), visible: true, label: this.I18n.t('save')}} nextDisabled={false}/>
+                            <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
+                                       next={{func: () => this.save(), label: this.I18n.t('save')}}/>
                         </View>
                     </Grid>
                 </Content>

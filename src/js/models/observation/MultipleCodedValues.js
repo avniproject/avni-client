@@ -6,7 +6,7 @@ class MultipleCodedValues {
     }
 
     push(answerUUID) {
-        this.answer.push({conceptUUID: answerUUID});
+        this.answer.push(answerUUID);
         return this;
     }
 
@@ -16,16 +16,12 @@ class MultipleCodedValues {
         return multipleCodedValues;
     }
 
-    isAnswerAlreadyPresent(answer) {
-        return _.findIndex(this.answer, function (item) {
-                return item.conceptUUID === answer;
-            }) !== -1;
+    isAnswerAlreadyPresent(conceptUUID) {
+        return _.some(this.answer, (item) => item === conceptUUID);
     }
 
-    removeAnswer(answer) {
-        _.remove(this.answer, function (item) {
-            return item.conceptUUID === answer;
-        });
+    removeAnswer(conceptUUID) {
+        _.remove(this.answer, (item) => item === conceptUUID);
     }
 
     toggleAnswer(answerUUID) {
@@ -41,18 +37,12 @@ class MultipleCodedValues {
     }
 
     get toResource() {
-        return this.getValue().map((answer) => {
-            return answer.conceptUUID;
-        });
+        return this.getValue();
     }
 
-    cloneForNewEncounter() {
+    cloneForEdit() {
         const multipleCodedValues = new MultipleCodedValues();
-        multipleCodedValues.answer = [];
-        this.answer.forEach((obj) => {
-            multipleCodedValues.push(obj.conceptUUID);
-        });
-
+        multipleCodedValues.answer = this.answer;
         return multipleCodedValues;
     }
 }

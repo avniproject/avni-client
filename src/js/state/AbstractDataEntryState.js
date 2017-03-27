@@ -85,8 +85,8 @@ class AbstractDataEntryState {
     }
 
     static getNextButtonLabel(state) {
-        const label = state.wizard.isLastPage() ? (state.isNewEntity ? 'create' : 'update') : 'next';
-        return state.nextButtonLabelMap[label];
+        const labelName = state.wizard.isLastPage() ? (state.isNewEntity ? 'create' : 'update') : 'next';
+        return state.nextButtonLabelMap[labelName];
     }
 }
 

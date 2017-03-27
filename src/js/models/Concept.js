@@ -82,7 +82,7 @@ export default class Concept {
         return concept;
     }
 
-    cloneForNewEncounter() {
+    cloneForReference() {
         const concept = Concept.create(this.name, this.datatype);
         concept.uuid = this.uuid;
         return concept;
@@ -111,7 +111,7 @@ export default class Concept {
 
     getValueWrapperFor(value) {
         if (this.datatype === Concept.dataType.Coded) {
-            return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value.conceptUUID);
+            return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value);
         } else {
             return new PrimitiveValue(value, this.datatype);
         }

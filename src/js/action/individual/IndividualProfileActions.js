@@ -39,11 +39,6 @@ export class IndividualProfileActions {
     static programSelectionConfirmed(state, action) {
         return state.clone().entityTypeSelectionConfirmed(action);
     }
-
-    static viewGeneralHistory(state, action, context) {
-        action.cb();
-        return state.clone();
-    }
 }
 
 const actions = {
@@ -60,8 +55,7 @@ export default new Map([
     [actions.LAUNCH_CHOOSE_ENTITY_TYPE, IndividualProfileActions.launchChooseProgram],
     [actions.ENTITY_TYPE_SELECTED, IndividualProfileActions.selectedProgram],
     [actions.CANCELLED_ENTITY_TYPE_SELECTION, IndividualProfileActions.cancelledProgramSelection],
-    [actions.ENTITY_TYPE_SELECTION_CONFIRMED, IndividualProfileActions.programSelectionConfirmed],
-    [actions.VIEW_GENERAL_HISTORY, IndividualProfileActions.viewGeneralHistory]
+    [actions.ENTITY_TYPE_SELECTION_CONFIRMED, IndividualProfileActions.programSelectionConfirmed]
 ]);
 
 export {actions as Actions};
