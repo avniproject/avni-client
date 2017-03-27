@@ -45,8 +45,10 @@ class ProgramEncounterView extends AbstractComponent {
                 CHSNavigator.navigateToProgramEnrolmentDashboardView(this, state.programEncounter.programEnrolment.individual.uuid);
             },
             movedNext: () => {
+                console.log('moved next');
             },
             validationFailed: (newState) => {
+                console.log('validation failed');
             }
         });
     }

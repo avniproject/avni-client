@@ -59,11 +59,7 @@ class Observation {
     getValueWrapper() {
         if (_.isString(this.valueJSON)) {
             let answer = JSON.parse(this.valueJSON).answer;
-            if (this.concept.datatype === Concept.dataType.Coded) {
-                return _.isArray(answer) ? new MultipleCodedValues(answer) : new SingleCodedValue(answer.conceptUUID);
-            } else {
-                return new PrimitiveValue(answer, this.concept.datatype);
-            }
+            return this.concept.getValueWrapperFor(answer);
         }
         else return this.valueJSON;
     }

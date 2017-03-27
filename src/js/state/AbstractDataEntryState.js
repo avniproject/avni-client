@@ -1,5 +1,4 @@
 import _ from "lodash";
-import AbstractEncounter from "../models/AbstractEncounter";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap) {
@@ -74,7 +73,7 @@ class AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
+        return [];
     }
 
     reset() {

@@ -2,6 +2,9 @@ import BaseEntity from './BaseEntity';
 import ResourceUtil from "./../utility/ResourceUtil";
 import General from './../utility/General';
 import _ from 'lodash';
+import MultipleCodedValues from "./observation/MultipleCodedValues";
+import SingleCodedValue from "./observation/SingleCodedValue";
+import PrimitiveValue from "./observation/PrimitiveValue";
 
 export class ConceptAnswer {
     static schema = {
@@ -104,5 +107,13 @@ export default class Concept {
 
     getPossibleAnswerConcept(name) {
        return _.find(this.answers, (conceptAnswer) => conceptAnswer.concept.name === name);
+    }
+
+    getValueWrapperFor(value) {
+        if (this.datatype === Concept.dataType.Coded) {
+            return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value.conceptUUID);
+        } else {
+            return new PrimitiveValue(value, this.datatype);
+        }
     }
 }

@@ -1,6 +1,7 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import ObservationsHolder from "../../models/ObservationsHolder";
+import AbstractEncounter from "../../models/AbstractEncounter";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, nextButtonLabelKeyMap) {
@@ -31,7 +32,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return [];
+        return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
     }
 }
 
