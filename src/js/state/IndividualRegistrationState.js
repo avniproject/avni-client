@@ -45,12 +45,6 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? _.keys(Individual.validationKeys) : [];
     }
-
-    reset() {
-        super.reset();
-        this.individual = null;
-        return this;
-    }
 }
 
 export default IndividualRegistrationState;

@@ -44,12 +44,6 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
             state.usage !== action.usage;
     }
 
-    reset() {
-        super.reset();
-        this.enrolment = null;
-        return this;
-    }
-
     validateEntity() {
         return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.enrolment.validateEnrolment() : this.enrolment.validateExit();
     }

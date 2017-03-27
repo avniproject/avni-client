@@ -2,6 +2,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractEncounter from "../../models/AbstractEncounter";
+import _ from 'lodash';
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, nextButtonLabelKeyMap) {
@@ -14,13 +15,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     clone() {
-        return new ProgramEncounterState(this.formElementGroup, this.wizard, this.isNewEntity, this.programEncounter.cloneForEdit(), this.nextButtonLabelMap);
-    }
-
-    reset() {
-        super.reset();
-        this.programEncounter = null;
-        return this;
+        return new ProgramEncounterState(this.formElementGroup, this.wizard.clone(), this.isNewEntity, this.programEncounter.cloneForEdit(), this.nextButtonLabelMap);
     }
 
     get observationsHolder() {
@@ -33,6 +28,11 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
+    }
+
+    static hasEncounterChanged(state, programEncounter) {
+        if (_.isNil(state.programEncounter)) return true;
+        return state.programEncounter.uuid === programEncounter.uuid;
     }
 }
 

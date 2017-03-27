@@ -45,7 +45,6 @@ export class ProgramEnrolmentActions {
         return programEnrolmentState.handleNext(action, validationResults, () => {
             const service = context.get(ProgramEnrolmentService);
             programEnrolmentState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(programEnrolmentState.enrolment) : service.exit(programEnrolmentState.enrolment);
-            programEnrolmentState.reset();
         });
     }
 }

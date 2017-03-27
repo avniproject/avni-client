@@ -12,12 +12,16 @@ class ProgramEncounterActions {
     }
 
     static onLoad(state, action, context) {
-        const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
-        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
-        if (_.isNil(form)) {
-            return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
+        if (ProgramEncounterState.hasEncounterChanged(state, action.programEncounter)) {
+            const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
+            const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
+            if (_.isNil(form)) {
+                return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
+            }
+            return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity);
         }
-        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity);
+
+        return state.clone();
     }
 
     static onNext(state, action, context) {
@@ -26,7 +30,6 @@ class ProgramEncounterActions {
         return programEncounterState.handleNext(action, validationResults, () => {
             const service = context.get(ProgramEncounterService);
             service.saveOrUpdate(programEncounterState.programEncounter);
-            programEncounterState.reset();
         });
     }
 

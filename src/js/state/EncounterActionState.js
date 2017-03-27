@@ -30,13 +30,6 @@ class EncounterActionState extends AbstractDataEntryState {
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
     }
-
-    reset() {
-        super.reset();
-        this.encounter = null;
-        this.encounterDecisions = null;
-        return this;
-    }
 }
 
 export default EncounterActionState;

@@ -73,7 +73,6 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         return newState.handleNext(action, newState.individual.validate(), () => {
             context.get(IndividualService).register(newState.individual);
-            newState.reset();
         });
     }
 }

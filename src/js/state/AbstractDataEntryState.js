@@ -76,11 +76,6 @@ class AbstractDataEntryState {
         return [];
     }
 
-    reset() {
-        this.setState([], null, null, null, null);
-        return this;
-    }
-
     setState(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
