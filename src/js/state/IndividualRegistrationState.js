@@ -14,9 +14,9 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         this.individual = individual;
     }
 
-    static createLoadState(form, genders) {
+    static createLoadState(form, genders, individual) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        return new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, Individual.createSafeInstance(), true);
+        return new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true);
     }
 
     clone() {

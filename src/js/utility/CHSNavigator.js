@@ -5,6 +5,8 @@ import ProgramExitView from "../views/program/ProgramExitView";
 import ProgramEnrolmentState from '../action/prorgam/ProgramEnrolmentState';
 import _ from 'lodash';
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
+import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";
+import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 
 class CHSNavigator {
     static navigateToProgramEnrolmentView(source, enrolment) {
@@ -17,7 +19,7 @@ class CHSNavigator {
             from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView);
         } else {
             const wizardViewClass = usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolmentView : ProgramExitView;
-            from.wizardCompleted(wizardViewClass, ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID});
+            from.wizardCompleted([wizardViewClass], ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID});
         }
     }
 
@@ -27,6 +29,14 @@ class CHSNavigator {
 
     static navigateToProgramEncounterView(source, programEncounter) {
         TypedTransition.from(source).with({programEncounter: programEncounter}).to(ProgramEncounterView);
+    }
+
+    static navigateToIndividualRegistrationDetails(source, individual) {
+        TypedTransition.from(source).with({individualUUID: individual.uuid}).to(IndividualRegistrationDetailView);
+    }
+
+    static navigateToIndividualRegisterView(source, individualUUID) {
+        TypedTransition.from(source).with({individualUUID: individualUUID}).to(IndividualRegisterView);
     }
 }
 

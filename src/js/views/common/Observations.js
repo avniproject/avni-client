@@ -14,8 +14,7 @@ import Colors from '../primitives/Colors';
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.object.isRequired,
-        encounterNumber: React.PropTypes.number.isRequired
+        observations: React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
@@ -51,10 +50,6 @@ class Observations extends AbstractComponent {
                 }
             </View>
         );
-    }
-
-    getBackgroundColor(encounterNumber) {
-        return encounterNumber % 2 ? Colors.GreyContentBackground : '';
     }
 }
 

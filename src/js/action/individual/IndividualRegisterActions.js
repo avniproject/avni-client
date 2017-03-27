@@ -4,6 +4,8 @@ import EntityService from "../../service/EntityService";
 import Gender from "../../models/Gender";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import Form from '../../models/application/Form';
+import _ from 'lodash';
+import Individual from '../../models/Individual';
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -13,7 +15,9 @@ export class IndividualRegisterActions {
     }
 
     static onLoad(state, action, context) {
-        return IndividualRegistrationState.createLoadState(state.form, state.genders);
+        const individual = _.isNil(action.individualUUID) ?
+            Individual.createSafeInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
+        return IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
     }
 
     static enterIndividualName(state, action) {

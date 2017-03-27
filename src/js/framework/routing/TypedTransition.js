@@ -67,15 +67,21 @@ export default class TypedTransition {
         return this;
     }
 
-    wizardCompleted(wizardViewClass, newViewClass, params) {
+    wizardCompleted(wizardViewClasses, newViewClass, params) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
-        const wizardCount = _.sumBy(currentRoutes, (route) => wizardViewClass.path() === route.path ? 1 : 0);
-        const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
-        const newRouteStack = _.dropRight(currentRoutes, wizardCount + existingNewViewClassCount);
-        newRouteStack.push(this.createRoute(newViewClass, params));
-        this.navigator.immediatelyResetRouteStack(newRouteStack);
-        console.log(`Intiial: ${currentRoutes.length}, Wizard: ${wizardCount}, NewView: ${existingNewViewClassCount}, Final: ${newRouteStack.length}`);
+        const wizardCount = _.sumBy(currentRoutes, (route) => _.some(wizardViewClasses, (wizardViewClass) => wizardViewClass.path() === route.path ? 1 : 0));
+        var newRouteStack;
+        if (_.isNil(newViewClass)) {
+            this.navigator.popN(wizardCount);
+            console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}`);
+        } else {
+            const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
+            newRouteStack = _.dropRight(currentRoutes, wizardCount + existingNewViewClassCount);
+            newRouteStack.push(this.createRoute(newViewClass, params));
+            this.navigator.immediatelyResetRouteStack(newRouteStack);
+            console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}, Final: ${newRouteStack.length}`);
+        }
     }
 
     logRoutes() {

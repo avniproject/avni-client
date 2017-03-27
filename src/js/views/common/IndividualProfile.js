@@ -24,7 +24,8 @@ class IndividualProfile extends AbstractComponent {
     static viewContext = {
         Program: 'Program',
         General: 'General',
-        Wizard: 'Wizard'
+        Wizard: 'Wizard',
+        Individual: 'Individual'
     };
 
     constructor(props, context) {
@@ -58,12 +59,21 @@ class IndividualProfile extends AbstractComponent {
             <Icon name={iconMode} style={IndividualProfile.buttonIconStyle}/>{this.I18n.t(displayTextMessageKey)}</Button>
     }
 
+    viewProfile() {
+        CHSNavigator.navigateToIndividualRegistrationDetails(this, this.props.individual);
+    }
+
+    editProfile() {
+        CHSNavigator.navigateToIndividualRegisterView(this, this.props.individual.uuid);
+    }
+
     render() {
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <Content>
                     <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
-                                        actions={Actions} labelKey='selectProgram' onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
+                                        actions={Actions} labelKey='selectProgram'
+                                        onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
                     <Grid style={{backgroundColor: Colors.Blackish}}>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
                             {this.getImage(this.props.individual)}
@@ -82,8 +92,14 @@ class IndividualProfile extends AbstractComponent {
                             </Text>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
-                            {this.renderProfileActionButton('mode-edit', 'editProfile', () => {
-                            })}
+                            {this.props.viewContext === IndividualProfile.viewContext.Individual ?
+                                this.renderProfileActionButton('mode-edit', 'editProfile', () => {
+                                    this.editProfile()
+                                }) :
+                                this.renderProfileActionButton('person', 'viewProfile', () => {
+                                    this.viewProfile()
+                                })
+                            }
                             {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>

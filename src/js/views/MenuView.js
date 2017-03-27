@@ -1,20 +1,20 @@
-import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated, ScrollView, Alert} from 'react-native';
-import React, {Component} from 'react';
+import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated, ScrollView, Alert} from "react-native";
+import React, {Component} from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
-import Path from '../framework/routing/Path';
+import Path from "../framework/routing/Path";
 import {Content, Grid, Col, Row, Button, Icon} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
-import RegistrationView from "./individual/IndividualRegisterView";
 import SyncService from "../service/SyncService";
-import EntityMetaData from '../models/EntityMetaData';
+import EntityMetaData from "../models/EntityMetaData";
 import EntityService from "../service/EntityService";
 import MessageService from "../service/MessageService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
-import DynamicGlobalStyles from '../views/primitives/DynamicGlobalStyles';
+import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
 import {IndividualEncounterViewActions as Actions} from "../action/individual/EncounterActions";
 import DashboardView from "./program/DashboardView";
-import Colors from './primitives/Colors';
+import Colors from "./primitives/Colors";
+import CHSNavigator from '../utility/CHSNavigator';
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -42,7 +42,7 @@ class MenuView extends AbstractComponent {
     }
 
     registrationView() {
-        TypedTransition.from(this).with({startOfNewRegistration: true}).to(RegistrationView);
+        CHSNavigator.navigateToIndividualRegisterView(this);
     }
 
     _preSync() {

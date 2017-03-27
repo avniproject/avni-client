@@ -58,6 +58,7 @@
   "enrol": "ENROL",
   "cancel": "Cancel",
   "editProfile": "Edit Profile",
+  "viewProfile": "View Profile",
   "selectProgram": "Select Program",
   "enrolInSpecificProgram": "Enrol in {{program}}",
   "confirm": "Confirm",

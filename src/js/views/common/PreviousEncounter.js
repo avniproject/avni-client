@@ -37,7 +37,7 @@ class PreviousEncounter extends AbstractComponent {
                                     <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
                                     <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
                                 </Grid>
-                                <Observations observations={encounter.observations} encounterNumber={encounterNumber}/>
+                                <Observations observations={encounter.observations}/>
                             </View>
                         </View>
                     );

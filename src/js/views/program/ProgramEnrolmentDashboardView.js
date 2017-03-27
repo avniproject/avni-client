@@ -92,7 +92,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>
                             </View>
-                            <Observations observations={this.state.enrolment.observations} encounterNumber={0}/>
+                            <Observations observations={this.state.enrolment.observations}/>
                         </View>
                         <PreviousEncounter encounters={this.state.enrolment.encounters}/>
                     </Card>
