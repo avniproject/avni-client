@@ -1,24 +1,25 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import _ from 'lodash';
 import ObservationsHolder from "../../models/ObservationsHolder";
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(programEncounter, form) {
-        super([], _.isNil(form) ? null : form.firstFormElementGroup, _.isNil(form) ? null : new Wizard(form.numberOfPages, 1));
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter, nextButtonLabelKeyMap) {
+        super([], formElementGroup, wizard, isNewEntity, nextButtonLabelKeyMap);
         this.programEncounter = programEncounter;
     }
 
+    static createOnLoad(programEncounter, form, isNewEntity) {
+        return new ProgramEncounterState(form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, programEncounter, Wizard.createDefaultNextButtonLabelKeyMap('save'));
+    }
+
     clone() {
-        const programEncounterState = new ProgramEncounterState();
-        super.clone(programEncounterState);
-        programEncounterState.programEncounter = this.programEncounter.cloneForEdit();
-        return programEncounterState;
+        return new ProgramEncounterState(this.formElementGroup, this.wizard, this.isNewEntity, this.programEncounter.cloneForEdit(), this.nextButtonLabelMap);
     }
 
     reset() {
         super.reset();
         this.programEncounter = null;
+        return this;
     }
 
     get observationsHolder() {
@@ -27,6 +28,10 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     validateEntity() {
         return this.programEncounter.validate();
+    }
+
+    get staticFormElementIds() {
+        return [];
     }
 }
 

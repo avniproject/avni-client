@@ -2,11 +2,12 @@ import _ from "lodash";
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import AbstractEncounter from "../models/AbstractEncounter";
 import ObservationsHolder from "../models/ObservationsHolder";
+import Wizard from '../state/Wizard';
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard) {
-        super(validationResults, formElementGroup, wizard);
-        this.encounter = null;
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createDefaultNextButtonLabelKeyMap('save'));
+        this.encounter = encounter;
         this.encounterDecisions = null;
     }
 
@@ -28,6 +29,13 @@ class EncounterActionState extends AbstractDataEntryState {
 
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
+    }
+
+    reset() {
+        super.reset();
+        this.encounter = null;
+        this.encounterDecisions = null;
+        return this;
     }
 }
 

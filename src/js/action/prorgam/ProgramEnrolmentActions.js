@@ -10,11 +10,11 @@ import ObservationsHolder from "../../models/ObservationsHolder";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
-        return ProgramEnrolmentState.empty();
+        return {};
     }
 
     static onLoad(state, action, context) {
-        if (state.hasEnrolmentChanged(action) || action.usage !== state.usage) {
+        if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action)) {
             const formMappingService = context.get(FormMappingService);
             const form = action.usage === ProgramEnrolmentState.UsageKeys.Enrol ? formMappingService.findFormForProgramEnrolment(action.enrolment.program) : formMappingService.findFormForProgramExit(action.enrolment.program);
             const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));

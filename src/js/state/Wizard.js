@@ -1,4 +1,12 @@
 class Wizard {
+    static createDefaultNextButtonLabelKeyMap(create) {
+        return Wizard.createNextButtonLabelKeyMap('next', create, 'save');
+    }
+
+    static createNextButtonLabelKeyMap(next, create, update) {
+        return {next: next, create: create, update: update};
+    }
+
     constructor(numberOfPages, formStartsAt) {
         this.numberOfPages = numberOfPages;
         this.formStartsAt = formStartsAt;

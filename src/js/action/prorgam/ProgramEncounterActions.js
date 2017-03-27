@@ -2,15 +2,22 @@ import ProgramEncounterState from "./ProgramEncounterState";
 import FormMappingService from "../../service/FormMappingService";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import _ from 'lodash';
+import EntityService from "../../service/EntityService";
+import ProgramEncounter from "../../models/ProgramEncounter";
 
 class ProgramEncounterActions {
     static getInitialState() {
-        return null;
+        return {};
     }
 
     static onLoad(state, action, context) {
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
-        return new ProgramEncounterState(action.programEncounter, form);
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
+        if (_.isNil(form)) {
+            return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
+        }
+        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity);
     }
 
     static onNext(state, action, context) {

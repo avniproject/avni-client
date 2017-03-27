@@ -15,6 +15,7 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractEncounter from "../../models/AbstractEncounter";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
+import DateFormElement from '../../views/form/DateFormElement';
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -40,7 +41,7 @@ class ProgramEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            completed: (state, encounterDecisions) => {
+            completed: (state) => {
                 CHSNavigator.navigateToProgramEnrolmentDashboardView(this, state.programEncounter.programEnrolment.individual.uuid);
             },
             movedNext: () => {
@@ -51,13 +52,14 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     render() {
+        console.log('ProgramEncounterView.render');
         return (
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.name} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: 10}}>
-                        {this.props.state.wizard.isFirstFormPage() ?
-                            <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED} element={new StaticFormElement(AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME)}
+                        {this.state.wizard.isFirstFormPage() ?
+                            <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED} element={new StaticFormElement('encounterDate')}
                                              dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
                                              validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME)}/>
                             :
@@ -66,7 +68,7 @@ class ProgramEncounterView extends AbstractComponent {
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
-                                       next={{func: () => this.next(), visible: true, label: this.I18n.t(this.nextButtonLabelKey)}}/>
+                                       next={{func: () => this.next(), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
                     </View>
                 </Content>
             </Container>

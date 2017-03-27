@@ -2,6 +2,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import ProgramEnrolment from '../../models/ProgramEnrolment';
 import _ from 'lodash';
 import ObservationsHolder from "../../models/ObservationsHolder";
+import Wizard from '../../state/Wizard';
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {
@@ -9,15 +10,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         Exit: 'Exit'
     };
 
-    static empty() {
-        return new ProgramEnrolmentState([], null, null, ProgramEnrolmentState.UsageKeys.Enrol, null, null);
-    }
-
     constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment) {
-        super(validationResults, formElementGroup, wizard);
+        super(validationResults, formElementGroup, wizard, isNewEnrolment, Wizard.createNextButtonLabelKeyMap('next', 'enrol', 'save'));
         this.usage = usage;
         this.enrolment = enrolment;
-        this.newEnrolment = isNewEnrolment;
         if (!_.isNil(enrolment))
             this.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? enrolment.observations : enrolment.programExitObservations);
     }
@@ -41,13 +37,17 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [validationKey] : [];
     }
 
-    hasEnrolmentChanged(action) {
-        return _.isNil(this.enrolment) ? true : this.enrolment.uuid !== action.enrolment.uuid;
+    static hasEnrolmentOrItsUsageChanged(state, action) {
+        return _.isNil(state) ||
+            _.isNil(state.enrolment) ||
+            this.enrolment.uuid !== action.enrolment.uuid ||
+            state.usage !== action.usage;
     }
 
     reset() {
         super.reset();
         this.enrolment = null;
+        return this;
     }
 
     validateEntity() {

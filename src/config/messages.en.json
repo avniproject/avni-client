@@ -87,5 +87,6 @@
   "startProgramVisit": "Start Program Visit",
   "startGeneralVisit": "Start General Visit",
   "edit": "edit",
-  "exitProgram": "Exit Program"
+  "exitProgram": "Exit Program",
+  "encounterDate": "Visit Date"
 }

@@ -1,8 +1,9 @@
 import _ from "lodash";
+import AbstractEncounter from "../models/AbstractEncounter";
 
 class AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard) {
-        this.setState(validationResults, formElementGroup, wizard);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap) {
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap);
     }
 
     clone(newState) {
@@ -73,17 +74,25 @@ class AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return [];
+        return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
     reset() {
-        this.setState([], null, null);
+        this.setState([], null, null, null, null);
+        return this;
     }
 
-    setState(validationResults, formElementGroup, wizard) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
+        this.isNewEntity = isNewEntity;
+        this.nextButtonLabelMap = nextButtonLabelMap;
+    }
+
+    static getNextButtonLabel(state) {
+        const label = state.wizard.isLastPage() ? (state.isNewEntity ? 'create' : 'update') : 'next';
+        return state.nextButtonLabelMap[label];
     }
 }
 

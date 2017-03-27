@@ -1,28 +1,19 @@
-import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import IndividualService from "../../service/IndividualService";
-import ObservationsHolderActions from '../common/ObservationsHolderActions';
-import Individual from "../../models/Individual";
+import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
 import Gender from "../../models/Gender";
-import StaticFormElementGroup from "../../models/application/StaticFormElementGroup";
+import IndividualRegistrationState from "../../state/IndividualRegistrationState";
+import Form from '../../models/application/Form';
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
-        const individualRegistrationState = IndividualRegistrationState.createIntialState(context);
-        individualRegistrationState.individual = Individual.createSafeInstance();
-        individualRegistrationState.genders = context.get(EntityService).getAll(Gender.schema.name);
-        individualRegistrationState.ageProvidedInYears = true;
-
-        return individualRegistrationState;
+        const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
+        const genders = context.get(EntityService).getAll(Gender.schema.name);
+        return {form: form, genders: genders};
     }
 
     static onLoad(state, action, context) {
-        const newState = state.clone(state);
-        newState.individual = Individual.createSafeInstance();
-        newState.age = "";
-        newState.ageProvidedInYears = true;
-        newState.wizard.reset();
-        return newState;
+        return IndividualRegistrationState.createLoadState(state.form, state.genders);
     }
 
     static enterIndividualName(state, action) {

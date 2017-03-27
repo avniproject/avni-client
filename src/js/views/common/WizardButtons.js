@@ -14,21 +14,29 @@ class WizardButtons extends AbstractComponent {
     }
 
     static propTypes = {
-        previous: React.PropTypes.object.isRequired,
-        next: React.PropTypes.object.isRequired,
+        previous: React.PropTypes.object,
+        next: React.PropTypes.object
     };
 
+    getButtonProps(buttonProps) {
+        var returnProps = buttonProps;
+        if (_.isNil(returnProps)) returnProps = {visible: false};
+        if (!_.isNil(returnProps.label) && _.isNil(returnProps.visible)) returnProps.visible = true;
+        if (_.isNil(returnProps.func)) returnProps.func = () => {};
+        return returnProps;
+    }
+
     render() {
-        const previousButtonLabel = _.isNil(this.props.previous.label) ? this.I18n.t('previous') : this.props.previous.label;
-        const nextButtonLabel = _.isNil(this.props.next.label) ? this.I18n.t('next') : this.props.next.label;
+        const previousButton = this.getButtonProps(this.props.previous);
+        const nextButton = this.getButtonProps(this.props.next);
         return (
             <View style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between', flexDirection: 'row'}}>
-                {this.props.previous.visible ? <Button primary
+                {previousButton.visible ? <Button primary
                                                        style={{flex: 0.5, backgroundColor: Colors.SecondaryActionButtonColor}}
-                                                       textStyle={{color: '#212121'}} onPress={() => this.props.previous.func()}>{previousButtonLabel}</Button> :
+                                                       textStyle={{color: '#212121'}} onPress={() => previousButton.func()}>{previousButton.label}</Button> :
                     <View style={{flex: 0.5}}/>}
                 <Button primary
-                        style={{flex: 0.5, marginLeft: 8}} onPress={() => this.props.next.func()}>{nextButtonLabel}</Button>
+                        style={{flex: 0.5, marginLeft: 8}} onPress={() => nextButton.func()}>{nextButton.label}</Button>
             </View>
         );
     }

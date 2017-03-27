@@ -1,20 +1,22 @@
-import EntityService from "../service/EntityService";
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import _ from "lodash";
-import Form from "../models/application/Form";
 import StaticFormElementGroup from "../models/application/StaticFormElementGroup";
-import Individual from '../models/Individual';
+import Individual from "../models/Individual";
 import ObservationsHolder from "../models/ObservationsHolder";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard) {
-        super(validationResults, formElementGroup, wizard);
+    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createDefaultNextButtonLabelKeyMap('register'));
+        this.genders = genders;
+        this.age = age;
+        this.ageProvidedInYears = ageProvidedInYears;
+        this.individual = individual;
     }
 
-    static createIntialState(context) {
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
-        return new IndividualRegistrationState([], new StaticFormElementGroup(form), new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2));
+    static createLoadState(form, genders) {
+        const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
+        return new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, Individual.createSafeInstance(), true);
     }
 
     clone() {
@@ -47,6 +49,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     reset() {
         super.reset();
         this.individual = null;
+        return this;
     }
 }
 

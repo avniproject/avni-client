@@ -114,10 +114,7 @@ class IndividualRegisterView extends AbstractComponent {
                                             validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}/>
                         </View>
                     </View>
-                    <WizardButtons previous={{func: () => {}, visible: false}}
-                                   next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t(this.state.wizard.isLastPage() ? 'register' : 'next')}}
-                                   nextDisabled={this.state.validationResults.length !== 0}
-                    />
+                    <WizardButtons next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
                 </Content>
             </Container>
         );

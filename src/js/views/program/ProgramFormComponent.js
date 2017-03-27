@@ -55,19 +55,11 @@ class ProgramFormComponent extends AbstractComponent {
                         <View/>}
                     <FormElementGroup actions={Actions} group={this.props.state.formElementGroup} observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}/>
-                    <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous()}}
-                                   next={{func: () => this.next(), visible: true, label: this.I18n.t(this.nextButtonLabelKey)}}/>
+                    <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous(), label: this.I18n.t('previous')}}
+                                   next={{func: () => this.next(), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
                 </View>
             </Content>
         </Container>);
-    }
-
-    get nextButtonLabelKey() {
-        if (this.props.state.wizard.isLastPage()) {
-            return this.props.state.newEnrolment ? 'enrol' : 'save';
-        } else {
-            return 'next';
-        }
     }
 }
 

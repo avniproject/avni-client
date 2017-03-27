@@ -18,6 +18,7 @@ import _ from "lodash";
 import General from "../../utility/General";
 import Colors from '../primitives/Colors';
 import ObservationsHolder from "../../models/ObservationsHolder";
+import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -83,11 +84,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                 <FormElementGroup group={this.state.formElementGroup}
                                                   observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions}
                                                   validationResults={this.state.validationResults}/>
-                                <WizardButtons previous={{
-                                    func: () => {
-                                    }, visible: false
-                                }}
-                                               next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast}}/>
+                                <WizardButtons next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast, label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
                             </Grid>
                         </Row>
                     </Grid>

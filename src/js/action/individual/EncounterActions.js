@@ -8,14 +8,13 @@ import Wizard from "../../state/Wizard";
 
 export class EncounterActions {
     static getInitialState(context) {
-        return {};
+        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
+        return {form: form};
     }
 
     static onNewEncounter(state, action, context) {
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        const newState = new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1));
-        newState.encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
-        return newState;
+        const encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
+        return new EncounterActionState([], state.form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), true);
     }
 
     static onNext(state, action, context) {
