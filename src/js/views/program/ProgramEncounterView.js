@@ -16,6 +16,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractEncounter from "../../models/AbstractEncounter";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import DateFormElement from '../../views/form/DateFormElement';
+import _ from 'lodash';
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -51,6 +52,10 @@ class ProgramEncounterView extends AbstractComponent {
         });
     }
 
+    shouldComponentUpdate(nextProps, state) {
+        return !_.isNil(state.programEncounter);
+    }
+
     render() {
         console.log('ProgramEncounterView.render');
         return (
@@ -67,7 +72,7 @@ class ProgramEncounterView extends AbstractComponent {
                         }
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
-                        <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage()}}
+                        <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: 'previous'}}
                                        next={{func: () => this.next(), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
                     </View>
                 </Content>
