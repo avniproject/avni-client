@@ -14,7 +14,7 @@ export class EncounterActions {
 
     static onNewEncounter(state, action, context) {
         const encounter = context.get(IndividualEncounterService).newEncounter(action.individualUUID);
-        return new EncounterActionState([], state.form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), true);
+        return new EncounterActionState([], state.form.firstFormElementGroup, new Wizard(state.form.numberOfPages, 1), true, encounter);
     }
 
     static onNext(state, action, context) {
