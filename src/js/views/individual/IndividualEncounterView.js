@@ -20,10 +20,6 @@ import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
-    static propTypes = {
-        params: React.PropTypes.object.isRequired
-    };
-
     viewName() {
         return "IndividualEncounterView";
     }

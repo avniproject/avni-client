@@ -14,9 +14,6 @@ class AbstractComponent extends Component {
 
     constructor(props, context, topLevelStateVariable) {
         super(props, context);
-        this.renderComponent = this.renderComponent.bind(this);
-        this.spinnerDefaults = Map({color: 'white', size: 'small'});
-        this.showError = this.showError.bind(this);
         this.topLevelStateVariable = topLevelStateVariable;
         this.I18n = context.getService(MessageService).getI18n();
     }
@@ -38,13 +35,6 @@ class AbstractComponent extends Component {
 
     getContextState(param) {
         return this.context.getStore().getState()[param];
-    }
-
-    renderComponent(loading, component, color = this.spinnerDefaults.get("color"),
-                    size = this.spinnerDefaults.get("size")) {
-        if (loading) return (
-            <ActivityIndicator style={AbstractComponent.styles.spinner} color={color} size={size}/>);
-        return component;
     }
 
     showError(errorMessage) {

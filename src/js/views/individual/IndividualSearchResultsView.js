@@ -13,6 +13,7 @@ import AppHeader from "../common/AppHeader";
 import Fonts from "../primitives/Fonts";
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 import Colors from "../primitives/Colors";
+import CHSNavigator from '../../utility/CHSNavigator';
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -119,7 +120,10 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-        TypedTransition.from(this).with({individualUUID: individual.uuid}).to(individual.hasActiveEnrolment ? ProgramEnrolmentDashboardView : IndividualEncounterLandingView);
+        if (individual.hasActiveEnrolment)
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
+        else
+            CHSNavigator.navigateToIndividualEncounterLandingView(this, individual.uuid);
     }
 }
 

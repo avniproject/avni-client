@@ -16,7 +16,7 @@ class SettingsForm extends AbstractComponent {
         super(props, context);
         this.state = {syncing: false, error: false};
         this._triggerSync = this._triggerSync.bind(this);
-        this.I18n = context.getService(MessageService).getI18n();
+        this.showError = this.showError.bind(this);
     }
 
     _triggerSync() {

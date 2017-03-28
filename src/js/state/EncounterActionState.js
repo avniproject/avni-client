@@ -30,6 +30,10 @@ class EncounterActionState extends AbstractDataEntryState {
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
     }
+
+    static createOnLoadState(form, encounter, isNewEncounter) {
+        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
+    }
 }
 
 export default EncounterActionState;

@@ -2,11 +2,12 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDashboardView";
 import ProgramExitView from "../views/program/ProgramExitView";
-import ProgramEnrolmentState from '../action/prorgam/ProgramEnrolmentState';
-import _ from 'lodash';
+import ProgramEnrolmentState from "../action/prorgam/ProgramEnrolmentState";
+import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
 import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";
 import IndividualRegisterView from "../views/individual/IndividualRegisterView";
+import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 
 class CHSNavigator {
     static navigateToProgramEnrolmentView(source, enrolment) {
@@ -37,6 +38,10 @@ class CHSNavigator {
 
     static navigateToIndividualRegisterView(source, individualUUID) {
         TypedTransition.from(source).with({individualUUID: individualUUID}).to(IndividualRegisterView);
+    }
+
+    static navigateToIndividualEncounterLandingView(source, individualUUID, encounterUUID) {
+        TypedTransition.from(source).with({encounterUUID: encounterUUID, individualUUID: individualUUID}).to(IndividualEncounterLandingView);
     }
 }
 

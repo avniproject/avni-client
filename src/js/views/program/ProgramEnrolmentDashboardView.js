@@ -14,10 +14,9 @@ import moment from "moment";
 import PreviousEncounter from "../common/PreviousEncounter";
 import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
-import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
-import ProgramEncounterView from "./ProgramEncounterView";
-import EntityTypeSelector from '../common/EntityTypeSelector';
+import EntityTypeSelector from "../common/EntityTypeSelector";
+import ContextActionButton from '../primitives/ContextActionButton';
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -84,8 +83,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         </View>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Text style={{marginTop: DGS.resizeHeight(16), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
-                            <Button transparent textStyle={{fontSize: 14, color: Colors.ActionButtonColor}} onPress={() => this.editEnrolment()}>{`(${this.I18n.t('edit')})`}</Button>
-                            {this.state.enrolment.isActive ? <Button transparent textStyle={{fontSize: 14, color: Colors.ActionButtonColor}} onPress={() => this.exitProgram()}>{this.I18n.t('exitProgram')}</Button> : <View/>}
+                            <ContextActionButton labelKey={'edit'} onPress={() => this.editEnrolment()}/>
+                            {this.state.enrolment.isActive ? <ContextActionButton labelKey={'exitProgram'} onPress={() => this.exitProgram()}/> : <View/>}
                         </View>
                         <View
                             style={{backgroundColor: Colors.GreyContentBackground, marginTop: DGS.resizeHeight(14), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingHorizontal: DGS.resizeWidth(13)}}>

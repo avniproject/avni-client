@@ -5,6 +5,8 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import moment from "moment";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Observations from '../common/Observations';
+import ContextActionButton from '../primitives/ContextActionButton';
+import CHSNavigator from '../../utility/CHSNavigator';
 
 class PreviousEncounter extends AbstractComponent {
     static propTypes = {
@@ -13,6 +15,10 @@ class PreviousEncounter extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+    }
+
+    editEncounter(encounter) {
+        CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter.uuid);
     }
 
     render(){
@@ -29,14 +35,15 @@ class PreviousEncounter extends AbstractComponent {
                         </Grid>
                     </View>
                 </View>)
-                : this.props.encounters.map((encounter) => {
+                : this.props.encounters.map((encounter, index) => {
                     return (
-                        <View style={DGS.generalHistory.encounter}>
+                        <View style={DGS.generalHistory.encounter} key={`${index}`}>
                             <View style={DGS.common.content}>
-                                <Grid>
-                                    <Row><Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text></Row>
-                                    <Row><Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text></Row>
-                                </Grid>
+                                <View style={{flexDirection: 'row'}}>
+                                    <Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text>
+                                    <Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text>
+                                    <ContextActionButton labelKey={'edit'} onPress={() => this.editEncounter(encounter)}/>
+                                </View>
                                 <Observations observations={encounter.observations}/>
                             </View>
                         </View>

@@ -35,8 +35,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     componentWillMount() {
-        if (!_.isNil(this.props.params.individualUUID))
-            this.dispatchAction(Actions.NEW_ENCOUNTER, {individualUUID: this.props.params.individualUUID});
+        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, this.props.params);
         return super.componentWillMount();
     }
 
@@ -84,7 +83,11 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                 <FormElementGroup group={this.state.formElementGroup}
                                                   observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions}
                                                   validationResults={this.state.validationResults}/>
-                                <WizardButtons next={{func: () => this.next(), visible: !this.state.formElementGroup.isLast, label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
+                                <WizardButtons next={{
+                                    func: () => this.next(),
+                                    visible: !this.state.formElementGroup.isLast,
+                                    label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))
+                                }}/>
                             </Grid>
                         </Row>
                     </Grid>

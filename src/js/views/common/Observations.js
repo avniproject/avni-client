@@ -23,25 +23,26 @@ class Observations extends AbstractComponent {
 
     render() {
         const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
+        const conceptService = this.context.getService(ConceptService);
         return (
             <View style={DGS.observations.component}>
                 {
-                    observationRows.map((observationRow) => {
+                    observationRows.map((observationRow, rowIndex) => {
                         return (
-                            <Grid style={DGS.observations.observationTable}>
-                                <Row style={DGS.observations.observationRowHeader}>
-                                    {observationRow.map((observation) => {
+                            <Grid style={DGS.observations.observationTable} key={`${rowIndex}`}>
+                                <Row style={DGS.observations.observationRowHeader} key={`${rowIndex}1`}>
+                                    {observationRow.map((observation, cellIndex) => {
                                         return (
-                                            <Col style={DGS.observations.observationColumn}>
+                                            <Col style={DGS.observations.observationColumn} key={`${rowIndex}1${cellIndex}`}>
                                                 <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{observation.concept.name}</Text>
                                             </Col>
                                         );
                                     })}</Row>
-                                <Row style={DGS.observations.observationRow}>
-                                    {observationRow.map((observation) => {
+                                <Row style={DGS.observations.observationRow} key={`${rowIndex}2`}>
+                                    {observationRow.map((observation, cellIndex) => {
                                         return (
-                                            <Col style={DGS.observations.observationColumn}>
-                                                <Text style={{textAlign: 'center', fontSize: 16}}>{Observation.valueAsString(observation, this.context.getService(ConceptService))}</Text>
+                                            <Col style={DGS.observations.observationColumn} key={`${rowIndex}2${cellIndex}`}>
+                                                <Text style={{textAlign: 'center', fontSize: 16}}>{Observation.valueAsString(observation, conceptService)}</Text>
                                             </Col>
                                         );
                                     })}</Row>

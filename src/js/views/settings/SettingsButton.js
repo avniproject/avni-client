@@ -7,7 +7,13 @@ import MessageService from '../../service/MessageService';
 class SettingsButton extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
-        this.I18n = context.getService(MessageService).getI18n();
+        this.renderComponent = this.renderComponent.bind(this);
+    }
+
+    renderComponent(loading, component, color = "white", size = "small") {
+        if (loading) return (
+            <ActivityIndicator style={AbstractComponent.styles.spinner} color={color} size={size}/>);
+        return component;
     }
 
     render() {
