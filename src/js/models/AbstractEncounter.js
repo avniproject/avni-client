@@ -8,14 +8,14 @@ import ResourceUtil from "../utility/ResourceUtil";
 import moment from "moment";
 
 class AbstractEncounter extends BaseEntity {
-    static validationKeys = {
+    static fieldKeys = {
         ENCOUNTER_DATE_TIME: 'ENCOUNTER_DATE_TIME',
         EXTERNAL_RULE: 'EXTERNAL_RULE'
     };
 
     validate() {
         return _.isNil(this.encounterDateTime) ?
-            [new ValidationResult(false, AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME, "emptyValidationMessage")] : [ValidationResult.successful(AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME)];
+            [new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, "emptyValidationMessage")] : [ValidationResult.successful(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)];
     }
 
     get toResource() {
@@ -41,6 +41,12 @@ class AbstractEncounter extends BaseEntity {
         const programEncounter = General.assignFields(resource, encounter, ["uuid"], ["encounterDateTime"], ["observations"], entityService);
         programEncounter.encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
         return encounter;
+    }
+
+    getEncounterDateValues() {
+        const dateValues = {};
+        dateValues[AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] = this.encounterDateTime;
+        return dateValues;
     }
 }
 

@@ -66,7 +66,7 @@ class ProgramEncounterView extends AbstractComponent {
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED} element={new StaticFormElement('encounterDate')}
                                              dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
-                                             validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME)}/>
+                                             validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
                             :
                             <View/>
                         }

@@ -11,12 +11,13 @@ import Observations from "../common/Observations";
 import {Text, Content, Container, Button, Card} from "native-base";
 import ProgramList from "./ProgramList";
 import moment from "moment";
-import PreviousEncounter from "../common/PreviousEncounter";
+import PreviousEncounters from "../common/PreviousEncounters";
 import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
 import EntityTypeSelector from "../common/EntityTypeSelector";
-import ContextActionButton from '../primitives/ContextActionButton';
+import ContextAction from "../viewmodel/ContextAction";
+import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -61,6 +62,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         console.log('ProgramEnrolmentDashboardView.render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
+        const contextActions = [new ContextAction('edit', this.editEnrolment)];
+        if (this.state.enrolment.isActive)
+            contextActions.push(new ContextAction('exitProgram', this.exitProgram));
 
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
@@ -81,11 +85,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>
                         </View>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{marginTop: DGS.resizeHeight(16), fontSize: 16}}>{this.I18n.t('enrolmentAttributes')}</Text>
-                            <ContextActionButton labelKey={'edit'} onPress={() => this.editEnrolment()}/>
-                            {this.state.enrolment.isActive ? <ContextActionButton labelKey={'exitProgram'} onPress={() => this.exitProgram()}/> : <View/>}
-                        </View>
+                        <ObservationsSectionTitle contextActions={contextActions} titleKey='enrolmentAttributes'/>
                         <View
                             style={{backgroundColor: Colors.GreyContentBackground, marginTop: DGS.resizeHeight(14), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingHorizontal: DGS.resizeWidth(13)}}>
                             <View style={{flexDirection: 'row'}}>
@@ -93,7 +93,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             </View>
                             <Observations observations={this.state.enrolment.observations}/>
                         </View>
-                        <PreviousEncounter encounters={this.state.enrolment.encounters}/>
+                        <PreviousEncounters encounters={this.state.enrolment.encounters}/>
                     </Card>
                 </Content>
             </Container>

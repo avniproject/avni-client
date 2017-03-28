@@ -24,11 +24,11 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     static hasOnlyExternalRuleError(state) {
-        return AbstractDataEntryState.hasValidationError(state, AbstractEncounter.validationKeys.EXTERNAL_RULE);
+        return AbstractDataEntryState.hasValidationError(state, AbstractEncounter.fieldKeys.EXTERNAL_RULE);
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [AbstractEncounter.validationKeys.ENCOUNTER_DATE_TIME] : [];
+        return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
     static createOnLoadState(form, encounter, isNewEncounter) {

@@ -12,7 +12,7 @@ import {IndividualEncounterViewActions as Actions} from "../../action/individual
 import ReducerKeys from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
-import PreviousEncounter from "../common/PreviousEncounter";
+import PreviousEncounters from "../common/PreviousEncounters";
 import Colors from "../primitives/Colors";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolder from "../../models/ObservationsHolder";
@@ -132,7 +132,7 @@ class IndividualEncounterView extends AbstractComponent {
                 }}>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
                     <Text style={{paddingLeft:10, paddingRight:10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}></Text>
-                    <PreviousEncounter encounters={this.state.encounters}/>
+                    <PreviousEncounters encounters={this.state.encounters}/>
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
                     <Button iconRight light

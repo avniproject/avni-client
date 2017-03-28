@@ -9,7 +9,7 @@ import AppHeader from '../common/AppHeader';
 import IndividualProfile from '../common/IndividualProfile';
 import ReducerKeys from "../../reducer";
 import DGS from '../primitives/DynamicGlobalStyles';
-import PreviousEncounter from '../common/PreviousEncounter'
+import PreviousEncounters from '../common/PreviousEncounters'
 import _ from 'lodash';
 
 @Path('/IndividualGeneralHistoryView')
@@ -44,7 +44,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                         <View style={DGS.common.content}>
                             <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual}/>
                         </View>
-                        <PreviousEncounter encounters={this.state.individual.encounters}/>
+                        <PreviousEncounters encounters={this.state.individual.encounters}/>
                     </View>
                 </Content>
             </Container>

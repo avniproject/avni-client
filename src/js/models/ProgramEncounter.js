@@ -4,6 +4,10 @@ import ProgramEnrolment from "./ProgramEnrolment";
 import AbstractEncounter from "./AbstractEncounter";
 
 class ProgramEncounter extends AbstractEncounter {
+    static fieldKeys = {
+        SCHEDULED_DATE_TIME: 'SCHEDULED_DATE_TIME'
+    };
+
     static schema = {
         name: 'ProgramEncounter',
         primaryKey: 'uuid',
@@ -42,6 +46,12 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = super.cloneForEdit(new ProgramEncounter());
         programEncounter.programEnrolment = this.programEnrolment;
         return programEncounter;
+    }
+
+    getEncounterDateValues() {
+        const encounterDateValues = super.getEncounterDateValues();
+        encounterDateValues[ProgramEncounter.fieldKeys.SCHEDULED_DATE_TIME] = this.scheduledDateTime;
+        return encounterDateValues;
     }
 }
 
