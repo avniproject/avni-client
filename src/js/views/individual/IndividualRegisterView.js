@@ -20,6 +20,7 @@ import Colors from "../primitives/Colors";
 import IndividualRegisterViewsMixin from './IndividualRegisterViewsMixin';
 import PrimitiveValue from '../../models/observation/PrimitiveValue';
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
+import DateFormElement from '../form/DateFormElement';
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -51,6 +52,9 @@ class IndividualRegisterView extends AbstractComponent {
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
                     <View style={[this.contentGridMarginStyle, {flexDirection: 'column'}]}>
+                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate')}
+                                         dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
+                                         validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
                         <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
                                          element={new StaticFormElement('name')}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.NAME)}

@@ -21,6 +21,7 @@ class Individual extends BaseEntity {
             dateOfBirth: "date",
             dateOfBirthVerified: "bool",
             gender: 'Gender',
+            registrationDate: "date",
             lowestAddressLevel: 'AddressLevel',
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
@@ -32,12 +33,14 @@ class Individual extends BaseEntity {
         DOB: 'DOB',
         GENDER: 'GENDER',
         NAME: 'NAME',
+        REGISTRATION_DATE: 'REGISTRATION_DATE',
         LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
     };
 
     static createSafeInstance() {
         const individual = new Individual();
         individual.uuid = General.randomUUID();
+        individual.registrationDate = new Date();
         individual.observations = [];
         individual.encounters = [];
         individual.enrolments = [];
@@ -47,6 +50,7 @@ class Individual extends BaseEntity {
     get toResource() {
         const resource = _.pick(this, ["uuid", "name", "dateOfBirthVerified"]);
         resource.dateOfBirth = moment(this.dateOfBirth).format('YYYY-MM-DD');
+        resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
         return resource;
@@ -67,7 +71,7 @@ class Individual extends BaseEntity {
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
-        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified"], ["dateOfBirth"], ["customProfile"]);
+        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified"], ["dateOfBirth", 'registrationDate'], ["customProfile"]);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
@@ -129,6 +133,10 @@ class Individual extends BaseEntity {
         }
     }
 
+    validateRegistrationDate() {
+        return this.validateFieldForEmpty(this.name, Individual.validationKeys.REGISTRATION_DATE);
+    }
+
     validateName() {
         return this.validateFieldForEmpty(this.name, Individual.validationKeys.NAME);
     }
@@ -173,6 +181,7 @@ class Individual extends BaseEntity {
         individual.uuid = this.uuid;
         individual.name = this.name;
         individual.dateOfBirth = this.dateOfBirth;
+        individual.registrationDate = this.registrationDate;
         individual.dateOfBirthVerified = this.dateOfBirthVerified;
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForReference();

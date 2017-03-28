@@ -90,5 +90,6 @@
   "edit": "edit",
   "exitProgram": "Exit Program",
   "encounterDate": "Visit Date",
-  "visitDetails": "Visit Details"
+  "visitDetails": "Visit Details",
+  "registrationDate": "Date of Registration"
 }

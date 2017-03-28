@@ -98,6 +98,7 @@ class ProgramEnrolment extends BaseEntity {
     validateEnrolment() {
         const validationResults = [];
         validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
+        // if (!_.isNil(this.enrolmentDateTime) && moment(this.enrolmentDateTime).isBefore(this.individual.))
         return validationResults;
     }
 

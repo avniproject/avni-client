@@ -20,15 +20,22 @@ export class IndividualRegisterActions {
         return IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
     }
 
+    static enterRegistrationDate(state, action, context) {
+        const newState = state.clone();
+        newState.individual.registrationDate = action.value;
+        newState.handleValidationResult(newState.individual.validateRegistrationDate());
+        return newState;
+    }
+
     static enterIndividualName(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.individual.name = action.value;
         newState.handleValidationResult(newState.individual.validateName());
         return newState;
     }
 
     static enterIndividualDOB(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.individual.setDateOfBirth(action.value);
         newState.age = newState.individual.getAge().durationValueAsString;
         newState.ageProvidedInYears = newState.individual.getAge().isInYears;
@@ -38,13 +45,13 @@ export class IndividualRegisterActions {
     }
 
     static enterIndividualDOBVerified(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.individual.dateOfBirthVerified = action.value;
         return newState;
     }
 
     static enterIndividualAge(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.age = action.value;
         newState.individual.setAge(action.value, state.ageProvidedInYears);
         newState.handleValidationResult(newState.individual.validateDateOfBirth());
@@ -52,7 +59,7 @@ export class IndividualRegisterActions {
     }
 
     static enterIndividualAgeProvidedInYears(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.ageProvidedInYears = action.value;
         newState.individual.setAge(state.age, action.value);
         newState.handleValidationResult(newState.individual.validateDateOfBirth());
@@ -60,14 +67,14 @@ export class IndividualRegisterActions {
     }
 
     static enterIndividualGender(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.individual.gender = action.value;
         newState.handleValidationResult(newState.individual.validateGender());
         return newState;
     }
 
     static enterIndividualAddressLevel(state, action) {
-        const newState = state.clone(state);
+        const newState = state.clone();
         newState.individual.lowestAddressLevel = action.value;
         newState.handleValidationResult(newState.individual.validateAddress());
         return newState;
@@ -85,6 +92,7 @@ const actions = {
     ON_LOAD: "REGISTRATION_ON_LOAD",
     NEXT: "REGISTRATION_NEXT",
     PREVIOUS: "REGISTRATION_PREVIOUS",
+    REGISTRATION_ENTER_REGISTRATION_DATE: "REGISTRATION_ENTER_REGISTRATION_DATE",
     REGISTRATION_ENTER_NAME: "REGISTRATION_ENTER_NAME",
     REGISTRATION_ENTER_DOB: "REGISTRATION_ENTER_DOB",
     REGISTRATION_ENTER_DOB_VERIFIED: "REGISTRATION_ENTER_DOB_VERIFIED",
@@ -101,6 +109,7 @@ export default new Map([
     [actions.ON_LOAD, IndividualRegisterActions.onLoad],
     [actions.NEXT, IndividualRegisterActions.onNext],
     [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
+    [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],
     [actions.REGISTRATION_ENTER_NAME, IndividualRegisterActions.enterIndividualName],
     [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
     [actions.REGISTRATION_ENTER_DOB_VERIFIED, IndividualRegisterActions.enterIndividualDOBVerified],
