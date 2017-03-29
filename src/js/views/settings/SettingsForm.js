@@ -1,15 +1,10 @@
-import {StyleSheet, View, Alert} from 'react-native';
-import React, {Component} from 'react';
-import SettingsFormField from './SettingsFormField';
-import SettingsMultipleChoiceField from './SettingsMultipleChoiceField';
-import SettingsView from './SettingsView';
-import SettingsButton from './SettingsButton';
+import {StyleSheet, View, Alert} from "react-native";
+import React, {Component} from "react";
+import SettingsFormField from "./SettingsFormField";
+import SettingsMultipleChoiceField from "./SettingsMultipleChoiceField";
+import SettingsView from "./SettingsView";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Actions from "../../action/index";
-import DecisionSupportSessionService from "../../service/DecisionSupportSessionService";
-import MessageService from "../../service/MessageService";
-import EntityService from "../../service/EntityService";
-import EntityMetaData from "../../models/EntityMetaData";
 
 class SettingsForm extends AbstractComponent {
     constructor(props, context) {
@@ -28,25 +23,6 @@ class SettingsForm extends AbstractComponent {
             }
         });
     }
-
-    onDeleteSessionsPress = () => {
-        const service = this.context.getService(DecisionSupportSessionService);
-        Alert.alert(
-            this.I18n.t('deleteConfirmation'),
-            this.I18n.t("numberOfSessions", {count: service.getNumberOfSessions()}),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                    service.deleteAll()
-                }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                }, style: 'cancel'
-                }
-            ]
-        )
-    };
 
     static propTypes = {
         onServerURLChanged: React.PropTypes.func.isRequired,

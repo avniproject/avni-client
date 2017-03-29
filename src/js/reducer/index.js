@@ -1,4 +1,3 @@
-import questionnaireActions from "../action/questionnaire";
 import IndividualSearchActions from "../action/individual/IndividualSearchActions";
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
 import configActions from "../action/config";
@@ -33,7 +32,6 @@ const reducerMapFn = function (beanStore) {
         return Reducer.factory(actions, initState, beanStore);
     };
 
-    reducerMap.questionnaires = add(questionnaireActions, []);
     reducerMap.config = add(configActions, []);
     reducerMap.individualSearch = add(IndividualSearchActions, {searchCriteria: IndividualSearchCriteria.empty(), individualSearchResults: []});
     reducerMap.addressLevels = add(new Map([]), beanStore.get(EntityService).getAll(AddressLevel.schema.name));

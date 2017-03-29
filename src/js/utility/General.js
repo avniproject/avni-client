@@ -83,10 +83,6 @@ class General {
         return str;
     }
 
-    static formatRange(question) {
-        return `[${question.lowAbsolute} - ${question.hiAbsolute}]`;
-    }
-
     static assignFields(source, dest, directCopyFields, dateFields, observationFields, entityService) {
         if (!_.isNil(directCopyFields)) {
             directCopyFields.forEach((fieldName) => {
