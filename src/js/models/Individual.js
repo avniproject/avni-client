@@ -25,7 +25,8 @@ class Individual extends BaseEntity {
             lowestAddressLevel: 'AddressLevel',
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
-            observations: {type: 'list', objectType: 'Observation'}
+            observations: {type: 'list', objectType: 'Observation'},
+            catchmentId: "int"
         }
     };
 
@@ -37,13 +38,15 @@ class Individual extends BaseEntity {
         LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
     };
 
-    static createEmptyInstance() {
+
+    static createEmptyInstance(catchmentId) {
         const individual = new Individual();
         individual.uuid = General.randomUUID();
         individual.registrationDate = new Date();
         individual.observations = [];
         individual.encounters = [];
         individual.enrolments = [];
+        individual.catchmentId = catchmentId;
         return individual;
     }
 
@@ -53,6 +56,7 @@ class Individual extends BaseEntity {
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
+        resource.catchmentId = this.catchmentId;
         return resource;
     }
 
@@ -197,6 +201,7 @@ class Individual extends BaseEntity {
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForReference();
         individual.observations = ObservationsHolder.clone(this.observations);
+        individual.catchmentId = this.catchmentId;
         return individual;
     }
 

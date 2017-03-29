@@ -29,7 +29,7 @@ import ConfigFile from "./ConfigFile";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Locale, Settings, StringObject, QuestionAnswer, Decision, DecisionSupportSession, QuestionnaireQuestion, Questionnaire, ConceptAnswer, Concept, EncounterType, Gender, Answer, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile],
-    schemaVersion: 23,
+    schemaVersion: 24,
     migration: function(oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

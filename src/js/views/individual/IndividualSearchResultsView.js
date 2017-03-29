@@ -106,6 +106,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       </Col>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(246)}}>
                                           <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 16}}>{item.lowestAddressLevel.name}</Text></Row>
+                                          <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 16}}>{item.catchmentId}</Text></Row>
                                           <Row
                                               style={{justifyContent: 'flex-end'}}>{_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
                                       </Col>

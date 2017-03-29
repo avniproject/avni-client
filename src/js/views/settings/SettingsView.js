@@ -6,6 +6,7 @@ import SettingsForm from "./SettingsForm";
 import SettingsService from "../../service/SettingsService";
 import {Content} from "native-base";
 import GlobalStyles from "../primitives/GlobalStyles";
+import _ from "lodash";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -27,7 +28,7 @@ class SettingsView extends AbstractComponent {
     };
 
     onCatchmentChanged = (catchment) => {
-        this.service.saveCatchment(catchment);
+        this.service.saveCatchment(_.toNumber(catchment));
         this.setState({});
     };
 

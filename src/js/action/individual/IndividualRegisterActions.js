@@ -1,4 +1,5 @@
 import IndividualService from "../../service/IndividualService";
+import SettingsService from "../../service/SettingsService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
 import Gender from "../../models/Gender";
@@ -16,7 +17,7 @@ export class IndividualRegisterActions {
 
     static onLoad(state, action, context) {
         const individual = _.isNil(action.individualUUID) ?
-            Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
+            Individual.createEmptyInstance(context.get(SettingsService).getSettings().catchment) : context.get(IndividualService).findByUUID(action.individualUUID);
         return IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
     }
 
