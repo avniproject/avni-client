@@ -3,6 +3,7 @@ import {EncounterActions} from "../../js/action/individual/EncounterActions";
 import ObservationsHolderActions from "../../js/action/common/ObservationsHolderActions";
 import Encounter from "../../js/models/Encounter";
 import Observation from "../../js/models/Observation";
+import Individual from "../../js/models/Individual";
 import FormElement from "../../js/models/application/FormElement";
 import Concept, {ConceptAnswer} from "../../js/models/Concept";
 import EntityFactory from "../models/EntityFactory";
@@ -34,6 +35,7 @@ let createIntialState = function (dataType, firstFormElementMandatory, secondFor
 
     const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1));
     state.encounter = Encounter.create();
+    state.encounter.individual = Individual.createEmptyInstance();
     state.encounter.encounterDateTime = new Date();
     return {state, formElement, formElement2};
 };

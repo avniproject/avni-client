@@ -1,11 +1,10 @@
 import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
-import {Text, CheckBox, Grid, Col, Row } from "native-base";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import Observation from "../../models/Observation";
+import {Text, CheckBox} from "native-base";
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
+import ValidationErrorMessage from '../form/ValidationErrorMessage';
 
 class MultiSelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -58,6 +57,7 @@ class MultiSelectFormElement extends AbstractFormElement {
                 <View style={{flexDirection: 'column'}}>
                     <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                         <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
+                        <ValidationErrorMessage validationResult={this.props.validationResult}/>
                     </View>
                     {this.renderMultiSelectAnswers()}
                 </View>);

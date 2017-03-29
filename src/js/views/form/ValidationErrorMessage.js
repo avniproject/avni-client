@@ -1,0 +1,22 @@
+import {View, StyleSheet} from 'react-native';
+import React, {Component} from 'react';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import {Text} from "native-base";
+import _ from "lodash";
+import Colors from '../primitives/Colors';
+
+class ValidationErrorMessage extends AbstractComponent {
+    static propTypes = {
+        validationResult: React.PropTypes.object
+    };
+
+    constructor(props, context) {
+        super(props, context);
+    }
+
+    render() {
+        return _.isNil(this.props.validationResult) ? <View/> : <Text style={{color: Colors.ValidationError, flex: 0.3}}>{this.I18n.t(this.props.validationResult.messageKey)}</Text>;
+    }
+}
+
+export default ValidationErrorMessage;

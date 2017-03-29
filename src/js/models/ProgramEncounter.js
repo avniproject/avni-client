@@ -2,6 +2,9 @@ import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
 import ProgramEnrolment from "./ProgramEnrolment";
 import AbstractEncounter from "./AbstractEncounter";
+import _ from 'lodash';
+import moment from "moment";
+import ValidationResult from "./application/ValidationResult";
 
 class ProgramEncounter extends AbstractEncounter {
     static fieldKeys = {
@@ -35,7 +38,7 @@ class ProgramEncounter extends AbstractEncounter {
         return resource;
     }
 
-    static createSafeInstance() {
+    static createEmptyInstance() {
         const programEncounter = new ProgramEncounter();
         programEncounter.uuid = General.randomUUID();
         programEncounter.observations = [];
@@ -52,6 +55,14 @@ class ProgramEncounter extends AbstractEncounter {
         const encounterDateValues = super.getEncounterDateValues();
         encounterDateValues[ProgramEncounter.fieldKeys.SCHEDULED_DATE_TIME] = this.scheduledDateTime;
         return encounterDateValues;
+    }
+
+    validate() {
+        const validationResults = super.validate();
+        if (!_.isNil(this.encounterDateTime) &&
+            (moment(this.encounterDateTime).isBefore(this.programEnrolment.enrolmentDateTime) || moment(this.encounterDateTime).isAfter(this.programEnrolment.programExitDateTime)))
+            validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateNotInBetweenEnrolmentAndExitDate'));
+        return validationResults;
     }
 }
 

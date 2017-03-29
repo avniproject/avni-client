@@ -34,7 +34,7 @@ class ProgramEnrolmentDashboardActions {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         }
 
-        const programEncounter = ProgramEncounter.createSafeInstance();
+        const programEncounter = ProgramEncounter.createEmptyInstance();
         programEncounter.programEnrolment = newState.enrolment;
         const encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
         newState.encounterTypeState.entityParentSelected(encounterTypes, programEncounter);

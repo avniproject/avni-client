@@ -27,7 +27,7 @@ class ProgramEnrolmentService extends BaseService {
     enrol(programEnrolment) {
         const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
         if (!_.isNil(nextScheduledDate)) {
-            const programEncounter = ProgramEncounter.createSafeInstance();
+            const programEncounter = ProgramEncounter.createEmptyInstance();
             programEncounter.scheduledDateTime = nextScheduledDate;
             programEncounter.programEnrolment = programEnrolment;
             programEnrolment.encounters.push(programEncounter);

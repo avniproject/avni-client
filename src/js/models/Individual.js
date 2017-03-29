@@ -37,7 +37,7 @@ class Individual extends BaseEntity {
         LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
     };
 
-    static createSafeInstance() {
+    static createEmptyInstance() {
         const individual = new Individual();
         individual.uuid = General.randomUUID();
         individual.registrationDate = new Date();
@@ -123,18 +123,28 @@ class Individual extends BaseEntity {
 
     validateDateOfBirth() {
         if (_.isNil(this.dateOfBirth)) {
-            return new ValidationResult(false, Individual.validationKeys.DOB, "emptyValidationMessage");
+            return ValidationResult.failure(Individual.validationKeys.DOB, "emptyValidationMessage");
         } else if (moment(this.dateOfBirth).isAfter(new Date())) {
-            return new ValidationResult(false, Individual.validationKeys.DOB, "dateOfBirthCannotBeInFuture");
+            return ValidationResult.failure(Individual.validationKeys.DOB, "dateOfBirthCannotBeInFuture");
         } else if (this.getAgeInYears() > 120) {
-            return new ValidationResult(false, Individual.validationKeys.DOB, "ageTooHigh");
+            return ValidationResult.failure(Individual.validationKeys.DOB, "ageTooHigh");
+        } else if (this.isRegistrationBeforeDateOfBirth) {
+            return ValidationResult.failure(Individual.validationKeys.DOB, 'registrationBeforeDateOfBirth');
         } else {
-            return new ValidationResult(true, Individual.validationKeys.DOB);
+            return ValidationResult.successful(Individual.validationKeys.DOB);
         }
     }
 
+    get isRegistrationBeforeDateOfBirth() {
+        if (_.isNil(this.dateOfBirth) || _.isNil(this.registrationDate)) return false;
+        return moment(this.dateOfBirth).isAfter(this.registrationDate);
+    }
+
     validateRegistrationDate() {
-        return this.validateFieldForEmpty(this.name, Individual.validationKeys.REGISTRATION_DATE);
+        const validationResult = this.validateFieldForEmpty(this.registrationDate, Individual.validationKeys.REGISTRATION_DATE);
+        if (validationResult.success && this.isRegistrationBeforeDateOfBirth)
+            return ValidationResult.failure(Individual.validationKeys.REGISTRATION_DATE, 'registrationBeforeDateOfBirth');
+        return validationResult;
     }
 
     validateName() {
@@ -145,6 +155,7 @@ class Individual extends BaseEntity {
         const validationResults = [];
         validationResults.push(this.validateName());
         validationResults.push(this.validateDateOfBirth());
+        validationResults.push(this.validateRegistrationDate());
         validationResults.push(this.validateGender());
         validationResults.push(this.validateAddress());
         return validationResults;

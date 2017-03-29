@@ -12,12 +12,16 @@ class AbstractFormElement extends AbstractComponent {
         return `${this.I18n.t(this.props.element.name)}${mandatoryText}`;
     }
 
+    get hasValidationError() {
+        return _.isNil(this.props.validationResult);
+    }
+
     get borderColor() {
-        return _.isNil(this.props.validationResult) ? Colors.InputBorderNormal : Colors.ValidationError;
+        return this.hasValidationError ? Colors.InputBorderNormal : Colors.ValidationError;
     }
 
     get textColor() {
-        return _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError;
+        return this.hasValidationError ? Colors.InputNormal : Colors.ValidationError;
     }
 }
 

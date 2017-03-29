@@ -15,6 +15,12 @@
   "validationError": "Validation Error",
   "numericValueValidation": "Is not a valid number",
   "emptyValidationMessage": "There is no value specified",
+  "enrolmentDateBeforeRegistrationDate": "Enrolment date cannot be before registration date",
+  "exitDateBeforeEnrolmentDate": "Exit date cannot be before enrolment date",
+  "encounterDateBeforeRegistrationDate": "Encounter date cannot be before registration date",
+  "encounterDateNotInBetweenEnrolmentAndExitDate": "Encounter date not in between enrolment and exit dates",
+  "registrationBeforeDateOfBirth": "Registration cannot be before date of birth",
+
   "numberOutOfRangeMessage": "The input number {{value}} out of allowed range",
   "dateOfBirthCannotBeInFuture": "The date of birth cannot be in future",
   "ageTooHigh": "Age is person is above 120 years",

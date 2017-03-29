@@ -1,6 +1,9 @@
 import Individual from "./Individual";
 import ResourceUtil from "../utility/ResourceUtil";
 import AbstractEncounter from "./AbstractEncounter";
+import _ from 'lodash';
+import moment from "moment";
+import ValidationResult from "./application/ValidationResult";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -38,6 +41,13 @@ class Encounter extends AbstractEncounter {
         const encounter = super.cloneForEdit(new Encounter());
         encounter.individual = this.individual;
         return encounter;
+    }
+
+
+    validate() {
+        const validationResults = super.validate();
+        if (!_.isNil(this.encounterDateTime) && moment(this.encounterDateTime).isBefore(this.individual.registrationDate))
+            validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateBeforeRegistrationDate'));
     }
 }
 

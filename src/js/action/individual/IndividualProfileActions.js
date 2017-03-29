@@ -19,7 +19,7 @@ export class IndividualProfileActions {
 
     static individualSelected(state, action, beans) {
         const newState = state.clone();
-        const enrolment = ProgramEnrolment.createSafeInstance();
+        const enrolment = ProgramEnrolment.createEmptyInstance();
         enrolment.individual = action.value;
         return newState.entityParentSelected(beans.get(IndividualService).eligiblePrograms(action.value.uuid), enrolment);
     }

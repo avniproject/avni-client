@@ -5,6 +5,7 @@ import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from "lodash";
 import General from "../../utility/General";
 import AbstractFormElement from "./AbstractFormElement";
+import ValidationErrorMessage from '../form/ValidationErrorMessage';
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -27,6 +28,7 @@ class DateFormElement extends AbstractFormElement {
                 <View>
                     <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}
                           style={[DynamicGlobalStyles.formElementLabel, {color: this.textColor}]}>{this.dateDisplay(this.props.dateValue)}</Text>
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>);
     }

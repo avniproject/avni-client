@@ -4,6 +4,7 @@ import _ from "lodash";
 import {Text, Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
+import ValidationErrorMessage from '../form/ValidationErrorMessage';
 
 class SingleSelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -56,6 +57,7 @@ class SingleSelectFormElement extends AbstractFormElement {
             <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
                 {this.renderSingleSelectAnswers()}
             </View>);

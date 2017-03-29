@@ -4,6 +4,7 @@ import {Text, Row, InputGroup, Input, Grid} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from 'lodash';
 import AbstractFormElement from "./AbstractFormElement";
+import ValidationErrorMessage from '../form/ValidationErrorMessage';
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
@@ -27,6 +28,7 @@ class NumericFormElement extends AbstractFormElement {
                     <InputGroup style={{flex: 1, borderColor: _.isNil(this.props.validationResult) ? 'rgba(0, 0, 0, 0.12)' : '#d0011b'}} borderType='underline'>
                         <Input onChangeText={(text) => this.onInputChange(text)} value={_.toString(this.props.value.getValue())}/>
                     </InputGroup>
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>);
     }

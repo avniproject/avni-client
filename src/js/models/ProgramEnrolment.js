@@ -8,6 +8,7 @@ import Individual from "./Individual";
 import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
+import ValidationResult from "./application/ValidationResult";
 
 class ProgramEnrolment extends BaseEntity {
     static schema = {
@@ -26,7 +27,7 @@ class ProgramEnrolment extends BaseEntity {
         }
     };
 
-    static createSafeInstance() {
+    static createEmptyInstance() {
         const programEnrolment = new ProgramEnrolment();
         programEnrolment.uuid = General.randomUUID();
         programEnrolment.observations = [];
@@ -98,13 +99,16 @@ class ProgramEnrolment extends BaseEntity {
     validateEnrolment() {
         const validationResults = [];
         validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
-        // if (!_.isNil(this.enrolmentDateTime) && moment(this.enrolmentDateTime).isBefore(this.individual.))
+        if (!_.isNil(this.enrolmentDateTime) && moment(this.enrolmentDateTime).isBefore(this.individual.registrationDate))
+            validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.ENROLMENT_DATE, 'enrolmentDateBeforeRegistrationDate'));
         return validationResults;
     }
 
     validateExit() {
         const validationResults = [];
         validationResults.push(this.validateFieldForEmpty(this.programExitDateTime, ProgramEnrolment.validationKeys.EXIT_DATE));
+        if (!_.isNil(this.programExitDateTime) && moment(this.programExitDateTime).isBefore(this.enrolmentDateTime))
+            validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.EXIT_DATE, 'exitDateBeforeEnrolmentDate'));
         return validationResults;
     }
 

@@ -9,7 +9,7 @@ describe('IndividualProfileActionsTest', () => {
         var state = IPA.getInitialState();
         const tbProgram = EntityFactory.createSafeProgram('TB');
         const serviceData = {eligiblePrograms: [tbProgram, EntityFactory.createSafeProgram('Mother')]};
-        state = IPA.individualSelected(state, {value: Individual.createSafeInstance()}, new TestContext(serviceData));
+        state = IPA.individualSelected(state, {value: Individual.createEmptyInstance()}, new TestContext(serviceData));
         state = IPA.launchChooseProgram(state);
         state = IPA.selectedProgram(state, {value: tbProgram});
         state = IPA.programSelectionConfirmed(state, {cb: () => {}});
