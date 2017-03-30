@@ -39,8 +39,6 @@ class AddressLevels extends AbstractComponent {
 
     renderChoices() {
         this.inputTextStyle.color = _.isNil(this.props.validationError) ? Colors.InputNormal : Colors.ValidationError;
-
-        const props = this.props;
         return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
                 return (<Row
                     key={idx}

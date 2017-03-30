@@ -1,7 +1,5 @@
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
 import Reducer from "./Reducer";
-import EntityService from "../service/EntityService";
-import AddressLevel from "../models/AddressLevel";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/prorgam/ProgramEnrolmentActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
@@ -22,6 +20,7 @@ import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} f
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/prorgam/ProgramEncounterActions';
 import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
+import {AddressLevelActions} from '../action/AddressLevelActions';
 
 const reducerMapFn = function (beanStore) {
     let reducerMap = {};
@@ -31,7 +30,7 @@ const reducerMapFn = function (beanStore) {
     };
 
     reducerMap[reducerKeys.individualSearch] = add(IndividualSearchActionsMap, IndividualSearchActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.addressLevels] = add(new Map([]), beanStore.get(EntityService).getAll(AddressLevel.schema.name));
+    reducerMap[reducerKeys.addressLevels] = add(new Map([]), AddressLevelActions.getInitialState(beanStore));
     reducerMap[reducerKeys.individualRegister] = add(IndividualRegisterActionMap, IndividualRegisterActions.getInitialState(beanStore));
     reducerMap[reducerKeys.individualProfile] = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
