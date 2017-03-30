@@ -12,14 +12,6 @@ class IndividualSearchCriteria {
         return individualSearchCriteria;
     }
 
-    static create(name, age, lowestAddressLevels) {
-        let individualSearchCriteria = new IndividualSearchCriteria();
-        individualSearchCriteria.name = name;
-        individualSearchCriteria.ageInYears = age;
-        individualSearchCriteria.lowestAddressLevels = lowestAddressLevels;
-        return individualSearchCriteria;
-    }
-
     getFilterCriteria() {
         let criteria = [];
         if (!_.isEmpty(this.name)) {
@@ -31,7 +23,7 @@ class IndividualSearchCriteria {
         if (this.lowestAddressLevels.length != 0) {
             let addressLevelCriteria = [];
             this.lowestAddressLevels.forEach((addressLevel) =>
-            {addressLevelCriteria.push(`lowestAddressLevel.name == "${addressLevel}"`)});
+            {addressLevelCriteria.push(`lowestAddressLevel.uuid == "${addressLevel.uuid}"`)});
             criteria.push("( " + addressLevelCriteria.join(" OR ") + ")");
         }
         return criteria.join(" AND ");
@@ -60,6 +52,14 @@ class IndividualSearchCriteria {
     getMinDateOfBirth() {
         const minAgeInYears = this.ageInYears - IndividualSearchCriteria.ageBufferForSearchInYears;
         return moment().subtract(minAgeInYears, 'years').toDate();
+    }
+
+    clone() {
+        const individualSearchCriteria = IndividualSearchCriteria.empty();
+        this.lowestAddressLevels.forEach((addressLevel) => individualSearchCriteria.lowestAddressLevels.push(addressLevel));
+        individualSearchCriteria.name = this.name;
+        individualSearchCriteria.ageInYears = this.ageInYears;
+        return individualSearchCriteria;
     }
 }
 

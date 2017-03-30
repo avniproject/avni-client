@@ -11,9 +11,7 @@ class BaseEntity {
     }
 
     static collectionHasEntity(collection, entity) {
-        return _.findIndex(collection, function (item) {
-                return item.uuid === entity.uuid;
-            }) !== -1;
+        return _.some(collection, (item) => item.uuid === entity.uuid);
     }
 
     static removeFromCollection(collection, entity) {

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import Concept from "../../js/models/Concept";
 import Program from "../../js/models/Program";
 import General from '../../js/utility/General';
+import IndividualSearchCriteria from "../../js/service/query/IndividualSearchCriteria";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -47,12 +48,20 @@ class EntityFactory {
     static addCodedAnswers(concept, answers) {
         _.forEach(answers, (answer) => concept.addAnswer(EntityFactory.createConcept(answer, Concept.dataType.NA)));
     }
-    
+
     static createConcept(name, dataType) {
         const concept = Concept.create(name, dataType);
         if (dataType === Concept.dataType.Coded)
             concept.answers = [];
         return concept;
+    }
+
+    static createIndividualSearchCriteria(name, age, lowestAddressLevels) {
+        const individualSearchCriteria = IndividualSearchCriteria.empty();
+        individualSearchCriteria.name = name;
+        individualSearchCriteria.ageInYears = age;
+        individualSearchCriteria.lowestAddressLevels = lowestAddressLevels;
+        return individualSearchCriteria;
     }
 }
 

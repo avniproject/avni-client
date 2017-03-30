@@ -4,7 +4,6 @@ import SettingsFormField from "./SettingsFormField";
 import SettingsMultipleChoiceField from "./SettingsMultipleChoiceField";
 import SettingsView from "./SettingsView";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Actions from "../../action/index";
 
 class SettingsForm extends AbstractComponent {
     constructor(props, context) {

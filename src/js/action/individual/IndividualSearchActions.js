@@ -1,37 +1,56 @@
-import Actions from '../../action';
 import IndividualService from "../../service/IndividualService";
+import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 
-let newStateBasedOnOldState = function (state) {
-    return Object.assign({}, state);
+export class IndividualSearchActions {
+    static clone(state) {
+        return {searchCriteria: state.searchCriteria.clone()};
+    }
+
+    static enterNameCriteria(state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addNameCriteria(action.name);
+        return newState;
+    };
+
+    static enterAgeCriteria = function (state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addAgeCriteria(action.age);
+        return newState;
+    };
+
+    static toggleAddressLevelCriteria(state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.toggleLowestAddress(action.value);
+        return newState;
+    };
+
+    static searchIndividuals(state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        const individualSearchResults = beans.get(IndividualService).search(newState.searchCriteria);
+        action.cb(individualSearchResults);
+        return newState;
+    };
+
+    static getInitialState(context) {
+        return {searchCriteria: IndividualSearchCriteria.empty()};
+    }
+}
+
+const individualSearchActions = {
+    ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
+    ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
+    TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
+    SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS"
 };
 
-const enterNameCriteria = function (state, action, beans) {
-    let newState = newStateBasedOnOldState(state);
-    newState.searchCriteria.addNameCriteria(action.name);
-    return newState;
-};
-
-const enterAgeCriteria = function (state, action, beans) {
-    let newState = newStateBasedOnOldState(state);
-    newState.searchCriteria.addAgeCriteria(action.age);
-    return newState;
-};
-
-const toggleAddressLevelCriteria = function (state, action, beans) {
-    // let newState = newStateBasedOnOldState(state);
-    state.searchCriteria.toggleLowestAddress(action.value);
-    return state;
-};
-
-const searchIndividuals = function (state, action, beans) {
-    const individualSearchResults = beans.get(IndividualService).search(state.searchCriteria);
-    action.cb(individualSearchResults);
-    return Object.assign(state, {});
-};
-
-export default new Map([
-    [Actions.ENTER_NAME_CRITERIA, enterNameCriteria],
-    [Actions.ENTER_AGE_CRITERIA, enterAgeCriteria],
-    [Actions.SEARCH_INDIVIDUALS, searchIndividuals],
-    [Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, toggleAddressLevelCriteria],
+const individualSearchActionsMap = new Map([
+    [individualSearchActions.ENTER_NAME_CRITERIA, IndividualSearchActions.enterNameCriteria],
+    [individualSearchActions.ENTER_AGE_CRITERIA, IndividualSearchActions.enterAgeCriteria],
+    [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
+    [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria]
 ]);
+
+export {
+    individualSearchActions as IndividualSearchActionNames,
+    individualSearchActionsMap as IndividualSearchActionsMap
+};

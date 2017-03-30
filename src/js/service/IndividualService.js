@@ -18,9 +18,10 @@ class IndividualService extends BaseService {
     }
 
     search(criteria) {
-        return _.isEmpty(criteria.getFilterCriteria()) ? this.db.objects(Individual.schema.name).slice(0, 100) :
+        const filterCriteria = criteria.getFilterCriteria();
+        return _.isEmpty(filterCriteria) ? this.db.objects(Individual.schema.name).slice(0, 100) :
             this.db.objects(Individual.schema.name)
-            .filtered(criteria.getFilterCriteria(),
+            .filtered(filterCriteria,
                 criteria.getMinDateOfBirth(),
                 criteria.getMaxDateOfBirth()).slice(0, 100);
     }
