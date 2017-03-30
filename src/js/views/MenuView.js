@@ -8,20 +8,17 @@ import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
 import EntityMetaData from "../models/EntityMetaData";
 import EntityService from "../service/EntityService";
-import MessageService from "../service/MessageService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
-import {IndividualEncounterViewActions as Actions} from "../action/individual/EncounterActions";
 import DashboardView from "./program/DashboardView";
 import Colors from "./primitives/Colors";
-import CHSNavigator from '../utility/CHSNavigator';
+import CHSNavigator from "../utility/CHSNavigator";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false, error: false};
-        this.I18n = context.getService(MessageService).getI18n();
         this.createStyles();
     }
 
@@ -56,7 +53,8 @@ class MenuView extends AbstractComponent {
 
     _postSync() {
         setTimeout(() => this.setState({syncing: false, error: false}), 5000);
-        this.dispatchAction(Actions.ON_SYNC_COMPLETED)
+        const syncService = this.context.getService(SyncService);
+        syncService.syncCompleted();
     }
 
     _onError(error) {

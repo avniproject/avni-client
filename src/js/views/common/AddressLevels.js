@@ -8,6 +8,7 @@ import MessageService from "../../service/MessageService";
 import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Colors from '../primitives/Colors';
+import ReducerKeys from "../../reducer";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -18,11 +19,11 @@ class AddressLevels extends AbstractComponent {
     };
 
     viewName() {
-        return "AddressLevels";
+        return AddressLevels.name;
     }
 
     constructor(props, context) {
-        super(props, context, "addressLevels");
+        super(props, context, ReducerKeys.addressLevels);
         this.inputTextStyle = {fontSize: 16, justifyContent: 'flex-start', marginLeft: 11};
     }
 

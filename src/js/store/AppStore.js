@@ -1,8 +1,16 @@
 import {createStore, combineReducers} from 'redux';
 import {initReducers} from '../reducer';
 
-function AppStoreFactory(beans) {
-    const reducers = initReducers(beans);
-    return createStore(combineReducers(reducers));
+class AppStore {
+    static create(beans) {
+        const combinedReducers = this.createCombinedReducer(beans);
+        return createStore(combinedReducers);
+    }
+
+    static createCombinedReducer(beans) {
+        const reducers = initReducers(beans);
+        return combineReducers(reducers);
+    }
 }
-export default AppStoreFactory;
+
+export default AppStore;

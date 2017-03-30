@@ -10,18 +10,7 @@ class SettingsForm extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false, error: false};
-        this._triggerSync = this._triggerSync.bind(this);
         this.showError = this.showError.bind(this);
-    }
-
-    _triggerSync() {
-        this.setState({syncing: true});
-        this.dispatchAction(Actions.GET_CONFIG, {
-            cb: ()=> this.setState({syncing: false}),
-            errorHandler: (message)=> {
-                this.setState({error: true, errorMessage: `${message}`, syncing: false})
-            }
-        });
     }
 
     static propTypes = {
@@ -42,7 +31,7 @@ class SettingsForm extends AbstractComponent {
                 <SettingsFormField
                     formLabel={this.I18n.t("catchmentId")}
                     onChangeText={this.props.onCatchmentChanged}
-                    defaultValue={this.props.settings.catchment}
+                    defaultValue={`${this.props.settings.catchment}`}
                 />
                 <SettingsMultipleChoiceField
                     onChangeSelection={this.props.onLocaleChanged}

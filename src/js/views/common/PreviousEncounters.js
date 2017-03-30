@@ -41,9 +41,9 @@ class PreviousEncounters extends AbstractComponent {
                     </View>)
                     : this.props.encounters.map((encounter, index) => {
                         return (
-                            <View>
+                            <View key={`${index}-1`}>
                                 <ObservationsSectionTitle contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]} titleKey='visitDetails'/>
-                                <View style={DGS.generalHistory.encounter} key={`${index}`}>
+                                <View style={DGS.generalHistory.encounter} key={`${index}-2`}>
                                     <View style={DGS.common.content}>
                                         <View style={{flexDirection: 'row'}}>
                                             <Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text>

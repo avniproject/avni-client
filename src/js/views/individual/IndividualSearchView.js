@@ -2,26 +2,25 @@ import {View, StyleSheet, ScrollView, TextInput} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import MessageService from "../../service/MessageService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import GlobalStyles from "../primitives/GlobalStyles";
-import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import {Button, Content, CheckBox, Grid, Col, Row, Text} from "native-base";
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import {Button, Content, Grid, Col, Row, Text} from "native-base";
 import Actions from "../../action/index";
-import AddressLevels from '../common/AddressLevels';
-import IndividualEncounterService from "../../service/IndividualEncounterService";
+import AddressLevels from "../common/AddressLevels";
+import ReducerKeys from "../../reducer";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
     static propTypes = {};
 
     constructor(props, context) {
-        super(props, context, "individualSearch");
+        super(props, context, ReducerKeys.individualSearch);
     }
 
     viewName() {
-        return "IndividualSearchView";
+        return IndividualSearchView.name;
     }
 
     render() {

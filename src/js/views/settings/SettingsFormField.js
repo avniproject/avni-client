@@ -21,10 +21,10 @@ class SettingsFormField extends Component {
 
     render() {
         return (
-            <View style={SettingsView.styles.formItem}>
-                <Text style={SettingsView.styles.formItemLabel}>{this.props.formLabel}</Text>
+            <View>
+                <Text>{this.props.formLabel}</Text>
                 <TextInput
-                    style={[SettingsView.styles.formItemInput, {fontSize: 20}]}
+                    style={{fontSize: 20}}
                     onChangeText={this.props.onChangeText}
                     defaultValue={this.props.defaultValue}
                 />

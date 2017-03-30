@@ -1,6 +1,5 @@
 import IndividualSearchActions from "../action/individual/IndividualSearchActions";
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
-import configActions from "../action/config";
 import Reducer from "./Reducer";
 import IndividualSearchCriteria from "../service/query/IndividualSearchCriteria";
 import EntityService from "../service/EntityService";
@@ -32,9 +31,8 @@ const reducerMapFn = function (beanStore) {
         return Reducer.factory(actions, initState, beanStore);
     };
 
-    reducerMap.config = add(configActions, []);
-    reducerMap.individualSearch = add(IndividualSearchActions, {searchCriteria: IndividualSearchCriteria.empty(), individualSearchResults: []});
-    reducerMap.addressLevels = add(new Map([]), beanStore.get(EntityService).getAll(AddressLevel.schema.name));
+    reducerMap[reducerKeys.individualSearch] = add(IndividualSearchActions, {searchCriteria: IndividualSearchCriteria.empty(), individualSearchResults: []});
+    reducerMap[reducerKeys.addressLevels] = add(new Map([]), beanStore.get(EntityService).getAll(AddressLevel.schema.name));
     reducerMap[reducerKeys.individualRegister] = add(IndividualRegisterActionMap, IndividualRegisterActions.getInitialState(beanStore));
     reducerMap[reducerKeys.individualProfile] = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
@@ -61,7 +59,9 @@ const reducerKeys = {
     programEnrolments: 'programEnrolments',
     programEnrolmentDashboard: 'programEnrolmentDashboard',
     programEncounter: 'programEncounter',
-    individualRegistrationDetails: 'individualRegistrationDetails'
+    individualRegistrationDetails: 'individualRegistrationDetails',
+    individualSearch: 'individualSearch',
+    addressLevels: 'addressLevels'
 };
 
 export {reducerMapFn as initReducers};

@@ -6,7 +6,7 @@ import Realm from 'realm';
 import models from './models';
 import './views';
 import './service';
-import AppStoreFactory from './store/AppStore';
+import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import EntityMetaData from "./models/EntityMetaData";
 
@@ -16,13 +16,11 @@ export default class App extends Component {
         this.db = new Realm(models);
         this.beans = BeanRegistry.init(this.db, this);
         this.getBean = this.getBean.bind(this);
-        this.appStore = AppStoreFactory(this.beans);
+        this.reduxStore = AppStore.create(this.beans);
         this.routes = PathRegistry.routes();
 
         const entitySyncStatusService = this.beans.get(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
-        console.ignoredYellowBox = ['Warning: Each child in an array or iterator should have a unique "key" prop.'];
-
         console.log(`DEVICE HEIGHT=${Dimensions.get('window').height} WIDTH=${Dimensions.get('window').width}`);
     }
 
@@ -37,7 +35,7 @@ export default class App extends Component {
         getService: (serviceName) => {
             return this.beans.get(serviceName)
         },
-        getStore: () => this.appStore
+        getStore: () => this.reduxStore
     });
 
     getBean(name) {
