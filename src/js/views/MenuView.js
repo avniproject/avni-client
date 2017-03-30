@@ -52,9 +52,9 @@ class MenuView extends AbstractComponent {
     }
 
     _postSync() {
-        setTimeout(() => this.setState({syncing: false, error: false}), 5000);
-        const syncService = this.context.getService(SyncService);
-        syncService.syncCompleted();
+        this.setState({syncing: false, error: false});
+        console.log('Sync completed dispatching reset');
+        this.dispatchAction('RESET');
     }
 
     _onError(error) {

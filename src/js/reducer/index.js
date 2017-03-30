@@ -25,23 +25,24 @@ import {AddressLevelActions} from '../action/AddressLevelActions';
 const reducerMapFn = function (beanStore) {
     let reducerMap = {};
 
-    let add = function (actions, initState) {
-        return Reducer.factory(actions, initState, beanStore);
+    let add = function (actions, actionClass) {
+        actions.set('RESET', () => actionClass.getInitialState(beanStore));
+        return Reducer.factory(actions, actionClass.getInitialState(beanStore), beanStore);
     };
 
-    reducerMap[reducerKeys.individualSearch] = add(IndividualSearchActionsMap, IndividualSearchActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.addressLevels] = add(new Map([]), AddressLevelActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.individualRegister] = add(IndividualRegisterActionMap, IndividualRegisterActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.individualProfile] = add(IndividualProfileActionMap, IndividualProfileActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.encounter] = add(IndividualEncounterViewActionsMap, EncounterActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.systemRecommendation] = add(SystemRecommendationActionMap, SystemRecommendationActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.dashboard] = add(DashboardActionsMap, DashboardActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.programEnrolments] = add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.programEnrolmentDashboard] = add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.programEncounter] = add(ProgramEncounterActionsMap, ProgramEncounterActions.getInitialState(beanStore));
-    reducerMap[reducerKeys.individualRegistrationDetails] = add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions.getInitialState(beanStore));
+    reducerMap[reducerKeys.individualSearch] = add(IndividualSearchActionsMap, IndividualSearchActions);
+    reducerMap[reducerKeys.addressLevels] = add(new Map([]), AddressLevelActions);
+    reducerMap[reducerKeys.individualRegister] = add(IndividualRegisterActionMap, IndividualRegisterActions);
+    reducerMap[reducerKeys.individualProfile] = add(IndividualProfileActionMap, IndividualProfileActions);
+    reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions);
+    reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions);
+    reducerMap[reducerKeys.encounter] = add(IndividualEncounterViewActionsMap, EncounterActions);
+    reducerMap[reducerKeys.systemRecommendation] = add(SystemRecommendationActionMap, SystemRecommendationActions);
+    reducerMap[reducerKeys.dashboard] = add(DashboardActionsMap, DashboardActions);
+    reducerMap[reducerKeys.programEnrolments] = add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions);
+    reducerMap[reducerKeys.programEnrolmentDashboard] = add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions);
+    reducerMap[reducerKeys.programEncounter] = add(ProgramEncounterActionsMap, ProgramEncounterActions);
+    reducerMap[reducerKeys.individualRegistrationDetails] = add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions);
 
     return reducerMap;
 };
