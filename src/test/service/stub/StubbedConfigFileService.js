@@ -6,7 +6,7 @@ class StubbedConfigFileService {
             'console.log(encounter.getObservationValue("foo"));' +
             'return encounter.getObservationValue("foo");' +
             '};' +
-            'module.exports = {getDecision: getDecision};'
+            'module.exports = function() {return {getDecision: getDecision};}'
         };
     }
 

@@ -23,10 +23,12 @@ class RuleEvaluationService extends BaseService {
             this.encounterDecisionFn = exports.getDecision;
             this.encounterValidationFn = exports.validate;
         }
+
         exports = RuleEvaluationService.getExports(configFileService.getProgramEnrolmentFile());
         if (!_.isNil(exports)) {
             this.getNextScheduledDateFn = exports.getNextScheduledDate;
         }
+
         return super.init();
     }
 
@@ -43,7 +45,7 @@ class RuleEvaluationService extends BaseService {
 
     static getExports(configFile) {
         if (!_.isNil(configFile))
-            return eval(`${configFile.contents}`);
+            return eval(`${configFile.contents}`)(1, 2); //1,2 is passed because of browserify adding a function infront
         return null;
     }
 

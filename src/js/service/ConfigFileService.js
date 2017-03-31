@@ -12,9 +12,9 @@ class ConfigFileService extends BaseService {
         super(db, beanStore);
         this.encounterDecisionFile = "encounterDecision.js";
         this.customMessageFile = "customMessages.json";
-        this.individualRegistrationFile = "individualRegistration.js";
-        this.programEnrolmentFile = "programEnrolment.js";
-        this.programEncounterFile = "programEncounter.js";
+        this.individualRegistrationFile = "individualRegistrationDecision.js";
+        this.programEnrolmentFile = "programEnrolmentDecision.js";
+        this.programEncounterFile = "programEncounterDecision.js";
         this._createFileHandlers();
     }
 

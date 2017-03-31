@@ -1,5 +1,4 @@
-import _ from "lodash";
-import ValidationResult from '../../../js/models/application/ValidationResult';
+import ValidationResult from "../../../js/models/application/ValidationResult";
 
 class StubbedRuleEvaluationService {
     validateEncounter() {
