@@ -18,11 +18,11 @@ import CHSNavigator from '../../utility/CHSNavigator';
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        searchResults: React.PropTypes.array.isRequired
     };
 
     viewName() {
-        return "IndividualSearchResultsView";
+        return IndividualSearchResultsView.name;
     }
 
     constructor(props, context) {
@@ -39,7 +39,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     renderZeroResultsMessageIfNeeded() {
-        if (this.props.params.searchResults.length === 0)
+        if (this.props.searchResults.length === 0)
             return (
                 <View>
                     <Text
@@ -87,7 +87,7 @@ class IndividualSearchResultsView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.I18n.t("searchResults")}/>
-                    <List dataArray={this.props.params.searchResults}
+                    <List dataArray={this.props.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
                                         style={{backgroundColor: Colors.GreyContentBackground, marginLeft: 0, paddingLeft: DynamicGlobalStyles.resizeWidth(17), padding: DynamicGlobalStyles.resizeWidth(17), height: DynamicGlobalStyles.resizeHeight(102)}}

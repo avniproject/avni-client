@@ -14,22 +14,14 @@ export class EncounterActions {
         return {form: form};
     }
 
-    static clone(state) {
-        const newState = state.clone();
-        newState.form = state.form;
-        return newState;
-    }
-
     static onEncounterLandingViewLoad(state, action, context) {
         const isNewEncounter = _.isNil(action.encounterUUID);
         const encounter = isNewEncounter ? context.get(IndividualEncounterService).newEncounter(action.individualUUID) : context.get(EntityService).findByUUID(action.encounterUUID, Encounter.schema.name);
-        const newState = EncounterActionState.createOnLoadState(state.form, encounter, isNewEncounter);
-        newState.form = state.form;
-        return newState;
+        return EncounterActionState.createOnLoadState(state.form, encounter, isNewEncounter);
     }
 
     static onNext(state, action, context) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         const encounter = newState.encounter;
 
         const customAction = {
@@ -57,33 +49,41 @@ export class EncounterActions {
     }
 
     static onEncounterViewLoad(state, action, context) {
-        return EncounterActions.clone(state);
+        return state.clone();
     }
 
     static onEncounterDateTimeChange(state, action, context) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         newState.encounter.encounterDateTime = action.value;
         return newState;
     }
 
     static onToggleShowingPreviousEncounter(state, action, context) {
-        const newState = EncounterActions.clone(state);
+        const newState = state.clone();
         newState.wizard.toggleShowPreviousEncounter();
         newState.encounters = context.get(IndividualEncounterService).getEncounters(state.encounter.individual);
         return newState;
     }
+
+    static onSave(state, action, context) {
+        const newState = state.clone();
+        context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
+        action.cb();
+        return state;
+    }
 }
 
 const individualEncounterViewActions = {
-    ON_ENCOUNTER_LANDING_LOAD: '034f29e9-6204-49b3-b9fe-fec38851b966',
-    ENCOUNTER_DATE_TIME_CHANGE: '42101ad3-9e4f-46d0-913d-51f3d9c4cc66',
-    PREVIOUS: '4ebe84f9-6230-42af-ba0d-88d78c05005a',
-    NEXT: '14bd2402-c588-4f16-9c63-05a85751977e',
-    TOGGLE_MULTISELECT_ANSWER: "c5407cf4-f37a-4568-9d56-ffba58a3bafe",
-    TOGGLE_SINGLESELECT_ANSWER: "6840941d-1f74-43ff-bd20-161e580abdc8",
-    PRIMITIVE_VALUE_CHANGE: '781a72ec-1ca1-4a03-93f8-379b5a828d6c',
-    ON_LOAD: '71d74559-0fc0-4b9a-b996-f5c14f1ef56c',
-    TOGGLE_SHOWING_PREVIOUS_ENCOUNTER: '1107f87c-b230-445b-bc40-7e9765051cb7'
+    ON_ENCOUNTER_LANDING_LOAD: 'EA.ON_ENCOUNTER_LANDING_LOAD',
+    ENCOUNTER_DATE_TIME_CHANGE: 'EA.',
+    PREVIOUS: 'EA.PREVIOUS',
+    NEXT: 'EA.NEXT',
+    TOGGLE_MULTISELECT_ANSWER: "EA.TOGGLE_MULTISELECT_ANSWER",
+    TOGGLE_SINGLESELECT_ANSWER: "EA.TOGGLE_SINGLESELECT_ANSWER",
+    PRIMITIVE_VALUE_CHANGE: 'EA.PRIMITIVE_VALUE_CHANGE',
+    ON_LOAD: 'EA.ON_LOAD',
+    TOGGLE_SHOWING_PREVIOUS_ENCOUNTER: 'EA.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER',
+    SAVE: 'EA.SAVE'
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -95,7 +95,8 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
     [individualEncounterViewActions.ON_ENCOUNTER_LANDING_LOAD, EncounterActions.onEncounterLandingViewLoad],
     [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
-    [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter]
+    [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter],
+    [individualEncounterViewActions.SAVE, EncounterActions.onSave]
 ]);
 
 export {

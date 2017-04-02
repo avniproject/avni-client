@@ -57,9 +57,7 @@ export default class Router extends Component {
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
         const Element = this.state.routes[route.path];
-        return (
-            <Element params={route.queryParams}/>
-        );
+        return route.isTyped ? <Element {...route.queryParams}/> : <Element params={route.queryParams}/>;
     }
 
     render() {

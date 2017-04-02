@@ -7,7 +7,6 @@ import {
     EncounterActions,
     IndividualEncounterViewActionsMap
 } from "../action/individual/EncounterActions";
-import SystemRecommendationActionMap, {SystemRecommendationActions} from '../action/individual/SystemRecommendationActions';
 import {
     DashboardActions,
     DashboardActionsMap
@@ -37,7 +36,6 @@ const reducerMapFn = function (beanStore) {
     reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions);
     reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions);
     reducerMap[reducerKeys.encounter] = add(IndividualEncounterViewActionsMap, EncounterActions);
-    reducerMap[reducerKeys.systemRecommendation] = add(SystemRecommendationActionMap, SystemRecommendationActions);
     reducerMap[reducerKeys.dashboard] = add(DashboardActionsMap, DashboardActions);
     reducerMap[reducerKeys.programEnrolments] = add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions);
     reducerMap[reducerKeys.programEnrolmentDashboard] = add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions);
@@ -51,7 +49,6 @@ const reducerKeys = {
     programEnrolment: "programEnrolment",
     individualGeneralHistory: "individualGeneralHistory",
     encounter: "encounter",
-    systemRecommendation: "systemRecommendation",
     individualRegister: "individualRegister",
     individualProfile: 'individualProfile',
     dashboard: 'dashboard',

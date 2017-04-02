@@ -8,14 +8,13 @@ class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
         super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createNextButtonLabelKeyMap('next', 'next', 'next'));
         this.encounter = encounter;
-        this.encounterDecisions = null;
     }
 
     clone() {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();
+        newState.form = this.form;
         super.clone(newState);
-        newState.encounterDecisions = null;
         return newState;
     }
 
@@ -32,7 +31,9 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     static createOnLoadState(form, encounter, isNewEncounter) {
-        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
+        const encounterActionState = new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
+        encounterActionState.form = form;
+        return encounterActionState;
     }
 }
 

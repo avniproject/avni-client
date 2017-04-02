@@ -19,6 +19,7 @@ import General from "../../utility/General";
 import Colors from '../primitives/Colors';
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
+import CHSNavigator from '../../utility/CHSNavigator';
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -48,14 +49,12 @@ class IndividualEncounterLandingView extends AbstractComponent {
             validationFailed: (newState) => {
             },
             movedNext: (newState) => {
-                TypedTransition.from(this).with().to(IndividualEncounterView);
+                TypedTransition.from(this).to(IndividualEncounterView);
             },
             completed: (newState, encounterDecisions) => {
-                TypedTransition.from(this).with({
-                    encounter: newState.encounter,
-                    previousFormElementGroup: newState.formElementGroup,
-                    encounterDecisions: encounterDecisions
-                }).to(SystemRecommendationView);
+                CHSNavigator.navigateToSystemsRecommendationView(this, encounterDecisions, this.state.encounter.individual, Actions.SAVE, (source) => {
+                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView], IndividualEncounterLandingView, {individualUUID: this.state.encounter.individual.uuid});
+                });
             }
         });
     }

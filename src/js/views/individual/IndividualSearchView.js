@@ -69,7 +69,7 @@ class IndividualSearchView extends AbstractComponent {
         this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
             cb: (results) => TypedTransition.from(this).with({
                 searchResults: results
-            }).to(IndividualSearchResultsView)
+            }).to(IndividualSearchResultsView, true)
         });
     }
 }

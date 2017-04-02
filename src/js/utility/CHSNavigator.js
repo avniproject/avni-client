@@ -8,6 +8,7 @@ import ProgramEncounterView from "../views/program/ProgramEncounterView";
 import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";
 import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
+import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 
 class CHSNavigator {
     static navigateToProgramEnrolmentView(source, enrolment) {
@@ -42,6 +43,15 @@ class CHSNavigator {
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounterUUID) {
         TypedTransition.from(source).with({encounterUUID: encounterUUID, individualUUID: individualUUID}).to(IndividualEncounterLandingView);
+    }
+
+    static navigateToSystemsRecommendationView(source, decisions, individual, saveActionName, onSaveCallback) {
+        TypedTransition.from(source).with({
+            decisions: decisions,
+            individual: individual,
+            saveActionName: saveActionName,
+            onSaveCallback: onSaveCallback
+        }).to(SystemRecommendationView, true);
     }
 }
 

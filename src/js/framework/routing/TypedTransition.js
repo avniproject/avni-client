@@ -11,22 +11,17 @@ export default class TypedTransition {
         return this;
     }
 
-    to(viewClass, replacePrevious) {
+    to(viewClass, isTyped) {
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
-
-        const route = this.createRoute(viewClass, this.queryParams);
-
-        if (replacePrevious)
-            this.navigator.replacePreviousAndPop(route);
-        else
-            this.navigator.push(route);
+        const route = this.createRoute(viewClass, this.queryParams, isTyped);
+        this.navigator.push(route);
         return this;
     }
 
-    createRoute(viewClass, params) {
+    createRoute(viewClass, params, isTyped) {
         const path = viewClass.path();
-        return {path, queryParams: params || {}};
+        return {path, queryParams: params || {}, isTyped: _.isNil(isTyped) ? false : isTyped};
     }
 
     get navigator() {
@@ -67,7 +62,7 @@ export default class TypedTransition {
         return this;
     }
 
-    wizardCompleted(wizardViewClasses, newViewClass, params) {
+    wizardCompleted(wizardViewClasses, newViewClass, params, isTyped) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
         const wizardCount = _.sumBy(currentRoutes, (route) => _.some(wizardViewClasses, (wizardViewClass) => wizardViewClass.path() === route.path ? 1 : 0));
@@ -78,7 +73,7 @@ export default class TypedTransition {
         } else {
             const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
             newRouteStack = _.dropRight(currentRoutes, wizardCount + existingNewViewClassCount);
-            newRouteStack.push(this.createRoute(newViewClass, params));
+            newRouteStack.push(this.createRoute(newViewClass, params, isTyped));
             this.navigator.immediatelyResetRouteStack(newRouteStack);
             console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}, Final: ${newRouteStack.length}`);
         }
