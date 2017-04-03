@@ -36,15 +36,6 @@ class IndividualEncounterService extends BaseService {
         return encounter;
     }
 
-    addDecisions(encounter, decisions) {
-        decisions.forEach((decision) => {
-            var concept = this.getService(ConceptService).findByKey('name', decision.name);
-            if (_.isNil(concept))
-                throw Error(`No concept found for ${decision.name} when adding observations for decisions`);
-            encounter.observations.push(Observation.create(concept, new PrimitiveValue(decision.value)));
-        });
-    }
-
     saveOrUpdate(encounter) {
         ObservationsHolder.convertObsForSave(encounter.observations);
         const db = this.db;

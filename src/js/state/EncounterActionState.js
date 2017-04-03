@@ -2,8 +2,8 @@ import _ from "lodash";
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import AbstractEncounter from "../models/AbstractEncounter";
 import ObservationsHolder from "../models/ObservationsHolder";
-import Wizard from '../state/Wizard';
-import IndividualEncounterService from "../service/IndividualEncounterService";
+import Wizard from "../state/Wizard";
+import ConceptService from "../service/ConceptService";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
@@ -34,12 +34,12 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateEncounter(this.encounter);
+        return ruleService.validateAgainstRule(this.encounter);
     }
 
     executeRule(ruleService, context) {
-        const encounterDecisions = ruleService.getEncounterDecision(this.encounter);
-        context.get(IndividualEncounterService).addDecisions(this.encounter, encounterDecisions);
+        const encounterDecisions = ruleService.getDecision(this.encounter);
+        context.get(ConceptService).addDecisions(this.encounter.observations, encounterDecisions);
         return encounterDecisions;
     }
 

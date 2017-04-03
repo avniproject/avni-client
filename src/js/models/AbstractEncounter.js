@@ -9,8 +9,7 @@ import moment from "moment";
 
 class AbstractEncounter extends BaseEntity {
     static fieldKeys = {
-        ENCOUNTER_DATE_TIME: 'ENCOUNTER_DATE_TIME',
-        EXTERNAL_RULE: 'EXTERNAL_RULE'
+        ENCOUNTER_DATE_TIME: 'ENCOUNTER_DATE_TIME'
     };
 
     validate() {

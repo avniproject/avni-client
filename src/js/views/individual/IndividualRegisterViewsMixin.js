@@ -7,7 +7,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
-import Individual from '../../models/Individual';
+import BaseEntity from '../../models/BaseEntity';
 
 class IndividualRegisterViewsMixin {
     static next(view) {
@@ -21,7 +21,7 @@ class IndividualRegisterViewsMixin {
                 TypedTransition.from(view).to(IndividualRegisterFormView);
             },
             validationFailed: (newState) => {
-                if (AbstractDataEntryState.hasValidationError(view.state, Individual.validationKeys.EXTERNAL_RULE)) {
+                if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
                     view.showError(newState.validationResults[0].message);
                 }
             }

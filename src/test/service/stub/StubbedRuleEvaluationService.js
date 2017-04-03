@@ -1,11 +1,11 @@
 import ValidationResult from "../../../js/models/application/ValidationResult";
 
 class StubbedRuleEvaluationService {
-    validateEncounter() {
+    validateAgainstRule(entity) {
         return [ValidationResult.successful('whatever')];
     }
 
-    getEncounterDecision() {
+    getDecision() {
         return [];
     }
 }

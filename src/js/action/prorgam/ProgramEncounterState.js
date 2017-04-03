@@ -3,6 +3,7 @@ import Wizard from "../../state/Wizard";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractEncounter from "../../models/AbstractEncounter";
 import _ from 'lodash';
+import ConceptService from "../../service/ConceptService";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter) {
@@ -33,6 +34,16 @@ class ProgramEncounterState extends AbstractDataEntryState {
     static hasEncounterChanged(state, programEncounter) {
         if (_.isNil(state.programEncounter)) return true;
         return state.programEncounter.uuid === programEncounter.uuid;
+    }
+
+    validateEntityAgainstRule(ruleService) {
+        return ruleService.validateAgainstRule(this.programEncounter);
+    }
+
+    executeRule(ruleService, context) {
+        const decisions = ruleService.getDecision(this.programEncounter);
+        context.get(ConceptService).addDecisions(this.programEncounter.observations, decisions);
+        return decisions;
     }
 }
 

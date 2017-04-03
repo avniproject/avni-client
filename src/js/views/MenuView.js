@@ -13,6 +13,7 @@ import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
 import DashboardView from "./program/DashboardView";
 import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -52,9 +53,10 @@ class MenuView extends AbstractComponent {
     }
 
     _postSync() {
+        this.context.getService(RuleEvaluationService).init();
+        this.dispatchAction('RESET');
         this.setState({syncing: false, error: false});
         console.log('Sync completed dispatching reset');
-        this.dispatchAction('RESET');
     }
 
     _onError(error) {

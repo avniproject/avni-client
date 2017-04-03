@@ -9,6 +9,9 @@ class StubbedConceptService {
     getConceptByUUID(conceptName) {
         return conceptName;
     }
+
+    addDecisions(observations, decisions) {
+    }
 }
 
 export default StubbedConceptService;

@@ -5,8 +5,12 @@ import _ from 'lodash';
 import DynamicDataResolver from "./DynamicDataResolver";
 import {getObservationValue} from '../service/decisionSupport/AdditionalFunctions';
 import Encounter from "../models/Encounter";
+import Individual from "../models/Individual";
+import ProgramEncounter from "../models/ProgramEncounter";
+import ProgramEnrolment from "../models/ProgramEnrolment";
 import AbstractEncounter from "../models/AbstractEncounter";
 import ValidationResult from '../models/application/ValidationResult';
+import EntityRule from "../models/EntityRule";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -18,28 +22,32 @@ class RuleEvaluationService extends BaseService {
         this.decorateEncounter();
         const configFileService = this.getService(ConfigFileService);
 
-        var exports = RuleEvaluationService.getExports(configFileService.getEncounterDecisionFile());
-        if (!_.isNil(exports)) {
-            this.encounterDecisionFn = exports.getDecision;
-            this.encounterValidationFn = exports.validate;
-        }
+        this.entityRulesMap = new Map([[Individual.name, new EntityRule(configFileService.getIndividualRegistrationFile())], [Encounter.name, new EntityRule(configFileService.getEncounterDecisionFile())], [ProgramEncounter.name, new EntityRule(configFileService.getProgramEncounterFile())], [ProgramEnrolment.name, new EntityRule(configFileService.getProgramEnrolmentFile())]]);
+        this.entityRulesMap.forEach((entityRule, key) => {
+            const exports = RuleEvaluationService.getExports(entityRule.ruleFile);
+            entityRule.setFunctions(exports);
+        });
 
-        exports = RuleEvaluationService.getExports(configFileService.getProgramEnrolmentFile());
+        const exports = RuleEvaluationService.getExports(configFileService.getProgramEnrolmentFile());
         if (!_.isNil(exports)) {
             this.getNextScheduledDateFn = exports.getNextScheduledDate;
         }
 
-        return super.init();
+        this.initialised = true;
     }
 
-    getEncounterDecision(encounter) {
-        return this.encounterDecisionFn(encounter);
+    getDecision(entity) {
+        return this.entityRulesMap.get(entity.constructor.name).getDecision(entity);
     }
 
     decorateEncounter() {
-        if (_.isNil(Encounter.prototype.dynamicDataResolver)) {
-            Encounter.prototype.dynamicDataResolver = new DynamicDataResolver(this.context);
+        if (!this.initialised) {
+            const dynamicDataResolver = new DynamicDataResolver(this.context);
+            Encounter.prototype.dynamicDataResolver = dynamicDataResolver;
             Encounter.prototype.getObservationValue = getObservationValue;
+
+            ProgramEncounter.prototype.dynamicDataResolver = dynamicDataResolver;
+            ProgramEncounter.prototype.getObservationValue = getObservationValue;
         }
     }
 
@@ -49,14 +57,8 @@ class RuleEvaluationService extends BaseService {
         return null;
     }
 
-    validateEncounter(encounter) {
-        if (_.isNil(this.encounterValidationFn)) {
-            return ValidationResult.successful(AbstractEncounter.fieldKeys.EXTERNAL_RULE);
-        } else {
-            const validationResult = this.encounterValidationFn(encounter);
-            validationResult.formIdentifier = AbstractEncounter.fieldKeys.EXTERNAL_RULE;
-            return validationResult;
-        }
+    validateAgainstRule(entity) {
+        return this.entityRulesMap.get(entity.constructor.name).validate(entity);
     }
 
     getNextScheduledDate(enrolment) {

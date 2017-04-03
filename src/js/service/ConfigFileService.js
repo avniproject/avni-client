@@ -35,6 +35,14 @@ class ConfigFileService extends BaseService {
         return this.getFile(this.programEnrolmentFile);
     }
 
+    getProgramEncounterFile() {
+        return this.getFile(this.programEncounterFile);
+    }
+
+    getIndividualRegistrationFile() {
+        return this.getFile(this.individualRegistrationFile);
+    }
+
     getCustomMessages() {
         const configFile = this.db.objectForPrimaryKey(ConfigFile.schema.name, `${this.customMessageFile.toLowerCase()}`);
         return _.isNil(configFile) ? null : JSON.parse(configFile.contents);

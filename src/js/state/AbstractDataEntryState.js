@@ -74,7 +74,7 @@ class AbstractDataEntryState {
         return [];
     }
 
-    executeRule(ruleService) {
+    executeRule(ruleService, context) {
         return [];
     }
 

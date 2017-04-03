@@ -2,6 +2,10 @@ import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 
 class BaseEntity {
+    static fieldKeys = {
+        EXTERNAL_RULE: 'EXTERNAL_RULE'
+    };
+
     static addNewChild(newChild, existingChildren) {
         const existing = existingChildren.find((child) => {
             return newChild.uuid === child.uuid;

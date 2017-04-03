@@ -26,14 +26,14 @@ class EntityMetaData {
     static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
     static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference", nameTranslated: true};
     static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
-    static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "tx"};
+    static individual = {entityName: Individual.name, entityClass: Individual, resourceName: "individual", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "tx"};
 
     static encounter() {
-        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
+        return {entityName: Encounter.name, entityClass: Encounter, resourceName: "encounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
     };
 
     static programEnrolment() {
-        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
+        return {entityName: ProgramEnrolment.name, entityClass: ProgramEnrolment, resourceName: "programEnrolment", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
     }
 
     static formElement() {
@@ -45,7 +45,7 @@ class EntityMetaData {
     };
 
     static programEncounter() {
-        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+        return {entityName: ProgramEncounter.name, entityClass: ProgramEncounter, resourceName: "programEncounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
     };
 
     static conceptAnswer() {

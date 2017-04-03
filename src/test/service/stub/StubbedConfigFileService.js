@@ -13,6 +13,18 @@ class StubbedConfigFileService {
     getProgramEnrolmentFile() {
         return null;
     }
+
+    getIndividualRegistrationFile(){
+        return null;
+    }
+
+    getProgramEncounterFile() {
+        return null;
+    }
+
+    getProgramEnrolmentFile() {
+        return null;
+    }
 }
 
 export default StubbedConfigFileService;

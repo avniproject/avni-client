@@ -18,7 +18,7 @@ import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
-import AbstractEncounter from "../../models/AbstractEncounter";
+import BaseEntity from "../../models/BaseEntity";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -47,7 +47,7 @@ class IndividualEncounterView extends AbstractComponent {
                 });
             },
             validationFailed: (newState) => {
-                if (AbstractDataEntryState.hasValidationError(this.state, AbstractEncounter.fieldKeys.EXTERNAL_RULE)) {
+                if (AbstractDataEntryState.hasValidationError(this.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
                     this.showError(newState.validationResults[0].message);
                 }
             }
