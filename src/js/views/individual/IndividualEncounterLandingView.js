@@ -85,7 +85,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                 <WizardButtons next={{
                                     func: () => this.next(),
                                     visible: !this.state.formElementGroup.isLast,
-                                    label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))
+                                    label: this.I18n.t('next')
                                 }}/>
                             </Grid>
                         </Row>

@@ -26,11 +26,14 @@ class ProgramEncounterActions {
 
     static onNext(state, action, context) {
         const programEncounterState = state.clone();
-        const validationResults = programEncounterState.validateEntity();
-        return programEncounterState.handleNext(action, validationResults, () => {
-            const service = context.get(ProgramEncounterService);
-            service.saveOrUpdate(programEncounterState.programEncounter);
-        });
+        return programEncounterState.handleNext(action, context);
+    }
+
+    static onSave(state, action, context) {
+        const newState = state.clone();
+        const service = context.get(ProgramEncounterService);
+        service.saveOrUpdate(newState.programEncounter);
+        return newState;
     }
 
     static encounterDateTimeChanged(state, action, context) {
@@ -49,6 +52,7 @@ const ProgramEncounterActionsNames = {
     PREVIOUS: 'PEncA.PREVIOUS',
     NEXT: 'PEncA.NEXT',
     ENCOUNTER_DATE_TIME_CHANGED: "PEncA.ENROLMENT_DATE_TIME_CHANGED",
+    SAVE: "PEncA.SAVE"
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -58,7 +62,8 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
     [ProgramEncounterActionsNames.NEXT, ProgramEncounterActions.onNext],
     [ProgramEncounterActionsNames.PREVIOUS, ObservationsHolderActions.onPrimitiveObs],
-    [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged]
+    [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged],
+    [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave]
 ]);
 
 export {

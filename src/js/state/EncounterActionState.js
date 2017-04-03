@@ -3,10 +3,11 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import AbstractEncounter from "../models/AbstractEncounter";
 import ObservationsHolder from "../models/ObservationsHolder";
 import Wizard from '../state/Wizard';
+import IndividualEncounterService from "../service/IndividualEncounterService";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createNextButtonLabelKeyMap('next', 'next', 'next'));
+        super(validationResults, formElementGroup, wizard, isNewEntity);
         this.encounter = encounter;
     }
 
@@ -22,10 +23,6 @@ class EncounterActionState extends AbstractDataEntryState {
         return new ObservationsHolder(this.encounter.observations);
     }
 
-    static hasOnlyExternalRuleError(state) {
-        return AbstractDataEntryState.hasValidationError(state, AbstractEncounter.fieldKeys.EXTERNAL_RULE);
-    }
-
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
@@ -34,6 +31,20 @@ class EncounterActionState extends AbstractDataEntryState {
         const encounterActionState = new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
         encounterActionState.form = form;
         return encounterActionState;
+    }
+
+    validateEntityAgainstRule(ruleService) {
+        return ruleService.validateEncounter(this.encounter);
+    }
+
+    executeRule(ruleService, context) {
+        const encounterDecisions = ruleService.getEncounterDecision(this.encounter);
+        context.get(IndividualEncounterService).addDecisions(this.encounter, encounterDecisions);
+        return encounterDecisions;
+    }
+
+    validateEntity() {
+        return this.encounter.validate();
     }
 }
 

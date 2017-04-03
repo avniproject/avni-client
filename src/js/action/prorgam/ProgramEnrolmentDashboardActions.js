@@ -20,8 +20,16 @@ class ProgramEnrolmentDashboardActions {
         return {encounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity)};
     }
 
+    static _setEncounterTypeState(newState, context) {
+        const programEncounter = ProgramEncounter.createEmptyInstance();
+        programEncounter.programEnrolment = newState.enrolment;
+        const encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
+        newState.encounterTypeState.entityParentSelected(encounterTypes, programEncounter);
+        return newState;
+    }
+
     static clone(state) {
-        return {encounterTypeState: state.encounterTypeState.clone()};
+        return {encounterTypeState: state.encounterTypeState.clone(), enrolment: state.enrolment};
     }
 
     static onLoad(state, action, context) {
@@ -34,11 +42,7 @@ class ProgramEnrolmentDashboardActions {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         }
 
-        const programEncounter = ProgramEncounter.createEmptyInstance();
-        programEncounter.programEnrolment = newState.enrolment;
-        const encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
-        newState.encounterTypeState.entityParentSelected(encounterTypes, programEncounter);
-        return newState;
+        return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 
     static launchChooseEncounterType(state, action, context) {
@@ -66,6 +70,7 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onEditEnrolment(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
         const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         action.cb(enrolment);
         return state;
@@ -74,10 +79,10 @@ class ProgramEnrolmentDashboardActions {
     static onProgramChange(state, action, context) {
         if (action.program.uuid === state.enrolment.program.uuid) return state;
 
-        const newState = {encounterTypeState: state.encounterTypeState.clone()};
-        const entityService = context.get(EntityService);
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.enrolment = state.enrolment.individual.findEnrolmentForProgram(action.program);
-        return newState;
+
+        return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 }
 

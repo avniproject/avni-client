@@ -22,21 +22,16 @@ class ProgramFormComponent extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            validationFailed: () => {
+            completed: (state, decisions) => {
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.programEnrolment.individual, Actions.SAVE, (source) => {
+                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, this.props.context.usage);
+                });
             },
-            completed: () => {
-                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.state.enrolment.individual.uuid, this.props.state.enrolment.uuid, this.props.context.usage);
-            },
-            movedNext: () => {
-            }
         });
     }
 
     previous() {
-        this.dispatchAction(Actions.PREVIOUS, {
-            cb: (newState) => {
-            }
-        });
+        this.dispatchAction(Actions.PREVIOUS);
     }
 
     render() {
@@ -56,7 +51,7 @@ class ProgramFormComponent extends AbstractComponent {
                     <FormElementGroup actions={Actions} group={this.props.state.formElementGroup} observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}/>
                     <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous(), label: this.I18n.t('previous')}}
-                                   next={{func: () => this.next(), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
+                                   next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                 </View>
             </Content>
         </Container>);

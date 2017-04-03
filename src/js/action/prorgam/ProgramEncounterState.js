@@ -5,13 +5,13 @@ import AbstractEncounter from "../../models/AbstractEncounter";
 import _ from 'lodash';
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, isNewEntity, programEncounter, nextButtonLabelKeyMap) {
-        super([], formElementGroup, wizard, isNewEntity, nextButtonLabelKeyMap);
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter) {
+        super([], formElementGroup, wizard, isNewEntity);
         this.programEncounter = programEncounter;
     }
 
     static createOnLoad(programEncounter, form, isNewEntity) {
-        return new ProgramEncounterState(form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, programEncounter, Wizard.createDefaultNextButtonLabelKeyMap('save'));
+        return new ProgramEncounterState(form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, programEncounter);
     }
 
     clone() {

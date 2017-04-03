@@ -11,7 +11,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     };
 
     constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment) {
-        super(validationResults, formElementGroup, wizard, isNewEnrolment, Wizard.createNextButtonLabelKeyMap('next', 'enrol', 'save'));
+        super(validationResults, formElementGroup, wizard, isNewEnrolment);
         this.usage = usage;
         this.enrolment = enrolment;
         if (!_.isNil(enrolment))
@@ -46,6 +46,14 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     validateEntity() {
         return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.enrolment.validateEnrolment() : this.enrolment.validateExit();
+    }
+
+    validateEntityAgainstRule(ruleService) {
+        return [];
+    }
+
+    executeRule(ruleService) {
+        return [];
     }
 
     static isInitialised(programEnrolmentState) {

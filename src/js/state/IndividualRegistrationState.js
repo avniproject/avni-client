@@ -7,7 +7,7 @@ import ObservationsHolder from "../models/ObservationsHolder";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, Wizard.createDefaultNextButtonLabelKeyMap('register'));
+        super(validationResults, formElementGroup, wizard, isNewEntity);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
@@ -44,6 +44,18 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     get staticFormElementIds() {
         return this.wizard.isFirstPage() ? _.keys(Individual.validationKeys) : [];
+    }
+
+    validateEntity() {
+        return this.individual.validate();
+    }
+
+    validateEntityAgainstRule(ruleService) {
+        return [];
+    }
+
+    executeRule(ruleService) {
+        return [];
     }
 }
 

@@ -5,8 +5,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import _ from "lodash";
-import Wizard from "../../state/Wizard";
-import Encounter from '../../models/Encounter';
+import Encounter from "../../models/Encounter";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -22,29 +21,7 @@ export class EncounterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        const encounter = newState.encounter;
-
-        const customAction = {
-            validationFailed: () => {
-                action.validationFailed(newState);
-            },
-            completed: () => {
-                const validationResult = context.get(RuleEvaluationService).validateEncounter(encounter);
-                newState.handleValidationResult(validationResult);
-                if (validationResult.success) {
-                    var encounterDecisions = context.get(RuleEvaluationService).getEncounterDecision(encounter);
-                    context.get(IndividualEncounterService).addDecisions(encounter, encounterDecisions);
-                    action.completed(newState, encounterDecisions);
-                } else {
-                    action.validationFailed(newState);
-                }
-            },
-            movedNext: () => {
-                action.movedNext(newState);
-            },
-        };
-        newState.handleNext(customAction, encounter.validate(), () => {
-        });
+        newState.handleNext(action, context);
         return newState;
     }
 

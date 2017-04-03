@@ -50,7 +50,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{
                                            func: () => IndividualRegisterViewsMixin.next(this),
-                                           label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))
+                                           label: this.I18n.t('next')
                                        }}/>
                     </View>
                 </Content>

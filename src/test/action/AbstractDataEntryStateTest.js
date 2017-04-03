@@ -8,12 +8,15 @@ import StubbedDataEntryState from "./StubbedDataEntryState";
 import Observation from "../../js/models/Observation";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
 import ObservationsHolderActions from '../../js/action/common/ObservationsHolderActions';
+import TestContext from "../views/testframework/TestContext";
 
 describe('AbstractDataEntryStateTest', () => {
     var formElementGroup;
+    var testContext;
 
     beforeEach(function () {
         formElementGroup = EntityFactory.createSafeFormElementGroup(EntityFactory.createForm('foo'));
+        testContext = new TestContext();
     });
 
     it('next when there are validation errors', () => {
@@ -21,19 +24,19 @@ describe('AbstractDataEntryStateTest', () => {
         const formElement = EntityFactory.createFormElement('bar', true, concept);
         formElementGroup.addFormElement(formElement);
 
-        var dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), []);
+        var dataEntryState = new StubbedDataEntryState([ValidationResult.failureForEmpty('h')], formElementGroup, new Wizard(1, 1), []);
         var action = WizardNextActionStub.forValidationFailed();
-        dataEntryState.handleNext(action, [ValidationResult.failureForEmpty('h')], () => {});
+        dataEntryState.handleNext(action, testContext);
         action.assert();
 
-        dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), []);
+        dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), []);
         action = WizardNextActionStub.forValidationFailed();
-        dataEntryState.handleNext(action, [ValidationResult.successful('h')], () => {});
+        dataEntryState.handleNext(action, testContext);
         action.assert();
 
-        dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [Observation.create(concept, new PrimitiveValue(true))]);
+        dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), [Observation.create(concept, new PrimitiveValue(true))]);
         action = WizardNextActionStub.forCompleted();
-        dataEntryState.handleNext(action, [ValidationResult.successful('h')], () => {});
+        dataEntryState.handleNext(action, testContext);
         action.assert();
     });
 

@@ -1,8 +1,9 @@
 import _ from "lodash";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 class AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap) {
-        this.setState(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity) {
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity);
     }
 
     clone(newState) {
@@ -39,21 +40,46 @@ class AbstractDataEntryState {
     }
 
     get observationsHolder() {
+        throw Error('Should be overridden');
     }
 
-    handleNext(action, validationResults, completionFn) {
+    get hasValidationError() {
+        return this.validationResults.some((validationResult) => !validationResult.success);
+    }
+
+    handleNext(action, context) {
+        const validationResults = this.validateEntity();
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));
         this.handleValidationResults(allValidationResults);
         if (this.anyFailedResultForCurrentFEG()) {
-            action.validationFailed(this);
-        } else if (this.validationResults.length === 0 && this.wizard.isLastPage()) {
-            completionFn();
-            action.completed(this);
+            if (!_.isNil(action.validationFailed)) action.validationFailed(this);
+        } else if (this.wizard.isLastPage() && !this.hasValidationError) {
+            const ruleService = context.get(RuleEvaluationService);
+            const validationResults = this.validateEntityAgainstRule(ruleService);
+            this.handleValidationResults(validationResults);
+            if (this.hasValidationError) {
+                if (!_.isNil(action.validationFailed)) action.validationFailed(this);
+            } else {
+                const encounterDecisions = this.executeRule(ruleService, context);
+                action.completed(this, encounterDecisions);
+            }
         } else {
             this.moveNext();
-            action.movedNext(this);
+            if (!_.isNil(action.movedNext)) action.movedNext(this);
         }
         return this;
+    }
+
+    validateEntityAgainstRule(ruleService) {
+        return [];
+    }
+
+    executeRule(ruleService) {
+        return [];
+    }
+
+    validateEntity() {
+        throw Error('Should be overridden');
     }
 
     static getValidationError(state, formElementIdentifier) {
@@ -76,17 +102,11 @@ class AbstractDataEntryState {
         return [];
     }
 
-    setState(validationResults, formElementGroup, wizard, isNewEntity, nextButtonLabelMap) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
         this.isNewEntity = isNewEntity;
-        this.nextButtonLabelMap = nextButtonLabelMap;
-    }
-
-    static getNextButtonLabel(state) {
-        const labelName = state.wizard.isLastPage() ? (state.isNewEntity ? 'create' : 'update') : 'next';
-        return state.nextButtonLabelMap[labelName];
     }
 }
 

@@ -41,11 +41,14 @@ export class ProgramEnrolmentActions {
 
     static onNext(state, action, context) {
         const programEnrolmentState = state.clone();
-        const validationResults = programEnrolmentState.validateEntity();
-        return programEnrolmentState.handleNext(action, validationResults, () => {
-            const service = context.get(ProgramEnrolmentService);
-            programEnrolmentState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(programEnrolmentState.enrolment) : service.exit(programEnrolmentState.enrolment);
-        });
+        return programEnrolmentState.handleNext(action, context);
+    }
+
+    static save(state, action, context) {
+        const newState = state.clone();
+        const service = context.get(ProgramEnrolmentService);
+        newState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(programEnrolmentState.enrolment) : service.exit(programEnrolmentState.enrolment);
+        return newState;
     }
 }
 
@@ -57,7 +60,8 @@ const actions = {
     TOGGLE_SINGLESELECT_ANSWER: "PEA.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'PEA.PRIMITIVE_VALUE_CHANGE',
     NEXT: 'PEA.NEXT',
-    PREVIOUS: 'PEA.PREVIOUS'
+    PREVIOUS: 'PEA.PREVIOUS',
+    SAVE: 'PEA.SAVE'
 };
 
 export default new Map([
@@ -68,7 +72,8 @@ export default new Map([
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
-    [actions.PREVIOUS, ObservationsHolderActions.onPrevious]
+    [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
+    [actions.SAVE, ObservationsHolderActions.onSave]
 ]);
 
 export {actions as Actions};

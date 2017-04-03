@@ -38,17 +38,13 @@ class AbstractComponent extends Component {
     }
 
     showError(errorMessage) {
-        if (this.state.error) {
-            return (Alert.alert(this.I18n.t(errorMessage), this.state.errorMessage,
-                [
-                    {
-                        text: this.I18n.t('ok'), onPress: () => {
-                        this.setState({error: false, errorMessage: undefined});
-                    }
-                    }
-                ]
-            ));
-        }
+        Alert.alert(this.I18n.t("validationError"), errorMessage,
+            [
+                {
+                    text: this.I18n.t('ok'), onPress: () => {}
+                }
+            ]
+        );
     }
 
     static _renderSeparator(rowNumber, rowID, total) {

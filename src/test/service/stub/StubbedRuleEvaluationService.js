@@ -2,7 +2,7 @@ import ValidationResult from "../../../js/models/application/ValidationResult";
 
 class StubbedRuleEvaluationService {
     validateEncounter() {
-        return ValidationResult.successful('whatever');
+        return [ValidationResult.successful('whatever')];
     }
 
     getEncounterDecision() {

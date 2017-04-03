@@ -35,9 +35,9 @@ class Individual extends BaseEntity {
         GENDER: 'GENDER',
         NAME: 'NAME',
         REGISTRATION_DATE: 'REGISTRATION_DATE',
-        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL',
+        EXTERNAL_RULE: 'EXTERNAL_RULE'
     };
-
 
     static createEmptyInstance(catchmentId) {
         const individual = new Individual();

@@ -7,6 +7,7 @@ import IndividualRegistrationState from "../../state/IndividualRegistrationState
 import Form from '../../models/application/Form';
 import _ from 'lodash';
 import Individual from '../../models/Individual';
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -83,9 +84,14 @@ export class IndividualRegisterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        return newState.handleNext(action, newState.individual.validate(), () => {
-            context.get(IndividualService).register(newState.individual);
-        });
+        newState.handleNext(action, context.get(RuleEvaluationService));
+        return newState;
+    }
+
+    static onSave(state, action, context) {
+        const newState = state.clone();
+        context.get(IndividualService).register(newState.individual);
+        return newState;
     }
 }
 
@@ -104,6 +110,7 @@ const actions = {
     TOGGLE_MULTISELECT_ANSWER: "b2af8248-ad5e-4639-ba6d-02b25c813e5e",
     TOGGLE_SINGLESELECT_ANSWER: "cdc7b1c2-d5aa-4382-aa93-1663275132f7",
     PRIMITIVE_VALUE_CHANGE: '13230ada-ee22-4a50-a2a8-5f14d1d9cd46',
+    SAVE: 'IRA.SAVE'
 };
 
 export default new Map([
@@ -121,6 +128,7 @@ export default new Map([
     [actions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
+    [actions.SAVE, IndividualRegisterActions.onSave],
 ]);
 
 export {actions as Actions};

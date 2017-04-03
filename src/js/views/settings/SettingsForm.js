@@ -9,7 +9,6 @@ class SettingsForm extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false, error: false};
-        this.showError = this.showError.bind(this);
     }
 
     static propTypes = {
@@ -21,7 +20,6 @@ class SettingsForm extends AbstractComponent {
     render() {
         return (
             <View style={SettingsView.styles.form}>
-                {this.showError("syncError")}
                 <SettingsFormField
                     formLabel={this.I18n.t("serverURL")}
                     onChangeText={this.props.onServerURLChanged}

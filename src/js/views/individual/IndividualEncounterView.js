@@ -14,16 +14,16 @@ import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import PreviousEncounters from "../common/PreviousEncounters";
 import Colors from "../primitives/Colors";
-import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolder from "../../models/ObservationsHolder";
-import AbstractDataEntryState from '../../state/AbstractDataEntryState';
-import CHSNavigator from '../../utility/CHSNavigator';
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
+import AbstractEncounter from "../../models/AbstractEncounter";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
     viewName() {
-        return "IndividualEncounterView";
+        return IndividualEncounterView.name;
     }
 
     constructor(props, context) {
@@ -46,17 +46,9 @@ class IndividualEncounterView extends AbstractComponent {
                     TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView], IndividualEncounterLandingView, {individualUUID: this.state.encounter.individual.uuid});
                 });
             },
-            movedNext: () => {
-            },
             validationFailed: (newState) => {
-                if (EncounterActionState.hasOnlyExternalRuleError(this.state)) {
-                    Alert.alert(this.I18n.t("validationError"), newState.validationResults[0].message,
-                        [
-                            {
-                                text: this.I18n.t('ok'), onPress: () => {}
-                            }
-                        ]
-                    );
+                if (AbstractDataEntryState.hasValidationError(this.state, AbstractEncounter.fieldKeys.EXTERNAL_RULE)) {
+                    this.showError(newState.validationResults[0].message);
                 }
             }
         });
@@ -83,7 +75,7 @@ class IndividualEncounterView extends AbstractComponent {
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
-                                       next={{func: () => this.next(), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
+                                       next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>
                 </Content>
             </Container>

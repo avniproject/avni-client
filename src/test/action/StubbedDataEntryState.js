@@ -14,6 +14,10 @@ class StubbedDataEntryState extends AbstractDataEntryState {
     clone() {
         return super.clone(new StubbedDataEntryState(this.validationResults, this.formElementGroup, this.wizard, this.observations));
     }
+
+    validateEntity() {
+        return this.validationResults;
+    }
 }
 
 export default StubbedDataEntryState;

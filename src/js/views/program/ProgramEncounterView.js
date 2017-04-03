@@ -17,6 +17,8 @@ import AbstractEncounter from "../../models/AbstractEncounter";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import DateFormElement from '../../views/form/DateFormElement';
 import _ from 'lodash';
+import TypedTransition from "../../framework/routing/TypedTransition";
+import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -42,13 +44,11 @@ class ProgramEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            completed: (state) => {
-                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, state.programEncounter.programEnrolment.individual.uuid);
+            completed: (state, decisions) => {
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.programEncounter.programEnrolment.individual, Actions.SAVE, (source) => {
+                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid);
+                });
             },
-            movedNext: () => {
-            },
-            validationFailed: (newState) => {
-            }
         });
     }
 
@@ -73,7 +73,7 @@ class ProgramEncounterView extends AbstractComponent {
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
-                                       next={{func: () => this.next(), label: this.I18n.t(AbstractDataEntryState.getNextButtonLabel(this.state))}}/>
+                                       next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>
                 </Content>
             </Container>
