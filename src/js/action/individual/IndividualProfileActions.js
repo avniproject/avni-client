@@ -18,10 +18,13 @@ export class IndividualProfileActions {
     }
 
     static individualSelected(state, action, beans) {
+        const individualService = beans.get(IndividualService);
+        if (_.isNil(individualService.findByUUID(action.value.uuid))) return state;
+
         const newState = state.clone();
         const enrolment = ProgramEnrolment.createEmptyInstance();
         enrolment.individual = action.value;
-        return newState.entityParentSelected(beans.get(IndividualService).eligiblePrograms(action.value.uuid), enrolment);
+        return newState.entityParentSelected(individualService.eligiblePrograms(action.value.uuid), enrolment);
     }
 
     static launchChooseProgram(state, action) {

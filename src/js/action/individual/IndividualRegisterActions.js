@@ -84,13 +84,14 @@ export class IndividualRegisterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        newState.handleNext(action, context.get(RuleEvaluationService));
+        newState.handleNext(action, context);
         return newState;
     }
 
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).register(newState.individual);
+        action.cb();
         return newState;
     }
 }

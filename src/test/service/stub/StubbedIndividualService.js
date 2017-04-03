@@ -1,6 +1,8 @@
-class StubbedIndividualService {
+import StubbedBaseService from "./StubbedBaseService";
+
+class StubbedIndividualService extends StubbedBaseService {
     constructor(serviceData) {
-        this.serviceData = serviceData;
+        super(serviceData);
     }
 
     eligiblePrograms(individualUUID) {

@@ -33,6 +33,7 @@ class ProgramEncounterActions {
         const newState = state.clone();
         const service = context.get(ProgramEncounterService);
         service.saveOrUpdate(newState.programEncounter);
+        action.cb();
         return newState;
     }
 

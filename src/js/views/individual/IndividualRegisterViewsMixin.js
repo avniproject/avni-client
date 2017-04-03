@@ -11,7 +11,7 @@ import BaseEntity from '../../models/BaseEntity';
 
 class IndividualRegisterViewsMixin {
     static next(view) {
-        this.dispatchAction(Actions.NEXT, {
+        view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions) => {
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, view.state.individual, Actions.SAVE, (source) => {
                     TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], IndividualEncounterLandingView, {individualUUID: view.state.individual.uuid});

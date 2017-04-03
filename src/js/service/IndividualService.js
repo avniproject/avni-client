@@ -37,7 +37,7 @@ class IndividualService extends BaseService {
 
     eligiblePrograms(individualUUID) {
         const programs = this.getAll(Program.schema.name);
-        const individual = this.findByUUID(individualUUID, Individual.schema.name);
+        const individual = this.findByUUID(individualUUID);
         return individual.eligiblePrograms(programs);
     }
 }

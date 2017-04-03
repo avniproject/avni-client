@@ -3,6 +3,7 @@ import ProgramEnrolment from '../../models/ProgramEnrolment';
 import _ from 'lodash';
 import ObservationsHolder from "../../models/ObservationsHolder";
 import Wizard from '../../state/Wizard';
+import ConceptService from "../../service/ConceptService";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {
@@ -49,11 +50,13 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return [];
+        return ruleService.validateAgainstRule(this.enrolment);
     }
 
-    executeRule(ruleService) {
-        return [];
+    executeRule(ruleService, context) {
+        const decisions = ruleService.getDecision(this.enrolment);
+        context.get(ConceptService).addDecisions(this.enrolment.observations, decisions);
+        return decisions;
     }
 
     static isInitialised(programEnrolmentState) {

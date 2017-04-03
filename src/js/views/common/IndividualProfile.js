@@ -68,6 +68,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     render() {
+        console.log('IndividualProfile.render');
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <Content>
