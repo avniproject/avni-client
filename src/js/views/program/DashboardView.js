@@ -32,8 +32,8 @@ class DashboardView extends AbstractComponent {
             <Container theme={themes} style={{backgroundColor: Colors.GreyBackground}}>
                 <Content>
                     <AppHeader title={this.I18n.t('dashboard')}/>
-                    {this.state.programs.map((programSummary) => {
-                        return <ProgramDashboard summary={programSummary}/>;
+                    {this.state.programs.map((programSummary, index) => {
+                        return <ProgramDashboard summary={programSummary} key={`programDashboard${index}`}/>;
                     })}
                 </Content>
             </Container>

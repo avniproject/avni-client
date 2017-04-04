@@ -19,7 +19,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
     };
 
     viewName() {
-        return "ProgramEnrolmentsView";
+        return ProgramEnrolmentsView.name;
     }
 
     constructor(props, context) {

@@ -21,7 +21,7 @@ class CHSNavigator {
             from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView);
         } else {
             const wizardViewClass = usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolmentView : ProgramExitView;
-            from.wizardCompleted([wizardViewClass], ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID});
+            from.wizardCompleted([wizardViewClass, SystemRecommendationView], ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID});
         }
     }
 

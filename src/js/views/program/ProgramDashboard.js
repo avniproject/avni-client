@@ -39,8 +39,8 @@ class ProgramDashboard extends AbstractComponent {
                             {name: "upcomingCases", count: this.props.summary.upcoming},
                             {name: "overdueCases", count: this.props.summary.overdue},
                             {name: "totalCases", count: this.props.summary.total}
-                        ].map((caseRecord) => {
-                            return <View style={[{flexDirection: 'column', flex: 0.25}, DGS.card.aggregate.self]}>
+                        ].map((caseRecord, index) => {
+                            return <View style={[{flexDirection: 'column', flex: 0.25}, DGS.card.aggregate.self]} key={`programCaseCount${index}`}>
                                 <Text style={DGS.card.aggregate.label}>{this.I18n.t(caseRecord.name)}</Text>
                                 <Text style={DGS.card.aggregate.value}>{caseRecord.count}</Text>
                             </View>
