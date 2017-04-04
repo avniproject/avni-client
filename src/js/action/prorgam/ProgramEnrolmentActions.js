@@ -44,7 +44,7 @@ export class ProgramEnrolmentActions {
         return programEnrolmentState.handleNext(action, context);
     }
 
-    static save(state, action, context) {
+    static onSave(state, action, context) {
         const newState = state.clone();
         const service = context.get(ProgramEnrolmentService);
         newState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(newState.enrolment) : service.exit(newState.enrolment);
@@ -74,7 +74,7 @@ export default new Map([
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
     [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
-    [actions.SAVE, ObservationsHolderActions.onSave]
+    [actions.SAVE, ProgramEnrolmentActions.onSave]
 ]);
 
 export {actions as Actions};

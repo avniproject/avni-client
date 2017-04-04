@@ -7,7 +7,7 @@ import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 
 @Path('/ProgramExitView')
 class ProgramExitView extends AbstractComponent {
@@ -16,7 +16,7 @@ class ProgramExitView extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.programEnrolment);
+        super(props, context, Reducers.reducerKeys.programEnrolment);
     }
 
     static context = {

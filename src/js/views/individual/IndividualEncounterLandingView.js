@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Text, Content, Grid, Row, Container, InputGroup, Input} from "native-base";
+import {Text, Content, Grid, Row, Container} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
@@ -11,15 +11,14 @@ import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import _ from "lodash";
 import General from "../../utility/General";
-import Colors from '../primitives/Colors';
+import Colors from "../primitives/Colors";
 import ObservationsHolder from "../../models/ObservationsHolder";
-import AbstractDataEntryState from '../../state/AbstractDataEntryState';
-import CHSNavigator from '../../utility/CHSNavigator';
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -32,7 +31,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.encounter);
+        super(props, context, Reducers.reducerKeys.encounter);
     }
 
     componentWillMount() {

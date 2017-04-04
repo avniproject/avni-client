@@ -15,6 +15,8 @@ import ProgramEnrolmentService from "../../../js/service/ProgramEnrolmentService
 import RuleEvaluationService from "../../../js/service/RuleEvaluationService";
 import IndividualEncounterService from "../../../js/service/IndividualEncounterService";
 import StubbedIndividualEncounterService from "../../service/stub/StubbedIndividualEncounterService";
+import EntityService from "../../../js/service/EntityService";
+import StubbedEntityService from "../../service/stub/StubbedEntityService";
 
 class TestContext {
     static stubs = new Map([
@@ -25,7 +27,8 @@ class TestContext {
         [FormMappingService, (serviceData) => new StubbedFormMappingService(serviceData)],
         [ProgramEnrolmentService, (serviceData) => new StubbedProgramEnrolmentService(serviceData)],
         [RuleEvaluationService, (serviceData) => new StubbedRuleEvaluationService(serviceData)],
-        [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)]
+        [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)],
+        [EntityService, (serviceData) => new StubbedEntityService(serviceData)]
     ]);
 
     constructor(serviceData) {
@@ -36,7 +39,7 @@ class TestContext {
         const stub = TestContext.stubs.get(type);
         if (_.isNil(stub)) {
             return {
-                getDecision: function () {
+                getDecisions: function () {
                     return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
                 }
             };

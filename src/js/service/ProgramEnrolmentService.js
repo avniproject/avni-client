@@ -25,17 +25,19 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     enrol(programEnrolment) {
-        const nextScheduledDate = this.getService(RuleEvaluationService).getNextScheduledDate(programEnrolment);
-        if (!_.isNil(nextScheduledDate)) {
+        const nextScheduledVisits = this.getService(RuleEvaluationService).getNextScheduledVisits(programEnrolment);
+        nextScheduledVisits.forEach((nextScheduledVisit) => {
             const programEncounter = ProgramEncounter.createEmptyInstance();
-            programEncounter.scheduledDateTime = nextScheduledDate;
+            programEncounter.scheduledDateTime = nextScheduledVisit.dueDate;
+            programEncounter.maxDateTime = nextScheduledVisit.maxDate;
+            programEncounter.name = nextScheduledVisit.visitName;
             programEncounter.programEnrolment = programEnrolment;
             programEnrolment.encounters.push(programEncounter);
-        }
+        });
 
         const db = this.db;
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
-        this.db.write(()=> {
+        this.db.write(() => {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 
             const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
@@ -52,7 +54,7 @@ class ProgramEnrolmentService extends BaseService {
     exit(programEnrolment) {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const db = this.db;
-        this.db.write(()=> {
+        this.db.write(() => {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

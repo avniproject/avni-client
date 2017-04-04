@@ -28,16 +28,11 @@ class RuleEvaluationService extends BaseService {
             entityRule.setFunctions(exports);
         });
 
-        const exports = RuleEvaluationService.getExports(configFileService.getProgramEnrolmentFile());
-        if (!_.isNil(exports)) {
-            this.getNextScheduledDateFn = exports.getNextScheduledDate;
-        }
-
         this.initialised = true;
     }
 
-    getDecision(entity) {
-        return this.entityRulesMap.get(entity.constructor.name).getDecision(entity);
+    getDecisions(entity) {
+        return this.entityRulesMap.get(entity.constructor.name).getDecisions(entity);
     }
 
     decorateEncounter() {
@@ -52,8 +47,15 @@ class RuleEvaluationService extends BaseService {
     }
 
     static getExports(configFile) {
-        if (!_.isNil(configFile))
-            return eval(`${configFile.contents}`)(1, 2); //1,2 is passed because of browserify adding a function infront
+        if (!_.isNil(configFile)) {
+            try {
+                return eval(`${configFile.contents}`)(1, 2); //1,2 is passed because of browserify adding a function infront
+            } catch (error) {
+                console.log(error);
+                return null;
+            }
+        }
+
         return null;
     }
 
@@ -61,8 +63,8 @@ class RuleEvaluationService extends BaseService {
         return this.entityRulesMap.get(entity.constructor.name).validate(entity);
     }
 
-    getNextScheduledDate(enrolment) {
-        return _.isNil(this.getNextScheduledDateFn) ? null : this.getNextScheduledDateFn(enrolment);
+    getNextScheduledVisits(entity) {
+        return this.entityRulesMap.get(entity.constructor.name).getNextScheduledVisits(entity);
     }
 }
 

@@ -5,7 +5,7 @@ class StubbedRuleEvaluationService {
         return [ValidationResult.successful('whatever')];
     }
 
-    getDecision() {
+    getDecisions() {
         return [];
     }
 }

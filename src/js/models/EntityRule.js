@@ -8,39 +8,40 @@ class EntityRule {
 
     setFunctions(exports) {
         if (!_.isNil(exports)) {
-            this.decisionFn = exports.getDecision;
+            this.decisionFn = exports.getDecisions;
             this.validationFn = exports.validate;
+            this.getNextScheduledVisitsFn = exports.getNextScheduledVisitsFn;
         }
     }
 
-    getDecision(entity) {
-        if (_.isNil(this.decisionFn)) return [];
+    getDecisions(entity) {
+        return this._safeInvokeRule(this.decisionFn, entity, 'Decision');
+    }
 
-        const decisions = this.decisionFn(entity);
-        if (_.isNil(decisions)) {
-            console.log(`Validation rule didn't return anything for: ${entity.constructor.name}`);
+    _safeInvokeRule(func, entity, ruleName) {
+        if (_.isNil(func)) return [];
+
+        const results = func(entity);
+        if (_.isNil(results)) {
+            console.log(`${ruleName} rule didn't return anything for: ${entity.constructor.name}`);
             return [];
-        } else if (_.isArray(decisions)) {
-            console.log(`Validation didn't return an array for: ${entity.constructor.name}`);
+        } else if (_.isArray(results)) {
+            console.log(`${ruleName} didn't return an array for: ${entity.constructor.name}`);
             return [];
         }
-        return decisions;
+        return results;
     }
 
     validate(entity) {
-        if (_.isNil(this.validationFn)) return [];
-
-        const validationResults = this.validationFn(entity);
-        if (_.isNil(validationResults)) {
-            console.log(`Validation rule didn't return anything for: ${entity.constructor.name}`);
-            return [];
-        } else if (_.isArray(validationResults)) {
-            console.log(`Validation didn't return an array for: ${entity.constructor.name}`);
-            return [];
-        }
-
+        const validationResults = this._safeInvokeRule(this.validationFn, entity, 'Validation');
         validationResults.forEach((validationResult) => validationResult.formIdentifier = BaseEntity.fieldKeys.EXTERNAL_RULE);
         return validationResults;
+    }
+
+    getNextScheduledVisits(entity) {
+        const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, entity, 'NextScheduledVisits');
+        console.log(`${nextScheduledVisits.length} scheduled visits returned`);
+        return nextScheduledVisits;
     }
 }
 

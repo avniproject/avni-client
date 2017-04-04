@@ -23,7 +23,7 @@ class ProgramFormComponent extends AbstractComponent {
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.programEnrolment.individual, Actions.SAVE, (source) => {
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.enrolment.individual, Actions.SAVE, (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, this.props.context.usage);
                 });
             },

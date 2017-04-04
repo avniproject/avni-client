@@ -9,7 +9,7 @@ import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
 import PreviousEncounters from "../common/PreviousEncounters";
@@ -27,7 +27,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.encounter);
+        super(props, context, Reducers.reducerKeys.encounter);
     }
 
     componentWillMount() {

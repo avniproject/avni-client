@@ -8,7 +8,7 @@ import GlobalStyles from "../primitives/GlobalStyles";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import {Button, Content, Grid, Col, Row, Text} from "native-base";
 import AddressLevels from "../common/AddressLevels";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import {IndividualSearchActionNames as Actions} from '../../action/individual/IndividualSearchActions';
 
 @Path('/individualSearch')
@@ -16,7 +16,7 @@ class IndividualSearchView extends AbstractComponent {
     static propTypes = {};
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualSearch);
+        super(props, context, Reducers.reducerKeys.individualSearch);
     }
 
     viewName() {

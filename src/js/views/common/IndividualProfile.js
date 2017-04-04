@@ -7,7 +7,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 import EntityTypeSelector from "./EntityTypeSelector";
@@ -29,7 +29,7 @@ class IndividualProfile extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualProfile);
+        super(props, context, Reducers.reducerKeys.individualProfile);
     }
 
     componentWillMount() {

@@ -21,45 +21,42 @@ import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActio
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
 import {AddressLevelActions} from '../action/AddressLevelActions';
 
-const reducerMapFn = function (beanStore) {
-    let reducerMap = {};
+export default class Reducers {
+    static reducerKeys = {
+        programEnrolment: "programEnrolment",
+        individualGeneralHistory: "individualGeneralHistory",
+        encounter: "encounter",
+        individualRegister: "individualRegister",
+        individualProfile: 'individualProfile',
+        dashboard: 'dashboard',
+        programEnrolments: 'programEnrolments',
+        programEnrolmentDashboard: 'programEnrolmentDashboard',
+        programEncounter: 'programEncounter',
+        individualRegistrationDetails: 'individualRegistrationDetails',
+        individualSearch: 'individualSearch',
+        addressLevels: 'addressLevels'
+    };
+    
+    static createReducers(beanStore) {
+        const reducerMap = {};
+        reducerMap[Reducers.reducerKeys.individualSearch] = Reducers._add(IndividualSearchActionsMap, IndividualSearchActions, beanStore);
+        reducerMap[Reducers.reducerKeys.addressLevels] = Reducers._add(new Map([]), AddressLevelActions, beanStore);
+        reducerMap[Reducers.reducerKeys.individualRegister] = Reducers._add(IndividualRegisterActionMap, IndividualRegisterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.individualProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
+        reducerMap[Reducers.reducerKeys.programEnrolment] = Reducers._add(ProgramEnrolmentActionMap, ProgramEnrolmentActions, beanStore);
+        reducerMap[Reducers.reducerKeys.individualGeneralHistory] = Reducers._add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions, beanStore);
+        reducerMap[Reducers.reducerKeys.encounter] = Reducers._add(IndividualEncounterViewActionsMap, EncounterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.dashboard] = Reducers._add(DashboardActionsMap, DashboardActions, beanStore);
+        reducerMap[Reducers.reducerKeys.programEnrolments] = Reducers._add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions, beanStore);
+        reducerMap[Reducers.reducerKeys.programEnrolmentDashboard] = Reducers._add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions, beanStore);
+        reducerMap[Reducers.reducerKeys.programEncounter] = Reducers._add(ProgramEncounterActionsMap, ProgramEncounterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.individualRegistrationDetails] = Reducers._add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions, beanStore);
 
-    let add = function (actions, actionClass) {
+        return reducerMap;
+    };
+
+    static _add(actions, actionClass, beanStore) {
         actions.set('RESET', () => actionClass.getInitialState(beanStore));
         return Reducer.factory(actions, actionClass.getInitialState(beanStore), beanStore);
     };
-
-    reducerMap[reducerKeys.individualSearch] = add(IndividualSearchActionsMap, IndividualSearchActions);
-    reducerMap[reducerKeys.addressLevels] = add(new Map([]), AddressLevelActions);
-    reducerMap[reducerKeys.individualRegister] = add(IndividualRegisterActionMap, IndividualRegisterActions);
-    reducerMap[reducerKeys.individualProfile] = add(IndividualProfileActionMap, IndividualProfileActions);
-    reducerMap[reducerKeys.programEnrolment] = add(ProgramEnrolmentActionMap, ProgramEnrolmentActions);
-    reducerMap[reducerKeys.individualGeneralHistory] = add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions);
-    reducerMap[reducerKeys.encounter] = add(IndividualEncounterViewActionsMap, EncounterActions);
-    reducerMap[reducerKeys.dashboard] = add(DashboardActionsMap, DashboardActions);
-    reducerMap[reducerKeys.programEnrolments] = add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions);
-    reducerMap[reducerKeys.programEnrolmentDashboard] = add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions);
-    reducerMap[reducerKeys.programEncounter] = add(ProgramEncounterActionsMap, ProgramEncounterActions);
-    reducerMap[reducerKeys.individualRegistrationDetails] = add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions);
-
-    return reducerMap;
-};
-
-const reducerKeys = {
-    programEnrolment: "programEnrolment",
-    individualGeneralHistory: "individualGeneralHistory",
-    encounter: "encounter",
-    individualRegister: "individualRegister",
-    individualProfile: 'individualProfile',
-    dashboard: 'dashboard',
-    programEnrolments: 'programEnrolments',
-    programEnrolmentDashboard: 'programEnrolmentDashboard',
-    programEncounter: 'programEncounter',
-    individualRegistrationDetails: 'individualRegistrationDetails',
-    individualSearch: 'individualSearch',
-    addressLevels: 'addressLevels'
-};
-
-export {reducerMapFn as initReducers};
-
-export default reducerKeys;
+}

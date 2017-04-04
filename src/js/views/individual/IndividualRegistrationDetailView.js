@@ -2,7 +2,7 @@ import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
@@ -21,7 +21,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualRegistrationDetails);
+        super(props, context, Reducers.reducerKeys.individualRegistrationDetails);
     }
 
     componentWillMount() {

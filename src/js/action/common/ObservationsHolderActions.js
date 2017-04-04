@@ -32,7 +32,8 @@ class ObservationsHolderActions {
     static onPrevious(state, action, context) {
         const newState = state.clone();
         newState.movePrevious();
-        action.cb(newState);
+        if (!(_.isNil(action) || _.isNil(action.cb)))
+            action.cb(newState);
         return newState;
     }
 }

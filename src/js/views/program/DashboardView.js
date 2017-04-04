@@ -2,7 +2,7 @@ import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import {DashboardActionNames as Actions} from "../../action/prorgam/DashboardActions";
 import themes from "../primitives/themes";
 import ProgramDashboard from "../program/ProgramDashboard";
@@ -24,7 +24,7 @@ class DashboardView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.dashboard);
+        super(props, context, Reducers.reducerKeys.dashboard);
     }
 
     render() {

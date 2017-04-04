@@ -7,7 +7,7 @@ import {Actions} from '../../action/individual/IndividualGeneralHistoryActions';
 import {Content, Container} from "native-base";
 import AppHeader from '../common/AppHeader';
 import IndividualProfile from '../common/IndividualProfile';
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounters from '../common/PreviousEncounters'
 import _ from 'lodash';
@@ -23,7 +23,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualGeneralHistory);
+        super(props, context, Reducers.reducerKeys.individualGeneralHistory);
     }
 
     componentWillMount() {

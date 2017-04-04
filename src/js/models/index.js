@@ -25,7 +25,7 @@ import ConfigFile from "./ConfigFile";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Locale, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile],
-    schemaVersion: 24,
+    schemaVersion: 25,
     migration: function(oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

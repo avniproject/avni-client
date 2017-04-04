@@ -38,7 +38,7 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        const encounterDecisions = ruleService.getDecision(this.encounter);
+        const encounterDecisions = ruleService.getDecisions(this.encounter);
         context.get(ConceptService).addDecisions(this.encounter.observations, encounterDecisions);
         return encounterDecisions;
     }

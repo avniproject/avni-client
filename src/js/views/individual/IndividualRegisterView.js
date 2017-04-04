@@ -10,7 +10,7 @@ import {Actions} from "../../action/individual/IndividualRegisterActions";
 import _ from "lodash";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import AppHeader from "../common/AppHeader";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import Individual from "../../models/Individual";
@@ -29,7 +29,7 @@ class IndividualRegisterView extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualRegister);
+        super(props, context, Reducers.reducerKeys.individualRegister);
         this.contentGridMarginStyle = {marginTop: DGS.resizeHeight(16), marginHorizontal: DGS.resizeWidth(24)};
     }
 

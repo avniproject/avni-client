@@ -8,7 +8,8 @@ import ValidationResult from "./application/ValidationResult";
 
 class ProgramEncounter extends AbstractEncounter {
     static fieldKeys = {
-        SCHEDULED_DATE_TIME: 'SCHEDULED_DATE_TIME'
+        SCHEDULED_DATE_TIME: 'SCHEDULED_DATE_TIME',
+        MAX_DATE_TIME: 'MAX_DATE_TIME'
     };
 
     static schema = {
@@ -16,8 +17,10 @@ class ProgramEncounter extends AbstractEncounter {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
+            name: {type: 'string', optional: true},
             encounterType: 'EncounterType',
             scheduledDateTime: {type: 'date', optional: true},
+            maxDateTime: {type: 'date', optional: true},
             encounterDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'}
@@ -28,13 +31,18 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = AbstractEncounter.fromResource(resource, entityService, new ProgramEncounter());
 
         programEncounter.programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        programEncounter.scheduledDateTime = resource["scheduledDateTime"];
+        programEncounter.scheduledDateTime = resource.scheduledDateTime;
+        programEncounter.maxDateTime = resource.maxDateTime;
+        programEncounter.name = resource.name;
         return programEncounter;
     }
 
     get toResource() {
         const resource = super.toResource;
-        resource["programEnrolmentUUID"] = this.programEnrolment.uuid;
+        resource.programEnrolmentUUID = this.programEnrolment.uuid;
+        resource.name = this.programEnrolment.name;
+        resource.scheduledDateTime = moment(this.scheduledDateTime).format();
+        resource.maxDateTime = moment(this.maxDateTime).format();
         return resource;
     }
 
@@ -48,12 +56,16 @@ class ProgramEncounter extends AbstractEncounter {
     cloneForEdit() {
         const programEncounter = super.cloneForEdit(new ProgramEncounter());
         programEncounter.programEnrolment = this.programEnrolment;
+        programEncounter.name = this.name;
+        programEncounter.scheduledDateTime = this.scheduledDateTime;
+        programEncounter.maxDateTime = this.maxDateTime;
         return programEncounter;
     }
 
     getEncounterDateValues() {
         const encounterDateValues = super.getEncounterDateValues();
         encounterDateValues[ProgramEncounter.fieldKeys.SCHEDULED_DATE_TIME] = this.scheduledDateTime;
+        encounterDateValues[ProgramEncounter.fieldKeys.MAX_DATE_TIME] = this.maxDateTime;
         return encounterDateValues;
     }
 

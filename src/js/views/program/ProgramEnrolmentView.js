@@ -7,7 +7,7 @@ import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -24,7 +24,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.programEnrolment);
+        super(props, context, Reducers.reducerKeys.programEnrolment);
     }
 
     viewName() {

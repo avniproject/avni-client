@@ -2,7 +2,7 @@ import {View, StyleSheet} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import {ProgramEncounterActionsNames as Actions} from "../../action/prorgam/ProgramEncounterActions";
@@ -14,11 +14,9 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractEncounter from "../../models/AbstractEncounter";
-import AbstractDataEntryState from '../../state/AbstractDataEntryState';
-import DateFormElement from '../../views/form/DateFormElement';
-import _ from 'lodash';
-import TypedTransition from "../../framework/routing/TypedTransition";
-import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import DateFormElement from "../../views/form/DateFormElement";
+import _ from "lodash";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -31,7 +29,7 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.programEncounter);
+        super(props, context, Reducers.reducerKeys.programEncounter);
     }
 
     componentWillMount() {

@@ -1,12 +1,12 @@
 class StubbedConfigFileService {
     getEncounterDecisionFile() {
         return {
-            contents: 'const getDecision = ' +
+            contents: 'const getDecisions = ' +
             'function (encounter) { ' +
             'console.log(encounter.getObservationValue("foo"));' +
             'return encounter.getObservationValue("foo");' +
             '};' +
-            'module.exports = function() {return {getDecision: getDecision};}'
+            'module.exports = function() {return {getDecisions: getDecisions};}'
         };
     }
 

@@ -56,7 +56,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        const decisions = ruleService.getDecision(this.individual);
+        const decisions = ruleService.getDecisions(this.individual);
         context.get(ConceptService).addDecisions(this.individual.observations, decisions);
         return decisions;
     }

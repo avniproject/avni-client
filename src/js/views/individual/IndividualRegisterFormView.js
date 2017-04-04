@@ -2,7 +2,7 @@ import {View, StyleSheet, Alert, Navigator} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import ReducerKeys from "../../reducer";
+import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -23,7 +23,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.individualRegister);
+        super(props, context, Reducers.reducerKeys.individualRegister);
     }
 
     previous() {

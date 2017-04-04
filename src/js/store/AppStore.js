@@ -1,5 +1,5 @@
 import {createStore, combineReducers} from 'redux';
-import {initReducers} from '../reducer';
+import Reducers from '../reducer';
 
 class AppStore {
     static create(beans) {
@@ -8,7 +8,7 @@ class AppStore {
     }
 
     static createCombinedReducer(beans) {
-        const reducers = initReducers(beans);
+        const reducers = Reducers.createReducers(beans);
         return combineReducers(reducers);
     }
 }
