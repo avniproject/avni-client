@@ -53,6 +53,10 @@ class EntityTypeChoiceState {
         action.cb(this);
         return this;
     }
+
+    overwriteEntity(entity) {
+        this.entity = entity;
+    }
 }
 
 export default EntityTypeChoiceState;

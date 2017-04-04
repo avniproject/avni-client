@@ -47,7 +47,12 @@ export class ProgramEnrolmentActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         const service = context.get(ProgramEnrolmentService);
-        newState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(newState.enrolment) : service.exit(newState.enrolment);
+        try {
+            newState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(newState.enrolment) : service.exit(newState.enrolment);
+        } catch (error) {
+            action.error(error);
+            return newState;
+        }
         action.cb();
         return newState;
     }

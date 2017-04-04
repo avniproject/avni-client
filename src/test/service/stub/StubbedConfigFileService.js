@@ -4,7 +4,7 @@ class StubbedConfigFileService {
             contents: 'const getDecisions = ' +
             'function (encounter) { ' +
             'console.log(encounter.getObservationValue("foo"));' +
-            'return encounter.getObservationValue("foo");' +
+            'return [];' +
             '};' +
             'module.exports = function() {return {getDecisions: getDecisions};}'
         };

@@ -29,7 +29,8 @@ class SystemRecommendationView extends AbstractComponent {
 
     save() {
         this.dispatchAction(this.props.saveActionName, {
-            cb: () => this.props.onSaveCallback(this)
+            cb: () => this.props.onSaveCallback(this),
+            error: (message) => this.showError(message)
         });
     }
 

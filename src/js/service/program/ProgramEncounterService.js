@@ -12,6 +12,10 @@ class ProgramEncounterService extends BaseService {
         super(db, beanStore);
     }
 
+    getSchema() {
+        return ProgramEncounter.schema.name;
+    }
+
     getProgramSummary(program) {
         const encounterSummary = {};
         const unfulfilledEncounters = this.db.objects(ProgramEncounter.schema.name).filtered(`encounterDateTime == null AND scheduledDateTime != null AND programEnrolment.program.uuid == \"${program.uuid}\"`).sorted('scheduledDateTime');
@@ -42,6 +46,10 @@ class ProgramEncounterService extends BaseService {
             db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
         });
         return programEncounter;
+    }
+
+    findDueEncounter(encounterTypeUUID, enrolmentUUID) {
+        return this.findByCriteria(`encounterType.uuid="${encounterTypeUUID}" AND programEnrolment.uuid="${enrolmentUUID}"`);
     }
 }
 

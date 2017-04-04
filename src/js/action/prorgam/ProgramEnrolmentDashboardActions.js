@@ -5,6 +5,7 @@ import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import ProgramEncounter from '../../models/ProgramEncounter';
 import FormMappingService from "../../service/FormMappingService";
+import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -65,6 +66,11 @@ class ProgramEnrolmentDashboardActions {
 
     static onEncounterTypeConfirmed(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
+        const dueEncounter = context.get(ProgramEncounterService).findDueEncounter(newState.encounterTypeState.entity.encounterType.uuid, newState.enrolment.uuid);
+        if (!_.isNil(dueEncounter)) {
+            console.log('Found a due encounter');
+            newState.encounterTypeState.overwriteEntity(dueEncounter);
+        }
         newState.encounterTypeState.entityTypeSelectionConfirmed(action);
         return newState;
     }

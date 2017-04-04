@@ -8,6 +8,7 @@ import ProgramEncounterService from "./program/ProgramEncounterService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import ProgramEncounter from "../models/ProgramEncounter";
 import ObservationsHolder from '../models/ObservationsHolder';
+import EncounterType from '../models/EncounterType';
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -26,11 +27,17 @@ class ProgramEnrolmentService extends BaseService {
 
     enrol(programEnrolment) {
         const nextScheduledVisits = this.getService(RuleEvaluationService).getNextScheduledVisits(programEnrolment);
+        const self = this;
         nextScheduledVisits.forEach((nextScheduledVisit) => {
+            const encounterType = self.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+            if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
+
             const programEncounter = ProgramEncounter.createEmptyInstance();
+            programEncounter.encounterType = encounterType;
             programEncounter.scheduledDateTime = nextScheduledVisit.dueDate;
             programEncounter.maxDateTime = nextScheduledVisit.maxDate;
-            programEncounter.name = nextScheduledVisit.visitName;
+
+            programEncounter.name = nextScheduledVisit.name;
             programEncounter.programEnrolment = programEnrolment;
             programEnrolment.encounters.push(programEncounter);
         });
