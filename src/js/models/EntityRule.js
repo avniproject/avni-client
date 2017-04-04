@@ -25,7 +25,7 @@ class EntityRule {
         if (_.isNil(results)) {
             console.log(`${ruleName} rule didn't return anything for: ${entity.constructor.name}`);
             return [];
-        } else if (_.isArray(results)) {
+        } else if (!_.isArray(results)) {
             console.log(`${ruleName} didn't return an array for: ${entity.constructor.name}`);
             return [];
         }
