@@ -1,15 +1,13 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import ConfigFileService from "./ConfigFileService";
-import _ from 'lodash';
+import _ from "lodash";
 import DynamicDataResolver from "./DynamicDataResolver";
-import {getObservationValue} from '../service/decisionSupport/AdditionalFunctions';
+import {getObservationValue, observationExists, getCodedAnswers} from "../service/decisionSupport/AdditionalFunctions";
 import Encounter from "../models/Encounter";
 import Individual from "../models/Individual";
 import ProgramEncounter from "../models/ProgramEncounter";
 import ProgramEnrolment from "../models/ProgramEnrolment";
-import AbstractEncounter from "../models/AbstractEncounter";
-import ValidationResult from '../models/application/ValidationResult';
 import EntityRule from "../models/EntityRule";
 
 @Service("ruleEvaluationService")
@@ -38,11 +36,13 @@ class RuleEvaluationService extends BaseService {
     decorateEncounter() {
         if (!this.initialised) {
             const dynamicDataResolver = new DynamicDataResolver(this.context);
-            Encounter.prototype.dynamicDataResolver = dynamicDataResolver;
-            Encounter.prototype.getObservationValue = getObservationValue;
-
-            ProgramEncounter.prototype.dynamicDataResolver = dynamicDataResolver;
-            ProgramEncounter.prototype.getObservationValue = getObservationValue;
+            const prototypes = [Encounter.prototype, ProgramEncounter.prototype, ProgramEnrolment.prototype];
+            prototypes.forEach((currentPrototype) => {
+                currentPrototype.dynamicDataResolver = dynamicDataResolver;
+                currentPrototype.getObservationValue = getObservationValue;
+                currentPrototype.observationExists = observationExists;
+                currentPrototype.getCodedAnswers = getCodedAnswers;
+            });
         }
     }
 

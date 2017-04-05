@@ -2,9 +2,12 @@ import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
 import ProgramEncounter from "../../models/ProgramEncounter";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
+import EncounterType from "../../models/EncounterType";
 import moment from "moment";
 import EntityQueue from "../../models/EntityQueue";
 import ObservationsHolder from '../../models/ObservationsHolder';
+import RuleEvaluationService from "../RuleEvaluationService";
+import _ from 'lodash';
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -35,15 +38,29 @@ class ProgramEncounterService extends BaseService {
 
     saveOrUpdate(programEncounter) {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
+
+        const programEncounters = [programEncounter];
+        const nextScheduledVisits = this.getService(RuleEvaluationService).getNextScheduledVisits(programEncounter);
+        const self = this;
+
+        nextScheduledVisits.forEach((nextScheduledVisit) => {
+            const encounterType = self.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+            if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
+
+            const scheduledProgramEncounter = ProgramEncounter.createFromScheduledVisit(nextScheduledVisit, encounterType, programEncounter.programEnrolment);
+            programEncounters.push(scheduledProgramEncounter);
+        });
+
         const db = this.db;
         this.db.write(()=> {
-            db.create(ProgramEncounter.schema.name, programEncounter, true);
+            programEncounters.forEach((programEncounter) => db.create(ProgramEncounter.schema.name, programEncounter, true));
 
-            const loadedEncounter = this.findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
-            const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
-            enrolment.addEncounter(loadedEncounter);
-
-            db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+            programEncounters.forEach((programEncounter) => {
+                const loadedEncounter = this.findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
+                const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
+                enrolment.addEncounter(loadedEncounter);
+                db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+            });
         });
         return programEncounter;
     }

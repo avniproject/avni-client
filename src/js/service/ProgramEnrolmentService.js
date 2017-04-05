@@ -28,17 +28,14 @@ class ProgramEnrolmentService extends BaseService {
     enrol(programEnrolment) {
         const nextScheduledVisits = this.getService(RuleEvaluationService).getNextScheduledVisits(programEnrolment);
         const self = this;
+        const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
+
         nextScheduledVisits.forEach((nextScheduledVisit) => {
             const encounterType = self.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
 
-            const programEncounter = ProgramEncounter.createEmptyInstance();
-            programEncounter.encounterType = encounterType;
-            programEncounter.scheduledDateTime = nextScheduledVisit.dueDate;
-            programEncounter.maxDateTime = nextScheduledVisit.maxDate;
-
-            programEncounter.name = nextScheduledVisit.name;
-            programEncounter.programEnrolment = programEnrolment;
+            const programEncounter = ProgramEncounter.createFromScheduledVisit(nextScheduledVisit, encounterType, programEnrolment);
+            entityQueueItems.push(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
             programEnrolment.encounters.push(programEncounter);
         });
 
@@ -48,13 +45,12 @@ class ProgramEnrolmentService extends BaseService {
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 
             const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
-
             if (!_.some(loadedIndividual.enrolments, (enrolment) => enrolment.uuid === programEnrolment.uuid)) {
                 const loadedEnrolment = this.findByUUID(programEnrolment.uuid, ProgramEnrolment.schema.name);
                 loadedIndividual.enrolments.push(loadedEnrolment);
             }
 
-            db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
         });
     }
 

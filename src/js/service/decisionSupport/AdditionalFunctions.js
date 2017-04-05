@@ -8,9 +8,7 @@ let getCodedAnswer = function (observation) {
 };
 
 const getObservationValue = function (conceptName) {
-    const observation = _.find(this.observations, (observation) => {
-        return observation.concept.name === conceptName;
-    });
+    const observation = _.find(this.observations, (observation) => observation.concept.name === conceptName);
 
     if (_.isNil(observation)) {
         console.log(`No observation found for concept: ${conceptName}`);
@@ -26,7 +24,11 @@ const getObservationValue = function (conceptName) {
     }
 };
 
-let getCodedAnswers = function (observation) {
+const observationExists = function (conceptName) {
+    return _.some(this.observations, (observation) => observation.concept.name === conceptName);
+};
+
+const getCodedAnswers = function (observation) {
     return observation.getValue().map((conceptUUID) => {
         const concept = Encounter.prototype.dynamicDataResolver.getConceptByUUID(conceptUUID);
         if (_.isNil(concept))
@@ -35,4 +37,4 @@ let getCodedAnswers = function (observation) {
     });
 };
 
-export {getObservationValue as getObservationValue};
+export {getObservationValue as getObservationValue, observationExists as observationExists, getCodedAnswers as getCodedAnswers};

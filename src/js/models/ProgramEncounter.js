@@ -76,6 +76,17 @@ class ProgramEncounter extends AbstractEncounter {
             validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateNotInBetweenEnrolmentAndExitDate'));
         return validationResults;
     }
+
+    static createFromScheduledVisit(nextScheduledVisit, encounterType, programEnrolment) {
+        const programEncounter = ProgramEncounter.createEmptyInstance();
+        programEncounter.encounterType = encounterType;
+        programEncounter.scheduledDateTime = nextScheduledVisit.dueDate;
+        programEncounter.maxDateTime = nextScheduledVisit.maxDate;
+
+        programEncounter.name = nextScheduledVisit.name;
+        programEncounter.programEnrolment = programEnrolment;
+        return programEncounter;
+    }
 }
 
 export default ProgramEncounter;
