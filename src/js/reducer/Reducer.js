@@ -10,7 +10,12 @@ export default class Reducer {
 
         return (state = initState, action) => {
             if (!(actions.has(action.type))) return state;
-            return actions.get(action.type)(state, action, beans);
+
+            try {
+                return actions.get(action.type)(state, action, beans);
+            } catch (e) {
+                return actions.get('ON_ERROR')(state, action, beans, e);
+            }
         }
     }
 }

@@ -53,7 +53,7 @@ const ProgramEncounterActionsNames = {
     PREVIOUS: 'PEncA.PREVIOUS',
     NEXT: 'PEncA.NEXT',
     ENCOUNTER_DATE_TIME_CHANGED: "PEncA.ENROLMENT_DATE_TIME_CHANGED",
-    SAVE: "PEncA.SAVE"
+    SAVE: "PEncA.SAVE",
 };
 
 const ProgramEncounterActionsMap = new Map([
