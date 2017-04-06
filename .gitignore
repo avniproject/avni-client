@@ -1,3 +1,7 @@
+# ansible
+*.retry
+
+
 # OSX
 #
 .DS_Store
