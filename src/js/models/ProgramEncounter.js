@@ -41,8 +41,10 @@ class ProgramEncounter extends AbstractEncounter {
         const resource = super.toResource;
         resource.programEnrolmentUUID = this.programEnrolment.uuid;
         resource.name = this.programEnrolment.name;
-        resource.scheduledDateTime = moment(this.scheduledDateTime).format();
-        resource.maxDateTime = moment(this.maxDateTime).format();
+        if (!_.isNil(this.scheduledDateTime))
+            resource.scheduledDateTime = moment(this.scheduledDateTime).format();
+        if (!_.isNil(this.maxDateTime))
+            resource.maxDateTime = moment(this.maxDateTime).format();
         return resource;
     }
 

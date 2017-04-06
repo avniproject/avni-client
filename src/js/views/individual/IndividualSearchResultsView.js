@@ -113,8 +113,8 @@ class IndividualSearchResultsView extends AbstractComponent {
                               </ListItem>
                           }>
                     </List>
+                    {this.renderZeroResultsMessageIfNeeded()}
                 </Content>
-                {this.renderZeroResultsMessageIfNeeded()}
             </Container>
         );
     }
