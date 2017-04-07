@@ -38,20 +38,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     getImage(individual) {
-        if (individual.gender.name === 'Male') {
-            if (moment().diff(individual.dateOfBirth, 'years') > 30) {
-                return <Thumbnail size={DGS.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DGS.resizeHeight(28)}}
-                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
-            }
-            else {
-                return <Thumbnail size={DGS.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DGS.resizeHeight(28)}}
-                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
-            }
-        }
-        else if (individual.gender.name === 'Female') {
-            return <Thumbnail size={DGS.resizeHeight(75)} style={{borderWidth: 2, borderColor: '#ffffff', margin: DGS.resizeHeight(28)}}
-                              source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
-        }
+        return ;
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -77,7 +64,7 @@ class IndividualProfile extends AbstractComponent {
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
                     <Grid style={{backgroundColor: Colors.Blackish}}>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
-                            {this.getImage(this.props.individual)}
+                            <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 68}}/>
                         </Row>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30)}}><Text
                             style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name}

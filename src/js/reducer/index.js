@@ -20,6 +20,7 @@ import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/pro
 import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
 import {AddressLevelActions} from '../action/AddressLevelActions';
+import _ from 'lodash';
 
 export default class Reducers {
     static reducerKeys = {
@@ -55,8 +56,17 @@ export default class Reducers {
         return reducerMap;
     };
 
+    static onError(state, action, context, error) {
+        const newState = Object.assign({}, state);
+        newState.error = error;
+        return newState;
+    }
+
     static _add(actions, actionClass, beanStore) {
-        actions.set('RESET', () => actionClass.getInitialState(beanStore));
+        if (!actions.has('RESET'))
+            actions.set('RESET', () => actionClass.getInitialState(beanStore));
+        if (!actions.has('ON_ERROR'))
+            actions.set('ON_ERROR', Reducers.onError);
         return Reducer.factory(actions, actionClass.getInitialState(beanStore), beanStore);
     };
 }

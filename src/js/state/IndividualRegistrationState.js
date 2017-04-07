@@ -17,7 +17,9 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     static createLoadState(form, genders, individual) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        return new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true);
+        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true);
+        individualRegistrationState.form = form;
+        return individualRegistrationState;
     }
 
     clone() {
@@ -26,6 +28,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.genders = this.genders;
         newState.age = this.age;
         newState.ageProvidedInYears = this.ageProvidedInYears;
+        newState.form = this.form;
         super.clone(newState);
         return newState;
     }

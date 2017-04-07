@@ -30,6 +30,7 @@ class ProgramEnrolment extends BaseEntity {
     static createEmptyInstance() {
         const programEnrolment = new ProgramEnrolment();
         programEnrolment.uuid = General.randomUUID();
+        programEnrolment.enrolmentDateTime = new Date();
         programEnrolment.observations = [];
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];

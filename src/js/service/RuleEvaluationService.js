@@ -49,7 +49,7 @@ class RuleEvaluationService extends BaseService {
     static getExports(configFile) {
         if (!_.isNil(configFile)) {
             try {
-                return eval(`${configFile.contents}`)(1, 2); //1,2 is passed because of browserify adding a function infront
+                return eval(`${configFile.contents}`);
             } catch (error) {
                 console.log(error);
                 return null;

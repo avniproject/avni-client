@@ -3,17 +3,13 @@ import {View} from "react-native";
 import React from "react";
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
-import {Container, Content, List, ListItem, Thumbnail, Grid, Row, Col, Text, Button} from "native-base";
-import moment from "moment";
+import {Container, Content, List, ListItem, Grid, Row, Col, Text, Button, Icon} from "native-base";
 import themes from "../primitives/themes";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AppHeader from "../common/AppHeader";
 import Fonts from "../primitives/Fonts";
-import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 import Colors from "../primitives/Colors";
-import CHSNavigator from '../../utility/CHSNavigator';
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -65,23 +61,6 @@ class IndividualSearchResultsView extends AbstractComponent {
         );
     }
 
-    getImage(individual) {
-        if (individual.gender.name === 'Male') {
-            if (moment().diff(individual.dateOfBirth, 'years') > 30) {
-                return <Thumbnail size={DynamicGlobalStyles.resizeWidth(68)} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
-                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/narendra_modi.png")}/>
-            }
-            else {
-                return <Thumbnail size={DynamicGlobalStyles.resizeWidth(68)} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
-                                  source={require("../../../../android/app/src/main/res/mipmap-mdpi/arvind_kejriwal.jpg")}/>
-            }
-        }
-        else if (individual.gender.name === 'Female') {
-            return <Thumbnail size={DynamicGlobalStyles.resizeWidth(68)} style={{borderWidth: 2, borderColor: '#4a4a4a'}}
-                              source={require("../../../../android/app/src/main/res/mipmap-mdpi/mamta.jpg")}/>
-        }
-    }
-
     render() {
         return (
             <Container theme={themes}>
@@ -94,7 +73,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(68)}}>
-                                          {this.getImage(item)}
+                                          <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48}}/>
                                       </Col>
                                       <Col style={{paddingLeft: DynamicGlobalStyles.resizeWidth(16)}}>
                                           <Row><Text style={{fontSize: 16}}>{item.name}</Text></Row>
@@ -113,8 +92,8 @@ class IndividualSearchResultsView extends AbstractComponent {
                               </ListItem>
                           }>
                     </List>
+                    {this.renderZeroResultsMessageIfNeeded()}
                 </Content>
-                {this.renderZeroResultsMessageIfNeeded()}
             </Container>
         );
     }
