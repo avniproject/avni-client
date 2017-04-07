@@ -1,4 +1,5 @@
 {
+  "catchment": 1,
   "serverURL": "http://192.168.73.1:8080",
   "locale": {
     "selectedLocale": "mr_IN",

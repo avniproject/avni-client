@@ -1,5 +1,6 @@
-import {Animated, View,StyleSheet} from "react-native";
+import {Animated, View,StyleSheet, Text} from "react-native";
 import React, {Component} from "react";
+import { VictoryBar } from "victory-native";
 import _ from "lodash";
 
 class Playground extends Component {
@@ -32,9 +33,7 @@ class Playground extends Component {
 
         return (
             <View style={Playground.styles.container}>
-                <Animated.View
-                    style={[Playground.styles.box, {transform: [{rotate: interpolatedRotateAnimation}]}]}
-                />
+                <VictoryBar />
             </View>
         );
     }
