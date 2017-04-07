@@ -24,6 +24,7 @@ class IndividualSearchView extends AbstractComponent {
     }
 
     render() {
+        console.log('IndividualSearchView.render');
         return (
             <Content>
                 <Grid style={{marginTop: 16, marginHorizontal: 24}}>

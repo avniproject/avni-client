@@ -62,6 +62,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     render() {
+        console.log('IndividualSearchResultsView.render');
         return (
             <Container theme={themes}>
                 <Content>

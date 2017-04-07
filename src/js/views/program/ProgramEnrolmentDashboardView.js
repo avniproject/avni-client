@@ -38,6 +38,12 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return super.componentWillMount();
     }
 
+    componentWillReceiveProps() {
+        if (this.state.possibleExternalStateChange) {
+            this.dispatchAction(Actions.ON_LOAD, {enrolmentUUID: this.props.params.enrolmentUUID, individualUUID: this.props.params.individualUUID});
+        }
+    }
+
     editEnrolment() {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
             enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
@@ -56,6 +62,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     startProgramEncounter() {
         this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
+    }
+
+    startEncounter() {
+        this.dispatchAction(Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY);
+        CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid);
     }
 
     render() {
@@ -83,7 +94,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
                                         textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button>
                                 <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
-                                        textStyle={{color: Colors.Blackish}}>{this.I18n.t('startGeneralVisit')}</Button>
+                                        textStyle={{color: Colors.Blackish}} onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>
                         </View>
                         <ObservationsSectionTitle contextActions={contextActions} titleKey='enrolmentAttributes'/>

@@ -43,7 +43,7 @@ class IndividualEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, encounterDecisions) => {
                 CHSNavigator.navigateToSystemsRecommendationView(this, encounterDecisions, this.state.encounter.individual, Actions.SAVE, (source) => {
-                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView], IndividualEncounterLandingView, {individualUUID: this.state.encounter.individual.uuid});
+                    TypedTransition.from(source).popToBookmark();
                 });
             },
             validationFailed: (newState) => {

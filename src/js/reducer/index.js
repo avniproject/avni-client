@@ -49,7 +49,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.encounter] = Reducers._add(IndividualEncounterViewActionsMap, EncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.dashboard] = Reducers._add(DashboardActionsMap, DashboardActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolments] = Reducers._add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions, beanStore);
-        reducerMap[Reducers.reducerKeys.programEnrolmentDashboard] = Reducers._add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions, beanStore);
+        reducerMap[Reducers.reducerKeys.programEnrolmentDashboard] = Reducers._add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions, beanStore, ProgramEnrolmentDashboardActions.ACTION_PREFIX);
         reducerMap[Reducers.reducerKeys.programEncounter] = Reducers._add(ProgramEncounterActionsMap, ProgramEncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegistrationDetails] = Reducers._add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions, beanStore);
 
@@ -62,11 +62,22 @@ export default class Reducers {
         return newState;
     }
 
-    static _add(actions, actionClass, beanStore) {
+    static onPossibleExternalStateChange(state, action, context) {
+        const newState = Object.assign({}, state);
+        newState.possibleExternalStateChange = true;
+        return newState;
+    }
+
+    static STATE_CHANGE_POSSIBLE_EXTERNALLY = 'STATE_CHANGE_POSSIBLE_EXTERNALLY';
+    static ON_ERROR = 'ON_ERROR';
+
+    static _add(actions, actionClass, beanStore, prefix) {
         if (!actions.has('RESET'))
             actions.set('RESET', () => actionClass.getInitialState(beanStore));
-        if (!actions.has('ON_ERROR'))
-            actions.set('ON_ERROR', Reducers.onError);
-        return Reducer.factory(actions, actionClass.getInitialState(beanStore), beanStore);
+        if (!_.isNil(prefix)) {
+            actions.set(`${prefix}.${Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY}`, Reducers.onPossibleExternalStateChange);
+            actions.set(`${prefix}.${Reducers.ON_ERROR}`, Reducers.onError);
+        }
+        return Reducer.factory(actions, actionClass.getInitialState(beanStore), beanStore, prefix);
     };
 }

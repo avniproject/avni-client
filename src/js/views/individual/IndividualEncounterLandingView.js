@@ -52,7 +52,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
             },
             completed: (newState, encounterDecisions) => {
                 CHSNavigator.navigateToSystemsRecommendationView(this, encounterDecisions, this.state.encounter.individual, Actions.SAVE, (source) => {
-                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView], IndividualEncounterLandingView, {individualUUID: this.state.encounter.individual.uuid});
+                    TypedTransition.from(source).popToBookmark();
                 });
             }
         });

@@ -42,7 +42,7 @@ class CHSNavigator {
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounterUUID) {
-        TypedTransition.from(source).with({encounterUUID: encounterUUID, individualUUID: individualUUID}).to(IndividualEncounterLandingView);
+        TypedTransition.from(source).bookmark().with({encounterUUID: encounterUUID, individualUUID: individualUUID}).to(IndividualEncounterLandingView);
     }
 
     static navigateToSystemsRecommendationView(source, decisions, individual, saveActionName, onSaveCallback) {

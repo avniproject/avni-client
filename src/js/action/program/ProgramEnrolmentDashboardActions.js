@@ -90,6 +90,8 @@ class ProgramEnrolmentDashboardActions {
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
+
+    static ACTION_PREFIX = 'PEDA';
 }
 
 const ProgramEnrolmentDashboardActionsNames = {

@@ -1,6 +1,7 @@
 import invariant from "invariant";
 import _ from "lodash";
 
+// navigator commands are async in their actual effect of their execution. so if you run more than one navigator action one after other the output is indeterminate
 export default class TypedTransition {
     constructor(view) {
         this.view = view;
@@ -68,7 +69,7 @@ export default class TypedTransition {
         const wizardCount = _.sumBy(currentRoutes, (route) => _.some(wizardViewClasses, (wizardViewClass) => wizardViewClass.path() === route.path ? 1 : 0));
         var newRouteStack;
         if (_.isNil(newViewClass)) {
-            this.navigator.popN(wizardCount);
+            this._popN(wizardCount);
             console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}`);
         } else {
             const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
@@ -77,6 +78,24 @@ export default class TypedTransition {
             this.navigator.immediatelyResetRouteStack(newRouteStack);
             console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}, Final: ${newRouteStack.length}`);
         }
+    }
+
+    _popN(n) {
+        this.safeDismissKeyboard();
+        this.navigator.popN(n);
+        return this;
+    }
+
+    popToBookmark() {
+        if (!_.isNil(this.navigator.countOfRoutes)) {
+           this._popN(this.navigator.getCurrentRoutes().length - this.navigator.countOfRoutes);
+           this.navigator.countOfRoutes = null;
+        }
+    }
+
+    bookmark() {
+        this.navigator.countOfRoutes = this.navigator.getCurrentRoutes().length;
+        return this;
     }
 
     logRoutes() {
