@@ -2,7 +2,7 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDashboardView";
 import ProgramExitView from "../views/program/ProgramExitView";
-import ProgramEnrolmentState from "../action/prorgam/ProgramEnrolmentState";
+import ProgramEnrolmentState from "../action/program/ProgramEnrolmentState";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
 import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";

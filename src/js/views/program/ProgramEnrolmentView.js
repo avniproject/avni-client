@@ -3,9 +3,9 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ProgramFormComponent from './ProgramFormComponent';
-import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
+import {Actions} from "../../action/program/ProgramEnrolmentActions";
 import ProgramEnrolment from "../../models/ProgramEnrolment";
-import ProgramEnrolmentState from '../../action/prorgam/ProgramEnrolmentState';
+import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
 import Reducers from "../../reducer";
 

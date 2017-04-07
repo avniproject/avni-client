@@ -5,7 +5,7 @@ import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import {Content, Container} from "native-base";
 import themes from "../primitives/themes";
-import {Actions} from "../../action/prorgam/ProgramEnrolmentActions";
+import {Actions} from "../../action/program/ProgramEnrolmentActions";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/DateFormElement";
 import FormElementGroup from "../form/FormElementGroup";

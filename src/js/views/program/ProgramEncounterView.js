@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {ProgramEncounterActionsNames as Actions} from "../../action/prorgam/ProgramEncounterActions";
+import {ProgramEncounterActionsNames as Actions} from "../../action/program/ProgramEncounterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
 import {Content, Container} from "native-base";

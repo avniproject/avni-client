@@ -1,6 +1,6 @@
 import {expect, assert} from "chai";
-import {ProgramEnrolmentActions} from "../../js/action/prorgam/ProgramEnrolmentActions";
-import ProgramEnrolmentState from "../../js/action/prorgam/ProgramEnrolmentState";
+import {ProgramEnrolmentActions} from "../../js/action/program/ProgramEnrolmentActions";
+import ProgramEnrolmentState from "../../js/action/program/ProgramEnrolmentState";
 import TestContext from "../views/testframework/TestContext";
 import ProgramEnrolment from "../../js/models/ProgramEnrolment";
 import Individual from "../../js/models/Individual";

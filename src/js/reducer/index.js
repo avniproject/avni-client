@@ -1,7 +1,7 @@
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
 import Reducer from "./Reducer";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
-import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/prorgam/ProgramEnrolmentActions';
+import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/program/ProgramEnrolmentActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import {
     EncounterActions,
@@ -10,13 +10,13 @@ import {
 import {
     DashboardActions,
     DashboardActionsMap
-} from "../action/prorgam/DashboardActions";
+} from "../action/program/DashboardActions";
 import {
     ProgramEnrolmentsActions,
     ProgramEnrolmentsActionsMap
-} from "../action/prorgam/ProgramEnrolmentsActions";
-import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} from '../action/prorgam/ProgramEnrolmentDashboardActions';
-import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/prorgam/ProgramEncounterActions';
+} from "../action/program/ProgramEnrolmentsActions";
+import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} from '../action/program/ProgramEnrolmentDashboardActions';
+import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
 import {AddressLevelActions} from '../action/AddressLevelActions';

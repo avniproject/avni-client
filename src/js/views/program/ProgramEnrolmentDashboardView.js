@@ -6,7 +6,7 @@ import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
-import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentDashboardActions";
+import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
 import {Text, Content, Container, Button, Card} from "native-base";
 import ProgramList from "./ProgramList";

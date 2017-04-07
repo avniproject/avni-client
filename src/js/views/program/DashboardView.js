@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import {DashboardActionNames as Actions} from "../../action/prorgam/DashboardActions";
+import {DashboardActionNames as Actions} from "../../action/program/DashboardActions";
 import themes from "../primitives/themes";
 import ProgramDashboard from "../program/ProgramDashboard";
 import {Content, Container} from "native-base";

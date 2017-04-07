@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {ProgramEnrolmentsActionsNames as Actions} from "../../action/prorgam/ProgramEnrolmentsActions";
+import {ProgramEnrolmentsActionsNames as Actions} from "../../action/program/ProgramEnrolmentsActions";
 import {Content, Container} from "native-base";
 import moment from "moment";
 import TabularListView from "../common/TabularListView";
