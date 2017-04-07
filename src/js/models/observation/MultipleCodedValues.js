@@ -10,12 +10,6 @@ class MultipleCodedValues {
         return this;
     }
 
-    static createWithSingleItem(answerUUID) {
-        const multipleCodedValues = new MultipleCodedValues();
-        multipleCodedValues.push(answerUUID);
-        return multipleCodedValues;
-    }
-
     isAnswerAlreadyPresent(conceptUUID) {
         return _.some(this.answer, (item) => item === conceptUUID);
     }
