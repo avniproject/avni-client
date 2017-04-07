@@ -51,9 +51,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 TypedTransition.from(this).to(IndividualEncounterView);
             },
             completed: (newState, encounterDecisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(this, encounterDecisions, this.state.encounter.individual, Actions.SAVE, (source) => {
-                    TypedTransition.from(source).popToBookmark();
-                });
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, this.state.encounter, Actions.SAVE);
             }
         });
     }

@@ -1,20 +1,16 @@
-import {View, StyleSheet} from 'react-native';
-import React, {Component} from 'react';
-import AbstractComponent from '../../framework/view/AbstractComponent';
+import {StyleSheet, View} from "react-native";
+import React, {Component} from "react";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
-import {
-    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input, Radio
-} from "native-base";
-import DGS from '../primitives/DynamicGlobalStyles';
+import {Col, Grid, Row, Text} from "native-base";
+import DGS from "../primitives/DynamicGlobalStyles";
 import ConceptService from "../../service/ConceptService";
-import Observation from '../../models/Observation';
-import Fonts from '../primitives/Fonts';
-import Colors from '../primitives/Colors';
+import Observation from "../../models/Observation";
+import Fonts from "../primitives/Fonts";
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.object.isRequired
+        observations: React.PropTypes.any.isRequired
     };
 
     constructor(props, context) {

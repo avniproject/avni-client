@@ -42,9 +42,7 @@ class IndividualEncounterView extends AbstractComponent {
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, encounterDecisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(this, encounterDecisions, this.state.encounter.individual, Actions.SAVE, (source) => {
-                    TypedTransition.from(source).popToBookmark();
-                });
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, this.state.encounter, Actions.SAVE);
             },
             validationFailed: (newState) => {
                 if (AbstractDataEntryState.hasValidationError(this.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {

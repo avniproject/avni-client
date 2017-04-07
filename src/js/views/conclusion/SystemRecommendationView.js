@@ -9,6 +9,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
+import Observations from "../common/Observations";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -16,7 +17,8 @@ class SystemRecommendationView extends AbstractComponent {
         individual: React.PropTypes.object.isRequired,
         saveActionName: React.PropTypes.string.isRequired,
         onSaveCallback: React.PropTypes.func.isRequired,
-        decisions: React.PropTypes.array.isRequired
+        decisions: React.PropTypes.array.isRequired,
+        observations: React.PropTypes.array.isRequired
     };
 
     viewName() {
@@ -44,28 +46,25 @@ class SystemRecommendationView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.props.individual.name}/>
-                    <Grid>
-                        <Row style={{backgroundColor: Colors.GreyContentBackground, paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, height: 74}}>
+                    <View style={{flexDirection: 'column'}}>
+                        <View style={{backgroundColor: Colors.GreyContentBackground, paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, height: 74}}>
                             <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.individual}/>
-                        </Row>
-                        <Row style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12}}>
-                            <Grid>
-                                {
-                                    _.values(this.props.decisions).map((decision, index) => {
-                                        return <Row style={{backgroundColor: Colors.GreyContentBackground, paddingTop: 19, paddingBottom: 19, paddingLeft: 10}}
-                                                    key={`${index}`}>
-                                            <Col>
-                                                <Text style={{fontSize: 14}}>{decision.value}</Text>
-                                            </Col>
-                                        </Row>
-                                    })}
-                            </Grid>
-                        </Row>
+                        </View>
+                        <View style={{paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, flexDirection: 'column'}}>
+                            {
+                                _.values(this.props.decisions).map((decision, index) => {
+                                    return <View style={{backgroundColor: Colors.GreyContentBackground, paddingTop: 19, paddingBottom: 19, paddingLeft: 10}}
+                                                key={`${index}`}>
+                                            <Text style={{fontSize: 14}}>{decision.value}</Text>
+                                    </View>
+                                })}
+                        </View>
+                        <Observations observations={this.props.observations}/>
                         <View style={{marginLeft: 24, marginRight: 24}}>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                            next={{func: () => this.save(), label: this.I18n.t('save')}}/>
                         </View>
-                    </Grid>
+                    </View>
                 </Content>
             </Container>
         );

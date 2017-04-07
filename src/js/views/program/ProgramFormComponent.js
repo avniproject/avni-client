@@ -1,9 +1,9 @@
-import {View, StyleSheet} from "react-native";
+import {StyleSheet, View} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
-import {Content, Container} from "native-base";
+import {Container, Content} from "native-base";
 import themes from "../primitives/themes";
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
 import StaticFormElement from "../viewmodel/StaticFormElement";
@@ -13,6 +13,7 @@ import WizardButtons from "../common/WizardButtons";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
+import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -23,7 +24,8 @@ class ProgramFormComponent extends AbstractComponent {
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.enrolment.individual, Actions.SAVE, (source) => {
+                const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.enrolment.individual, observations, Actions.SAVE, (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, this.props.context.usage);
                 });
             },

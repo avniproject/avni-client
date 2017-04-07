@@ -13,7 +13,7 @@ class IndividualRegisterViewsMixin {
     static next(view) {
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, view.state.individual, Actions.SAVE, (source) => {
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, view.state.individual, state.individual.observations, Actions.SAVE, (source) => {
                     TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], IndividualEncounterLandingView, {individualUUID: view.state.individual.uuid});
                 });
             },
