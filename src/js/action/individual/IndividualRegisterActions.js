@@ -7,7 +7,6 @@ import IndividualRegistrationState from "../../state/IndividualRegistrationState
 import Form from '../../models/application/Form';
 import _ from 'lodash';
 import Individual from '../../models/Individual';
-import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
