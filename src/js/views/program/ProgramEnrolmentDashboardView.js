@@ -70,6 +70,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
                     <EntityTypeSelector actions={Actions} confirmActionLabelKey='chooseFollowupType' flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEncounterView(this, newState.entity)}/>
+                    <View style={{backgroundColor: '#f5fcff'}}>
                     <AppHeader title={`${this.state.enrolment.individual.name}`}/>
                     <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
                     <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
@@ -95,6 +96,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         </View>
                         <PreviousEncounters encounters={this.state.enrolment.encounters}/>
                     </Card>
+                    </View>
                 </Content>
             </Container>
         );
