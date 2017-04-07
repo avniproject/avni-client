@@ -1,7 +1,6 @@
 import IndividualEncounterService from "../../service/IndividualEncounterService";
 import EntityService from "../../service/EntityService";
 import Form from "../../models/application/Form";
-import RuleEvaluationService from "../../service/RuleEvaluationService";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import _ from "lodash";
