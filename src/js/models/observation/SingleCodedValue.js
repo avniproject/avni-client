@@ -3,27 +3,17 @@ class SingleCodedValue {
         this.answer = answerUUID;
     }
 
-    hasValue(answerUUID) {
-        return this.answer === answerUUID;
-    }
+    hasValue = (answerUUID) => this.answer === answerUUID;
 
-    getValue() {
-        return this.answer;
-    }
+    getValue = () => this.answer;
 
     get toResource() {
         return [this.answer];
     }
 
-    getConceptUUID() {
-        return this.answer;
-    }
+    getConceptUUID = () => this.answer;
 
-    cloneForEdit() {
-        const singleCodedValue = new SingleCodedValue();
-        singleCodedValue.answer = this.answer;
-        return singleCodedValue;
-    }
+    cloneForEdit = () => new SingleCodedValue(this.answer);
 }
 
 export default SingleCodedValue;
