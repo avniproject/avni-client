@@ -70,7 +70,13 @@ class IndividualSearchResultsView extends AbstractComponent {
                     <List dataArray={this.props.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
-                                        style={{backgroundColor: Colors.GreyContentBackground, marginLeft: 0, paddingLeft: DynamicGlobalStyles.resizeWidth(17), padding: DynamicGlobalStyles.resizeWidth(17), height: DynamicGlobalStyles.resizeHeight(102)}}
+                                        style={{
+                                            backgroundColor: Colors.GreyContentBackground,
+                                            marginLeft: 0,
+                                            paddingLeft: DynamicGlobalStyles.resizeWidth(17),
+                                            padding: DynamicGlobalStyles.resizeWidth(17),
+                                            height: DynamicGlobalStyles.resizeHeight(102)
+                                        }}
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(68)}}>
@@ -100,10 +106,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-        if (individual.hasActiveEnrolment)
-            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
-        else
-            CHSNavigator.navigateToIndividualEncounterLandingView(this, individual.uuid);
+        CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
     }
 }
 

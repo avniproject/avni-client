@@ -97,5 +97,7 @@
   "exitProgram": "Exit Program",
   "encounterDate": "Visit Date",
   "visitDetails": "Visit Details",
-  "registrationDate": "Date of Registration"
+  "registrationDate": "Date of Registration",
+  "Yes": "Yes",
+  "No": "No"
 }

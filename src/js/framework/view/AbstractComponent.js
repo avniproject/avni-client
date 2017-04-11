@@ -30,6 +30,7 @@ class AbstractComponent extends Component {
     });
 
     dispatchAction(action, params) {
+        console.log(`Dispatching action: ${JSON.stringify(action)}`);
         this.context.getStore().dispatch({"type": action, ...params});
     }
 

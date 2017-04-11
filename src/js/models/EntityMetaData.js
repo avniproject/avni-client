@@ -37,7 +37,7 @@ class EntityMetaData {
     }
 
     static formElement() {
-        return {entityName: "FormElement", entityClass: FormElement, resourceName: "formElement", type: "reference", parent: EntityMetaData.formElementGroup(), nameTranslated: false};
+        return {entityName: "FormElement", entityClass: FormElement, resourceName: "formElement", type: "reference", parent: EntityMetaData.formElementGroup(), nameTranslated: true};
     }
 
     static formElementGroup() {

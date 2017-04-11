@@ -28,7 +28,7 @@ class FormElementGroup extends AbstractComponent {
     render() {
         return (<View>
                 {
-                    this.props.group.formElements.map((formElement, idx) => {
+                    this.props.group.getFormElements().map((formElement, idx) => {
                         const validationResult = _.find(this.props.validationResults, (validationResult) => validationResult.formIdentifier === formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return <NumericFormElement key={idx}

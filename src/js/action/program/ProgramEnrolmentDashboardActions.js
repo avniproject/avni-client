@@ -4,33 +4,44 @@ import Individual from '../../models/Individual';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import ProgramEncounter from '../../models/ProgramEncounter';
+import Encounter from '../../models/Encounter';
 import FormMappingService from "../../service/FormMappingService";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import NullProgramEnrolment from "../../models/application/NullProgramEnrolment";
+import EntityTypeChoiceActionNames from "../common/EntityTypeChoiceActionNames";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
         this.entity.encounterType = encounterType;
     }
 
-    static cloneEntity(programEncounter) {
-        if (!_.isNil(programEncounter))
-            return programEncounter.cloneForEdit();
+    static cloneEntity(entity) {
+        if (!_.isNil(entity))
+            return entity.cloneForEdit();
     }
 
     static getInitialState() {
-        return {encounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity)};
+        return {
+            programEncounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity),
+            encounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity)
+        };
     }
 
     static _setEncounterTypeState(newState, context) {
         const programEncounter = ProgramEncounter.createEmptyInstance();
         programEncounter.programEnrolment = newState.enrolment;
-        const encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
-        newState.encounterTypeState.entityParentSelected(encounterTypes, programEncounter);
+        const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
+        newState.programEncounterTypeState.entityParentSelected(programEncounterTypes, programEncounter);
+
+        const encounter = Encounter.create();
+        encounter.individual = newState.enrolment.individual;
+        const encounterTypes = context.get(FormMappingService).findEncounterTypesForEncounter();
+        newState.encounterTypeState.entityParentSelected(encounterTypes, encounter);
         return newState;
     }
 
     static clone(state) {
-        return {encounterTypeState: state.encounterTypeState.clone(), enrolment: state.enrolment};
+        return {programEncounterTypeState: state.programEncounterTypeState.clone(), encounterTypeState: state.encounterTypeState.clone(), enrolment: state.enrolment};
     }
 
     static onLoad(state, action, context) {
@@ -38,7 +49,7 @@ class ProgramEnrolmentDashboardActions {
         const entityService = context.get(EntityService);
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
-            newState.enrolment = individual.firstActiveOrRecentEnrolment;
+            newState.enrolment = individual.enrolments.length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         }
@@ -46,6 +57,38 @@ class ProgramEnrolmentDashboardActions {
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 
+    //Program Encounter Type
+    static launchChooseProgramEncounterType(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.programEncounterTypeState.launchChooseEntityType();
+        return newState;
+    }
+
+    static onProgramEncounterTypeSelected(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.programEncounterTypeState.selectedEntityType(action.value);
+        return newState;
+    }
+
+    static onCancelledProgramEncounterTypeSelection(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.programEncounterTypeState.cancelledEntityTypeSelection(action.value);
+        return newState;
+    }
+
+    static onProgramEncounterTypeConfirmed(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        const dueEncounter = context.get(ProgramEncounterService).findDueEncounter(newState.programEncounterTypeState.entity.encounterType.uuid, newState.enrolment.uuid);
+        if (!_.isNil(dueEncounter)) {
+            console.log('Found a due encounter');
+            newState.programEncounterTypeState.overwriteEntity(dueEncounter);
+        }
+        newState.programEncounterTypeState.entityTypeSelectionConfirmed(action);
+        return newState;
+    }
+    //Program Encounter Type
+
+    //Encounter Type
     static launchChooseEncounterType(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.encounterTypeState.launchChooseEntityType();
@@ -66,14 +109,10 @@ class ProgramEnrolmentDashboardActions {
 
     static onEncounterTypeConfirmed(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
-        const dueEncounter = context.get(ProgramEncounterService).findDueEncounter(newState.encounterTypeState.entity.encounterType.uuid, newState.enrolment.uuid);
-        if (!_.isNil(dueEncounter)) {
-            console.log('Found a due encounter');
-            newState.encounterTypeState.overwriteEntity(dueEncounter);
-        }
         newState.encounterTypeState.entityTypeSelectionConfirmed(action);
         return newState;
     }
+    //Encounter Type
 
     static onEditEnrolment(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
@@ -97,25 +136,32 @@ class ProgramEnrolmentDashboardActions {
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
-    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE',
-    LAUNCH_CHOOSE_ENTITY_TYPE: "PEDA.LAUNCH_CHOOSE_ENTITY_TYPE",
-    ENTITY_TYPE_SELECTED: "PEDA.ENTITY_TYPE_SELECTED",
-    CANCELLED_ENTITY_TYPE_SELECTION: "PEDA.CANCELLED_ENTITY_TYPE_SELECTION",
-    ENTITY_TYPE_SELECTION_CONFIRMED: "PEDA.ENTITY_TYPE_SELECTION_CONFIRMED",
+    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE'
 };
+
+const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
+const EncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('ENCOUNTER');
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_CHANGE, ProgramEnrolmentDashboardActions.onProgramChange],
-    [ProgramEnrolmentDashboardActionsNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseEncounterType],
-    [ProgramEnrolmentDashboardActionsNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onEncounterTypeSelected],
-    [ProgramEnrolmentDashboardActionsNames.CANCELLED_ENTITY_TYPE_SELECTION, ProgramEnrolmentDashboardActions.onCancelledEncounterTypeSelection],
-    [ProgramEnrolmentDashboardActionsNames.ENTITY_TYPE_SELECTION_CONFIRMED, ProgramEnrolmentDashboardActions.onEncounterTypeConfirmed],
+
+    [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
+    [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],
+    [ProgramEncounterTypeChoiceActionNames.CANCELLED_ENTITY_TYPE_SELECTION, ProgramEnrolmentDashboardActions.onCancelledProgramEncounterTypeSelection],
+    [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTION_CONFIRMED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeConfirmed],
+
+    [EncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseEncounterType],
+    [EncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onEncounterTypeSelected],
+    [EncounterTypeChoiceActionNames.CANCELLED_ENTITY_TYPE_SELECTION, ProgramEnrolmentDashboardActions.onCancelledEncounterTypeSelection],
+    [EncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTION_CONFIRMED, ProgramEnrolmentDashboardActions.onEncounterTypeConfirmed]
 ]);
 
 export {
     ProgramEnrolmentDashboardActionsNames,
     ProgramEnrolmentDashboardActionsMap,
-    ProgramEnrolmentDashboardActions
+    ProgramEnrolmentDashboardActions,
+    ProgramEncounterTypeChoiceActionNames,
+    EncounterTypeChoiceActionNames
 };

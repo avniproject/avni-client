@@ -12,7 +12,7 @@ import Encounter from "../../models/Encounter";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
-        encounters: React.PropTypes.object.isRequired,
+        encounters: React.PropTypes.any.isRequired,
     };
 
     constructor(props, context) {
@@ -20,8 +20,8 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     editEncounter(encounter) {
-        if (encounter.constructor.name == Encounter)
-            CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter.uuid);
+        if (encounter.constructor.name === Encounter)
+            CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter);
         else
             CHSNavigator.navigateToProgramEncounterView(this, encounter);
     }

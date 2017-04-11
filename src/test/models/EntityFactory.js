@@ -37,11 +37,12 @@ class EntityFactory {
         return form;
     }
 
-    static createFormElement(name, mandatory, concept) {
+    static createFormElement(name, mandatory, concept, displayOrder) {
         const formElement = new FormElement();
         formElement.name = name;
         formElement.mandatory = mandatory;
         formElement.concept = concept;
+        formElement.displayOrder = displayOrder;
         return formElement;
     }
 

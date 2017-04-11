@@ -22,7 +22,12 @@ export default class Reducer {
 
                 return actions.get(action.type)(state, action, beans);
             } catch (e) {
-                return actions.get(`${prefix}.${Reducers.ON_ERROR}`)(state, action, beans, e);
+                const errorAction = actions.get(`${prefix}.${Reducers.ON_ERROR}`);
+                if (_.isNil(errorAction)) {
+                    throw e;
+                } else {
+                    return errorAction(state, action, beans, e);
+                }
             }
         }
     }

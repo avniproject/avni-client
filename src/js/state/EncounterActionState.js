@@ -14,7 +14,6 @@ class EncounterActionState extends AbstractDataEntryState {
     clone() {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();
-        newState.form = this.form;
         super.clone(newState);
         return newState;
     }
@@ -28,9 +27,7 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     static createOnLoadState(form, encounter, isNewEncounter) {
-        const encounterActionState = new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
-        encounterActionState.form = form;
-        return encounterActionState;
+        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
     }
 
     validateEntityAgainstRule(ruleService) {

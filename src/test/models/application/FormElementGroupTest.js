@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import EntityFactory from "../EntityFactory";
+import Concept from '../../../js/models/Concept';
 
 describe('FormElementGroupTest', () => {
     it('previous and next', () => {
@@ -21,5 +22,13 @@ describe('FormElementGroupTest', () => {
 
         expect(first.isFirst).is.equal(true);
         expect(second.isFirst).is.equal(false);
+    });
+
+    it('getFormElements', () => {
+        const form = EntityFactory.createForm('form1');
+        const formElementGroup = EntityFactory.createFormElementGroup('foo', 1, form);
+        formElementGroup.addFormElement(EntityFactory.createFormElement("bar", false, EntityFactory.createConcept("bar", Concept.dataType.Text), 2));
+        formElementGroup.addFormElement(EntityFactory.createFormElement("baz", false, EntityFactory.createConcept("bar", Concept.dataType.Text), 1));
+        expect(formElementGroup.getFormElements().length).is.equal(2);
     });
 });

@@ -2,15 +2,8 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import Encounter from "../models/Encounter";
 import Individual from "../models/Individual";
-import EncounterType from "../models/EncounterType";
-import IndividualService from "./IndividualService";
-import ConceptService from "./ConceptService";
-import Observation from "../models/Observation";
-import PrimitiveValue from "../models/observation/PrimitiveValue";
-import _ from 'lodash';
-import G from '../utility/General';
 import EntityQueue from "../models/EntityQueue";
-import ObservationsHolder from '../models/ObservationsHolder';
+import ObservationsHolder from "../models/ObservationsHolder";
 
 @Service("individualEncounterService")
 class IndividualEncounterService extends BaseService {
@@ -25,15 +18,6 @@ class IndividualEncounterService extends BaseService {
     getEncounters(individual) {
         const db = this.db;
         return this.db.objects(Encounter.schema.name).filtered(`individual.uuid="${individual.uuid}"`);
-    }
-
-    newEncounter(individualUUID) {
-        const encounter = Encounter.create();
-        encounter.uuid = G.randomUUID();
-        encounter.encounterDateTime = new Date();
-        encounter.individual = this.getService(IndividualService).findByUUID(individualUUID, Individual.schema.name);
-        encounter.encounterType = this.getAll(EncounterType.schema.name)[0];
-        return encounter;
     }
 
     saveOrUpdate(encounter) {

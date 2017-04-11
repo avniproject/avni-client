@@ -70,6 +70,10 @@ class FormElementGroup {
             return formElement.uuid
         });
     }
+
+    getFormElements() {
+        return _.sortBy(this.formElements, (formElement) => formElement.displayOrder);
+    }
 }
 
 export default FormElementGroup;

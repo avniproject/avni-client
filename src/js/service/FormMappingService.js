@@ -40,6 +40,13 @@ class FormMappingService extends BaseService {
         });
     }
 
+    findEncounterTypesForEncounter() {
+        const formMappings = this.findAllByCriteria(`form.formType="${Form.formTypes.Encounter}"`);
+        return formMappings.map((formMapping) => {
+            return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
+        });
+    }
+
     findFormForEncounterType(encounterType) {
         const formMapping = this.findByKey('observationsTypeEntityUUID', encounterType.uuid);
         return formMapping.form;

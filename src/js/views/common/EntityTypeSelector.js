@@ -53,15 +53,13 @@ class EntityTypeSelector extends AbstractComponent {
                         alignSelf: 'center',
                         backgroundColor: 'white'
                     }]}>
-                        <View>
-                            <RadioGroup action={this.props.actions['ENTITY_TYPE_SELECTED']}
-                                        selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
-                                        labelKey={this.props.labelKey}
-                                        labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
-                        </View>
+                        <RadioGroup action={this.props.actions['ENTITY_TYPE_SELECTED']}
+                                    selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
+                                    labelKey={this.props.labelKey}
+                                    labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
                         <View style={{flex: 1, flexDirection: 'row', alignSelf: 'flex-end'}}>
-                                <Button onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])}>{this.I18n.t('cancel')}</Button>
-                                <Button style={{marginLeft: 8}} onPress={() => this.entityTypeSelectionConfirmed()}>{this.I18n.t('proceed')}</Button>
+                            <Button onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])}>{this.I18n.t('cancel')}</Button>
+                            <Button style={{marginLeft: 8}} onPress={() => this.entityTypeSelectionConfirmed()}>{this.I18n.t('proceed')}</Button>
                         </View>
                     </View>
                     <View style={{flex: .5}}/>

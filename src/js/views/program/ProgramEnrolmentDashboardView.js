@@ -6,7 +6,7 @@ import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
-import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/program/ProgramEnrolmentDashboardActions";
+import {ProgramEnrolmentDashboardActionsNames as Actions, EncounterTypeChoiceActionNames, ProgramEncounterTypeChoiceActionNames} from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
 import {Text, Content, Container, Button, Card} from "native-base";
 import ProgramList from "./ProgramList";
@@ -61,18 +61,19 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     startProgramEncounter() {
-        this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
+        this.dispatchAction(ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
     }
 
     startEncounter() {
         this.dispatchAction(Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY);
-        CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid);
+        this.dispatchAction(EncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
     }
 
     render() {
         console.log('ProgramEnrolmentDashboardView.render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
+        const programEncounterTypeState = this.state.programEncounterTypeState;
         const contextActions = [new ContextAction('edit', this.editEnrolment)];
         if (this.state.enrolment.isActive)
             contextActions.push(new ContextAction('exitProgram', this.exitProgram));
@@ -80,7 +81,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
-                    <EntityTypeSelector actions={Actions} confirmActionLabelKey='chooseFollowupType' flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEncounterView(this, newState.entity)}/>
+                    {/*<EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState} entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={programEncounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>*/}
+                    <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View style={{backgroundColor: '#f5fcff'}}>
                     <AppHeader title={`${this.state.enrolment.individual.name}`}/>
                     <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
@@ -91,8 +93,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                              selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
                             </View>
                             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
-                                <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                        textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button>
+                                {this.state.enrolment.isActive ? <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
+                                         textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> : <View/>}
                                 <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
                                         textStyle={{color: Colors.Blackish}} onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
                             </View>

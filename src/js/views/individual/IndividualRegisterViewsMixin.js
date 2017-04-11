@@ -8,13 +8,14 @@ import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import BaseEntity from '../../models/BaseEntity';
+import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 
 class IndividualRegisterViewsMixin {
     static next(view) {
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions) => {
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, view.state.individual, state.individual.observations, Actions.SAVE, (source) => {
-                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], IndividualEncounterLandingView, {individualUUID: view.state.individual.uuid});
+                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], ProgramEnrolmentDashboardView, {individualUUID: view.state.individual.uuid});
                 });
             },
             movedNext: () => {

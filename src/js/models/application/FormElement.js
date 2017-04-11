@@ -2,8 +2,7 @@ import ResourceUtil from "../../utility/ResourceUtil";
 import FormElementGroup from "./FormElementGroup";
 import Concept from "../Concept";
 import General from "../../utility/General";
-import _ from 'lodash';
-import KeyValue from "./KeyValue";
+import _ from "lodash";
 import ValidationResult from "./ValidationResult";
 
 class FormElement {

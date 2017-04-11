@@ -1,21 +1,26 @@
 import IndividualEncounterService from "../../service/IndividualEncounterService";
-import EntityService from "../../service/EntityService";
-import Form from "../../models/application/Form";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import _ from "lodash";
-import Encounter from "../../models/Encounter";
+import IndividualService from "../../service/IndividualService";
+import FormMappingService from "../../service/FormMappingService";
 
 export class EncounterActions {
     static getInitialState(context) {
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.Encounter, Form.schema.name);
-        return {form: form};
+        return {};
     }
 
     static onEncounterLandingViewLoad(state, action, context) {
-        const isNewEncounter = _.isNil(action.encounterUUID);
-        const encounter = isNewEncounter ? context.get(IndividualEncounterService).newEncounter(action.individualUUID) : context.get(EntityService).findByUUID(action.encounterUUID, Encounter.schema.name);
-        return EncounterActionState.createOnLoadState(state.form, encounter, isNewEncounter);
+        const individualEncounterService = context.get(IndividualEncounterService);
+        var encounter = individualEncounterService.findByUUID(action.encounter.uuid);
+        const isNewEncounter = _.isNil(encounter);
+        if (isNewEncounter) {
+            encounter = action.encounter;
+            encounter.individual = context.get(IndividualService).findByUUID(action.individualUUID);
+        }
+
+        const form = context.get(FormMappingService).findFormForEncounterType(encounter.encounterType);
+        return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter);
     }
 
     static onNext(state, action, context) {

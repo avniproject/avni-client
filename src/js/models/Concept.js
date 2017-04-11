@@ -12,7 +12,8 @@ export class ConceptAnswer {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
-            concept: 'Concept'
+            concept: 'Concept',
+            answerOrder: 'int'
         }
     };
 
@@ -20,6 +21,7 @@ export class ConceptAnswer {
         const conceptAnswer = new ConceptAnswer();
         conceptAnswer.concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
         conceptAnswer.uuid = resource.uuid;
+        conceptAnswer.answerOrder = resource.order;
         return conceptAnswer;
     }
 }
@@ -115,5 +117,9 @@ export default class Concept {
         } else {
             return new PrimitiveValue(value, this.datatype);
         }
+    }
+
+    getAnswers() {
+        return _.sortBy(this.answers, (answer) => answer.order);
     }
 }
