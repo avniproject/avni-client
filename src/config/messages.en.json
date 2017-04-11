@@ -99,5 +99,6 @@
   "visitDetails": "Visit Details",
   "registrationDate": "Date of Registration",
   "Yes": "Yes",
-  "No": "No"
+  "No": "No",
+  "notEnrolledInAnyProgram": "Not enrolled in any program"
 }

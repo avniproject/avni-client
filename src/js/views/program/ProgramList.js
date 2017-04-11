@@ -56,13 +56,14 @@ class ProgramList extends AbstractComponent {
             <View style={{flexDirection: 'column'}}>
                 <Text style={{fontSize: 16, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: DGS.resizeHeight(9)}}>
-                    {this.props.enrolments.map((enrolment) => {
-                        const buttonStyle = this.getButtonStyle(enrolment);
-                        return <Button key={enrolment.uuid}
-                                       style={[ProgramList.style.programButton.self, buttonStyle.self]}
-                                       textStyle={buttonStyle.text}
-                                       onPress={() => this.props.onProgramSelect(enrolment.program)}>{this.I18n.t(enrolment.program.name)}</Button>
-                    })}
+                    {this.props.enrolments.length === 0 ? <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text> :
+                        this.props.enrolments.map((enrolment) => {
+                            const buttonStyle = this.getButtonStyle(enrolment);
+                            return <Button key={enrolment.uuid}
+                                           style={[ProgramList.style.programButton.self, buttonStyle.self]}
+                                           textStyle={buttonStyle.text}
+                                           onPress={() => this.props.onProgramSelect(enrolment.program)}>{this.I18n.t(enrolment.program.name)}</Button>
+                        })}
                 </View>
             </View>
         );

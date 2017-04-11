@@ -6,7 +6,11 @@ import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
-import {ProgramEnrolmentDashboardActionsNames as Actions, EncounterTypeChoiceActionNames, ProgramEncounterTypeChoiceActionNames} from "../../action/program/ProgramEnrolmentDashboardActions";
+import {
+    ProgramEnrolmentDashboardActionsNames as Actions,
+    EncounterTypeChoiceActionNames,
+    ProgramEncounterTypeChoiceActionNames
+} from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
 import {Text, Content, Container, Button, Card} from "native-base";
 import ProgramList from "./ProgramList";
@@ -81,34 +85,50 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
-                    <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState} entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={programEncounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
-                    <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
+                    <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState}
+                                        entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
+                                        selectedEntityType={programEncounterTypeState.entity.encounterType}
+                                        onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
+                    <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes}
+                                        labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}
+                                        onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View style={{backgroundColor: '#f5fcff'}}>
-                    <AppHeader title={`${this.state.enrolment.individual.name}`}/>
-                    <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
-                    <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
-                        <View style={{flexDirection: 'row', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
-                            <View style={{flex: 1, justifyContent: 'flex-start'}}>
-                                <ProgramList enrolments={enrolments}
-                                             selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
+                        <AppHeader title={`${this.state.enrolment.individual.name}`}/>
+                        <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
+                        <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
+                            <View style={{flexDirection: 'row', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
+                                <View style={{flex: 1, justifyContent: 'flex-start'}}>
+                                    <ProgramList enrolments={enrolments}
+                                                 selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
+                                </View>
+                                <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
+                                    {this.state.enrolment.isActive ?
+                                        <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
+                                                textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> :
+                                        <View/>}
+                                    <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
+                                            textStyle={{color: Colors.Blackish}} onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
+                                </View>
                             </View>
-                            <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
-                                {this.state.enrolment.isActive ? <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                         textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> : <View/>}
-                                <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
-                                        textStyle={{color: Colors.Blackish}} onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
-                            </View>
-                        </View>
-                        <ObservationsSectionTitle contextActions={contextActions} titleKey='enrolmentAttributes'/>
-                        <View
-                            style={{backgroundColor: Colors.GreyContentBackground, marginTop: DGS.resizeHeight(14), borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingHorizontal: DGS.resizeWidth(13)}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>
-                            </View>
-                            <Observations observations={this.state.enrolment.observations}/>
-                        </View>
-                        <PreviousEncounters encounters={this.state.enrolment.encounters}/>
-                    </Card>
+                            {enrolments.length === 0 ? <View/> :
+                                <View>
+                                    <ObservationsSectionTitle contextActions={contextActions} titleKey='enrolmentAttributes'/>
+                                    <View style={{
+                                        backgroundColor: Colors.GreyContentBackground,
+                                        marginTop: DGS.resizeHeight(14),
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(0, 0, 0, 0.12)',
+                                        paddingHorizontal: DGS.resizeWidth(13)
+                                    }}>
+                                        <View style={{flexDirection: 'row'}}>
+                                            <Text
+                                                style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>
+                                        </View>
+                                        <Observations observations={this.state.enrolment.observations}/>
+                                    </View>
+                                    <PreviousEncounters encounters={this.state.enrolment.encounters}/>
+                                </View>}
+                        </Card>
                     </View>
                 </Content>
             </Container>
