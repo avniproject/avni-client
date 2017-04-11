@@ -23,6 +23,7 @@ class ProgramEnrolment extends BaseEntity {
             programExitObservations: {type: 'list', objectType: 'Observation'},
             programOutcome: {type: 'ProgramOutcome', optional: true},
             encounters: {type: 'list', objectType: 'ProgramEncounter'},
+            checklist: {type: 'Checklist', optional: true},
             individual: 'Individual'
         }
     };
@@ -44,6 +45,7 @@ class ProgramEnrolment extends BaseEntity {
         if (!_.isNil(this.programExitDateTime)) resource.programExitDateTime = moment(this.programExitDateTime).format();
         if (!_.isNil(this.programOutcome)) resource["programOutcomeUUID"] = this.programOutcome.uuid;
         resource["individualUUID"] = this.individual.uuid;
+        if (!_.isNil(this.checklist)) resource["checklistUUID"] = this.checklist.uuid;
         return resource;
     }
 
@@ -65,7 +67,7 @@ class ProgramEnrolment extends BaseEntity {
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        programEnrolment = General.pick(programEnrolment, ["uuid"], ["encounters"]);
+        programEnrolment = General.pick(programEnrolment, ["uuid"], ["encounters", ""]);
         if (childEntityClass === ProgramEncounter)
             BaseEntity.addNewChild(child, programEnrolment.encounters);
         else

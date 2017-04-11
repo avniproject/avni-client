@@ -7,10 +7,10 @@ class BaseEntity {
     };
 
     static addNewChild(newChild, existingChildren) {
-        const existing = existingChildren.find((child) => {
+        const existing = existingChildren.some((child) => {
             return newChild.uuid === child.uuid;
         });
-        if (_.isNil(existing))
+        if (existing)
             existingChildren.push(newChild);
     }
 

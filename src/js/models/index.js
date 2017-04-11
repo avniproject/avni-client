@@ -21,11 +21,13 @@ import KeyValue from "./application/KeyValue";
 import EntityQueue from "./EntityQueue";
 import FormMapping from "./application/FormMapping";
 import ConfigFile from "./ConfigFile";
+import Checklist from "./Checklist";
+import ChecklistItem from "./ChecklistItem";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Locale, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile],
-    schemaVersion: 26,
+    schema: [LocaleMapping, Locale, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
+    schemaVersion: 27,
     migration: function(oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

@@ -16,6 +16,8 @@ import Form from "./application/Form";
 import FormElementGroup from "./application/FormElementGroup";
 import FormElement from "./application/FormElement";
 import FormMapping from "./application/FormMapping";
+import Checklist from "./Checklist";
+import ChecklistItem from "./ChecklistItem";
 
 class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
@@ -51,6 +53,14 @@ class EntityMetaData {
     static conceptAnswer() {
         return {entityName: "ConceptAnswer", entityClass: ConceptAnswer, resourceName: "conceptAnswer", type: "reference", parent: EntityMetaData.concept, nameTranslated: false};
     };
+
+    static checklist() {
+        return {entityName: Checklist.name, entityClass: Checklist, resourceName: "checklist", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+    }
+
+    static checklistItem() {
+        return {entityName: ChecklistItem.name, entityClass: ChecklistItem, resourceName: "checklistItem", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
+    }
 
     //order is important. last entity in each (tx and ref) with be executed first
     static model() {

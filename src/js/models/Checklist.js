@@ -1,0 +1,64 @@
+import _ from "lodash";
+import ResourceUtil from "../utility/ResourceUtil";
+import General from "../utility/General";
+import ProgramEnrolment from './ProgramEnrolment';
+import BaseEntity from "./BaseEntity";
+import ChecklistItem from "./ChecklistItem";
+
+class Checklist extends BaseEntity {
+    static schema = {
+        name: 'Checklist',
+        primaryKey: 'uuid',
+        properties: {
+            uuid: 'string',
+            name: 'string',
+            items: {type: 'list', objectType: 'ChecklistItem'},
+            programEnrolment: 'ProgramEnrolment'
+        }
+    };
+
+    static create() {
+        const checklist = new Checklist();
+        checklist.items = [];
+        return checklist;
+    }
+
+    static fromResource(checklistResource, entityService) {
+        const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistResource, "enrolmentUUID"), ProgramEnrolment.schema.name);
+        const checklist = General.assignFields(checklistResource, new Checklist(), ["uuid", "name"]);
+        checklist.programEnrolment = programEnrolment;
+        return checklist;
+    }
+
+    get toResource() {
+        const resource = _.pick(this, ["uuid", "name"]);
+        resource["programEnrolmentUUID"] = this.programEnrolment.uuid;
+        return resource;
+    }
+
+    static associateChild(child, childEntityClass, childResource, entityService) {
+        var checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "checklistUUID"), Checklist.schema.name);
+        checklist = General.pick(checklist, ["uuid"], ["items"]);
+
+        if (childEntityClass === ChecklistItem)
+            BaseEntity.addNewChild(child, checklist.items);
+        else
+            throw `${childEntityClass.name} not support by ${Checklist.name}`;
+
+        return checklist;
+    }
+
+    clone() {
+        const checklist = new Checklist();
+        checklist.uuid = this.uuid;
+        checklist.name = this.name;
+        checklist.programEnrolment = this.programEnrolment;
+        checklist.items = [];
+        this.items.forEach((checklistItem) => {
+            checklist.items.push(checklistItem.clone());
+        });
+        return checklist;
+    }
+}
+
+export default Checklist;

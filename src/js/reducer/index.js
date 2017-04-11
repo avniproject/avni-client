@@ -20,6 +20,7 @@ import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/pro
 import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
 import {AddressLevelActions} from '../action/AddressLevelActions';
+import {ChecklistActions, ChecklistActionsMap} from '../action/program/ChecklistActions';
 import _ from 'lodash';
 
 export default class Reducers {
@@ -35,7 +36,8 @@ export default class Reducers {
         programEncounter: 'programEncounter',
         individualRegistrationDetails: 'individualRegistrationDetails',
         individualSearch: 'individualSearch',
-        addressLevels: 'addressLevels'
+        addressLevels: 'addressLevels',
+        checklist: 'checklist'
     };
     
     static createReducers(beanStore) {
@@ -52,6 +54,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.programEnrolmentDashboard] = Reducers._add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions, beanStore, ProgramEnrolmentDashboardActions.ACTION_PREFIX);
         reducerMap[Reducers.reducerKeys.programEncounter] = Reducers._add(ProgramEncounterActionsMap, ProgramEncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegistrationDetails] = Reducers._add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions, beanStore);
+        reducerMap[Reducers.reducerKeys.checklist] = Reducers._add(ChecklistActionsMap, ChecklistActions, beanStore);
 
         return reducerMap;
     };
