@@ -55,11 +55,11 @@ class EntityMetaData {
     };
 
     static checklist() {
-        return {entityName: Checklist.name, entityClass: Checklist, resourceName: "checklist", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+        return {entityName: Checklist.name, entityClass: Checklist, resourceName: "checklist", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
     }
 
     static checklistItem() {
-        return {entityName: ChecklistItem.name, entityClass: ChecklistItem, resourceName: "checklistItem", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
+        return {entityName: ChecklistItem.name, entityClass: ChecklistItem, resourceName: "checklistItem", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
     }
 
     //order is important. last entity in each (tx and ref) with be executed first
@@ -78,6 +78,8 @@ class EntityMetaData {
             EntityMetaData.conceptAnswer(),
             EntityMetaData.concept,
 
+            EntityMetaData.checklistItem(),
+            EntityMetaData.checklist(),
             EntityMetaData.encounter(),
             EntityMetaData.programEncounter(),
             EntityMetaData.programEnrolment(),
