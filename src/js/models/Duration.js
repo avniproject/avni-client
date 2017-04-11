@@ -53,7 +53,7 @@ class Duration {
     }
 
     toString(i18n) {
-        return i18n ? `${this.durationValueAsString} ${i18n.t(this.durationUnit)}` : `${this.durationValueAsString} ${this.durationUnit}s`;
+        return i18n ? `${this.durationValueAsString} ${i18n.t(`${this.durationUnit}s`.toLowerCase())}` : `${this.durationValueAsString} ${this.durationUnit}s`;
     }
 
     get isEmpty() {

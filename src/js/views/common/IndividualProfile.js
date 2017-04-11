@@ -67,16 +67,14 @@ class IndividualProfile extends AbstractComponent {
                             <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 68}}/>
                         </Row>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30)}}><Text
-                            style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name}
-                            | {this.props.individual.id}</Text></Row>
+                            style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name} {this.props.individual.id}</Text></Row>
                         <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30), marginBottom: DGS.resizeHeight(14)}}>
                             <Text style={{
                                 textAlignVertical: 'top',
                                 fontSize: 14,
                                 color: '#fff',
                                 justifyContent: 'center'
-                            }}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}
-                                | {this.props.individual.lowestAddressLevel.name}
+                            }}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}, {this.props.individual.lowestAddressLevel.name}
                             </Text>
                         </Row>
                         <Row style={DGS.generalHistory.buttonRowStyle}>
