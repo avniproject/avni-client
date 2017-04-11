@@ -1,4 +1,4 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MultiSelectFormElement from './MultiSelectFormElement';
@@ -26,9 +26,11 @@ class FormElementGroup extends AbstractComponent {
     }
 
     render() {
+        const formElements = this.props.group.getFormElements();
         return (<View>
+                {formElements.length === 0 ? <View/> : <Text>{this.I18n.t(this.props.group.name)}</Text>}
                 {
-                    this.props.group.getFormElements().map((formElement, idx) => {
+                    formElements.map((formElement, idx) => {
                         const validationResult = _.find(this.props.validationResults, (validationResult) => validationResult.formIdentifier === formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return <NumericFormElement key={idx}

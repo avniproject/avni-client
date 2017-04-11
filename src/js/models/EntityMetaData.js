@@ -41,7 +41,7 @@ class EntityMetaData {
     }
 
     static formElementGroup() {
-        return {entityName: "FormElementGroup", entityClass: FormElementGroup, resourceName: "formElementGroup", type: "reference", parent: EntityMetaData.form, nameTranslated: false};
+        return {entityName: "FormElementGroup", entityClass: FormElementGroup, resourceName: "formElementGroup", type: "reference", parent: EntityMetaData.form, nameTranslated: true};
     };
 
     static programEncounter() {
