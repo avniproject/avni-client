@@ -7,6 +7,7 @@ import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import ProgramEnrolment from '../../models/ProgramEnrolment';
 import ObservationsHolder from "../../models/ObservationsHolder";
+import StaticFormElementGroup from "../../models/application/StaticFormElementGroup";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -18,7 +19,9 @@ export class ProgramEnrolmentActions {
             const formMappingService = context.get(FormMappingService);
             const form = action.usage === ProgramEnrolmentState.UsageKeys.Enrol ? formMappingService.findFormForProgramEnrolment(action.enrolment.program) : formMappingService.findFormForProgramExit(action.enrolment.program);
             const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
-            return new ProgramEnrolmentState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment);
+            const formElementGroup = _.isNil(form) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
+            const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
+            return new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment);
         }
         else {
             return state.clone();

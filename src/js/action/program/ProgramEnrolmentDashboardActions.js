@@ -32,6 +32,7 @@ class ProgramEnrolmentDashboardActions {
         programEncounter.programEnrolment = newState.enrolment;
         const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
         newState.programEncounterTypeState.entityParentSelected(programEncounterTypes, programEncounter);
+        console.log(programEncounterTypes);
 
         const encounter = Encounter.create();
         encounter.individual = newState.enrolment.individual;

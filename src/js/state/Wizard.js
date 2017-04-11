@@ -6,10 +6,6 @@ class Wizard {
         this.showPreviousEncounter = false;
     }
 
-    reset() {
-        this.currentPage = 1;
-    }
-
     clone() {
         const wizard = new Wizard(this.numberOfPages, this.formStartsAt);
         wizard.currentPage = this.currentPage;

@@ -81,7 +81,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
                 <Content>
-                    {/*<EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState} entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={programEncounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>*/}
+                    <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState} entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={programEncounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
                     <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes} labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType} onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View style={{backgroundColor: '#f5fcff'}}>
                     <AppHeader title={`${this.state.enrolment.individual.name}`}/>

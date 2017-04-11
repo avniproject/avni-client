@@ -41,7 +41,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     static hasEnrolmentOrItsUsageChanged(state, action) {
         return _.isNil(state) ||
             _.isNil(state.enrolment) ||
-            this.enrolment.uuid !== action.enrolment.uuid ||
+            state.enrolment.uuid !== action.enrolment.uuid ||
             state.usage !== action.usage;
     }
 

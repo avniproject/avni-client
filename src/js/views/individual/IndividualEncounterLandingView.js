@@ -80,7 +80,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                                   validationResults={this.state.validationResults}/>
                                 <WizardButtons next={{
                                     func: () => this.next(),
-                                    visible: !this.state.formElementGroup.isLast,
+                                    visible: true,
                                     label: this.I18n.t('next')
                                 }}/>
                             </Grid>

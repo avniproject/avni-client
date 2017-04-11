@@ -12,7 +12,7 @@ class StaticFormElementGroup {
     }
 
     get isLast() {
-        return false;
+        return true;
     }
 
     get isFirst() {
@@ -24,6 +24,10 @@ class StaticFormElementGroup {
     }
 
     get formElementIds() {
+        return [];
+    }
+
+    getFormElements() {
         return [];
     }
 }
