@@ -9,6 +9,9 @@ import RuleEvaluationService from "./RuleEvaluationService";
 import ProgramEncounter from "../models/ProgramEncounter";
 import ObservationsHolder from '../models/ObservationsHolder';
 import EncounterType from '../models/EncounterType';
+import Checklist from '../models/Checklist';
+import ChecklistItem from '../models/ChecklistItem';
+import ConceptService from "./ConceptService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -26,12 +29,21 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     enrol(programEnrolment) {
-        const nextScheduledVisits = this.getService(RuleEvaluationService).getNextScheduledVisits(programEnrolment);
-        const self = this;
+        const ruleEvaluationService = this.getService(RuleEvaluationService);
+        const nextScheduledVisits = ruleEvaluationService.getNextScheduledVisits(programEnrolment);
+        const expectedChecklists = ruleEvaluationService.getChecklists(programEnrolment);
+        const checklists = programEnrolment.createChecklists(expectedChecklists, this.getService(ConceptService));
+
         const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
+        programEnrolment.checklists.forEach((checklist) => {
+            entityQueueItems.push(EntityQueue.create(checklist, Checklist.schema.name));
+            checklist.items.forEach((checklistItem) => {
+                entityQueueItems.push(EntityQueue.create(checklistItem, ChecklistItem.schema.name));
+            });
+        });
 
         nextScheduledVisits.forEach((nextScheduledVisit) => {
-            const encounterType = self.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+            const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
 
             const programEncounter = ProgramEncounter.createFromScheduledVisit(nextScheduledVisit, encounterType, programEnrolment);
@@ -42,7 +54,16 @@ class ProgramEnrolmentService extends BaseService {
         const db = this.db;
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         this.db.write(() => {
-            db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            const savedProgramEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+
+            checklists.forEach((checklist) => {
+                const savedChecklist = db.create(Checklist.schema.name, checklist, true);
+                savedChecklist.items.forEach((item) => {
+                    item.checklist = savedChecklist;
+                });
+                savedProgramEnrolment.checklists.push(savedChecklist);
+                savedChecklist.programEnrolment = savedProgramEnrolment;
+            });
 
             const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
             if (!_.some(loadedIndividual.enrolments, (enrolment) => enrolment.uuid === programEnrolment.uuid)) {

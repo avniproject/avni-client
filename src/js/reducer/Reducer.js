@@ -23,7 +23,9 @@ export default class Reducer {
                 return actions.get(action.type)(state, action, beans);
             } catch (e) {
                 const errorAction = actions.get(`${prefix}.${Reducers.ON_ERROR}`);
-                if (_.isNil(errorAction)) {
+                const errorActionDefined = _.isNil(errorAction);
+                console.log(`Got error: ${e}. Error action: ${errorAction}`);
+                if (errorActionDefined) {
                     throw e;
                 } else {
                     return errorAction(state, action, beans, e);

@@ -7,10 +7,12 @@ class EntityRule {
     }
 
     setFunctions(exports) {
+        console.log(`Found ${JSON.stringify(_.keys(exports))} in ${this.ruleFile.toString()}`);
         if (!_.isNil(exports)) {
             this.decisionFn = exports.getDecisions;
             this.validationFn = exports.validate;
-            this.getNextScheduledVisitsFn = exports.getNextScheduledVisitsFn;
+            this.getNextScheduledVisitsFn = exports.getNextScheduledVisits;
+            this.getChecklistFn = exports.getChecklists;
         }
     }
 
@@ -19,6 +21,7 @@ class EntityRule {
     }
 
     _safeInvokeRule(func, entity, ruleName) {
+        console.log(`Invoking rule ${ruleName} on entity: ${entity.constructor.name}`);
         if (_.isNil(func)) return [];
 
         const results = func(entity);
@@ -42,6 +45,10 @@ class EntityRule {
         const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, entity, 'NextScheduledVisits');
         console.log(`${nextScheduledVisits.length} scheduled visits returned`);
         return nextScheduledVisits;
+    }
+
+    getChecklists(enrolment) {
+        return this._safeInvokeRule(this.getChecklistFn, enrolment, 'GetChecklists');
     }
 }
 

@@ -19,6 +19,7 @@ class Checklist extends BaseEntity {
 
     static create() {
         const checklist = new Checklist();
+        checklist.uuid = General.randomUUID();
         checklist.items = [];
         return checklist;
     }
@@ -58,6 +59,21 @@ class Checklist extends BaseEntity {
             checklist.items.push(checklistItem.clone());
         });
         return checklist;
+    }
+
+    addChecklistItems(expectedChecklist, conceptFinder) {
+        expectedChecklist.items.forEach((expectedItem) => {
+            var checklistItem = _.find(this.items, (item) => item.concept.name === expectedItem.name);
+            if (_.isNil(checklistItem)) {
+                checklistItem = ChecklistItem.create();
+                const concept = conceptFinder.getConceptByName(expectedItem.name);
+                if (_.isNil(concept)) throw Error(`Concept with name: ${expectedItem.name} not found`);
+                checklistItem.concept = concept;
+                this.items.push(checklistItem);
+            }
+            checklistItem.dueDate = expectedItem.dueDate;
+            checklistItem.maxDate = expectedItem.maxDate;
+        });
     }
 }
 

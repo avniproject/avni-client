@@ -1,6 +1,7 @@
 class StubbedConfigFileService {
     getEncounterDecisionFile() {
         return {
+            name: 'encounterDecision',
             contents: 'const getDecisions = ' +
             'function (encounter) { ' +
             'console.log(encounter.getObservationValue("foo"));' +
@@ -11,19 +12,15 @@ class StubbedConfigFileService {
     }
 
     getProgramEnrolmentFile() {
-        return null;
+        return {name: 'programEnrolmentDecisions'};
     }
 
     getIndividualRegistrationFile(){
-        return null;
+        return {name: 'individualRegistrationDecisions'};
     }
 
     getProgramEncounterFile() {
-        return null;
-    }
-
-    getProgramEnrolmentFile() {
-        return null;
+        return {name: 'programEncounterDecisions'};
     }
 }
 

@@ -14,6 +14,10 @@ class ConfigFile {
         configFile.contents = contents;
         return configFile;
     }
+
+    toString() {
+        return this.fileName;
+    }
 }
 
 export default ConfigFile;

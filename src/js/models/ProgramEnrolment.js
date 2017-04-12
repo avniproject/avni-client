@@ -9,6 +9,7 @@ import _ from "lodash";
 import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
 import ValidationResult from "./application/ValidationResult";
+import Checklist from "./Checklist";
 
 class ProgramEnrolment extends BaseEntity {
     static schema = {
@@ -23,7 +24,7 @@ class ProgramEnrolment extends BaseEntity {
             programExitObservations: {type: 'list', objectType: 'Observation'},
             programOutcome: {type: 'ProgramOutcome', optional: true},
             encounters: {type: 'list', objectType: 'ProgramEncounter'},
-            checklist: {type: 'Checklist', optional: true},
+            checklists: {type: 'list', objectType: 'Checklist'},
             individual: 'Individual'
         }
     };
@@ -35,6 +36,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.observations = [];
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];
+        programEnrolment.checklists = [];
         return programEnrolment;
     }
 
@@ -91,6 +93,12 @@ class ProgramEnrolment extends BaseEntity {
             programEncounter.uuid = enc.uuid;
             programEnrolment.encounters.push(programEncounter);
         });
+        programEnrolment.checklists = [];
+        this.checklists.forEach((x) => {
+            const checklist = new Checklist();
+            checklist.uuid = x.uuid;
+            programEnrolment.checklists.push(checklist);
+        });
         return programEnrolment;
     }
 
@@ -126,6 +134,17 @@ class ProgramEnrolment extends BaseEntity {
     addEncounter(programEncounter) {
         if (!_.some(this.encounters, (encounter) => encounter.uuid === programEncounter.uuid))
             this.encounters.push(programEncounter);
+    }
+
+    createChecklists(expectedChecklists, conceptFinder) {
+        const checklists = [];
+        expectedChecklists.forEach((expectedChecklist) => {
+            const checklist = Checklist.create();
+            checklist.name = expectedChecklist.name;
+            checklist.addChecklistItems(expectedChecklist, conceptFinder);
+            checklists.push(checklist);
+        });
+        return checklists;
     }
 }
 

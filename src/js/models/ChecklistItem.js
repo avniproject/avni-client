@@ -2,6 +2,7 @@ import _ from "lodash";
 import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
 import Checklist from './Checklist';
+import moment from "moment";
 
 class ChecklistItem {
     static schema = {
@@ -16,6 +17,12 @@ class ChecklistItem {
             checklist: 'Checklist'
         }
     };
+
+    static create() {
+        const checklistItem = new ChecklistItem();
+        checklistItem.uuid = General.randomUUID();
+        return checklistItem;
+    }
 
     static fromResource(checklistItemResource, entityService) {
         const checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistUUID"), Checklist.schema.name);
@@ -38,6 +45,10 @@ class ChecklistItem {
         checklistItem.maxDate = this.maxDate;
         checklistItem.completionDate = this.completionDate;
         return checklistItem;
+    }
+
+    displayTitle(I18n) {
+        return `${I18n.t(this.concept.name)}, Due date: ${moment(item.dueDate).format('DD-MM-YYYY')}, Max date: ${moment(item.maxDate).format('DD-MM-YYYY')}`;
     }
 }
 

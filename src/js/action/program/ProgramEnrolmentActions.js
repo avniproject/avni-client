@@ -8,6 +8,8 @@ import EntityService from "../../service/EntityService";
 import ProgramEnrolment from '../../models/ProgramEnrolment';
 import ObservationsHolder from "../../models/ObservationsHolder";
 import StaticFormElementGroup from "../../models/application/StaticFormElementGroup";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+import ConceptService from "../../service/ConceptService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -50,12 +52,7 @@ export class ProgramEnrolmentActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         const service = context.get(ProgramEnrolmentService);
-        try {
-            newState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(newState.enrolment) : service.exit(newState.enrolment);
-        } catch (error) {
-            action.error(error);
-            return newState;
-        }
+        newState.usage === ProgramEnrolmentState.UsageKeys.Enrol ? service.enrol(newState.enrolment) : service.exit(newState.enrolment);
         action.cb();
         return newState;
     }

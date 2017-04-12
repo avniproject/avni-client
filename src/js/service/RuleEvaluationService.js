@@ -23,7 +23,8 @@ class RuleEvaluationService extends BaseService {
         this.entityRulesMap = new Map([[Individual.name, new EntityRule(configFileService.getIndividualRegistrationFile())], [Encounter.name, new EntityRule(configFileService.getEncounterDecisionFile())], [ProgramEncounter.name, new EntityRule(configFileService.getProgramEncounterFile())], [ProgramEnrolment.name, new EntityRule(configFileService.getProgramEnrolmentFile())]]);
         this.entityRulesMap.forEach((entityRule, key) => {
             const exports = RuleEvaluationService.getExports(entityRule.ruleFile);
-            entityRule.setFunctions(exports);
+            if (!_.isNil(exports))
+                entityRule.setFunctions(exports);
         });
 
         this.initialised = true;
@@ -65,6 +66,10 @@ class RuleEvaluationService extends BaseService {
 
     getNextScheduledVisits(entity) {
         return this.entityRulesMap.get(entity.constructor.name).getNextScheduledVisits(entity);
+    }
+
+    getChecklists(enrolment) {
+        return this.entityRulesMap.get(ProgramEnrolment.name).getChecklists(enrolment);
     }
 }
 

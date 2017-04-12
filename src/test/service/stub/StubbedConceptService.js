@@ -1,9 +1,13 @@
-import Concepts from "../../resources/sample-concepts.json";
 import _ from "lodash";
+import StubbedBaseService from "./StubbedBaseService";
 
-class StubbedConceptService {
+class StubbedConceptService extends StubbedBaseService {
+    constructor(serviceData) {
+        super(serviceData);
+    }
+
     getConceptByName(conceptName) {
-        return _.find(Concepts, (concept)=>concept.name === conceptName);
+        return _.find(this.serviceData, (concept) => concept.name === conceptName);
     }
 
     getConceptByUUID(conceptName) {

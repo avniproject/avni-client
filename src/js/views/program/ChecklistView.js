@@ -1,15 +1,13 @@
-import {View, StyleSheet} from 'react-native';
-import React, {Component} from 'react';
-import AbstractComponent from '../../framework/view/AbstractComponent';
+import {View, StyleSheet} from "react-native";
+import React from "react";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import _ from "lodash";
 import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {
-    Text, Button, Content, CheckBox, Grid, Col, Row, Container, Header, Title, Icon, InputGroup,
-    Input, Radio, List, ListItem
-} from "native-base";
+import {Container, Content, Text} from "native-base";
+import {ChecklistActionsNames as Actions} from '../../action/program/ChecklistActions';
+import moment from "moment";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -26,7 +24,7 @@ class ChecklistView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction()
+        this.dispatchAction(Actions.ON_LOAD, this.props);
         return super.componentWillMount();
     }
 
@@ -34,7 +32,16 @@ class ChecklistView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content>
-                    <AppHeader title={}/>
+                    <AppHeader title={this.state.checklist.enrolment.individual.name}/>
+                    <Text>{this.state.checklist.name}</Text>
+                    <View style={{flexDirection: 'column'}}>
+                    {this.state.checklist.items.forEach((item) => {
+                        <View style={{flexDirection: 'row'}}>
+                            <Text>{item.displayTitle(this.I18n)}</Text>
+                            <Text>{moment(item.completionDate).format('DD-MM-YYYY')}</Text>
+                        </View>
+                    })}
+                    </View>
                 </Content>
             </Container>
         );

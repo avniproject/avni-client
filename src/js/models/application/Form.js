@@ -61,10 +61,6 @@ class Form {
         ProgramEnrolment: 'ProgramEnrolment',
         ProgramExit: 'ProgramExit'
     };
-
-    addFormElementGroup(feg) {
-        this.formElementGroups.push(feg);
-    }
 }
 
 export default Form;
