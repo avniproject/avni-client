@@ -60,11 +60,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content style={{backgroundColor: Colors.Blackish}}>
-                    <AppHeader title={this.I18n.t('generalConsultation')}/>
+                    <AppHeader title={this.state.encounter.individual.name}/>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
-                        <Row style={{height: 263}}>
-                            <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.encounter.individual}/>
-                        </Row>
                         <Row>
                             {/* TODO use DateFormElement instead of below code */}
                             <Grid style={{backgroundColor: '#ffffff', paddingHorizontal: 10}}>

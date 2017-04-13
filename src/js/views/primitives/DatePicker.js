@@ -13,7 +13,8 @@ class DatePicker extends AbstractComponent {
         dateValue : React.PropTypes.object,
         validationResult: React.PropTypes.object,
         actionName: React.PropTypes.string.isRequired,
-        actionObject: React.PropTypes.object.isRequired
+        actionObject: React.PropTypes.object.isRequired,
+        noDateMessageKey: React.PropTypes.string
     };
 
     constructor(props, context) {
@@ -24,14 +25,14 @@ class DatePicker extends AbstractComponent {
         return (
             <View>
                 <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}
-                      style={[DynamicGlobalStyles.formElementLabel, {color: _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError}]}>{this.dateDisplay(this.props.dateValue)}</Text>
+                      style={[DynamicGlobalStyles.formElementLabel, {color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError}]}>{this.dateDisplay(this.props.dateValue, this.props.noDateMessageKey)}</Text>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
         );
     }
 
-    dateDisplay(date) {
-        return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date);
+    dateDisplay(date, defaultMessageKey) {
+        return _.isNil(date) ? this.I18n.t(defaultMessageKey ? defaultMessageKey : "chooseADate") : General.formatDate(date);
     }
 
     async showPicker(stateKey, options) {

@@ -105,5 +105,6 @@
   "activity": "Activity",
   "completedOn": "Completed On",
   "due": "DUE",
-  "expires": "EXPIRES"
+  "expires": "EXPIRES",
+  "notCompleted": "Not Completed"
 }

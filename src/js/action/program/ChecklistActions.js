@@ -41,16 +41,26 @@ class ChecklistActions {
         checklist.setCompletionDate(action.checklistItemName, action.value);
         return newState;
     }
+
+    static onSave(state, action, context) {
+        const newState = ChecklistActions.clone(state);
+        newState.checklists.forEach((checklist) => {
+            context.get(EntityService).update(checklist);
+        });
+        return newState;
+    }
 }
 
 const ChecklistActionsNames = {
     ON_LOAD: 'Checklist.ON_LOAD',
-    ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE: 'Checklist.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE'
+    ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE: 'Checklist.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE',
+    SAVE: 'Checklist.Save'
 };
 
 const ChecklistActionsMap = new Map([
     [ChecklistActionsNames.ON_LOAD, ChecklistActions.onLoad],
-    [ChecklistActionsNames.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE, ChecklistActions.onCompletionDateChange]
+    [ChecklistActionsNames.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE, ChecklistActions.onCompletionDateChange],
+    [ChecklistActionsNames.SAVE, ChecklistActions.onSave]
 ]);
 
 export {

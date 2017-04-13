@@ -82,9 +82,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
-        const contextActions = [new ContextAction('edit', this.editEnrolment)];
+        const contextActions = [new ContextAction('edit', () => this.editEnrolment())];
         if (this.state.enrolment.isActive)
-            contextActions.push(new ContextAction('exitProgram', this.exitProgram));
+            contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
 
         return (
             <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>

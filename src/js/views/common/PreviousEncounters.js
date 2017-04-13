@@ -20,7 +20,7 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     editEncounter(encounter) {
-        if (encounter.constructor.name === Encounter)
+        if (encounter.constructor.name === Encounter.name)
             CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter);
         else
             CHSNavigator.navigateToProgramEncounterView(this, encounter);

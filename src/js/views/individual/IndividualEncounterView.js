@@ -67,7 +67,6 @@ class IndividualEncounterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content ref='abc'>
                     <AppHeader title={this.state.encounter.individual.name} func={() => this.previous()}/>
-
                     <View style={{flexDirection: 'column'}}>
                         {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup} actions={Actions}

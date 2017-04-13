@@ -68,7 +68,8 @@ class ProgramEncounterView extends AbstractComponent {
                             :
                             <View/>
                         }
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup} actions={Actions}
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup}
+                                          actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t('next')}}/>

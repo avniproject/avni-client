@@ -46,6 +46,10 @@ class BaseService {
         return entities;
     }
 
+    update(entity, schema) {
+        this.saveOrUpdate(entity, schema);
+    }
+
     saveOrUpdate(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
