@@ -101,5 +101,9 @@
   "Yes": "Yes",
   "No": "No",
   "notEnrolledInAnyProgram": "Not enrolled in any program",
-  "openChecklist": "Open Checklist"
+  "openChecklist": "Open Checklist",
+  "activity": "Activity",
+  "completedOn": "Completed On",
+  "due": "DUE",
+  "expires": "EXPIRES"
 }

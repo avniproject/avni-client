@@ -1,13 +1,14 @@
-import {View, StyleSheet} from "react-native";
+import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {Container, Content, Text} from "native-base";
-import {ChecklistActionsNames as Actions} from '../../action/program/ChecklistActions';
-import moment from "moment";
+import {Col, Container, Content, Grid, Row, Text} from "native-base";
+import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
+import DatePicker from "../primitives/DatePicker";
+import DGS from '../primitives/DynamicGlobalStyles';
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -34,18 +35,29 @@ class ChecklistView extends AbstractComponent {
                 <Content>
                     <View style={{flexDirection: 'column'}}>
                         <AppHeader title={this.state.checklists[0].programEnrolment.individual.name}/>
-                        <View>
+                        <View style={{paddingHorizontal: 10}}>
                             {this.state.checklists.map((checklist, index) => {
                                 return (<View style={{flexDirection: 'column'}} key={`checklist${index}`}>
-                                    <Text>{checklist.name}</Text>
-                                    <View style={{flexDirection: 'column'}}>
+                                    <Text style={{fontSize: 20}}>{checklist.name}</Text>
+                                    <Grid style={DGS.observations.observationTable}>
+                                        <Row style={DGS.observations.observationRowHeader}>
+                                            <Col size={7}><Text style={{fontSize: 16}}>{this.I18n.t('activity')}</Text></Col>
+                                            <Col size={3}><Text style={{fontSize: 16}}>{this.I18n.t('completedOn')}</Text></Col>
+                                        </Row>
                                         {checklist.items.map((item, itemIndex) => {
-                                            return <View style={{flexDirection: 'row'}} key={`checklistItem${itemIndex}`}>
-                                                <Text>{item.displayTitle(this.I18n)}</Text>
-                                                <Text>{moment(item.completionDate).format('DD-MM-YYYY')}</Text>
-                                            </View>
+                                            const actionObject = {checklistName: checklist.name, checklistItemName: item.concept.name};
+                                            return <Row style={DGS.observations.observationRow} key={`checklistItem${itemIndex}`}>
+                                                <Col size={7} style={DGS.observations.observationColumn}>
+                                                    <Text style={{flex: 0.7}}>{item.displayTitle(this.I18n)}</Text>
+                                                </Col>
+                                                <Col size={3} style={DGS.observations.observationColumn}>
+                                                    <DatePicker actionName={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
+                                                                validationResult={ChecklistActions.getValidationResult(index, item.concept.name, this.state)}
+                                                                dateValue={item.completionDate} actionObject={actionObject}/>
+                                                </Col>
+                                            </Row>
                                         })}
-                                    </View>
+                                    </Grid>
                                 </View>);
                             })}
                         </View>
