@@ -48,7 +48,7 @@ class ChecklistItem {
     }
 
     displayTitle(I18n) {
-        return `${I18n.t(this.concept.name)}, Due date: ${moment(item.dueDate).format('DD-MM-YYYY')}, Max date: ${moment(item.maxDate).format('DD-MM-YYYY')}`;
+        return `${I18n.t(this.concept.name)}, Due date: ${moment(this.dueDate).format('DD-MM-YYYY')}, Max date: ${moment(this.maxDate).format('DD-MM-YYYY')}`;
     }
 }
 

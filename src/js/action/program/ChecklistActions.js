@@ -1,5 +1,6 @@
-import G from "../../utility/General";
 import EntityService from "../../service/EntityService";
+import _ from 'lodash';
+import ProgramEnrolment from '../../models/ProgramEnrolment';
 
 class ChecklistActions {
     static getInitialState() {
@@ -7,13 +8,19 @@ class ChecklistActions {
     }
 
     static clone(state) {
-        return {checklist: state.checklist.clone()}
+        const checklists = [];
+        if (!_.isNil(state.checklists)) {
+            state.checklists.forEach((checklist) => {
+                checklists.push(checklist.clone());
+            });
+        }
+        return {checklists: checklists};
     }
 
     static onLoad(state, action, context) {
-        const newState = state.clone();
-        const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID);
-        newState.checklist = enrolment.checklist;
+        const newState = ChecklistActions.clone(state);
+        const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
+        newState.checklists = enrolment.checklists;
         return newState;
     }
 }

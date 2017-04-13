@@ -20,7 +20,7 @@ class ChecklistView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, ReducerKeys.checklist);
+        super(props, context, ReducerKeys.reducerKeys.checklist);
     }
 
     componentWillMount() {
@@ -32,15 +32,23 @@ class ChecklistView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content>
-                    <AppHeader title={this.state.checklist.enrolment.individual.name}/>
-                    <Text>{this.state.checklist.name}</Text>
                     <View style={{flexDirection: 'column'}}>
-                    {this.state.checklist.items.forEach((item) => {
-                        <View style={{flexDirection: 'row'}}>
-                            <Text>{item.displayTitle(this.I18n)}</Text>
-                            <Text>{moment(item.completionDate).format('DD-MM-YYYY')}</Text>
+                        <AppHeader title={this.state.checklists[0].programEnrolment.individual.name}/>
+                        <View>
+                            {this.state.checklists.map((checklist, index) => {
+                                return (<View style={{flexDirection: 'column'}} key={`checklist${index}`}>
+                                    <Text>{checklist.name}</Text>
+                                    <View style={{flexDirection: 'column'}}>
+                                        {checklist.items.map((item, itemIndex) => {
+                                            return <View style={{flexDirection: 'row'}} key={`checklistItem${itemIndex}`}>
+                                                <Text>{item.displayTitle(this.I18n)}</Text>
+                                                <Text>{moment(item.completionDate).format('DD-MM-YYYY')}</Text>
+                                            </View>
+                                        })}
+                                    </View>
+                                </View>);
+                            })}
                         </View>
-                    })}
                     </View>
                 </Content>
             </Container>

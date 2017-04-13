@@ -146,6 +146,10 @@ class ProgramEnrolment extends BaseEntity {
         });
         return checklists;
     }
+
+    get hasChecklist() {
+        return 0 !== this.checklists.length;
+    }
 }
 
 export default ProgramEnrolment;

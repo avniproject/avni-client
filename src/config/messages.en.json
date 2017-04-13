@@ -100,5 +100,6 @@
   "registrationDate": "Date of Registration",
   "Yes": "Yes",
   "No": "No",
-  "notEnrolledInAnyProgram": "Not enrolled in any program"
+  "notEnrolledInAnyProgram": "Not enrolled in any program",
+  "openChecklist": "Open Checklist"
 }

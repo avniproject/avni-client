@@ -73,6 +73,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         this.dispatchAction(EncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
     }
 
+    openChecklist() {
+        CHSNavigator.navigateToChecklistView(this, this.state.enrolment.uuid);
+    }
+
     render() {
         console.log('ProgramEnrolmentDashboardView.render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
@@ -106,6 +110,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
                                                 textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> :
                                         <View/>}
+                                    {this.state.enrolment.hasChecklist ?
+                                        <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
+                                                textStyle={{color: 'white'}} onPress={() => this.openChecklist()}>{this.I18n.t('openChecklist')}</Button> : <View/>}
                                     <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
                                             textStyle={{color: Colors.Blackish}} onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
                                 </View>

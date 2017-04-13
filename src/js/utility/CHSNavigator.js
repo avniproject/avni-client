@@ -9,6 +9,7 @@ import IndividualRegistrationDetailView from "../views/individual/IndividualRegi
 import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
+import ChecklistView from "../views/program/ChecklistView";
 
 class CHSNavigator {
     static navigateToProgramEnrolmentView(source, enrolment) {
@@ -59,6 +60,12 @@ class CHSNavigator {
             onSaveCallback: onSaveCallback,
             observations: observations
         }).to(SystemRecommendationView, true);
+    }
+
+    static navigateToChecklistView(source, enrolmentUUID) {
+        TypedTransition.from(source).with({
+            enrolmentUUID: enrolmentUUID,
+        }).to(ChecklistView, true);
     }
 }
 

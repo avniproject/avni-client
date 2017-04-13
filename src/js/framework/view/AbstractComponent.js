@@ -74,6 +74,10 @@ class AbstractComponent extends Component {
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe();
     }
+
+    log(message) {
+        console.log(`[${this.constructor.name}] ${message}`);
+    }
 }
 
 export default AbstractComponent;
