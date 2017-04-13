@@ -43,7 +43,6 @@ class EntityTypeSelector extends AbstractComponent {
                     style={{flex: 1, flexDirection: 'column', flexWrap: 'nowrap', backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
                     <View style={{flex: .3}}/>
                     <View style={[{
-                        flex: .2,
                         width: DynamicGlobalStyles.resizeWidth(300),
                         flexDirection: 'column',
                         flexWrap: 'nowrap',
@@ -57,12 +56,12 @@ class EntityTypeSelector extends AbstractComponent {
                                     selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
                                     labelKey={this.props.labelKey}
                                     labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
-                        <View style={{flex: 1, flexDirection: 'row', alignSelf: 'flex-end'}}>
+                        <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginTop: 10}}>
                             <Button onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])}>{this.I18n.t('cancel')}</Button>
                             <Button style={{marginLeft: 8}} onPress={() => this.entityTypeSelectionConfirmed()}>{this.I18n.t('proceed')}</Button>
                         </View>
                     </View>
-                    <View style={{flex: .5}}/>
+                    <View style={{flex: 1}}/>
                 </View>
             </Modal>
         );
