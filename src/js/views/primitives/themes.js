@@ -72,13 +72,13 @@ export default {
 
 
     // Check Box
-    checkboxBgColor: '#010101',
+    checkboxBgColor: '#009688',
     checkboxSize: 16,
     checkboxTickColor: '#fff',
 
 
     // Color
-    brandPrimary : '#CB202D',
+    brandPrimary : '#009688',
     brandInfo: '#5bc0de',
     brandSuccess: '#5cb85c',
     brandDanger: '#d9534f',

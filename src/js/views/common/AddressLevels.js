@@ -1,14 +1,15 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
-import {CheckBox, Col, Row, Text, Grid, Radio} from "native-base";
+import {CheckBox, Col, Row, Grid, Radio} from "native-base";
 import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Colors from '../primitives/Colors';
 import Reducers from "../../reducer";
+import Fonts from '../primitives/Fonts';
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -24,7 +25,7 @@ class AddressLevels extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.addressLevels);
-        this.inputTextStyle = {fontSize: 16, justifyContent: 'flex-start', marginLeft: 11};
+        this.inputTextStyle = {fontSize: Fonts.Large, marginLeft: 11, color: Colors.InputNormal};
     }
 
     toggleAddressLevelSelection(addressLevel) {
@@ -38,43 +39,40 @@ class AddressLevels extends AbstractComponent {
     }
 
     renderChoices() {
-        this.inputTextStyle.color = _.isNil(this.props.validationError) ? Colors.InputNormal : Colors.ValidationError;
+        const color = _.isNil(this.props.validationError) ? Colors.InputNormal : Colors.ValidationError;
         return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
-                return (<Row
+                return (<View
                     key={idx}
-                    style={{
-                        padding: DGS.resizeWidth(28),
-                        backgroundColor: '#ffffff',
-                        borderWidth: 1,
-                        borderStyle: 'dashed'
-                    }}>
-                    <Col style={{flex: 1}}>
-                        <Row>
-                            {this.getSelectComponent(address1)}
-                            <Text style={this.inputTextStyle}>{this.I18n.t(address1.name)}</Text>
-                        </Row>
-                    </Col>
-                    <Col style={{flex: 0.25}}/>
-                    <Col style={{flex: 1}}>
-                        {_.isNil(address2) ? <Row/> :
-                            <Row>
+                    style={{flexDirection: 'row', marginBottom: DGS.resizeHeight(22)}}>
+                    <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                        {this.getSelectComponent(address1)}
+                        <Text style={[this.inputTextStyle, {color: color}]}>{this.I18n.t(address1.name)}</Text>
+                    </View>
+                    <View style={{flex: 1}}>
+                        {_.isNil(address2) ? <View/> :
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 {this.getSelectComponent(address2)}
-                                <Text style={this.inputTextStyle}>{this.I18n.t(address2.name)}</Text>
-                            </Row>}
-                    </Col>
-                </Row>)
+                                <Text style={[this.inputTextStyle, {color: color}]}>{this.I18n.t(address2.name)}</Text>
+                            </View>
+                        }
+                    </View>
+                </View>)
             }
         );
     }
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
-        return (<Grid>
-            <Row style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
-            </Row>
-            {this.renderChoices()}
-        </Grid>);
+        return (
+            <Grid >
+                <Row style={{marginTop: 10, marginBottom: 10}}>
+                    <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
+                </Row>
+                <View style={{borderWidth: 1, borderStyle: 'dashed', borderColor: Colors.InputBorderNormal, padding: DGS.resizeWidth(28)}}>
+                    {this.renderChoices()}
+                </View>
+            </Grid>
+        );
     }
 
     getSelectComponent(addressLevel) {

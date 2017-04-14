@@ -25,7 +25,7 @@ class AppHeader extends AbstractComponent {
 
     render() {
         return (
-            <Header style={{backgroundColor: Colors.Blackish}}>
+            <Header style={{backgroundColor: Colors.BlackBackground}}>
                 <Button transparent onPress={() => this.onPress()}>
                     <Icon style={{fontSize: 25}} name='keyboard-arrow-left'/>
                 </Button>

@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
 import Colors from "../primitives/Colors";
+import Fonts from '../primitives/Fonts';
 
 class ContextActionButton extends AbstractComponent {
     static propTypes = {
@@ -16,7 +17,7 @@ class ContextActionButton extends AbstractComponent {
 
     render() {
         return (
-            <Button transparent textStyle={{fontSize: 14, color: Colors.ActionButtonColor}} onPress={() => this.props.onPress()}>{`(${this.I18n.t(this.props.labelKey)})`}</Button>
+            <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor}} onPress={() => this.props.onPress()}>{`${this.I18n.t(this.props.labelKey)}`}</Button>
         );
     }
 }

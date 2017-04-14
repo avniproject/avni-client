@@ -5,6 +5,7 @@ import {Text, Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from '../form/ValidationErrorMessage';
+import Fonts from '../primitives/Fonts';
 
 class SingleSelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -28,7 +29,7 @@ class SingleSelectFormElement extends AbstractFormElement {
         return <View style={{flex: 0.5, flexDirection: 'row'}}>
             <Radio selected={this.props.singleCodedValue.hasValue(answer.concept.uuid)}
                    onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)}/>
-            <Text style={{fontSize: 16, marginLeft: 11, color: this.textColor}}>{this.I18n.t(answer.concept.name)}</Text>
+            <Text style={{fontSize: Fonts.Large, marginLeft: 11, color: this.textColor}}>{this.I18n.t(answer.concept.name)}</Text>
         </View>
     }
 

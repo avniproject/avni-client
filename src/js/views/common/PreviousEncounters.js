@@ -9,6 +9,8 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import ContextAction from "../viewmodel/ContextAction";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Encounter from "../../models/Encounter";
+import Fonts from '../primitives/Fonts';
+import Colors from '../primitives/Colors';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -28,13 +30,13 @@ class PreviousEncounters extends AbstractComponent {
 
     render() {
         return (
-            <View style={{paddingBottom: 20}}>
+            <View>
                 {this.props.encounters.length === 0 ?
-                    (<View style={DGS.generalHistory.encounter}>
+                    (<View>
                         <View style={[DGS.common.content]}>
                             <Grid>
                                 <Row style={{justifyContent: 'center'}}>
-                                    <Text style={{fontSize: 16}}>{this.I18n.t('noEncounters')}</Text>
+                                    <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('noEncounters')}</Text>
                                 </Row>
                             </Grid>
                         </View>
@@ -42,12 +44,12 @@ class PreviousEncounters extends AbstractComponent {
                     : this.props.encounters.map((encounter, index) => {
                         return (
                             <View key={`${index}-1`}>
-                                <ObservationsSectionTitle contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]} titleKey='visitDetails'/>
-                                <View style={DGS.generalHistory.encounter} key={`${index}-2`}>
+                                <ObservationsSectionTitle contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]} title={this.I18n.t('visitDetails')}/>
+                                <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: this.resizeHeight(16)}} key={`${index}-2`}>
                                     <View style={DGS.common.content}>
                                         <View style={{flexDirection: 'row'}}>
-                                            <Text style={{fontSize: 16}}>{this.I18n.t('date')}</Text>
-                                            <Text style={{fontSize: 16}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text>
+                                            <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('date')}</Text>
+                                            <Text style={{fontSize: Fonts.Large}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text>
                                         </View>
                                         <Observations observations={encounter.observations}/>
                                     </View>

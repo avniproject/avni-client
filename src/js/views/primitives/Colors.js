@@ -8,10 +8,11 @@ class Colors {
     static InputBorderNormal = 'rgba(0, 0, 0, 0.12)';
     static InputLabelNormal = 'rgba(15, 15, 15, 0.75)';
     static GreyBackground = 'rgba(97, 97, 97, 0.20)';
-    static Blackish = '#212121';
+    static BlackBackground = '#212121';
     static ActionButtonColor = '#009688';
     static SecondaryActionButtonColor = '#e0e0e0';
     static GreyContentBackground = '#f7f7f7';
+    static CheckboxRadioboxColor = '#010101';
 }
 
 export default Colors;

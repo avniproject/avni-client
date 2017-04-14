@@ -1,4 +1,4 @@
-import {View, StyleSheet, ScrollView, TextInput} from "react-native";
+import {View, StyleSheet, ScrollView, TextInput, Text} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -6,7 +6,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
 import GlobalStyles from "../primitives/GlobalStyles";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
-import {Button, Content, Grid, Col, Row, Text} from "native-base";
+import {Button, Content, Grid, Col, Row} from "native-base";
 import AddressLevels from "../common/AddressLevels";
 import Reducers from "../../reducer";
 import {IndividualSearchActionNames as Actions} from '../../action/individual/IndividualSearchActions';

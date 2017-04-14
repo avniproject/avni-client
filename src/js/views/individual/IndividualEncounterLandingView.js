@@ -59,7 +59,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
         console.log('IndividualEncounterLandingView.render');
         return (
             <Container theme={themes}>
-                <Content style={{backgroundColor: Colors.Blackish}}>
+                <Content style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.state.encounter.individual.name}/>
                     <Grid style={{marginLeft: 10, marginRight: 10}}>
                         <Row>

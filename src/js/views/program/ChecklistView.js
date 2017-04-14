@@ -10,6 +10,7 @@ import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/p
 import DatePicker from "../primitives/DatePicker";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Colors from '../primitives/Colors';
+import Fonts from '../primitives/Fonts';
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -47,8 +48,8 @@ class ChecklistView extends AbstractComponent {
                                         <Text style={{fontSize: 20}}>{checklist.name}</Text>
                                         <Grid style={DGS.observations.observationTable}>
                                             <Row style={DGS.observations.observationRowHeader}>
-                                                <Col size={7}><Text style={{fontSize: 16}}>{this.I18n.t('activity')}</Text></Col>
-                                                <Col size={3}><Text style={{fontSize: 16}}>{this.I18n.t('completedOn')}</Text></Col>
+                                                <Col size={7}><Text style={{fontSize: Fonts.Large}}>{this.I18n.t('activity')}</Text></Col>
+                                                <Col size={3}><Text style={{fontSize: Fonts.Large}}>{this.I18n.t('completedOn')}</Text></Col>
                                             </Row>
                                             {checklist.items.map((item, itemIndex) => {
                                                 const actionObject = {checklistName: checklist.name, checklistItemName: item.concept.name};

@@ -14,6 +14,7 @@ import DashboardView from "./program/DashboardView";
 import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
+import Fonts from './primitives/Fonts';
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -27,7 +28,7 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: 16};
+    static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: Fonts.Large};
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48};
 
     createStyles() {
@@ -125,7 +126,7 @@ class MenuView extends AbstractComponent {
 
     render() {
         return (
-            <Content style={{backgroundColor: Colors.Blackish}}>
+            <Content style={{backgroundColor: Colors.BlackBackground}}>
                 <Grid style={this.mainContainerStyle}>
                     <Row>
                         <Col style={this.columnStyle}>

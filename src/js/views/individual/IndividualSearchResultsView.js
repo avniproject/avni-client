@@ -83,7 +83,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                           <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48}}/>
                                       </Col>
                                       <Col style={{paddingLeft: DynamicGlobalStyles.resizeWidth(16)}}>
-                                          <Row><Text style={{fontSize: 16}}>{item.name}</Text></Row>
+                                          <Row><Text style={{fontSize: Fonts.Large}}>{item.name}</Text></Row>
                                           <Row>
                                               <Text style={{fontSize: Fonts.Normal}} note>{item.gender.name}</Text>
                                               <Text style={{paddingLeft: DynamicGlobalStyles.resizeWidth(8), paddingRight: DynamicGlobalStyles.resizeWidth(8)}}>|</Text>
@@ -91,7 +91,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                           </Row>
                                       </Col>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(246)}}>
-                                          <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: 16}}>{item.lowestAddressLevel.name}</Text></Row>
+                                          <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: Fonts.Large}}>{item.lowestAddressLevel.name}</Text></Row>
                                           <Row
                                               style={{justifyContent: 'flex-end'}}>{_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
                                       </Col>

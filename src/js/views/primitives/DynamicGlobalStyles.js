@@ -11,9 +11,9 @@ class DynamicGlobalStyles {
             this.formRow = {marginTop: this.resizeHeight(16)};
                 this.formTextElement = {marginLeft: 0};
                     this.formElementLabel = {fontSize: Fonts.Normal, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)'};
-                    this.formElementTextInput = {flex: 1, fontSize: 16};
+                    this.formElementTextInput = {flex: 1, fontSize: Fonts.Large};
                 this.formCheckboxElement = {marginLeft: 0, marginTop: this.resizeHeight(16)};
-                this.formRadioText = {fontSize: 16, marginLeft: this.resizeWidth(10)};
+                this.formRadioText = {fontSize: Fonts.Large, marginLeft: this.resizeWidth(10)};
         // @formatter:on
         this.createCommonStyles();
         this.createObservationsStyles();
@@ -23,11 +23,11 @@ class DynamicGlobalStyles {
 
     createObservationsStyles() {
         this.observations = {
-            observationTable: {marginTop: this.resizeHeight(16), borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+            observationTable: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
             observationRowHeader: {height: this.resizeHeight(44), borderColor: 'rgba(0, 0, 0, 0.12)', borderTopWidth: 1, borderBottomWidth: 1},
             observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
             observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            component: {backgroundColor: Colors.GreyContentBackground, marginBottom: this.resizeHeight(36)}
+            component: {backgroundColor: Colors.GreyContentBackground}
         }
     }
 
@@ -36,7 +36,7 @@ class DynamicGlobalStyles {
     }
 
     resizeHeight(size) {
-        return size * this.windowHeight / 960;
+        return size * this.windowHeight / 900;
     }
 
     resizeTextInputHeight(size) {
@@ -60,9 +60,8 @@ class DynamicGlobalStyles {
 
     createGeneralHistoryStyles() {
         this.generalHistory = {
-            encounter: {backgroundColor: Colors.GreyContentBackground, marginTop: this.resizeHeight(16)},
             encounterDateGrid: {marginBottom: this.resizeHeight(8)},
-            buttonStyle: {marginLeft: 8, height: this.resizeHeight(26), justifyContent: 'center'},
+            buttonStyle: {marginLeft: 8, height: this.resizeHeight(30), borderWidth: 1.5},
             buttonRowStyle: {justifyContent: 'center', height: this.resizeHeight(40)}
         };
     }
@@ -82,7 +81,7 @@ class DynamicGlobalStyles {
                 button: {fontSize: 14}
             },
             table: {
-                title: {fontSize: 16, color: Colors.InputNormal, marginTop: this.resizeHeight(18)}
+                title: {fontSize: Fonts.Large, color: Colors.InputNormal, marginTop: this.resizeHeight(18)}
             }
         }
     }

@@ -22,6 +22,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import EntityTypeSelector from "../common/EntityTypeSelector";
 import ContextAction from "../viewmodel/ContextAction";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
+import Fonts from '../primitives/Fonts';
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -87,7 +88,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
 
         return (
-            <Container theme={themes} style={{backgroundColor: Colors.Blackish}}>
+            <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <Content>
                     <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
@@ -96,42 +97,43 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes}
                                         labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
-                    <View style={{backgroundColor: '#f5fcff'}}>
+                    <View style={{backgroundColor: Colors.BlackBackground}}>
                         <AppHeader title={`${this.state.enrolment.individual.name}`}/>
                         <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
                         <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
-                            <View style={{flexDirection: 'row', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
-                                <View style={{flex: 1, justifyContent: 'flex-start'}}>
-                                    <ProgramList enrolments={enrolments}
-                                                 selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
-                                </View>
-                                <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(21)}}>
-                                    {this.state.enrolment.isActive ?
-                                        <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                                textStyle={{color: 'white'}} onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> :
-                                        <View/>}
-                                    {this.state.enrolment.hasChecklist ?
-                                        <Button block style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                                textStyle={{color: 'white'}} onPress={() => this.openChecklist()}>{this.I18n.t('openChecklist')}</Button> : <View/>}
-                                    <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
-                                            textStyle={{color: Colors.Blackish}} onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
+                            <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
+                                <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
+                                <View style={{flexDirection: 'row'}}>
+                                    <View style={{flex: 1, justifyContent: 'flex-start'}}>
+                                        <ProgramList enrolments={enrolments}
+                                                     selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
+                                    </View>
+                                    <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(9)}}>
+                                        {this.state.enrolment.isActive ?
+                                            <Button block
+                                                    style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
+                                                    textStyle={{color: 'white'}}
+                                                    onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> :
+                                            <View/>}
+                                        {this.state.enrolment.hasChecklist ?
+                                            <Button block
+                                                    style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
+                                                    textStyle={{color: 'white'}} onPress={() => this.openChecklist()}>{this.I18n.t('openChecklist')}</Button> : <View/>}
+                                        <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
+                                                textStyle={{color: Colors.BlackBackground}}
+                                                onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
+                                    </View>
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
-                                <View>
-                                    <ObservationsSectionTitle contextActions={contextActions} titleKey='enrolmentAttributes'/>
-                                    <View style={{
-                                        backgroundColor: Colors.GreyContentBackground,
-                                        marginTop: DGS.resizeHeight(14),
-                                        borderWidth: 1,
-                                        borderColor: 'rgba(0, 0, 0, 0.12)',
-                                        paddingHorizontal: DGS.resizeWidth(13)
-                                    }}>
-                                        <View style={{flexDirection: 'row'}}>
-                                            <Text
-                                                style={{fontSize: 14}}>{`${this.I18n.t('enrolmentDate')} ${moment(this.state.enrolment.enrolmentDateTime).format('DD-MMM-YYYY')}`}</Text>
+                                <View style={{marginTop: DGS.resizeHeight(35)}}>
+                                    <View style={{paddingHorizontal: DGS.resizeWidth(13), backgroundColor: Colors.GreyContentBackground}}>
+                                        <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
+                                        <View style={{
+                                            marginTop: DGS.resizeHeight(8)
+                                        }}>
+                                            <Observations observations={this.state.enrolment.observations}/>
                                         </View>
-                                        <Observations observations={this.state.enrolment.observations}/>
                                     </View>
                                     <PreviousEncounters encounters={this.state.enrolment.encounters}/>
                                 </View>}
@@ -140,6 +142,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                 </Content>
             </Container>
         );
+    }
+
+    getEnrolmentHeaderMessage(enrolment) {
+        return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MMM-YYYY")}`;
     }
 }
 

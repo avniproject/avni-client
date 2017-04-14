@@ -1,9 +1,8 @@
-import {View, StyleSheet, Text} from "react-native";
-import React, {Component} from "react";
+import {Text, View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
-import DGS from '../primitives/DynamicGlobalStyles';
-import Colors from '../primitives/Colors';
+import DGS from "../primitives/DynamicGlobalStyles";
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
@@ -19,7 +18,7 @@ class ProgramList extends AbstractComponent {
     static style = {
         programButton: {
             self: {
-                height: DGS.resizeHeight(28),
+                height: 28,
                 marginRight: DGS.resizeWidth(8),
                 borderRadius: 2,
                 marginTop: DGS.resizeHeight(8)
@@ -54,8 +53,7 @@ class ProgramList extends AbstractComponent {
     render() {
         return (
             <View style={{flexDirection: 'column'}}>
-                <Text style={{fontSize: 16, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
-                <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: DGS.resizeHeight(9)}}>
+                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                     {this.props.enrolments.length === 0 ? <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text> :
                         this.props.enrolments.map((enrolment) => {
                             const buttonStyle = this.getButtonStyle(enrolment);

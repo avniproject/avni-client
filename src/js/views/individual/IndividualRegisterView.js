@@ -21,6 +21,7 @@ import IndividualRegisterViewsMixin from './IndividualRegisterViewsMixin';
 import PrimitiveValue from '../../models/observation/PrimitiveValue';
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import DateFormElement from '../form/DateFormElement';
+import Fonts from '../primitives/Fonts';
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -67,7 +68,7 @@ class IndividualRegisterView extends AbstractComponent {
                                 <Text onPress={this.showPicker.bind(this, 'simple', {date: this.state.individual.dateOfBirth})}
                                       style={[DGS.formElementTextInput,
                                           {
-                                              marginRight: DGS.resizeWidth(50), fontSize: 16,
+                                              marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
                                               color: AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputNormal
                                           }]}>{this.dateDisplay(this.state.individual.dateOfBirth)}</Text>
                                 <View style={{flexDirection: 'column-reverse'}}>

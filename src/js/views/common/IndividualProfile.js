@@ -1,8 +1,7 @@
-import {View, StyleSheet, Modal} from "react-native";
-import React, {Component} from "react";
+import {View, Text} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, Button, Grid, Row, Col, Icon, Thumbnail, Content} from "native-base";
-import moment from "moment";
+import {Button, Col, Content, Grid, Icon, Row} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -18,7 +17,7 @@ class IndividualProfile extends AbstractComponent {
         viewContext: React.PropTypes.string.isRequired
     };
 
-    static buttonIconStyle = {fontSize: 14, color: Colors.ActionButtonColor};
+    static buttonIconStyle = {fontSize: 14, color: Colors.ActionButtonColor, marginBottom: 4};
     static buttonTextStyle = {fontSize: 14, color: Colors.ActionButtonColor};
 
     static viewContext = {
@@ -62,13 +61,13 @@ class IndividualProfile extends AbstractComponent {
                     <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
                                         actions={Actions} labelKey='selectProgram'
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
-                    <Grid style={{backgroundColor: Colors.Blackish}}>
-                        <Row style={{justifyContent: 'center', height: DGS.resizeHeight(131)}}>
+                    <View style={{backgroundColor: Colors.BlackBackground, flexDirection: 'column'}}>
+                        <View style={{justifyContent: 'center', flexDirection: 'row'}}>
                             <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 68}}/>
-                        </Row>
-                        <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30)}}><Text
-                            style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name} {this.props.individual.id}</Text></Row>
-                        <Row style={{justifyContent: 'center', height: DGS.resizeHeight(30), marginBottom: DGS.resizeHeight(14)}}>
+                        </View>
+                        <View style={{justifyContent: 'center', flexDirection: 'row'}}><Text
+                            style={{fontSize: 16, color: '#fff', justifyContent: 'center'}}>{this.props.individual.name} {this.props.individual.id}</Text></View>
+                        <View style={{justifyContent: 'center', marginBottom: DGS.resizeHeight(14), flexDirection: 'row'}}>
                             <Text style={{
                                 textAlignVertical: 'top',
                                 fontSize: 14,
@@ -76,8 +75,8 @@ class IndividualProfile extends AbstractComponent {
                                 justifyContent: 'center'
                             }}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}, {this.props.individual.lowestAddressLevel.name}
                             </Text>
-                        </Row>
-                        <Row style={DGS.generalHistory.buttonRowStyle}>
+                        </View>
+                        <View style={[DGS.generalHistory.buttonRowStyle, {flexDirection: 'row', alignItems: 'center'}]}>
                             {this.props.viewContext === IndividualProfile.viewContext.Individual ?
                                 this.renderProfileActionButton('mode-edit', 'editProfile', () => {
                                     this.editProfile()
@@ -87,13 +86,13 @@ class IndividualProfile extends AbstractComponent {
                                 })
                             }
                             {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
-                        </Row>
-                        <Row style={DGS.generalHistory.buttonRowStyle}>
+                        </View>
+                        <View style={[DGS.generalHistory.buttonRowStyle, {flexDirection: 'row', marginBottom: DGS.resizeHeight(43)}]}>
                             {this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory())}
                             {this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program ? this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments()) :
                                 <View/>}
-                        </Row>
-                    </Grid>
+                        </View>
+                    </View>
                 </Content>
             ) :
             (
