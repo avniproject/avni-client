@@ -1,11 +1,10 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import React, {Component} from "react";
-import {View, StyleSheet, Navigator, Alert} from "react-native";
+import React from "react";
+import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Content, Container, Button, Text, Icon} from "native-base";
+import {Button, Container, Content, Icon, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualProfile from "../common/IndividualProfile";
 import FormElementGroup from "../form/FormElementGroup";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
@@ -17,8 +16,8 @@ import Colors from "../primitives/Colors";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import BaseEntity from "../../models/BaseEntity";
+import DGS from '../primitives/DynamicGlobalStyles';
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -67,7 +66,7 @@ class IndividualEncounterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content ref='abc'>
                     <AppHeader title={this.state.encounter.individual.name} func={() => this.previous()}/>
-                    <View style={{flexDirection: 'column'}}>
+                    <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(26)}}>
                         {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup} actions={Actions}
                                           validationResults={this.state.validationResults}/>
@@ -120,7 +119,7 @@ class IndividualEncounterView extends AbstractComponent {
                     paddingBottom: 12
                 }}>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
-                    <Text style={{paddingLeft:10, paddingRight:10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}></Text>
+                    <Text style={{paddingLeft: 10, paddingRight: 10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}/>
                     <PreviousEncounters encounters={this.state.encounters}/>
                 </View>
                 <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>

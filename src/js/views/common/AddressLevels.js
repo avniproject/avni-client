@@ -10,6 +10,8 @@ import DGS from '../primitives/DynamicGlobalStyles';
 import Colors from '../primitives/Colors';
 import Reducers from "../../reducer";
 import Fonts from '../primitives/Fonts';
+import Distances from '../primitives/Distances';
+import PresetOptionItem from "../primitives/PresetOptionItem";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -29,31 +31,28 @@ class AddressLevels extends AbstractComponent {
     }
 
     toggleAddressLevelSelection(addressLevel) {
-        return () => {
-            this.dispatchAction(this.props.actionName, {value: addressLevel});
-        }
+        return this.dispatchAction(this.props.actionName, {value: addressLevel});
     }
 
     refreshState() {
         this.setState({addressLevels: this.getContextState("addressLevels")});
     }
 
+    presetOption(address) {
+        return <PresetOptionItem displayText={this.I18n.t(address.name)} checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, address)}
+                          multiSelect={this.props.multiSelect} associatedObject={address} onPress={() => this.toggleAddressLevelSelection(address)}
+                          validationError={this.props.validationError}/>
+    }
+
     renderChoices() {
-        const color = _.isNil(this.props.validationError) ? Colors.InputNormal : Colors.ValidationError;
         return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
                 return (<View
                     key={idx}
                     style={{flexDirection: 'row', marginBottom: DGS.resizeHeight(22)}}>
-                    <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                        {this.getSelectComponent(address1)}
-                        <Text style={[this.inputTextStyle, {color: color}]}>{this.I18n.t(address1.name)}</Text>
-                    </View>
+                    {this.presetOption(address1)}
                     <View style={{flex: 1}}>
                         {_.isNil(address2) ? <View/> :
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                {this.getSelectComponent(address2)}
-                                <Text style={[this.inputTextStyle, {color: color}]}>{this.I18n.t(address2.name)}</Text>
-                            </View>
+                            this.presetOption(address2)
                         }
                     </View>
                 </View>)
@@ -68,20 +67,16 @@ class AddressLevels extends AbstractComponent {
                 <Row style={{marginTop: 10, marginBottom: 10}}>
                     <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
                 </Row>
-                <View style={{borderWidth: 1, borderStyle: 'dashed', borderColor: Colors.InputBorderNormal, padding: DGS.resizeWidth(28)}}>
+                <View style={{
+                    borderWidth: 1,
+                    borderStyle: 'dashed',
+                    borderColor: Colors.InputBorderNormal,
+                    padding: DGS.resizeWidth(Distances.RadioCheckBoxDistanceFromBorder)
+                }}>
                     {this.renderChoices()}
                 </View>
             </Grid>
         );
-    }
-
-    getSelectComponent(addressLevel) {
-        if (this.props.multiSelect)
-            return (<CheckBox checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
-                              onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
-        else
-            return (<Radio selected={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, addressLevel)}
-                           onPress={this.toggleAddressLevelSelection(addressLevel)}/>);
     }
 }
 

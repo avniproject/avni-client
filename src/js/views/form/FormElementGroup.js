@@ -12,6 +12,9 @@ import Concept from '../../models/Concept';
 import MultipleCodedValues from "../../models/observation/MultipleCodedValues";
 import SingleCodedValue from "../../models/observation/SingleCodedValue";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
+import DGS from '../primitives/DynamicGlobalStyles';
+import Fonts from '../primitives/Fonts';
+import Colors from '../primitives/Colors';
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -25,47 +28,51 @@ class FormElementGroup extends AbstractComponent {
         super(props, context);
     }
 
+    wrap(x, idx) {
+        return <View style={{marginTop: DGS.resizeHeight(16)}} key={idx}>{x}</View>;
+    }
+
     render() {
         const formElements = this.props.group.getFormElements();
         return (<View>
-                {formElements.length === 0 ? <View/> : <Text>{this.I18n.t(this.props.group.name)}</Text>}
+                {formElements.length === 0 ? <View/> : <Text style={{color: Colors.InputNormal, fontSize: Fonts.Medium, marginTop: DGS.resizeHeight(32)}}>{this.I18n.t(this.props.group.name)}</Text>}
                 {
                     formElements.map((formElement, idx) => {
                         const validationResult = _.find(this.props.validationResults, (validationResult) => validationResult.formIdentifier === formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
-                            return <NumericFormElement key={idx}
+                            return this.wrap(<NumericFormElement
                                                        element={formElement}
                                                        actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                        value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                       validationResult={validationResult}/>
+                                                             validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Text) {
-                            return <TextFormElement key={idx}
+                            return this.wrap(<TextFormElement
                                                     element={formElement}
                                                     actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                     value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                     validationResult={validationResult}
-                            />
+                            />, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
-                            return <MultiSelectFormElement key={idx}
+                            return this.wrap(<MultiSelectFormElement key={idx}
                                                            element={formElement}
                                                            multipleCodeValues={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
-                                                           actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]} validationResult={validationResult}/>
+                                                           actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]} validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
-                            return <SingleSelectFormElement key={idx}
+                            return this.wrap(<SingleSelectFormElement key={idx}
                                                             element={formElement}
                                                             singleCodedValue={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
-                                                            actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]} validationResult={validationResult}/>
+                                                            actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]} validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Boolean) {
-                            return <BooleanFormElement key={idx}
+                            return this.wrap(<BooleanFormElement key={idx}
                                                        element={formElement}
                                                        observationValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                       actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]} validationResult={validationResult}/>
+                                                       actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]} validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Date) {
-                            return <DateFormElement key={idx}
+                            return this.wrap(<DateFormElement key={idx}
                                                     element={formElement}
                                                     actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                     dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                    validationResult={validationResult}/>
+                                                    validationResult={validationResult}/>, idx);
                         }
                     })
                 }

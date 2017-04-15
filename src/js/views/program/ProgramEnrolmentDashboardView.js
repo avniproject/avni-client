@@ -130,7 +130,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     <View style={{paddingHorizontal: DGS.resizeWidth(13), backgroundColor: Colors.GreyContentBackground}}>
                                         <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
                                         <View style={{
-                                            marginTop: DGS.resizeHeight(8)
+                                            marginVertical: DGS.resizeHeight(8)
                                         }}>
                                             <Observations observations={this.state.enrolment.observations}/>
                                         </View>

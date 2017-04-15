@@ -61,11 +61,11 @@ class IndividualEncounterLandingView extends AbstractComponent {
             <Container theme={themes}>
                 <Content style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.state.encounter.individual.name}/>
-                    <Grid style={{marginLeft: 10, marginRight: 10}}>
+                    <Grid>
                         <Row>
                             {/* TODO use DateFormElement instead of below code */}
-                            <Grid style={{backgroundColor: '#ffffff', paddingHorizontal: 10}}>
-                                <Row style={{backgroundColor: '#ffffff'}}>
+                            <Grid style={{backgroundColor: '#ffffff', paddingHorizontal: DynamicGlobalStyles.resizeWidth(26)}}>
+                                <Row>
                                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("date")}</Text>
                                 </Row>
                                 <Row>

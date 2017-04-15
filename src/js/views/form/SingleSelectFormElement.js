@@ -1,11 +1,13 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import React, {Component} from "react";
 import _ from "lodash";
-import {Text, Grid, Col, Row, Radio} from "native-base";
+import {Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from '../form/ValidationErrorMessage';
 import Fonts from '../primitives/Fonts';
+import Distances from '../primitives/Distances';
+import Colors from '../primitives/Colors';
 
 class SingleSelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -35,11 +37,12 @@ class SingleSelectFormElement extends AbstractFormElement {
 
     renderSingleSelectAnswers() {
         return (<View style={{
-            padding: 28,
+            padding: DynamicGlobalStyles.resizeWidth(Distances.RadioCheckBoxDistanceFromBorder),
             backgroundColor: '#ffffff',
             borderWidth: 1,
             borderStyle: 'dashed',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            borderColor: Colors.InputBorderNormal
         }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                 return (

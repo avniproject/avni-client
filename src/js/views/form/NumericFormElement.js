@@ -21,7 +21,7 @@ class NumericFormElement extends AbstractFormElement {
     render() {
         return (
             <View>
-                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10, borderStyle: 'dashed'}}>
+                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </View>
                 <View>

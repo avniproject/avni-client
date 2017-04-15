@@ -1,10 +1,12 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import React, {Component} from "react";
 import _ from "lodash";
-import {Text, CheckBox} from "native-base";
+import {CheckBox} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from '../form/ValidationErrorMessage';
+import Colors from '../primitives/Colors';
+import Distances from '../primitives/Distances';
 
 class MultiSelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -25,7 +27,7 @@ class MultiSelectFormElement extends AbstractFormElement {
     }
 
     renderPossibleAnswer(possibleAnswer) {
-        return <View style={{flex: 0.5, flexDirection: 'row'}}>
+        return <View style={{flex: 0.5, flexDirection: 'row', alignItems: 'center'}}>
             <CheckBox
                 checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(possibleAnswer.concept.uuid)}
                 onPress={this.toggleFormElementAnswerSelection(possibleAnswer)}/>
@@ -35,11 +37,12 @@ class MultiSelectFormElement extends AbstractFormElement {
 
     renderMultiSelectAnswers() {
         return(<View style={{
-                        padding: 28,
+                        padding: DynamicGlobalStyles.resizeWidth(Distances.RadioCheckBoxDistanceFromBorder),
                         backgroundColor: '#ffffff',
                         borderWidth: 1,
                         borderStyle: 'dashed',
-                        flexDirection: 'column'
+                        flexDirection: 'column',
+                        borderColor: Colors.InputBorderNormal
                     }}>{
             _.chunk(this.props.element.concept.getAnswers(), 2).map(([answer1, answer2], idx) => {
                         return (
