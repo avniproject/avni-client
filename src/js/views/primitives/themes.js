@@ -204,7 +204,7 @@ export default {
 
 
     // Text
-    textColor: '#000',
+    textColor: 'rgba(0, 0, 0, 0.87)',
     inverseTextColor: '#fff',
 
 

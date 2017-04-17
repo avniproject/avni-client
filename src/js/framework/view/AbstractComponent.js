@@ -78,6 +78,10 @@ class AbstractComponent extends Component {
     log(message) {
         console.log(`[${this.constructor.name}] ${message}`);
     }
+
+    appendedStyle(style) {
+        return _.assign({}, style, this.props.style);
+    }
 }
 
 export default AbstractComponent;

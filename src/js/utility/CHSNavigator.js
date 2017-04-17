@@ -43,7 +43,7 @@ class CHSNavigator {
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter) {
-        TypedTransition.from(source).bookmark().with({encounter: encounter, individualUUID: individualUUID}).to(IndividualEncounterLandingView);
+        TypedTransition.from(source).bookmark().with({encounter: encounter, individualUUID: individualUUID}).to(IndividualEncounterLandingView, true);
     }
 
     static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, encounter, action) {

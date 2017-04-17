@@ -40,8 +40,8 @@ class AddressLevels extends AbstractComponent {
 
     presetOption(address) {
         return <PresetOptionItem displayText={this.I18n.t(address.name)} checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, address)}
-                          multiSelect={this.props.multiSelect} associatedObject={address} onPress={() => this.toggleAddressLevelSelection(address)}
-                          validationError={this.props.validationError}/>
+                          multiSelect={this.props.multiSelect} onPress={() => this.toggleAddressLevelSelection(address)}
+                          validationResult={this.props.validationError}/>
     }
 
     renderChoices() {
@@ -71,7 +71,7 @@ class AddressLevels extends AbstractComponent {
                     borderWidth: 1,
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
-                    padding: DGS.resizeWidth(Distances.RadioCheckBoxDistanceFromBorder)
+                    padding: Distances.ContentDistanceFromEdge
                 }}>
                     {this.renderChoices()}
                 </View>

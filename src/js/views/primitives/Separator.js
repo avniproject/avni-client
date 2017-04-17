@@ -4,7 +4,9 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import _ from "lodash";
 
 class Separator extends AbstractComponent {
-    static propTypes = {};
+    static propTypes = {
+        style: React.PropTypes.object
+    };
 
     constructor(props, context) {
         super(props, context);
@@ -12,7 +14,7 @@ class Separator extends AbstractComponent {
 
     render() {
         return (
-            <Text style={{height: 1, backgroundColor: '#00000012'}}/>
+            <Text style={this.appendedStyle({height: 1, backgroundColor: '#00000012'})}/>
         );
     }
 }

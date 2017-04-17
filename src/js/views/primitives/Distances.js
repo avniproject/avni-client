@@ -1,7 +1,9 @@
-import _ from "lodash";
+import DGS from "./DynamicGlobalStyles";
 
 class Distances {
-    static RadioCheckBoxDistanceFromBorder = 28
+    static get ContentDistanceFromEdge() {
+        return DGS.resizeWidth(24);
+    }
 }
 
 export default Distances;

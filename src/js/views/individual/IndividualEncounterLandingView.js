@@ -1,4 +1,4 @@
-import {DatePickerAndroid} from "react-native";
+import {DatePickerAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -18,11 +18,19 @@ import General from "../../utility/General";
 import Colors from "../primitives/Colors";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import CHSNavigator from "../../utility/CHSNavigator";
+import DatePicker from "../primitives/DatePicker";
+import ValidationResult from "../../models/application/ValidationResult";
+import AbstractEncounter from '../../models/AbstractEncounter';
+import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
+import StaticFormElement from "../viewmodel/StaticFormElement";
+import DateFormElement from "../form/DateFormElement";
+import PrimitiveValue from "../../models/observation/PrimitiveValue";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired,
+        encounter: React.PropTypes.object,
+        individualUUID: React.PropTypes.string
     };
 
     viewName() {
@@ -34,7 +42,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, this.props.params);
+        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, this.props);
         return super.componentWillMount();
     }
 
@@ -56,49 +64,30 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     render() {
-        console.log('IndividualEncounterLandingView.render');
+        this.log(`render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
         return (
             <Container theme={themes}>
-                <Content style={{backgroundColor: Colors.BlackBackground}}>
-                    <AppHeader title={this.state.encounter.individual.name}/>
-                    <Grid>
-                        <Row>
-                            {/* TODO use DateFormElement instead of below code */}
-                            <Grid style={{backgroundColor: '#ffffff', paddingHorizontal: DynamicGlobalStyles.resizeWidth(26)}}>
-                                <Row>
-                                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("date")}</Text>
-                                </Row>
-                                <Row>
-                                    <Text onPress={this.showPicker.bind(this, 'simple', {date: new Date()})}
-                                          style={DynamicGlobalStyles.formElementLabel}>{this.dateDisplay(this.state.encounter.encounterDateTime)}</Text>
-                                </Row>
-                                <FormElementGroup group={this.state.formElementGroup}
-                                                  observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions}
-                                                  validationResults={this.state.validationResults}/>
-                                <WizardButtons next={{
-                                    func: () => this.next(),
-                                    visible: true,
-                                    label: this.I18n.t('next')
-                                }}/>
-                            </Grid>
-                        </Row>
-                    </Grid>
+                <Content>
+                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)}/>
+                    <PreviousEncounterPullDownView showExpanded={this.state.wizard.doShowPreviousEncounter()} individual={this.state.encounter.individual}
+                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.encounters}/>
+                    <View style={{backgroundColor: '#ffffff', paddingHorizontal: DynamicGlobalStyles.resizeWidth(26), flexDirection: 'column'}}>
+                        <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE} element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
+                                         dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
+                                         validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                        <FormElementGroup group={this.state.formElementGroup}
+                                          observationHolder={new ObservationsHolder(this.state.encounter.observations)} actions={Actions}
+                                          validationResults={this.state.validationResults}/>
+                        <WizardButtons next={{
+                            func: () => this.next(),
+                            visible: true,
+                            label: this.I18n.t('next')
+                        }}/>
+                    </View>
                 </Content>
             </Container>
         );
     }
-
-    dateDisplay(date) {
-        return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date);
-    }
-
-    async showPicker(stateKey, options) {
-        const {action, year, month, day} = await DatePickerAndroid.open(options);
-        if (action !== DatePickerAndroid.dismissedAction) {
-            this.dispatchAction(Actions.ENCOUNTER_DATE_TIME_CHANGE, {value: new Date(year, month, day)});
-        }
-    }
-
 }
 
 export default IndividualEncounterLandingView;

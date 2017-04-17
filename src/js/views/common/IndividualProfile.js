@@ -1,20 +1,22 @@
-import {View, Text} from "react-native";
+import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Button, Col, Content, Grid, Icon, Row} from "native-base";
+import {Button, Col, Content, Grid, Icon, Row, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
+import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import EntityTypeSelector from "./EntityTypeSelector";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
         individual: React.PropTypes.object.isRequired,
-        viewContext: React.PropTypes.string.isRequired
+        viewContext: React.PropTypes.string.isRequired,
+        style: React.PropTypes.object
     };
 
     static buttonIconStyle = {fontSize: 14, color: Colors.ActionButtonColor, marginBottom: 4};
@@ -37,7 +39,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     getImage(individual) {
-        return ;
+        return;
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -57,7 +59,7 @@ class IndividualProfile extends AbstractComponent {
         console.log('IndividualProfile.render');
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
-                <Content>
+                <View>
                     <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
                                         actions={Actions} labelKey='selectProgram'
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
@@ -93,22 +95,19 @@ class IndividualProfile extends AbstractComponent {
                                 <View/>}
                         </View>
                     </View>
-                </Content>
+                </View>
             ) :
             (
-                <Grid>
-                    <Row style={{height: 24}}>
-                        <Col><Text
-                            style={{fontSize: 16}}>{this.props.individual.name}</Text></Col>
-                        <Col style={{width: 100}}><Text
-                            style={{fontSize: 16}}>{this.props.individual.lowestAddressLevel.name}</Text></Col>
-                    </Row>
-                    <Row style={{height: 24}}>
-                        <Col><Text style={{fontSize: 14}}>
-                            {this.I18n.t(this.props.individual.gender.name)} | {this.props.individual.getAge().toString(this.I18n)}</Text></Col>
-                        <Col style={{width: 100}}></Col>
-                    </Row>
-                </Grid>
+                <View style={this.appendedStyle({flexDirection: 'column'})}>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={Fonts.LargeBold}>{this.props.individual.name}</Text>
+                        <Text style={Fonts.LargeRegular}>{this.props.individual.lowestAddressLevel.name}</Text>
+                    </View>
+                    <View style={{flexDirection: 'row'}}>
+                        <Text style={{fontSize: Fonts.Normal}}>
+                            {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
+                    </View>
+                </View>
             );
     }
 

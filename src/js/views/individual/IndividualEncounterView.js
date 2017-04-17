@@ -18,6 +18,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
+import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -65,73 +66,18 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content ref='abc'>
-                    <AppHeader title={this.state.encounter.individual.name} func={() => this.previous()}/>
+                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)} func={() => this.previous()}/>
+                    <PreviousEncounterPullDownView showExpanded={this.state.wizard.doShowPreviousEncounter()} individual={this.state.encounter.individual}
+                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.encounters}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(26)}}>
-                        {this.state.wizard.isShowPreviousEncounter() ? this.getExpandedView() : this.getCollapsedView()}
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup} actions={Actions}
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup}
+                                          actions={Actions}
                                           validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>
                 </Content>
             </Container>
-        );
-    }
-
-    toggleExpandCollapse = () => {
-        this.dispatchAction(Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER);
-    };
-
-    getCollapsedView() {
-        return (
-            <View>
-                <View style={{
-                    backgroundColor: Colors.GreyContentBackground,
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    paddingTop: 12,
-                    paddingBottom: 12,
-                    height: 74
-                }}>
-                    <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
-                </View>
-                <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
-                    <Button iconRight
-                            style={{position: 'absolute', width:81, height:22, backgroundColor: Colors.SecondaryActionButtonColor, bottom:-11}}
-                            onPress={this.toggleExpandCollapse}
-                            textStyle={{color: '#212121'}}>
-                        <Text>Expand</Text>
-                        <Icon style={{color: '#212121'}} name='arrow-downward'/>
-                    </Button>
-                </View>
-            </View>
-        );
-    }
-
-    getExpandedView() {
-        return (
-            <View>
-                <View style={{
-                    backgroundColor: Colors.GreyContentBackground,
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    paddingTop: 12,
-                    paddingBottom: 12
-                }}>
-                    <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.state.encounter.individual}/>
-                    <Text style={{paddingLeft: 10, paddingRight: 10, borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'}}/>
-                    <PreviousEncounters encounters={this.state.encounters}/>
-                </View>
-                <View style={{flex: 1, flexDirection:'row', justifyContent:'center'}}>
-                    <Button iconRight light
-                            style={{position: 'absolute', width:81, height:22, backgroundColor: Colors.SecondaryActionButtonColor, bottom:-11}}
-                            onPress={() => this.toggleExpandCollapse()}
-                            textStyle={{color: '#212121'}}>
-                        <Text>Collapse</Text>
-                        <Icon style={{color: '#212121'}} name='arrow-upward'/>
-                    </Button>
-                </View>
-            </View>
         );
     }
 }

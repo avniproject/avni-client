@@ -11,10 +11,12 @@ import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Encounter from "../../models/Encounter";
 import Fonts from '../primitives/Fonts';
 import Colors from '../primitives/Colors';
+import Distances from "../primitives/Distances";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
         encounters: React.PropTypes.any.isRequired,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -43,9 +45,11 @@ class PreviousEncounters extends AbstractComponent {
                     </View>)
                     : this.props.encounters.map((encounter, index) => {
                         return (
-                            <View key={`${index}-1`}>
-                                <ObservationsSectionTitle contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]} title={this.I18n.t('visitDetails')}/>
-                                <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: this.resizeHeight(16)}} key={`${index}-2`}>
+                            <View key={`${index}-1`} style={this.props.style}>
+                                <ObservationsSectionTitle
+                                    contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]}
+                                    title={this.I18n.t('visitDetails')}/>
+                                <View style={{backgroundColor: Colors.GreyContentBackground}} key={`${index}-2`}>
                                     <View style={DGS.common.content}>
                                         <View style={{flexDirection: 'row'}}>
                                             <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('date')}</Text>

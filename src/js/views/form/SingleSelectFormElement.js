@@ -1,13 +1,12 @@
-import {View, StyleSheet, Text} from "react-native";
-import React, {Component} from "react";
+import {Text, View} from "react-native";
+import React from "react";
 import _ from "lodash";
-import {Grid, Col, Row, Radio} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from '../form/ValidationErrorMessage';
-import Fonts from '../primitives/Fonts';
-import Distances from '../primitives/Distances';
-import Colors from '../primitives/Colors';
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import Distances from "../primitives/Distances";
+import Colors from "../primitives/Colors";
+import PresetOptionItem from "../primitives/PresetOptionItem";
 
 class SingleSelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -28,16 +27,13 @@ class SingleSelectFormElement extends AbstractFormElement {
     }
 
     renderAnswer(answer) {
-        return <View style={{flex: 0.5, flexDirection: 'row'}}>
-            <Radio selected={this.props.singleCodedValue.hasValue(answer.concept.uuid)}
-                   onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)}/>
-            <Text style={{fontSize: Fonts.Large, marginLeft: 11, color: this.textColor}}>{this.I18n.t(answer.concept.name)}</Text>
-        </View>
+        return <PresetOptionItem displayText={this.I18n.t(answer.concept.name)} checked={this.props.singleCodedValue.hasValue(answer.concept.uuid)} multiSelect={false}
+                          onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)} validationResult={this.props.validationResult}/>;
     }
 
     renderSingleSelectAnswers() {
         return (<View style={{
-            padding: DynamicGlobalStyles.resizeWidth(Distances.RadioCheckBoxDistanceFromBorder),
+            padding: Distances.ContentDistanceFromEdge,
             backgroundColor: '#ffffff',
             borderWidth: 1,
             borderStyle: 'dashed',

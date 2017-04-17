@@ -8,7 +8,8 @@ import Fonts from "../primitives/Fonts";
 class ObservationsSectionTitle extends AbstractComponent {
     static propTypes = {
         title: React.PropTypes.string.isRequired,
-        contextActions: React.PropTypes.array.isRequired
+        contextActions: React.PropTypes.array.isRequired,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -17,7 +18,7 @@ class ObservationsSectionTitle extends AbstractComponent {
 
     render() {
         return (
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={_.assign({}, {flexDirection: 'row', alignItems: 'center'}, this.props.style)}>
                 <Text style={{fontSize: Fonts.Medium}}>{this.props.title}</Text>
                 <View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row'}}>
                     {this.props.contextActions.map((contextAction, index) => {

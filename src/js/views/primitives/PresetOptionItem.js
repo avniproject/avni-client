@@ -13,9 +13,8 @@ class PresetOptionItem extends AbstractComponent {
         multiSelect: React.PropTypes.bool.isRequired,
         checked: React.PropTypes.bool.isRequired,
         onPress: React.PropTypes.func,
-        associatedObject: React.PropTypes.any,
         displayText: React.PropTypes.string.isRequired,
-        validationError: React.PropTypes.object
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -23,7 +22,7 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const color = _.isNil(this.props.validationError) ? Colors.InputNormal : Colors.ValidationError;
+        const color = _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError;
         return (
             <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
                 {this.getSelectComponent()}
@@ -35,10 +34,10 @@ class PresetOptionItem extends AbstractComponent {
     getSelectComponent() {
         if (this.props.multiSelect)
             return (<CheckBox checked={this.props.checked}
-                              onPress={() => this.props.onPress(this.props.associatedObject)}/>);
+                              onPress={() => this.props.onPress()}/>);
         else
             return (<Radio selected={this.props.checked}
-                           onPress={() => this.props.onPress(this.props.associatedObject)}/>);
+                           onPress={() => this.props.onPress()}/>);
     }
 }
 

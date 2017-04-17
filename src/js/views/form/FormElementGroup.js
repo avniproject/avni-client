@@ -15,6 +15,7 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Fonts from '../primitives/Fonts';
 import Colors from '../primitives/Colors';
+import ValidationResult from "../../models/application/ValidationResult";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -38,7 +39,7 @@ class FormElementGroup extends AbstractComponent {
                 {formElements.length === 0 ? <View/> : <Text style={{color: Colors.InputNormal, fontSize: Fonts.Medium, marginTop: DGS.resizeHeight(32)}}>{this.I18n.t(this.props.group.name)}</Text>}
                 {
                     formElements.map((formElement, idx) => {
-                        const validationResult = _.find(this.props.validationResults, (validationResult) => validationResult.formIdentifier === formElement.uuid);
+                        const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
                                                        element={formElement}

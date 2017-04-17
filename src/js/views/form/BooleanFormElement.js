@@ -5,6 +5,9 @@ import {Text, Radio} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from '../form/ValidationErrorMessage';
+import PresetOptionItem from "../primitives/PresetOptionItem";
+import Colors from '../primitives/Colors';
+import Distances from '../primitives/Distances';
 
 class BooleanFormElement extends AbstractFormElement {
     static propTypes = {
@@ -23,33 +26,33 @@ class BooleanFormElement extends AbstractFormElement {
     }
 
     renderSingleSelectAnswers() {
-        return (<View style={{padding: 28, backgroundColor: '#ffffff', borderWidth: 1, borderStyle: 'dashed', flexDirection: 'column'}}>
-            <View key={1} style={{flexDirection: 'row'}}>
-                <View style={{flexDirection: 'column', flex: 0.5}}>
-                    <View style={{flexDirection: 'row'}}>
-                        <Radio selected={this.isTrueSelected()}
-                               onPress={() => this.toggleFormElementAnswerSelection(this.isTrueSelected() ? null : true)}/>
-                        <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(this.props.element.truthDisplayValue)}</Text>
-                    </View>
-                </View>
-                <View style={{flexDirection: 'column', flex: 0.5}}>
-                    <View style={{flexDirection: 'row'}}>
-                        <Radio selected={this.isFalseSelected()}
-                               onPress={() => this.toggleFormElementAnswerSelection(this.isFalseSelected() ? null : false)}/>
-                        <Text style={{fontSize: 16, marginLeft: 11}}>{this.I18n.t(this.props.element.falseDisplayValue)}</Text>
-                    </View>
-                </View>
+        return (<View style={{
+            padding: Distances.ContentDistanceFromEdge,
+            backgroundColor: '#ffffff',
+            borderWidth: 1,
+            borderStyle: 'dashed',
+            borderColor: Colors.InputBorderNormal,
+            flexDirection: 'row'
+        }}>
+            <View style={{flexDirection: 'column', flex: 0.5}}>
+                <PresetOptionItem multiSelect={false} checked={this.isTrueSelected()} displayText={this.I18n.t(this.props.element.truthDisplayValue)}
+                                  validationResult={this.props.validationResult}
+                                  onPress={() => this.toggleFormElementAnswerSelection(this.isTrueSelected() ? null : true)}/>
+            </View>
+            <View style={{flexDirection: 'column', flex: 0.5}}>
+                <PresetOptionItem multiSelect={false} checked={this.isFalseSelected()} displayText={this.I18n.t(this.props.element.falseDisplayValue)}
+                                  validationResult={this.props.validationResult}
+                                  onPress={() => this.toggleFormElementAnswerSelection(this.isFalseSelected() ? null : true)}/>
             </View>
         </View>);
-
     }
 
-    isFalseSelected(){
+    isFalseSelected() {
         let value = this.props.observationValue.getValue();
         return _.isNil(value) ? false : !value
     }
 
-    isTrueSelected(){
+    isTrueSelected() {
         let value = this.props.observationValue.getValue();
         return _.isNil(value) ? false : value
     }

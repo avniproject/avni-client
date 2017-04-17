@@ -47,7 +47,7 @@ class Wizard {
         this.showPreviousEncounter = !this.showPreviousEncounter;
     }
 
-    isShowPreviousEncounter(){
+    doShowPreviousEncounter(){
         return this.showPreviousEncounter;
     }
 }

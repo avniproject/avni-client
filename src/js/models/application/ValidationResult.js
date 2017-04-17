@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 class ValidationResult {
     constructor(success, formIdentifier, messageKey) {
         this.success = success;
@@ -19,6 +21,10 @@ class ValidationResult {
 
     clone() {
         return new ValidationResult(this.success, this.formIdentifier, this.messageKey);
+    }
+
+    static findByFormIdentifier(validationResults, formIdentifier) {
+        return _.find(validationResults, (validationResult) => validationResult.formIdentifier === formIdentifier);
     }
 }
 

@@ -54,7 +54,7 @@ class DynamicGlobalStyles {
 
     createCommonStyles() {
         this.common = {
-            content: {marginHorizontal: this.resizeWidth(24), marginTop: this.resizeHeight(16)}
+            content: {marginTop: this.resizeHeight(16)}
         }
     }
 

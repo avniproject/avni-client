@@ -1,10 +1,9 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {Button, Header, Title, Icon} from "native-base";
-import _ from 'lodash';
-import Colors from '../primitives/Colors';
+import {Button, Header, Icon, Title} from "native-base";
+import _ from "lodash";
+import Colors from "../primitives/Colors";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -27,7 +26,7 @@ class AppHeader extends AbstractComponent {
         return (
             <Header style={{backgroundColor: Colors.BlackBackground}}>
                 <Button transparent onPress={() => this.onPress()}>
-                    <Icon style={{fontSize: 25}} name='keyboard-arrow-left'/>
+                    <Icon style={{fontSize: 25, marginBottom: 8}} name='keyboard-arrow-left'/>
                 </Button>
                 <Title>{this.props.title}</Title>
             </Header>
