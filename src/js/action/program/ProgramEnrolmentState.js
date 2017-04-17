@@ -50,7 +50,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.enrolment);
+        return ruleService.validateAgainstRule(this.enrolment, this.formElementGroup.form);
     }
 
     executeRule(ruleService, context) {

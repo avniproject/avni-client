@@ -29,6 +29,10 @@ class AbstractDataEntryState {
         });
     }
 
+    getValidationErrors() {
+        return this.validationResults.filter((validationResult) => !validationResult.success);
+    }
+
     moveNext() {
         this.wizard.moveNext();
         this.formElementGroup = this.formElementGroup.next();
@@ -57,12 +61,11 @@ class AbstractDataEntryState {
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
-            if (this.hasValidationError) {
-                if (!_.isNil(action.validationFailed)) action.validationFailed(this);
-            } else {
-                const encounterDecisions = this.executeRule(ruleService, context);
-                action.completed(this, encounterDecisions);
+            var encounterDecisions = [];
+            if (!this.hasValidationError) {
+                encounterDecisions = this.executeRule(ruleService, context);
             }
+            action.completed(this, encounterDecisions, validationResults);
         } else {
             this.moveNext();
             if (!_.isNil(action.movedNext)) action.movedNext(this);

@@ -39,6 +39,7 @@ class EntityFactory {
 
     static createFormElement(name, mandatory, concept, displayOrder) {
         const formElement = new FormElement();
+        formElement.uuid = General.randomUUID();
         formElement.name = name;
         formElement.mandatory = mandatory;
         formElement.concept = concept;

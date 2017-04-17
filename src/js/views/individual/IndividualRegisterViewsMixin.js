@@ -13,8 +13,8 @@ import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardV
 class IndividualRegisterViewsMixin {
     static next(view) {
         view.dispatchAction(Actions.NEXT, {
-            completed: (state, decisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, view.state.individual, state.individual.observations, Actions.SAVE, (source) => {
+            completed: (state, decisions, ruleValidationErrors) => {
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, (source) => {
                     TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], ProgramEnrolmentDashboardView, {individualUUID: view.state.individual.uuid});
                 });
             },

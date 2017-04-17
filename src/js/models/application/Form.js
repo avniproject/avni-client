@@ -54,6 +54,15 @@ class Form {
         return this.formElementGroups.length === 0 ? null : this.formElementGroups[0];
     }
 
+    findFormElement(formElementName) {
+        var formElement;
+        _.forEach(this.formElementGroups, (formElementGroup) => {
+            const foundFormElement = _.find(formElementGroup.formElements, (formElement) => formElement.name === formElementName);
+            if (!_.isNil(foundFormElement)) formElement = foundFormElement;
+        });
+        return formElement;
+    }
+
     static formTypes = {
         IndividualProfile: 'IndividualProfile',
         Encounter: 'Encounter',

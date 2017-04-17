@@ -42,8 +42,8 @@ class ProgramEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            completed: (state, decisions) => {
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, (source) => {
+            completed: (state, decisions, ruleValidationErrors) => {
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid);
                 });
             },

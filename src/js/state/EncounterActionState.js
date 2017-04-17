@@ -31,7 +31,7 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.encounter);
+        return ruleService.validateAgainstRule(this.encounter, this.formElementGroup.form);
     }
 
     executeRule(ruleService, context) {

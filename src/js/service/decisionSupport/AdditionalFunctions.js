@@ -36,5 +36,6 @@ const getCodedAnswers = function (observation) {
         return concept.name;
     });
 };
+//end on encounter
 
 export {getObservationValue as getObservationValue, observationExists as observationExists, getCodedAnswers as getCodedAnswers};

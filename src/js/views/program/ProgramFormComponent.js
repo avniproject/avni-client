@@ -23,9 +23,9 @@ class ProgramFormComponent extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            completed: (state, decisions) => {
+            completed: (state, decisions, ruleValidationErrors) => {
                 const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, state.enrolment.individual, observations, Actions.SAVE, (source) => {
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, this.props.context.usage);
                 });
             },

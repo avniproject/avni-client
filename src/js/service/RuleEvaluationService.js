@@ -60,8 +60,8 @@ class RuleEvaluationService extends BaseService {
         return null;
     }
 
-    validateAgainstRule(entity) {
-        return this.entityRulesMap.get(entity.constructor.name).validate(entity);
+    validateAgainstRule(entity, form) {
+        return this.entityRulesMap.get(entity.constructor.name).validate(entity, form);
     }
 
     getNextScheduledVisits(entity) {

@@ -37,7 +37,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.programEncounter);
+        return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form);
     }
 
     executeRule(ruleService, context) {

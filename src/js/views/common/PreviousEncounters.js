@@ -52,8 +52,8 @@ class PreviousEncounters extends AbstractComponent {
                                 <View style={{backgroundColor: Colors.GreyContentBackground}} key={`${index}-2`}>
                                     <View style={DGS.common.content}>
                                         <View style={{flexDirection: 'row'}}>
-                                            <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('date')}</Text>
-                                            <Text style={{fontSize: Fonts.Large}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text>
+                                            <Text style={Fonts.LargeBold}>{this.I18n.t('date')}</Text>
+                                            <Text style={{fontSize: Fonts.Large, marginLeft: DGS.resizeWidth(10)}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text>
                                         </View>
                                         <Observations observations={encounter.observations}/>
                                     </View>
