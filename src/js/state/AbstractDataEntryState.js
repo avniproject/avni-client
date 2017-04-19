@@ -58,12 +58,12 @@ class AbstractDataEntryState {
         this.handleValidationResults(allValidationResults);
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
-        } else if (this.wizard.isLastPage() && !this.hasValidationError) {
+        } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
             var encounterDecisions = [];
-            if (!this.hasValidationError) {
+            if (!ValidationResult.hasValidationError(this.validationResults)) {
                 encounterDecisions = this.executeRule(ruleService, context);
             }
             action.completed(this, encounterDecisions, validationResults);

@@ -44,7 +44,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     render() {
-        console.log(`SystemRecommendationView.render`);
+        this.log(`render`);
         return (
             <Container theme={themes}>
                 <Content>

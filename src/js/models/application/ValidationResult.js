@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import BaseEntity from '../../models/BaseEntity';
 
 class ValidationResult {
     constructor(success, formIdentifier, messageKey) {
@@ -26,6 +27,14 @@ class ValidationResult {
 
     static findByFormIdentifier(validationResults, formIdentifier) {
         return _.find(validationResults, (validationResult) => validationResult.formIdentifier === formIdentifier);
+    }
+
+    static hasValidationError(validationResults) {
+        return validationResults.some((validationResult) => !validationResult.success);
+    }
+
+    static hasNonRuleValidationError(validationResults) {
+        return validationResults.some((validationResult) => !validationResult.success && validationResult.formIdentifier !== BaseEntity.fieldKeys.EXTERNAL_RULE);
     }
 }
 

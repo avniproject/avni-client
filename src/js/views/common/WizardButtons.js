@@ -23,7 +23,8 @@ class WizardButtons extends AbstractComponent {
         var returnProps = buttonProps;
         if (_.isNil(returnProps)) returnProps = {visible: false};
         if (!_.isNil(returnProps.label) && _.isNil(returnProps.visible)) returnProps.visible = true;
-        if (_.isNil(returnProps.func)) returnProps.func = () => {};
+        if (_.isNil(returnProps.func)) returnProps.func = () => {
+        };
         return returnProps;
     }
 
@@ -33,11 +34,12 @@ class WizardButtons extends AbstractComponent {
         return (
             <View style={this.appendedStyle({marginVertical: 30, justifyContent: 'space-between', flexDirection: 'row'})}>
                 {previousButton.visible ? <Button primary
-                                                       style={{flex: 0.5, backgroundColor: Colors.SecondaryActionButtonColor}}
-                                                       textStyle={{color: '#212121'}} onPress={() => previousButton.func()}>{previousButton.label}</Button> :
+                                                  style={{flex: 0.5, backgroundColor: Colors.SecondaryActionButtonColor}}
+                                                  textStyle={{color: '#212121'}} onPress={() => previousButton.func()}>{previousButton.label}</Button> :
                     <View style={{flex: 0.5}}/>}
-                <Button primary
-                        style={{flex: 0.5, marginLeft: 8}} onPress={() => nextButton.func()}>{nextButton.label}</Button>
+                {nextButton.visible ?
+                    <Button primary
+                            style={{flex: 0.5, marginLeft: 8}} onPress={() => nextButton.func()}>{nextButton.label}</Button> : <View style={{flex: 0.5}}/>}
             </View>
         );
     }
