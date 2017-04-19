@@ -8,6 +8,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
 import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import EntityTypeSelector from "./EntityTypeSelector";
@@ -98,7 +99,10 @@ class IndividualProfile extends AbstractComponent {
                 </View>
             ) :
             (
-                <View style={this.appendedStyle({flexDirection: 'column'})}>
+                <View style={this.appendedStyle({
+                    flexDirection: 'column', backgroundColor: Colors.GreyContentBackground,
+                    paddingHorizontal: Distances.ContentDistanceFromEdge
+                })}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                         <Text style={Fonts.LargeBold}>{this.props.individual.name}</Text>
                         <Text style={Fonts.LargeRegular}>{this.props.individual.lowestAddressLevel.name}</Text>

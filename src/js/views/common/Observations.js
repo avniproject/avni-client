@@ -7,10 +7,12 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import ConceptService from "../../service/ConceptService";
 import Observation from "../../models/Observation";
 import Fonts from "../primitives/Fonts";
+import Colors from "../primitives/Colors";
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.any.isRequired
+        observations: React.PropTypes.any.isRequired,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -21,7 +23,7 @@ class Observations extends AbstractComponent {
         const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
         const conceptService = this.context.getService(ConceptService);
         return (
-            <View style={DGS.observations.component}>
+            <View style={this.appendedStyle({backgroundColor: Colors.GreyContentBackground})}>
                 {
                     observationRows.map((observationRow, rowIndex) => {
                         return (

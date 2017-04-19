@@ -43,10 +43,6 @@ class Wizard {
         return this.currentPage === 1;
     }
 
-    toggleShowPreviousEncounter(){
-        this.showPreviousEncounter = !this.showPreviousEncounter;
-    }
-
     doShowPreviousEncounter(){
         return this.showPreviousEncounter;
     }

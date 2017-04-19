@@ -32,8 +32,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                 <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.individual}
                                    style={{
                                        backgroundColor: Colors.GreyContentBackground,
-                                       paddingHorizontal: Distances.ContentDistanceFromEdge,
-                                       paddingTop: DynamicGlobalStyles.resizeWidth(16)
+                                       paddingHorizontal: Distances.ContentDistanceFromEdge
                                    }}/>
                 <Text style={{height: 11, backgroundColor: Colors.GreyContentBackground}} onPress={this.toggleExpandCollapse}/>
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
@@ -55,13 +54,13 @@ class PreviousEncounterPullDownView extends AbstractComponent {
     getExpandedView() {
         return (
             <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: Colors.GreyContentBackground, paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                <View style={{backgroundColor: Colors.GreyContentBackground, paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.individual}/>
                     <Separator style={{marginTop: DynamicGlobalStyles.resizeHeight(16)}}/>
                 </View>
                 <PreviousEncounters encounters={this.props.encounters}
                                     style={{
-                                        paddingHorizontal: Distances.ContentDistanceFromEdge,
+                                        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                                         backgroundColor: Colors.GreyContentBackground,
                                         paddingBottom: DynamicGlobalStyles.resizeHeight(25)
                                     }}/>

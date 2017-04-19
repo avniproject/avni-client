@@ -1,9 +1,9 @@
-import React, {Component, View, Text} from 'react';
-import {ActivityIndicator, StyleSheet, Alert} from 'react-native';
-import {Map} from 'immutable';
+import React, {Component, Text, View} from "react";
+import {Alert, StyleSheet} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
-import General from '../../utility/General';
+import General from "../../utility/General";
+import DGS from '../../views/primitives/DynamicGlobalStyles';
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -42,7 +42,8 @@ class AbstractComponent extends Component {
         Alert.alert(this.I18n.t("validationError"), errorMessage,
             [
                 {
-                    text: this.I18n.t('ok'), onPress: () => {}
+                    text: this.I18n.t('ok'), onPress: () => {
+                }
                 }
             ]
         );
@@ -76,11 +77,24 @@ class AbstractComponent extends Component {
     }
 
     log(message) {
-        console.log(`[${this.constructor.name}] ${message}`);
+        console.log(`[${this.constructor.name}] ${JSON.stringify(message)}`);
     }
 
     appendedStyle(style) {
-        return _.assign({}, style, this.props.style);
+        const appendedStyle = _.assign({}, style, this.props.style);
+        return this.scaleStyle(appendedStyle);
+    }
+
+    scaleStyle(style) {
+        DGS.stylesForHorizontalDistances.forEach((styleItem) => {
+            if (!_.isNil(style[styleItem]))
+                style[styleItem] = DGS.resizeWidth(style[styleItem])
+        });
+        DGS.stylesForVerticalDistances.forEach((styleItem) => {
+            if (!_.isNil(style[styleItem]))
+                style[styleItem] = DGS.resizeHeight(style[styleItem])
+        });
+        return style;
     }
 }
 

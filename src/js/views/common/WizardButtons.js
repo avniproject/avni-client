@@ -15,7 +15,8 @@ class WizardButtons extends AbstractComponent {
 
     static propTypes = {
         previous: React.PropTypes.object,
-        next: React.PropTypes.object
+        next: React.PropTypes.object,
+        style: React.PropTypes.object
     };
 
     getButtonProps(buttonProps) {
@@ -30,7 +31,7 @@ class WizardButtons extends AbstractComponent {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
         return (
-            <View style={{marginTop: 30, marginBottom: 30, justifyContent: 'space-between', flexDirection: 'row'}}>
+            <View style={this.appendedStyle({marginVertical: 30, justifyContent: 'space-between', flexDirection: 'row'})}>
                 {previousButton.visible ? <Button primary
                                                        style={{flex: 0.5, backgroundColor: Colors.SecondaryActionButtonColor}}
                                                        textStyle={{color: '#212121'}} onPress={() => previousButton.func()}>{previousButton.label}</Button> :

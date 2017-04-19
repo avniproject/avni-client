@@ -5,8 +5,6 @@
   "previous": "<< मागे",
   "restart": "पुनः सुरू",
   "allQuestionnaireSessionsSummary": "पेशन्ट ची माहिती",
-  "session": "{{questionnaireName}}",
-  "savedOn": "सेव तारीख: {{saveDate}}",
   "deleteSessions": "डाटा डीलीट",
   "export": "अपलोड",
   "answersConfirmationTitle": "दिलेले उत्तर",

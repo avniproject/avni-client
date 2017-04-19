@@ -58,7 +58,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 TypedTransition.from(this).to(IndividualEncounterView);
             },
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
-                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE);
+                const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage);
             }
         });
     }
@@ -68,8 +69,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
         return (
             <Container theme={themes}>
                 <Content>
-                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)}/>
-                    <PreviousEncounterPullDownView showExpanded={this.state.wizard.doShowPreviousEncounter()} individual={this.state.encounter.individual}
+                    <AppHeader title={`${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('enterData')}`}/>
+                    <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed} individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.encounters}/>
                     <View style={{backgroundColor: '#ffffff', paddingHorizontal: DynamicGlobalStyles.resizeWidth(26), flexDirection: 'column'}}>
                         <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE} element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}

@@ -71,7 +71,7 @@ class AddressLevels extends AbstractComponent {
                     borderWidth: 1,
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
-                    padding: Distances.ContentDistanceFromEdge
+                    padding: Distances.ScaledContentDistanceFromEdge
                 }}>
                     {this.renderChoices()}
                 </View>

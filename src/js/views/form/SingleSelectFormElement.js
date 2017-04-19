@@ -33,7 +33,7 @@ class SingleSelectFormElement extends AbstractFormElement {
 
     renderSingleSelectAnswers() {
         return (<View style={{
-            padding: Distances.ContentDistanceFromEdge,
+            padding: Distances.ScaledContentDistanceFromEdge,
             backgroundColor: '#ffffff',
             borderWidth: 1,
             borderStyle: 'dashed',

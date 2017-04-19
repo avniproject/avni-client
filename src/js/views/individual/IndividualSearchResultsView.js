@@ -70,13 +70,13 @@ class IndividualSearchResultsView extends AbstractComponent {
                     <List dataArray={this.props.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
-                                        style={{
+                                        style={this.scaleStyle({
                                             backgroundColor: Colors.GreyContentBackground,
                                             marginLeft: 0,
-                                            paddingLeft: DynamicGlobalStyles.resizeWidth(17),
-                                            padding: DynamicGlobalStyles.resizeWidth(17),
-                                            height: DynamicGlobalStyles.resizeHeight(102)
-                                        }}
+                                            paddingLeft: 17,
+                                            padding: 17,
+                                            height: 102
+                                        })}
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(68)}}>
@@ -86,7 +86,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                           <Row><Text style={{fontSize: Fonts.Large}}>{item.name}</Text></Row>
                                           <Row>
                                               <Text style={{fontSize: Fonts.Normal}} note>{item.gender.name}</Text>
-                                              <Text style={{paddingLeft: DynamicGlobalStyles.resizeWidth(8), paddingRight: DynamicGlobalStyles.resizeWidth(8)}}>|</Text>
+                                              <Text style={this.scaleStyle({paddingLeft: 8, paddingRight: 8})}>|</Text>
                                               <Text style={{fontSize: Fonts.Normal}} note>{item.getAge().toString()}</Text>
                                           </Row>
                                       </Col>

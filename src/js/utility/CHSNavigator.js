@@ -46,20 +46,22 @@ class CHSNavigator {
         TypedTransition.from(source).bookmark().with({encounter: encounter, individualUUID: individualUUID}).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action) {
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, (source) => {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage) {
+        const onSaveCallback = (source) => {
             TypedTransition.from(source).popToBookmark();
-        });
+        };
+        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage);
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback) {
+    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage) {
         TypedTransition.from(source).with({
             decisions: decisions,
             individual: individual,
             saveActionName: saveActionName,
             onSaveCallback: onSaveCallback,
             observations: observations,
-            validationErrors: ruleValidationErrors
+            validationErrors: ruleValidationErrors,
+            headerMessage: headerMessage
         }).to(SystemRecommendationView, true);
     }
 

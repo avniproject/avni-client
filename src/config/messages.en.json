@@ -8,7 +8,6 @@
   "export": "Export",
   "answersConfirmationTitle": "Entered data",
   "allQuestionnaireSessionsSummary": "Your data",
-  "session": "{{questionnaireName}} - on {{saveDate}}",
   "decisionsMadeBySystem": "Generated data",
   "deleteConfirmation": "Do you want to delete all saved sessions?",
 
@@ -40,7 +39,6 @@
   "ok": "Ok",
   "yes": "Yes",
   "no": "No",
-  "savedOn": "Saved on {{saveDate}}",
   "download": "Download",
   "individualSearch": "Individual Search",
   "name": "Name",
@@ -62,6 +60,7 @@
   "followupTypes": "Followup Types",
   "proceed": "Proceed",
   "enrol": "ENROL",
+  "exit": "EXIT",
   "cancel": "Cancel",
   "editProfile": "Edit Profile",
   "viewProfile": "View Profile",
@@ -107,5 +106,8 @@
   "due": "DUE",
   "expires": "EXPIRES",
   "notCompleted": "Not Completed",
-  "ENCOUNTER_DATE_TIME": "Visit date"
+  "ENCOUNTER_DATE_TIME": "Visit date",
+  "enterData": "Enter data",
+  "systemRecommendationsTitleForRegistration": "Registration",
+  "summaryAndRecommendations": "Summary & Recommendations"
 }

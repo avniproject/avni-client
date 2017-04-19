@@ -34,7 +34,7 @@ class MultiSelectFormElement extends AbstractFormElement {
 
     renderMultiSelectAnswers() {
         return (<View style={{
-            padding: Distances.ContentDistanceFromEdge,
+            padding: Distances.ScaledContentDistanceFromEdge,
             backgroundColor: '#ffffff',
             borderWidth: 1,
             borderStyle: 'dashed',

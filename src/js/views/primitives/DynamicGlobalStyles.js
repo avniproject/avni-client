@@ -19,6 +19,9 @@ class DynamicGlobalStyles {
         this.createObservationsStyles();
         this.createGeneralHistoryStyles();
         this.createCardStyles();
+
+        this.stylesForHorizontalDistances = ['marginLeft', 'marginRight', 'marginHorizontal', 'paddingLeft', 'paddingRight', 'paddingHorizontal', 'width'];
+        this.stylesForVerticalDistances = ['marginTop', 'marginBottom', 'marginVertical', 'paddingTop', 'paddingBottom', 'paddingVertical', 'height'];
     }
 
     createObservationsStyles() {

@@ -9,11 +9,13 @@ class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
         super(validationResults, formElementGroup, wizard, isNewEntity);
         this.encounter = encounter;
+        this.previousEncountersDisplayed = false;
     }
 
     clone() {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();
+        newState.previousEncountersDisplayed = this.previousEncountersDisplayed;
         super.clone(newState);
         return newState;
     }

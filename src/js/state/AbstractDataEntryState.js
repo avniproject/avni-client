@@ -1,5 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
+import ValidationResult from "../models/application/ValidationResult";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity) {
@@ -9,7 +10,7 @@ class AbstractDataEntryState {
     clone(newState) {
         newState.validationResults = [];
         this.validationResults.forEach((validationResult) => {
-            newState.validationResults.push(validationResult.clone());
+            newState.validationResults.push(ValidationResult.clone(validationResult));
         });
         newState.formElementGroup = this.formElementGroup;
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();

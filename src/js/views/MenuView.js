@@ -32,7 +32,7 @@ class MenuView extends AbstractComponent {
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48};
 
     createStyles() {
-        this.mainContainerStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29), marginTop: DynamicGlobalStyles.resizeHeight(71)};
+        this.mainContainerStyle = {marginHorizontal: 29, marginTop: 71};
         this.columnStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29)};
     }
 
@@ -127,7 +127,7 @@ class MenuView extends AbstractComponent {
     render() {
         return (
             <Content style={{backgroundColor: Colors.BlackBackground}}>
-                <Grid style={this.mainContainerStyle}>
+                <Grid style={this.scaleStyle(this.mainContainerStyle)}>
                     <Row>
                         <Col style={this.columnStyle}>
                             <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
