@@ -67,15 +67,11 @@ class IndividualSearchResultsView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.I18n.t("searchResults")}/>
-                    <List dataArray={this.props.searchResults}
+                    <List style={{backgroundColor: Colors.GreyContentBackground}} dataArray={this.props.searchResults}
                           renderRow={(item) =>
                               <ListItem key={item.uuid}
                                         style={this.scaleStyle({
-                                            backgroundColor: Colors.GreyContentBackground,
-                                            marginLeft: 0,
-                                            paddingLeft: 17,
                                             padding: 17,
-                                            height: 102
                                         })}
                                         onPress={() => this.onResultRowPress(item)}>
                                   <Grid>

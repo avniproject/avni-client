@@ -4,6 +4,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import {Button, Header, Icon, Title} from "native-base";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -26,7 +27,7 @@ class AppHeader extends AbstractComponent {
         return (
             <Header style={{backgroundColor: Colors.BlackBackground}}>
                 <Button transparent onPress={() => this.onPress()}>
-                    <Icon style={{fontSize: 25, marginBottom: 8}} name='keyboard-arrow-left'/>
+                    <Icon style={{fontSize: 25, marginBottom: DynamicGlobalStyles.resizeHeight(8)}} name='keyboard-arrow-left'/>
                 </Button>
                 <Title>{this.props.title}</Title>
             </Header>

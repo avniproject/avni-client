@@ -209,7 +209,7 @@ export default {
 
 
     // Title
-    titleFontSize: (Platform.OS === 'ios' ) ? 17 : 19,
+    titleFontSize: (Platform.OS === 'ios' ) ? 17 : 16,
     subTitleFontSize: (Platform.OS === 'ios' ) ? 12 : 14,
     subtitleColor: '#8e8e93',
 

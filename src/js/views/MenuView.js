@@ -28,7 +28,7 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: Fonts.Large};
+    static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: Fonts.Medium};
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48};
 
     createStyles() {
