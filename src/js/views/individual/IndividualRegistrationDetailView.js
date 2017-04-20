@@ -17,7 +17,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     };
 
     viewName() {
-        return IndividualRegistrationDetailView.name;
+        return 'IndividualRegistrationDetailView';
     }
 
     constructor(props, context) {

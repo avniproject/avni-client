@@ -33,7 +33,7 @@ class Form {
         if (childEntityClass === FormElementGroup)
             BaseEntity.addNewChild(child, form.formElementGroups);
         else
-            throw `${childEntityClass.name} not support by ${Form.name}`;
+            throw `${childEntityClass.name} not support by Form`;
         return form;
     }
 

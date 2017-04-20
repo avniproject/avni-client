@@ -18,7 +18,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     };
 
     viewName() {
-        return IndividualSearchResultsView.name;
+        return 'IndividualSearchResultsView';
     }
 
     constructor(props, context) {

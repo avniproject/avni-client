@@ -55,11 +55,11 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form);
+        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
     }
 
     executeRule(ruleService, context) {
-        const decisions = ruleService.getDecisions(this.individual);
+        const decisions = ruleService.getDecisions(this.individual, 'Individual');
         context.get(ConceptService).addDecisions(this.individual.observations, decisions);
         return decisions;
     }

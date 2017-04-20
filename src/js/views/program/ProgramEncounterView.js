@@ -25,7 +25,7 @@ class ProgramEncounterView extends AbstractComponent {
     };
 
     viewName() {
-        return ProgramEncounterView.name;
+        return 'ProgramEncounterView';
     }
 
     constructor(props, context) {

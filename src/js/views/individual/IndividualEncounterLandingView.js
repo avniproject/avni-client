@@ -34,7 +34,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     };
 
     viewName() {
-        return IndividualEncounterLandingView.name;
+        return 'IndividualEncounterLandingView';
     }
 
     constructor(props, context) {

@@ -33,11 +33,11 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.encounter, this.formElementGroup.form);
+        return ruleService.validateAgainstRule(this.encounter, this.formElementGroup.form, 'Encounter');
     }
 
     executeRule(ruleService, context) {
-        const encounterDecisions = ruleService.getDecisions(this.encounter);
+        const encounterDecisions = ruleService.getDecisions(this.encounter, 'Encounter');
         context.get(ConceptService).addDecisions(this.encounter.observations, encounterDecisions);
         return encounterDecisions;
     }

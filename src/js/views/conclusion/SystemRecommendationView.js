@@ -25,7 +25,7 @@ class SystemRecommendationView extends AbstractComponent {
     };
 
     viewName() {
-        return SystemRecommendationView.name;
+        return 'SystemRecommendationView';
     }
 
     constructor(props, context) {

@@ -20,7 +20,7 @@ class RuleEvaluationService extends BaseService {
         this.decorateEncounter();
         const configFileService = this.getService(ConfigFileService);
 
-        this.entityRulesMap = new Map([[Individual.name, new EntityRule(configFileService.getIndividualRegistrationFile())], [Encounter.name, new EntityRule(configFileService.getEncounterDecisionFile())], [ProgramEncounter.name, new EntityRule(configFileService.getProgramEncounterFile())], [ProgramEnrolment.name, new EntityRule(configFileService.getProgramEnrolmentFile())]]);
+        this.entityRulesMap = new Map([['Individual', new EntityRule(configFileService.getIndividualRegistrationFile())], ['Encounter', new EntityRule(configFileService.getEncounterDecisionFile())], ['ProgramEncounter', new EntityRule(configFileService.getProgramEncounterFile())], ['ProgramEnrolment', new EntityRule(configFileService.getProgramEnrolmentFile())]]);
         this.entityRulesMap.forEach((entityRule, key) => {
             const exports = RuleEvaluationService.getExports(entityRule.ruleFile);
             if (!_.isNil(exports))
@@ -30,8 +30,8 @@ class RuleEvaluationService extends BaseService {
         this.initialised = true;
     }
 
-    getDecisions(entity) {
-        return this.entityRulesMap.get(entity.constructor.name).getDecisions(entity);
+    getDecisions(entity, entityName) {
+        return this.entityRulesMap.get(entityName).getDecisions(entity);
     }
 
     decorateEncounter() {
@@ -60,16 +60,16 @@ class RuleEvaluationService extends BaseService {
         return null;
     }
 
-    validateAgainstRule(entity, form) {
-        return this.entityRulesMap.get(entity.constructor.name).validate(entity, form);
+    validateAgainstRule(entity, form, entityName) {
+        return this.entityRulesMap.get(entityName).validate(entity, form);
     }
 
-    getNextScheduledVisits(entity) {
-        return this.entityRulesMap.get(entity.constructor.name).getNextScheduledVisits(entity);
+    getNextScheduledVisits(entity, entityName) {
+        return this.entityRulesMap.get(entityName).getNextScheduledVisits(entity);
     }
 
     getChecklists(enrolment) {
-        return this.entityRulesMap.get(ProgramEnrolment.name).getChecklists(enrolment);
+        return this.entityRulesMap.get('ProgramEnrolment').getChecklists(enrolment);
     }
 }
 

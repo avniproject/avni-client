@@ -19,7 +19,7 @@ class ChecklistView extends AbstractComponent {
     };
 
     viewName() {
-        return ChecklistView.name;
+        return 'ChecklistView';
     }
 
     constructor(props, context) {

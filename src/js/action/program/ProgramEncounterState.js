@@ -37,11 +37,11 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form);
+        return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form, 'ProgramEncounter');
     }
 
     executeRule(ruleService, context) {
-        const decisions = ruleService.getDecisions(this.programEncounter);
+        const decisions = ruleService.getDecisions(this.programEncounter, 'ProgramEncounter');
         context.get(ConceptService).addDecisions(this.programEncounter.observations, decisions);
         return decisions;
     }

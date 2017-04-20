@@ -89,6 +89,10 @@ class ProgramEncounter extends AbstractEncounter {
         programEncounter.programEnrolment = programEnrolment;
         return programEncounter;
     }
+
+    getName() {
+        return 'ProgramEncounter';
+    }
 }
 
 export default ProgramEncounter;

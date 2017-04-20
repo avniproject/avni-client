@@ -31,7 +31,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     };
 
     viewName() {
-        return ProgramEnrolmentDashboardView.name;
+        return 'ProgramEnrolmentDashboardView';
     }
 
     constructor(props, context) {

@@ -35,7 +35,7 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     viewName() {
-        return IndividualRegisterView.name;
+        return 'IndividualRegisterView';
     }
 
     componentWillMount() {

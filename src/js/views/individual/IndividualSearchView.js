@@ -20,7 +20,7 @@ class IndividualSearchView extends AbstractComponent {
     }
 
     viewName() {
-        return IndividualSearchView.name;
+        return 'IndividualSearchView';
     }
 
     render() {

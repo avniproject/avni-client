@@ -22,7 +22,7 @@ class AddressLevels extends AbstractComponent {
     };
 
     viewName() {
-        return AddressLevels.name;
+        return 'AddressLevels';
     }
 
     constructor(props, context) {

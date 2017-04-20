@@ -67,3 +67,6 @@ deploy:
 
 database-client:
 	adb pull /data/data/com.openchsclient/files/default.realm
+
+reinstall-release: uninstall
+	adb install android/app/build/outputs/apk/app-release.apk

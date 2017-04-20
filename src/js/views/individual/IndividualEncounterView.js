@@ -23,7 +23,7 @@ import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
     viewName() {
-        return IndividualEncounterView.name;
+        return 'IndividualEncounterView';
     }
 
     constructor(props, context) {

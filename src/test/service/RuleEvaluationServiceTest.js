@@ -13,7 +13,7 @@ describe('RuleEvaluationServiceTest', () => {
         ruleEvaluationService.init();
         const encounter = Encounter.create();
         encounter.observations.push(Observation.create(EntityFactory.createConcept("foo", Concept.dataType.Numeric), new PrimitiveValue(2)));
-        const decisions = ruleEvaluationService.getDecisions(encounter);
+        const decisions = ruleEvaluationService.getDecisions(encounter, 'Encounter');
         expect(decisions.length).is.equal(0, decisions);
     });
 });

@@ -30,7 +30,7 @@ class ProgramEnrolmentService extends BaseService {
 
     enrol(programEnrolment) {
         const ruleEvaluationService = this.getService(RuleEvaluationService);
-        const nextScheduledVisits = ruleEvaluationService.getNextScheduledVisits(programEnrolment);
+        const nextScheduledVisits = ruleEvaluationService.getNextScheduledVisits(programEnrolment, 'ProgramEnrolment');
         const expectedChecklists = ruleEvaluationService.getChecklists(programEnrolment);
         const checklists = programEnrolment.createChecklists(expectedChecklists, this.getService(ConceptService));
 
