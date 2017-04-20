@@ -28,7 +28,7 @@ class SingleSelectFormElement extends AbstractFormElement {
 
     renderAnswer(answer) {
         return <PresetOptionItem displayText={this.I18n.t(answer.concept.name)} checked={this.props.singleCodedValue.hasValue(answer.concept.uuid)} multiSelect={false}
-                          onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)} validationResult={this.props.validationResult}/>;
+                          onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)} validationResult={this.props.validationResult} style={{flex: 0.5}}/>;
     }
 
     renderSingleSelectAnswers() {

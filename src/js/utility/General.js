@@ -144,6 +144,20 @@ class General {
         }
         return true;
     }
+
+    static dateWithoutTime(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    static dateAIsAfterB(a, b) {
+        if (_.isNil(a) || _.isNil(b)) return false;
+        return moment(General.dateWithoutTime(a)).isAfter(General.dateWithoutTime(b));
+    }
+
+    static dateAIsBeforeB(a, b) {
+        if (_.isNil(a) || _.isNil(b)) return false;
+        return moment(General.dateWithoutTime(a)).isBefore(General.dateWithoutTime(b));
+    }
 }
 
 export default General;

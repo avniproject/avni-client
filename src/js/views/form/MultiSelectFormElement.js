@@ -29,7 +29,7 @@ class MultiSelectFormElement extends AbstractFormElement {
     renderPossibleAnswer(possibleAnswer) {
         return <PresetOptionItem multiSelect={true} checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(possibleAnswer.concept.uuid)}
                                  displayText={this.I18n.t(possibleAnswer.concept.name)} validationResult={this.props.validationResult}
-                                 onPress={this.toggleFormElementAnswerSelection(possibleAnswer)}/>
+                                 onPress={this.toggleFormElementAnswerSelection(possibleAnswer)} style={{flex: 0.5}}/>
     }
 
     renderMultiSelectAnswers() {

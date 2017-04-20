@@ -8,6 +8,7 @@ import EntityQueue from "../../models/EntityQueue";
 import ObservationsHolder from '../../models/ObservationsHolder';
 import RuleEvaluationService from "../RuleEvaluationService";
 import _ from 'lodash';
+import General from "../../utility/General";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -28,7 +29,7 @@ class ProgramEncounterService extends BaseService {
         unfulfilledEncounters.forEach((programEncounter) => {
             if (moment(programEncounter.scheduledDateTime).subtract(7, 'days').isAfter(moment())) {
                 encounterSummary.upcoming++;
-            } else if (moment(programEncounter.scheduledDateTime).isAfter(moment())) {
+            } else if (General.dateAIsAfterB(programEncounter.scheduledDateTime, new Date())) {
                 encounterSummary.overdue++;
             }
         });

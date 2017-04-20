@@ -110,7 +110,7 @@ class ProgramEnrolment extends BaseEntity {
     validateEnrolment() {
         const validationResults = [];
         validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
-        if (!_.isNil(this.enrolmentDateTime) && moment(this.enrolmentDateTime).isBefore(this.individual.registrationDate))
+        if (!_.isNil(this.enrolmentDateTime) && General.dateAIsBeforeB(this.enrolmentDateTime, this.individual.registrationDate))
             validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.ENROLMENT_DATE, 'enrolmentDateBeforeRegistrationDate'));
         return validationResults;
     }
@@ -118,7 +118,7 @@ class ProgramEnrolment extends BaseEntity {
     validateExit() {
         const validationResults = [];
         validationResults.push(this.validateFieldForEmpty(this.programExitDateTime, ProgramEnrolment.validationKeys.EXIT_DATE));
-        if (!_.isNil(this.programExitDateTime) && moment(this.programExitDateTime).isBefore(this.enrolmentDateTime))
+        if (!_.isNil(this.programExitDateTime) && General.dateAIsBeforeB(this.programExitDateTime, this.enrolmentDateTime))
             validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.EXIT_DATE, 'exitDateBeforeEnrolmentDate'));
         return validationResults;
     }

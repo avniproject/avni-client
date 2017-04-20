@@ -29,6 +29,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {
+                this.log(newState.wizard);
                 if (newState.wizard.isFirstPage())
                     TypedTransition.from(this).goBack();
             }
@@ -40,6 +41,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     render() {
+        this.log(`render`);
         return (
             <Container theme={themes}>
                 <Content>

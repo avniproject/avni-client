@@ -1,8 +1,8 @@
 {
   "catchment": 1,
-  "serverURL": "http://192.168.73.1:8080",
+  "serverURL": "http://139.59.8.249:8080",
   "locale": {
-    "selectedLocale": "mr_IN",
+    "selectedLocale": "en",
     "availableValues": [
       {
         "locale": "en",

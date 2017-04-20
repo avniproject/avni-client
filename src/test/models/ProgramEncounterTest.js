@@ -10,12 +10,17 @@ describe('ProgramEncounterTest', () => {
         expect(ValidationResultsInspector.numberOfErrors(validationResults)).is.equal(1);
 
         programEncounter.programEnrolment = ProgramEnrolment.createEmptyInstance();
-        programEncounter.programEnrolment.enrolmentDateTime = new Date(2017, 0, 0);
+        programEncounter.programEnrolment.enrolmentDateTime = new Date(2017, 0, 0, 5);
         programEncounter.encounterDateTime = new Date(2016, 0, 0);
         validationResults = programEncounter.validate();
         expect(ValidationResultsInspector.numberOfErrors(validationResults)).is.equal(1);
 
         programEncounter.encounterDateTime = new Date(2017, 1, 0);
+        validationResults = programEncounter.validate();
+        expect(ValidationResultsInspector.numberOfErrors(validationResults)).is.equal(0);
+
+        //ignore time differences
+        programEncounter.encounterDateTime = new Date(2017, 0, 0, 3);
         validationResults = programEncounter.validate();
         expect(ValidationResultsInspector.numberOfErrors(validationResults)).is.equal(0);
     });

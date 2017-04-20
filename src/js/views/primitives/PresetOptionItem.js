@@ -14,7 +14,8 @@ class PresetOptionItem extends AbstractComponent {
         checked: React.PropTypes.bool.isRequired,
         onPress: React.PropTypes.func,
         displayText: React.PropTypes.string.isRequired,
-        validationResult: React.PropTypes.object
+        validationResult: React.PropTypes.object,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {

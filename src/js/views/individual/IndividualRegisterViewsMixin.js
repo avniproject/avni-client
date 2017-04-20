@@ -19,8 +19,9 @@ class IndividualRegisterViewsMixin {
                 };
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, `${view.I18n.t('registration')} - ${view.I18n.t('summaryAndRecommendations')}`);
             },
-            movedNext: () => {
-                TypedTransition.from(view).to(IndividualRegisterFormView);
+            movedNext: (state) => {
+                if (state.wizard.isFirstFormPage())
+                    TypedTransition.from(view).to(IndividualRegisterFormView);
             },
             validationFailed: (newState) => {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {

@@ -74,7 +74,7 @@ class ProgramEncounter extends AbstractEncounter {
     validate() {
         const validationResults = super.validate();
         if (!_.isNil(this.encounterDateTime) &&
-            (moment(this.encounterDateTime).isBefore(this.programEnrolment.enrolmentDateTime) || moment(this.encounterDateTime).isAfter(this.programEnrolment.programExitDateTime)))
+            (General.dateAIsBeforeB(this.encounterDateTime, this.programEnrolment.enrolmentDateTime) || General.dateAIsAfterB(this.encounterDateTime, this.programEnrolment.programExitDateTime)))
             validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateNotInBetweenEnrolmentAndExitDate'));
         return validationResults;
     }
