@@ -106,6 +106,11 @@ class Individual extends BaseEntity {
         return ageInYears > 0 ? Duration.inYear(ageInYears) : Duration.inMonth(moment().diff(this.dateOfBirth, 'months'));
     }
 
+    getAgeInMonths(asOnDate) {
+        asOnDate = asOnDate || moment();
+        return moment(asOnDate).diff(this.dateOfBirth, 'months');
+    }
+
     getAgeInYears() {
         return moment().diff(this.dateOfBirth, 'years');
     }
@@ -170,6 +175,10 @@ class Individual extends BaseEntity {
 
     validateGender() {
         return this.validateFieldForEmpty(this.gender, Individual.validationKeys.GENDER);
+    }
+
+    isGender(gender) {
+        return this.gender === gender;
     }
 
     eligiblePrograms(allPrograms) {
