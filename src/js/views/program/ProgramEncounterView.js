@@ -17,6 +17,7 @@ import AbstractEncounter from "../../models/AbstractEncounter";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import DateFormElement from "../../views/form/DateFormElement";
 import _ from "lodash";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -38,6 +39,10 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     previous() {
+        if (this.state.wizard.isFirstFormPage())
+            TypedTransition.from(this).goBack();
+        else
+            this.dispatchAction(Actions.PREVIOUS);
     }
 
     next() {

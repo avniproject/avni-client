@@ -27,7 +27,7 @@ class PresetOptionItem extends AbstractComponent {
         return (
             <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
                 {this.getSelectComponent()}
-                <Text style={[PresetOptionItem.inputTextStyle, {color: color}]}>{this.props.displayText}</Text>
+                <Text style={[PresetOptionItem.inputTextStyle, {color: color}]} onPress={() => this.props.onPress()}>{this.props.displayText}</Text>
             </View>
         );
     }

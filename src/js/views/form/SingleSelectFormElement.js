@@ -42,7 +42,7 @@ class SingleSelectFormElement extends AbstractFormElement {
         }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                 return (
-                    <View key={idx} style={{flexDirection: 'row'}}>
+                    <View key={idx} style={{flexDirection: 'row', marginBottom: DynamicGlobalStyles.resizeHeight(19)}}>
                         {this.renderAnswer(answer1)}
                         {_.isNil(answer2) ? <View style={{flex: 0.5}}/> : this.renderAnswer(answer2)}
                     </View>

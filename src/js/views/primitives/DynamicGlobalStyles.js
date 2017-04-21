@@ -10,7 +10,7 @@ class DynamicGlobalStyles {
         this.mainContent = {marginHorizontal: this.resizeWidth(24)};
             this.formRow = {marginTop: this.resizeHeight(16)};
                 this.formTextElement = {marginLeft: 0};
-                    this.formElementLabel = {fontSize: Fonts.Normal, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)'};
+                    this.formElementLabel = {fontSize: Fonts.Large, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)'};
                     this.formElementTextInput = {flex: 1, fontSize: Fonts.Large};
                 this.formCheckboxElement = {marginLeft: 0, marginTop: this.resizeHeight(16)};
                 this.formRadioText = {fontSize: Fonts.Large, marginLeft: this.resizeWidth(10)};

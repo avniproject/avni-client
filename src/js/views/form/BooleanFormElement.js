@@ -37,12 +37,12 @@ class BooleanFormElement extends AbstractFormElement {
             <View style={{flexDirection: 'column', flex: 0.5}}>
                 <PresetOptionItem multiSelect={false} checked={this.isTrueSelected()} displayText={this.I18n.t(this.props.element.truthDisplayValue)}
                                   validationResult={this.props.validationResult}
-                                  onPress={() => this.toggleFormElementAnswerSelection(this.isTrueSelected() ? null : true)}/>
+                                  onPress={() => this.toggleFormElementAnswerSelection(true)}/>
             </View>
             <View style={{flexDirection: 'column', flex: 0.5}}>
                 <PresetOptionItem multiSelect={false} checked={this.isFalseSelected()} displayText={this.I18n.t(this.props.element.falseDisplayValue)}
                                   validationResult={this.props.validationResult}
-                                  onPress={() => this.toggleFormElementAnswerSelection(this.isFalseSelected() ? null : true)}/>
+                                  onPress={() => this.toggleFormElementAnswerSelection(false)}/>
             </View>
         </View>);
     }

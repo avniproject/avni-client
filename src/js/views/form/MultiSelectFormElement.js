@@ -43,7 +43,7 @@ class MultiSelectFormElement extends AbstractFormElement {
         }}>{
             _.chunk(this.props.element.concept.getAnswers(), 2).map(([answer1, answer2], idx) => {
                 return (
-                    <View key={idx} style={{flexDirection: 'row'}}>
+                    <View key={idx} style={{flexDirection: 'row', marginBottom: DynamicGlobalStyles.resizeHeight(19)}}>
                         {this.renderPossibleAnswer(answer1)}
                         {_.isNil(answer2) ? <View style={{flex: 0.5}}/> : this.renderPossibleAnswer(answer2)}
                     </View>

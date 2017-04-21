@@ -62,7 +62,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [ProgramEncounterActionsNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
     [ProgramEncounterActionsNames.NEXT, ProgramEncounterActions.onNext],
-    [ProgramEncounterActionsNames.PREVIOUS, ObservationsHolderActions.onPrimitiveObs],
+    [ProgramEncounterActionsNames.PREVIOUS, ObservationsHolderActions.onPrevious],
     [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged],
     [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave]
 ]);

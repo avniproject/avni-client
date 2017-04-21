@@ -152,7 +152,7 @@ export default {
     },
 
     inputGroupMarginBottom: 7.5,
-    inputHeightBase: 35,
+    inputHeightBase: 40,
     inputPaddingLeft: 5,
 
     get inputPaddingLeftIcon () {
