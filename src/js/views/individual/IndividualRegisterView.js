@@ -1,9 +1,9 @@
-import {View, StyleSheet, ScrollView, TextInput, DatePickerAndroid, TouchableHighlight, Alert} from "react-native";
-import React, {Component} from "react";
+import {DatePickerAndroid, TextInput, View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import DGS from "../primitives/DynamicGlobalStyles";
-import {Content, CheckBox, Text, Container, Radio, InputGroup, Input} from "native-base";
+import {CheckBox, Container, Content, Radio, Text} from "native-base";
 import themes from "../primitives/themes";
 import AddressLevels from "../common/AddressLevels";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
@@ -17,11 +17,11 @@ import Individual from "../../models/Individual";
 import TextFormElement from "../form/TextFormElement";
 import General from "../../utility/General";
 import Colors from "../primitives/Colors";
-import IndividualRegisterViewsMixin from './IndividualRegisterViewsMixin';
-import PrimitiveValue from '../../models/observation/PrimitiveValue';
-import AbstractDataEntryState from '../../state/AbstractDataEntryState';
-import DateFormElement from '../form/DateFormElement';
-import Fonts from '../primitives/Fonts';
+import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
+import PrimitiveValue from "../../models/observation/PrimitiveValue";
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import DateFormElement from "../form/DateFormElement";
+import Fonts from "../primitives/Fonts";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -86,13 +86,10 @@ class IndividualRegisterView extends AbstractComponent {
                                     <Text style={DGS.formElementLabel}>{this.I18n.t("age")}</Text>
                                 </View>
                                 <View style={{flexDirection: 'row'}}>
-                                    <InputGroup style={{
-                                        flex: 1,
-                                        borderColor: AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal
-                                    }} borderType='underline'>
-                                        <Input value={_.isNil(this.state.age) ? "" : this.state.age}
+                                    <TextInput style={{flex: 1, borderBottomWidth: 0}}
+                                               underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
+                                               value={_.isNil(this.state.age) ? "" : this.state.age}
                                                onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
-                                    </InputGroup>
                                     <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
                                         <Radio selected={this.state.ageProvidedInYears}
                                                onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>

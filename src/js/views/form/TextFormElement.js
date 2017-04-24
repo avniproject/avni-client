@@ -1,10 +1,10 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
-import {Text, InputGroup, Input} from "native-base";
+import {TextInput, View} from "react-native";
+import React from "react";
+import {Text} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from '../form/ValidationErrorMessage';
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -25,9 +25,8 @@ class TextFormElement extends AbstractFormElement {
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </View>
                 <View>
-                    <InputGroup style={{flex: 1, borderColor: this.borderColor}} borderType='underline'>
-                        <Input value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} />
-                    </InputGroup>
+                    <TextInput style={{flex: 1}} underlineColorAndroid={this.borderColor}
+                               value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>);
