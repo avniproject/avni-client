@@ -4,6 +4,7 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import _ from "lodash";
 import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
+import ConceptService from "../../service/ConceptService";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -48,6 +49,7 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        context.get(ConceptService).addDecisions(newState.encounter.observations, action.decisions);
         context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
         action.cb();
         return state;

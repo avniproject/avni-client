@@ -5,6 +5,7 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import ProgramEncounter from "../../models/ProgramEncounter";
+import ConceptService from "../../service/ConceptService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -31,6 +32,7 @@ class ProgramEncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        context.get(ConceptService).addDecisions(newState.programEncounter.observations, action.decisions);
         const service = context.get(ProgramEncounterService);
         service.saveOrUpdate(newState.programEncounter);
         action.cb();

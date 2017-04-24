@@ -98,7 +98,7 @@ class AbstractDataEntryState {
     anyFailedResultForCurrentFEG() {
         const formUUIDs = _.union(this.formElementGroup.formElementIds, this.staticFormElementIds);
         return _.some(this.validationResults, (validationResult) => {
-            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) != -1;
+            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) !== -1;
         });
     }
 

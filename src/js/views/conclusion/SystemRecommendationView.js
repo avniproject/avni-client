@@ -1,14 +1,15 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import React, {Component} from "react";
+import React from "react";
 import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
-import {Text, Content, Grid, Col, Row, Container} from "native-base";
+import {Container, Content, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
+import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
 import Observations from "../common/Observations";
 
@@ -24,6 +25,10 @@ class SystemRecommendationView extends AbstractComponent {
         headerMessage: React.PropTypes.string
     };
 
+    static styles = {
+        rulesRowView: {backgroundColor: Colors.GreyContentBackground, paddingBottom: 19, paddingLeft: 10}
+    };
+
     viewName() {
         return 'SystemRecommendationView';
     }
@@ -34,6 +39,7 @@ class SystemRecommendationView extends AbstractComponent {
 
     save() {
         this.dispatchAction(this.props.saveActionName, {
+            decisions: this.props.decisions,
             cb: () => this.props.onSaveCallback(this),
             error: (message) => this.showError(message)
         });
@@ -58,17 +64,17 @@ class SystemRecommendationView extends AbstractComponent {
                         <View style={this.scaleStyle({paddingHorizontal: 24, paddingVertical: 12, flexDirection: 'column'})}>
                             {
                                 this.props.validationErrors.map((validationResult, index) => {
-                                    return <View style={{backgroundColor: Colors.GreyContentBackground, paddingTop: 19, paddingBottom: 19, paddingLeft: 10}}
+                                    return <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
                                                  key={`error${index}`}>
-                                        <Text style={{fontSize: 14, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
+                                        <Text style={{fontSize: Fonts.Medium, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
                                     </View>;
                                 })
                             }
                             {
                                 _.values(this.props.decisions).map((decision, index) => {
-                                    return <View style={{backgroundColor: Colors.GreyContentBackground, paddingTop: 19, paddingBottom: 19, paddingLeft: 10}}
+                                    return <View style={SystemRecommendationView.styles.rulesRowView}
                                                  key={`decision${index}`}>
-                                        <Text style={{fontSize: 14}}>{decision.value}</Text>
+                                        <Text style={{fontSize: Fonts.Medium}}>{decision.value}</Text>
                                     </View>
                                 })}
                         </View>

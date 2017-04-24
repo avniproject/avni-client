@@ -41,9 +41,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        const decisions = ruleService.getDecisions(this.programEncounter, 'ProgramEncounter');
-        context.get(ConceptService).addDecisions(this.programEncounter.observations, decisions);
-        return decisions;
+        return ruleService.getDecisions(this.programEncounter, 'ProgramEncounter');
     }
 }
 

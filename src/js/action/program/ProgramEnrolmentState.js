@@ -54,9 +54,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        const decisions = ruleService.getDecisions(this.enrolment, 'ProgramEnrolment');
-        context.get(ConceptService).addDecisions(this.enrolment.observations, decisions);
-        return decisions;
+        return ruleService.getDecisions(this.enrolment, 'ProgramEnrolment');
     }
 
     static isInitialised(programEnrolmentState) {

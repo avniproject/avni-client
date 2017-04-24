@@ -7,6 +7,7 @@ import IndividualRegistrationState from "../../state/IndividualRegistrationState
 import Form from '../../models/application/Form';
 import _ from 'lodash';
 import Individual from '../../models/Individual';
+import ConceptService from "../../service/ConceptService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -89,6 +90,7 @@ export class IndividualRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        context.get(ConceptService).addDecisions(newState.individual.observations, action.decisions);
         context.get(IndividualService).register(newState.individual);
         action.cb();
         return newState;

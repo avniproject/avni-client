@@ -37,7 +37,7 @@ class LandingView extends AbstractComponent {
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#fff'}}>
                     <Tabs>
-                        <IndividualEncounterLandingView tabLabel='Play2' individualUUID='925f4909-6639-42e2-b97d-eac431f8497f' encounter={this.createEncounter()}/>
+                        {/*<IndividualEncounterLandingView tabLabel='Play2' individualUUID='925f4909-6639-42e2-b97d-eac431f8497f' encounter={this.createEncounter()}/>*/}
                         <IndividualSearchView tabLabel='Home'/>
                         <MenuView tabLabel='Menu'/>
                         <Playground tabLabel='Play'/>
