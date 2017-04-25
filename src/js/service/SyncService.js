@@ -9,6 +9,7 @@ import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import ConfigFileService from "./ConfigFileService";
 import MessageService from "./MessageService";
+import General from "../utility/General";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -57,7 +58,7 @@ class SyncService extends BaseService {
         }
 
         const entitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
-        console.log(`${entitySyncStatus.entityName} was last loaded up to "${entitySyncStatus.loadedSince}"`);
+        General.logInfo('SyncService', `${entitySyncStatus.entityName} was last loaded up to "${entitySyncStatus.loadedSince}"`);
         this.conventionalRestClient.loadData(entityMetaData, entitySyncStatus.loadedSince, 0,
             unprocessedEntityMetaData,
             (resourcesWithSameTimeStamp, entityModel) => this.persist(resourcesWithSameTimeStamp, entityModel),

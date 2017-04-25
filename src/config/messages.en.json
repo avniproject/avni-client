@@ -111,5 +111,6 @@
   "systemRecommendationsTitleForRegistration": "Registration",
   "summaryAndRecommendations": "Summary & Recommendations",
   "Present": "Present",
-  "Absent": "Absent"
+  "Absent": "Absent",
+  "logLevel": "Log Level"
 }

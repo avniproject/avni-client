@@ -9,6 +9,7 @@ import IndividualProfile from "../common/IndividualProfile";
 import Observations from "../common/Observations";
 import {Content, Container} from "native-base";
 import {IndividualRegistrationDetailsActionsNames as Actions} from '../../action/individual/IndividualRegistrationDetailsActions';
+import General from "../../utility/General";
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -30,7 +31,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 
     render() {
-        console.log('IndividualRegistrationDetailView.render');
+        General.logDebug(this.viewName(), 'render');
         return (
             <Container theme={themes}>
                 <Content>

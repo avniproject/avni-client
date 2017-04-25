@@ -30,7 +30,8 @@ class AbstractComponent extends Component {
     });
 
     dispatchAction(action, params) {
-        console.log(`Dispatching action: ${JSON.stringify(action)}`);
+        if (General.getCurrentLogLevel() <= General.LogLevel.Debug)
+            General.logDebug(this.constructor.name, `Dispatching action: ${JSON.stringify(action)}`);
         this.context.getStore().dispatch({"type": action, ...params});
     }
 
@@ -74,10 +75,6 @@ class AbstractComponent extends Component {
     componentWillUnmount() {
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe();
-    }
-
-    log(message) {
-        console.log(`[${this.constructor.name}] ${JSON.stringify(message)}`);
     }
 
     appendedStyle(style) {

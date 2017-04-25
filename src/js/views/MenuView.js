@@ -15,6 +15,7 @@ import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import Fonts from './primitives/Fonts';
+import General from "../utility/General";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -56,11 +57,11 @@ class MenuView extends AbstractComponent {
         this.context.getService(RuleEvaluationService).init();
         this.dispatchAction('RESET');
         this.setState({syncing: false, error: false});
-        console.log('Sync completed dispatching reset');
+        General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
     _onError(error) {
-        console.log(`Error happened during sync: ${error}`);
+        General.logError(this.viewName(), `Error happened during sync: ${error}`);
         this.setState({syncing: false, error: true});
     }
 

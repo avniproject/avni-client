@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Reducers from './index';
+import General from "../utility/General";
 
 export default class Reducer {
     static factory(actions, initState, beans, prefix) {
@@ -13,7 +14,7 @@ export default class Reducer {
             try {
                 const genericActionName = `${prefix}.${action.type}`;
                 if (actions.has(genericActionName)) {
-                    console.log(`Found generic action ${genericActionName}. Invoking.`);
+                    General.logDebug('Reducer', `Found generic action ${genericActionName}. Invoking.`);
                     return actions.get(genericActionName)(state, action, beans);
                 }
 
@@ -24,7 +25,7 @@ export default class Reducer {
             } catch (e) {
                 const errorAction = actions.get(`${prefix}.${Reducers.ON_ERROR}`);
                 const errorActionDefined = _.isNil(errorAction);
-                console.log(`Got error: ${e}. Error action: ${errorAction}`);
+                General.logDebug('Reducer', `Got error: ${e}. Error action: ${errorAction}`);
                 if (errorActionDefined) {
                     throw e;
                 } else {

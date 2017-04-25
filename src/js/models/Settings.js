@@ -4,7 +4,8 @@ class Settings {
         properties: {
             serverURL: 'string',
             catchment: 'int',
-            locale: {"type": "Locale"}
+            locale: {"type": "Locale"},
+            logLevel: 'int'
         }
     };
 }

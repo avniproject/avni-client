@@ -1,7 +1,6 @@
-import {expect} from 'chai';
-import General from '../../js/utility/General'
+import {expect} from "chai";
+import General from "../../js/utility/General";
 import Duration from "../../js/models/Duration";
-import StaticFormElement from "../../js/views/viewmodel/StaticFormElement";
 
 describe('General', () => {
     it('replaceAndroidIncompatibleChars', () => {

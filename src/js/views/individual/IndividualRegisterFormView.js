@@ -13,6 +13,7 @@ import WizardButtons from "../common/WizardButtons";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
+import General from "../../utility/General";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -29,7 +30,6 @@ class IndividualRegisterFormView extends AbstractComponent {
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {
-                this.log(newState.wizard);
                 if (newState.wizard.isFirstPage())
                     TypedTransition.from(this).goBack();
             }
@@ -41,7 +41,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     render() {
-        this.log(`render`);
+        General.logDebug(this.viewName(), `render`);
         return (
             <Container theme={themes}>
                 <Content>

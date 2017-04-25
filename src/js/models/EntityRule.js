@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import BaseEntity from './BaseEntity';
+import General from "../utility/General";
 
 class EntityRule {
     constructor(ruleFile) {
@@ -7,7 +8,7 @@ class EntityRule {
     }
 
     setFunctions(exports) {
-        console.log(`Found ${JSON.stringify(_.keys(exports))} in ${this.ruleFile.toString()}`);
+        General.logInfo('EntityRule', `Found ${JSON.stringify(_.keys(exports))} in ${this.ruleFile.toString()}`);
         if (!_.isNil(exports)) {
             this.decisionFn = exports.getDecisions;
             this.validationFn = exports.validate;
@@ -21,15 +22,15 @@ class EntityRule {
     }
 
     _safeInvokeRule(func, ruleName, ...params) {
-        console.log(`Invoking rule ${ruleName} on entity: ${params[0].constructor.name}`);
+        General.logInfo('EntityRule', `Invoking rule ${ruleName} on entity: ${params[0].constructor.name}`);
         if (_.isNil(func)) return [];
 
         const results = func(...params);
         if (_.isNil(results)) {
-            console.log(`${ruleName} rule didn't return anything for: ${params[0].constructor.name}`);
+            General.logInfo('EntityRule', `${ruleName} rule didn't return anything for: ${params[0].constructor.name}`);
             return [];
         } else if (!_.isArray(results)) {
-            console.log(`${ruleName} didn't return an array for: ${params[0].constructor.name}`);
+            General.logInfo('EntityRule', `${ruleName} didn't return an array for: ${params[0].constructor.name}`);
             return [];
         }
         return results;
@@ -43,7 +44,7 @@ class EntityRule {
 
     getNextScheduledVisits(entity) {
         const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, 'NextScheduledVisits', entity);
-        console.log(`${nextScheduledVisits.length} scheduled visits returned`);
+        General.logInfo('EntityRule', `${nextScheduledVisits.length} scheduled visits returned`);
         return nextScheduledVisits;
     }
 

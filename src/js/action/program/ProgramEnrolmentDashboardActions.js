@@ -9,6 +9,7 @@ import FormMappingService from "../../service/FormMappingService";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import NullProgramEnrolment from "../../models/application/NullProgramEnrolment";
 import EntityTypeChoiceActionNames from "../common/EntityTypeChoiceActionNames";
+import General from "../../utility/General";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -32,7 +33,6 @@ class ProgramEnrolmentDashboardActions {
         programEncounter.programEnrolment = newState.enrolment;
         const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
         newState.programEncounterTypeState.entityParentSelected(programEncounterTypes, programEncounter);
-        console.log(programEncounterTypes);
 
         const encounter = Encounter.create();
         encounter.individual = newState.enrolment.individual;
@@ -81,7 +81,7 @@ class ProgramEnrolmentDashboardActions {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         const dueEncounter = context.get(ProgramEncounterService).findDueEncounter(newState.programEncounterTypeState.entity.encounterType.uuid, newState.enrolment.uuid);
         if (!_.isNil(dueEncounter)) {
-            console.log('Found a due encounter');
+            General.logInfo('ProgramEnrolmentDashboardActions', 'Found a due encounter');
             newState.programEncounterTypeState.overwriteEntity(dueEncounter);
         }
         newState.programEncounterTypeState.entityTypeSelectionConfirmed(action);

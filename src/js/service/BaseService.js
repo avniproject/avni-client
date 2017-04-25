@@ -1,4 +1,5 @@
 import _ from "lodash";
+import General from "../utility/General";
 
 class BaseService {
     constructor(db, context) {
@@ -78,7 +79,7 @@ class BaseService {
         const db = this.db;
 
         entities.forEach((entity) => {
-            console.log(`Deleting all data from ${entity.schema.name}`);
+            General.logDebug(`Deleting all data from ${entity.schema.name}`);
             db.write(() => {
                 var objects = db.objects(entity.schema.name);
                 db.delete(objects);

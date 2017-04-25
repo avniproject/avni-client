@@ -1,21 +1,19 @@
-import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import {View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import SettingsForm from "./SettingsForm";
 import SettingsService from "../../service/SettingsService";
 import {Content} from "native-base";
 import GlobalStyles from "../primitives/GlobalStyles";
 import _ from "lodash";
+import SettingsFormField from "./SettingsFormField";
+import SettingsMultipleChoiceField from "./SettingsMultipleChoiceField";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.service = this.context.getService(SettingsService);
-        this.settings = this.service.getSettings();
-        this.state = {exporting: false};
-        this.onLocaleChanged = this.onLocaleChanged.bind(this);
     }
 
     onServerURLChanged = (serverURL) => {
@@ -32,16 +30,37 @@ class SettingsView extends AbstractComponent {
         this.setState({});
     };
 
+    onLogLevelChanged = (level) => {
+        this.service.saveLogLevel(_.toNumber(level));
+        this.setState({});
+    };
+
     render() {
+        this.settings = this.service.getSettings();
         return (
             <Content style={GlobalStyles.mainContent}>
-                <SettingsForm
-                    settings={this.settings}
-                    onServerURLChanged={this.onServerURLChanged}
-                    onLocaleChanged={this.onLocaleChanged}
-                    onCatchmentChanged={this.onCatchmentChanged}
-                    getService={this.context.getService}
-                />
+                <View style={SettingsView.styles.form}>
+                    <SettingsFormField
+                        formLabel={this.I18n.t("serverURL")}
+                        onChangeText={this.onServerURLChanged}
+                        defaultValue={this.settings.serverURL}
+                    />
+                    <SettingsFormField
+                        formLabel={this.I18n.t("catchmentId")}
+                        onChangeText={this.onCatchmentChanged}
+                        defaultValue={`${this.settings.catchment}`}
+                    />
+                    <SettingsMultipleChoiceField
+                        onChangeSelection={this.onLocaleChanged}
+                        selectedValue={this.settings.locale.selectedLocale}
+                        availableValues={this.settings.locale.availableValues}
+                    />
+                    <SettingsFormField
+                        formLabel={this.I18n.t("logLevel")}
+                        onChangeText={this.onLogLevelChanged}
+                        defaultValue={`${this.settings.logLevel}`}
+                    />
+                </View>
             </Content>
         );
     }

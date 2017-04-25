@@ -10,6 +10,7 @@ import {Button, Content, Grid, Col, Row} from "native-base";
 import AddressLevels from "../common/AddressLevels";
 import Reducers from "../../reducer";
 import {IndividualSearchActionNames as Actions} from '../../action/individual/IndividualSearchActions';
+import General from "../../utility/General";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -24,7 +25,7 @@ class IndividualSearchView extends AbstractComponent {
     }
 
     render() {
-        console.log('IndividualSearchView.render');
+        General.logDebug(this.viewName(), 'render');
         return (
             <Content>
                 <Grid style={{marginTop: 16, marginHorizontal: 24}}>

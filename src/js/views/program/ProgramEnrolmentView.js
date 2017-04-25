@@ -8,6 +8,7 @@ import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
 import Reducers from "../../reducer";
+import General from "../../utility/General";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -37,7 +38,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     render() {
-        console.log('ProgramEnrolmentView.render');
+        General.logDebug(this.viewName(), 'render');
         return <ProgramFormComponent state={this.state} context={ProgramEnrolmentView.usageContext}/>;
     }
 }

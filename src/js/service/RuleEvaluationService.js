@@ -9,6 +9,7 @@ import Individual from "../models/Individual";
 import ProgramEncounter from "../models/ProgramEncounter";
 import ProgramEnrolment from "../models/ProgramEnrolment";
 import EntityRule from "../models/EntityRule";
+import General from "../utility/General";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -52,7 +53,7 @@ class RuleEvaluationService extends BaseService {
             try {
                 return eval(`${configFile.contents}`);
             } catch (error) {
-                console.log(error);
+                General.logError('RuleEvaluationService', error);
                 return null;
             }
         }

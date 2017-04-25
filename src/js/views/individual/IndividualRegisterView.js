@@ -48,7 +48,7 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     render() {
-        this.log(`render`);
+        General.logDebug(this.viewName(), `render`);
         return (
             <Container theme={themes}>
                 <Content>

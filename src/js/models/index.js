@@ -27,7 +27,7 @@ import ChecklistItem from "./ChecklistItem";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Locale, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 28,
+    schemaVersion: 29,
     migration: function(oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

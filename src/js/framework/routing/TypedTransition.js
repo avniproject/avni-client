@@ -1,5 +1,6 @@
 import invariant from "invariant";
 import _ from "lodash";
+import General from "../../utility/General";
 
 // navigator commands are async in their actual effect of their execution. so if you run more than one navigator action one after other the output is indeterminate
 export default class TypedTransition {
@@ -70,13 +71,13 @@ export default class TypedTransition {
         var newRouteStack;
         if (_.isNil(newViewClass)) {
             this._popN(wizardCount);
-            console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}`);
+            General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Wizard: ${wizardCount}`);
         } else {
             const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
             newRouteStack = _.dropRight(currentRoutes, wizardCount + existingNewViewClassCount);
             newRouteStack.push(this.createRoute(newViewClass, params, isTyped));
             this.navigator.immediatelyResetRouteStack(newRouteStack);
-            console.log(`Initial: ${currentRoutes.length}, Wizard: ${wizardCount}, Final: ${newRouteStack.length}`);
+            General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Wizard: ${wizardCount}, Final: ${newRouteStack.length}`);
         }
     }
 

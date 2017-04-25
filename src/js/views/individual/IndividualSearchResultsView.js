@@ -10,6 +10,7 @@ import AppHeader from "../common/AppHeader";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
+import General from "../../utility/General";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -62,7 +63,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     render() {
-        console.log('IndividualSearchResultsView.render');
+        General.logDebug(this.viewName(), 'render');
         return (
             <Container theme={themes}>
                 <Content>

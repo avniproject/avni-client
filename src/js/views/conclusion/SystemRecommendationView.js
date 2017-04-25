@@ -12,6 +12,7 @@ import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
 import Observations from "../common/Observations";
+import General from "../../utility/General";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -50,7 +51,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     render() {
-        this.log(`render`);
+        General.logDebug(this.viewName(), `render`);
         return (
             <Container theme={themes}>
                 <Content>

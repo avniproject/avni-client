@@ -12,6 +12,7 @@ import Distances from "../primitives/Distances";
 import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import EntityTypeSelector from "./EntityTypeSelector";
+import General from "../../utility/General";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -39,10 +40,6 @@ class IndividualProfile extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    getImage(individual) {
-        return;
-    }
-
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
         return <Button bordered style={DGS.generalHistory.buttonStyle} textStyle={IndividualProfile.buttonTextStyle} onPress={onPress}>
             <Icon name={iconMode} style={IndividualProfile.buttonIconStyle}/>{this.I18n.t(displayTextMessageKey)}</Button>
@@ -57,7 +54,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     render() {
-        console.log('IndividualProfile.render');
+        General.logDebug('IndividualProfile', 'render');
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <View>

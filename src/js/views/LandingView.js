@@ -1,13 +1,11 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path, {PathRoot} from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
-import {Tabs, Container, Content} from "native-base";
+import {Container, Content, Tabs} from "native-base";
 import themes from "./primitives/themes";
-import Playground from './Playground';
-import IndividualEncounterLandingView from "./individual/IndividualEncounterLandingView";
+import Playground from "./Playground";
 import Encounter from "../models/Encounter";
 import EncounterType from "../models/EncounterType";
 

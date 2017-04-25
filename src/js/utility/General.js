@@ -4,7 +4,24 @@ import moment from "moment";
 import Observation from "../models/Observation";
 import Concept from "../models/Concept";
 
+var currentLogLevel;
+
 class General {
+    static LogLevel = {
+        Error: 4,
+        Warn: 3,
+        Info: 2,
+        Debug: 1
+    };
+
+    static setCurrentLogLevel(level) {
+        currentLogLevel = level;
+    }
+
+    static getCurrentLogLevel() {
+        return currentLogLevel;
+    }
+
     static setNewState(state, setter) {
         let newState = Object.assign({}, state);
         setter(newState);
@@ -157,6 +174,27 @@ class General {
     static dateAIsBeforeB(a, b) {
         if (_.isNil(a) || _.isNil(b)) return false;
         return moment(General.dateWithoutTime(a)).isBefore(General.dateWithoutTime(b));
+    }
+
+    static logDebug(source, message) {
+        General.log(source, message, General.LogLevel.Debug);
+    }
+
+    static logInfo(source, message) {
+        General.log(source, message, General.LogLevel.Info);
+    }
+
+    static logWarn(source, message) {
+        General.log(source, message, General.LogLevel.Warn);
+    }
+
+    static logError(source, message) {
+        General.log(source, message, General.LogLevel.Error);
+    }
+
+    static log(source, message, level) {
+        if (level <= General.getCurrentLogLevel())
+            console.log(`[${source}] ${JSON.stringify(message)}`);
     }
 }
 

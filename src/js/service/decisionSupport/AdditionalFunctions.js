@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Concept from '../../models/Concept';
 import Encounter from "../../models/Encounter";
+import General from "../../utility/General";
 
 //on encounter
 let getCodedAnswer = function (observation) {
@@ -11,7 +12,7 @@ const getObservationValue = function (conceptName) {
     const observation = _.find(this.observations, (observation) => observation.concept.name === conceptName);
 
     if (_.isNil(observation)) {
-        console.log(`No observation found for concept: ${conceptName}`);
+        General.logWarn('AdditionalFunctions', `No observation found for concept: ${conceptName}`);
         return undefined;
     }
 
@@ -32,7 +33,7 @@ const getCodedAnswers = function (observation) {
     return observation.getValue().map((conceptUUID) => {
         const concept = Encounter.prototype.dynamicDataResolver.getConceptByUUID(conceptUUID);
         if (_.isNil(concept))
-            console.log('No concept found for UUID: ' + conceptUUID);
+            General.logWarn('AdditionalFunctions', `No concept found for UUID: ${conceptUUID}`);
         return concept.name;
     });
 };

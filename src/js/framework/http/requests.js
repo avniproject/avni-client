@@ -1,3 +1,4 @@
+import General from "../../utility/General";
 const fetchFactory = (endpoint, method = "GET", params) => fetch(endpoint, {"method": method, ...params});
 
 const makeHeader = (type) => new Map([['json', {
@@ -9,7 +10,7 @@ const makeHeader = (type) => new Map([['json', {
 
 
 let _get = (endpoint, cb, errorHandler) => {
-    console.log(`Calling: ${endpoint}`);
+    General.logDebug('Requests', `Calling: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("json"))
         .then((response) => {
             return response.json();
@@ -19,11 +20,11 @@ let _get = (endpoint, cb, errorHandler) => {
 };
 
 let _getText = (endpoint, cb, errorHandler) => {
-    console.log(`Calling getText: ${endpoint}`);
+    General.logDebug('Requests', `Calling getText: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("text"))
         .then((response) => {
             if (!response.ok) {
-                console.log(`Error for ${endpoint}: ${JSON.stringify(response)}`);
+                General.logError('Requests', `Error for ${endpoint}: ${JSON.stringify(response)}`);
                 throw new Error(`HTTP Status: ${response.status}`);
             }
             return response.text();
@@ -34,10 +35,11 @@ let _getText = (endpoint, cb, errorHandler) => {
 
 let _post = (endpoint, file, cb, errorHandler) => {
     const body = JSON.stringify(file);
-    console.log(`Posting: ${body} to ${endpoint}`);
+    if (General.getCurrentLogLevel() <= General.LogLevel.Debug)
+        General.logDebug('Requests', `Posting: ${body} to ${endpoint}`);
     if (errorHandler === undefined) {
         errorHandler = (arg) => {
-            console.log(`Automatically defined error handler: ${arg}`);
+            General.logDebug('Requests', `Automatically defined error handler: ${arg}`);
         };
     }
 
@@ -55,7 +57,7 @@ export let get = (endpoint, cb, errorHandler) => {
 export let getJSON = (endpoint, cb, errorHandler) => {
     if (errorHandler === undefined) {
         errorHandler = (arg) => {
-            console.log(`Automatically defined error handler: ${arg}`);
+            General.logDebug(`Automatically defined error handler: ${arg}`);
         };
     }
     return _get(endpoint, cb, errorHandler);

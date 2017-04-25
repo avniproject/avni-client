@@ -18,6 +18,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import DateFormElement from "../../views/form/DateFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import General from "../../utility/General";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -62,7 +63,7 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     render() {
-        console.log('ProgramEncounterView.render');
+        General.logDebug('ProgramEncounterView', 'render');
         return (
             <Container theme={themes}>
                 <Content>

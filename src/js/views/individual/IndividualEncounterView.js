@@ -19,6 +19,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
+import General from "../../utility/General";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -60,7 +61,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     render() {
-        console.log('IndividualEncounterView.render');
+        General.logDebug(this.viewName(), 'render');
         return (
             <Container theme={themes}>
                 <Content ref='abc'>

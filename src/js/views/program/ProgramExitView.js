@@ -8,6 +8,7 @@ import ProgramEnrolment from "../../models/ProgramEnrolment";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import ObservationsHolder from "../../models/ObservationsHolder";
 import Reducers from "../../reducer";
+import General from "../../utility/General";
 
 @Path('/ProgramExitView')
 class ProgramExitView extends AbstractComponent {
@@ -41,7 +42,7 @@ class ProgramExitView extends AbstractComponent {
     }
 
     render() {
-        console.log('ProgramExitView.render');
+        General.logDebug(this.viewName(), 'render');
         return <ProgramFormComponent state={this.state} context={ProgramExitView.context}/>;
     }
 }

@@ -23,6 +23,7 @@ import EntityTypeSelector from "../common/EntityTypeSelector";
 import ContextAction from "../viewmodel/ContextAction";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Fonts from '../primitives/Fonts';
+import General from "../../utility/General";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -79,7 +80,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     render() {
-        console.log('ProgramEnrolmentDashboardView.render');
+        General.logDebug(this.viewName(), 'render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
