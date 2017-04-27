@@ -15,6 +15,7 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Fonts from '../primitives/Fonts';
 import Colors from '../primitives/Colors';
+import Distances from '../primitives/Distances';
 import ValidationResult from "../../models/application/ValidationResult";
 
 class FormElementGroup extends AbstractComponent {
@@ -30,7 +31,7 @@ class FormElementGroup extends AbstractComponent {
     }
 
     wrap(x, idx) {
-        return <View style={{marginTop: DGS.resizeHeight(16)}} key={idx}>{x}</View>;
+        return <View style={{marginTop: DGS.resizeHeight(Distances.VerticalSpacingBetweenFormElements)}} key={idx}>{x}</View>;
     }
 
     render() {

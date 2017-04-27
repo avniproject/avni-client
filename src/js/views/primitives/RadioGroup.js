@@ -13,7 +13,8 @@ class RadioGroup extends AbstractComponent {
         labelKey: React.PropTypes.string.isRequired,
         labelValuePairs: React.PropTypes.array.isRequired,
         selectionFn: React.PropTypes.func.isRequired,
-        validationError: React.PropTypes.object
+        validationError: React.PropTypes.object,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -22,7 +23,7 @@ class RadioGroup extends AbstractComponent {
 
     render() {
         return (
-            <View>
+            <View style={this.appendedStyle({})}>
                 <View>
                     <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}</Text>
                 </View>

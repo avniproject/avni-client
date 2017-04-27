@@ -11,7 +11,8 @@ class TextFormElement extends AbstractFormElement {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
         value: React.PropTypes.object,
-        validationResult: React.PropTypes.object
+        validationResult: React.PropTypes.object,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -20,7 +21,7 @@ class TextFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View style={{flexDirection: 'column'}}>
+            <View style={this.appendedStyle({flexDirection: 'column'})}>
                 <View style={{backgroundColor: '#ffffff'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 </View>

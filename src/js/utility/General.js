@@ -193,7 +193,7 @@ class General {
     }
 
     static log(source, message, level) {
-        if (level <= General.getCurrentLogLevel())
+        if (level >= General.getCurrentLogLevel())
             console.log(`[${source}] ${JSON.stringify(message)}`);
     }
 }

@@ -63,7 +63,7 @@ class ConfigFileService extends BaseService {
 
     getAllFilesAndSave(cb, errorHandler) {
         const batchRequest = new BatchRequest();
-        const configURL = `${this.getService(SettingsService).getServerURL()}/ext`;
+        const configURL = `${this.getService(SettingsService).getSettings().serverURL}/ext`;
 
         _.forOwn(this.fileHandlers, (handler, file) => {
             batchRequest.add(`${configURL}/${file}`, handler, errorHandler);

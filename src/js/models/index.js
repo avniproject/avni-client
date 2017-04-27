@@ -1,5 +1,5 @@
 import Settings from "./Settings";
-import {Locale, LocaleMapping} from "./Locale";
+import LocaleMapping from "./Locale";
 import Concept, {ConceptAnswer} from "./Concept";
 import Decision from "./Decision";
 import Individual from "./Individual";
@@ -26,26 +26,41 @@ import ChecklistItem from "./ChecklistItem";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Locale, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 29,
-    migration: function(oldDB, newDB) {
+    schema: [LocaleMapping, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
+    schemaVersion: 32,
+    migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
             oldObjects.forEach((decisionConfig) => {
                 newDB.create(ConfigFile.schema.name, ConfigFile.create(decisionConfig.fileName, decisionConfig.decisionCode), true);
             });
-        } else if (oldDB.schemaVersion < 17) {
+        }
+        if (oldDB.schemaVersion < 17) {
             var oldObjects = oldDB.objects('AddressLevel');
             var newObjects = newDB.objects('AddressLevel');
 
             for (var i = 0; i < oldObjects.length; i++) {
                 newObjects[i].name = oldObjects[i].title;
             }
-        } else if (oldDB.schemaVersion < 23) {
+        }
+        if (oldDB.schemaVersion < 23) {
             var newObjects = newDB.objects('Individual');
             for (var i = 0; i < newObjects.length; i++) {
                 newObjects[i].registrationDate = new Date(2017, 0, 0);
             }
+        }
+        if (oldDB.schemaVersion < 30) {
+            var oldObjects = oldDB.objects('Settings');
+            var newObjects = newDB.objects('Settings');
+            for (var i = 0; i < newObjects.length; i++) {
+                newObjects[i].locale = null;
+            }
+            const oldLocaleMappings = newDB.objects('LocaleMapping');
+            newDB.delete(oldLocaleMappings);
+        }
+        if (oldDB.schemaVersion < 32) {
+            const oldSettings = newDB.objects('Settings');
+            newDB.delete(oldSettings);
         }
     }
 };

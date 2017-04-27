@@ -24,7 +24,7 @@ class MessageService extends BaseService {
     }
 
     init() {
-        this.setLocale(this.getService(SettingsService).getLocale());
+        this.setLocale(this.getService(SettingsService).getSettings().locale.locale);
 
         EntityMetaData.model().forEach((entityMetaData) => {
             if (entityMetaData.nameTranslated) {

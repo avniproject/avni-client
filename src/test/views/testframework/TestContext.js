@@ -17,6 +17,8 @@ import IndividualEncounterService from "../../../js/service/IndividualEncounterS
 import StubbedIndividualEncounterService from "../../service/stub/StubbedIndividualEncounterService";
 import EntityService from "../../../js/service/EntityService";
 import StubbedEntityService from "../../service/stub/StubbedEntityService";
+import SettingsService from "../../../js/service/SettingsService";
+import StubbedSettingsService from "../../service/stub/StubbedSettingsService";
 
 class TestContext {
     static stubs = new Map([
@@ -28,7 +30,8 @@ class TestContext {
         [ProgramEnrolmentService, (serviceData) => new StubbedProgramEnrolmentService(serviceData)],
         [RuleEvaluationService, (serviceData) => new StubbedRuleEvaluationService(serviceData)],
         [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)],
-        [EntityService, (serviceData) => new StubbedEntityService(serviceData)]
+        [EntityService, (serviceData) => new StubbedEntityService(serviceData)],
+        [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)]
     ]);
 
     constructor(serviceData) {

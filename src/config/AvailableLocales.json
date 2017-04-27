@@ -1,0 +1,17 @@
+[
+  {
+    "locale": "en",
+    "displayText": "English",
+    "uuid": "20d69157-a016-4c3c-9afc-7c4516e7e31c"
+  },
+  {
+    "locale": "hi_IN",
+    "displayText": "Hindi",
+    "uuid": "b634491e-6ace-47d7-8b4a-83ad51354d16"
+  },
+  {
+    "locale": "mr_IN",
+    "displayText": "Marathi",
+    "uuid": "7cc3e696-5306-4c43-8145-6bc91d210e6c"
+  }
+]

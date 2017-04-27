@@ -10,7 +10,7 @@ class ConventionalRestClient {
 
     loadData(entityModel, lastUpdatedLocally, pageNumber, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError) {
         let urlParts = [];
-        urlParts.push(this.settingsService.getServerURL());
+        urlParts.push(this.settingsService.getSettings().serverURL);
         urlParts.push(entityModel.resourceName);
         urlParts.push("search");
         const resourceSearchFilterURL = entityModel.type === "tx"? entityModel.resourceSearchFilterURL : "lastModified";
@@ -18,7 +18,7 @@ class ConventionalRestClient {
 
         let params = [];
         if(entityModel.type === "tx"){
-            params.push(`catchmentId=${this.settingsService.getCatchment()}`);
+            params.push(`catchmentId=${this.settingsService.getSettings().catchment}`);
         }
         params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}`);
         params.push("size=5");
@@ -66,7 +66,7 @@ class ConventionalRestClient {
             return;
         }
 
-        const url = `${this.settingsService.getServerURL()}/${nextItem.metaData.resourceName}s`;
+        const url = `${this.settingsService.getSettings().serverURL}/${nextItem.metaData.resourceName}s`;
         post(url, nextItem.resource, (response) => {
             if (!_.isNil(response.ok) && !response.ok) {
                 General.logDebug('ConventionalRestClient', response);

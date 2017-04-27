@@ -112,5 +112,12 @@
   "summaryAndRecommendations": "Summary & Recommendations",
   "Present": "Present",
   "Absent": "Absent",
-  "logLevel": "Log Level"
+  "logLevel": "Log Level",
+  "English": "English",
+  "Marathi": "Marathi",
+  "Hindi": "Hindi",
+  "Error": "Error",
+  "Warn": "Warn",
+  "Info": "Info",
+  "Debug": "Debug"
 }

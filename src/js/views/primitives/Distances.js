@@ -6,6 +6,7 @@ class Distances {
     }
 
     static ContentDistanceFromEdge = 24;
+    static VerticalSpacingBetweenFormElements = 16;
 }
 
 export default Distances;

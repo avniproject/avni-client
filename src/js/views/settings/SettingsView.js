@@ -2,66 +2,51 @@ import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import SettingsService from "../../service/SettingsService";
-import {Content} from "native-base";
-import GlobalStyles from "../primitives/GlobalStyles";
+import {Content, Container} from "native-base";
 import _ from "lodash";
-import SettingsFormField from "./SettingsFormField";
-import SettingsMultipleChoiceField from "./SettingsMultipleChoiceField";
+import General from "../../utility/General";
+import {SettingsActionsNames as Actions} from "../../action/SettingsActions";
+import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import StaticFormElement from "../viewmodel/StaticFormElement";
+import Reducers from "../../reducer";
+import TextFormElement from "../form/TextFormElement";
+import AppHeader from "../common/AppHeader";
+import themes from "../primitives/themes";
+import Distances from '../primitives/Distances';
+import PrimitiveValue from "../../models/observation/PrimitiveValue";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
     constructor(props, context) {
-        super(props, context);
-        this.service = this.context.getService(SettingsService);
+        super(props, context, Reducers.reducerKeys.settings);
     }
 
-    onServerURLChanged = (serverURL) => {
-        this.service.saveServerURL(serverURL);
-    };
-
-    onLocaleChanged = (locale) => {
-        this.service.saveLocale(locale);
-        this.setState({});
-    };
-
-    onCatchmentChanged = (catchment) => {
-        this.service.saveCatchment(_.toNumber(catchment));
-        this.setState({});
-    };
-
-    onLogLevelChanged = (level) => {
-        this.service.saveLogLevel(_.toNumber(level));
-        this.setState({});
-    };
+    viewName() {
+        return 'SettingsView';
+    }
 
     render() {
-        this.settings = this.service.getSettings();
+        const localeLabelValuePairs = this.state.localeMappings.map((localeMapping) => new RadioLabelValue(localeMapping.displayText, localeMapping));
+        const logLevelLabelValuePairs = _.keys(General.LogLevel).map((logLevelName) => new RadioLabelValue(logLevelName, General.LogLevel[logLevelName]));
         return (
-            <Content style={GlobalStyles.mainContent}>
-                <View style={SettingsView.styles.form}>
-                    <SettingsFormField
-                        formLabel={this.I18n.t("serverURL")}
-                        onChangeText={this.onServerURLChanged}
-                        defaultValue={this.settings.serverURL}
-                    />
-                    <SettingsFormField
-                        formLabel={this.I18n.t("catchmentId")}
-                        onChangeText={this.onCatchmentChanged}
-                        defaultValue={`${this.settings.catchment}`}
-                    />
-                    <SettingsMultipleChoiceField
-                        onChangeSelection={this.onLocaleChanged}
-                        selectedValue={this.settings.locale.selectedLocale}
-                        availableValues={this.settings.locale.availableValues}
-                    />
-                    <SettingsFormField
-                        formLabel={this.I18n.t("logLevel")}
-                        onChangeText={this.onLogLevelChanged}
-                        defaultValue={`${this.settings.logLevel}`}
-                    />
-                </View>
-            </Content>
+            <Container theme={themes}>
+                <Content>
+                    <AppHeader title={this.I18n.t('settings')}/>
+                    <View style={this.scaleStyle({paddingHorizontal: Distances.ContentDistanceFromEdge})}>
+                        <TextFormElement element={new StaticFormElement('serverURL')} actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
+                                         value={new PrimitiveValue(this.state.settings.serverURL)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <TextFormElement element={new StaticFormElement('catchmentId')} actionName={Actions.ON_CATCHMENT_CHANGE} validationResult={null}
+                                         value={new PrimitiveValue(_.toString(this.state.settings.catchment))}
+                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <RadioGroup action={Actions.ON_LOCALE_CHANGE} labelValuePairs={localeLabelValuePairs} labelKey='locale'
+                                    selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid} validationError={null}
+                                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <RadioGroup action={Actions.ON_LOG_LEVEL_CHANGE} labelValuePairs={logLevelLabelValuePairs} labelKey='logLevel'
+                                    selectionFn={(logLevel) => this.state.settings.logLevel === logLevel} validationError={null}
+                                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                    </View>
+                </Content>
+            </Container>
         );
     }
 }

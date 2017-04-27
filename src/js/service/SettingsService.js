@@ -1,20 +1,41 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
-import MessageService from './MessageService';
+import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
+import Settings from "../models/Settings";
+import _ from 'lodash';
+import LocaleMapping from '../models/Locale';
 
 @Service("settingsService")
 class SettingsService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
-        const dbInScope = this.db;
-        if (this.getSettings() === undefined) {
-            this.db.write(() => dbInScope.create('Settings', InitialSettings));
-        }
     }
 
     init() {
+        const dbInScope = this.db;
+        this.db.write(() => {
+            AvailableLocales.forEach((localeMapping) => {
+                dbInScope.create('LocaleMapping', localeMapping, true);
+            });
+
+            var settings = this.getSettings();
+            if (_.isNil(settings)) {
+                settings = new Settings();
+                settings.uuid = Settings.UUID;
+                settings.logLevel = InitialSettings.logLevel;
+                settings.catchment = InitialSettings.catchment;
+                settings.serverURL = InitialSettings.serverURL;
+                dbInScope.create('Settings', settings, true);
+            }
+
+            if (_.isNil(settings.locale)) {
+                settings.locale = this.findByKey('locale', InitialSettings.locale, LocaleMapping.schema.name);
+                dbInScope.create('Settings', settings, true);
+            }
+        });
+
         General.setCurrentLogLevel(this.getSettings().logLevel);
     }
 
@@ -24,47 +45,10 @@ class SettingsService extends BaseService {
         return settings[0];
     }
 
-    getServerURL() {
-        return this.getSettings().serverURL;
-    }
-
-    getCatchment() {
-        return this.getSettings().catchment;
-    }
-
-    saveServerURL(serverURL) {
-        const self = this;
-        this.db.write(() => {
-            self.getSettings().serverURL = serverURL;
-        });
-    }
-
-    saveLocale(locale) {
-        const messageService = this.getService(MessageService);
-        const self = this;
-        this.db.write(() => {
-            self.getSettings().locale.selectedLocale = locale;
-            messageService.setLocale(locale);
-        });
-    }
-
-    saveCatchment(catchment) {
-        const self = this;
-        this.db.write(() => {
-            self.getSettings().catchment = catchment;
-        });
-    }
-
-    saveLogLevel(logLevel) {
-        console.log(`Setting logLevel: ${logLevel}`);
-        const self = this;
-        this.db.write(() => {
-            self.getSettings().logLevel = logLevel;
-        });
-    }
-
-    getLocale() {
-        return this.getSettings().locale.selectedLocale;
+    saveOrUpdate(entity, schema) {
+        const output = super.saveOrUpdate(entity, schema);
+        General.setCurrentLogLevel(this.getSettings().logLevel);
+        return output;
     }
 }
 

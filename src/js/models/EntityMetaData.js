@@ -4,7 +4,7 @@ import AddressLevel from "./AddressLevel";
 import Individual from "./Individual";
 import AllSchema from "./index";
 import _ from "lodash";
-import {LocaleMapping, Locale} from "./Locale";
+import {LocaleMapping} from "./Locale";
 import Settings from "./Settings";
 import Program from "./Program";
 import ProgramEnrolment from "./ProgramEnrolment";
@@ -88,7 +88,9 @@ class EntityMetaData {
     };
 
     static entitiesLoadedFromServer() {
-        return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping, Locale], (first, second) => {
+        return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping], (first, second) => {
+            if (_.isNil(second)) return false;
+
             return first.schema.name === second.schema.name;
         });
     }
