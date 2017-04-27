@@ -43,6 +43,12 @@ class ConceptService extends BaseService {
             observations.push(Observation.create(concept, new PrimitiveValue(decision.value)));
         });
     }
+
+    getObservationsFromDecisions(decisions) {
+        const observations = [];
+        this.addDecisions(observations, decisions);
+        return observations;
+    }
 }
 
 export default ConceptService;

@@ -62,11 +62,11 @@ class AbstractDataEntryState {
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
-            var encounterDecisions = [];
+            var decisions = [];
             if (!ValidationResult.hasValidationError(this.validationResults)) {
-                encounterDecisions = this.executeRule(ruleService, context);
+                decisions = this.executeRule(ruleService, context);
             }
-            action.completed(this, encounterDecisions, validationResults);
+            action.completed(this, decisions, validationResults);
         } else {
             this.moveNext();
             if (!_.isNil(action.movedNext)) action.movedNext(this);

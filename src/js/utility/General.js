@@ -22,6 +22,10 @@ class General {
         return currentLogLevel;
     }
 
+    static canLog(level) {
+        return General.getCurrentLogLevel() <= level;
+    }
+
     static setNewState(state, setter) {
         let newState = Object.assign({}, state);
         setter(newState);
@@ -194,7 +198,7 @@ class General {
 
     static log(source, message, level) {
         if (level >= General.getCurrentLogLevel())
-            console.log(`[${source}] ${JSON.stringify(message)}`);
+            console.log(`[${source}] ${message}`);
     }
 }
 

@@ -18,7 +18,10 @@ class EntityRule {
     }
 
     getDecisions(entity) {
-        return this._safeInvokeRule(this.decisionFn, 'Decision', entity);
+        const decisions = this._safeInvokeRule(this.decisionFn, 'Decision', entity);
+        if (General.canLog(General.LogLevel.Debug))
+            General.logDebug('EntityRule', `Decisions made: ${JSON.stringify(decisions)}`);
+        return decisions;
     }
 
     _safeInvokeRule(func, ruleName, ...params) {

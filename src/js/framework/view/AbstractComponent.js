@@ -30,7 +30,7 @@ class AbstractComponent extends Component {
     });
 
     dispatchAction(action, params) {
-        if (General.getCurrentLogLevel() <= General.LogLevel.Debug)
+        if (General.canLog(General.LogLevel.Debug))
             General.logDebug(this.constructor.name, `Dispatching action: ${JSON.stringify(action)}`);
         this.context.getStore().dispatch({"type": action, ...params});
     }

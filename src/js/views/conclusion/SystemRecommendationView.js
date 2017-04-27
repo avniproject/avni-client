@@ -13,6 +13,7 @@ import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
 import Observations from "../common/Observations";
 import General from "../../utility/General";
+import ConceptService from "../../service/ConceptService";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -71,13 +72,7 @@ class SystemRecommendationView extends AbstractComponent {
                                     </View>;
                                 })
                             }
-                            {
-                                _.values(this.props.decisions).map((decision, index) => {
-                                    return <View style={SystemRecommendationView.styles.rulesRowView}
-                                                 key={`decision${index}`}>
-                                        <Text style={{fontSize: Fonts.Medium}}>{decision.value}</Text>
-                                    </View>
-                                })}
+                            <Observations observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}/>
                         </View>
                         <Observations observations={this.props.observations} style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}

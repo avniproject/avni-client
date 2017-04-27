@@ -35,7 +35,7 @@ let _getText = (endpoint, cb, errorHandler) => {
 
 let _post = (endpoint, file, cb, errorHandler) => {
     const body = JSON.stringify(file);
-    if (General.getCurrentLogLevel() <= General.LogLevel.Debug)
+    if (General.canLog(General.LogLevel.Debug))
         General.logDebug('Requests', `Posting: ${body} to ${endpoint}`);
     if (errorHandler === undefined) {
         errorHandler = (arg) => {
