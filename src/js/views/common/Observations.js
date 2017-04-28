@@ -42,7 +42,7 @@ class Observations extends AbstractComponent {
                                     {observationRow.map((observation, cellIndex) => {
                                         return (
                                             <Col style={DGS.observations.observationColumn} key={`${rowIndex}2${cellIndex}`}>
-                                                <Text style={{textAlign: 'center', fontSize: 16}}>{Observation.valueAsString(observation, conceptService)}</Text>
+                                                <Text style={{textAlign: 'center', fontSize: Fonts.Large}}>{Observation.valueAsString(observation, conceptService)}</Text>
                                             </Col>
                                         );
                                     })}</Row>

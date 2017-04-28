@@ -48,11 +48,16 @@ class EntityRule {
     getNextScheduledVisits(entity) {
         const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, 'NextScheduledVisits', entity);
         General.logInfo('EntityRule', `${nextScheduledVisits.length} scheduled visits returned`);
+        if (General.canLog(General.LogLevel.Debug))
+            General.logDebug('EntityRule', `NextScheduledVisits: ${JSON.stringify(nextScheduledVisits)}`);
         return nextScheduledVisits;
     }
 
     getChecklists(enrolment) {
-        return this._safeInvokeRule(this.getChecklistFn, 'GetChecklists', enrolment);
+        const checklists = this._safeInvokeRule(this.getChecklistFn, 'GetChecklists', enrolment);
+        if (General.canLog(General.LogLevel.Debug))
+            General.logDebug('EntityRule', `Checklists: ${JSON.stringify(checklists)}`);
+        return checklists;
     }
 }
 

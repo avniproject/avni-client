@@ -53,7 +53,7 @@ class CHSNavigator {
         CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage);
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage) {
+    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits) {
         TypedTransition.from(source).with({
             decisions: decisions,
             individual: individual,
@@ -61,7 +61,9 @@ class CHSNavigator {
             onSaveCallback: onSaveCallback,
             observations: observations,
             validationErrors: ruleValidationErrors,
-            headerMessage: headerMessage
+            headerMessage: headerMessage,
+            checklists: _.isNil(checklists) ? [] : checklists,
+            nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits
         }).to(SystemRecommendationView, true);
     }
 

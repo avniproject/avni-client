@@ -78,7 +78,7 @@ class AbstractComponent extends Component {
     }
 
     appendedStyle(style) {
-        const appendedStyle = _.assign({}, style, this.props.style);
+        const appendedStyle = _.assign({}, _.isNil(style) ? {} : style, this.props.style);
         return this.scaleStyle(appendedStyle);
     }
 

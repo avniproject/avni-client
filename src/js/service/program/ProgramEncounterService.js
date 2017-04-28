@@ -37,11 +37,10 @@ class ProgramEncounterService extends BaseService {
         return encounterSummary;
     }
 
-    saveOrUpdate(programEncounter) {
+    saveOrUpdate(programEncounter, nextScheduledVisits) {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
 
         const programEncounters = [programEncounter];
-        const nextScheduledVisits = this.getService(RuleEvaluationService).getNextScheduledVisits(programEncounter, 'ProgramEncounter');
         const self = this;
 
         nextScheduledVisits.forEach((nextScheduledVisit) => {

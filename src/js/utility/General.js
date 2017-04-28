@@ -44,10 +44,6 @@ class General {
         return _.isNil(value) || _.isEmpty(_.trim(value));
     }
 
-    static emptyFunction() {
-
-    }
-
     static getSafeTimeStamp() {
         return moment().format('MMM_Do_YYYY_h_mm_ss_a');
     }

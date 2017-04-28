@@ -12,6 +12,7 @@ import EncounterType from '../models/EncounterType';
 import Checklist from '../models/Checklist';
 import ChecklistItem from '../models/ChecklistItem';
 import ConceptService from "./ConceptService";
+import General from "../utility/General";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -28,12 +29,7 @@ class ProgramEnrolmentService extends BaseService {
         ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
     }
 
-    enrol(programEnrolment) {
-        const ruleEvaluationService = this.getService(RuleEvaluationService);
-        const nextScheduledVisits = ruleEvaluationService.getNextScheduledVisits(programEnrolment, 'ProgramEnrolment');
-        const expectedChecklists = ruleEvaluationService.getChecklists(programEnrolment);
-        const checklists = programEnrolment.createChecklists(expectedChecklists, this.getService(ConceptService));
-
+    enrol(programEnrolment, checklists, nextScheduledVisits) {
         const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
         programEnrolment.checklists.forEach((checklist) => {
             entityQueueItems.push(EntityQueue.create(checklist, Checklist.schema.name));

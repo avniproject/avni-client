@@ -2,8 +2,8 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractEncounter from "../../models/AbstractEncounter";
-import _ from 'lodash';
-import ConceptService from "../../service/ConceptService";
+import _ from "lodash";
+import ProgramEncounter from '../../models/ProgramEncounter';
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter) {
@@ -37,11 +37,15 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form, 'ProgramEncounter');
+        return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form, ProgramEncounter.schema.name);
     }
 
     executeRule(ruleService, context) {
-        return ruleService.getDecisions(this.programEncounter, 'ProgramEncounter');
+        return ruleService.getDecisions(this.programEncounter, ProgramEncounter.schema.name);
+    }
+
+    getNextScheduledVisits(ruleService, context) {
+        return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name);
     }
 }
 

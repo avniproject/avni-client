@@ -34,7 +34,7 @@ class ProgramEncounterActions {
         const newState = state.clone();
         context.get(ConceptService).addDecisions(newState.programEncounter.observations, action.decisions);
         const service = context.get(ProgramEncounterService);
-        service.saveOrUpdate(newState.programEncounter);
+        service.saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
         action.cb();
         return newState;
     }

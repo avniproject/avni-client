@@ -50,11 +50,24 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.enrolment, this.formElementGroup.form, 'ProgramEnrolment');
+        return ruleService.validateAgainstRule(this.enrolment, this.formElementGroup.form, ProgramEnrolment.schema.name);
     }
 
     executeRule(ruleService, context) {
-        return ruleService.getDecisions(this.enrolment, 'ProgramEnrolment');
+        return ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name);
+    }
+
+    getChecklists(ruleService, context) {
+        if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            const ruleChecklists = ruleService.getChecklists(this.enrolment);
+            return this.enrolment.createChecklists(ruleChecklists, context.get(ConceptService));
+        } else {
+            return null;
+        }
+    }
+
+    getNextScheduledVisits(ruleService, context) {
+        return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name) : null;
     }
 
     static isInitialised(programEnrolmentState) {

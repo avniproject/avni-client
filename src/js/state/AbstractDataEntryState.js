@@ -63,10 +63,14 @@ class AbstractDataEntryState {
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
             var decisions = [];
+            var checklists;
+            var nextScheduledVisits;
             if (!ValidationResult.hasValidationError(this.validationResults)) {
                 decisions = this.executeRule(ruleService, context);
+                checklists = this.getChecklists(ruleService, context);
+                nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
             }
-            action.completed(this, decisions, validationResults);
+            action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
         } else {
             this.moveNext();
             if (!_.isNil(action.movedNext)) action.movedNext(this);
@@ -80,6 +84,14 @@ class AbstractDataEntryState {
 
     executeRule(ruleService, context) {
         return [];
+    }
+
+    getChecklists(ruleService, context) {
+        return null;
+    }
+
+    getNextScheduledVisits(ruleService, context) {
+        return null;
     }
 
     validateEntity() {

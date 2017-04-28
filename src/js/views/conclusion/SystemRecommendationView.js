@@ -14,6 +14,7 @@ import Distances from "../primitives/Distances";
 import Observations from "../common/Observations";
 import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
+import ChecklistDisplay from "../program/ChecklistDisplay";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -24,7 +25,9 @@ class SystemRecommendationView extends AbstractComponent {
         decisions: React.PropTypes.array.isRequired,
         observations: React.PropTypes.array.isRequired,
         validationErrors: React.PropTypes.array.isRequired,
-        headerMessage: React.PropTypes.string
+        headerMessage: React.PropTypes.string,
+        checklists: React.PropTypes.array,
+        nextScheduledVisits: React.PropTypes.array
     };
 
     static styles = {
@@ -42,6 +45,8 @@ class SystemRecommendationView extends AbstractComponent {
     save() {
         this.dispatchAction(this.props.saveActionName, {
             decisions: this.props.decisions,
+            checklists: this.props.checklists,
+            nextScheduledVisits: this.props.nextScheduledVisits,
             cb: () => this.props.onSaveCallback(this),
             error: (message) => this.showError(message)
         });
@@ -75,6 +80,7 @@ class SystemRecommendationView extends AbstractComponent {
                             <Observations observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}/>
                         </View>
                         <Observations observations={this.props.observations} style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
+                        <ChecklistDisplay checklists={this.props.checklists} style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.save(), visible: this.props.validationErrors.length === 0, label: this.I18n.t('save')}}
                                        style={{marginHorizontal: 24}}/>
