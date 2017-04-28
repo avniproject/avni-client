@@ -39,6 +39,14 @@ class MultipleCodedValues {
         multipleCodedValues.answer = this.answer;
         return multipleCodedValues;
     }
+
+    get isSingleCoded() {
+        return false;
+    }
+
+    get isMultipleCoded() {
+        return true;
+    }
 }
 
 export default MultipleCodedValues;

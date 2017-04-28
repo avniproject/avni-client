@@ -21,10 +21,6 @@ class ConceptService extends BaseService {
         return this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID);
     }
 
-    getAllConcepts() {
-        return this.db.objects(Concept.schema.name);
-    }
-
     getConceptByName(conceptName) {
         return this.db.objects(Concept.schema.name).filtered(`name = \"${conceptName}\"`)[0];
     }
@@ -35,12 +31,24 @@ class ConceptService extends BaseService {
         return concept;
     }
 
+    findConcept(name) {
+        const concept = this.findByKey('name', name);
+        if (_.isNil(concept))
+            throw Error(`No concept found for ${name}`);
+        return concept;
+    }
+
     addDecisions(observations, decisions) {
         decisions.forEach((decision) => {
-            const concept = this.findByKey('name', decision.name);
-            if (_.isNil(concept))
-                throw Error(`No concept found for ${decision.name} when adding observations for decisions`);
-            observations.push(Observation.create(concept, new PrimitiveValue(decision.value)));
+            const concept = this.findConcept(decision.name);
+
+            if (!_.isNil(decision.value)) {
+                var value = decision.value;
+                if (concept.datatype === Concept.dataType.Coded) {
+                    value = this.findConcept(value).uuid;
+                }
+                observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
+            }
         });
     }
 

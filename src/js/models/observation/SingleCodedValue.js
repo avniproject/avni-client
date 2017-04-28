@@ -24,6 +24,14 @@ class SingleCodedValue {
         singleCodedValue.answer = this.answer;
         return singleCodedValue;
     }
+
+    get isSingleCoded() {
+        return true;
+    }
+
+    get isMultipleCoded() {
+        return false;
+    }
 }
 
 export default SingleCodedValue;

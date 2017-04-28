@@ -8,6 +8,7 @@ import ConceptService from "../../service/ConceptService";
 import Observation from "../../models/Observation";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
+import General from "../../utility/General";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -20,6 +21,7 @@ class Observations extends AbstractComponent {
     }
 
     render() {
+        this.props.observations.forEach((observation) => General.logDebug('Observations', JSON.stringify(observation)));
         const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
         const conceptService = this.context.getService(ConceptService);
         return (

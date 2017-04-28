@@ -6,10 +6,12 @@ import ValidationResultsInspector from "./ValidationResultsInspector";
 describe('ProgramEncounterTest', () => {
     it('validate', () => {
         const programEncounter = ProgramEncounter.createEmptyInstance();
+        programEncounter.programEnrolment = ProgramEnrolment.createEmptyInstance();
+        programEncounter.encounterDateTime = null;
+
         var validationResults = programEncounter.validate();
         expect(ValidationResultsInspector.numberOfErrors(validationResults)).is.equal(1);
 
-        programEncounter.programEnrolment = ProgramEnrolment.createEmptyInstance();
         programEncounter.programEnrolment.enrolmentDateTime = new Date(2017, 0, 0, 5);
         programEncounter.encounterDateTime = new Date(2016, 0, 0);
         validationResults = programEncounter.validate();

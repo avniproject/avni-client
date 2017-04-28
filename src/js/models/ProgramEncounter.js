@@ -52,6 +52,7 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = new ProgramEncounter();
         programEncounter.uuid = General.randomUUID();
         programEncounter.observations = [];
+        programEncounter.encounterDateTime = new Date();
         return programEncounter;
     }
 
