@@ -6,6 +6,7 @@ import Concept from "../../js/models/Concept";
 import Program from "../../js/models/Program";
 import General from '../../js/utility/General';
 import IndividualSearchCriteria from "../../js/service/query/IndividualSearchCriteria";
+import ChecklistItem from "../../js/models/ChecklistItem";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -64,6 +65,14 @@ class EntityFactory {
         individualSearchCriteria.ageInYears = age;
         individualSearchCriteria.lowestAddressLevels = lowestAddressLevels;
         return individualSearchCriteria;
+    }
+
+    static addChecklistItem(checklist, name, dueDate) {
+        const item = ChecklistItem.create();
+        item.concept = Concept.create(name, Concept.dataType.NA);
+        item.dueDate = dueDate;
+        checklist.addItem(item);
+        return item;
     }
 }
 

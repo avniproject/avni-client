@@ -47,8 +47,12 @@ class ChecklistItem {
         return checklistItem;
     }
 
-    displayTitle(I18n) {
-        return `${I18n.t(this.concept.name)}, ${I18n.t('due')}: ${moment(this.dueDate).format('DD-MM-YYYY')}, ${I18n.t('expires')}: ${moment(this.maxDate).format('DD-MM-YYYY')}`;
+    scheduleDisplay(I18n) {
+        return `${I18n.t('due')}: ${moment(this.dueDate).format('DD-MM-YYYY')}, ${I18n.t('expires')}: ${moment(this.maxDate).format('DD-MM-YYYY')}`;
+    }
+
+    get isStillDue() {
+        return General.dateAIsAfterB(this.dueDate, new Date());
     }
 }
 

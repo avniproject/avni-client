@@ -84,6 +84,14 @@ class Checklist extends BaseEntity {
         const checklistItem = this.getChecklistItem(checklistItemName);
         checklistItem.completionDate = value;
     }
+
+    upcomingItems() {
+        return _.values(_.groupBy(_.sortBy(_.filter(this.items, (item) => item.isStillDue), (item) => item.dueDate), (item) => item.dueDate));
+    }
+
+    addItem(item) {
+        this.items.push(item);
+    }
 }
 
 export default Checklist;

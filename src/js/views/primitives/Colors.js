@@ -13,6 +13,8 @@ class Colors {
     static SecondaryActionButtonColor = '#e0e0e0';
     static GreyContentBackground = '#f7f7f7';
     static CheckboxRadioboxColor = '#010101';
+
+    static CardColor1 = '#E0EA25';
 }
 
 export default Colors;

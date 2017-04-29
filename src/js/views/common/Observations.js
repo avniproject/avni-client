@@ -24,6 +24,9 @@ class Observations extends AbstractComponent {
         this.props.observations.forEach((observation) => General.logDebug('Observations', JSON.stringify(observation)));
         const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
         const conceptService = this.context.getService(ConceptService);
+
+        if (observationRows.length === 0) return <View/>;
+
         return (
             <View style={this.appendedStyle({backgroundColor: Colors.GreyContentBackground})}>
                 {

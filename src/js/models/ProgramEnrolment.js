@@ -150,6 +150,10 @@ class ProgramEnrolment extends BaseEntity {
     get hasChecklist() {
         return 0 !== this.checklists.length;
     }
+
+    findChecklist(name) {
+        return _.find(this.checklists, (checklist) => checklist.name === name);
+    }
 }
 
 export default ProgramEnrolment;

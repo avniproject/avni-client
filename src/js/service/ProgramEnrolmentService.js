@@ -31,11 +31,15 @@ class ProgramEnrolmentService extends BaseService {
 
     enrol(programEnrolment, checklists, nextScheduledVisits) {
         const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
-        programEnrolment.checklists.forEach((checklist) => {
-            entityQueueItems.push(EntityQueue.create(checklist, Checklist.schema.name));
-            checklist.items.forEach((checklistItem) => {
-                entityQueueItems.push(EntityQueue.create(checklistItem, ChecklistItem.schema.name));
-            });
+        const existingProgramEnrolment = this.findByUUID(programEnrolment.uuid);
+
+        checklists.forEach((checklist) => {
+            if (_.isNil(existingProgramEnrolment) || _.isNil(existingProgramEnrolment.findChecklist(checklist.name))) {
+                entityQueueItems.push(EntityQueue.create(checklist, Checklist.schema.name));
+                checklist.items.forEach((checklistItem) => {
+                    entityQueueItems.push(EntityQueue.create(checklistItem, ChecklistItem.schema.name));
+                });
+            }
         });
 
         nextScheduledVisits.forEach((nextScheduledVisit) => {
@@ -53,12 +57,14 @@ class ProgramEnrolmentService extends BaseService {
             const savedProgramEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
 
             checklists.forEach((checklist) => {
-                const savedChecklist = db.create(Checklist.schema.name, checklist, true);
-                savedChecklist.items.forEach((item) => {
-                    item.checklist = savedChecklist;
-                });
-                savedProgramEnrolment.checklists.push(savedChecklist);
-                savedChecklist.programEnrolment = savedProgramEnrolment;
+                if (_.isNil(savedProgramEnrolment.findChecklist(checklist.name))) {
+                    const savedChecklist = db.create(Checklist.schema.name, checklist, true);
+                    savedChecklist.items.forEach((item) => {
+                        item.checklist = savedChecklist;
+                    });
+                    savedProgramEnrolment.checklists.push(savedChecklist);
+                    savedChecklist.programEnrolment = savedProgramEnrolment;
+                }
             });
 
             const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);

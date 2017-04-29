@@ -101,6 +101,7 @@
   "No": "No",
   "notEnrolledInAnyProgram": "Not enrolled in any program",
   "openChecklist": "Open Checklist",
+  "checklists": "Checklists",
   "activity": "Activity",
   "completedOn": "Completed On",
   "due": "DUE",
@@ -119,5 +120,6 @@
   "Error": "Error",
   "Warn": "Warn",
   "Info": "Info",
-  "Debug": "Debug"
+  "Debug": "Debug",
+  "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}"
 }
