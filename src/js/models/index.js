@@ -23,11 +23,12 @@ import FormMapping from "./application/FormMapping";
 import ConfigFile from "./ConfigFile";
 import Checklist from "./Checklist";
 import ChecklistItem from "./ChecklistItem";
+import _ from 'lodash';
 
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 32,
+    schemaVersion: 33,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -61,6 +62,12 @@ export default {
         if (oldDB.schemaVersion < 32) {
             const oldSettings = newDB.objects('Settings');
             newDB.delete(oldSettings);
+        }
+        if (oldDB.schemaVersion < 33) {
+            const checklists = newDB.objects('Checklist');
+            _.forEach(checklists, (checklist) => {
+                checklist.baseDate = checklist.programEnrolment.individual.dateOfBirth;
+            });
         }
     }
 };

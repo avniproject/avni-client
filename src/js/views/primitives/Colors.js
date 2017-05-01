@@ -14,7 +14,9 @@ class Colors {
     static GreyContentBackground = '#f7f7f7';
     static CheckboxRadioboxColor = '#010101';
 
-    static CardColor1 = '#E0EA25';
+    static ChecklistItemUnfulfilled = 'greenyellow';
+    static ChecklistItemFulfilled = 'green';
+    static ChecklistItemExpired = 'red';
 }
 
 export default Colors;

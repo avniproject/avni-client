@@ -12,6 +12,8 @@ import DGS from '../primitives/DynamicGlobalStyles';
 import Colors from '../primitives/Colors';
 import Distances from '../primitives/Distances';
 import Fonts from '../primitives/Fonts';
+import Duration from "../../models/Duration";
+import ChecklistItemDisplay from "./ChecklistItemDisplay";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -44,32 +46,25 @@ class ChecklistView extends AbstractComponent {
                     <View style={{paddingHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge)}}>
                         {this.state.checklists.map((checklist, index) => {
                             return (
-                                <Card style={{borderRadius: 5, flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(13)}} key={`checklist${index}`}>
+                                <Card style={{borderRadius: 5, flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(13)}} key={`c${index}`}>
                                     <Text style={{fontSize: Fonts.Large}}>{checklist.name}</Text>
-                                    <Grid style={DGS.observations.observationTable}>
-                                        <Row style={DGS.observations.observationRowHeader}>
-                                            <Col size={7}><Text style={{fontSize: Fonts.Large}}>{this.I18n.t('activity')}</Text></Col>
-                                            <Col size={3}><Text style={{fontSize: Fonts.Large}}>{this.I18n.t('completedOn')}</Text></Col>
-                                        </Row>
-                                        {checklist.items.map((item, itemIndex) => {
-                                            const actionObject = {checklistName: checklist.name, checklistItemName: item.concept.name};
-                                            return <Row style={DGS.observations.observationRow} key={`checklistItem${itemIndex}`}>
-                                                <Col size={7} style={[DGS.observations.observationColumn, {paddingLeft: 5}]}>
-                                                    <Text>{this.I18n.t(item.concept.name)}</Text>
-                                                    <Text>{item.scheduleDisplay(this.I18n)}</Text>
-                                                </Col>
-                                                <Col size={3} style={DGS.observations.observationColumn}>
-                                                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                                                        <DatePicker actionName={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
-                                                                    validationResult={ChecklistActions.getValidationResult(index, item.concept.name, this.state)}
-                                                                    dateValue={item.completionDate} actionObject={actionObject}
-                                                                    noDateMessageKey={'notCompleted'}
-                                                        />
-                                                    </View>
-                                                </Col>
-                                            </Row>
-                                        })}
-                                    </Grid>
+                                    {checklist.groupedItems().map((itemGroup, itemGroupIndex) => {
+                                        const duration = Duration.durationBetween(checklist.baseDate, itemGroup[0].dueDate);
+                                        return <View key={`c${index}-clig${itemGroupIndex}`}>
+                                            <Text style={{fontSize: Fonts.Medium}}>{duration.toString(this.I18n)}</Text>
+                                            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                                                {itemGroup.map((checklistItem, checklistItemIndex) => {
+                                                    const actionObject = {checklistName: checklist.name, checklistItemName: checklistItem.concept.name};
+                                                    return <ChecklistItemDisplay checklistItem={checklistItem}
+                                                                                 key={`c${index}-clig${itemGroupIndex}-cli${checklistItemIndex}`}
+                                                                                 completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
+                                                                                 validationResult={ChecklistActions.getValidationResult(index, checklistItem.concept.name, this.state)}
+                                                                                 actionObject={actionObject}
+                                                    />
+                                                })}
+                                            </View>
+                                        </View>
+                                    })}
                                 </Card>);
                         })}
                     </View>

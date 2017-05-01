@@ -18,6 +18,13 @@ class ChecklistItem {
         }
     };
 
+    static status = {
+        Upcoming: 'Upcoming',
+        PastDue: 'PastDue',
+        Expired: 'Expired',
+        Completed: 'Completed'
+    };
+
     static create() {
         const checklistItem = new ChecklistItem();
         checklistItem.uuid = General.randomUUID();
@@ -52,7 +59,22 @@ class ChecklistItem {
     }
 
     get isStillDue() {
-        return General.dateAIsAfterB(this.dueDate, new Date());
+        return General.dateIsAfterToday(this.dueDate);
+    }
+
+    get completed() {
+        return !_.isNil(this.completionDate);
+    }
+
+    get expired() {
+        return General.dateAIsAfterB(new Date(), this.maxDate);
+    }
+
+    get status() {
+        if (this.completed) return ChecklistItem.status.Completed;
+        else if (this.isStillDue) return ChecklistItem.status.Upcoming;
+        else if (this.expired) return ChecklistItem.status.Expired;
+        return ChecklistItem.status.PastDue;
     }
 }
 

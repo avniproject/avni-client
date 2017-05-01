@@ -171,6 +171,10 @@ class General {
         return moment(General.dateWithoutTime(a)).isAfter(General.dateWithoutTime(b));
     }
 
+    static dateIsAfterToday(date) {
+        return General.dateAIsAfterB(date, new Date());
+    }
+
     static dateAIsBeforeB(a, b) {
         if (_.isNil(a) || _.isNil(b)) return false;
         return moment(General.dateWithoutTime(a)).isBefore(General.dateWithoutTime(b));

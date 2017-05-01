@@ -12,6 +12,7 @@ class Checklist extends BaseEntity {
         properties: {
             uuid: 'string',
             name: 'string',
+            baseDate: 'date',
             items: {type: 'list', objectType: 'ChecklistItem'},
             programEnrolment: 'ProgramEnrolment'
         }
@@ -87,6 +88,10 @@ class Checklist extends BaseEntity {
 
     upcomingItems() {
         return _.values(_.groupBy(_.sortBy(_.filter(this.items, (item) => item.isStillDue), (item) => item.dueDate), (item) => item.dueDate));
+    }
+
+    groupedItems() {
+        return _.values(_.groupBy(_.sortBy(this.items, (item) => item.dueDate), (item) => item.dueDate));
     }
 
     addItem(item) {

@@ -1,6 +1,8 @@
 import _ from 'lodash';
+import moment from "moment";
 
 class Duration {
+    static Day = "Day";
     static Month = "Month";
     static Year = "Year";
 
@@ -12,36 +14,22 @@ class Duration {
         return new Duration(value, Duration.Year);
     }
 
+    static durationBetween(dateA, dateB) {
+        const diff = moment(dateB).diff(dateA, 'months');
+        if (diff > 0) {
+            return new Duration(diff, Duration.Month);
+        } else {
+            return new Duration(moment(dateB).diff(dateA, 'days'), Duration.Day);
+        }
+    }
+
     constructor(durationValue, durationUnit) {
         this._durationValue = durationValue;
         this.durationUnit = durationUnit;
     }
 
-    static fromAnswer(answer) {
-        return new Duration(answer.value, answer.unit);
-    }
-
-    get isInMonths() {
-        return this.durationUnit === Duration.Month;
-    }
-
     get isInYears() {
         return this.durationUnit === Duration.Year;
-    }
-
-    setAsMonths() {
-        this.durationUnit = Duration.Month;
-    }
-
-    setAsYears() {
-        this.durationUnit = Duration.Year;
-    }
-
-    set durationValue(durationValue) {
-        if (_.isNil(durationValue))
-            this._durationValue = durationValue;
-        else
-            this._durationValue = _.toNumber(durationValue);
     }
 
     get durationValueAsString() {
