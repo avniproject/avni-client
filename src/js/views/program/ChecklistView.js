@@ -5,13 +5,12 @@ import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {Button, Card, Col, Container, Content, Grid, Row, Text} from "native-base";
+import {Button, Container, Content, Text} from "native-base";
 import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
-import DatePicker from "../primitives/DatePicker";
-import DGS from '../primitives/DynamicGlobalStyles';
-import Colors from '../primitives/Colors';
-import Distances from '../primitives/Distances';
-import Fonts from '../primitives/Fonts';
+import DGS from "../primitives/DynamicGlobalStyles";
+import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
+import Fonts from "../primitives/Fonts";
 import Duration from "../../models/Duration";
 import ChecklistItemDisplay from "./ChecklistItemDisplay";
 
@@ -37,22 +36,25 @@ class ChecklistView extends AbstractComponent {
     save() {
         this.dispatchAction(Actions.SAVE);
     }
-
+    
     render() {
         return (
             <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <Content>
                     <AppHeader title={`${this.state.checklists[0].programEnrolment.individual.name} - ${this.I18n.t('checklists')}`}/>
-                    <View style={{paddingHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge)}}>
+                    <View
+                        style={{
+                            paddingHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge),
+                        }}>
                         {this.state.checklists.map((checklist, index) => {
                             return (
-                                <Card style={{borderRadius: 5, flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(13)}} key={`c${index}`}>
+                                <View style={{borderRadius: 5, flexDirection: 'column', flexWrap: "nowrap", paddingHorizontal: DGS.resizeWidth(13)}} key={`c${index}`}>
                                     <Text style={{fontSize: Fonts.Large}}>{checklist.name}</Text>
                                     {checklist.groupedItems().map((itemGroup, itemGroupIndex) => {
                                         const duration = Duration.durationBetween(checklist.baseDate, itemGroup[0].dueDate);
                                         return <View key={`c${index}-clig${itemGroupIndex}`}>
                                             <Text style={{fontSize: Fonts.Medium}}>{duration.toString(this.I18n)}</Text>
-                                            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                                            <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start'}}>
                                                 {itemGroup.map((checklistItem, checklistItemIndex) => {
                                                     const actionObject = {checklistName: checklist.name, checklistItemName: checklistItem.concept.name};
                                                     return <ChecklistItemDisplay checklistItem={checklistItem}
@@ -65,7 +67,7 @@ class ChecklistView extends AbstractComponent {
                                             </View>
                                         </View>
                                     })}
-                                </Card>);
+                                </View>);
                         })}
                     </View>
                     <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>

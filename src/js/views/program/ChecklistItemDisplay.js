@@ -2,12 +2,12 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
-import {Card, Text} from "native-base";
+import {Text} from "native-base";
 import General from "../../utility/General";
-import {View, DatePickerAndroid} from "react-native";
+import {DatePickerAndroid, View} from "react-native";
 import ChecklistItem from "../../models/ChecklistItem";
 import DatePicker from "../primitives/DatePicker";
-import _ from 'lodash';
+import _ from "lodash";
 
 class ChecklistItemDisplay extends AbstractComponent {
     static propTypes = {
@@ -32,7 +32,7 @@ class ChecklistItemDisplay extends AbstractComponent {
         const date = _.isNil(this.props.checklistItem.completionDate) ? new Date() : this.props.checklistItem.completionDate;
         return (
             <View style={this.appendedStyle()}>
-                <Card style={{borderRadius: 4, backgroundColor: backgroundColor}}
+                <View style={{borderRadius: 4, backgroundColor: backgroundColor}}
                       onPress={this.showPicker.bind(this, {date: date})}>
                     <View style={{flexDirection: 'column', alignItems: 'center'}}>
                         <Text style={{fontSize: Fonts.Normal}}>{this.I18n.t(this.props.checklistItem.concept.name)}</Text>
@@ -46,7 +46,7 @@ class ChecklistItemDisplay extends AbstractComponent {
                         </View>
                         <Text style={{fontSize: Fonts.Normal}}>{`${this.I18n.t('expires')}: ${General.formatDate(this.props.checklistItem.maxDate)}`}</Text>
                     </View>
-                </Card>
+                </View>
             </View>
         );
     }

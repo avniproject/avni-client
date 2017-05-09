@@ -42,7 +42,7 @@ class ConventionalRestClient {
                 }
             });
 
-            if (this.morePagesForThisResource(response)) {
+            if (ConventionalRestClient.morePagesForThisResource(response)) {
                 this.loadData(entityModel, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError);
             } else if (resourcesWithSameTimestamp.length > 0) {
                 General.logDebug('ConventionalRestClient', `Executing sync action on: ${resourcesWithSameTimestamp.length} items for resource: ${entityModel.resourceName}`);
@@ -54,7 +54,7 @@ class ConventionalRestClient {
         }, onError);
     }
 
-    morePagesForThisResource(response) {
+    static morePagesForThisResource(response) {
         return response["page"]["number"] < (response["page"]["totalPages"] - 1);
     }
 

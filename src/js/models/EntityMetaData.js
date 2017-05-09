@@ -62,7 +62,7 @@ class EntityMetaData {
         return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "checklistItem", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
     }
 
-    //order is important. last entity in each (tx and ref) with be executed first
+    //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
             EntityMetaData.formMapping,
