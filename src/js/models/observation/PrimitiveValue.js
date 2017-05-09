@@ -26,7 +26,7 @@ class PrimitiveValue {
     }
 
     valueFromString(string, datatype) {
-        if (datatype === Concept.dataType.Numeric) {
+        if (datatype === Concept.dataType.Numeric && !_.endsWith(string,'.')) {
             return _.toNumber(string)
         }
         return string;
