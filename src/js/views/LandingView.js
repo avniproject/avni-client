@@ -26,7 +26,7 @@ class LandingView extends AbstractComponent {
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#fff'}}>
                     <Tabs>
-                        <ChecklistView enrolmentUUID={'52763bfb-b6f1-46ca-801f-0eb2829f3e95'}/>
+                        {/*<ChecklistView enrolmentUUID={'2f9b62b3-d535-4e8e-bdfe-9afb37bb1285'}/>*/}
                         <IndividualSearchView tabLabel='Home'/>
                         <MenuView tabLabel='Menu'/>
                         <Playground tabLabel='Play'/>

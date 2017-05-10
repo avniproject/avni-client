@@ -21,7 +21,6 @@ class Observations extends AbstractComponent {
     }
 
     render() {
-        this.props.observations.forEach((observation) => General.logDebug('Observations', JSON.stringify(observation)));
         const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
         const conceptService = this.context.getService(ConceptService);
 

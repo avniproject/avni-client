@@ -39,22 +39,14 @@ class AbstractComponent extends Component {
         return this.context.getStore().getState()[param];
     }
 
-    showError(errorMessage) {
-        Alert.alert(this.I18n.t("validationError"), errorMessage,
+    showError(message) {
+        Alert.alert(this.I18n.t("validationError"), message,
             [
                 {
-                    text: this.I18n.t('ok'), onPress: () => {
-                }
-                }
+                    text: this.I18n.t('ok'), onPress: () => {}
+                },
             ]
         );
-    }
-
-    static _renderSeparator(rowNumber, rowID, total) {
-        if (rowNumber === (total - 1) || rowNumber === `${(total - 1)}` || total === 0 || total === undefined) {
-            return (<View key={rowID}/>);
-        }
-        return (<Text key={rowID} style={AbstractComponent.styles.listRowSeparator}/>);
     }
 
     componentWillMount() {

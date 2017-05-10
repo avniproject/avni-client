@@ -27,9 +27,9 @@ class DatePicker extends AbstractComponent {
             <View>
                 <Text onPress={this.showPicker.bind(this, {date: date})}
                       style={[DynamicGlobalStyles.formElementLabel, {color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError}]}>{this.dateDisplay(this.props.dateValue, this.props.noDateMessageKey)}</Text>
-                <Button onPress={() => this.removeDate()}>
-                    <Icon name='delete'/>
-                </Button>
+                {/*<Button onPress={() => this.removeDate()}>*/}
+                    {/*<Icon name='delete'/>*/}
+                {/*</Button>*/}
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
         );

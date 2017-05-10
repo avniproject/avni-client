@@ -1,6 +1,7 @@
 import EntityService from "../../service/EntityService";
 import _ from 'lodash';
 import ProgramEnrolment from '../../models/ProgramEnrolment';
+import Checklist from '../../models/Checklist';
 
 class ChecklistActions {
     static getValidationResult(checklistIndex, checklistItemName, state) {
@@ -45,7 +46,7 @@ class ChecklistActions {
     static onSave(state, action, context) {
         const newState = ChecklistActions.clone(state);
         newState.checklists.forEach((checklist) => {
-            context.get(EntityService).update(checklist);
+            context.get(EntityService).saveOrUpdate(checklist, Checklist.schema.name);
         });
         return newState;
     }

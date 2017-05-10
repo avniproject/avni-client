@@ -54,10 +54,6 @@ class ChecklistItem {
         return checklistItem;
     }
 
-    scheduleDisplay(I18n) {
-        return `${I18n.t('due')}: ${moment(this.dueDate).format('DD-MM-YYYY')}, ${I18n.t('expires')}: ${moment(this.maxDate).format('DD-MM-YYYY')}`;
-    }
-
     get isStillDue() {
         return General.dateIsAfterToday(this.dueDate);
     }
@@ -75,6 +71,26 @@ class ChecklistItem {
         else if (this.isStillDue) return ChecklistItem.status.Upcoming;
         else if (this.expired) return ChecklistItem.status.Expired;
         return ChecklistItem.status.PastDue;
+    }
+
+    getStatusMessage(I18n) {
+        if (this.completed) {
+            return I18n.t('completed', {completedOn: General.formatDate(this.completionDate)});
+        } else if (this.isStillDue) {
+            return I18n.t('dueOn', {dueOn: General.formatDate(this.dueDate)});
+        } else if (this.expired) {
+            return I18n.t('expired');
+        } else {
+            return I18n.t('missedDueDate', {dueOn: General.formatDate(this.dueDate)});
+        }
+    }
+
+    isNotDueOn(date) {
+        return General.dateAIsBeforeB(date, this.dueDate);
+    }
+
+    isAfterMaxDate(date) {
+        return General.dateAIsAfterB(date, this.maxDate);
     }
 }
 

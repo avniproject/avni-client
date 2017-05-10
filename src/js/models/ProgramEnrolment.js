@@ -141,6 +141,7 @@ class ProgramEnrolment extends BaseEntity {
         expectedChecklists.forEach((expectedChecklist) => {
             const checklist = Checklist.create();
             checklist.name = expectedChecklist.name;
+            checklist.baseDate = expectedChecklist.baseDate;
             checklist.addChecklistItems(expectedChecklist, conceptFinder);
             checklists.push(checklist);
         });

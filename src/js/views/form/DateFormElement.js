@@ -4,6 +4,7 @@ import {Text} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import DatePicker from "../primitives/DatePicker";
+import General from "../../utility/General";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -18,6 +19,7 @@ class DateFormElement extends AbstractFormElement {
     }
 
     render() {
+        General.logDebug('DateFormElement', this.props);
         return (
             <View>
                 <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
