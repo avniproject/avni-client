@@ -10,6 +10,7 @@ import ProgramEncounter from "../models/ProgramEncounter";
 import ProgramEnrolment from "../models/ProgramEnrolment";
 import EntityRule from "../models/EntityRule";
 import General from "../utility/General";
+import {getObservationValueFromEntireEnrolment, observationExistsInEntireEnrolment} from "./decisionSupport/AdditionalFunctions";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -38,13 +39,16 @@ class RuleEvaluationService extends BaseService {
     decorateEncounter() {
         if (!this.initialised) {
             const dynamicDataResolver = new DynamicDataResolver(this.context);
-            const prototypes = [Encounter.prototype, ProgramEncounter.prototype, ProgramEnrolment.prototype];
-            prototypes.forEach((currentPrototype) => {
+            const allObservationHolderPrototypes = [Encounter.prototype, ProgramEncounter.prototype, ProgramEnrolment.prototype];
+            allObservationHolderPrototypes.forEach((currentPrototype) => {
                 currentPrototype.dynamicDataResolver = dynamicDataResolver;
                 currentPrototype.getObservationValue = getObservationValue;
                 currentPrototype.observationExists = observationExists;
                 currentPrototype.getCodedAnswers = getCodedAnswers;
             });
+
+            ProgramEncounter.prototype.getObservationValueFromEntireEnrolment = getObservationValueFromEntireEnrolment;
+            ProgramEncounter.prototype.observationExistsInEntireEnrolment = observationExistsInEntireEnrolment;
         }
     }
 

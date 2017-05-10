@@ -9,7 +9,7 @@ let getCodedAnswer = function (observation) {
 };
 
 const getObservationValue = function (conceptName) {
-    const observation = _.find(this.observations, (observation) => observation.concept.name === conceptName);
+    const observation = this.findObservation(conceptName);
 
     if (_.isNil(observation)) {
         General.logWarn('AdditionalFunctions', `No observation found for concept: ${conceptName}`);
@@ -23,6 +23,30 @@ const getObservationValue = function (conceptName) {
         default:
             return observation.getValue();
     }
+};
+
+const _getObservationValue = function (observation) {
+    if (_.isNil(observation)) {
+        General.logWarn('AdditionalFunctions', `No observation found for concept: ${conceptName}`);
+        return undefined;
+    }
+
+    switch (observation.concept.datatype) {
+        case Concept.dataType.Coded: {
+            return _.isArray(observation.getValue()) ? getCodedAnswers(observation) : getCodedAnswer(observation);
+        }
+        default:
+            return observation.getValue();
+    }
+};
+
+const getObservationValueFromEntireEnrolment = function (conceptName) {
+    const observation = this.programEnrolment.findObservationInEntireEnrolment(conceptName);
+    return _getObservationValue(observation);
+};
+
+const observationExistsInEntireEnrolment = function (conceptName) {
+    return !_.isNil(this.programEnrolment.findObservationInEntireEnrolment(conceptName));
 };
 
 const observationExists = function (conceptName) {
@@ -39,4 +63,10 @@ const getCodedAnswers = function (observation) {
 };
 //end on encounter
 
-export {getObservationValue as getObservationValue, observationExists as observationExists, getCodedAnswers as getCodedAnswers};
+export {
+    getObservationValue as getObservationValue,
+    observationExists as observationExists,
+    getCodedAnswers as getCodedAnswers,
+    getObservationValueFromEntireEnrolment as getObservationValueFromEntireEnrolment,
+    observationExistsInEntireEnrolment as observationExistsInEntireEnrolment
+};

@@ -69,6 +69,8 @@ class ObservationsHolder {
             observation.valueJSON = JSON.stringify(observation.valueJSON);
         });
     }
+
+
 }
 
 export default ObservationsHolder;

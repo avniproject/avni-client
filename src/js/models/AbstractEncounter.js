@@ -47,6 +47,10 @@ class AbstractEncounter extends BaseEntity {
         dateValues[AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] = this.encounterDateTime;
         return dateValues;
     }
+
+    findObservation(conceptName) {
+        return _.find(this.observations, (observation) => observation.concept.name === conceptName);
+    }
 }
 
 export default AbstractEncounter;

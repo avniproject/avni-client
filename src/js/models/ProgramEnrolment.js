@@ -155,6 +155,28 @@ class ProgramEnrolment extends BaseEntity {
     findChecklist(name) {
         return _.find(this.checklists, (checklist) => checklist.name === name);
     }
+
+    getEncounters() {
+        return _.sortBy(this.encounters, (encounter) => moment().diff(encounter.encounterDateTime));
+    }
+
+    findEnrolmentObservation(conceptName) {
+        return _.find(this.observations, (observation) => observation.concept.name === conceptName);
+    }
+
+    findObservationInEntireEnrolment(conceptName) {
+        const encounters = this.getEncounters();
+        var observation;
+        for (var i = 0; i < encounters.length; i++) {
+            observation = encounters[i].findObservation(conceptName);
+            if (!_.isNil(observation)) break;
+        }
+
+        if (_.isNil(observation))
+            return this.findEnrolmentObservation(conceptName);
+
+        return observation;
+    }
 }
 
 export default ProgramEnrolment;
