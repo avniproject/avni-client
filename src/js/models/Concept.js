@@ -61,7 +61,7 @@ export default class Concept {
         concept.datatype = conceptResource.dataType;
         concept.lowAbsolute = conceptResource.lowAbsolute;
         concept.hiAbsolute = conceptResource.highAbsolute;
-        concept.lowAbsolute = conceptResource.lowNormal;
+        concept.lowNormal = conceptResource.lowNormal;
         concept.hiNormal = conceptResource.highNormal;
         return concept;
     }

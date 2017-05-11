@@ -19,10 +19,11 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     render() {
+        const rangeText = this.rangeText();
         return (
             <View>
                 <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
+                    <Text style={DynamicGlobalStyles.formElementLabel}>{rangeText!= null ? this.label + ` (${rangeText})` : this.label}</Text>
                 </View>
                 <View>
                     <TextInput style={{flex: 1}} underlineColorAndroid={this.borderColor}
@@ -31,6 +32,20 @@ class NumericFormElement extends AbstractFormElement {
                 </View>
             </View>
     );
+    }
+
+    rangeText() {
+        let rangeText = null;
+        if (this.props.element.concept.lowNormal != null) {
+            if (this.props.element.concept.hiNormal != null) {
+                rangeText = `${this.props.element.concept.lowNormal} - ${this.props.element.concept.hiNormal}`;
+            } else {
+                rangeText = `>${this.props.element.concept.lowNormal}`
+            }
+        } else if (this.props.element.concept.hiNormal != null) {
+            rangeText = `<${this.props.element.concept.hiNormal}`
+        }
+        return rangeText;
     }
 
     onInputChange(text) {
