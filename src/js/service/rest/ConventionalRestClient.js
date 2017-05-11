@@ -69,7 +69,7 @@ class ConventionalRestClient {
         const url = `${this.settingsService.getSettings().serverURL}/${nextItem.metaData.resourceName}s`;
         post(url, nextItem.resource, (response) => {
             if (!_.isNil(response.ok) && !response.ok) {
-                General.logDebug('ConventionalRestClient', response);
+                if (General.canLog(General.LogLevel.Debug)) General.logDebug('ConventionalRestClient', JSON.stringify(response));
                 onError();
             } else {
                 onCompleteCurrentItem();

@@ -200,6 +200,11 @@ class General {
         if (level >= General.getCurrentLogLevel())
             console.log(`[${source}] ${message}`);
     }
+
+    static isoFormat(date) {
+        if (_.isNil(date)) return null;
+        return moment(date).format();
+    }
 }
 
 export default General;

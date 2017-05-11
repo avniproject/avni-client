@@ -40,7 +40,11 @@ class ChecklistItem {
 
     get toResource() {
         const resource = _.pick(this, ["uuid", "name"]);
-        resource["programEnrolmentUUID"] = this.programEnrolment.uuid;
+        resource["dueDate"] = General.isoFormat(this.dueDate);
+        resource["maxDate"] = General.isoFormat(this.maxDate);
+        resource["completionDate"] = General.isoFormat(this.completionDate);
+        resource["checklistUUID"] = this.checklist.uuid;
+        resource["conceptUUID"] = this.concept.uuid;
         return resource;
     }
 

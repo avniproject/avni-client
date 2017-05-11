@@ -43,9 +43,9 @@ class ProgramEnrolment extends BaseEntity {
     get toResource() {
         const resource = _.pick(this, ["uuid"]);
         resource["programUUID"] = this.program.uuid;
-        resource.enrolmentDateTime = moment(this.enrolmentDateTime).format();
-        if (!_.isNil(this.programExitDateTime)) resource.programExitDateTime = moment(this.programExitDateTime).format();
-        if (!_.isNil(this.programOutcome)) resource["programOutcomeUUID"] = this.programOutcome.uuid;
+        resource.enrolmentDateTime = General.isoFormat(this.enrolmentDateTime);
+        resource.programExitDateTime = General.isoFormat(this.programExitDateTime);
+        resource["programOutcomeUUID"] = _.isNil(this.programOutcome) ? null : this.programOutcome.uuid;
         resource["individualUUID"] = this.individual.uuid;
         if (!_.isNil(this.checklist)) resource["checklistUUID"] = this.checklist.uuid;
         return resource;
@@ -69,9 +69,11 @@ class ProgramEnrolment extends BaseEntity {
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        programEnrolment = General.pick(programEnrolment, ["uuid"], ["encounters", ""]);
+        programEnrolment = General.pick(programEnrolment, ["uuid"], ["encounters", "checklists"]);
         if (childEntityClass === ProgramEncounter)
             BaseEntity.addNewChild(child, programEnrolment.encounters);
+        else if (childEntityClass === Checklist)
+            BaseEntity.addNewChild(child, programEnrolment.checklists);
         else
             throw `${childEntityClass.name} not support by ${ProgramEnrolment.name}`;
         return programEnrolment;

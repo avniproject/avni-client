@@ -4,6 +4,7 @@ import General from "../utility/General";
 import ProgramEnrolment from './ProgramEnrolment';
 import BaseEntity from "./BaseEntity";
 import ChecklistItem from "./ChecklistItem";
+import moment from "moment";
 
 class Checklist extends BaseEntity {
     static schema = {
@@ -34,6 +35,7 @@ class Checklist extends BaseEntity {
 
     get toResource() {
         const resource = _.pick(this, ["uuid", "name"]);
+        resource["baseDate"] = General.isoFormat(this.baseDate);
         resource["programEnrolmentUUID"] = this.programEnrolment.uuid;
         return resource;
     }
