@@ -38,6 +38,7 @@ class ProgramEncounterService extends BaseService {
     }
 
     saveOrUpdate(programEncounter, nextScheduledVisits) {
+        General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${programEncounter.uuid}`);
         ObservationsHolder.convertObsForSave(programEncounter.observations);
 
         const programEncounters = [programEncounter];
@@ -58,7 +59,10 @@ class ProgramEncounterService extends BaseService {
             programEncounters.forEach((programEncounter) => {
                 const loadedEncounter = this.findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
                 const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
+                General.logDebug('ProgramEncounterService', `Number of encounters: ${enrolment.encounters.length}`);
+                General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${loadedEncounter.uuid}`);
                 enrolment.addEncounter(loadedEncounter);
+                General.logDebug('ProgramEncounterService', `Number of encounters after add: ${enrolment.encounters.length}`);
                 db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
             });
         });
@@ -66,7 +70,8 @@ class ProgramEncounterService extends BaseService {
     }
 
     findDueEncounter(encounterTypeUUID, enrolmentUUID) {
-        return this.findByCriteria(`encounterType.uuid="${encounterTypeUUID}" AND programEnrolment.uuid="${enrolmentUUID}"`);
+        const encounters = this.findAllByCriteria(`encounterType.uuid="${encounterTypeUUID}" AND programEnrolment.uuid="${enrolmentUUID}"`);
+        return encounters.find((encounter) => _.isNil(encounter.encounterDateTime));
     }
 }
 

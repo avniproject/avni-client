@@ -19,7 +19,6 @@ class DateFormElement extends AbstractFormElement {
     }
 
     render() {
-        General.logDebug('DateFormElement', this.props);
         return (
             <View>
                 <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>

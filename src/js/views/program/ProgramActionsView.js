@@ -47,7 +47,6 @@ class ProgramActionsView extends AbstractComponent {
                 data: widget.data(this.props.enrolment)
             }
         });
-        console.log("final values are");
         graphData.forEach((x) => console.log(x.data[5]));
         TypedTransition.from(this).bookmark().with({graphs: graphData}).to(GraphView, true);
     }
@@ -57,7 +56,7 @@ class ProgramActionsView extends AbstractComponent {
             <Button block
                     style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.SecondaryActionButtonColor}}
                     textStyle={{color: 'black'}}
-                    onPress={() => this.goToView(button)}>{button.label}</Button>
+                    onPress={() => this.goToView(button)} key={button.label}>{button.label}</Button>
         );
     }
 
