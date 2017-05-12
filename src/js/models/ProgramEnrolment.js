@@ -190,6 +190,10 @@ class ProgramEnrolment extends BaseEntity {
 
         return observation;
     }
+
+    findObservation(conceptName) {
+        return _.find(this.observations, (observation) => observation.concept.name === conceptName);
+    }
 }
 
 export default ProgramEnrolment;

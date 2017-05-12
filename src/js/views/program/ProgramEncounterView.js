@@ -19,6 +19,7 @@ import DateFormElement from "../../views/form/DateFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import General from "../../utility/General";
+import Distances from "../primitives/Distances";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -68,7 +69,7 @@ class ProgramEncounterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.name} func={() => this.previous()}/>
-                    <View style={{flexDirection: 'column', paddingHorizontal: 10}}>
+                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED} element={new StaticFormElement('encounterDate')}
                                              dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}

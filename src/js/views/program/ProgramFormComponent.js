@@ -14,6 +14,7 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
+import Distances from "../primitives/Distances";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -42,16 +43,16 @@ class ProgramFormComponent extends AbstractComponent {
         return (<Container theme={themes}>
             <Content>
                 <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})}/>
-                <View style={{marginLeft: 10, marginRight: 10, flexDirection: 'column'}}>
-                    {this.props.state.wizard.isFirstFormPage() ?
-                        <View>
-                            <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.state.enrolment.individual}/>
-                            <DateFormElement actionName={this.props.context.dateAction} element={new StaticFormElement(this.props.context.dateKey)}
-                                             dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}
-                                             validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}/>
-                        </View>
-                        :
-                        <View/>}
+                {this.props.state.wizard.isFirstFormPage() ?
+                    <View>
+                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.state.enrolment.individual}/>
+                        <DateFormElement actionName={this.props.context.dateAction} element={new StaticFormElement(this.props.context.dateKey)}
+                                         dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}
+                                         validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}/>
+                    </View>
+                    :
+                    <View/>}
+                <View style={{paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge, flexDirection: 'column'}}>
                     <FormElementGroup actions={Actions} group={this.props.state.formElementGroup} observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}/>
                     <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous(), label: this.I18n.t('previous')}}
