@@ -48,6 +48,17 @@ class ProgramEnrolment extends BaseEntity {
         resource["programOutcomeUUID"] = _.isNil(this.programOutcome) ? null : this.programOutcome.uuid;
         resource["individualUUID"] = this.individual.uuid;
         if (!_.isNil(this.checklist)) resource["checklistUUID"] = this.checklist.uuid;
+
+        resource["observations"] = [];
+        this.observations.forEach((obs) => {
+            resource["observations"].push(obs.toResource);
+        });
+
+        resource["programExitObservations"] = [];
+        this.programExitObservations.forEach((obs) => {
+            resource["programExitObservations"].push(obs.toResource);
+        });
+
         return resource;
     }
 

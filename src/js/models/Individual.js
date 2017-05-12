@@ -56,6 +56,12 @@ class Individual extends BaseEntity {
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
         resource.catchmentId = this.catchmentId;
+
+        resource["observations"] = [];
+        this.observations.forEach((obs) => {
+            resource["observations"].push(obs.toResource);
+        });
+
         return resource;
     }
 
@@ -74,7 +80,7 @@ class Individual extends BaseEntity {
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
-        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified", "catchmentId"], ["dateOfBirth", 'registrationDate'], ["customProfile"]);
+        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified", "catchmentId"], ["dateOfBirth", 'registrationDate'], ["observations"]);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
