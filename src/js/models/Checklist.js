@@ -27,7 +27,7 @@ class Checklist extends BaseEntity {
     }
 
     static fromResource(checklistResource, entityService) {
-        const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistResource, "enrolmentUUID"), ProgramEnrolment.schema.name);
+        const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistResource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
         const checklist = General.assignFields(checklistResource, new Checklist(), ["uuid", "name"]);
         checklist.programEnrolment = programEnrolment;
         return checklist;

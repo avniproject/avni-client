@@ -36,7 +36,7 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     openChecklist() {
-        CHSNavigator.navigateToChecklistView(this, this.state.enrolment.uuid);
+        CHSNavigator.navigateToChecklistView(this, this.props.enrolment.uuid);
     }
 
     goToView(button) {

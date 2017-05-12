@@ -24,7 +24,7 @@ class GraphView extends AbstractComponent {
 
     render() {
         return (
-            <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
+            <Container theme={themes} style={{backgroundColor: 'white'}}>
                 <Content>
                     <View>
                         {_.map(this.props.graphs, (graph) => this.renderStack(graph))}

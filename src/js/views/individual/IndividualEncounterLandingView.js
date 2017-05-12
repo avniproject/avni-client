@@ -25,6 +25,7 @@ import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/DateFormElement";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
+import Distances from "../primitives/Distances";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -72,7 +73,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                     <AppHeader title={`${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('enterData')}`}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed} individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.encounters}/>
-                    <View style={{backgroundColor: '#ffffff', paddingHorizontal: DynamicGlobalStyles.resizeWidth(26), flexDirection: 'column'}}>
+                    <View style={{backgroundColor: '#ffffff', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge, flexDirection: 'column'}}>
                         <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE} element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
                                          dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
                                          validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>

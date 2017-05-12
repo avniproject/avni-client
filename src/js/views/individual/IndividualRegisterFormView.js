@@ -14,6 +14,7 @@ import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import General from "../../utility/General";
+import Distances from "../primitives/Distances";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -46,7 +47,7 @@ class IndividualRegisterFormView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
-                    <View style={{flexDirection: 'column'}}>
+                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup}
                                           actions={Actions} validationResults={this.state.validationResults}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}

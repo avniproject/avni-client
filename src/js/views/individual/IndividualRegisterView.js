@@ -22,6 +22,7 @@ import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import DateFormElement from "../form/DateFormElement";
 import Fonts from "../primitives/Fonts";
+import Distances from "../primitives/Distances";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -53,7 +54,7 @@ class IndividualRegisterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
-                    <View style={[this.contentGridMarginStyle, {flexDirection: 'column'}]}>
+                    <View style={[this.contentGridMarginStyle, {flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}]}>
                         <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate')}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>

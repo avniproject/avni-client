@@ -21,10 +21,12 @@ class Observations extends AbstractComponent {
     }
 
     render() {
-        const observationRows = _.chunk(this.props.observations, DGS.numberOfRows(this.props.observations.length));
-        const conceptService = this.context.getService(ConceptService);
+        if (this.props.observations.length === 0) return <View/>;
 
-        if (observationRows.length === 0) return <View/>;
+        const numberOfColumns = DGS.numberOfRows(this.props.observations.length);
+        const observationRows = _.chunk(this.props.observations, numberOfColumns);
+        General.logDebug('Observations', `Row: ${observationRows.length}, Columns: ${numberOfColumns}`);
+        const conceptService = this.context.getService(ConceptService);
 
         return (
             <View style={this.appendedStyle({backgroundColor: Colors.GreyContentBackground})}>

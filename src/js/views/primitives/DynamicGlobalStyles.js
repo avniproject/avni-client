@@ -48,11 +48,11 @@ class DynamicGlobalStyles {
     }
 
     numberOfTableColumns() {
-        return this.windowWidth / 110;
+        return this.windowWidth / this.resizeWidth(110);
     }
 
     numberOfRows(numberOfCells) {
-        return numberOfCells % this.numberOfTableColumns() + 1;
+        return Math.round(numberOfCells % this.numberOfTableColumns() + 1);
     }
 
     createCommonStyles() {
