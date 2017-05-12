@@ -24,6 +24,7 @@ import ContextAction from "../viewmodel/ContextAction";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Fonts from '../primitives/Fonts';
 import General from "../../utility/General";
+import ProgramActionsView from './ProgramActionsView';
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -66,28 +67,17 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.ON_PROGRAM_CHANGE, {program: program});
     }
 
-    startProgramEncounter() {
-        this.dispatchAction(ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
-    }
-
-    startEncounter() {
-        this.dispatchAction(Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY);
-        this.dispatchAction(EncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
-    }
-
-    openChecklist() {
-        CHSNavigator.navigateToChecklistView(this, this.state.enrolment.uuid);
-    }
-
     render() {
         General.logDebug(this.viewName(), 'render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const contextActions = [new ContextAction('edit', () => this.editEnrolment())];
-        if (this.state.enrolment.isActive)
+        if (this.state.enrolment.isActive) {
             contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
 
+        }
+        const dashboardButtons = this.state.dashboardButtons || [];
         return (
             <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <Content>
@@ -109,21 +99,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         <ProgramList enrolments={enrolments}
                                                      selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
                                     </View>
-                                    <View style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(9)}}>
-                                        {this.state.enrolment.isActive ?
-                                            <Button block
-                                                    style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                                    textStyle={{color: 'white'}}
-                                                    onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> :
-                                            <View/>}
-                                        {this.state.enrolment.hasChecklist ?
-                                            <Button block
-                                                    style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                                                    textStyle={{color: 'white'}} onPress={() => this.openChecklist()}>{this.I18n.t('openChecklist')}</Button> : <View/>}
-                                        <Button block style={{height: DGS.resizeHeight(36), backgroundColor: Colors.SecondaryActionButtonColor}}
-                                                textStyle={{color: Colors.BlackBackground}}
-                                                onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
-                                    </View>
+                                    <ProgramActionsView
+                                        programDashboardButtons={dashboardButtons}
+                                        enrolment={this.state.enrolment} onOpenChecklist={() => this.openChecklist()}/>
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :

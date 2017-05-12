@@ -13,6 +13,7 @@ import Checklist from '../models/Checklist';
 import ChecklistItem from '../models/ChecklistItem';
 import ConceptService from "./ConceptService";
 import General from "../utility/General";
+import moment from "moment";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -58,6 +59,7 @@ class ProgramEnrolmentService extends BaseService {
 
             checklists.forEach((checklist) => {
                 if (_.isNil(savedProgramEnrolment.findChecklist(checklist.name))) {
+                    checklist.baseDate = checklist.baseDate || new Date();
                     const savedChecklist = db.create(Checklist.schema.name, checklist, true);
                     savedChecklist.items.forEach((item) => {
                         item.checklist = savedChecklist;

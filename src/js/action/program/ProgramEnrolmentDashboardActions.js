@@ -10,6 +10,7 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import NullProgramEnrolment from "../../models/application/NullProgramEnrolment";
 import EntityTypeChoiceActionNames from "../common/EntityTypeChoiceActionNames";
 import General from "../../utility/General";
+import ProgramConfigService from "../../service/ProgramConfigService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -51,8 +52,10 @@ class ProgramEnrolmentDashboardActions {
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
             newState.enrolment = individual.enrolments.length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
+            newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
+            newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(action.program, context);
         }
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
@@ -122,11 +125,17 @@ class ProgramEnrolmentDashboardActions {
         return state;
     }
 
+    static _addProgramConfig(program, context) {
+        let programConfig = context.get(ProgramConfigService);
+        return programConfig.findDashboardButtons(program) || [];
+    }
+
     static onProgramChange(state, action, context) {
         if (action.program.uuid === state.enrolment.program.uuid) return state;
 
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.enrolment = state.enrolment.individual.findEnrolmentForProgram(action.program);
+        newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(action.program, context);
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }

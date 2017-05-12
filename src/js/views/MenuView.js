@@ -16,6 +16,7 @@ import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import Fonts from './primitives/Fonts';
 import General from "../utility/General";
+import ProgramConfigService from "../service/ProgramConfigService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -55,6 +56,7 @@ class MenuView extends AbstractComponent {
 
     _postSync() {
         this.context.getService(RuleEvaluationService).init();
+        this.context.getService(ProgramConfigService).init();
         this.dispatchAction('RESET');
         this.setState({syncing: false, error: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
