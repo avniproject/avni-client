@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {View, Navigator, BackAndroid} from 'react-native';
+import {View, BackAndroid} from 'react-native';
+import {Navigator} from 'react-native-deprecated-custom-components';
 
 export default class Router extends Component {
 
