@@ -38,7 +38,8 @@ export default class Concept {
             lowAbsolute: {"type": 'int', optional: true},
             hiAbsolute: {"type": 'int', optional: true},
             lowNormal: {"type": 'int', optional: true},
-            hiNormal: {"type": 'int', optional: true}
+            hiNormal: {"type": 'int', optional: true},
+            unit: {"type": 'string', optional: true}
         }
     };
 
@@ -63,6 +64,7 @@ export default class Concept {
         concept.hiAbsolute = conceptResource.highAbsolute;
         concept.lowNormal = conceptResource.lowNormal;
         concept.hiNormal = conceptResource.highNormal;
+        concept.unit = conceptResource.unit;
         return concept;
     }
 
