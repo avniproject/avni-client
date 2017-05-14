@@ -1,8 +1,8 @@
-import {View, TouchableHighlight, Text, ProgressBarAndroid, StyleSheet, Animated, ScrollView, Alert} from "react-native";
+import {Alert, Animated, ProgressBarAndroid, ScrollView, StyleSheet, Text, TouchableHighlight, View} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Content, Grid, Col, Row, Button, Icon} from "native-base";
+import {Button, Content, Icon} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -14,7 +14,7 @@ import DashboardView from "./program/DashboardView";
 import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import Fonts from './primitives/Fonts';
+import Fonts from "./primitives/Fonts";
 import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
 
@@ -30,11 +30,11 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconLabelStyle = {color: '#fff', justifyContent: 'center', fontSize: Fonts.Medium};
-    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48};
+    static iconLabelStyle = {color: '#fff', fontSize: Fonts.Medium, alignSelf: 'center'};
+    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48};
 
     createStyles() {
-        this.columnStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29)};
+        this.columnStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29), alignItems: 'center', marginTop: DynamicGlobalStyles.resizeWidth(71), flexDirection: 'column'};
     }
 
     settingsView() {
@@ -117,39 +117,31 @@ class MenuView extends AbstractComponent {
     };
 
     renderMenuItem(iconName, menuMessageKey, pressHandler) {
-        return (<Col style={this.columnStyle}>
-                <Button onPress={pressHandler} transparent large>
+        return (<View style={this.columnStyle}>
+                <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
                     <Icon name={iconName} style={MenuView.iconStyle}/>
                 </Button>
                 <Text style={MenuView.iconLabelStyle}>{menuMessageKey}</Text>
-            </Col>
+            </View>
         );
     }
 
     render() {
         return (
             <Content style={{backgroundColor: Colors.BlackBackground}}>
-                <Grid style={this.scaleStyle({marginHorizontal: 29, marginTop: 71})}>
-                    <Row>
-                        <Col style={this.columnStyle}>
-                            <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
-                                {this.renderSyncButton()}
-                            </Button>
-                            <Text style={MenuView.iconLabelStyle}>Sync Data</Text>
-                        </Col>
-                        {this.renderMenuItem('settings', 'Settings', () => this.settingsView())}
-                        {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}
-                    </Row>
-                    <Row style={{marginTop: 30}}>
-                        {this.renderMenuItem('person-add', 'Register', () => this.registrationView())}
-                        {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
-                        <Col style={this.columnStyle}/>
-                    </Row>
+                <View style={this.scaleStyle({flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'center'})}>
+                    <View style={this.columnStyle}>
+                        <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
+                            {this.renderSyncButton()}
+                        </Button>
+                        <Text style={MenuView.iconLabelStyle}>Sync Data</Text>
+                    </View>
+                    {this.renderMenuItem('settings', 'Settings', () => this.settingsView())}
+                    {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}
+                    {this.renderMenuItem('person-add', 'Register', () => this.registrationView())}
+                    {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
                     {/*{hack for the background color}*/}
-                    <Row>
-                        <Col><View style={{height: 800}}></View></Col>
-                    </Row>
-                </Grid>
+                </View>
             </Content>
         );
     }

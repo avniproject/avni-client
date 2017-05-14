@@ -1,16 +1,18 @@
-import {View, StyleSheet, ScrollView, TextInput, Text} from "react-native";
+import {ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "./IndividualSearchResultsView";
-import GlobalStyles from "../primitives/GlobalStyles";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
-import {Button, Content, Grid, Col, Row} from "native-base";
+import {Button, Content} from "native-base";
 import AddressLevels from "../common/AddressLevels";
 import Reducers from "../../reducer";
-import {IndividualSearchActionNames as Actions} from '../../action/individual/IndividualSearchActions';
+import {IndividualSearchActionNames as Actions} from "../../action/individual/IndividualSearchActions";
 import General from "../../utility/General";
+import StaticFormElement from "../viewmodel/StaticFormElement";
+import TextFormElement from "../form/TextFormElement";
+import Distances from '../primitives/Distances';
+import PrimitiveValue from "../../models/observation/PrimitiveValue";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -28,41 +30,16 @@ class IndividualSearchView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return (
             <Content>
-                <Grid style={{marginTop: 16, marginHorizontal: 24}}>
-                    <Row style={GlobalStyles.formTextElement}>
-                        <Grid>
-                            <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("name")}</Text>
-                            </Row>
-                            <Row style={GlobalStyles.formElementTextContainer}>
-                                <TextInput style={{flex: 1}}
-                                           value={this.state.searchCriteria.name}
-                                           onChangeText={(text) => this.dispatchAction(Actions.ENTER_NAME_CRITERIA, {"name": text})}/>
-                            </Row>
-                        </Grid>
-                    </Row>
-                    <Row style={GlobalStyles.formTextElement}>
-                        <Grid>
-                            <Row style={GlobalStyles.formElementLabelContainer}>
-                                <Text style={DynamicGlobalStyles.formElementLabel}>{this.I18n.t("age")}</Text>
-                            </Row>
-                            <Row style={GlobalStyles.formElementTextContainer}>
-                                <TextInput style={{flex: 1}}
-                                           value={this.state.searchCriteria.age}
-                                           onChangeText={(text) => this.dispatchAction(Actions.ENTER_AGE_CRITERIA, {"age": text})}/>
-                            </Row>
-                        </Grid>
-                    </Row>
-                    <Row style={GlobalStyles.formCheckboxElement}>
-                        <AddressLevels multiSelect={true} selectedAddressLevels={this.state.searchCriteria.lowestAddressLevels} actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL}/>
-                    </Row>
-                    <Row style={{marginTop: 30, marginBottom: 30}}>
-                        <Col>
-                            <Button block
-                                    onPress={() => this.searchIndividual()}>{this.I18n.t("search")}</Button>
-                        </Col>
-                    </Row>
-                </Grid>
+                <View style={{marginTop: Distances.ScaledVerticalSpacingDisplaySections, marginHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
+                    <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)}
+                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                    <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')} value={new PrimitiveValue(this.state.searchCriteria.age)}
+                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                    <AddressLevels multiSelect={true} selectedAddressLevels={this.state.searchCriteria.lowestAddressLevels}
+                                   actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                    <Button style={{marginTop: 30, marginBottom: 30}} block
+                            onPress={() => this.searchIndividual()}>{this.I18n.t("search")}</Button>
+                </View>
             </Content>
         );
     }

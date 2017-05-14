@@ -6,6 +6,7 @@ import {Text, Grid, Row, Radio} from "native-base";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import PresetOptionItem from "./PresetOptionItem";
+import Distances from "./Distances";
 
 class RadioGroup extends AbstractComponent {
     static propTypes = {
@@ -24,14 +25,22 @@ class RadioGroup extends AbstractComponent {
     render() {
         return (
             <View style={this.appendedStyle({})}>
-                <View>
-                    <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}</Text>
+                <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}</Text>
+                <View style={{
+                    borderWidth: 1,
+                    borderStyle: 'dashed',
+                    borderColor: Colors.InputBorderNormal,
+                    paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                    marginTop: DGS.resizeHeight(16),
+                    paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+                }}>
+                    {this.props.labelValuePairs.map((radioLabelValue) =>
+                        <PresetOptionItem displayText={this.I18n.t(radioLabelValue.radioLabel)} checked={this.props.selectionFn(radioLabelValue.value)}
+                                          multiSelect={false} validationResult={this.props.validationError}
+                                          onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})} key={radioLabelValue.radioLabel}
+                                          style={{marginTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
+                    }
                 </View>
-                {this.props.labelValuePairs.map((radioLabelValue) =>
-                    <PresetOptionItem displayText={this.I18n.t(radioLabelValue.radioLabel)} checked={this.props.selectionFn(radioLabelValue.value)}
-                                      multiSelect={false} validationResult={this.props.validationError}
-                                      onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})} key={radioLabelValue.radioLabel} />)
-                }
             </View>
         );
     }

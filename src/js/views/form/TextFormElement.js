@@ -23,11 +23,9 @@ class TextFormElement extends AbstractFormElement {
         return (
             <View style={this.appendedStyle({flexDirection: 'column'})}>
                 <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
-                <View>
-                    <TextInput style={{flex: 1}} underlineColorAndroid={this.borderColor}
-                               value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
-                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
-                </View>
+                <TextInput style={{marginVertical: 0, paddingVertical: 0}} underlineColorAndroid={this.borderColor}
+                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
+                <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);
     }
 

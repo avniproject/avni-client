@@ -32,6 +32,7 @@ class IndividualRegisterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
+        this.formRow = {marginTop: Distances.ScaledVerticalSpacingBetweenFormElements};
     }
 
     viewName() {
@@ -53,15 +54,19 @@ class IndividualRegisterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
-                    <View style={{marginTop: DGS.resizeHeight(16), flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}>
+                    <View style={{
+                        marginTop: Distances.ScaledVerticalSpacingDisplaySections,
+                        flexDirection: 'column',
+                        paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge
+                    }}>
                         <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate')}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
                         <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
                                          element={new StaticFormElement('name')}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.NAME)}
-                                         value={new PrimitiveValue(this.state.individual.name)}/>
-                        <View style={[DGS.formRow, {flexDirection: 'column'}]}>
+                                         value={new PrimitiveValue(this.state.individual.name)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}</Text>
                             </View>
@@ -80,49 +85,45 @@ class IndividualRegisterView extends AbstractComponent {
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirthVerified")}</Text>
                             </View>
                         </View>
-                        <View style={[DGS.formRow, {flexDirection: 'column'}]}>
+                        <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
-                                <View>
-                                    <Text style={DGS.formElementLabel}>{this.I18n.t("age")}</Text>
+                                <Text style={DGS.formElementLabel}>{this.I18n.t("age")}</Text>
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                                <TextInput style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 0}}
+                                           underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
+                                           value={_.isNil(this.state.age) ? "" : this.state.age}
+                                           onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
+                                <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
+                                    <Radio selected={this.state.ageProvidedInYears}
+                                           onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
                                 </View>
-                                <View style={{flexDirection: 'row'}}>
-                                    <TextInput style={{flex: 1, borderBottomWidth: 0}}
-                                               underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
-                                               value={_.isNil(this.state.age) ? "" : this.state.age}
-                                               onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
-                                    <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
-                                        <Radio selected={this.state.ageProvidedInYears}
-                                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
-                                    </View>
-                                    <View style={{flexDirection: 'column-reverse'}}>
-                                        <Text style={DGS.formRadioText}>{this.I18n.t("years")}</Text>
-                                    </View>
-                                    <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
-                                        <Radio selected={!this.state.ageProvidedInYears}
-                                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
-                                    </View>
-                                    <View style={{flexDirection: 'column-reverse'}}>
-                                        <Text style={DGS.formRadioText}>{this.I18n.t("months")}</Text>
-                                    </View>
+                                <View style={{flexDirection: 'column-reverse'}}>
+                                    <Text style={DGS.formRadioText}>{this.I18n.t("years")}</Text>
+                                </View>
+                                <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
+                                    <Radio selected={!this.state.ageProvidedInYears}
+                                           onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
+                                </View>
+                                <View style={{flexDirection: 'column-reverse'}}>
+                                    <Text style={DGS.formRadioText}>{this.I18n.t("months")}</Text>
                                 </View>
                             </View>
                         </View>
-                        <View style={DGS.formRow}>
-                            <RadioGroup action={Actions.REGISTRATION_ENTER_GENDER}
-                                        labelValuePairs={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
-                                        labelKey="gender"
-                                        selectionFn={(gender) => gender.equals(this.state.individual.gender)}
-                                        validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.GENDER)}
-                            />
-                        </View>
-                        <View style={DGS.formRow}>
-                            <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
-                                           multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}
-                                           validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}/>
-                        </View>
+                        <RadioGroup action={Actions.REGISTRATION_ENTER_GENDER}
+                                    labelValuePairs={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
+                                    labelKey="gender"
+                                    selectionFn={(gender) => gender.equals(this.state.individual.gender)}
+                                    validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.GENDER)}
+                                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                        />
+                        <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
+                                       multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}
+                                       validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
+                                       style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <WizardButtons
+                            next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                     </View>
-                    <WizardButtons
-                        next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                 </Content>
             </Container>
         );

@@ -18,7 +18,8 @@ class AddressLevels extends AbstractComponent {
         multiSelect: React.PropTypes.bool.isRequired,
         selectedAddressLevels: React.PropTypes.array.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        validationError: React.PropTypes.object
+        validationError: React.PropTypes.object,
+        style: React.PropTypes.object
     };
 
     viewName() {
@@ -41,14 +42,14 @@ class AddressLevels extends AbstractComponent {
     presetOption(address) {
         return <PresetOptionItem displayText={this.I18n.t(address.name)} checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, address)}
                                  multiSelect={this.props.multiSelect} onPress={() => this.toggleAddressLevelSelection(address)}
-                                 validationResult={this.props.validationError} style={{flex: 1}}/>
+                                 validationResult={this.props.validationError} style={{flex: 1, marginTop: Distances.ScaledVerticalSpacingBetweenOptionItems}}/>
     }
 
     renderChoices() {
         return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
                 return (<View
                     key={idx}
-                    style={{flexDirection: 'row', marginBottom: DGS.resizeHeight(22)}}>
+                    style={{flexDirection: 'row'}}>
                     {this.presetOption(address1)}
                     {_.isNil(address2) ? <View/> : this.presetOption(address2)}
                 </View>)
@@ -59,19 +60,19 @@ class AddressLevels extends AbstractComponent {
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
         return (
-            <Grid >
-                <Row style={{marginTop: 10, marginBottom: 10}}>
-                    <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
-                </Row>
+            <View style={this.appendedStyle()}>
+                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
-                    padding: Distances.ScaledContentDistanceFromEdge
+                    paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                    marginTop: DGS.resizeHeight(16),
+                    paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
                     {this.renderChoices()}
                 </View>
-            </Grid>
+            </View>
         );
     }
 }

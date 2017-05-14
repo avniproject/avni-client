@@ -3,7 +3,6 @@ import Colors from '../primitives/Colors';
 
 export default GlobalStyles = StyleSheet.create({
     formTextElement: {marginLeft: 0, height: 73, marginTop: 16},
-    formCheckboxElement: {marginLeft: 0, marginTop: 16},
     formElementLabelContainer: {height: 16},
     formElementTextContainer: {height: 36},
 

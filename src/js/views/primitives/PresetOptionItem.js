@@ -5,6 +5,7 @@ import {CheckBox, Radio} from "native-base";
 import Fonts from '../primitives/Fonts';
 import Colors from '../primitives/Colors';
 import _ from 'lodash';
+import General from "../../utility/General";
 
 class PresetOptionItem extends AbstractComponent {
     static inputTextStyle = {fontSize: Fonts.Large, marginLeft: 11, color: Colors.InputNormal};
@@ -24,8 +25,9 @@ class PresetOptionItem extends AbstractComponent {
 
     render() {
         const color = _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError;
+        const appendedStyle = this.appendedStyle({flexDirection: 'row', alignItems: 'center'});
         return (
-            <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
+            <View style={appendedStyle}>
                 {this.getSelectComponent()}
                 <Text style={[PresetOptionItem.inputTextStyle, {color: color}]} onPress={() => this.props.onPress()}>{this.props.displayText}</Text>
             </View>

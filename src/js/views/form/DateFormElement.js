@@ -11,7 +11,8 @@ class DateFormElement extends AbstractFormElement {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
         dateValue : React.PropTypes.object,
-        validationResult: React.PropTypes.object
+        validationResult: React.PropTypes.object,
+        style: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -20,7 +21,7 @@ class DateFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View>
+            <View style={this.appendedStyle()}>
                 <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 <DatePicker dateValue={this.props.dateValue.getValue()} validationResult={this.props.validationResult} actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
             </View>);

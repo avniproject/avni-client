@@ -8,13 +8,13 @@ export class IndividualSearchActions {
 
     static enterNameCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
-        newState.searchCriteria.addNameCriteria(action.name);
+        newState.searchCriteria.addNameCriteria(action.value);
         return newState;
     };
 
     static enterAgeCriteria = function (state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
-        newState.searchCriteria.addAgeCriteria(action.age);
+        newState.searchCriteria.addAgeCriteria(action.value);
         return newState;
     };
 
