@@ -21,9 +21,7 @@ class DateFormElement extends AbstractFormElement {
     render() {
         return (
             <View>
-                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
-                </View>
+                <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                 <DatePicker dateValue={this.props.dateValue.getValue()} validationResult={this.props.validationResult} actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
             </View>);
     }

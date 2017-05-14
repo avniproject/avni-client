@@ -32,7 +32,6 @@ class IndividualRegisterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
-        this.contentGridMarginStyle = {marginTop: DGS.resizeHeight(16), marginHorizontal: DGS.resizeWidth(24)};
     }
 
     viewName() {
@@ -54,7 +53,7 @@ class IndividualRegisterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.I18n.t('registration')}/>
-                    <View style={[this.contentGridMarginStyle, {flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}]}>
+                    <View style={{marginTop: DGS.resizeHeight(16), flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}>
                         <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate')}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
