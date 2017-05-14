@@ -6,11 +6,25 @@
     "type": "git",
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
+  "jest": {
+    "preset": "react-native",
+    "testMatch": ["<rootDir>/src/test/**/*Test.js"],
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-native|OpenCHSClient)/"
+    ],
+    "haste": {
+      "defaultPlatform": "android",
+      "platforms": ["android", "ios"],
+      "providesModuleNodeModules": [
+        "react",
+        "react-native"
+      ]
+    }
+  },
   "license": "AGPL-3.0",
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "lint": "./node_modules/.bin/eslint src",
-    "test": "mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')",
+    "test": "jest",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')"
   },
   "dependencies": {
@@ -32,23 +46,14 @@
     "victory-native": "^0.7.2"
   },
   "devDependencies": {
-    "babel-eslint": "7.1.1",
-    "babel-polyfill": "6.20.0",
-    "babel-preset-react-native-stage-0": "1.0.1",
+    "babel-jest": "20.0.1",
+    "babel-preset-react-native": "1.9.2",
+    "jest": "20.0.1",
+    "react-addons-test-utils": "15.4.1",
+    "react-test-renderer": "15.4.2",
     "chai": "3.5.0",
     "enzyme": "^2.4.1",
-    "eslint": "3.12.1",
-    "eslint-config-airbnb": "13.0.0",
-    "eslint-plugin-babel": "4.0.0",
-    "eslint-plugin-jsx-a11y": "^3.0.2",
-    "eslint-plugin-react": "6.8.0",
-    "flow-bin": "0.37.0",
-    "istanbul": "^1.1.0-alpha.1",
-    "mocha": "3.2.0",
-    "mockery": "2.0.0",
-    "react-addons-test-utils": "15.4.1",
     "react-dom": "15.4.2",
-    "react-native-mock": "^0.2.5",
-    "redux-devtools": "^3.3.1"
+    "babel-preset-react-native-stage-0": "1.0.1"
   }
 }
