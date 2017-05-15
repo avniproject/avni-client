@@ -18,9 +18,9 @@ class ObservationsSectionTitle extends AbstractComponent {
 
     render() {
         return (
-            <View style={_.assign({}, {flexDirection: 'row', alignItems: 'center'}, this.props.style)}>
-                <Text style={{fontSize: Fonts.Medium}}>{this.props.title}</Text>
-                <View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row'}}>
+            <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
+                <Text style={Fonts.MediumBold}>{this.props.title}</Text>
+                <View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row', marginTop: 3}}>
                     {this.props.contextActions.map((contextAction, index) => {
                         return <ContextActionButton labelKey={contextAction.labelKey} onPress={() => contextAction.onPressFunc()} key={`${index}`}/>
                     })}

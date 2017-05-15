@@ -14,22 +14,11 @@ class DynamicGlobalStyles {
                 this.formRadioText = {fontSize: Fonts.Large, marginLeft: this.resizeWidth(10)};
         // @formatter:on
         this.createCommonStyles();
-        this.createObservationsStyles();
         this.createGeneralHistoryStyles();
         this.createCardStyles();
 
         this.stylesForHorizontalDistances = ['marginLeft', 'marginRight', 'marginHorizontal', 'paddingLeft', 'paddingRight', 'paddingHorizontal', 'width'];
         this.stylesForVerticalDistances = ['marginTop', 'marginBottom', 'marginVertical', 'paddingTop', 'paddingBottom', 'paddingVertical', 'height'];
-    }
-
-    createObservationsStyles() {
-        this.observations = {
-            observationTable: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            observationRowHeader: {height: this.resizeHeight(44), borderColor: 'rgba(0, 0, 0, 0.12)', borderTopWidth: 1, borderBottomWidth: 1},
-            observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            component: {backgroundColor: Colors.GreyContentBackground}
-        }
     }
 
     resizeWidth(size) {

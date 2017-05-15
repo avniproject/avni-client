@@ -25,6 +25,7 @@ import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Fonts from '../primitives/Fonts';
 import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
+import Distances from "../primitives/Distances";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -92,7 +93,12 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <View style={{backgroundColor: Colors.BlackBackground}}>
                         <AppHeader title={`${this.state.enrolment.individual.name}`}/>
                         <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
-                        <Card style={{flexDirection: 'column', marginHorizontal: DGS.resizeWidth(13), borderRadius: 5}}>
+                        <Card style={{
+                            flexDirection: 'column',
+                            marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                            borderRadius: 5,
+                            paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
+                        }}>
                             <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
                                 <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
                                 <View style={{flexDirection: 'row'}}>
@@ -106,7 +112,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
-                                <View style={{marginTop: DGS.resizeHeight(35)}}>
+                                <View style={{marginTop: DGS.resizeHeight(35), marginBottom: DGS.resizeHeight(21)}}>
                                     <View style={{paddingHorizontal: DGS.resizeWidth(13), backgroundColor: Colors.GreyContentBackground}}>
                                         <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
                                         <Observations observations={this.state.enrolment.observations} style={{marginVertical: DGS.resizeHeight(8)}}/>
@@ -121,7 +127,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     getEnrolmentHeaderMessage(enrolment) {
-        return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MMM-YYYY")}`;
+        return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
     }
 }
 

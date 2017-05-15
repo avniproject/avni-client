@@ -18,6 +18,21 @@ class Observations extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.createObservationsStyles();
+    }
+
+    createObservationsStyles() {
+        this.styles = {
+            observationTable: {
+                borderRightWidth: 1,
+                borderTopWidth: 1,
+                borderColor: 'rgba(0, 0, 0, 0.12)',
+                marginHorizontal: 3,
+                backgroundColor: Colors.GreyContentBackground
+            },
+            observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+            observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingLeft: 3}
+        }
     }
 
     render() {
@@ -27,30 +42,20 @@ class Observations extends AbstractComponent {
         const conceptService = this.context.getService(ConceptService);
 
         return (
-            <View style={this.appendedStyle({backgroundColor: Colors.GreyContentBackground})}>
-                <Grid style={DGS.observations.observationTable}>
-                    <Row style={DGS.observations.observationRowHeader}>
-                        <Col style={DGS.observations.observationColumn}>
-                            <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{this.I18n.t('name')}</Text>
-                        </Col>
-                        <Col style={DGS.observations.observationColumn}>
-                            <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{this.I18n.t('value')}</Text>
-                        </Col>
-                    </Row>
-                    {
-                        this.props.observations.map((observation, cellIndex) => {
-                            return <Row style={DGS.observations.observationRow} key={`${cellIndex}`}>
-                                <Col style={DGS.observations.observationColumn} key={`${cellIndex}col1`}>
-                                    <Text style={{textAlign: 'left', fontSize: Fonts.Normal}}>{this.I18n.t(observation.concept.name)}</Text>
-                                </Col>
-                                <Col style={DGS.observations.observationColumn} key={`${cellIndex}col2`}>
-                                    <Text style={{textAlign: 'left', fontSize: Fonts.Large}}>{Observation.valueAsString(observation, conceptService)}</Text>
-                                </Col>
-                            </Row>
-                        })
-                    }
-                </Grid>
-            </View>
+            <Grid style={this.appendedStyle(this.styles.observationTable)}>
+                {
+                    this.props.observations.map((observation, cellIndex) => {
+                        return <Row style={this.styles.observationRow} key={`${cellIndex}`}>
+                            <Col style={this.styles.observationColumn} key={`${cellIndex}col1`}>
+                                <Text style={{textAlign: 'left', fontSize: Fonts.Normal}}>{this.I18n.t(observation.concept.name)}</Text>
+                            </Col>
+                            <Col style={this.styles.observationColumn} key={`${cellIndex}col2`}>
+                                <Text style={{textAlign: 'left', fontSize: Fonts.Medium}}>{Observation.valueAsString(observation, conceptService)}</Text>
+                            </Col>
+                        </Row>
+                    })
+                }
+            </Grid>
         );
     }
 }

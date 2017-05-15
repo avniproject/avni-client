@@ -44,20 +44,13 @@ class PreviousEncounters extends AbstractComponent {
                         </View>
                     </View>)
                     : this.props.encounters.map((encounter, index) => {
+                        const title = `${this.I18n.t(encounter.encounterType.name)}   ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
                         return (
                             <View key={`${index}-1`} style={this.props.style}>
                                 <ObservationsSectionTitle
                                     contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]}
-                                    title={this.I18n.t('visitDetails')}/>
-                                <View style={{backgroundColor: Colors.GreyContentBackground}} key={`${index}-2`}>
-                                    <View style={DGS.common.content}>
-                                        <View style={{flexDirection: 'row'}}>
-                                            <Text style={Fonts.LargeBold}>{this.I18n.t('date')}</Text>
-                                            <Text style={{fontSize: Fonts.Large, marginLeft: DGS.resizeWidth(10)}}>{moment(encounter.encounterDateTime).format('DD-MM-YYYY')}</Text>
-                                        </View>
-                                        <Observations observations={encounter.observations}/>
-                                    </View>
-                                </View>
+                                    title={title}/>
+                                <Observations observations={encounter.observations} key={`${index}-2`}/>
                             </View>
                         );
                     })}</View>

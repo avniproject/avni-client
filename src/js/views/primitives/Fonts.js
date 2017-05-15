@@ -7,6 +7,10 @@ class Fonts {
         return {fontSize: Fonts.Large, fontWeight: 'bold'};
     }
 
+    static get MediumBold() {
+        return {fontSize: Fonts.Medium, fontWeight: 'bold'};
+    }
+
     static get LargeRegular() {
         return {fontSize: Fonts.Large}
     }

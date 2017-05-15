@@ -57,7 +57,7 @@ class IndividualRegisterView extends AbstractComponent {
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
-                        paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge
+                        paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
                         <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate')}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}

@@ -69,7 +69,7 @@ class ProgramEncounterView extends AbstractComponent {
             <Container theme={themes}>
                 <Content>
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.name} func={() => this.previous()}/>
-                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}>
+                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED} element={new StaticFormElement('encounterDate')}
                                              dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}

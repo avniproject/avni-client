@@ -52,7 +52,7 @@ class ProgramFormComponent extends AbstractComponent {
                     </View>
                     :
                     <View/>}
-                <View style={{paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge, flexDirection: 'column'}}>
+                <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
                     <FormElementGroup actions={Actions} group={this.props.state.formElementGroup} observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}/>
                     <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous(), label: this.I18n.t('previous')}}

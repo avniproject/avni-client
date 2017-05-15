@@ -1,9 +1,8 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
 import Colors from "../primitives/Colors";
-import Fonts from '../primitives/Fonts';
+import Fonts from "../primitives/Fonts";
 
 class ContextActionButton extends AbstractComponent {
     static propTypes = {
