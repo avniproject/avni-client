@@ -24,35 +24,32 @@ class Observations extends AbstractComponent {
         if (this.props.observations.length === 0) return <View/>;
 
         const numberOfColumns = DGS.numberOfRows(this.props.observations.length);
-        const observationRows = _.chunk(this.props.observations, numberOfColumns);
-        General.logDebug('Observations', `Row: ${observationRows.length}, Columns: ${numberOfColumns}`);
         const conceptService = this.context.getService(ConceptService);
 
         return (
             <View style={this.appendedStyle({backgroundColor: Colors.GreyContentBackground})}>
-                {
-                    observationRows.map((observationRow, rowIndex) => {
-                        return (
-                            <Grid style={DGS.observations.observationTable} key={`${rowIndex}`}>
-                                <Row style={DGS.observations.observationRowHeader} key={`${rowIndex}1`}>
-                                    {observationRow.map((observation, cellIndex) => {
-                                        return (
-                                            <Col style={DGS.observations.observationColumn} key={`${rowIndex}1${cellIndex}`}>
-                                                <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{observation.concept.name}</Text>
-                                            </Col>
-                                        );
-                                    })}</Row>
-                                <Row style={DGS.observations.observationRow} key={`${rowIndex}2`}>
-                                    {observationRow.map((observation, cellIndex) => {
-                                        return (
-                                            <Col style={DGS.observations.observationColumn} key={`${rowIndex}2${cellIndex}`}>
-                                                <Text style={{textAlign: 'center', fontSize: Fonts.Large}}>{Observation.valueAsString(observation, conceptService)}</Text>
-                                            </Col>
-                                        );
-                                    })}</Row>
-                            </Grid>)
-                    })
-                }
+                <Grid style={DGS.observations.observationTable}>
+                    <Row style={DGS.observations.observationRowHeader}>
+                        <Col style={DGS.observations.observationColumn}>
+                            <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{this.I18n.t('name')}</Text>
+                        </Col>
+                        <Col style={DGS.observations.observationColumn}>
+                            <Text style={{textAlign: 'center', fontSize: Fonts.Normal}}>{this.I18n.t('value')}</Text>
+                        </Col>
+                    </Row>
+                    {
+                        this.props.observations.map((observation, cellIndex) => {
+                            return <Row style={DGS.observations.observationRow} key={`${cellIndex}`}>
+                                <Col style={DGS.observations.observationColumn} key={`${cellIndex}col1`}>
+                                    <Text style={{textAlign: 'left', fontSize: Fonts.Normal}}>{this.I18n.t(observation.concept.name)}</Text>
+                                </Col>
+                                <Col style={DGS.observations.observationColumn} key={`${cellIndex}col2`}>
+                                    <Text style={{textAlign: 'left', fontSize: Fonts.Large}}>{Observation.valueAsString(observation, conceptService)}</Text>
+                                </Col>
+                            </Row>
+                        })
+                    }
+                </Grid>
             </View>
         );
     }

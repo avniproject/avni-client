@@ -15,7 +15,7 @@ class IndividualRegisterViewsMixin {
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors) => {
                 const onSaveCallback = (source) => {
-                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], ProgramEnrolmentDashboardView, {individualUUID: view.state.individual.uuid});
+                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], ProgramEnrolmentDashboardView, {individualUUID: view.state.individual.uuid}, true);
                 };
                 const headerMessage = `${view.I18n.t('registration')} - ${view.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage);

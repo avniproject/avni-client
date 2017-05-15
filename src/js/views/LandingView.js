@@ -7,6 +7,7 @@ import {Container, Content, Tabs} from "native-base";
 import themes from "./primitives/themes";
 import Playground from "./Playground";
 import ChecklistView from "./program/ChecklistView";
+import ProgramEnrolmentDashboardView from "./program/ProgramEnrolmentDashboardView";
 
 @Path('/landingView')
 @PathRoot
@@ -26,10 +27,10 @@ class LandingView extends AbstractComponent {
             <Container theme={themes}>
                 <Content style={{backgroundColor: '#fff'}}>
                     <Tabs>
-                        {/*<ChecklistView enrolmentUUID={'2f9b62b3-d535-4e8e-bdfe-9afb37bb1285'}/>*/}
+                        <ProgramEnrolmentDashboardView individualUUID="b5d9fd15-8a87-47f0-88ce-0551c6884d0a" tabLabel='Foo'/>
                         <IndividualSearchView tabLabel='Home'/>
                         <MenuView tabLabel='Menu'/>
-                        <Playground tabLabel='Play'/>
+                        {/*<Playground tabLabel='Play'/>*/}
                     </Tabs>
                 </Content>
             </Container>

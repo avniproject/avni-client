@@ -4,6 +4,7 @@ import Concept from "../models/Concept";
 import _ from 'lodash';
 import Observation from "../models/Observation";
 import PrimitiveValue from "../models/observation/PrimitiveValue";
+import General from "../utility/General";
 
 @Service("conceptService")
 class ConceptService extends BaseService {
@@ -41,13 +42,28 @@ class ConceptService extends BaseService {
     addDecisions(observations, decisions) {
         decisions.forEach((decision) => {
             const concept = this.findConcept(decision.name);
+            if (_.isNil(concept)) General.logWarn('ConceptService', `${concept.name} doesn't exist`);
 
-            if (!_.isNil(decision.value)) {
-                var value = decision.value;
-                if (concept.datatype === Concept.dataType.Coded) {
-                    value = this.findConcept(value).uuid;
+            const existingObs = observations.find((obs) => obs.concept.name === decision.name);
+            var value = decision.value;
+            if (concept.datatype === Concept.dataType.Coded) {
+                const answerConcept = this.findConcept(value);
+                if (_.isNil(answerConcept)) {
+                    value = null;
+                    General.logWarn('ConceptService', `${concept.name} doesn't exist`);
                 }
-                observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
+                else value = answerConcept.uuid;
+            }
+
+            if (_.isNil(existingObs)) {
+                if (!_.isNil(decision.value))
+                    observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
+            } else {
+                if (_.isNil(decision.value)) {
+                    _.remove(observations, (obs) => obs.concept.name === decision.name);
+                } else {
+                    existingObs.valueJSON = concept.getValueWrapperFor(value);
+                }
             }
         });
     }

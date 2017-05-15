@@ -29,7 +29,8 @@ import ProgramActionsView from './ProgramActionsView';
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        enrolmentUUID: React.PropTypes.string,
+        individualUUID: React.PropTypes.string.isRequired
     };
 
     viewName() {
@@ -41,13 +42,13 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolmentUUID: this.props.params.enrolmentUUID, individualUUID: this.props.params.individualUUID});
+        this.dispatchAction(Actions.ON_LOAD, this.props);
         return super.componentWillMount();
     }
 
     componentWillReceiveProps() {
         if (this.state.possibleExternalStateChange) {
-            this.dispatchAction(Actions.ON_LOAD, {enrolmentUUID: this.props.params.enrolmentUUID, individualUUID: this.props.params.individualUUID});
+            this.dispatchAction(Actions.ON_LOAD, this.props);
         }
     }
 
@@ -75,9 +76,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         const contextActions = [new ContextAction('edit', () => this.editEnrolment())];
         if (this.state.enrolment.isActive) {
             contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
-
         }
         const dashboardButtons = this.state.dashboardButtons || [];
+
         return (
             <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <Content>
@@ -108,11 +109,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 <View style={{marginTop: DGS.resizeHeight(35)}}>
                                     <View style={{paddingHorizontal: DGS.resizeWidth(13), backgroundColor: Colors.GreyContentBackground}}>
                                         <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
-                                        <View style={{
-                                            marginVertical: DGS.resizeHeight(8)
-                                        }}>
-                                            <Observations observations={this.state.enrolment.observations}/>
-                                        </View>
+                                        <Observations observations={this.state.enrolment.observations} style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
                                     <PreviousEncounters encounters={this.state.enrolment.encounters}/>
                                 </View>}

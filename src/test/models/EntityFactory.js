@@ -7,6 +7,8 @@ import Program from "../../js/models/Program";
 import General from '../../js/utility/General';
 import IndividualSearchCriteria from "../../js/service/query/IndividualSearchCriteria";
 import ChecklistItem from "../../js/models/ChecklistItem";
+import Observation from "../../js/models/Observation";
+import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -73,6 +75,17 @@ class EntityFactory {
         item.dueDate = dueDate;
         checklist.addItem(item);
         return item;
+    }
+
+    static createObservation(concept, primitiveValue) {
+        return Observation.create(concept, new PrimitiveValue(primitiveValue));
+    }
+
+    static createDecision(name, value) {
+        const decision = {};
+        decision.name = name;
+        decision.value = value;
+        return decision;
     }
 }
 

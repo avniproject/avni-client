@@ -19,10 +19,10 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, usage) {
         const from = TypedTransition.from(source);
         if (_.isNil(usage)) {
-            from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView);
+            from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView, true);
         } else {
             const wizardViewClass = usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolmentView : ProgramExitView;
-            from.wizardCompleted([wizardViewClass, SystemRecommendationView], ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID});
+            from.wizardCompleted([wizardViewClass, SystemRecommendationView], ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID}, true);
         }
     }
 
