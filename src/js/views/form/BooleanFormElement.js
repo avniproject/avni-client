@@ -60,7 +60,7 @@ class BooleanFormElement extends AbstractFormElement {
     render() {
         return (
             <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+                <View style={{backgroundColor: '#ffffff'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>

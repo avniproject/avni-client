@@ -1,16 +1,18 @@
-import {View, StyleSheet} from 'react-native';
-import React, {Component} from 'react';
-import AbstractComponent from '../../framework/view/AbstractComponent';
+import {View} from "react-native";
+import React from "react";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
-import {Actions} from '../../action/individual/IndividualGeneralHistoryActions';
-import {Content, Container} from "native-base";
-import AppHeader from '../common/AppHeader';
-import IndividualProfile from '../common/IndividualProfile';
+import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
+import {Card, Container, Content} from "native-base";
+import AppHeader from "../common/AppHeader";
+import IndividualProfile from "../common/IndividualProfile";
 import Reducers from "../../reducer";
-import DGS from '../primitives/DynamicGlobalStyles';
-import PreviousEncounters from '../common/PreviousEncounters'
-import _ from 'lodash';
+import DGS from "../primitives/DynamicGlobalStyles";
+import PreviousEncounters from "../common/PreviousEncounters";
+import _ from "lodash";
+import Colors from '../primitives/Colors';
+import Distances from "../primitives/Distances";
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -38,14 +40,17 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     render() {
         return (
             <Container theme={themes}>
-                <Content>
+                <Content style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.I18n.t('generalHistory')}/>
-                    <View>
-                        <View style={DGS.common.content}>
-                            <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual}/>
-                        </View>
-                        <PreviousEncounters encounters={this.state.individual.encounters}/>
-                    </View>
+                    <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual} style={DGS.common.content}/>
+                    <Card style={{
+                        flexDirection: 'column',
+                        marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                        borderRadius: 5,
+                        paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
+                    }}>
+                        <PreviousEncounters encounters={this.state.individual.encounters} style={{marginBottom: 21}}/>
+                    </Card>
                 </Content>
             </Container>
         );

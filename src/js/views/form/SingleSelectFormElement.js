@@ -40,8 +40,7 @@ class SingleSelectFormElement extends AbstractFormElement {
             borderStyle: 'dashed',
             flexDirection: 'column',
             borderColor: Colors.InputBorderNormal,
-            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-            marginTop: Distances.ScaledVerticalSpacingDisplaySections
+            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
         }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                 return (

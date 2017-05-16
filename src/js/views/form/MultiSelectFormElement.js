@@ -29,21 +29,22 @@ class MultiSelectFormElement extends AbstractFormElement {
     renderPossibleAnswer(possibleAnswer) {
         return <PresetOptionItem multiSelect={true} checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(possibleAnswer.concept.uuid)}
                                  displayText={this.I18n.t(possibleAnswer.concept.name)} validationResult={this.props.validationResult}
-                                 onPress={this.toggleFormElementAnswerSelection(possibleAnswer)} style={{flex: 0.5}}/>
+                                 onPress={this.toggleFormElementAnswerSelection(possibleAnswer)} style={{flex: 0.5, marginTop: Distances.VerticalSpacingBetweenOptionItems}}/>
     }
 
     renderMultiSelectAnswers() {
         return (<View style={{
-            padding: Distances.ScaledContentDistanceFromEdge,
+            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             backgroundColor: '#ffffff',
             borderWidth: 1,
             borderStyle: 'dashed',
             flexDirection: 'column',
-            borderColor: Colors.InputBorderNormal
+            borderColor: Colors.InputBorderNormal,
+            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
         }}>{
             _.chunk(this.props.element.concept.getAnswers(), 2).map(([answer1, answer2], idx) => {
                 return (
-                    <View key={idx} style={{flexDirection: 'row', marginBottom: DynamicGlobalStyles.resizeHeight(19)}}>
+                    <View key={idx} style={{flexDirection: 'row'}}>
                         {this.renderPossibleAnswer(answer1)}
                         {_.isNil(answer2) ? <View style={{flex: 0.5}}/> : this.renderPossibleAnswer(answer2)}
                     </View>
@@ -55,8 +56,8 @@ class MultiSelectFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+            <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+                <View style={{backgroundColor: '#ffffff'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>

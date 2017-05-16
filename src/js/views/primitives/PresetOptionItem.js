@@ -8,7 +8,7 @@ import _ from 'lodash';
 import General from "../../utility/General";
 
 class PresetOptionItem extends AbstractComponent {
-    static inputTextStyle = {fontSize: Fonts.Large, marginLeft: 11, color: Colors.InputNormal};
+    static inputTextStyle = {fontSize: Fonts.Medium, marginLeft: 11, color: Colors.InputNormal};
 
     static propTypes = {
         multiSelect: React.PropTypes.bool.isRequired,

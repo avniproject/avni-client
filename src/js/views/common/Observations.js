@@ -35,21 +35,26 @@ class Observations extends AbstractComponent {
         }
     }
 
+    get allObservationNamesSmall() {
+        return !this.props.observations.some((obs) => obs.concept.name.length > 15);
+    }
+
     render() {
         if (this.props.observations.length === 0) return <View/>;
 
         const numberOfColumns = DGS.numberOfRows(this.props.observations.length);
         const conceptService = this.context.getService(ConceptService);
+        const nameColSize = this.allObservationNamesSmall ? 1 : 2;
 
         return (
             <Grid style={this.appendedStyle(this.styles.observationTable)}>
                 {
                     this.props.observations.map((observation, cellIndex) => {
                         return <Row style={this.styles.observationRow} key={`${cellIndex}`}>
-                            <Col style={this.styles.observationColumn} key={`${cellIndex}col1`}>
+                            <Col style={this.styles.observationColumn} key={`${cellIndex}col1`} size={nameColSize}>
                                 <Text style={{textAlign: 'left', fontSize: Fonts.Normal}}>{this.I18n.t(observation.concept.name)}</Text>
                             </Col>
-                            <Col style={this.styles.observationColumn} key={`${cellIndex}col2`}>
+                            <Col style={this.styles.observationColumn} key={`${cellIndex}col2`} size={2}>
                                 <Text style={{textAlign: 'left', fontSize: Fonts.Medium}}>{Observation.valueAsString(observation, conceptService)}</Text>
                             </Col>
                         </Row>

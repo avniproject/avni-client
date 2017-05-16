@@ -49,7 +49,6 @@ class DynamicGlobalStyles {
     createGeneralHistoryStyles() {
         this.generalHistory = {
             encounterDateGrid: {marginBottom: this.resizeHeight(8)},
-            buttonStyle: {marginLeft: 8, height: this.resizeHeight(30), borderWidth: 1.5},
             buttonRowStyle: {justifyContent: 'center', height: this.resizeHeight(40)}
         };
     }
