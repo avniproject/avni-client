@@ -2,6 +2,7 @@ import {getJSON, post} from '../../framework/http/requests';
 import _ from "lodash";
 import moment from "moment";
 import General from "../../utility/General";
+import EntityMetaData from "../../models/EntityMetaData"
 
 class ConventionalRestClient {
     constructor(settingsService) {
@@ -13,11 +14,11 @@ class ConventionalRestClient {
         urlParts.push(this.settingsService.getSettings().serverURL);
         urlParts.push(entityModel.resourceName);
         urlParts.push("search");
-        const resourceSearchFilterURL = entityModel.type === "tx"? entityModel.resourceSearchFilterURL : "lastModified";
+        const resourceSearchFilterURL = !_.isNil(entityModel.resourceSearchFilterURL)? entityModel.resourceSearchFilterURL : "lastModified";
         urlParts.push(resourceSearchFilterURL);
 
         let params = [];
-        if(entityModel.type === "tx"){
+        if(entityModel.type === "tx" || entityModel.name === EntityMetaData.addressLevel.name){
             params.push(`catchmentId=${this.settingsService.getSettings().catchment}`);
         }
         params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}`);

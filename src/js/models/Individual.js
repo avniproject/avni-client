@@ -26,7 +26,6 @@ class Individual extends BaseEntity {
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
             observations: {type: 'list', objectType: 'Observation'},
-            catchmentId: "int"
         }
     };
 
@@ -38,14 +37,13 @@ class Individual extends BaseEntity {
         LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
     };
 
-    static createEmptyInstance(catchmentId) {
+    static createEmptyInstance() {
         const individual = new Individual();
         individual.uuid = General.randomUUID();
         individual.registrationDate = new Date();
         individual.observations = [];
         individual.encounters = [];
         individual.enrolments = [];
-        individual.catchmentId = catchmentId;
         return individual;
     }
 
@@ -55,7 +53,6 @@ class Individual extends BaseEntity {
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
-        resource.catchmentId = this.catchmentId;
 
         resource["observations"] = [];
         this.observations.forEach((obs) => {
@@ -80,7 +77,8 @@ class Individual extends BaseEntity {
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
-        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified", "catchmentId"], ["dateOfBirth", 'registrationDate'], ["observations"], entityService);
+
+        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "name", "dateOfBirthVerified"], ["dateOfBirth", 'registrationDate'], ["observations"], entityService);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
@@ -215,7 +213,6 @@ class Individual extends BaseEntity {
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForReference();
         individual.observations = ObservationsHolder.clone(this.observations);
-        individual.catchmentId = this.catchmentId;
         return individual;
     }
 

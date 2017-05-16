@@ -18,7 +18,7 @@ export class IndividualRegisterActions {
 
     static onLoad(state, action, context) {
         const individual = _.isNil(action.individualUUID) ?
-            Individual.createEmptyInstance(context.get(SettingsService).getSettings().catchment) : context.get(IndividualService).findByUUID(action.individualUUID);
+            Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
         return IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
     }
 
