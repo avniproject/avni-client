@@ -44,13 +44,13 @@ class NumericFormElement extends AbstractFormElement {
 
     rangeText() {
         let rangeText = null;
-        if (this.props.element.concept.lowNormal != null) {
-            if (this.props.element.concept.hiNormal != null) {
+        if (!_.isNil(this.props.element.concept.lowNormal)) {
+            if (!_.isNil(this.props.element.concept.hiNormal)) {
                 rangeText = `${this.props.element.concept.lowNormal} - ${this.props.element.concept.hiNormal}`;
             } else {
                 rangeText = `>${this.props.element.concept.lowNormal}`
             }
-        } else if (this.props.element.concept.hiNormal != null) {
+        } else if (!_.isNil(this.props.element.concept.hiNormal)) {
             rangeText = `<${this.props.element.concept.hiNormal}`
         }
         return rangeText;
@@ -58,7 +58,7 @@ class NumericFormElement extends AbstractFormElement {
 
     renderTextRange() {
         const rangeText = this.rangeText();
-        if (rangeText != null) {
+        if (!_.isNil(rangeText)) {
             return (<Text style={{flex: 0.25}}>some text</Text>);
         }else{
             return null;
