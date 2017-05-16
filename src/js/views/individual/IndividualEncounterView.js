@@ -67,7 +67,7 @@ class IndividualEncounterView extends AbstractComponent {
                 <Content ref='abc'>
                     <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)} func={() => this.previous()}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed} individual={this.state.encounter.individual}
-                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.encounters}/>
+                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.previousEncounters}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(26)}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup}
                                           actions={Actions}

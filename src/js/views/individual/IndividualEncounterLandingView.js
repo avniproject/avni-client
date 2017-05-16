@@ -72,7 +72,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 <Content>
                     <AppHeader title={`${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('enterData')}`}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed} individual={this.state.encounter.individual}
-                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.encounters}/>
+                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.previousEncounters}/>
                     <View style={{backgroundColor: '#ffffff', paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge, flexDirection: 'column'}}>
                         <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE} element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
                                          dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
