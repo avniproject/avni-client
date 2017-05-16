@@ -31,7 +31,7 @@ class Observations extends AbstractComponent {
                 backgroundColor: Colors.GreyContentBackground
             },
             observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingLeft: 3}
+            observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingLeft: 3, paddingBottom: 2}
         }
     }
 

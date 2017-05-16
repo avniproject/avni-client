@@ -28,21 +28,24 @@ class SingleSelectFormElement extends AbstractFormElement {
 
     renderAnswer(answer) {
         return <PresetOptionItem displayText={this.I18n.t(answer.concept.name)} checked={this.props.singleCodedValue.hasValue(answer.concept.uuid)} multiSelect={false}
-                          onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)} validationResult={this.props.validationResult} style={{flex: 0.5}}/>;
+                                 onPress={this.toggleFormElementAnswerSelection(this.props.element, answer)} validationResult={this.props.validationResult}
+                                 style={{flex: 0.5, marginTop: Distances.VerticalSpacingBetweenOptionItems}}/>;
     }
 
     renderSingleSelectAnswers() {
         return (<View style={{
-            padding: Distances.ScaledContentDistanceFromEdge,
+            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             backgroundColor: '#ffffff',
             borderWidth: 1,
             borderStyle: 'dashed',
             flexDirection: 'column',
-            borderColor: Colors.InputBorderNormal
+            borderColor: Colors.InputBorderNormal,
+            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+            marginTop: Distances.ScaledVerticalSpacingDisplaySections
         }}>{
             _.chunk(this.props.element.concept.answers, 2).map(([answer1, answer2], idx) => {
                 return (
-                    <View key={idx} style={{flexDirection: 'row', marginBottom: DynamicGlobalStyles.resizeHeight(19)}}>
+                    <View key={idx} style={{flexDirection: 'row'}}>
                         {this.renderAnswer(answer1)}
                         {_.isNil(answer2) ? <View style={{flex: 0.5}}/> : this.renderAnswer(answer2)}
                     </View>
@@ -54,8 +57,8 @@ class SingleSelectFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#ffffff', marginTop: 10, marginBottom: 10}}>
+            <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+                <View style={{backgroundColor: '#ffffff'}}>
                     <Text style={DynamicGlobalStyles.formElementLabel}>{this.label}</Text>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>

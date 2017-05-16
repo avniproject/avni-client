@@ -26,18 +26,8 @@ class General {
         return General.getCurrentLogLevel() <= level;
     }
 
-    static setNewState(state, setter) {
-        let newState = Object.assign({}, state);
-        setter(newState);
-        return newState;
-    }
-
     static formatDateTime(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-    }
-
-    static isDefined(value) {
-        return value != undefined || value != null;
     }
 
     static isNilOrEmpty(value) {

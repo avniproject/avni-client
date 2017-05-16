@@ -48,7 +48,8 @@ class ProgramFormComponent extends AbstractComponent {
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.state.enrolment.individual}/>
                         <DateFormElement actionName={this.props.context.dateAction} element={new StaticFormElement(this.props.context.dateKey)}
                                          dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}
-                                         validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}/>
+                                         validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}
+                                         style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
                     </View>
                     :
                     <View/>}

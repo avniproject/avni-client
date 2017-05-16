@@ -6,13 +6,11 @@ class DynamicGlobalStyles {
     constructor() {
         this.windowWidth = Dimensions.get('window').width;
         this.windowHeight = Dimensions.get('window').height;
-        // @formatter:off
-                this.formTextElement = {marginLeft: 0};
-                    this.formElementLabel = {fontSize: Fonts.Normal, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)'};
-                    this.formElementTextInput = {flex: 1, fontSize: Fonts.Large};
-                this.formCheckboxElement = {marginLeft: 0, marginTop: this.resizeHeight(16)};
-                this.formRadioText = {fontSize: Fonts.Large, marginLeft: this.resizeWidth(10)};
-        // @formatter:on
+
+        this.formElementLabel = {fontSize: Fonts.Normal, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)'};
+        this.formElementTextInput = {flex: 1, fontSize: Fonts.Large};
+        this.formRadioText = {fontSize: Fonts.Large, marginLeft: this.resizeWidth(10)};
+
         this.createCommonStyles();
         this.createGeneralHistoryStyles();
         this.createCardStyles();
@@ -58,7 +56,13 @@ class DynamicGlobalStyles {
 
     createCardStyles() {
         this.card = {
-            self: {paddingHorizontal: this.resizeWidth(12), paddingVertical: this.resizeHeight(18), marginHorizontal: this.resizeWidth(12), marginTop: this.resizeHeight(8), borderRadius: 5},
+            self: {
+                paddingHorizontal: this.resizeWidth(12),
+                paddingVertical: this.resizeHeight(18),
+                marginHorizontal: this.resizeWidth(12),
+                marginTop: this.resizeHeight(8),
+                borderRadius: 5
+            },
             title: {fontSize: 20, color: Colors.InputNormal, marginTop: this.resizeHeight(4)},
             separator: {marginTop: this.resizeHeight(24)},
             aggregate: {

@@ -20,7 +20,7 @@ class IndividualSearchCriteria {
         if (!_.isEmpty(this.ageInYears)) {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
-        if (this.lowestAddressLevels.length != 0) {
+        if (this.lowestAddressLevels.length !== 0) {
             let addressLevelCriteria = [];
             this.lowestAddressLevels.forEach((addressLevel) =>
             {addressLevelCriteria.push(`lowestAddressLevel.uuid == "${addressLevel.uuid}"`)});

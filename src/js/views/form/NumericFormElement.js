@@ -35,7 +35,7 @@ class NumericFormElement extends AbstractFormElement {
                     <Text style={DynamicGlobalStyles.formElementLabel}>{labelText}</Text>
                 </View>
                 <View>
-                    <TextInput style={{flex: 1}} underlineColorAndroid={this.borderColor}
+                    <TextInput style={{flex: 1, marginVertical: 0, paddingVertical: 0}} underlineColorAndroid={this.borderColor}
                                value={_.toString(this.props.value.getValue())} onChangeText={(text) => this.onInputChange(text)}/>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
