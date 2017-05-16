@@ -20,7 +20,6 @@ class NumericFormElement extends AbstractFormElement {
 
     render() {
         const rangeText = this.rangeText();
-        console.log(this.props.element.concept.unit);
         const unit = this.props.element.concept.unit;
         let labelText = this.label;
         if (unit != null){
