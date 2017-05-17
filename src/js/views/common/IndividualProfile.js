@@ -33,7 +33,7 @@ class IndividualProfile extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualProfile);
-        this.buttonStyle = {marginLeft: DGS.resizeWidth(8), height: DGS.resizeHeight(30), borderWidth: 1.5, flexBasis: '40%', justifyContent: 'center'};
+        this.buttonStyle = {marginLeft: DGS.resizeWidth(8), height: DGS.resizeHeight(30), borderWidth: 1.5, flexBasis: 400, justifyContent: 'center'};
     }
 
     componentWillMount() {
