@@ -48,7 +48,7 @@ class ProgramActionsView extends AbstractComponent {
             }
         });
         graphData.forEach((x) => console.log(x.data[5]));
-        TypedTransition.from(this).bookmark().with({graphs: graphData}).to(GraphView, true);
+        TypedTransition.from(this).bookmark().with({graphs: graphData}).to(GraphView);
     }
 
     renderConfiguredButton(button) {

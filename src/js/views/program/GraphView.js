@@ -11,13 +11,17 @@ import * as _ from "lodash";
 @Path('/GraphView')
 class GraphView extends AbstractComponent {
     static propTypes = {
-        graphs: React.PropTypes.array.required
+        params: React.PropTypes.object.isRequired
     };
 
-    renderStack(graph) {
+    constructor(props, context) {
+        super(props, context);
+    }
+
+    renderStack(graph, index) {
         return (
-            <VictoryStack>
-                {_.map(graph.data, (data) => (<VictoryLine data={data}/>))}
+            <VictoryStack key={index}>
+                {_.map(graph.data, (data, index) => (<VictoryLine data={data} key={index}/>))}
             </VictoryStack>
         )
     }
@@ -27,7 +31,7 @@ class GraphView extends AbstractComponent {
             <Container theme={themes} style={{backgroundColor: 'white'}}>
                 <Content>
                     <View>
-                        {_.map(this.props.graphs, (graph) => this.renderStack(graph))}
+                        {_.map(this.props.params.graphs, (graph, index) => this.renderStack(graph, index))}
                     </View>
                 </Content>
             </Container>
