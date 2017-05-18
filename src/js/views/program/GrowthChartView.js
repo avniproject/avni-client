@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
 import * as React from "react";
 import themes from "../primitives/themes";
-import {VictoryScatter, VictoryChart, VictoryLine, VictoryAxis} from "victory-native";
+import {VictoryChart, VictoryLine, VictoryAxis} from "victory-native";
 import {Text} from "native-base";
 import * as _ from "lodash";
 import Fonts from '../primitives/Fonts';
