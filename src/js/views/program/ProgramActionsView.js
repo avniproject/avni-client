@@ -12,7 +12,7 @@ import {
     ProgramEncounterTypeChoiceActionNames,
     EncounterTypeChoiceActionNames
 } from "../../action/program/ProgramEnrolmentDashboardActions";
-import GraphView from "./GraphView";
+import GraphView from "./GrowthChartView";
 import * as _ from "lodash";
 
 @Path('/ProgramActionsView')
@@ -49,7 +49,6 @@ class ProgramActionsView extends AbstractComponent {
                 data: widget.data(this.props.enrolment)
             }
         });
-        graphData.forEach((x) => console.log(x.data[5]));
         TypedTransition.from(this).bookmark().with({graphs: graphData}).to(GraphView);
     }
 
