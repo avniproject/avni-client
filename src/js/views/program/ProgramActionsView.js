@@ -49,7 +49,7 @@ class ProgramActionsView extends AbstractComponent {
                 data: widget.data(this.props.enrolment)
             }
         });
-        TypedTransition.from(this).bookmark().with({graphs: graphData}).to(GraphView);
+        TypedTransition.from(this).bookmark().with({graphs: graphData, individualName: this.props.enrolment.individual.name}).to(GraphView);
     }
 
     renderConfiguredButton(button) {
