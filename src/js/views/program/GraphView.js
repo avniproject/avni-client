@@ -31,16 +31,16 @@ class GraphView extends AbstractComponent {
         //     {title}
         // </Text>
         return (
-            <View key={index} style={{marginLeft: 10, paddingLeft: 10}}>
+            <View key={index} style={{flexDirection: 'column', flex: 1, alignItems: 'center', marginBottom: 20}}>
                 <VictoryChart>
-                    <VictoryAxis orientation="bottom" label="foo"/>
+                    <VictoryAxis orientation="bottom" label={graph.xAxisTitle}/>
                     <VictoryAxis dependentAxis={true} orientation="left" label="bar"/>
                     {_.map(gridLines, (data, idx) => (
                         <VictoryLine data={data} key={idx} style={{data: {stroke: "tomato", opacity: 0.2}}}/>))}
                     <VictoryLine data={data} key={dataIndex}/>
                 </VictoryChart>
-            </View>
-        )
+                <Text style={{fontSize: Fonts.Large, fontWeight: 'bold', color: Colors.InputNormal}}> {title} </Text>
+            </View> )
     }
 
     render() {
