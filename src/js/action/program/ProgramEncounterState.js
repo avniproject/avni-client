@@ -33,7 +33,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     static hasEncounterChanged(state, programEncounter) {
         if (_.isNil(state.programEncounter)) return true;
-        return state.programEncounter.uuid === programEncounter.uuid;
+        return state.programEncounter.uuid != programEncounter.uuid;
     }
 
     validateEntityAgainstRule(ruleService) {
