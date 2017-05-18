@@ -40,10 +40,11 @@ class SyncService extends BaseService {
             return entityMetaData.type === "tx";
         });
 
-        const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
-        const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
-        const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
-        this.pushTxData(allTxDataMetaData, pullReferenceDataFn, onError);
+        // const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
+        // const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
+        // const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
+        // this.pushTxData(allTxDataMetaData, pullReferenceDataFn, onError);
+        this.configFileService.getAllFilesAndSave(done, onError);
     }
 
     pullConfiguration(onComplete, onError) {

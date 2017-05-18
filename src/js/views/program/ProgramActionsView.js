@@ -42,8 +42,10 @@ class ProgramActionsView extends AbstractComponent {
     goToView(button) {
         let graphData = button.openOnClick.widgets.map((widget) => {
             return {
-                name: widget.label,
+                title: widget.title,
                 type: widget.type,
+                xAxisTitle: widget.xAxisTitle,
+                yAxisTitle: widget.yAxisTitle,
                 data: widget.data(this.props.enrolment)
             }
         });
