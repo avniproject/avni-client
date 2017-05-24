@@ -72,13 +72,13 @@ class ChecklistView extends AbstractComponent {
                                         </View>
                                     </View>
                                 })}
+                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginVertical: DGS.resizeHeight(10)}}>
+                                    <Button primary style={{flex: 0.3}} onPress={() => {
+                                        this.save()
+                                    }}>{this.I18n.t('save')}</Button>
+                                </View>
                             </View>);
                     })}
-                    <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                        <Button primary style={{flex: 0.3}} onPress={() => {
-                            this.save()
-                        }}>{this.I18n.t('save')}</Button>
-                    </View>
                 </Content>
             </Container>
         );

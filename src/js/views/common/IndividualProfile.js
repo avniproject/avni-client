@@ -33,7 +33,7 @@ class IndividualProfile extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualProfile);
-        this.buttonStyle = {marginLeft: DGS.resizeWidth(8), height: DGS.resizeHeight(30), borderWidth: 1.5, flexBasis: 400, justifyContent: 'center'};
+        this.buttonStyle = {marginLeft: DGS.resizeWidth(8), height: DGS.resizeHeight(30), borderWidth: 1.5, justifyContent: 'center'};
     }
 
     componentWillMount() {
@@ -89,7 +89,7 @@ class IndividualProfile extends AbstractComponent {
                             {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
                         </View>
                         <View style={[DGS.generalHistory.buttonRowStyle, {flexDirection: 'row', marginBottom: DGS.resizeHeight(43)}]}>
-                            {this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory())}
+                            {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) : <View/>}
                             {this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program ? this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments()) :
                                 <View/>}
                         </View>
