@@ -70,3 +70,6 @@ database-client:
 
 reinstall-release: uninstall
 	adb install android/app/build/outputs/apk/app-release.apk
+
+deploy-apk-local:
+	cp android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
