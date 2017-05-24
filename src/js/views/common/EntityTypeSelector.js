@@ -58,7 +58,7 @@ class EntityTypeSelector extends AbstractComponent {
                                     labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
                         <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginTop: 10}}>
                             <Button onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])}>{this.I18n.t('cancel')}</Button>
-                            <Button style={{marginLeft: 8}} onPress={() => this.entityTypeSelectionConfirmed()}>{this.I18n.t('proceed')}</Button>
+                            <Button style={{marginLeft: 8}} onPress={() => this.entityTypeSelectionConfirmed()} disabled={_.isNil(this.props.selectedEntityType)}>{this.I18n.t('proceed')}</Button>
                         </View>
                     </View>
                     <View style={{flex: 1}}/>
