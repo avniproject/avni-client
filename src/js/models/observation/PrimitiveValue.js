@@ -27,7 +27,9 @@ class PrimitiveValue {
 
     valueFromString(string, datatype) {
         if (datatype === Concept.dataType.Numeric && !_.endsWith(string,'.')) {
-            return _.toNumber(string)
+            return _.toNumber(string);
+        } else if (datatype === Concept.dataType.Date) {
+            return new Date(Date.parse(string));
         }
         return string;
     }

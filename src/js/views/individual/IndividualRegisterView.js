@@ -90,7 +90,7 @@ class IndividualRegisterView extends AbstractComponent {
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("age")}</Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
-                                <TextInput style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 0}}
+                                <TextInput style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
                                            underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
                                            value={_.isNil(this.state.age) ? "" : this.state.age}
                                            onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>

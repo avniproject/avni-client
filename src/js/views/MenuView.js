@@ -140,7 +140,7 @@ class MenuView extends AbstractComponent {
                     {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}
                     {this.renderMenuItem('person-add', 'Register', () => this.registrationView())}
                     {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
-                    {/*{hack for the background color}*/}
+                    <View style={{height: 600}}/>
                 </View>
             </Content>
         );

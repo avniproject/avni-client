@@ -1,3 +1,4 @@
+import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -38,6 +39,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 <Content style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.I18n.t('viewProfile')}/>
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual}/>
+                    {this.state.individual.observations.length === 0 ? <View/> :
                     <Card style={{
                         flexDirection: 'column',
                         marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
@@ -45,7 +47,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                         paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
                     }}>
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
-                    </Card>
+                    </Card>}
                 </Content>
             </Container>
         );

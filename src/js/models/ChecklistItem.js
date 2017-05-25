@@ -2,6 +2,7 @@ import _ from "lodash";
 import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
 import Checklist from './Checklist';
+import Concept from './Concept';
 import moment from "moment";
 
 class ChecklistItem {
@@ -33,8 +34,11 @@ class ChecklistItem {
 
     static fromResource(checklistItemResource, entityService) {
         const checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistUUID"), Checklist.schema.name);
+        const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
+
         const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['dueDate', 'maxDate', 'completionDate']);
         checklistItem.checklist = checklist;
+        checklistItem.concept = concept;
         return checklistItem;
     }
 
