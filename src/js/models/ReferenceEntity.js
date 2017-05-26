@@ -1,6 +1,7 @@
 import General from "../utility/General";
+import BaseEntity from "./BaseEntity";
 
-class ReferenceEntity {
+class ReferenceEntity extends BaseEntity{
     static fromResource(resource, entity) {
         return General.assignFields(resource, entity, ["uuid", "name"]);
     }
