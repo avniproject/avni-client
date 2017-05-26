@@ -1,6 +1,6 @@
-import General from "../utility/General";
+import ReferenceEntity from "./ReferenceEntity";
 
-class EncounterType {
+class EncounterType extends ReferenceEntity {
     static schema = {
         name: 'EncounterType',
         primaryKey: 'uuid',
@@ -11,14 +11,11 @@ class EncounterType {
     };
 
     static fromResource(resource) {
-        return General.assignFields(resource, new EncounterType(), ["uuid", "name"]);
+        return ReferenceEntity.fromResource(resource, new EncounterType());
     }
 
     clone() {
-        const encounterType = new EncounterType();
-        encounterType.uuid = this.uuid;
-        encounterType.name = this.name;
-        return encounterType;
+        return super.clone(new EncounterType());
     }
 }
 

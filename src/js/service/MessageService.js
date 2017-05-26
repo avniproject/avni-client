@@ -29,7 +29,7 @@ class MessageService extends BaseService {
         EntityMetaData.model().forEach((entityMetaData) => {
             if (entityMetaData.nameTranslated) {
                 this.getAll(entityMetaData.entityName).forEach((entity) => {
-                    this.addTranslation('en', entity.name, entity.name);
+                    this.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue);
                 });
             }
         });

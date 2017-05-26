@@ -1,4 +1,3 @@
-import _ from "lodash";
 import General from "../utility/General";
 
 class ReferenceEntity {
@@ -10,6 +9,10 @@ class ReferenceEntity {
         newEntity.uuid = this.uuid;
         newEntity.name = this.name;
         return newEntity;
+    }
+
+    get translatedFieldValue() {
+        return this.name;
     }
 }
 

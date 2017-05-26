@@ -87,6 +87,10 @@ class FormElement {
     static values = {
         Single: 'Single',
         Multi: 'Multi'
+    };
+
+    get translatedFieldValue() {
+        return this.name;
     }
 }
 

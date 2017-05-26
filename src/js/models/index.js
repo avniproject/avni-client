@@ -28,7 +28,7 @@ import _ from 'lodash';
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 36,
+    schemaVersion: 37,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

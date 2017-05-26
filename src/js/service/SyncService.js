@@ -71,7 +71,7 @@ class SyncService extends BaseService {
             const entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
             this.entityService.saveOrUpdate(entity, entityModel.entityName);
             if (entityModel.nameTranslated) {
-                this.messageService.addTranslation('en', entity.name, entity.name);
+                this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue);
             }
 
             if (!_.isNil(entityModel.parent)) {

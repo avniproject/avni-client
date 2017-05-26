@@ -1,7 +1,6 @@
-import General from "../utility/General";
-import BaseEntity from "./BaseEntity";
+import ReferenceEntity from "./ReferenceEntity";
 
-class Gender extends BaseEntity {
+class Gender extends ReferenceEntity {
     static schema = {
         name: "Gender",
         primaryKey: 'uuid',
@@ -12,14 +11,11 @@ class Gender extends BaseEntity {
     };
 
     static fromResource(resource) {
-        return General.assignFields(resource, new Gender(), ["uuid", "name"]);
+        return ReferenceEntity.fromResource(resource, new Gender());
     }
 
     clone() {
-        const gender = new Gender();
-        gender.uuid = this.uuid;
-        gender.name = this.name;
-        return gender;
+        return super.clone(new Gender());
     }
 }
 

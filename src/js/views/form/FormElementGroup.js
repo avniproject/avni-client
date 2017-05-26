@@ -37,7 +37,7 @@ class FormElementGroup extends AbstractComponent {
     render() {
         const formElements = this.props.group.getFormElements();
         return (<View>
-                {formElements.length <= 1 ? <View/> : <Text style={{color: Colors.InputNormal, fontSize: Fonts.Medium, marginTop: DGS.resizeHeight(32)}}>{this.I18n.t(this.props.group.name)}</Text>}
+                {formElements.length <= 1 ? <View/> : <Text style={{color: Colors.InputNormal, fontSize: Fonts.Medium, marginTop: DGS.resizeHeight(32)}}>{this.I18n.t(this.props.group.display)}</Text>}
                 {
                     formElements.map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);

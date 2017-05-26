@@ -31,6 +31,10 @@ class AddressLevel extends BaseEntity {
         addressLevel.name = this.name;
         return addressLevel;
     }
+
+    get translatedFieldValue() {
+        return this.name;
+    }
 }
 
 export default AddressLevel;

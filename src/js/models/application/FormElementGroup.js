@@ -13,13 +13,14 @@ class FormElementGroup {
             uuid: 'string',
             name: 'string',
             displayOrder: 'int',
+            display: {type: 'string', optional: true},
             formElements: {type: 'list', objectType: 'FormElement'},
             form: 'Form'
         }
     };
 
     static fromResource(resource, entityService) {
-        const formElementGroup = General.assignFields(resource, new FormElementGroup(), ["uuid", "name", "displayOrder"]);
+        const formElementGroup = General.assignFields(resource, new FormElementGroup(), ["uuid", "name", "displayOrder", "display"]);
         formElementGroup.form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
         return formElementGroup;
     }
@@ -73,6 +74,10 @@ class FormElementGroup {
 
     getFormElements() {
         return _.sortBy(this.formElements, (formElement) => formElement.displayOrder);
+    }
+
+    get translatedFieldValue() {
+        return this.display;
     }
 }
 

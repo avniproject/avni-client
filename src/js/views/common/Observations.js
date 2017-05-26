@@ -36,7 +36,7 @@ class Observations extends AbstractComponent {
     }
 
     get allObservationNamesSmall() {
-        return !this.props.observations.some((obs) => obs.concept.name.length > 15);
+        return !this.props.observations.some((obs) => obs.concept.name.length > 17);
     }
 
     render() {
