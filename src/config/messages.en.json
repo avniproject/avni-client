@@ -129,5 +129,9 @@
   "Warn": "Warn",
   "Info": "Info",
   "Debug": "Debug",
-  "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}"
+  "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}",
+
+  "lessThan13Weeks": "< 13 Weeks",
+  "lessThan2Years": "<2 Years",
+  "2To5Years": "2 to 5 Years"
 }

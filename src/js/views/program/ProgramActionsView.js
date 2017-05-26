@@ -12,7 +12,7 @@ import {
     ProgramEncounterTypeChoiceActionNames,
     EncounterTypeChoiceActionNames
 } from "../../action/program/ProgramEnrolmentDashboardActions";
-import GraphView from "./GrowthChartView";
+import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 
 @Path('/ProgramActionsView')
@@ -40,16 +40,7 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     goToView(button) {
-        let graphData = button.openOnClick.widgets.map((widget) => {
-            return {
-                title: widget.title,
-                type: widget.type,
-                xAxisTitle: widget.xAxisTitle,
-                yAxisTitle: widget.yAxisTitle,
-                data: widget.data(this.props.enrolment)
-            }
-        });
-        TypedTransition.from(this).bookmark().with({graphs: graphData, individualName: this.props.enrolment.individual.name}).to(GraphView);
+        TypedTransition.from(this).bookmark().with({data: _.get(button, ['openOnClick', 'data']), enrolment: this.props.enrolment}).to(GrowthChartView);
     }
 
     renderConfiguredButton(button) {

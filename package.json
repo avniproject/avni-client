@@ -43,7 +43,7 @@
     "realm": "1.2.0",
     "redux": "^3.6.0",
     "transducers-js": "^0.4.174",
-    "victory-native": "^0.7.2"
+    "victory-native": "^0.8.2"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",

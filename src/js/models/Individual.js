@@ -115,6 +115,11 @@ class Individual extends BaseEntity {
         return moment(asOnDate).diff(this.dateOfBirth, 'months');
     }
 
+    getAgeInWeeks(asOnDate) {
+        asOnDate = asOnDate || moment();
+        return moment(asOnDate).diff(this.dateOfBirth, 'weeks');
+    }
+
     getAgeInYears() {
         return moment().diff(this.dateOfBirth, 'years');
     }

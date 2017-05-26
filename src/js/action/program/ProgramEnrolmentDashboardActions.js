@@ -43,7 +43,11 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static clone(state) {
-        return {programEncounterTypeState: state.programEncounterTypeState.clone(), encounterTypeState: state.encounterTypeState.clone(), enrolment: state.enrolment};
+        return {
+            programEncounterTypeState: state.programEncounterTypeState.clone(),
+            encounterTypeState: state.encounterTypeState.clone(),
+            enrolment: state.enrolment
+        };
     }
 
     static onLoad(state, action, context) {
@@ -81,7 +85,11 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onProgramEncounterTypeConfirmed(state, action, context) {
-        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        const newState = ProgramEnrolmentDashboardActions.clone(state),
+            newEntity = newState.programEncounterTypeState.entity;
+
+        if (!newState.programEncounterTypeState.entity.encounterType) return newState;
+
         const dueEncounter = context.get(ProgramEncounterService).findDueEncounter(newState.programEncounterTypeState.entity.encounterType.uuid, newState.enrolment.uuid);
         if (!_.isNil(dueEncounter)) {
             General.logInfo('ProgramEnrolmentDashboardActions', 'Found a due encounter');
@@ -90,6 +98,7 @@ class ProgramEnrolmentDashboardActions {
         newState.programEncounterTypeState.entityTypeSelectionConfirmed(action);
         return newState;
     }
+
     //Program Encounter Type
 
     //Encounter Type
@@ -116,6 +125,7 @@ class ProgramEnrolmentDashboardActions {
         newState.encounterTypeState.entityTypeSelectionConfirmed(action);
         return newState;
     }
+
     //Encounter Type
 
     static onEditEnrolment(state, action, context) {
