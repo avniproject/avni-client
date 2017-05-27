@@ -21,10 +21,9 @@ class ConventionalRestClient {
         if(entityModel.type === "tx" || entityModel.name === EntityMetaData.addressLevel.name){
             params.push(`catchmentId=${this.settingsService.getSettings().catchment}`);
         }
-        params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}`);
+        params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).toISOString()}`);
         params.push("size=5");
         params.push(`page=${pageNumber}`);
-        params.push("sort=lastModifiedDateTime,asc");
 
         const url = `${urlParts.join("/")}?${params.join("&")}`;
 
@@ -46,7 +45,7 @@ class ConventionalRestClient {
             if (ConventionalRestClient.morePagesForThisResource(response)) {
                 this.loadData(entityModel, lastUpdatedLocally, pageNumber + 1, allEntityMetaData, executePerResourcesWithSameTimestamp, executeNextResource, resourcesWithSameTimestamp, onError);
             } else if (resourcesWithSameTimestamp.length > 0) {
-                General.logDebug('ConventionalRestClient', `Executing sync action on: ${resourcesWithSameTimestamp.length} items for resource: ${entityModel.resourceName}`);
+                // General.logDebug('ConventionalRestClient', `Executing sync action on: ${resourcesWithSameTimestamp.length} items for resource: ${entityModel.resourceName}`);
                 executePerResourcesWithSameTimestamp(resourcesWithSameTimestamp, entityModel);
                 executeNextResource(allEntityMetaData);
             } else {
