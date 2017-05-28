@@ -22,7 +22,7 @@ class GrowthChartView extends AbstractComponent {
     buttons = {
         LESS_THAN_13_WEEKS: {data: "graphsBelow13Months", label: this.I18n.t('lessThan13Weeks'), minAge: 0},
         LESS_THAN_2_YEARS: {data: "graphsBelow2Years", label: this.I18n.t('lessThan2Years'), minAge: 3},
-        LESS_THAN_5_YEARS: {data: "graphsBelow5Years", label: this.I18n.t('2To5Years'), minAge: 90},
+        LESS_THAN_5_YEARS: {data: "graphsBelow5Years", label: this.I18n.t('2To5Years'), minAge: 24},
     };
 
     shouldBeDisabled(button) {
@@ -63,13 +63,8 @@ class GrowthChartView extends AbstractComponent {
     }
 
     renderObservations(observations, dataIndex) {
-        switch (observations.length) {
-            case 0:
-                break;
-            case 1:
-                return (<VictoryScatter data={observations} key={dataIndex} labels={(datum) => datum.y}/>);
-            default:
-                return (<VictoryLine data={observations} key={dataIndex} labels={(datum) => datum.y}/>);
+        if (observations.length > 0) {
+            return (<VictoryScatter data={observations} key={dataIndex} labels={(datum) => datum.y}/>);
         }
     }
 
@@ -82,12 +77,14 @@ class GrowthChartView extends AbstractComponent {
         const lightGreyLine = {stroke: "grey", opacity: 0.2};
         return (
             <View style={{flexDirection: 'column', flex: 1, alignItems: 'center', marginBottom: 20}} key={index}>
+                <Text
+                    style={{fontSize: Fonts.Large, fontWeight: 'bold', color: Colors.InputNormal}}> {chart.title} </Text>
                 <VictoryChart padding={40}>
                     <VictoryAxis orientation="bottom" label={chart.xAxisLabel} tickCount={10}
                                  style={{grid: lightGreyLine}}/>
                     <VictoryAxis dependentAxis={true} orientation="left" tickCount={10} style={{grid: lightGreyLine}}/>
                     {_.map(referenceLines, (data, idx) => (
-                        <VictoryLine data={data} key={idx} style={{data: {stroke: colors[idx], opacity: 0.2}}}/>))}
+                        <VictoryLine data={data} key={idx} name="a" style={{data: {stroke: colors[idx], opacity: 0.2}}}/>))}
                     {this.renderObservations(observations, dataIndex)}
                 </VictoryChart>
                 <View style={{flexDirection: 'row', alignItems: "flex-end", flexWrap: "nowrap"}}>
@@ -107,8 +104,6 @@ class GrowthChartView extends AbstractComponent {
                         </View>
                     </View>
                 </View>
-                <Text
-                    style={{fontSize: Fonts.Large, fontWeight: 'bold', color: Colors.InputNormal}}> {chart.title} </Text>
             </View>
         );
     }
@@ -116,7 +111,11 @@ class GrowthChartView extends AbstractComponent {
     render() {
         General.logDebug("GrowthChartView", 'render');
         const individualName = this.props.params.enrolment.individual.name;
-        const titleStyle = _.merge(Fonts.Title, {alignSelf: 'center', marginTop: DGS.resizeHeight(10), marginBottom: DGS.resizeTextInputHeight(10)});
+        const titleStyle = _.merge(Fonts.Title, {
+            alignSelf: 'center',
+            marginTop: DGS.resizeHeight(10),
+            marginBottom: DGS.resizeTextInputHeight(10)
+        });
         return (
             <Container theme={themes} style={{backgroundColor: 'white'}}>
                 <Content>
