@@ -31,16 +31,17 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = AbstractEncounter.fromResource(resource, entityService, new ProgramEncounter());
 
         programEncounter.programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        programEncounter.scheduledDateTime = resource.scheduledDateTime;
-        programEncounter.maxDateTime = resource.maxDateTime;
+        General.assignDateFields(["scheduledDateTime", "maxDateTime"], resource, programEncounter);
         programEncounter.name = resource.name;
         return programEncounter;
     }
 
     get toResource() {
         const resource = super.toResource;
+        if (!_.isNil(this.encounterDateTime))
+            resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource.programEnrolmentUUID = this.programEnrolment.uuid;
-        resource.name = this.programEnrolment.name;
+        resource.name = this.name;
         if (!_.isNil(this.scheduledDateTime))
             resource.scheduledDateTime = moment(this.scheduledDateTime).format();
         if (!_.isNil(this.maxDateTime))
@@ -80,15 +81,18 @@ class ProgramEncounter extends AbstractEncounter {
         return validationResults;
     }
 
-    static createFromScheduledVisit(nextScheduledVisit, encounterType, programEnrolment) {
+    static createScheduledProgramEncounter(encounterType, programEnrolment) {
         const programEncounter = ProgramEncounter.createEmptyInstance();
         programEncounter.encounterType = encounterType;
-        programEncounter.scheduledDateTime = nextScheduledVisit.dueDate;
-        programEncounter.maxDateTime = nextScheduledVisit.maxDate;
-
-        programEncounter.name = nextScheduledVisit.name;
         programEncounter.programEnrolment = programEnrolment;
+        programEncounter.encounterDateTime = null;
         return programEncounter;
+    }
+
+    updateSchedule(scheduledVisit) {
+        this.scheduledDateTime = scheduledVisit.dueDate;
+        this.maxDateTime = scheduledVisit.maxDate;
+        this.name = scheduledVisit.name;
     }
 
     getName() {

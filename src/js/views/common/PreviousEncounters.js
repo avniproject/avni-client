@@ -1,5 +1,5 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import {View} from "react-native";
+import React from "react";
 import {Grid, Row, Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import moment from "moment";
@@ -7,11 +7,10 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import Observations from "../common/Observations";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ContextAction from "../viewmodel/ContextAction";
-import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
+import ObservationsSectionTitle from "../common/ObservationsSectionTitle";
 import Encounter from "../../models/Encounter";
-import Fonts from '../primitives/Fonts';
-import Colors from '../primitives/Colors';
-import Distances from "../primitives/Distances";
+import Fonts from "../primitives/Fonts";
+import _ from 'lodash';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -44,7 +43,7 @@ class PreviousEncounters extends AbstractComponent {
                         </View>
                     </View>)
                     : this.props.encounters.map((encounter, index) => {
-                        const title = `${this.I18n.t(encounter.encounterType.name)}   ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
+                        const title = this.getTitle(encounter);
                         return (
                             <View key={`${index}-1`} style={this.props.style}>
                                 <ObservationsSectionTitle
@@ -55,6 +54,13 @@ class PreviousEncounters extends AbstractComponent {
                         );
                     })}</View>
         );
+    }
+
+    getTitle(encounter) {
+        if (_.isNil(encounter.encounterDateTime))
+            return `${this.I18n.t(encounter.encounterType.name)}    ${this.I18n.t('scheduled')}: ${moment(encounter.scheduledDateTime).format('DD-MM-YYYY')}`;
+        else
+            return `${this.I18n.t(encounter.encounterType.name)}   ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
     }
 }
 

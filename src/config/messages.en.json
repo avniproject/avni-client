@@ -68,7 +68,7 @@
   "editProfile": "Edit Profile",
   "viewProfile": "View Profile",
   "selectProgram": "Select Program",
-  "enrolInSpecificProgram": "Enrol in {{program}}",
+  "enrolInSpecificProgram": "{{program}} Enrolment",
   "confirm": "Confirm",
   "generalHistory": "General History",
   "noEncounters": "No previous visits",
@@ -133,5 +133,7 @@
 
   "lessThan13Weeks": "< 13 Weeks",
   "lessThan2Years": "<2 Years",
-  "2To5Years": "2 to 5 Years"
+  "2To5Years": "2 to 5 Years",
+  "individualDashboard": "Dashboard",
+  "scheduled": "Scheduled"
 }

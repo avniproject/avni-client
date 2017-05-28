@@ -72,6 +72,10 @@ class CHSNavigator {
             enrolmentUUID: enrolmentUUID,
         }).to(ChecklistView, true);
     }
+
+    static goHome(view) {
+        TypedTransition.from(view).toBeginning();
+    }
 }
 
 export default CHSNavigator;

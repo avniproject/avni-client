@@ -21,7 +21,7 @@ class ConventionalRestClient {
         if(entityModel.type === "tx" || entityModel.name === EntityMetaData.addressLevel.name){
             params.push(`catchmentId=${this.settingsService.getSettings().catchment}`);
         }
-        params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).toISOString()}`);
+        params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}`);
         params.push("size=5");
         params.push(`page=${pageNumber}`);
 

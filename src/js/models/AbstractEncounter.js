@@ -20,7 +20,6 @@ class AbstractEncounter extends BaseEntity {
     get toResource() {
         const resource = _.pick(this, ["uuid"]);
         resource["encounterTypeUUID"] = this.encounterType.uuid;
-        resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["observations"] = [];
         this.observations.forEach((obs) => {
             resource["observations"].push(obs.toResource);

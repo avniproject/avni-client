@@ -25,9 +25,8 @@ const getObservationValue = function (conceptName) {
     }
 };
 
-const _getObservationValue = function (observation) {
+const _getObservationValue = function (observation, conceptName) {
     if (_.isNil(observation)) {
-        General.logWarn('AdditionalFunctions', `No observation found for concept: ${conceptName}`);
         return undefined;
     }
 
@@ -42,7 +41,7 @@ const _getObservationValue = function (observation) {
 
 const getObservationValueFromEntireEnrolment = function (conceptName) {
     const observation = this.programEnrolment.findObservationInEntireEnrolment(conceptName);
-    return _getObservationValue(observation);
+    return _getObservationValue(observation, conceptName);
 };
 
 const observationExistsInEntireEnrolment = function (conceptName) {

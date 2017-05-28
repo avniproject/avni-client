@@ -90,18 +90,22 @@ class General {
         return str;
     }
 
-    static assignFields(source, dest, directCopyFields, dateFields, observationFields, entityService) {
-        if (!_.isNil(directCopyFields)) {
-            directCopyFields.forEach((fieldName) => {
-                dest[fieldName] = source[fieldName];
-            });
-        }
+    static assignDateFields(dateFields, source, dest) {
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {
                 if (!_.isNil(source[fieldName]))
                     dest[fieldName] = new Date(source[fieldName]);
             });
         }
+    }
+
+    static assignFields(source, dest, directCopyFields, dateFields, observationFields, entityService) {
+        if (!_.isNil(directCopyFields)) {
+            directCopyFields.forEach((fieldName) => {
+                dest[fieldName] = source[fieldName];
+            });
+        }
+        General.assignDateFields(dateFields, source, dest);
         if (!_.isNil(observationFields)) {
             observationFields.forEach((observationField) => {
                 const observations = [];

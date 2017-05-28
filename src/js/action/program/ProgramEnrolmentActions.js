@@ -54,7 +54,7 @@ export class ProgramEnrolmentActions {
         const service = context.get(ProgramEnrolmentService);
         if (newState.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             context.get(ConceptService).addDecisions(newState.enrolment.observations, action.decisions);
-            service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits);
+            newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits);
         } else {
             context.get(ConceptService).addDecisions(newState.enrolment.programExitObservations, action.decisions);
             service.exit(newState.enrolment);

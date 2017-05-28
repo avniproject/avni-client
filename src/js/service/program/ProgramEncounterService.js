@@ -37,33 +37,30 @@ class ProgramEncounterService extends BaseService {
         return encounterSummary;
     }
 
+    _saveEncounter(programEncounter, db) {
+        programEncounter = db.create(ProgramEncounter.schema.name, programEncounter, true);
+        const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
+        enrolment.addEncounter(programEncounter);
+        db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+    }
+
     saveOrUpdate(programEncounter, nextScheduledVisits) {
         General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${programEncounter.uuid}`);
         ObservationsHolder.convertObsForSave(programEncounter.observations);
 
-        const programEncounters = [programEncounter];
-        const self = this;
-
-        nextScheduledVisits.forEach((nextScheduledVisit) => {
-            const encounterType = self.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
-            if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
-
-            const scheduledProgramEncounter = ProgramEncounter.createFromScheduledVisit(nextScheduledVisit, encounterType, programEncounter.programEnrolment);
-            programEncounters.push(scheduledProgramEncounter);
-        });
-
         const db = this.db;
         this.db.write(()=> {
-            programEncounters.forEach((programEncounter) => db.create(ProgramEncounter.schema.name, programEncounter, true));
+            this._saveEncounter(programEncounter, db);
 
-            programEncounters.forEach((programEncounter) => {
-                const loadedEncounter = this.findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
-                const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
-                General.logDebug('ProgramEncounterService', `Number of encounters: ${enrolment.encounters.length}`);
-                General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${loadedEncounter.uuid}`);
-                enrolment.addEncounter(loadedEncounter);
-                General.logDebug('ProgramEncounterService', `Number of encounters after add: ${enrolment.encounters.length}`);
-                db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+            nextScheduledVisits.forEach((nextScheduledVisit) => {
+                const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+                if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
+
+                var scheduledEncounter = this.getService(ProgramEncounterService).findDueEncounter(encounterType.uuid, programEncounter.programEnrolment.uuid);
+                if (_.isNil(scheduledEncounter))
+                    scheduledEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEncounter.programEnrolment);
+                scheduledEncounter.updateSchedule(nextScheduledVisit);
+                this._saveEncounter(scheduledEncounter, db);
             });
         });
         return programEncounter;

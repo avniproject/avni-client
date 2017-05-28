@@ -45,18 +45,22 @@ class ConceptService extends BaseService {
             if (_.isNil(concept)) General.logWarn('ConceptService', `${concept.name} doesn't exist`);
 
             const existingObs = observations.find((obs) => obs.concept.name === decision.name);
-            var value = decision.value;
+            var value;
             if (concept.datatype === Concept.dataType.Coded) {
-                const answerConcept = this.findConcept(value);
-                if (_.isNil(answerConcept)) {
-                    value = null;
-                    General.logWarn('ConceptService', `${concept.name} doesn't exist`);
-                }
-                else value = answerConcept.uuid;
+                value = [];
+                decision.value.forEach((codedAnswerConceptName) => {
+                    const answerConcept = this.findConcept(codedAnswerConceptName);
+                    if (_.isNil(answerConcept))
+                        General.logWarn('ConceptService', `${concept.name} doesn't exist`);
+                    else
+                        value.push(answerConcept.uuid);
+                });
+            } else {
+                value = decision.value;
             }
 
             if (_.isNil(existingObs)) {
-                if (!_.isNil(decision.value))
+                if (!_.isEmpty(decision.value))
                     observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
             } else {
                 if (_.isNil(decision.value)) {

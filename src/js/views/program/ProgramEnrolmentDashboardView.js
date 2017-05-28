@@ -91,7 +91,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View style={{backgroundColor: Colors.BlackBackground}}>
-                        <AppHeader title={`${this.state.enrolment.individual.name}`}/>
+                        <AppHeader title={this.I18n.t('individualDashboard')}/>
                         <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
                         <Card style={{
                             flexDirection: 'column',

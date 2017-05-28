@@ -236,6 +236,12 @@ class Individual extends BaseEntity {
     findEnrolmentForProgram(program) {
         return _.find(this.enrolments, (enrolment) => enrolment.program.uuid === program.uuid);
     }
+
+    addEnrolment(programEnrolment) {
+        if (!_.some(this.enrolments, (x) => x.uuid === programEnrolment.uuid)) {
+            this.enrolments.push(programEnrolment);
+        }
+    }
 }
 
 export default Individual;

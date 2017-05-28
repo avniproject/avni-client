@@ -4,6 +4,7 @@ import AbstractEncounter from "./AbstractEncounter";
 import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import G from "../utility/General";
+import moment from "moment";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -35,6 +36,7 @@ class Encounter extends AbstractEncounter {
 
     get toResource() {
         const resource = super.toResource;
+        resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["individualUUID"] = this.individual.uuid;
         return resource;
     }

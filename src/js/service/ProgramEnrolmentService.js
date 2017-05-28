@@ -31,51 +31,52 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     enrol(programEnrolment, checklists, nextScheduledVisits) {
-        const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
-        const existingProgramEnrolment = this.findByUUID(programEnrolment.uuid);
-
-        checklists.forEach((checklist) => {
-            if (_.isNil(existingProgramEnrolment) || _.isNil(existingProgramEnrolment.findChecklist(checklist.name))) {
-                entityQueueItems.push(EntityQueue.create(checklist, Checklist.schema.name));
-                checklist.items.forEach((checklistItem) => {
-                    entityQueueItems.push(EntityQueue.create(checklistItem, ChecklistItem.schema.name));
-                });
-            }
-        });
-
-        nextScheduledVisits.forEach((nextScheduledVisit) => {
-            const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
-            if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
-
-            const programEncounter = ProgramEncounter.createFromScheduledVisit(nextScheduledVisit, encounterType, programEnrolment);
-            entityQueueItems.push(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
-            programEnrolment.encounters.push(programEncounter);
-        });
-
         const db = this.db;
-        ProgramEnrolmentService.convertObsForSave(programEnrolment);
+        const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
         this.db.write(() => {
-            const savedProgramEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            ProgramEnrolmentService.convertObsForSave(programEnrolment);
+            programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
+
+            nextScheduledVisits.forEach((nextScheduledVisit) => {
+                const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+                if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
+
+                var programEncounter = this.getService(ProgramEncounterService).findDueEncounter(encounterType.uuid, programEnrolment.uuid);
+                if (_.isNil(programEncounter)) {
+                    programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEnrolment);
+                }
+                programEncounter.updateSchedule(nextScheduledVisit);
+                programEnrolment.addEncounter(programEncounter);
+
+                entityQueueItems.push(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+            });
+            General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');
 
             checklists.forEach((checklist) => {
-                if (_.isNil(savedProgramEnrolment.findChecklist(checklist.name))) {
+                if (_.isNil(programEnrolment.findChecklist(checklist.name))) {
                     checklist.baseDate = checklist.baseDate || new Date();
+
                     const savedChecklist = db.create(Checklist.schema.name, checklist, true);
+                    entityQueueItems.push(EntityQueue.create(savedChecklist, Checklist.schema.name));
                     savedChecklist.items.forEach((item) => {
                         item.checklist = savedChecklist;
+                        entityQueueItems.push(EntityQueue.create(item, ChecklistItem.schema.name));
                     });
-                    savedProgramEnrolment.checklists.push(savedChecklist);
-                    savedChecklist.programEnrolment = savedProgramEnrolment;
+
+                    programEnrolment.checklists.push(savedChecklist);
+                    savedChecklist.programEnrolment = programEnrolment;
                 }
             });
+            General.logDebug('ProgramEnrolmentService', 'Checklist added to ProgramEnrolment');
 
-            const loadedIndividual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
-            if (!_.some(loadedIndividual.enrolments, (enrolment) => enrolment.uuid === programEnrolment.uuid)) {
-                const loadedEnrolment = this.findByUUID(programEnrolment.uuid, ProgramEnrolment.schema.name);
-                loadedIndividual.enrolments.push(loadedEnrolment);
-            }
+            const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
+            individual.addEnrolment(programEnrolment);
+            General.logDebug('ProgramEnrolmentService', 'ProgramEnrolment added to Individual');
 
             entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
+            return programEnrolment;
         });
     }
 

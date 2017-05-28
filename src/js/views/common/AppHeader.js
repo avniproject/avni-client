@@ -1,10 +1,12 @@
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {Button, Header, Icon, Title} from "native-base";
+import {Button, Icon} from "native-base";
+import {Text, View} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import DGS from "../primitives/DynamicGlobalStyles";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -16,21 +18,30 @@ class AppHeader extends AbstractComponent {
         super(props, context);
     }
 
-    onPress() {
+    onBack() {
         if (_.isNil(this.props.func))
             TypedTransition.from(this).goBack();
         else
             this.props.func();
     }
 
+    onHome() {
+        CHSNavigator.goHome(this);
+    }
+
     render() {
         return (
-            <Header style={{backgroundColor: Colors.BlackBackground}}>
-                <Button transparent onPress={() => this.onPress()}>
-                    <Icon style={{fontSize: 25, marginBottom: DynamicGlobalStyles.resizeHeight(8)}} name='keyboard-arrow-left'/>
+            <View style={{backgroundColor: Colors.BlackBackground, flexDirection: 'row', alignItems: 'center'}}>
+                <Button transparent onPress={() => this.onBack()} style={{paddingHorizontal: 0, marginHorizontal: 10}}>
+                    <Icon style={{fontSize: 25, color: 'white', marginTop: DGS.resizeHeight(5)}} name='keyboard-arrow-left'/>
                 </Button>
-                <Title>{this.props.title}</Title>
-            </Header>
+                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
+                    <Text style={{color: 'white'}}>{this.props.title}</Text>
+                </View>
+                <Button transparent onPress={() => this.onHome()} style={{paddingHorizontal: 0, marginHorizontal: 10}}>
+                    <Icon style={{fontSize: 25, color: 'white'}} name='home'/>
+                </Button>
+            </View>
         );
     }
 }
