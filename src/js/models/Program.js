@@ -1,4 +1,5 @@
 import ReferenceEntity from "./ReferenceEntity";
+import _ from 'lodash';
 
 class Program extends ReferenceEntity {
     static schema = {
@@ -7,11 +8,18 @@ class Program extends ReferenceEntity {
         properties: {
             uuid: 'string',
             name: 'string',
+            colour: 'string'
         }
     };
 
     static fromResource(resource) {
-        return ReferenceEntity.fromResource(resource, new Program());
+        const program =  ReferenceEntity.fromResource(resource, new Program());
+        program.colour = _.isNil(resource.colour)? Program.randomColour() : resource.colour;
+        return program;
+    }
+
+    static randomColour() {
+        return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
     }
 
     clone() {

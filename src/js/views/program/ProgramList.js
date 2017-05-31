@@ -24,30 +24,30 @@ class ProgramList extends AbstractComponent {
                 marginTop: DGS.resizeHeight(8)
             }
         },
-        selectedProgramButton: {
+        selectedProgramButton: (colour) => { return {
             self: {
-                backgroundColor: '#f5a523',
+                backgroundColor: colour,
             },
             text: {
                 color: '#ffffff',
                 fontSize: 14
             }
-        },
-        unselectedProgramButton: {
+        }},
+        unselectedProgramButton: (colour) => { return {
             self: {
                 borderWidth: 1,
-                borderColor: '#4990e2',
+                borderColor: colour,
                 backgroundColor: 'white'
             },
             text: {
-                color: '#4a90e2',
+                color: colour,
                 fontSize: 14
             }
-        }
+        }}
     };
 
     getButtonStyle(enrolment) {
-        return enrolment.uuid === this.props.selectedEnrolment.uuid ? ProgramList.style.selectedProgramButton : ProgramList.style.unselectedProgramButton;
+        return enrolment.uuid === this.props.selectedEnrolment.uuid ? ProgramList.style.selectedProgramButton(enrolment.program.colour) : ProgramList.style.unselectedProgramButton(enrolment.program.colour);
     }
 
     render() {

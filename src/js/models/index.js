@@ -28,7 +28,7 @@ import _ from 'lodash';
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 37,
+    schemaVersion: 38,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -68,6 +68,12 @@ export default {
             _.forEach(checklists, (checklist) => {
                 checklist.baseDate = checklist.programEnrolment.individual.dateOfBirth;
             });
+        }
+        if (oldDB.schemaVersion < 38) {
+            const programs = newDB.objects('Program');
+            _.forEach(programs, (program) => {
+                program.colour = Program.randomColour();
+            })
         }
     }
 };

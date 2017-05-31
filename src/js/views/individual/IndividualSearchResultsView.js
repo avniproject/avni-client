@@ -48,17 +48,9 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     renderProgram(program, index) {
-        //TODO this code to go away when association of colour is done with programs
-        var colour = "#f6a623";
-        if (index % 3 === 0) {
-            colour = "#4990e2"
-        }
-        else if (index % 3 === 1) {
-            colour = "#4caf50"
-        }
-
         return (
-            <Button key={index} disabled style={{marginLeft: 8, width: 74, height: 22, backgroundColor: colour}}>{program.name}</Button>
+            <Button key={index} disabled
+                    style={{marginLeft: 8, width: 74, height: 22, backgroundColor: program.colour}}>{program.name}</Button>
         );
     }
 
