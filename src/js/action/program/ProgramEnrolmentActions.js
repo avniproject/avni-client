@@ -71,6 +71,7 @@ const actions = {
     TOGGLE_MULTISELECT_ANSWER: "PEA.TOGGLE_MULTISELECT_ANSWER",
     TOGGLE_SINGLESELECT_ANSWER: "PEA.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'PEA.PRIMITIVE_VALUE_CHANGE',
+    PRIMITIVE_VALUE_END_EDITING: 'PEA.PRIMITIVE_VALUE_END_EDITING',
     NEXT: 'PEA.NEXT',
     PREVIOUS: 'PEA.PREVIOUS',
     SAVE: 'PEA.SAVE'
@@ -82,7 +83,8 @@ export default new Map([
     [actions.EXIT_DATE_TIME_CHANGED, ProgramEnrolmentActions.exitDateTimeChanged],
     [actions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
-    [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObs],
+    [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
+    [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
     [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
     [actions.SAVE, ProgramEnrolmentActions.onSave]

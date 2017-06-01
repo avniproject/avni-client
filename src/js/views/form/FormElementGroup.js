@@ -44,7 +44,8 @@ class FormElementGroup extends AbstractComponent {
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
                                                        element={formElement}
-                                                       actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                                       inputChangeActionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                                       endEditingActionName={this.props.actions["PRIMITIVE_VALUE_END_EDITING"]}
                                                        value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                              validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Text) {

@@ -9,7 +9,8 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
+        inputChangeActionName: React.PropTypes.string.isRequired,
+        endEditingActionName: React.PropTypes.string.isRequired,
         value: React.PropTypes.object,
         validationResult: React.PropTypes.object
     };
@@ -29,7 +30,7 @@ class NumericFormElement extends AbstractFormElement {
                 </View>
                 <View>
                     <TextInput style={{flex: 1, marginVertical: 0, paddingVertical: 5}} underlineColorAndroid={this.borderColor}
-                               value={_.toString(this.props.value.getValue())} onChangeText={(text) => this.onInputChange(text)}/>
+                               value={_.toString(this.props.value.getValue())} onChangeText={(text) => this.onInputChange(text)} onEndEditing={(text) => this.onInputChange(text)}/>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>
@@ -56,7 +57,7 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     onInputChange(text) {
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: text});
+        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text});
     }
     }
 

@@ -61,10 +61,10 @@ describe('EncounterActionsTest', () => {
     it('validateNumericField without validation error', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '1', formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
         expect(newState.encounter.observations[0].getValue()).is.equal(1);
-        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '11', formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: '11', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
     });
 
@@ -73,16 +73,16 @@ describe('EncounterActionsTest', () => {
         formElement.concept.lowAbsolute = 10;
         formElement.concept.hiAbsolute = 100;
 
-        const newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 1000, formElement: formElement});
+        const newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: 1000, formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 1);
     });
 
     it('numeric field with a string', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
-        const newState = ObservationsHolderActions.onPrimitiveObs(state, {value: 'a', formElement: formElement});
+        const newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: 'a', formElement: formElement});
         expect(newState.encounter.observations.length).is.equal(0);
         newState.encounter.observations.push(Observation.create(formElement.concept, new PrimitiveValue(10, Concept.dataType.Numeric)));
-        const newerState = ObservationsHolderActions.onPrimitiveObs(newState, {value: 'a', formElement: formElement});
+        const newerState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: 'a', formElement: formElement});
         expect(newerState.encounter.observations[0].getValue()).is.equal(10);
     });
 
@@ -124,7 +124,7 @@ describe('EncounterActionsTest', () => {
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         multiSelectFormElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer('ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f')];
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '1', formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
 
         newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: multiSelectFormElement});
@@ -142,24 +142,24 @@ describe('EncounterActionsTest', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
         const anotherNumericFormElement = createFormElement(Concept.dataType.Numeric, false, 'c2c3a7a7-6b6f-413b-8f4c-9785a6c04b5e');
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '14', formElement: formElement});
-        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '10', formElement: anotherNumericFormElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '14', formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: '10', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(2);
-        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '', formElement: anotherNumericFormElement});
+        newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: '', formElement: anotherNumericFormElement});
         expect(newState.encounter.observations.length).is.equal(1);
         expect(newState.encounter.observations[0].getValue()).is.equal(14);
     });
 
     it('next should not be allowed if there are validation errors in the same FEG', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '', formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '', formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
         var action = WizardNextActionStub.forValidationFailed();
         newState = EncounterActions.onNext(newState, action);
         verifyFormElementAndObservations(newState, 1, 0);
         action.assert();
 
-        newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
 
         action = WizardNextActionStub.forMovedNext();
@@ -171,8 +171,8 @@ describe('EncounterActionsTest', () => {
     it('next should be allowed if there are no validation errors in the same FEG', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
-        newState = ObservationsHolderActions.onPrimitiveObs(newState, {value: '', formElement: formElement2});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement});
+        newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: '', formElement: formElement2});
         var action = WizardNextActionStub.forMovedNext();
         newState = EncounterActions.onNext(newState, action);
         action.assert();
@@ -182,7 +182,7 @@ describe('EncounterActionsTest', () => {
     it('next on second view should be allowed without filling non-mandatory form element', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, false);
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement});
         var action = WizardNextActionStub.forMovedNext();
         newState = EncounterActions.onNext(newState, action);
 
@@ -194,7 +194,7 @@ describe('EncounterActionsTest', () => {
     it('next on second view should give validation error', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 
-        var newState = ObservationsHolderActions.onPrimitiveObs(state, {value: '10', formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement});
         var action = WizardNextActionStub.forMovedNext();
         newState = EncounterActions.onNext(newState, action);
 

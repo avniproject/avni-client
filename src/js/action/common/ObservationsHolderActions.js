@@ -2,14 +2,19 @@ import _ from "lodash";
 import Concept from '../../models/Concept';
 
 class ObservationsHolderActions {
-    static onPrimitiveObs(state, action, context) {
+    static onPrimitiveObsUpdateValue(state, action, context) {
         const newState = state.clone();
-        const validationResult = action.formElement.validate(action.value);
-        newState.handleValidationResult(validationResult);
         if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
 
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
+        return newState;
+    }
+
+    static onPrimitiveObsEndEditing(state, action, context) {
+        const newState = state.clone();
+        const validationResult = action.formElement.validate(action.value);
+        newState.handleValidationResult(validationResult);
         return newState;
     }
 
