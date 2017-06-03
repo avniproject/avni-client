@@ -102,8 +102,8 @@ android {
         applicationId "com.openchsclient"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.03"
+        versionCode 5
+        versionName "1.05"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }

@@ -1,13 +1,12 @@
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualRegisterFormView from "./IndividualRegisterFormView";
-import {Alert} from "react-native";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
 import IndividualRegisterView from "./IndividualRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
-import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
-import AbstractDataEntryState from '../../state/AbstractDataEntryState';
-import BaseEntity from '../../models/BaseEntity';
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import BaseEntity from "../../models/BaseEntity";
+import IndividualRegistrationDetailView from "./IndividualRegistrationDetailView";
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 
 class IndividualRegisterViewsMixin {
