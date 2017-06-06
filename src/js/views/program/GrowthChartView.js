@@ -19,6 +19,10 @@ class GrowthChartView extends AbstractComponent {
         params: React.PropTypes.object.isRequired
     };
 
+    viewName() {
+        return 'GrowthChartView';
+    }
+
     buttons = {
         LESS_THAN_13_WEEKS: {data: "graphsBelow13Months", label: this.I18n.t('lessThan13Weeks'), minAge: 0},
         LESS_THAN_2_YEARS: {data: "graphsBelow2Years", label: this.I18n.t('lessThan2Years'), minAge: 3},

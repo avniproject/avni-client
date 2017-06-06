@@ -5,7 +5,6 @@ import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
 import models from './models';
 import './views';
-import './service';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import EntityMetaData from "./models/EntityMetaData";

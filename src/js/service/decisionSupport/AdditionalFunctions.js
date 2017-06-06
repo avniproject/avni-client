@@ -40,12 +40,12 @@ const _getObservationValue = function (observation, conceptName) {
 };
 
 const getObservationValueFromEntireEnrolment = function (conceptName) {
-    const observation = this.programEnrolment.findObservationInEntireEnrolment(conceptName);
+    const observation = this.findObservationInEntireEnrolment(conceptName);
     return _getObservationValue(observation, conceptName);
 };
 
 const observationExistsInEntireEnrolment = function (conceptName) {
-    return !_.isNil(this.programEnrolment.findObservationInEntireEnrolment(conceptName));
+    return !_.isNil(this.findObservationInEntireEnrolment(conceptName));
 };
 
 const observationExists = function (conceptName) {

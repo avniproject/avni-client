@@ -173,10 +173,6 @@ class ProgramEnrolment extends BaseEntity {
         return _.sortBy(this.encounters, (encounter) => moment().diff(encounter.encounterDateTime));
     }
 
-    findEnrolmentObservation(conceptName) {
-        return _.find(this.observations, (observation) => observation.concept.name === conceptName);
-    }
-
     findObservationInEntireEnrolment(conceptName) {
         const encounters = this.getEncounters();
         var observation;
@@ -186,7 +182,7 @@ class ProgramEnrolment extends BaseEntity {
         }
 
         if (_.isNil(observation))
-            return this.findEnrolmentObservation(conceptName);
+            return this.findObservation(conceptName);
 
         return observation;
     }

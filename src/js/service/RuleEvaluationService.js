@@ -47,8 +47,8 @@ class RuleEvaluationService extends BaseService {
                 currentPrototype.getCodedAnswers = getCodedAnswers;
             });
 
-            ProgramEncounter.prototype.getObservationValueFromEntireEnrolment = getObservationValueFromEntireEnrolment;
-            ProgramEncounter.prototype.observationExistsInEntireEnrolment = observationExistsInEntireEnrolment;
+            ProgramEnrolment.prototype.getObservationValueFromEntireEnrolment = getObservationValueFromEntireEnrolment;
+            ProgramEnrolment.prototype.observationExistsInEntireEnrolment = observationExistsInEntireEnrolment;
         }
     }
 
