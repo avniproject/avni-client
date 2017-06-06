@@ -61,11 +61,10 @@ describe('EncounterActionsTest', () => {
     it('validateNumericField without validation error', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
 
-        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '1', formElement: formElement});
+        state.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, '1');
+        var newState = ObservationsHolderActions.onPrimitiveObsEndEditing(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
         expect(newState.encounter.observations[0].getValue()).is.equal(1);
-        newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: '11', formElement: formElement});
-        verifyFormElementAndObservations(newState, 0, 1);
     });
 
     it('validateNumericField with validation error', () => {
@@ -73,7 +72,8 @@ describe('EncounterActionsTest', () => {
         formElement.concept.lowAbsolute = 10;
         formElement.concept.hiAbsolute = 100;
 
-        const newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: 1000, formElement: formElement});
+        state.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, 1000);
+        const newState = ObservationsHolderActions.onPrimitiveObsEndEditing(state, {value: 1000, formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 1);
     });
 
@@ -152,7 +152,7 @@ describe('EncounterActionsTest', () => {
 
     it('next should not be allowed if there are validation errors in the same FEG', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
-        var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '', formElement: formElement});
+        var newState = ObservationsHolderActions.onPrimitiveObsEndEditing(state, {value: '', formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
         var action = WizardNextActionStub.forValidationFailed();
         newState = EncounterActions.onNext(newState, action);
