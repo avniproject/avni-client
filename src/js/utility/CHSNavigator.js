@@ -10,10 +10,11 @@ import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
+import General from "./General";
 
 class CHSNavigator {
-    static navigateToProgramEnrolmentView(source, enrolment) {
-        TypedTransition.from(source).with({enrolment: enrolment}).to(ProgramEnrolmentView);
+    static navigateToProgramEnrolmentView(source, enrolment, backFunction) {
+        TypedTransition.from(source).with({enrolment: enrolment, backFunction: backFunction}).to(ProgramEnrolmentView, true);
     }
 
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, usage) {

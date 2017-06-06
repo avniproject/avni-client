@@ -17,7 +17,7 @@ export class ProgramEnrolmentActions {
     }
 
     static onLoad(state, action, context) {
-        if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action)) {
+        if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action) || action.forceLoad) {
             const formMappingService = context.get(FormMappingService);
             const form = action.usage === ProgramEnrolmentState.UsageKeys.Enrol ? formMappingService.findFormForProgramEnrolment(action.enrolment.program) : formMappingService.findFormForProgramExit(action.enrolment.program);
             const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));

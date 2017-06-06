@@ -8,6 +8,7 @@ import themes from "./primitives/themes";
 import Playground from "./Playground";
 import ChecklistView from "./program/ChecklistView";
 import ProgramEnrolmentDashboardView from "./program/ProgramEnrolmentDashboardView";
+import TypedTransition from "../framework/routing/TypedTransition";
 
 @Path('/landingView')
 @PathRoot

@@ -51,7 +51,7 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onLoad(state, action, context) {
-        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        const newState = ProgramEnrolmentDashboardActions.getInitialState();
         const entityService = context.get(EntityService);
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);

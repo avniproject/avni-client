@@ -11,7 +11,7 @@ import General from "../../utility/General";
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        enrolment: React.PropTypes.object.isRequired
     };
 
     static usageContext = {
@@ -31,13 +31,18 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.params.enrolment, usage: ProgramEnrolmentView.usageContext.usage});
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage});
         return super.componentWillMount();
+    }
+
+    onBack() {
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage, forceLoad: true});
+        this.goBack();
     }
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent state={this.state} context={ProgramEnrolmentView.usageContext}/>;
+        return <ProgramFormComponent state={this.state} context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}/>;
     }
 }
 

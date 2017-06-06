@@ -4,6 +4,7 @@ import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
+import TypedTransition from "../routing/TypedTransition";
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -31,7 +32,7 @@ class AbstractComponent extends Component {
 
     dispatchAction(action, params) {
         if (General.canLog(General.LogLevel.Debug))
-            General.logDebug(this.constructor.name, `Dispatching action: ${JSON.stringify(action)}`);
+            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(action)}`);
         this.context.getStore().dispatch({"type": action, ...params});
     }
 
@@ -84,6 +85,10 @@ class AbstractComponent extends Component {
                 style[styleItem] = DGS.resizeHeight(style[styleItem])
         });
         return style;
+    }
+
+    goBack() {
+        TypedTransition.from(this).goBack();
     }
 }
 

@@ -19,7 +19,8 @@ import Distances from "../primitives/Distances";
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
         context: React.PropTypes.object.isRequired,
-        state: React.PropTypes.object.isRequired
+        state: React.PropTypes.object.isRequired,
+        backFunction: React.PropTypes.func.isRequired
     };
 
     next() {
@@ -42,7 +43,7 @@ class ProgramFormComponent extends AbstractComponent {
     render() {
         return (<Container theme={themes}>
             <Content>
-                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})}/>
+                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})} func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.state.enrolment.individual}/>

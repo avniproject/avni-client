@@ -104,6 +104,8 @@ class ProgramEnrolment extends BaseEntity {
         this.encounters.forEach((enc) => {
             const programEncounter = new ProgramEncounter();
             programEncounter.uuid = enc.uuid;
+            programEncounter.name = enc.name;
+            programEncounter.encounterType = enc.encounterType.clone();
             programEnrolment.encounters.push(programEncounter);
         });
         programEnrolment.checklists = [];

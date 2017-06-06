@@ -43,7 +43,7 @@ class GrowthChartView extends AbstractComponent {
 
         if (ageInMonths < 3) return {
             title: this.I18n.t('lessThan13Weeks'),
-            graphsToBeShown: graphs.graphsBelow13Months
+            graphsToBeShown: graphs.graphsBelow13Weeks
         };
 
         if (ageInMonths < 25) return {
@@ -76,6 +76,7 @@ class GrowthChartView extends AbstractComponent {
         const data = chart.data(this.props.params.enrolment);
         const referenceLines = _.dropRight(data);
         const observations = _.last(data);
+        General.logDebugObject('GrowthChartView', observations);
         const dataIndex = data.length - 1;
         const colors = ["red", "orange", "green", "orange", "red"];
         const lightGreyLine = {stroke: "grey", opacity: 0.2};

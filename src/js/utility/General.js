@@ -178,6 +178,11 @@ class General {
         General.log(source, message, General.LogLevel.Debug);
     }
 
+    static logDebugObject(source, object) {
+        if (General.canLog(General.LogLevel.Debug))
+            General.log(source, JSON.stringify(object), General.LogLevel.Debug);
+    }
+
     static logInfo(source, message) {
         General.log(source, message, General.LogLevel.Info);
     }
