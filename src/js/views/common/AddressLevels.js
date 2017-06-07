@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import {CheckBox, Col, Row, Grid, Radio} from "native-base";
-import GlobalStyles from "../primitives/GlobalStyles";
 import MessageService from "../../service/MessageService";
 import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
@@ -63,7 +62,7 @@ class AddressLevels extends AbstractComponent {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
         return (
             <View style={this.appendedStyle()}>
-                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
+                <Text style={DGS.formElementLabel}>{I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',

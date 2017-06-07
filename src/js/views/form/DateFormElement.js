@@ -4,7 +4,6 @@ import {Text} from "native-base";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import DatePicker from "../primitives/DatePicker";
-import General from "../../utility/General";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
