@@ -59,7 +59,7 @@ class ProgramEnrolmentDashboardActions {
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
-            newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(action.program, context);
+            newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         }
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
