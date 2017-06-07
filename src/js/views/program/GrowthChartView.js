@@ -72,6 +72,15 @@ class GrowthChartView extends AbstractComponent {
         }
     }
 
+    renderLegendItem(percentile, color, index) {
+        return (
+            <View style={{flexDirection: 'row', justifyContent: "center", marginBottom: 20}} key={index} >
+                <View style={{backgroundColor: color, height: 20, width: 20}}/>
+                <Text style={{minWidth: 40, fontSize: Fonts.Medium, marginLeft: DGS.resizeWidth(10)}}>{percentile} %</Text>
+            </View>
+        );
+    }
+
     renderChart(chart, index) {
         const data = chart.data(this.props.params.enrolment);
         const referenceLines = _.dropRight(data);
@@ -79,11 +88,11 @@ class GrowthChartView extends AbstractComponent {
         General.logDebugObject('GrowthChartView', observations);
         const dataIndex = data.length - 1;
         const colors = ["red", "orange", "green", "orange", "red"];
+        const percentiles = [10, 25, 50, 75, 90];
         const lightGreyLine = {stroke: "grey", opacity: 0.2};
         return (
             <View style={{flexDirection: 'column', flex: 1, alignItems: 'center', marginBottom: 20}} key={index}>
-                <Text
-                    style={{fontSize: Fonts.Large, fontWeight: 'bold', color: Colors.InputNormal}}> {chart.title} </Text>
+                <Text style={{fontSize: Fonts.Large, fontWeight: 'bold', color: Colors.InputNormal}}> {chart.title} </Text>
                 <VictoryChart padding={40}>
                     <VictoryAxis orientation="bottom" label={chart.xAxisLabel} tickCount={10}
                                  style={{grid: lightGreyLine}}/>
@@ -92,22 +101,8 @@ class GrowthChartView extends AbstractComponent {
                         <VictoryLine data={data} key={idx} name="a" style={{data: {stroke: colors[idx], opacity: 0.2}}}/>))}
                     {this.renderObservations(observations, dataIndex)}
                 </VictoryChart>
-                <View style={{flexDirection: 'row', alignItems: "flex-end", flexWrap: "nowrap"}}>
-                    <View style={{flex: 4}}/>
-                    <View style={{flex: 1}}>
-                        <View style={{flexDirection: 'row', alignItems: "flex-end", flexWrap: "nowrap"}}>
-                            <View style={{backgroundColor: "red", height: 20, width: 20 }}/>
-                            <Text style={{textAlign: 'right', minWidth: 40}}></Text>
-                        </View>
-                        <View style={{flexDirection: 'row', alignItems: "flex-end", flexWrap: "nowrap"}}>
-                            <View style={{backgroundColor: "orange", height: 20, width: 20 }}/>
-                            <Text style={{textAlign: 'right', minWidth: 40}}></Text>
-                        </View>
-                        <View style={{flexDirection: 'row', alignItems: "flex-end", flexWrap: "nowrap"}}>
-                            <View style={{backgroundColor: "red", height: 20, width: 20 }}/>
-                            <Text style={{textAlign: 'right', minWidth: 40}}></Text>
-                        </View>
-                    </View>
+                <View style={{flexDirection: 'row', justifyContent: "center", flexWrap: "nowrap"}}>
+                    {_.map(percentiles, (percentile, index) => this.renderLegendItem(percentile, colors[index], index))}
                 </View>
             </View>
         );
