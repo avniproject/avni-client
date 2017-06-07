@@ -63,6 +63,7 @@ class IndividualProfile extends AbstractComponent {
                                         actions={Actions} labelKey='selectProgram'
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
                     <View style={{backgroundColor: Colors.BlackBackground, flexDirection: 'column'}}>
+                        <View style={{height: DGS.resizeHeight(50)}} />
                         <View style={{justifyContent: 'center', flexDirection: 'row'}}>
                             <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 68}}/>
                         </View>
