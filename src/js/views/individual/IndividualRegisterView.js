@@ -23,6 +23,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import DateFormElement from "../form/DateFormElement";
 import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -59,7 +60,7 @@ class IndividualRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
-                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate')}
+                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate', 'DOB')}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
                         <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
@@ -84,6 +85,7 @@ class IndividualRegisterView extends AbstractComponent {
                                 <View style={{marginRight: DGS.resizeWidth(15)}}/>
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirthVerified")}</Text>
                             </View>
+                            <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.DOB)}/>
                         </View>
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
