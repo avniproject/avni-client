@@ -1,5 +1,5 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import {View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";

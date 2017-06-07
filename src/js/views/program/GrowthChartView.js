@@ -24,7 +24,7 @@ class GrowthChartView extends AbstractComponent {
     }
 
     buttons = {
-        LESS_THAN_13_WEEKS: {data: "graphsBelow13Months", label: this.I18n.t('lessThan13Weeks'), minAge: 0},
+        LESS_THAN_13_WEEKS: {data: "graphsBelow13Weeks", label: this.I18n.t('lessThan13Weeks'), minAge: 0},
         LESS_THAN_2_YEARS: {data: "graphsBelow2Years", label: this.I18n.t('lessThan2Years'), minAge: 3},
         LESS_THAN_5_YEARS: {data: "graphsBelow5Years", label: this.I18n.t('2To5Years'), minAge: 24},
     };
