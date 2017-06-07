@@ -56,6 +56,7 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const i18n = this.I18n;
         return (
             <Container theme={themes}>
                 <Content>
@@ -76,7 +77,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                           <Row>
                                               <Text style={{fontSize: Fonts.Normal}} note>{item.gender.name}</Text>
                                               <Text style={this.scaleStyle({paddingLeft: 8, paddingRight: 8})}>|</Text>
-                                              <Text style={{fontSize: Fonts.Normal}} note>{item.getAge().toString()}</Text>
+                                              <Text style={{fontSize: Fonts.Normal}} note>{item.getDisplayAge(i18n)}</Text>
                                           </Row>
                                       </Col>
                                       <Col style={{width: DynamicGlobalStyles.resizeWidth(246)}}>

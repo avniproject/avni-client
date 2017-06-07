@@ -75,7 +75,7 @@ class IndividualProfile extends AbstractComponent {
                                 fontSize: 14,
                                 color: '#fff',
                                 justifyContent: 'center'
-                            }}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}, {this.props.individual.lowestAddressLevel.name}
+                            }}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.props.individual.lowestAddressLevel.name}
                             </Text>
                         </View>
                         <View style={[DGS.generalHistory.buttonRowStyle, {flexDirection: 'row', alignItems: 'center'}]}>

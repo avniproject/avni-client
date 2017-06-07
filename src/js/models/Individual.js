@@ -100,9 +100,16 @@ class Individual extends BaseEntity {
         return individual;
     }
 
-    static getDisplayAge(individual) {
-        const age = individual.getAge();
-        return age.toString();
+    getDisplayAge(i18n) {
+        const ageInYears = this.getAgeInYears();
+        if (ageInYears < 1){
+            let ageInWeeks = moment().diff(this.dateOfBirth, 'weeks');
+            return ageInWeeks === 0 ? Duration.inDay(moment().diff(this.dateOfBirth, 'days')).toString(i18n) : Duration.inWeek(ageInWeeks).toString(i18n);
+        } else if (ageInYears < 2) {
+            return Duration.inMonth(moment().diff(this.dateOfBirth, 'months')).toString(i18n);
+        } else {
+            return Duration.inYear(ageInYears).toString(i18n);
+        }
     }
 
     getAge() {

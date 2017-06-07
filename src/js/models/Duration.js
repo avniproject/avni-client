@@ -5,6 +5,15 @@ class Duration {
     static Day = "Day";
     static Month = "Month";
     static Year = "Year";
+    static Week = "Week";
+
+    static inDay(value) {
+        return new Duration(value, Duration.Day);
+    }
+
+    static inWeek(value) {
+        return new Duration(value, Duration.Week);
+    }
 
     static inMonth(value) {
         return new Duration(value, Duration.Month);
