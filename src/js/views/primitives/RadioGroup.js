@@ -15,7 +15,8 @@ class RadioGroup extends AbstractComponent {
         labelValuePairs: React.PropTypes.array.isRequired,
         selectionFn: React.PropTypes.func.isRequired,
         validationError: React.PropTypes.object,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        mandatory : React.PropTypes.bool
     };
 
     constructor(props, context) {
@@ -23,9 +24,10 @@ class RadioGroup extends AbstractComponent {
     }
 
     render() {
+        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
         return (
             <View style={this.appendedStyle({})}>
-                <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}</Text>
+                <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',

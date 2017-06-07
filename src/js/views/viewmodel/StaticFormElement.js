@@ -1,6 +1,7 @@
 class StaticFormElement {
-    constructor(name) {
+    constructor(name, mandatory) {
         this.name = name;
+        this.mandatory = mandatory;
     }
 }
 

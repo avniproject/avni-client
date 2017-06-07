@@ -60,16 +60,16 @@ class IndividualRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
-                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate', 'DOB')}
+                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate', true)}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
                         <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
-                                         element={new StaticFormElement('name')}
+                                         element={new StaticFormElement('name', true)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.NAME)}
                                          value={new PrimitiveValue(this.state.individual.name)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
-                                <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}</Text>
+                                <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}<Text style={{color: Colors.ValidationError}}> * </Text></Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <Text onPress={this.showPicker.bind(this, 'simple', {date: this.state.individual.dateOfBirth})}
@@ -89,7 +89,7 @@ class IndividualRegisterView extends AbstractComponent {
                         </View>
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
-                                <Text style={DGS.formElementLabel}>{this.I18n.t("age")}</Text>
+                                <Text style={DGS.formElementLabel}>{this.I18n.t("age")}<Text style={{color: Colors.ValidationError}}> * </Text></Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <TextInput style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
@@ -118,11 +118,14 @@ class IndividualRegisterView extends AbstractComponent {
                                     selectionFn={(gender) => gender.equals(this.state.individual.gender)}
                                     validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.GENDER)}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                    mandatory={true}
                         />
                         <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
                                        multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}
                                        validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
-                                       style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                                       style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                       mandatory={true}
+                        />
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                     </View>

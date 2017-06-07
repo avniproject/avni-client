@@ -19,7 +19,8 @@ class AddressLevels extends AbstractComponent {
         selectedAddressLevels: React.PropTypes.array.isRequired,
         actionName: React.PropTypes.string.isRequired,
         validationError: React.PropTypes.object,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        mandatory : React.PropTypes.bool
     };
 
     viewName() {
@@ -59,9 +60,10 @@ class AddressLevels extends AbstractComponent {
 
     render() {
         const I18n = this.context.getService(MessageService).getI18n();
+        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
         return (
             <View style={this.appendedStyle()}>
-                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}</Text>
+                <Text style={GlobalStyles.formElementLabel}>{I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
