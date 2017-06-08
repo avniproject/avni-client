@@ -44,7 +44,8 @@ class AbstractComponent extends Component {
         Alert.alert(this.I18n.t("validationError"), message,
             [
                 {
-                    text: this.I18n.t('ok'), onPress: () => {}
+                    text: this.I18n.t('ok'), onPress: () => {
+                }
                 },
             ]
         );
@@ -75,16 +76,17 @@ class AbstractComponent extends Component {
         return this.scaleStyle(appendedStyle);
     }
 
-    scaleStyle(style) {
-        DGS.stylesForHorizontalDistances.forEach((styleItem) => {
-            if (!_.isNil(style[styleItem]))
-                style[styleItem] = DGS.resizeWidth(style[styleItem])
-        });
-        DGS.stylesForVerticalDistances.forEach((styleItem) => {
-            if (!_.isNil(style[styleItem]))
-                style[styleItem] = DGS.resizeHeight(style[styleItem])
-        });
-        return style;
+    scaleStyle(styles) {
+        const resizeStylesFn = (filterList, resizeFn) => (value, key) => {
+                return _.find(filterList, (name) => name === key) ? resizeFn.call(DGS, value) : value
+            },
+            resizeHorizontalStylesFn = resizeStylesFn(DGS.stylesForHorizontalDistances, DGS.resizeWidth),
+            resizeVerticalStylesFn = resizeStylesFn(DGS.stylesForVerticalDistances, DGS.resizeHeight);
+
+        return _.chain(styles)
+            .mapValues(resizeHorizontalStylesFn)
+            .mapValues(resizeVerticalStylesFn)
+            .value();
     }
 
     goBack() {

@@ -73,10 +73,12 @@ class SystemRecommendationView extends AbstractComponent {
                         <View style={this.scaleStyle({paddingHorizontal: 24, paddingVertical: 12, flexDirection: 'column'})}>
                             {
                                 this.props.validationErrors.map((validationResult, index) => {
-                                    return <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
-                                                 key={`error${index}`}>
-                                        <Text style={{fontSize: Fonts.Medium, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
-                                    </View>;
+                                    return (
+                                        <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
+                                              key={`error${index}`}>
+                                            <Text style={{fontSize: Fonts.Medium, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
+                                        </View>
+                                    );
                                 })
                             }
                             <Observations observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}/>
