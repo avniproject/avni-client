@@ -59,20 +59,20 @@ class ConventionalRestClient {
     }
 
     postEntity(getNextItem, onCompleteCurrentItem, onComplete, onError) {
-        const nextItem = getNextItem();
-        if (_.isNil(nextItem)) {
+        const nextQueueItem = getNextItem();
+        if (_.isNil(nextQueueItem)) {
             General.logInfo('ConventionalRestClient', `No items in the EntityQueue`);
             onComplete();
             return;
         }
 
-        const url = `${this.settingsService.getSettings().serverURL}/${nextItem.metaData.resourceName}s`;
-        post(url, nextItem.resource, (response) => {
+        const url = `${this.settingsService.getSettings().serverURL}/${nextQueueItem.metaData.resourceName}s`;
+        post(url, nextQueueItem.resource, (response) => {
             if (!_.isNil(response.ok) && !response.ok) {
                 if (General.canLog(General.LogLevel.Debug)) General.logDebug('ConventionalRestClient', JSON.stringify(response));
                 onError();
             } else {
-                onCompleteCurrentItem();
+                onCompleteCurrentItem(nextQueueItem.entityName);
                 this.postEntity(getNextItem, onCompleteCurrentItem, onComplete, onError);
             }
         }, onError);

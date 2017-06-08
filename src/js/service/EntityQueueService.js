@@ -13,8 +13,8 @@ class EntityQueueService extends BaseService {
         return EntityQueue.schema.name;
     }
 
-    getNextQueuedItem() {
-        const topQueueItem = this._getTopQueueItem();
+    getNextQueuedItem(entityQueueItemName) {
+        const topQueueItem = this._getTopQueueItem(entityQueueItemName);
         if (_.isNil(topQueueItem)) {
             return null;
         }
@@ -23,17 +23,17 @@ class EntityQueueService extends BaseService {
         return {entity: entity, entityName: topQueueItem.entity};
     }
 
-    popTopQueueItem() {
+    popTopQueueItem(entityQueueItemName) {
         this.db.write(() => {
-            const topQueueItem = this._getTopQueueItem();
+            const topQueueItem = this._getTopQueueItem(entityQueueItemName);
             if (!_.isNil(topQueueItem)) {
                 this.db.delete(topQueueItem);
             }
         });
     }
 
-    _getTopQueueItem() {
-        const queueItems = this.db.objects(EntityQueue.schema.name).sorted("savedAt").slice(0, 1);
+    _getTopQueueItem(entityQueueItemName) {
+        const queueItems = this.db.objects(EntityQueue.schema.name).filtered(`entity="${entityQueueItemName}"`).sorted("savedAt").slice(0, 1);
         if (queueItems.length === 1) {
             return queueItems[0];
         }

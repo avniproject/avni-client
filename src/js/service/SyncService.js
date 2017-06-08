@@ -90,23 +90,28 @@ class SyncService extends BaseService {
     }
 
     pushTxData(allTxDataMetaData, onComplete, onError) {
-        this.conventionalRestClient.postEntity(() => this.getNextItem(allTxDataMetaData), () => this.deleteTopQueueItem(), onComplete, onError);
+        this.conventionalRestClient.postEntity(() => this.getNextQueueItem(allTxDataMetaData), (entityName) => this.deleteTopQueueItem(entityName), onComplete, onError);
     }
 
-    getNextItem(allTxDataMetaData) {
-        var nextQueueItem = this.getService(EntityQueueService).getNextQueuedItem();
+    getNextQueueItem(allTxEntitiesMetaData) {
+        const nextTxEntityMetaData = _.last(allTxEntitiesMetaData);
+        if (_.isNil(nextTxEntityMetaData)) return null;
+
+        var nextQueueItem = this.getService(EntityQueueService).getNextQueuedItem(nextTxEntityMetaData.entityName);
         if (_.isNil(nextQueueItem)) {
-            return null;
+            allTxEntitiesMetaData.pop();
+            return this.getNextQueueItem(allTxEntitiesMetaData);
+        } else {
+            nextQueueItem.resource = nextQueueItem.entity.toResource;
+            nextQueueItem.metaData = _.find(allTxEntitiesMetaData, function (item) {
+                return item.entityName === nextQueueItem.entityName;
+            });
+            return nextQueueItem;
         }
-        nextQueueItem.resource = nextQueueItem.entity.toResource;
-        nextQueueItem.metaData = _.find(allTxDataMetaData, function (item) {
-            return item.entityName === nextQueueItem.entityName;
-        });
-        return nextQueueItem;
     }
 
-    deleteTopQueueItem() {
-        this.getService(EntityQueueService).popTopQueueItem();
+    deleteTopQueueItem(entityName) {
+        this.getService(EntityQueueService).popTopQueueItem(entityName);
     }
 }
 
