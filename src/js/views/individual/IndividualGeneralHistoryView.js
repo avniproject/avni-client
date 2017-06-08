@@ -13,6 +13,8 @@ import PreviousEncounters from "../common/PreviousEncounters";
 import _ from "lodash";
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -39,8 +41,8 @@ class IndividualGeneralHistoryView extends AbstractComponent {
 
     render() {
         return (
-            <Container theme={themes}>
-                <Content style={{backgroundColor: Colors.BlackBackground}}>
+            <CHSContainer theme={themes}>
+                <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.I18n.t('generalHistory')}/>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual} style={DGS.common.content}/>
                     <Card style={{
@@ -51,8 +53,8 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                     }}>
                         <PreviousEncounters encounters={this.state.individual.encounters} style={{marginBottom: 21}}/>
                     </Card>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

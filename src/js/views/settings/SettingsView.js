@@ -2,7 +2,6 @@ import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import {Content, Container} from "native-base";
 import _ from "lodash";
 import General from "../../utility/General";
 import {SettingsActionsNames as Actions} from "../../action/SettingsActions";
@@ -14,6 +13,8 @@ import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import Distances from '../primitives/Distances';
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -29,8 +30,8 @@ class SettingsView extends AbstractComponent {
         const localeLabelValuePairs = this.state.localeMappings.map((localeMapping) => new RadioLabelValue(localeMapping.displayText, localeMapping));
         const logLevelLabelValuePairs = _.keys(General.LogLevel).map((logLevelName) => new RadioLabelValue(logLevelName, General.LogLevel[logLevelName]));
         return (
-            <Container theme={themes}>
-                <Content>
+            <CHSContainer theme={themes}>
+                <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={this.scaleStyle({paddingHorizontal: Distances.ContentDistanceFromEdge})}>
                         <TextFormElement element={new StaticFormElement('serverURL')} actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
@@ -45,8 +46,8 @@ class SettingsView extends AbstractComponent {
                                     selectionFn={(logLevel) => this.state.settings.logLevel === logLevel} validationError={null}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

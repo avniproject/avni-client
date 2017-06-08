@@ -20,6 +20,8 @@ import BaseEntity from "../../models/BaseEntity";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import General from "../../utility/General";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -63,8 +65,8 @@ class IndividualEncounterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <Container theme={themes}>
-                <Content ref='abc'>
+            <CHSContainer theme={themes}>
+                <CHSContent ref='abc'>
                     <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)} func={() => this.previous()}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed} individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.previousEncounters}/>
@@ -75,8 +77,8 @@ class IndividualEncounterView extends AbstractComponent {
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

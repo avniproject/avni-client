@@ -12,6 +12,8 @@ import {IndividualRegistrationDetailsActionsNames as Actions} from "../../action
 import General from "../../utility/General";
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -35,8 +37,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <Container theme={themes}>
-                <Content style={{backgroundColor: Colors.BlackBackground}}>
+            <CHSContainer theme={themes}>
+                <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.I18n.t('viewProfile')}/>
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual}/>
                     {this.state.individual.observations.length === 0 ? <View/> :
@@ -48,8 +50,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                     }}>
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
                     </Card>}
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

@@ -3,12 +3,10 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import Path, {PathRoot} from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
-import {Container, Content, Tabs} from "native-base";
+import {Tabs} from "native-base";
 import themes from "./primitives/themes";
-import Playground from "./Playground";
-import ChecklistView from "./program/ChecklistView";
-import ProgramEnrolmentDashboardView from "./program/ProgramEnrolmentDashboardView";
-import TypedTransition from "../framework/routing/TypedTransition";
+import CHSContainer from "./common/CHSContainer";
+import CHSContent from "./common/CHSContent";
 
 @Path('/landingView')
 @PathRoot
@@ -25,16 +23,16 @@ class LandingView extends AbstractComponent {
 
     render() {
         return (
-            <Container theme={themes}>
-                <Content style={{backgroundColor: '#fff'}}>
+            <CHSContainer theme={themes}>
+                <CHSContent style={{backgroundColor: '#fff'}}>
                     <Tabs>
                         {/*<ProgramEnrolmentDashboardView individualUUID="b5d9fd15-8a87-47f0-88ce-0551c6884d0a" tabLabel='Foo'/>*/}
                         <IndividualSearchView tabLabel='Home'/>
                         <MenuView tabLabel='Menu'/>
                         {/*<Playground tabLabel='Play'/>*/}
                     </Tabs>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

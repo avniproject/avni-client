@@ -15,6 +15,8 @@ import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractDataEntryState from '../../state/AbstractDataEntryState';
 import General from "../../utility/General";
 import Distances from "../primitives/Distances";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -44,8 +46,8 @@ class IndividualRegisterFormView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         return (
-            <Container theme={themes}>
-                <Content>
+            <CHSContainer theme={themes}>
+                <CHSContent>
                     <AppHeader title={this.I18n.t('registration')}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup}
@@ -56,8 +58,8 @@ class IndividualRegisterFormView extends AbstractComponent {
                                            label: this.I18n.t('next')
                                        }}/>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

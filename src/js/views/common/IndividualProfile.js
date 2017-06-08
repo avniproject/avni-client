@@ -1,7 +1,7 @@
 import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Button, Col, Content, Grid, Icon, Row, Text} from "native-base";
+import {Button, Icon, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import DGS from "../primitives/DynamicGlobalStyles";

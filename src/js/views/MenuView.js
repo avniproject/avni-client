@@ -1,5 +1,5 @@
-import {Alert, Animated, ProgressBarAndroid, ScrollView, StyleSheet, Text, TouchableHighlight, View} from "react-native";
-import React, {Component} from "react";
+import {Alert, Animated, Text, View} from "react-native";
+import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import {Button, Content, Icon} from "native-base";
@@ -17,6 +17,7 @@ import RuleEvaluationService from "../service/RuleEvaluationService";
 import Fonts from "./primitives/Fonts";
 import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
+import CHSContent from "./common/CHSContent";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -128,7 +129,7 @@ class MenuView extends AbstractComponent {
 
     render() {
         return (
-            <Content style={{backgroundColor: Colors.BlackBackground}}>
+            <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
                 <View style={this.scaleStyle({flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'center'})}>
                     <View style={this.columnStyle}>
                         <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
@@ -142,7 +143,7 @@ class MenuView extends AbstractComponent {
                     {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
                     <View style={{height: 600}}/>
                 </View>
-            </Content>
+            </CHSContent>
         );
     }
 }

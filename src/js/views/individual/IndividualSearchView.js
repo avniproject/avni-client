@@ -1,5 +1,5 @@
-import {ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
-import React, {Component} from "react";
+import {View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -13,6 +13,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/TextFormElement";
 import Distances from '../primitives/Distances';
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
+import CHSContent from "../common/CHSContent";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -29,7 +30,7 @@ class IndividualSearchView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <Content>
+            <CHSContent>
                 <View style={{marginTop: Distances.ScaledVerticalSpacingDisplaySections, marginHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
                     <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)}
                                      style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
@@ -40,7 +41,7 @@ class IndividualSearchView extends AbstractComponent {
                     <Button style={{marginTop: 30, marginBottom: 30}} block
                             onPress={() => this.searchIndividual()}>{this.I18n.t("search")}</Button>
                 </View>
-            </Content>
+            </CHSContent>
         );
     }
 

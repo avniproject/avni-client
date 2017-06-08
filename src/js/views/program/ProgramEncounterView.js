@@ -1,5 +1,5 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import {View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -8,7 +8,6 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterActionsNames as Actions} from "../../action/program/ProgramEncounterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {Content, Container} from "native-base";
 import ObservationsHolder from "../../models/ObservationsHolder";
 import CHSNavigator from "../../utility/CHSNavigator";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
@@ -20,6 +19,8 @@ import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import General from "../../utility/General";
 import Distances from "../primitives/Distances";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -66,8 +67,8 @@ class ProgramEncounterView extends AbstractComponent {
     render() {
         General.logDebug('ProgramEncounterView', 'render');
         return (
-            <Container theme={themes}>
-                <Content>
+            <CHSContainer theme={themes}>
+                <CHSContent>
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.name} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
@@ -83,8 +84,8 @@ class ProgramEncounterView extends AbstractComponent {
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

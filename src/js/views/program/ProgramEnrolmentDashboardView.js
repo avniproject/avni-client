@@ -12,7 +12,7 @@ import {
     ProgramEncounterTypeChoiceActionNames
 } from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
-import {Text, Content, Container, Button, Card} from "native-base";
+import {Text, Card} from "native-base";
 import ProgramList from "./ProgramList";
 import moment from "moment";
 import PreviousEncounters from "../common/PreviousEncounters";
@@ -26,6 +26,8 @@ import Fonts from '../primitives/Fonts';
 import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
 import Distances from "../primitives/Distances";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -86,8 +88,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         const dashboardButtons = this.state.dashboardButtons || [];
 
         return (
-            <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
-                <Content>
+            <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
+                <CHSContent>
                     <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
                                         selectedEntityType={programEncounterTypeState.entity.encounterType}
@@ -126,8 +128,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 </View>}
                         </Card>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 

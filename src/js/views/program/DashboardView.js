@@ -1,14 +1,14 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import {DashboardActionNames as Actions} from "../../action/program/DashboardActions";
 import themes from "../primitives/themes";
 import ProgramDashboard from "../program/ProgramDashboard";
-import {Content, Container} from "native-base";
 import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/DashboardView')
 class DashboardView extends AbstractComponent {
@@ -29,14 +29,14 @@ class DashboardView extends AbstractComponent {
 
     render() {
         return (
-            <Container theme={themes} style={{backgroundColor: Colors.GreyBackground}}>
-                <Content>
+            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyBackground}}>
+                <CHSContent>
                     <AppHeader title={this.I18n.t('dashboard')}/>
                     {this.state.programs.map((programSummary, index) => {
                         return <ProgramDashboard summary={programSummary} key={`programDashboard${index}`}/>;
                     })}
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

@@ -24,6 +24,8 @@ import DateFormElement from "../form/DateFormElement";
 import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -52,8 +54,8 @@ class IndividualRegisterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         return (
-            <Container theme={themes}>
-                <Content>
+            <CHSContainer theme={themes}>
+                <CHSContent>
                     <AppHeader title={this.I18n.t('registration')}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
@@ -129,8 +131,8 @@ class IndividualRegisterView extends AbstractComponent {
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 

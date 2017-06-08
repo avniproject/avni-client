@@ -1,4 +1,4 @@
-import {Content, Container, View} from "native-base";
+import {View} from "native-base";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
@@ -11,6 +11,8 @@ import * as _ from "lodash";
 import Fonts from '../primitives/Fonts';
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader"
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 
 @Path('/GrowthChartView')
@@ -116,8 +118,8 @@ class GrowthChartView extends AbstractComponent {
             marginBottom: DGS.resizeTextInputHeight(10)
         });
         return (
-            <Container theme={themes} style={{backgroundColor: 'white'}}>
-                <Content>
+            <CHSContainer theme={themes} style={{backgroundColor: 'white'}}>
+                <CHSContent>
                     <AppHeader title={`${individualName} - Growth Chart`}/>
                     <View style={{flexDirection: 'column', flex: 1}}>
                         <View style={{flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around'}}>
@@ -142,8 +144,8 @@ class GrowthChartView extends AbstractComponent {
                             {_.map(this.state.graphsToBeShown, (graph, index) => this.renderChart(graph, index))}
                         </View>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

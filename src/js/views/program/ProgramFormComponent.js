@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
-import {Container, Content} from "native-base";
 import themes from "../primitives/themes";
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
 import StaticFormElement from "../viewmodel/StaticFormElement";
@@ -15,6 +14,8 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import Distances from "../primitives/Distances";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -41,8 +42,8 @@ class ProgramFormComponent extends AbstractComponent {
     }
 
     render() {
-        return (<Container theme={themes}>
-            <Content>
+        return (<CHSContainer theme={themes}>
+            <CHSContent>
                 <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})} func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
@@ -60,8 +61,8 @@ class ProgramFormComponent extends AbstractComponent {
                     <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous(), label: this.I18n.t('previous')}}
                                    next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                 </View>
-            </Content>
-        </Container>);
+            </CHSContent>
+        </CHSContainer>);
     }
 }
 

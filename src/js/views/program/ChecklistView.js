@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {Button, Container, Content, Text} from "native-base";
+import {Button, Text} from "native-base";
 import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Colors from "../primitives/Colors";
@@ -14,6 +14,8 @@ import Fonts from "../primitives/Fonts";
 import Duration from "../../models/Duration";
 import ChecklistItemDisplay from "./ChecklistItemDisplay";
 import General from "../../utility/General";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -41,8 +43,8 @@ class ChecklistView extends AbstractComponent {
     render() {
         General.logDebug('ChecklistView', this.props.enrolmentUUID);
         return (
-            <Container theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
-                <Content>
+            <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
+                <CHSContent>
                     <AppHeader title={`${this.state.checklists[0].programEnrolment.individual.name} - ${this.I18n.t('checklists')}`}/>
                     {this.state.checklists.map((checklist, index) => {
                         return (
@@ -79,8 +81,8 @@ class ChecklistView extends AbstractComponent {
                                 </View>
                             </View>);
                     })}
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

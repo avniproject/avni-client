@@ -15,6 +15,8 @@ import Observations from "../common/Observations";
 import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
 import ChecklistDisplay from "../program/ChecklistDisplay";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -59,8 +61,8 @@ class SystemRecommendationView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         return (
-            <Container theme={themes}>
-                <Content>
+            <CHSContainer theme={themes}>
+                <CHSContent>
                     <AppHeader title={this.props.headerMessage}/>
                     <View style={{flexDirection: 'column'}}>
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.individual} style={{
@@ -85,8 +87,8 @@ class SystemRecommendationView extends AbstractComponent {
                                        next={{func: () => this.save(), visible: this.props.validationErrors.length === 0, label: this.I18n.t('save')}}
                                        style={{marginHorizontal: 24}}/>
                     </View>
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }

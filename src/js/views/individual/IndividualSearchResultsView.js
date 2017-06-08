@@ -11,6 +11,8 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
+import CHSContainer from "../common/CHSContainer";
+import CHSContent from "../common/CHSContent";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -58,8 +60,8 @@ class IndividualSearchResultsView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const i18n = this.I18n;
         return (
-            <Container theme={themes}>
-                <Content>
+            <CHSContainer theme={themes}>
+                <CHSContent>
                     <AppHeader title={this.I18n.t("searchResults")}/>
                     <List style={{backgroundColor: Colors.GreyContentBackground}} dataArray={this.props.searchResults}
                           renderRow={(item) =>
@@ -90,8 +92,8 @@ class IndividualSearchResultsView extends AbstractComponent {
                           }>
                     </List>
                     {this.renderZeroResultsMessageIfNeeded()}
-                </Content>
-            </Container>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 
