@@ -1,19 +1,17 @@
-import {StyleSheet, View} from "react-native";
-import React, {Component} from "react";
+import {Text, View} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import _ from "lodash";
-import {Col, Grid, Row, Text} from "native-base";
-import DGS from "../primitives/DynamicGlobalStyles";
+import {Col, Grid, Row} from "native-base";
 import ConceptService from "../../service/ConceptService";
 import Observation from "../../models/Observation";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
-import General from "../../utility/General";
 
 class Observations extends AbstractComponent {
     static propTypes = {
         observations: React.PropTypes.any.isRequired,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        title: React.PropTypes.string
     };
 
     constructor(props, context) {
@@ -39,28 +37,42 @@ class Observations extends AbstractComponent {
         return !this.props.observations.some((obs) => obs.concept.name.length > 17);
     }
 
+    renderTitle() {
+        if (this.props.title) return (<Text style={Fonts.Title}>{this.props.title}</Text>);
+    }
+
     render() {
         if (this.props.observations.length === 0) return <View/>;
 
-        const numberOfColumns = DGS.numberOfRows(this.props.observations.length);
         const conceptService = this.context.getService(ConceptService);
         const nameColSize = this.allObservationNamesSmall ? 1 : 2;
 
         return (
-            <Grid style={this.appendedStyle(this.styles.observationTable)}>
-                {
-                    this.props.observations.map((observation, cellIndex) => {
-                        return <Row style={this.styles.observationRow} key={`${cellIndex}`}>
-                            <Col style={this.styles.observationColumn} key={`${cellIndex}col1`} size={nameColSize}>
-                                <Text style={{textAlign: 'left', fontSize: Fonts.Normal}}>{this.I18n.t(observation.concept.name)}</Text>
-                            </Col>
-                            <Col style={this.styles.observationColumn} key={`${cellIndex}col2`} size={2}>
-                                <Text style={{textAlign: 'left', fontSize: Fonts.Medium}}>{Observation.valueAsString(observation, conceptService)}</Text>
-                            </Col>
-                        </Row>
-                    })
-                }
-            </Grid>
+            <View style={{flexDirection: "column"}}>
+                {this.renderTitle()}
+                <Grid style={this.appendedStyle(this.styles.observationTable)}>
+                    {
+                        this.props.observations.map((observation, cellIndex) => {
+                            return <Row style={this.styles.observationRow} key={`${cellIndex}`}>
+                                <Col style={this.styles.observationColumn} key={`${cellIndex}col1`} size={nameColSize}>
+                                    <Text style={{
+                                        textAlign: 'left',
+                                        fontSize: Fonts.Normal
+                                    }}>{this.I18n.t(observation.concept.name)}</Text>
+                                </Col>
+                                <Col style={this.styles.observationColumn} key={`${cellIndex}col2`} size={2}>
+                                    <Text style={{
+                                        textAlign: 'left',
+                                        fontSize: Fonts.Medium
+                                    }}>{Observation.valueAsString(observation, conceptService)}</Text>
+                                </Col>
+                            </Row>
+                        })
+                    }
+                </Grid>
+            </View>
+
+
         );
     }
 }

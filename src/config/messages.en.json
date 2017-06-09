@@ -137,5 +137,8 @@
   "lessThan2Years": "<2 Years",
   "2To5Years": "2 to 5 Years",
   "individualDashboard": "Dashboard",
-  "scheduled": "Scheduled"
+  "scheduled": "Scheduled",
+
+  "systemRecommendations": "System Recommendations",
+  "observations": "Observations"
 }

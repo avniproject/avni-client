@@ -17,6 +17,7 @@ import ConceptService from "../../service/ConceptService";
 import ChecklistDisplay from "../program/ChecklistDisplay";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import MessageService from "../../service/MessageService";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -70,24 +71,28 @@ class SystemRecommendationView extends AbstractComponent {
                             paddingHorizontal: 24,
                             paddingBottom: 12,
                         }}/>
-                        <View style={this.scaleStyle({paddingHorizontal: 24, paddingVertical: 12, flexDirection: 'column'})}>
-                            {
-                                this.props.validationErrors.map((validationResult, index) => {
-                                    return (
-                                        <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
-                                              key={`error${index}`}>
-                                            <Text style={{fontSize: Fonts.Medium, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
-                                        </View>
-                                    );
-                                })
-                            }
-                            <Observations observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}/>
+
+                        <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
+                            <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
+                                {
+                                    this.props.validationErrors.map((validationResult, index) => {
+                                        return (
+                                            <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
+                                                  key={`error${index}`}>
+                                                <Text style={{fontSize: Fonts.Medium, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
+                                            </View>
+                                        );
+                                    })
+                                }
+                                <Observations observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)} title={this.I18n.t('systemRecommendations')}/>
+                            </View>
+                            <Observations observations={this.props.observations} title={this.I18n.t('observations')}/>
+                            <ChecklistDisplay checklists={this.props.checklists}/>
+                            <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
+                                           next={{func: () => this.save(), visible: this.props.validationErrors.length === 0, label: this.I18n.t('save')}}
+                                           style={{marginHorizontal: 24}}/>
+
                         </View>
-                        <Observations observations={this.props.observations} style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
-                        <ChecklistDisplay checklists={this.props.checklists} style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
-                        <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
-                                       next={{func: () => this.save(), visible: this.props.validationErrors.length === 0, label: this.I18n.t('save')}}
-                                       style={{marginHorizontal: 24}}/>
                     </View>
                 </CHSContent>
             </CHSContainer>
