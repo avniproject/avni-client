@@ -6,7 +6,6 @@ import Individual from "../../js/models/Individual";
 describe('EntitiesMetaDataTest', () => {
     it('entitiesLoadedFromServer', () => {
         var entitiesLoadedFromServer = EntityMetaData.entitiesLoadedFromServer();
-        expect(entitiesLoadedFromServer.indexOf(Settings)).is.equal(-1);
-        expect(entitiesLoadedFromServer.indexOf(Individual)).is.not.equal(-1);
+        expect(entitiesLoadedFromServer).to.not.include.members([Settings, Individual]);
     });
 });
