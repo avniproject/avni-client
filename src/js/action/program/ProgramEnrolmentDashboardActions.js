@@ -85,8 +85,7 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onProgramEncounterTypeConfirmed(state, action, context) {
-        const newState = ProgramEnrolmentDashboardActions.clone(state),
-            newEntity = newState.programEncounterTypeState.entity;
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
 
         if (!newState.programEncounterTypeState.entity.encounterType) return newState;
 
