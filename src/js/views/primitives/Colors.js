@@ -1,5 +1,15 @@
 class Colors {
-    static Primary = '#e46d14';
+    static DarkPrimaryColor = '#00796B'; // for header, footer etc
+    static DefaultPrimaryColor = '#009688'; //default button colors, whenever you need a color
+    static LightPrimaryColor = '#B2DFDB';
+    static DefaultTextBackgroundColor = '#FFFFFF';
+    static AccentColor = '#607D8B'; // for fabs etc
+    static PrimaryTextColor = '#212121';
+    static SecondaryTextColor = '#757575';
+    static TextOnPrimaryColor = '#FFFFFF';
+    static DividerColor = '#BDBDBD';
+
+
     static Complimentary = '#148be4';
     static TertiaryColor = 'lightgrey';
 
@@ -13,6 +23,7 @@ class Colors {
     static SecondaryActionButtonColor = '#e0e0e0';
     static GreyContentBackground = '#f7f7f7';
     static CheckboxRadioboxColor = '#010101';
+    static HighlightBackgroundColor = 'lightgrey';
 
     static ChecklistItemUpcoming = 'yellow';
     static ChecklistItemUnfulfilled = 'greenyellow';

@@ -1,8 +1,8 @@
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {Button, Icon} from "native-base";
-import {Text, View} from "react-native";
+import {Icon} from "native-base";
+import {Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -31,16 +31,44 @@ class AppHeader extends AbstractComponent {
 
     render() {
         return (
-            <View style={{backgroundColor: Colors.BlackBackground, flexDirection: 'row', alignItems: 'center'}}>
-                <Button transparent onPress={() => this.onBack()} style={{paddingHorizontal: 0, marginHorizontal: 10}}>
-                    <Icon style={{fontSize: 25, color: 'white', marginTop: DGS.resizeHeight(5)}} name='keyboard-arrow-left'/>
-                </Button>
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
-                    <Text style={{color: 'white'}}>{this.props.title}</Text>
+            <View style={{
+                backgroundColor: Colors.DefaultPrimaryColor,
+                flexDirection: 'row',
+                minHeight: DGS.resizeHeight(56)
+            }}>
+                <TouchableNativeFeedback onPress={() => this.onBack()}
+                                         background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
+                    <View style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'flex-start',
+                        height: DGS.resizeHeight(56),
+                        width: DGS.resizeWidth(72),
+                        paddingLeft: DGS.resizeWidth(16),
+                        paddingRight: DGS.resizeWidth(16)
+                    }}>
+                        <Icon style={{fontSize: 24, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
+                    </View>
+                </TouchableNativeFeedback>
+
+                <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
+                    <Text style={{color: Colors.TextOnPrimaryColor, fontSize: 20}}>{this.props.title}</Text>
                 </View>
-                <Button transparent onPress={() => this.onHome()} style={{paddingHorizontal: 0, marginHorizontal: 10}}>
-                    <Icon style={{fontSize: 25, color: 'white'}} name='home'/>
-                </Button>
+
+                <TouchableNativeFeedback onPress={() => this.onHome()}
+                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                    <View style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'flex-end',
+                        height: DGS.resizeHeight(56),
+                        width: DGS.resizeWidth(72),
+                        paddingLeft: DGS.resizeWidth(16),
+                        paddingRight: DGS.resizeWidth(16)
+                    }}>
+                        <Icon style={{fontSize: 24, color: Colors.TextOnPrimaryColor}} name='home'/>
+                    </View>
+                </TouchableNativeFeedback>
             </View>
         );
     }
