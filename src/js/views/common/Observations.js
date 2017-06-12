@@ -11,26 +11,50 @@ class Observations extends AbstractComponent {
     static propTypes = {
         observations: React.PropTypes.any.isRequired,
         style: React.PropTypes.object,
-        title: React.PropTypes.string
+        title: React.PropTypes.string,
+        highlight: React.PropTypes.bool
     };
 
     constructor(props, context) {
         super(props, context);
-        this.createObservationsStyles();
+        this.createObservationsStyles(props.highlight);
     }
 
-    createObservationsStyles() {
-        this.styles = {
-            observationTable: {
-                borderRightWidth: 1,
-                borderTopWidth: 1,
-                borderColor: 'rgba(0, 0, 0, 0.12)',
-                marginHorizontal: 3,
-                backgroundColor: Colors.GreyContentBackground
-            },
-            observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
-            observationColumn: {borderLeftWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)', paddingLeft: 3, paddingBottom: 2}
-        }
+    createObservationsStyles(highlight) {
+        this.styles = highlight ?
+            {
+                observationTable: {
+                    borderRightWidth: 1,
+                    borderTopWidth: 1,
+                    borderColor: 'rgba(0, 0, 0, 0.12)',
+                    marginHorizontal: 3,
+                    backgroundColor: Colors.HighlightBackgroundColor
+                },
+                observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                observationColumn: {
+                    borderLeftWidth: 1,
+                    borderColor: 'rgba(0, 0, 0, 0.12)',
+                    paddingLeft: 3,
+                    paddingBottom: 2
+                }
+            }
+            :
+            {
+                observationTable: {
+                    borderRightWidth: 1,
+                    borderTopWidth: 1,
+                    borderColor: 'rgba(0, 0, 0, 0.12)',
+                    marginHorizontal: 3,
+                    backgroundColor: Colors.GreyContentBackground
+                },
+                observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                observationColumn: {
+                    borderLeftWidth: 1,
+                    borderColor: 'rgba(0, 0, 0, 0.12)',
+                    paddingLeft: 3,
+                    paddingBottom: 2
+                }
+            }
     }
 
     get allObservationNamesSmall() {

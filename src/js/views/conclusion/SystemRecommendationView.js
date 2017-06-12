@@ -84,7 +84,7 @@ class SystemRecommendationView extends AbstractComponent {
                                         );
                                     })
                                 }
-                                <Observations observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)} title={this.I18n.t('systemRecommendations')}/>
+                                <Observations highlight observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)} title={this.I18n.t('systemRecommendations')}/>
                             </View>
                             <Observations observations={this.props.observations} title={this.I18n.t('observations')}/>
                             <ChecklistDisplay checklists={this.props.checklists}/>
