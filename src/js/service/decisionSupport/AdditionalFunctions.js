@@ -39,13 +39,13 @@ const _getObservationValue = function (observation, conceptName) {
     }
 };
 
-const getObservationValueFromEntireEnrolment = function (conceptName) {
-    const observation = this.findObservationInEntireEnrolment(conceptName);
+const getObservationValueFromEntireEnrolment = function (conceptName, currentEncounter) {
+    const observation = this.findObservationInEntireEnrolment(conceptName, currentEncounter);
     return _getObservationValue(observation, conceptName);
 };
 
-const observationExistsInEntireEnrolment = function (conceptName) {
-    return !_.isNil(this.findObservationInEntireEnrolment(conceptName));
+const observationExistsInEntireEnrolment = function (conceptName, currentEncounter) {
+    return !_.isNil(this.findObservationInEntireEnrolment(conceptName, currentEncounter));
 };
 
 const observationExists = function (conceptName) {
