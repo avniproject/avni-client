@@ -1,8 +1,8 @@
 class Fonts {
-    static Normal = 12;
-    static Medium = 14;
-    static Large = 16;
-    static TitleSize = 24;
+    static Normal = 15;
+    static Medium = 15;
+    static Large = 17;
+    static TitleSize = 17;
 
     static get LargeBold() {
         return {fontSize: Fonts.Large, fontWeight: 'bold'};

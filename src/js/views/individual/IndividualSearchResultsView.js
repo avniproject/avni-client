@@ -1,11 +1,9 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {View} from "react-native";
+import {TouchableNativeFeedback, View, ListView, Dimensions, Text, Platform} from "react-native";
 import React from "react";
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
-import {Container, Content, List, ListItem, Grid, Row, Col, Text, Button, Icon} from "native-base";
-import themes from "../primitives/themes";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import {Button, Icon} from "native-base";
 import AppHeader from "../common/AppHeader";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
@@ -13,6 +11,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import Svg,{Line} from 'react-native-svg';
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -26,15 +25,10 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-    }
-
-    renderRowAResult(individual, rowID) {
-        return (
-            <TouchableNativeFeedback onPress={() => this.onResultRowPress(individual)} key={`2${rowID}`}>
-                <View style={GlobalStyles.listRow} key={`3${rowID}`}>
-                    <Text>{individual.toSummaryString()}</Text>
-                </View>
-            </TouchableNativeFeedback>);
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.state = {
+            dataSource: ds.cloneWithRows(['row 1', 'row 2']),
+        };
     }
 
     renderZeroResultsMessageIfNeeded() {
@@ -52,45 +46,65 @@ class IndividualSearchResultsView extends AbstractComponent {
     renderProgram(program, index) {
         return (
             <Button key={index} disabled
-                    style={{marginLeft: 8, width: 74, height: 22, backgroundColor: program.colour}}>{program.name}</Button>
+                    style={{
+                        marginLeft: 8,
+                        width: 74,
+                        height: 22,
+                        backgroundColor: program.colour
+                    }}>{program.name}</Button>
         );
+    }
+
+    background() {
+        return Platform['Version'] >= 21 ?
+            TouchableNativeFeedback.Ripple(Colors.DarkPrimaryColor) :
+            TouchableNativeFeedback.SelectableBackground();
     }
 
     render() {
         General.logDebug(this.viewName(), 'render');
         const i18n = this.I18n;
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults);
+        const width = Dimensions.get('window').width;
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent>
                     <AppHeader title={this.I18n.t("searchResults")}/>
-                    <List style={{backgroundColor: Colors.GreyContentBackground}} dataArray={this.props.searchResults}
-                          renderRow={(item) =>
-                              <ListItem key={item.uuid}
-                                        style={this.scaleStyle({
-                                            padding: 17,
-                                        })}
-                                        onPress={() => this.onResultRowPress(item)}>
-                                  <Grid>
-                                      <Col style={{width: DynamicGlobalStyles.resizeWidth(68)}}>
-                                          <Icon name='person-pin' style={{color: Colors.ActionButtonColor, opacity: 0.8, justifyContent: 'center', fontSize: 48}}/>
-                                      </Col>
-                                      <Col style={{paddingLeft: DynamicGlobalStyles.resizeWidth(16)}}>
-                                          <Row><Text style={{fontSize: Fonts.Large}}>{item.name}</Text></Row>
-                                          <Row>
-                                              <Text style={{fontSize: Fonts.Normal}} note>{item.gender.name}</Text>
-                                              <Text style={this.scaleStyle({paddingLeft: 8, paddingRight: 8})}>|</Text>
-                                              <Text style={{fontSize: Fonts.Normal}} note>{item.getDisplayAge(i18n)}</Text>
-                                          </Row>
-                                      </Col>
-                                      <Col style={{width: DynamicGlobalStyles.resizeWidth(246)}}>
-                                          <Row style={{justifyContent: 'flex-end'}}><Text style={{fontSize: Fonts.Large}}>{item.lowestAddressLevel.name}</Text></Row>
-                                          <Row
-                                              style={{justifyContent: 'flex-end'}}>{_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}</Row>
-                                      </Col>
-                                  </Grid>
-                              </ListItem>
-                          }>
-                    </List>
+                    <ListView dataSource={dataSource}
+                              renderRow={(item) =>
+                    <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
+                                                   background={this.background()}>
+                        <View style={{flexDirection: 'column', height: 72, justifyContent: 'space-between', paddingHorizontal: 16}}>
+                              <View style={{flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center'}}>
+                                  <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 40, paddingRight: 16, width: 72}}/>
+                                  <View style={{ flexDirection: 'column', flexWrap: 'nowrap', justifyContent: 'center', alignItems: 'flex-start', flex: 1}}>
+                                      <Text style={{fontSize: Fonts.Large}}>{item.name}</Text>
+                                      <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+                                      <Text style={{fontSize: Fonts.Normal}}>{item.gender.name}</Text>
+                                          <Text style={this.scaleStyle({ paddingLeft: 8, paddingRight: 8})}></Text>
+                                          <Text style={{fontSize: Fonts.Normal}} note>{item.getDisplayAge(i18n)}</Text>
+                                      </View>
+                                  </View>
+                                  <View style={{
+                                      flexDirection: 'column',
+                                      flexWrap: 'nowrap',
+                                      justifyContent: 'center',
+                                      alignItems: 'flex-end'
+                                  }}>
+                                      <View style={{justifyContent: 'flex-end'}}>
+                                          <Text style={{fontSize: Fonts.Large}}>{item.lowestAddressLevel.name}</Text>
+                                      </View>
+                                      <View style={{ justifyContent: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end'}}>
+                                      {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                                      </View>
+                                  </View>
+                              </View>
+                            <Svg height="1" width={width}><Line x1="0" x2={width} y1="0" y2="0" stroke={Colors.GreyBackground} strokeWidth="1"/></Svg>
+                        </View>
+                    </TouchableNativeFeedback>
+                              }>
+
+                    </ListView>
                     {this.renderZeroResultsMessageIfNeeded()}
                 </CHSContent>
             </CHSContainer>

@@ -8,13 +8,18 @@
   },
   "jest": {
     "preset": "react-native",
-    "testMatch": ["<rootDir>/src/test/**/*Test.js"],
+    "testMatch": [
+      "<rootDir>/src/test/**/*Test.js"
+    ],
     "transformIgnorePatterns": [
       "node_modules/(?!react-native|OpenCHSClient)/"
     ],
     "haste": {
       "defaultPlatform": "android",
-      "platforms": ["android", "ios"],
+      "platforms": [
+        "android",
+        "ios"
+      ],
       "providesModuleNodeModules": [
         "react",
         "react-native"
@@ -32,7 +37,7 @@
     "invariant": "2.2.2",
     "lodash": "^4.12.0",
     "moment": "^2.18.1",
-    "native-base": "^0.5.22",
+    "native-base": "^2.2.0",
     "react": "^15.4.2",
     "react-native": "^0.42.3",
     "react-native-fabric": "^0.4.1",

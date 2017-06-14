@@ -37,8 +37,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <CHSContainer theme={themes}>
-                <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
+            <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
+                <CHSContent>
                     <AppHeader title={this.I18n.t('viewProfile')}/>
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual}/>
                     {this.state.individual.observations.length === 0 ? <View/> :

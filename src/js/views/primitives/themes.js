@@ -1,4 +1,5 @@
 import Color from 'color';
+import Colors from "./Colors";
 
 import {Platform} from 'react-native';
 
@@ -72,13 +73,13 @@ export default {
 
 
     // Check Box
-    checkboxBgColor: '#009688',
+    checkboxBgColor: Colors.DefaultPrimaryColor,
     checkboxSize: 16,
     checkboxTickColor: '#fff',
 
 
     // Color
-    brandPrimary : '#009688',
+    brandPrimary : Colors.DefaultPrimaryColor,
     brandInfo: '#5bc0de',
     brandSuccess: '#5cb85c',
     brandDanger: '#d9534f',
@@ -88,7 +89,7 @@ export default {
 
     // Font
     fontFamily: (Platform.OS === 'ios' ) ? 'HelveticaNeue' : 'Roboto',
-    fontSizeBase: 10,
+    fontSizeBase: 15,
 
     get fontSizeH1 () {
         return this.fontSizeBase*1.8;
@@ -112,9 +113,9 @@ export default {
     tabActiveBgColor: (Platform.OS=='ios') ? '#cde1f9' : undefined,
 
     //Tab
-    tabDefaultBg: (Platform.OS === 'ios' ) ? '#F8F8F8' : '#4179F7',
-    topTabBarTextColor: (Platform.OS === 'ios' ) ? '#6b6b6b' : '#b3c7f9',
-    topTabBarActiveTextColor: (Platform.OS === 'ios' ) ? '#007aff' : '#fff',
+    tabDefaultBg: (Platform.OS === 'ios' ) ? '#F8F8F8' : Colors.DefaultPrimaryColor,
+    topTabBarTextColor: (Platform.OS === 'ios' ) ? '#6b6b6b' : Colors.TextOnPrimaryColor,
+    topTabBarActiveTextColor: (Platform.OS === 'ios' ) ? '#007aff' : Colors.TextOnPrimaryColor,
     topTabActiveBgColor: (Platform.OS=='ios') ? '#cde1f9' : undefined,
     topTabBarBorderColor: (Platform.OS === 'ios' ) ? '#007aff' : '#fff',
 
@@ -198,9 +199,9 @@ export default {
 
 
     // Tabs
-    tabBgColor: '#F8F8F8',
-    tabFontSize: 15,
-    tabTextColor: '#222222',
+    tabBgColor: Colors.DefaultPrimaryColor,
+    tabFontSize: 20,
+    tabTextColor: Colors.TextOnPrimaryColor,
 
 
     // Text

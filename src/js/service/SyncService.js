@@ -43,7 +43,7 @@ class SyncService extends BaseService {
         const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
         const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
         const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
-        this.pushTxData(allTxDataMetaData, pullReferenceDataFn, onError);
+        this.pushTxData(allTxDataMetaData.slice(), pullReferenceDataFn, onError);
     }
 
     pullConfiguration(onComplete, onError) {

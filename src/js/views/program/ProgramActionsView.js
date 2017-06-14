@@ -1,12 +1,10 @@
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import {View, TouchableNativeFeedback, Text} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Button} from "native-base";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
-import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {
     ProgramEncounterTypeChoiceActionNames,
@@ -14,6 +12,7 @@ import {
 } from "../../action/program/ProgramEnrolmentDashboardActions";
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
+import Fonts from "../primitives/Fonts";
 
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
@@ -43,36 +42,39 @@ class ProgramActionsView extends AbstractComponent {
         TypedTransition.from(this).bookmark().with({data: _.get(button, ['openOnClick', 'data']), enrolment: this.props.enrolment}).to(GrowthChartView);
     }
 
-    renderConfiguredButton(button) {
+    renderButton(onPress, buttonColor, text, textColor) {
         return (
-            <Button block
-                    style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.SecondaryActionButtonColor}}
-                    textStyle={{color: 'black'}}
-                    onPress={() => this.goToView(button)} key={button.label}>{button.label}</Button>
+            <TouchableNativeFeedback onPress={onPress}>
+                <View  style={{ height: 36, marginBottom: 8, elevation: 2, borderRadius: 4, width: 288,
+                    elevation: 3, backgroundColor: buttonColor,
+                    alignItems: 'center', justifyContent: 'center'}}>
+                    <Text style={{
+                        fontSize: Fonts.Medium,
+                        color: textColor
+                    }}>{text.toUpperCase()}</Text>
+                </View>
+            </TouchableNativeFeedback>
         );
     }
 
     render() {
         return (
             <View
-                style={{flexDirection: 'column', flex: 1, justifyContent: 'flex-end', marginTop: DGS.resizeHeight(9)}}>
+                style={{flexDirection: 'column', marginTop: 8}}>
                 {this.props.enrolment.isActive ?
-                    <Button block
-                            style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                            textStyle={{color: 'white'}}
-                            onPress={() => this.startProgramEncounter()}>{this.I18n.t('startProgramVisit')}</Button> :
+                    this.renderButton(() => this.startProgramEncounter(), Colors.DefaultPrimaryColor,
+                        this.I18n.t('startProgramVisit'), Colors.TextOnPrimaryColor)
+                    :
                     <View/>}
                 {this.props.enrolment.hasChecklist ?
-                    <Button block
-                            style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.ActionButtonColor}}
-                            textStyle={{color: 'white'}}
-                            onPress={() => this.openChecklist()}>{this.I18n.t('openChecklist')}</Button> :
+                    this.renderButton(() => this.openChecklist(), Colors.DefaultPrimaryColor,
+                        this.I18n.t('openChecklist'), Colors.TextOnPrimaryColor)
+                    :
                     <View/>}
-                <Button block
-                        style={{height: DGS.resizeHeight(36), marginBottom: DGS.resizeHeight(8), backgroundColor: Colors.SecondaryActionButtonColor}}
-                        textStyle={{color: Colors.BlackBackground}}
-                        onPress={() => this.startEncounter()}>{this.I18n.t('startGeneralVisit')}</Button>
-                {_.map(this.props.programDashboardButtons, (button) => this.renderConfiguredButton(button))}
+                {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
+                    this.I18n.t('startGeneralVisit'), Colors.PrimaryTextColor)}
+                {_.map(this.props.programDashboardButtons, (button) => this.renderButton(() => this.goToView(button),
+                    Colors.SecondaryActionButtonColor, button.label, Colors.PrimaryTextColor))}
             </View>
         );
     }

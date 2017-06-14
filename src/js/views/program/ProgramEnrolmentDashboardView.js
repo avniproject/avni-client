@@ -88,7 +88,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         const dashboardButtons = this.state.dashboardButtons || [];
 
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
+            <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent>
                     <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
@@ -97,19 +97,14 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes}
                                         labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
-                    <View style={{backgroundColor: Colors.BlackBackground}}>
+                    <View>
                         <AppHeader title={this.I18n.t('individualDashboard')}/>
-                        <IndividualProfile individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
-                        <Card style={{
-                            flexDirection: 'column',
-                            marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
-                            borderRadius: 5,
-                            paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
-                        }}>
-                            <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(12), marginTop: DGS.resizeHeight(18)}}>
+                        <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
+                        <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16}}>
+                            <View>
                                 <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
-                                <View style={{flexDirection: 'row'}}>
-                                    <View style={{flex: 1, justifyContent: 'flex-start'}}>
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    <View style={{justifyContent: 'flex-start'}}>
                                         <ProgramList enrolments={enrolments}
                                                      selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
                                     </View>
@@ -119,8 +114,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
-                                <View style={{marginTop: DGS.resizeHeight(35), marginBottom: DGS.resizeHeight(21)}}>
-                                    <View style={{paddingHorizontal: DGS.resizeWidth(13), backgroundColor: Colors.GreyContentBackground}}>
+                                <View>
+                                    <View>
                                         <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
                                         <Observations observations={this.state.enrolment.observations} style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>

@@ -2,7 +2,7 @@ import {Alert, Animated, Text, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Button, Content, Icon} from "native-base";
+import {Button, Icon} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -31,7 +31,7 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconLabelStyle = {color: '#fff', fontSize: Fonts.Medium, alignSelf: 'center'};
+    static iconLabelStyle = {color: 'black', fontSize: Fonts.Medium, alignSelf: 'center'};
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48};
 
     createStyles() {
@@ -129,8 +129,8 @@ class MenuView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
-                <View style={this.scaleStyle({flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'center'})}>
+            <CHSContent>
+                <View style={this.scaleStyle({flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start'})}>
                     <View style={this.columnStyle}>
                         <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                             {this.renderSyncButton()}
@@ -141,7 +141,6 @@ class MenuView extends AbstractComponent {
                     {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}
                     {this.renderMenuItem('person-add', 'Register', () => this.registrationView())}
                     {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
-                    <View style={{height: 600}}/>
                 </View>
             </CHSContent>
         );

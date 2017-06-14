@@ -7,6 +7,8 @@ import {Tabs} from "native-base";
 import themes from "./primitives/themes";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
+import {StatusBar} from "react-native";
+import Colors from "./primitives/Colors";
 
 @Path('/landingView')
 @PathRoot
@@ -25,11 +27,13 @@ class LandingView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent style={{backgroundColor: '#fff'}}>
+                    <StatusBar
+                        backgroundColor={Colors.DarkPrimaryColor}
+                        barStyle="light-content"
+                    />
                     <Tabs>
-                        {/*<ProgramEnrolmentDashboardView individualUUID="b5d9fd15-8a87-47f0-88ce-0551c6884d0a" tabLabel='Foo'/>*/}
-                        <IndividualSearchView tabLabel='Home'/>
+                        <IndividualSearchView tabLabel='Home' tabStyle={{backgroundColor: 'red'}}/>
                         <MenuView tabLabel='Menu'/>
-                        {/*<Playground tabLabel='Play'/>*/}
                     </Tabs>
                 </CHSContent>
             </CHSContainer>

@@ -31,7 +31,7 @@ class IndividualSearchView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContent>
-                <View style={{marginTop: Distances.ScaledVerticalSpacingDisplaySections, marginHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
+                <View style={{marginTop: Distances.ScaledVerticalSpacingDisplaySections, paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
                     <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)}
                                      style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                     <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')} value={new PrimitiveValue(this.state.searchCriteria.age)}

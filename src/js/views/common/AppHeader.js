@@ -2,10 +2,9 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Icon} from "native-base";
-import {Text, TouchableNativeFeedback, View} from "react-native";
+import {Text, TouchableNativeFeedback, View, Platform} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
-import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
 
 class AppHeader extends AbstractComponent {
@@ -29,25 +28,30 @@ class AppHeader extends AbstractComponent {
         CHSNavigator.goHome(this);
     }
 
+    background() {
+        return Platform['Version'] >= 21 ?
+            TouchableNativeFeedback.Ripple(Colors.DarkPrimaryColor) :
+            TouchableNativeFeedback.SelectableBackground();
+    }
+
     render() {
         return (
             <View style={{
                 backgroundColor: Colors.DefaultPrimaryColor,
                 flexDirection: 'row',
-                minHeight: DGS.resizeHeight(56)
+                height: 56
             }}>
                 <TouchableNativeFeedback onPress={() => this.onBack()}
-                                         background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
+                                         background={this.background()}>
                     <View style={{
                         flexDirection: 'column',
                         justifyContent: 'center',
                         alignItems: 'flex-start',
-                        height: DGS.resizeHeight(56),
-                        width: DGS.resizeWidth(72),
-                        paddingLeft: DGS.resizeWidth(16),
-                        paddingRight: DGS.resizeWidth(16)
+                        height: 56,
+                        width: 72,
+                        paddingHorizontal: 16
                     }}>
-                        <Icon style={{fontSize: 24, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
+                        <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
                     </View>
                 </TouchableNativeFeedback>
 
@@ -56,17 +60,16 @@ class AppHeader extends AbstractComponent {
                 </View>
 
                 <TouchableNativeFeedback onPress={() => this.onHome()}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                                         background={this.background()}>
                     <View style={{
                         flexDirection: 'column',
                         justifyContent: 'center',
                         alignItems: 'flex-end',
-                        height: DGS.resizeHeight(56),
-                        width: DGS.resizeWidth(72),
-                        paddingLeft: DGS.resizeWidth(16),
-                        paddingRight: DGS.resizeWidth(16)
+                        height: 56,
+                        width: 72,
+                        paddingHorizontal: 16
                     }}>
-                        <Icon style={{fontSize: 24, color: Colors.TextOnPrimaryColor}} name='home'/>
+                        <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='home'/>
                     </View>
                 </TouchableNativeFeedback>
             </View>

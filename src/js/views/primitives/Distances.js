@@ -25,7 +25,7 @@ class Distances {
         return DGS.resizeWidth(Distances.ContentDistanceWithinContainer);
     }
 
-    static ContentDistanceFromEdge = 27;
+    static ContentDistanceFromEdge = 16;
     static ContainerHorizontalDistanceFromEdge = 14;
     static ContentDistanceWithinContainer = 10;
     static VerticalSpacingBetweenFormElements = 20;
