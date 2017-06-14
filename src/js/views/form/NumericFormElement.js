@@ -29,7 +29,7 @@ class NumericFormElement extends AbstractFormElement {
                     <Text style={DynamicGlobalStyles.formElementLabel}>{labelText}{unitText}{rangeText}</Text>
                 </View>
                 <View>
-                    <TextInput style={{flex: 1, marginVertical: 0, paddingVertical: 5}} underlineColorAndroid={this.borderColor}
+                    <TextInput style={{flex: 1, marginVertical: 0, paddingVertical: 5}} underlineColorAndroid={this.borderColor} keyboardType='numeric'
                                value={_.toString(this.props.value.getValue())} onChangeText={(text) => this.onInputChange(text)} onEndEditing={(text) => this.onInputChange(text)}/>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>

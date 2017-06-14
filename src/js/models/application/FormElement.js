@@ -4,6 +4,7 @@ import Concept from "../Concept";
 import General from "../../utility/General";
 import _ from "lodash";
 import ValidationResult from "./ValidationResult";
+import KeyValue from "./KeyValue";
 
 class FormElement {
     static schema = {
@@ -32,14 +33,19 @@ class FormElement {
 
         //remove orphan keyValues (because KeyValue doesn't have primary key
         entityService.deleteObjects(resource["uuid"], FormElement.schema.name, "keyValues");
-        formElement.keyValues = resource["keyValues"];
+        formElement.keyValues = [];
+        if (!_.isNil(resource["keyValues"])) {
+            _.forEach(resource["keyValues"], (keyValue) => {
+                formElement.keyValues.push(KeyValue.fromResource(keyValue));
+            });
+        }
 
         return formElement;
     }
 
     isMultiSelect() {
         const selectRecord = this.recordByKey(FormElement.keys.Select);
-        return _.isNil(selectRecord) ? false : selectRecord.value === FormElement.values.Multi;
+        return _.isNil(selectRecord) ? false : selectRecord.getValue() === FormElement.values.Multi;
     }
 
     recordByKey(key) {
@@ -48,17 +54,17 @@ class FormElement {
 
     isSingleSelect() {
         const selectRecord = this.recordByKey(FormElement.keys.Select);
-        return _.isNil(selectRecord) ? false : selectRecord.value === FormElement.values.Single;
+        return _.isNil(selectRecord) ? false : selectRecord.getValue() === FormElement.values.Single;
     }
 
     get truthDisplayValue() {
         const trueRecord = this.recordByKey(FormElement.keys.TrueValue);
-        return _.isNil(trueRecord) ? 'yes' : trueRecord.value;
+        return _.isNil(trueRecord) ? 'yes' : trueRecord.getValue();
     }
 
     get falseDisplayValue() {
         const falseRecord = this.recordByKey(FormElement.keys.FalseValue);
-        return _.isNil(falseRecord) ? 'no' : falseRecord.value;
+        return _.isNil(falseRecord) ? 'no' : falseRecord.getValue();
     }
 
     validate(value) {
@@ -91,6 +97,11 @@ class FormElement {
 
     get translatedFieldValue() {
         return this.name;
+    }
+
+    get durationOptions() {
+        const durationOptions = this.recordByKey('durationOptions');
+        return _.isNil(durationOptions) ? null : durationOptions.getValue();
     }
 }
 

@@ -23,6 +23,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import DateFormElement from "../form/DateFormElement";
 import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
+
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -69,6 +70,11 @@ class IndividualRegisterView extends AbstractComponent {
                                          element={new StaticFormElement('name', true)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.NAME)}
                                          value={new PrimitiveValue(this.state.individual.name)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        {/*<DurationDateFormElement durationOptions={[Duration.Day, Duration.Month, Duration.Year]} durationChangeActionName={Actions.REGISTRATION_ENTER_AGE}*/}
+                                                 {/*chosenDurationOption={}*/}
+                                                 {/*noDateMessageKey="chooseADate" dateValue={this.state.individual.dateOfBirth}*/}
+                                                 {/*dateChangeActionName={Actions.REGISTRATION_ENTER_DOB} durationLabel="age"*/}
+                                                 {/*dateVerified={this.state.individual.dateOfBirthVerified} dateLabel="dateOfBirth"/>*/}
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}<Text style={{color: Colors.ValidationError}}> * </Text></Text>

@@ -74,7 +74,8 @@ const actions = {
     PRIMITIVE_VALUE_END_EDITING: 'PEA.PRIMITIVE_VALUE_END_EDITING',
     NEXT: 'PEA.NEXT',
     PREVIOUS: 'PEA.PREVIOUS',
-    SAVE: 'PEA.SAVE'
+    SAVE: 'PEA.SAVE',
+    DURATION_CHANGE: 'PEA.DURATION_CHANGE'
 };
 
 export default new Map([
@@ -85,6 +86,7 @@ export default new Map([
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
+    [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
     [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
     [actions.SAVE, ProgramEnrolmentActions.onSave]

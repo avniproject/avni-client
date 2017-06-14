@@ -19,7 +19,7 @@ describe('IndividualTest', () => {
     it('getDisplayAge', () => {
         var individual = new Individual();
         individual.dateOfBirth = '1981-01-01';
-        expect(individual.getAge().toString()).contains("Years");
+        expect(individual.getAge().toString()).contains("years");
     });
 
     it('eligiblePrograms', () => {

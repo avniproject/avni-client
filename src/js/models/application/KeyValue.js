@@ -7,11 +7,15 @@ class KeyValue {
         }
     };
 
-    static create(key, value) {
+    static fromResource(resource) {
         const keyValue = new KeyValue();
-        keyValue.key = key;
-        keyValue.value = value;
+        keyValue.key = resource.key;
+        keyValue.value = JSON.stringify(resource.value);
         return keyValue;
+    }
+
+    getValue() {
+        return JSON.parse(this.value);
     }
 }
 

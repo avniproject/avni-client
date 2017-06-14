@@ -2,11 +2,6 @@ import _ from 'lodash';
 import moment from "moment";
 
 class Duration {
-    static Day = "Day";
-    static Month = "Month";
-    static Year = "Year";
-    static Week = "Week";
-
     static inDay(value) {
         return new Duration(value, Duration.Day);
     }
@@ -14,6 +9,11 @@ class Duration {
     static inWeek(value) {
         return new Duration(value, Duration.Week);
     }
+
+    static Day = "days";
+    static Week = "weeks";
+    static Month = "months";
+    static Year = "years";
 
     static inMonth(value) {
         return new Duration(value, Duration.Month);
@@ -50,8 +50,8 @@ class Duration {
     }
 
     toString(i18n) {
-        const durationUnitText = this._durationValue > 1 ? `${this.durationUnit}s` : `${this.durationUnit}`;
-        return i18n ? `${this.durationValueAsString} ${i18n.t(durationUnitText.toLowerCase())}` : `${this.durationValueAsString} ${this.durationUnit}s`;
+        const durationUnitText = this._durationValue <= 1 ? this.durationUnit.substring(0, this.durationUnit.length - 1) : this.durationUnit;
+        return i18n ? `${this.durationValueAsString} ${i18n.t(durationUnitText.toLowerCase())}` : `${this.durationValueAsString} ${this.durationUnit}`;
     }
 
     get isEmpty() {
@@ -63,6 +63,31 @@ class Duration {
             return this.durationValue / 12;
         else
             return this.durationValue;
+    }
+
+    changeUnit(durationUnit) {
+        return new Duration(this.durationValue, durationUnit);
+    }
+
+    changeValue(value) {
+        return new Duration(value, this.durationUnit);
+    }
+
+    static fromToday(durationUnit, date, today) {
+        today = today ? today : new Date();
+        const durationValue = moment(today).diff(date, durationUnit);
+        return new Duration(durationValue, durationUnit);
+    }
+
+    dateInPastBasedOnToday(today) {
+        today = today ? today : new Date();
+        return moment(today).subtract(this.durationValue, this.durationUnit).toDate();
+    }
+
+    static basedOnToday(date, durationUnit, today) {
+        today = today ? today : new Date();
+        const durationValue = moment(today).diff(date, durationUnit);
+        return new Duration(durationValue, durationUnit);
     }
 }
 

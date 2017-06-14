@@ -58,11 +58,10 @@ class AddressLevels extends AbstractComponent {
     }
 
     render() {
-        const I18n = this.context.getService(MessageService).getI18n();
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
         return (
             <View style={this.appendedStyle()}>
-                <Text style={DGS.formElementLabel}>{I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
+                <Text style={DGS.formElementLabel}>{this.I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
