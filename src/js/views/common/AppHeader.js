@@ -30,8 +30,9 @@ class AppHeader extends AbstractComponent {
 
     background() {
         return Platform['Version'] >= 21 ?
-            TouchableNativeFeedback.Ripple(Colors.DarkPrimaryColor) :
-            TouchableNativeFeedback.SelectableBackground();
+            TouchableNativeFeedback.SelectableBackgroundBorderless() :
+            TouchableNativeFeedback.SelectableBackgrou
+        nd();
     }
 
     render() {

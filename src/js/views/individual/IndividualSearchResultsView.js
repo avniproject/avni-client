@@ -45,20 +45,16 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     renderProgram(program, index) {
         return (
-            <Button key={index} disabled
+            <Text key={index} disabled
                     style={{
                         marginLeft: 8,
-                        width: 74,
-                        height: 22,
                         backgroundColor: program.colour
-                    }}>{program.name}</Button>
+                    }}>{program.name}</Text>
         );
     }
 
     background() {
-        return Platform['Version'] >= 21 ?
-            TouchableNativeFeedback.Ripple(Colors.DarkPrimaryColor) :
-            TouchableNativeFeedback.SelectableBackground();
+        return TouchableNativeFeedback.SelectableBackground();
     }
 
     render() {
@@ -74,10 +70,11 @@ class IndividualSearchResultsView extends AbstractComponent {
                               renderRow={(item) =>
                     <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
                                                    background={this.background()}>
-                        <View style={{flexDirection: 'column', height: 72, justifyContent: 'space-between', paddingHorizontal: 16}}>
+                        <View style={{flexDirection: 'column', minHeight: 56, justifyContent: 'space-between', paddingHorizontal: 16}}>
                               <View style={{flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center'}}>
-                                  <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 40, paddingRight: 16, width: 72}}/>
-                                  <View style={{ flexDirection: 'column', flexWrap: 'nowrap', justifyContent: 'center', alignItems: 'flex-start', flex: 1}}>
+                                  <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 40, paddingRight: 16, width: 56}}/>
+                                  <View style={{ flexDirection: 'column', justifyContent: 'center',
+                                      alignItems: 'flex-start', flex: 1}}>
                                       <Text style={{fontSize: Fonts.Large}}>{item.name}</Text>
                                       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
                                       <Text style={{fontSize: Fonts.Normal}}>{item.gender.name}</Text>
@@ -87,9 +84,9 @@ class IndividualSearchResultsView extends AbstractComponent {
                                   </View>
                                   <View style={{
                                       flexDirection: 'column',
-                                      flexWrap: 'nowrap',
                                       justifyContent: 'center',
-                                      alignItems: 'flex-end'
+                                      alignItems: 'flex-end',
+                                      flex: 1
                                   }}>
                                       <View style={{justifyContent: 'flex-end'}}>
                                           <Text style={{fontSize: Fonts.Large}}>{item.lowestAddressLevel.name}</Text>
