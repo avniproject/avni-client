@@ -15,7 +15,11 @@ class KeyValue {
     }
 
     getValue() {
-        return JSON.parse(this.value);
+        try {
+            return JSON.parse(this.value);
+        } catch (e) {
+            return this.value;
+        }
     }
 }
 
