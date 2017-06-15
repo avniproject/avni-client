@@ -39,7 +39,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
-        return <TouchableNativeFeedback onPress={onPress} style={{alignSelf: 'stretch'}}>
+        return <TouchableNativeFeedback onPress={onPress}>
             <View style={{flexDirection: 'row', backgroundColor: Colors.SecondaryActionButtonColor,
                 borderRadius: 4, minHeight: 36, marginBottom: 8, flex: 1, paddingHorizontal: 4,
                 alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'stretch', flexWrap: 'wrap'}}>

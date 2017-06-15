@@ -45,9 +45,8 @@ class ProgramActionsView extends AbstractComponent {
     renderButton(onPress, buttonColor, text, textColor) {
         return (
             <TouchableNativeFeedback onPress={onPress}>
-                <View  style={{ height: 36, marginBottom: 8, elevation: 2, borderRadius: 4, width: 288,
-                    elevation: 3, backgroundColor: buttonColor,
-                    alignItems: 'center', justifyContent: 'center'}}>
+                <View  style={{ minHeight: 36, marginBottom: 8, elevation: 2, borderRadius: 4, flexWrap: 'wrap',
+                    elevation: 3, backgroundColor: buttonColor, alignItems: 'center', justifyContent: 'center'}}>
                     <Text style={{
                         fontSize: Fonts.Medium,
                         color: textColor
@@ -60,7 +59,7 @@ class ProgramActionsView extends AbstractComponent {
     render() {
         return (
             <View
-                style={{flexDirection: 'column', marginTop: 8}}>
+                style={{flex: 1,flexDirection: 'column', marginTop: 8}}>
                 {this.props.enrolment.isActive ?
                     this.renderButton(() => this.startProgramEncounter(), Colors.DefaultPrimaryColor,
                         this.I18n.t('startProgramVisit'), Colors.TextOnPrimaryColor)
@@ -71,10 +70,10 @@ class ProgramActionsView extends AbstractComponent {
                         this.I18n.t('openChecklist'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
-                {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
-                    this.I18n.t('startGeneralVisit'), Colors.PrimaryTextColor)}
                 {_.map(this.props.programDashboardButtons, (button) => this.renderButton(() => this.goToView(button),
-                    Colors.SecondaryActionButtonColor, button.label, Colors.PrimaryTextColor))}
+                    Colors.DefaultPrimaryColor, button.label, Colors.TextOnPrimaryColor))}
+                {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
+                    this.I18n.t('startGeneralVisit'), Colors.DarkPrimaryColor)}
             </View>
         );
     }

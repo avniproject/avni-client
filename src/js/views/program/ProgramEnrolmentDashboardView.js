@@ -103,14 +103,14 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16}}>
                             <View>
                                 <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <View style={{justifyContent: 'flex-start'}}>
+                                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch'}}>
+                                    <View style={{justifyContent: 'flex-start', flex: 1}}>
                                         <ProgramList enrolments={enrolments}
                                                      selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
                                     </View>
-                                    <ProgramActionsView
-                                        programDashboardButtons={dashboardButtons}
-                                        enrolment={this.state.enrolment} onOpenChecklist={() => this.openChecklist()}/>
+                                    <ProgramActionsView programDashboardButtons={dashboardButtons}
+                                                        enrolment={this.state.enrolment}
+                                                        onOpenChecklist={() => this.openChecklist()}/>
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
