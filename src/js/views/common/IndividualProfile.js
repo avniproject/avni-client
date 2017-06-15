@@ -43,7 +43,7 @@ class IndividualProfile extends AbstractComponent {
             <View style={{flexDirection: 'row', backgroundColor: Colors.SecondaryActionButtonColor,
                 borderRadius: 4, minHeight: 36, marginBottom: 8, flex: 1, paddingHorizontal: 4,
                 alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'stretch', flexWrap: 'wrap'}}>
-                <Icon name={iconMode} style={{fontSize: 36, color: Colors.DarkPrimaryColor, paddingRight: 4}}/>
+                <Icon name={iconMode} style={{fontSize: DGS.resizeWidth(36), color: Colors.DarkPrimaryColor, paddingRight: 4}}/>
                 <Text style={{fontSize: Fonts.Medium, color: Colors.DarkPrimaryColor, alignSelf: 'center'}}>{this.I18n.t(displayTextMessageKey).toUpperCase()}</Text>
             </View>
             </TouchableNativeFeedback>
