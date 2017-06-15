@@ -1,12 +1,11 @@
-import {View, StyleSheet, Modal} from "react-native";
-import React, {Component} from "react";
+import {View, Modal, Button} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import EntityTypeChoiceState from "../../action/common/EntityTypeChoiceState";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
-import themes from "../primitives/themes";
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
-import {Button, Content, Grid, Row, Container} from "native-base";
 import _ from "lodash";
+import Colors from "../primitives/Colors";
 
 class EntityTypeSelector extends AbstractComponent {
     static propTypes = {
@@ -57,8 +56,10 @@ class EntityTypeSelector extends AbstractComponent {
                                     labelKey={this.props.labelKey}
                                     labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
                         <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginTop: 10}}>
-                            <Button onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])}>{this.I18n.t('cancel')}</Button>
-                            <Button style={{marginLeft: 8}} onPress={() => this.entityTypeSelectionConfirmed()} disabled={_.isNil(this.props.selectedEntityType)}>{this.I18n.t('proceed')}</Button>
+                            <Button color={Colors.DefaultPrimaryColor} onPress={() => this.dispatchAction(this.props.actions['CANCELLED_ENTITY_TYPE_SELECTION'])} title={this.I18n.t('cancel')}/>
+                            <View style={{paddingLeft: 8}}>
+                                <Button color={Colors.DefaultPrimaryColor} onPress={() => this.entityTypeSelectionConfirmed()} disabled={_.isNil(this.props.selectedEntityType)} title={this.I18n.t('proceed')}/>
+                            </View>
                         </View>
                     </View>
                     <View style={{flex: 1}}/>
