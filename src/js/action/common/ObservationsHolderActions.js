@@ -19,17 +19,9 @@ class ObservationsHolderActions {
         return newState;
     }
 
-    static toggleMultiSelectAnswer(state, action) {
+    static toggleCodedAnswer(state, action) {
         const newState = state.clone();
-        const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
-        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
-        newState.handleValidationResult(validationResult);
-        return newState;
-    }
-
-    static toggleSingleSelectAnswer(state, action) {
-        const newState = state.clone();
-        const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);
+        const observation = newState.observationsHolder.toggleCodedAnswer(action.formElement.concept, action.answerUUID, true);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
         return newState;

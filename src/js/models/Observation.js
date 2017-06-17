@@ -18,16 +18,8 @@ class Observation {
         return observation;
     }
 
-    toggleMultiSelectAnswer(answerUUID) {
+    toggleCodedAnswer(answerUUID) {
         this.getValueWrapper().toggleAnswer(answerUUID);
-    }
-
-    toggleSingleSelectAnswer(answerUUID) {
-        if (this.getValueWrapper().hasValue(answerUUID)) {
-            this.valueJSON = {};
-        } else {
-            this.valueJSON = new CodedAnswers(answerUUID);
-        }
     }
 
     static valueAsString(observation, conceptService) {

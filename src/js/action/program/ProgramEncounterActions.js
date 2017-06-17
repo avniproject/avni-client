@@ -49,8 +49,7 @@ class ProgramEncounterActions {
 
 const ProgramEncounterActionsNames = {
     ON_LOAD: 'PEncA.ON_LOAD',
-    TOGGLE_MULTISELECT_ANSWER: "PEncA.TOGGLE_MULTISELECT_ANSWER",
-    TOGGLE_SINGLESELECT_ANSWER: "PEncA.TOGGLE_SINGLESELECT_ANSWER",
+    TOGGLE_CODED_ANSWER: "PEncA.TOGGLE_CODED_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'PEncA.PRIMITIVE_VALUE_CHANGE',
     PRIMITIVE_VALUE_END_EDITING: 'PEncA.PRIMITIVE_VALUE_END_EDITING',
     PREVIOUS: 'PEncA.PREVIOUS',
@@ -61,8 +60,7 @@ const ProgramEncounterActionsNames = {
 
 const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.ON_LOAD, ProgramEncounterActions.onLoad],
-    [ProgramEncounterActionsNames.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
-    [ProgramEncounterActionsNames.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
+    [ProgramEncounterActionsNames.TOGGLE_CODED_ANSWER, ObservationsHolderActions.toggleCodedAnswer],
     [ProgramEncounterActionsNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [ProgramEncounterActionsNames.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
     [ProgramEncounterActionsNames.NEXT, ProgramEncounterActions.onNext],

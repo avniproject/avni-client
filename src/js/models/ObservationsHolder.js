@@ -30,10 +30,6 @@ class ObservationsHolder {
         }
     }
 
-    toggleSingleSelectAnswer(concept, answerUUID) {
-        return this.toggleCodedAnswer(concept, answerUUID, true);
-    }
-
     toggleCodedAnswer(concept, answerUUID, isSingleSelect) {
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
@@ -41,17 +37,13 @@ class ObservationsHolder {
             this.observations.push(observation);
             return observation;
         } else {
-            isSingleSelect ? observation.toggleSingleSelectAnswer(answerUUID) : observation.toggleMultiSelectAnswer(answerUUID);
+            isSingleSelect ? observation.toggleCodedAnswer(answerUUID, answerUUID, true) : observation.toggleCodedAnswer(answerUUID, answerUUID, false);
             if (observation.hasNoAnswer()) {
                 _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
                 return null;
             }
             return observation;
         }
-    }
-
-    toggleMultiSelectAnswer(concept, answerUUID) {
-        return this.toggleCodedAnswer(concept, answerUUID, false);
     }
 
     static clone(observations) {
