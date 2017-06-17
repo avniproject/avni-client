@@ -1,6 +1,5 @@
 import _ from "lodash";
 import Concept from './Concept';
-import CodedAnswers from "./observation/CodedAnswers";
 
 class Observation {
     static schema = {
