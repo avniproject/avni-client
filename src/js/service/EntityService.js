@@ -12,15 +12,6 @@ class EntityService extends BaseService {
         throw "Should not call getSchema on Entity Service";
     }
 
-    saveOfUpdateMultiple(entities) {
-        const db = this.db;
-        this.db.write(() => {
-            entities.forEach((entity) => {
-                db.create(schema, entity, true)
-            });
-        });
-    }
-
     deleteObjects(uuid, schema, objectKey) {
         const db = this.db;
         this.db.write(() => {
