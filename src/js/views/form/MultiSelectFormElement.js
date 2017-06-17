@@ -12,7 +12,7 @@ class MultiSelectFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        multipleCodeValues: React.PropTypes.object.isRequired,
+        value: React.PropTypes.object.isRequired,
         validationResult: React.PropTypes.object
     };
 
@@ -27,7 +27,7 @@ class MultiSelectFormElement extends AbstractFormElement {
     }
 
     renderPossibleAnswer(possibleAnswer) {
-        return <PresetOptionItem multiSelect={true} checked={this.props.multipleCodeValues.isAnswerAlreadyPresent(possibleAnswer.concept.uuid)}
+        return <PresetOptionItem multiSelect={true} checked={this.props.value.isAnswerAlreadyPresent(possibleAnswer.concept.uuid)}
                                  displayText={this.I18n.t(possibleAnswer.concept.name)} validationResult={this.props.validationResult}
                                  onPress={this.toggleFormElementAnswerSelection(possibleAnswer)} style={{flex: 0.5, marginTop: Distances.VerticalSpacingBetweenOptionItems}}/>
     }

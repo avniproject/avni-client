@@ -3,8 +3,9 @@ import Concept from "../Concept";
 import moment from "moment";
 
 class PrimitiveValue {
-    constructor(value, datatype) {
-        this.answer = this.valueFromString(value, datatype);
+    constructor(value, dataType) {
+        this.datatype = dataType;
+        this.answer = this.valueFromString(value, dataType);
     }
 
     asDisplayDate() {
@@ -32,6 +33,10 @@ class PrimitiveValue {
             return new Date(Date.parse(string));
         }
         return string;
+    }
+
+    valueAsString() {
+        return (this.datatype === Concept.dataType.Date)? this.asDisplayDate(): _.toString(this.getValue());
     }
 
     getValue() {

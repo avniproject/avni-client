@@ -1,8 +1,8 @@
 import _ from "lodash";
 
-class MultipleCodedValues {
+class CodedAnswers {
     constructor(answer) {
-        this.answer = _.isNil(answer) ? [] : answer;
+        this.answer = _.isNil(answer) ? [] : _.flatten([answer]);
     }
 
     push(answerUUID) {
@@ -16,6 +16,10 @@ class MultipleCodedValues {
 
     removeAnswer(conceptUUID) {
         _.remove(this.answer, (item) => item === conceptUUID);
+    }
+
+    hasValue(answerUUID) {
+        return this.answer.includes(answerUUID);
     }
 
     toggleAnswer(answerUUID) {
@@ -35,18 +39,14 @@ class MultipleCodedValues {
     }
 
     cloneForEdit() {
-        const multipleCodedValues = new MultipleCodedValues();
-        multipleCodedValues.answer = this.answer;
-        return multipleCodedValues;
+        return new CodedAnswers(this.answer);
     }
 
-    get isSingleCoded() {
-        return false;
-    }
-
-    get isMultipleCoded() {
-        return true;
+    valueAsString(conceptService) {
+        return _.join(this.getValue().map((value) => {
+            return conceptService.getConceptByUUID(value).name;
+        }), ', ');
     }
 }
 
-export default MultipleCodedValues;
+export default CodedAnswers;
