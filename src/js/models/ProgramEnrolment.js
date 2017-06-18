@@ -175,16 +175,6 @@ class ProgramEnrolment extends BaseEntity {
         return _.sortBy(this.encounters, (encounter) => moment().diff(encounter.encounterDateTime));
     }
 
-    findPreviousEncounter(relativeToEncounter) {
-        const encounters = this.getEncounters().slice();
-        console.log(encounters);
-        if(encounters.length >= 1 && encounters[0].encounterDateTime !== relativeToEncounter.encounterDateTime){
-            return encounters[0];
-        }else if(encounters.length >= 2) {
-            return encounters[1];
-        }
-    }
-
     findObservationInEntireEnrolment(conceptName, currentEncounter) {
         const encounters = this.getEncounters().splice();
         if (!_.isNil(currentEncounter) && !encounters.some((encounter) => encounter.uuid === currentEncounter.uuid))
