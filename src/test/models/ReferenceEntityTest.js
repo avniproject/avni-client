@@ -1,5 +1,4 @@
 import {expect} from 'chai';
-import _ from "lodash";
 import Program from "../../js/models/Program";
 
 describe('ReferenceEntityTest', () => {

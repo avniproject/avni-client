@@ -16,16 +16,16 @@ class AbstractFormElement extends AbstractComponent {
         return <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
     }
 
-    get hasValidationError() {
-        return _.isNil(this.props.validationResult);
+    get hasNoValidationError() {
+        return _.isNil(this.props.validationResult) || this.props.validationResult.success;
     }
 
     get borderColor() {
-        return this.hasValidationError ? Colors.InputBorderNormal : Colors.ValidationError;
+        return this.hasNoValidationError ? Colors.InputBorderNormal : Colors.ValidationError;
     }
 
     get textColor() {
-        return this.hasValidationError ? Colors.InputNormal : Colors.ValidationError;
+        return this.hasNoValidationError ? Colors.InputNormal : Colors.ValidationError;
     }
 }
 

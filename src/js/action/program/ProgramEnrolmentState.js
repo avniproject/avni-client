@@ -2,7 +2,6 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import ProgramEnrolment from '../../models/ProgramEnrolment';
 import _ from 'lodash';
 import ObservationsHolder from "../../models/ObservationsHolder";
-import Wizard from '../../state/Wizard';
 import ConceptService from "../../service/ConceptService";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {

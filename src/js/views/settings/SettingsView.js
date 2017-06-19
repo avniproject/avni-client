@@ -36,7 +36,8 @@ class SettingsView extends AbstractComponent {
                     <View style={this.scaleStyle({paddingHorizontal: Distances.ContentDistanceFromEdge})}>
                         <TextFormElement element={new StaticFormElement('serverURL')} actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
                                          value={new PrimitiveValue(this.state.settings.serverURL)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <TextFormElement element={new StaticFormElement('catchmentId')} actionName={Actions.ON_CATCHMENT_CHANGE} validationResult={null}
+                        <TextFormElement element={new StaticFormElement('catchmentId')} actionName={Actions.ON_CATCHMENT_CHANGE}
+                                         validationResult={this.state.validationResults.resultFor('catchment')}
                                          value={new PrimitiveValue(_.toString(this.state.settings.catchment))}
                                          style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <RadioGroup action={Actions.ON_LOCALE_CHANGE} labelValuePairs={localeLabelValuePairs} labelKey='locale'

@@ -8,7 +8,8 @@ class SettingsActions {
     static getInitialState(context) {
         const settings = context.get(SettingsService).getSettings();
         const localeMappings = context.get(EntityService).getAll(LocaleMapping.schema.name);
-        return {settings: settings, localeMappings: localeMappings};
+        const validationResults = settings.validate();
+        return {settings: settings, localeMappings: localeMappings, validationResults: validationResults};
     }
 
     static clone(state) {
@@ -18,7 +19,12 @@ class SettingsActions {
     static _updateSettingAndSave(state, updateFunc, context) {
         const newState = SettingsActions.clone(state);
         updateFunc(newState.settings);
-        context.get(SettingsService).saveOrUpdate(newState.settings, Settings.schema.name);
+        newState.validationResults = newState.settings.validate();
+
+        if (newState.validationResults.hasNoValidationError()) {
+            context.get(SettingsService).saveOrUpdate(newState.settings, Settings.schema.name);
+        }
+
         return newState;
     }
 
@@ -26,12 +32,16 @@ class SettingsActions {
         return SettingsActions._updateSettingAndSave(state, (settings) => {settings.serverURL = action.value}, context);
     }
 
+    static toNumber(str) {
+        return isNaN(_.toNumber(str))? str: _.toNumber(str);
+    }
+
     static onLocaleChange(state, action, context) {
         return SettingsActions._updateSettingAndSave(state, (settings) => {settings.locale = action.value}, context);
     }
 
     static onCatchmentChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {settings.catchment = action.value}, context);
+        return SettingsActions._updateSettingAndSave(state, (settings) => {settings.catchment = SettingsActions.toNumber(action.value) }, context);
     }
 
     static onLogLevelChange(state, action, context) {

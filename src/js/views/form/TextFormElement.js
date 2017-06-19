@@ -1,7 +1,5 @@
 import {TextInput, View} from "react-native";
 import React from "react";
-import {Text} from "native-base";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";

@@ -16,6 +16,10 @@ class ValidationResult {
         return new ValidationResult(false, formIdentifier, 'emptyValidationMessage');
     }
 
+    static failureForNumeric(formIdentifier) {
+        return new ValidationResult(false, formIdentifier, 'numericValueValidation');
+    }
+
     static failure(formIdentifier, messageKey) {
         return new ValidationResult(false, formIdentifier, messageKey);
     }
