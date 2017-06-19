@@ -30,10 +30,6 @@ class AbstractDataEntryState {
         });
     }
 
-    getValidationErrors() {
-        return this.validationResults.filter((validationResult) => !validationResult.success);
-    }
-
     moveNext() {
         this.wizard.moveNext();
         this.formElementGroup = this.formElementGroup.next();
