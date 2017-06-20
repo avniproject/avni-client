@@ -3,6 +3,7 @@ import _ from 'lodash';
 import EntityService from "../service/EntityService";
 import LocaleMapping from '../models/Locale';
 import Settings from '../models/Settings';
+import General from "../utility/General";
 
 class SettingsActions {
     static getInitialState(context) {
@@ -33,7 +34,7 @@ class SettingsActions {
     }
 
     static toNumber(str) {
-        return isNaN(_.toNumber(str))? str: _.toNumber(str);
+        return General.isNumeric(str) ? _.toNumber(str): str;
     }
 
     static onLocaleChange(state, action, context) {

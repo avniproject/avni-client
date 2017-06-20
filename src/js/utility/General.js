@@ -204,6 +204,11 @@ class General {
         if (_.isNil(date)) return null;
         return moment(date).format();
     }
+
+    static isNumeric(str) {
+        let b = !isNaN(parseFloat(str)) && isFinite(str);
+        return b;
+    }
 }
 
 export default General;
