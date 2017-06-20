@@ -102,7 +102,12 @@ class FormElementGroup extends AbstractComponent {
             return new Duration(null, formElement.durationOptions[0]);
         } else {
             const date = observation.getValueWrapper().getValue();
-            return Duration.fromToday(formElementUserState.durationUnit, date);
+            //TODO discuss with Vivek if this is a fix in alignment with design
+            if (_.isNil(formElementUserState)) {
+                return Duration.fromToday(formElement.durationOptions[0], date);
+            } else {
+                return Duration.fromToday(formElementUserState.durationUnit, date);
+            }
         }
     }
 
