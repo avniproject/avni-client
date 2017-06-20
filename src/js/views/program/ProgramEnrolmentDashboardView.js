@@ -3,7 +3,6 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import {
@@ -25,7 +24,6 @@ import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Fonts from '../primitives/Fonts';
 import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
-import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 
