@@ -42,9 +42,9 @@ class ProgramActionsView extends AbstractComponent {
         TypedTransition.from(this).bookmark().with({data: _.get(button, ['openOnClick', 'data']), enrolment: this.props.enrolment}).to(GrowthChartView);
     }
 
-    renderButton(onPress, buttonColor, text, textColor) {
+    renderButton(onPress, buttonColor, text, textColor, index) {
         return (
-            <TouchableNativeFeedback onPress={onPress}>
+            <TouchableNativeFeedback onPress={onPress} key={index}>
                 <View  style={{ minHeight: 36, marginBottom: 8, elevation: 2, borderRadius: 4, flexWrap: 'wrap',
                     elevation: 3, backgroundColor: buttonColor, alignItems: 'center', justifyContent: 'center'}}>
                     <Text style={{
@@ -70,8 +70,8 @@ class ProgramActionsView extends AbstractComponent {
                         this.I18n.t('openChecklist'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
-                {_.map(this.props.programDashboardButtons, (button) => this.renderButton(() => this.goToView(button),
-                    Colors.DefaultPrimaryColor, button.label, Colors.TextOnPrimaryColor))}
+                {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.goToView(button),
+                    Colors.DefaultPrimaryColor, button.label, Colors.TextOnPrimaryColor, index))}
                 {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
                     this.I18n.t('startGeneralVisit'), Colors.DarkPrimaryColor)}
             </View>
