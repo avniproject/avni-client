@@ -54,7 +54,7 @@ class GrowthChartView extends AbstractComponent {
         };
 
         return {
-            title: this.I18n.t('lessThan2Years'),
+            title: this.I18n.t('2To5Years'),
             graphsToBeShown: graphs.graphsBelow5Years
         };
     }
