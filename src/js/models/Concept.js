@@ -117,7 +117,7 @@ export default class Concept {
     }
 
     getAnswers() {
-        return _.sortBy(this.answers, (answer) => answer.order);
+        return _.sortBy(this.answers, (answer) => answer.answerOrder);
     }
 
     get translatedFieldValue() {

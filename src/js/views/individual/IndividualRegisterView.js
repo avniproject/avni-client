@@ -3,7 +3,7 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import DGS from "../primitives/DynamicGlobalStyles";
-import {CheckBox, Container, Content, Radio, Text} from "native-base";
+import {CheckBox, Radio, Text} from "native-base";
 import themes from "../primitives/themes";
 import AddressLevels from "../common/AddressLevels";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
