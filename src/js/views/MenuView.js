@@ -99,8 +99,8 @@ class MenuView extends AbstractComponent {
         const service = this.context.getService(EntityService);
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         Alert.alert(
-            this.I18n.t('deleteSchemaConfirmationTitle'),
-            this.I18n.t("This will remove the reference, configuration and transaction data"),
+            this.I18n.t('deleteSchemaNoticeTitle'),
+            this.I18n.t('deleteSchemaConfirmationMessage'),
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
