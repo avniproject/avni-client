@@ -22,7 +22,7 @@ class ChecklistActions {
                 validationResults.push([]);
             });
         }
-        return {checklists: checklists, validationResultsArray: validationResults};
+        return {checklists: checklists, validationResultsArray: validationResults, showSavedToast: false, promptForSave: false};
     }
 
     static onLoad(state, action, context) {
@@ -34,12 +34,13 @@ class ChecklistActions {
         return newState;
     }
 
-    static onCompletionDateChange(state, action, context) {
+    static onCompletionDateChange(state, action) {
         const newState = ChecklistActions.clone(state);
         const checklist = newState.checklists.find((checklist) => {
             return checklist.name === action.checklistName
         });
         checklist.setCompletionDate(action.checklistItemName, action.value);
+        newState.promptForSave = true;
         return newState;
     }
 
@@ -48,6 +49,8 @@ class ChecklistActions {
         newState.checklists.forEach((checklist) => {
             context.get(EntityService).saveOrUpdate(checklist, Checklist.schema.name);
         });
+        newState.showSavedToast = true;
+        newState.promptForSave = false;
         return newState;
     }
 }

@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, ToastAndroid, Alert, BackAndroid} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -16,6 +16,7 @@ import ChecklistItemDisplay from "./ChecklistItemDisplay";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -33,11 +34,38 @@ class ChecklistView extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
+        BackAndroid.addEventListener('hardwareBackPress', () => this.goBack());
         return super.componentWillMount();
+    }
+
+    showToast() {
+        if (this.state.showSavedToast) {
+            ToastAndroid.showWithGravity("Saved successfully", ToastAndroid.SHORT, ToastAndroid.TOP);
+        }
     }
 
     save() {
         this.dispatchAction(Actions.SAVE);
+    }
+
+    goBack() {
+        if (this.state.promptForSave) {
+            Alert.alert("Unsaved Changes", "Exit without saving? ", [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                    TypedTransition.from(this).goBack();
+                }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                }
+                }
+            ]);
+            return true;
+        } else {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
     }
 
     render() {
@@ -45,7 +73,8 @@ class ChecklistView extends AbstractComponent {
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <CHSContent>
-                    <AppHeader title={`${this.state.checklists[0].programEnrolment.individual.name} - ${this.I18n.t('checklists')}`}/>
+                    {this.showToast()}
+                    <AppHeader func={() => this.goBack()} title={`${this.state.checklists[0].programEnrolment.individual.name} - ${this.I18n.t('checklists')}`}/>
                     {this.state.checklists.map((checklist, index) => {
                         return (
                             <View style={{
