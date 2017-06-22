@@ -48,7 +48,9 @@ class IndividualSearchResultsView extends AbstractComponent {
             <Text key={index} disabled
                     style={{
                         marginLeft: 8,
-                        backgroundColor: program.colour
+                        paddingHorizontal:4,
+                        backgroundColor: program.colour,
+                        color: Colors.TextOnPrimaryColor
                     }}>{program.name}</Text>
         );
     }

@@ -21,7 +21,8 @@ class ProgramList extends AbstractComponent {
                 height: 28,
                 marginRight: DGS.resizeWidth(8),
                 borderRadius: 2,
-                marginTop: DGS.resizeHeight(8)
+                marginTop: DGS.resizeHeight(8),
+                paddingHorizontal: DGS.resizeWidth(4)
             }
         },
         selectedProgramButton: (colour) => { return {
