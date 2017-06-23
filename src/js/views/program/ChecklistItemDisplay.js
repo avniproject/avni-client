@@ -13,6 +13,7 @@ class ChecklistItemDisplay extends AbstractComponent {
         checklistItem: React.PropTypes.object.isRequired,
         completionDateAction: React.PropTypes.string,
         style: React.PropTypes.object,
+        editable: React.PropTypes.bool,
         validationResult: React.PropTypes.object,
         actionObject: React.PropTypes.object
     };
@@ -52,11 +53,17 @@ class ChecklistItemDisplay extends AbstractComponent {
         );
     }
 
+    isEditable() {
+        return this.props.editable !== false;
+    }
+
     getPopUpFunction(date, checklistItem) {
         return checklistItem.completed ? this.confirmNotComplete.bind(this) : this.showPicker.bind(this, {date: date}, checklistItem);
     }
 
     async showPicker(options, checklistItem) {
+        if (!this.isEditable()) return;
+
         const {action, year, month, day} = await DatePickerAndroid.open(options);
         if (action !== DatePickerAndroid.dismissedAction) {
             try {

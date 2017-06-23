@@ -4,7 +4,7 @@ import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
-import {Container, Content, Text} from "native-base";
+import {Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
@@ -17,7 +17,6 @@ import ConceptService from "../../service/ConceptService";
 import ChecklistDisplay from "../program/ChecklistDisplay";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import MessageService from "../../service/MessageService";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -87,7 +86,7 @@ class SystemRecommendationView extends AbstractComponent {
                                 <Observations highlight observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)} title={this.I18n.t('systemRecommendations')}/>
                             </View>
                             <Observations observations={this.props.observations} title={this.I18n.t('observations')}/>
-                            <ChecklistDisplay checklists={this.props.checklists}/>
+                            <ChecklistDisplay checklists={this.props.checklists} editable={false}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                            next={{func: () => this.save(), visible: this.props.validationErrors.length === 0, label: this.I18n.t('save')}}
                                            style={{marginHorizontal: 24}}/>

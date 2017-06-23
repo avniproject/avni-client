@@ -3,7 +3,6 @@ import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
 import Checklist from './Checklist';
 import Concept from './Concept';
-import moment from "moment";
 
 class ChecklistItem {
     static schema = {
