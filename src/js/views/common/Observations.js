@@ -88,7 +88,7 @@ class Observations extends AbstractComponent {
                                     <Text style={{
                                         textAlign: 'left',
                                         fontSize: Fonts.Medium
-                                    }}>{Observation.valueAsString(observation, conceptService)}</Text>
+                                    }}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
                                 </Col>
                             </Row>
                         })

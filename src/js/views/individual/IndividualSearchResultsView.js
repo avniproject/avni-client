@@ -51,7 +51,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                         paddingHorizontal:4,
                         backgroundColor: program.colour,
                         color: Colors.TextOnPrimaryColor
-                    }}>{program.name}</Text>
+                    }}>{this.I18n.t(program.name)}</Text>
         );
     }
 
@@ -79,7 +79,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       alignItems: 'flex-start', flex: 1}}>
                                       <Text style={{fontSize: Fonts.Large}}>{item.name}</Text>
                                       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                                      <Text style={{fontSize: Fonts.Normal}}>{item.gender.name}</Text>
+                                      <Text style={{fontSize: Fonts.Normal}}>{this.I18n.t(item.gender.name)}</Text>
                                           <Text style={this.scaleStyle({ paddingLeft: 8, paddingRight: 8})}></Text>
                                           <Text style={{fontSize: Fonts.Normal}} note>{item.getDisplayAge(i18n)}</Text>
                                       </View>

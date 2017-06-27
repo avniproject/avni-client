@@ -21,8 +21,8 @@ class Observation {
         this.getValueWrapper().toggleAnswer(answerUUID);
     }
 
-    static valueAsString(observation, conceptService) {
-        return observation.getValueWrapper().valueAsString(conceptService);
+    static valueAsString(observation, conceptService, I18n) {
+        return observation.getValueWrapper().valueAsString(conceptService, I18n);
     }
 
     hasNoAnswer() {

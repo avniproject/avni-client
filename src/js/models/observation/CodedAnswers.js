@@ -38,9 +38,9 @@ class CodedAnswers {
         return new CodedAnswers(this.answer);
     }
 
-    valueAsString(conceptService) {
+    valueAsString(conceptService, I18n) {
         return _.join(this.getValue().map((value) => {
-            return conceptService.getConceptByUUID(value).name;
+            return I18n.t(conceptService.getConceptByUUID(value).name);
         }), ', ');
     }
 }
