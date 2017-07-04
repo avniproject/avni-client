@@ -17,8 +17,8 @@ class Observation {
         return observation;
     }
 
-    toggleCodedAnswer(answerUUID) {
-        this.getValueWrapper().toggleAnswer(answerUUID);
+    toggleCodedAnswer(answerUUID, singleCoded) {
+        this.getValueWrapper().toggleAnswer(answerUUID, singleCoded);
     }
 
     static valueAsString(observation, conceptService, I18n) {

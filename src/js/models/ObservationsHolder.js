@@ -37,7 +37,7 @@ class ObservationsHolder {
             this.observations.push(observation);
             return observation;
         } else {
-            isSingleSelect ? observation.toggleCodedAnswer(answerUUID, answerUUID, true) : observation.toggleCodedAnswer(answerUUID, answerUUID, false);
+            observation.toggleCodedAnswer(answerUUID, isSingleSelect);
             if (observation.hasNoAnswer()) {
                 _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
                 return null;

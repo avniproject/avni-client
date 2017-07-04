@@ -18,12 +18,17 @@ class CodedAnswers {
         return this.answer.includes(answerUUID);
     }
 
-    toggleAnswer(answerUUID) {
+    toggleAnswer(answerUUID, removeOtherAnswers) {
         if (this.hasAnswer(answerUUID)) {
             this.removeAnswer(answerUUID);
-        } else {
-            this.push(answerUUID);
+            return;
         }
+
+        if (removeOtherAnswers) {
+            this.answer = [];
+        }
+
+        this.push(answerUUID);
     }
 
     getValue() {
