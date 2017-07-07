@@ -10,16 +10,20 @@ class CodedAnswers {
         return this;
     }
 
+    isAnswerAlreadyPresent(conceptUUID) {
+        return _.some(this.answer, (item) => item === conceptUUID);
+    }
+
     removeAnswer(conceptUUID) {
         _.remove(this.answer, (item) => item === conceptUUID);
     }
 
-    hasAnswer(answerUUID) {
+    hasValue(answerUUID) {
         return this.answer.includes(answerUUID);
     }
 
     toggleAnswer(answerUUID) {
-        if (this.hasAnswer(answerUUID)) {
+        if (this.isAnswerAlreadyPresent(answerUUID)) {
             this.removeAnswer(answerUUID);
         } else {
             this.push(answerUUID);
