@@ -12,7 +12,7 @@ class SingleCodedValue {
     }
 
     get toResource() {
-        return [this.answer];
+        return this.answer;
     }
 
     getConceptUUID() {

@@ -73,12 +73,7 @@ class Observation {
     }
 
     get toResource() {
-        const obsResource = {conceptUUID: this.concept.uuid};
-        if (this.concept.datatype === Concept.dataType.Coded)
-            obsResource.valueCoded = this.getValueWrapper().toResource;
-        else
-            obsResource.valuePrimitive = this.getValueWrapper().toResource;
-        return obsResource;
+        return {conceptUUID: this.concept.uuid, value: this.getValueWrapper().toResource};
     }
 
     getValue() {
