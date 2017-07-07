@@ -47,7 +47,7 @@ describe('AbstractDataEntryStateTest', () => {
         formElementGroup.addFormElement(formElement);
 
         var dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), []);
-        dataEntryState = ObservationsHolderActions.toggleCodedAnswer(dataEntryState, {formElement: formElement, answerUUID: concept.getPossibleAnswerConcept('a1').uuid})
+        dataEntryState = ObservationsHolderActions.toggleSingleSelectAnswer(dataEntryState, {formElement: formElement, answerUUID: concept.getPossibleAnswerConcept('a1').uuid})
         const observation = dataEntryState.observationsHolder.findObservation(concept);
         expect(observation.getValueWrapper().getConceptUUID()).is.equal(concept.getPossibleAnswerConcept('a1').uuid);
     });

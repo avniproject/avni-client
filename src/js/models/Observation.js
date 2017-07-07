@@ -17,13 +17,22 @@ class Observation {
         return observation;
     }
 
-    toggleCodedAnswer(answerUUID) {
+    toggleMultiSelectAnswer(answerUUID) {
         this.getValueWrapper().toggleAnswer(answerUUID);
     }
 
     static valueAsString(observation, conceptService, I18n) {
         return observation.getValueWrapper().valueAsString(conceptService, I18n);
     }
+    
+    toggleSingleSelectAnswer(answerUUID) {
+        if (this.getValueWrapper().hasValue(answerUUID)) {
+            this.valueJSON = {};
+        } else {
+            this.valueJSON = new CodedAnswers(answerUUID);
+        }
+    }
+
 
     hasNoAnswer() {
         return _.isEmpty(this.getValueWrapper().answer);

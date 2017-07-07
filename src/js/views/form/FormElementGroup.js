@@ -1,5 +1,5 @@
-import {View, Text} from "react-native";
-import React from "react";
+import {View, StyleSheet, Text} from "react-native";
+import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MultiSelectFormElement from './MultiSelectFormElement';
 import SingleSelectFormElement from './SingleSelectFormElement';
@@ -62,13 +62,13 @@ class FormElementGroup extends AbstractComponent {
                             return this.wrap(<MultiSelectFormElement key={idx}
                                                                      element={formElement}
                                                                      value={this.getSelectedAnswer(formElement.concept, new CodedAnswers())}
-                                                                     actionName={this.props.actions["TOGGLE_CODED_ANSWER"]}
+                                                                     actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                                                      validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectFormElement key={idx}
                                                                       element={formElement}
                                                                       value={this.getSelectedAnswer(formElement.concept, new CodedAnswers())}
-                                                                      actionName={this.props.actions["TOGGLE_CODED_ANSWER"]}
+                                                                      actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                                                       validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Boolean) {
                             return this.wrap(<BooleanFormElement key={idx}

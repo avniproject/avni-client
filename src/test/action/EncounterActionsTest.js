@@ -91,31 +91,19 @@ describe('EncounterActionsTest', () => {
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         const answerUUID2 = 'ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f';
         formElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer(answerUUID2)];
-        var newState = ObservationsHolderActions.toggleCodedAnswer(state, {
-            answerUUID: answerUUID,
-            formElement: formElement
-        });
+        var newState = ObservationsHolderActions.toggleMultiSelectAnswer(state, {answerUUID: answerUUID, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
         verifyObservationValues(newState, 1);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID2,
-            formElement: formElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID2, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
         verifyObservationValues(newState, 2);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID,
-            formElement: formElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
         verifyObservationValues(newState, 1);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID2,
-            formElement: formElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID2, formElement: formElement});
         verifyFormElementAndObservations(newState, 1, 0);
     });
 
@@ -123,16 +111,10 @@ describe('EncounterActionsTest', () => {
         const {state, formElement} = createIntialState(Concept.dataType.Coded, false, false);
         const answerUUID = 'b4ed3172-6ab9-4fca-8464-74fb9a298593';
         formElement.concept.answers = [createConceptAnswer(answerUUID), createConceptAnswer('ae5f7668-cdfb-4a23-bcd0-98b3a0c68c1f')];
-        var newState = ObservationsHolderActions.toggleCodedAnswer(state, {
-            answerUUID: answerUUID,
-            formElement: formElement
-        });
+        var newState = ObservationsHolderActions.toggleMultiSelectAnswer(state, {answerUUID: answerUUID, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID,
-            formElement: formElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 0);
     });
 
@@ -145,23 +127,14 @@ describe('EncounterActionsTest', () => {
         var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '1', formElement: formElement});
         verifyFormElementAndObservations(newState, 0, 1);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID,
-            formElement: multiSelectFormElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: multiSelectFormElement});
         verifyFormElementAndObservations(newState, 0, 2);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID,
-            formElement: multiSelectFormElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: multiSelectFormElement});
         verifyFormElementAndObservations(newState, 1, 1);
         expect(newState.encounter.observations[0].concept.datatype).is.equal(Concept.dataType.Numeric);
 
-        newState = ObservationsHolderActions.toggleCodedAnswer(newState, {
-            answerUUID: answerUUID,
-            formElement: multiSelectFormElement
-        });
+        newState = ObservationsHolderActions.toggleMultiSelectAnswer(newState, {answerUUID: answerUUID, formElement: multiSelectFormElement});
         verifyFormElementAndObservations(newState, 0, 2);
     });
 
