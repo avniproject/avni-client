@@ -21,7 +21,7 @@ class ObservationsHolderActions {
 
     static toggleCodedAnswer(state, action) {
         const newState = state.clone();
-        const observation = newState.observationsHolder.toggleCodedAnswer(action.formElement.concept, action.answerUUID, action.formElement.isSingleSelect());
+        const observation = newState.observationsHolder.toggleCodedAnswer(action.formElement.concept, action.answerUUID, true);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
         return newState;
