@@ -9,7 +9,8 @@ import TextFormElement from './TextFormElement';
 import DateFormElement from './DateFormElement';
 import _ from "lodash";
 import Concept from '../../models/Concept';
-import CodedAnswers from "../../models/observation/CodedAnswers";
+import MultipleCodedValues from "../../models/observation/MultipleCodedValues";
+import SingleCodedValue from "../../models/observation/SingleCodedValue";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
 import DGS from '../primitives/DynamicGlobalStyles';
 import Fonts from '../primitives/Fonts';
@@ -18,6 +19,7 @@ import Distances from '../primitives/Distances';
 import ValidationResult from "../../models/application/ValidationResult";
 import DurationDateFormElement from "./DurationDateFormElement";
 import Duration from "../../models/Duration";
+import General from "../../utility/General";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -61,13 +63,13 @@ class FormElementGroup extends AbstractComponent {
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectFormElement key={idx}
                                                                      element={formElement}
-                                                                     value={this.getSelectedAnswer(formElement.concept, new CodedAnswers())}
+                                                                     multipleCodeValues={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                                                      actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                                                      validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectFormElement key={idx}
                                                                       element={formElement}
-                                                                      value={this.getSelectedAnswer(formElement.concept, new CodedAnswers())}
+                                                                      singleCodedValue={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                                                       actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                                                       validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Boolean) {

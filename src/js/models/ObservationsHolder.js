@@ -1,7 +1,9 @@
 import _ from "lodash";
+import BaseEntity from "./BaseEntity";
 import Observation from "./Observation";
 import PrimitiveValue from "./observation/PrimitiveValue";
-import CodedAnswers from "./observation/CodedAnswers";
+import SingleCodedValue from "./observation/SingleCodedValue";
+import MultipleCodedValues from "./observation/MultipleCodedValues";
 
 class ObservationsHolder {
     constructor(observations) {
@@ -37,7 +39,7 @@ class ObservationsHolder {
     toggleCodedAnswer(concept, answerUUID, isSingleSelect) {
         let observation = this.getObservation(concept);
         if (_.isEmpty(observation)) {
-            observation = Observation.create(concept, new CodedAnswers(answerUUID));
+            observation = Observation.create(concept, isSingleSelect ? new SingleCodedValue(answerUUID) : new MultipleCodedValues().push(answerUUID));
             this.observations.push(observation);
             return observation;
         } else {

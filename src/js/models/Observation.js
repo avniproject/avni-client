@@ -1,5 +1,9 @@
 import _ from "lodash";
 import Concept from './Concept';
+import moment from "moment";
+import SingleCodedValue from "./observation/SingleCodedValue";
+import MultipleCodedValues from "./observation/MultipleCodedValues";
+import PrimitiveValue from "./observation/PrimitiveValue";
 
 class Observation {
     static schema = {
@@ -29,10 +33,25 @@ class Observation {
         if (this.getValueWrapper().hasValue(answerUUID)) {
             this.valueJSON = {};
         } else {
-            this.valueJSON = new CodedAnswers(answerUUID);
+            this.valueJSON = new SingleCodedValue(answerUUID);
         }
     }
 
+    static valueAsString(observation, conceptService) {
+        const valueWrapper = observation.getValueWrapper();
+
+        if (observation.concept.datatype === Concept.dataType.Date) {
+            return valueWrapper.asDisplayDate();
+        } else if (valueWrapper.isSingleCoded) {
+            return conceptService.getConceptByUUID(valueWrapper.getConceptUUID()).name;
+        } else if (valueWrapper.isMultipleCoded) {
+            return _.join(valueWrapper.getValue().map((value) => {
+                return conceptService.getConceptByUUID(value).name;
+            }), ', ');
+        } else {
+            return _.toString(valueWrapper.getValue());
+        }
+    }
 
     hasNoAnswer() {
         return _.isEmpty(this.getValueWrapper().answer);

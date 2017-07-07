@@ -15,6 +15,5 @@ describe('MessagesConfigTest', () => {
         console.log(`Number of keys missing in marathi: ${missingInMarathi.length}`);
         console.log(`Number of keys missing in marathi: ${missingInMarathi}`);
         console.log(`Number of keys missing in hindi: ${missingInHindi.length}`);
-        console.log(['a'].includes('a'));
     });
 });

@@ -2,7 +2,8 @@ import BaseEntity from './BaseEntity';
 import ResourceUtil from "./../utility/ResourceUtil";
 import General from './../utility/General';
 import _ from 'lodash';
-import CodedAnswers from "./observation/CodedAnswers";
+import MultipleCodedValues from "./observation/MultipleCodedValues";
+import SingleCodedValue from "./observation/SingleCodedValue";
 import PrimitiveValue from "./observation/PrimitiveValue";
 
 export class ConceptAnswer {
@@ -113,7 +114,11 @@ export default class Concept {
     }
 
     getValueWrapperFor(value) {
-        return this.datatype === Concept.dataType.Coded ? new CodedAnswers(value) : new PrimitiveValue(value, this.datatype);
+        if (this.datatype === Concept.dataType.Coded) {
+            return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value);
+        } else {
+            return new PrimitiveValue(value, this.datatype);
+        }
     }
 
     getAnswers() {
