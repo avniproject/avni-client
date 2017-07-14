@@ -13,16 +13,12 @@ class ProgramEncounterActions {
     }
 
     static onLoad(state, action, context) {
-        if (ProgramEncounterState.hasEncounterChanged(state, action.programEncounter)) {
-            const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
-            const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
-            if (_.isNil(form)) {
-                return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
-            }
-            return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity);
+        const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
+        if (_.isNil(form)) {
+            return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
         }
-
-        return state.clone();
+        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity);
     }
 
     static onNext(state, action, context) {
