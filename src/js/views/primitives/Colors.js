@@ -1,9 +1,9 @@
 class Colors {
     static DarkPrimaryColor = '#00796B'; // for header, footer etc
-    static DefaultPrimaryColor = '#009688'; //default button colors, whenever you need a color
+    static DefaultPrimaryColor = '#212121'; //default button colors, whenever you need a color
     static LightPrimaryColor = '#B2DFDB';
     static DefaultTextBackgroundColor = '#FFFFFF';
-    static AccentColor = '#607D8B'; // for fabs etc
+    static AccentColor = '#009688'; // for fabs etc
     static PrimaryTextColor = '#212121';
     static SecondaryTextColor = '#757575';
     static TextOnPrimaryColor = '#FFFFFF';

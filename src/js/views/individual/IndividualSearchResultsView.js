@@ -1,9 +1,9 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {TouchableNativeFeedback, View, ListView, Dimensions, Text, Platform} from "react-native";
+import {TouchableNativeFeedback, View, ListView, Dimensions, Text} from "react-native";
 import React from "react";
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
-import {Button, Icon} from "native-base";
+import {Icon} from "native-base";
 import AppHeader from "../common/AppHeader";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
@@ -12,6 +12,7 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Svg,{Line} from 'react-native-svg';
+import Styles from "../primitives/Styles";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -46,12 +47,15 @@ class IndividualSearchResultsView extends AbstractComponent {
     renderProgram(program, index) {
         return (
             <Text key={index} disabled
-                    style={{
-                        marginLeft: 8,
+                    style={[{
+                        height: 22,
+                        marginLeft: 4,
+                        marginRight: 4,
+                        borderRadius: 2,
                         paddingHorizontal:4,
                         backgroundColor: program.colour,
-                        color: Colors.TextOnPrimaryColor
-                    }}>{this.I18n.t(program.name)}</Text>
+                        color: Colors.TextOnPrimaryColor,
+                    }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.name)}</Text>
         );
     }
 
@@ -69,19 +73,19 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t("searchResults")}/>
                     <ListView dataSource={dataSource}
+                              style={{backgroundColor: Styles.greyBackground}}
                               renderRow={(item) =>
                     <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
                                                    background={this.background()}>
-                        <View style={{flexDirection: 'column', minHeight: 56, justifyContent: 'space-between', paddingHorizontal: 16}}>
-                              <View style={{flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center'}}>
-                                  <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 40, paddingRight: 16, width: 56}}/>
-                                  <View style={{ flexDirection: 'column', justifyContent: 'center',
-                                      alignItems: 'flex-start', flex: 1}}>
-                                      <Text style={{fontSize: Fonts.Large}}>{item.name}</Text>
+                        <View>
+                            <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
+                                alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
+                            <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
+                                  <View style={{ flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
+                                      <Text style={Styles.textStyle}>{item.name}</Text>
                                       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                                      <Text style={{fontSize: Fonts.Normal}}>{this.I18n.t(item.gender.name)}</Text>
-                                          <Text style={this.scaleStyle({ paddingLeft: 8, paddingRight: 8})}></Text>
-                                          <Text style={{fontSize: Fonts.Normal}} note>{item.getDisplayAge(i18n)}</Text>
+                                        <Text style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
+                                        <Text style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
                                       </View>
                                   </View>
                                   <View style={{
@@ -91,7 +95,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       flex: 1
                                   }}>
                                       <View style={{justifyContent: 'flex-end'}}>
-                                          <Text style={{fontSize: Fonts.Large}}>{item.lowestAddressLevel.name}</Text>
+                                          <Text style={Styles.textStyle}>{item.lowestAddressLevel.name}</Text>
                                       </View>
                                       <View style={{ justifyContent: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end'}}>
                                       {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}

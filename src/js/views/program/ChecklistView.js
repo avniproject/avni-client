@@ -79,7 +79,7 @@ class ChecklistView extends AbstractComponent {
                         return (
                             <View style={{
                                 marginHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge),
-                                backgroundColor: 'white',
+                                backgroundColor: 'whiteColor',
                                 borderRadius: 5,
                                 flexDirection: 'column',
                                 flexWrap: "nowrap",

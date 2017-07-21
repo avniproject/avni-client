@@ -38,7 +38,7 @@ class ProgramList extends AbstractComponent {
             self: {
                 borderWidth: 1,
                 borderColor: colour,
-                backgroundColor: 'white'
+                backgroundColor: 'whiteColor'
             },
             text: {
                 color: colour,

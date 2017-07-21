@@ -1,4 +1,4 @@
-import {Alert, Animated, Text, View} from "react-native";
+import {Alert, Animated, Text, View, Dimensions} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
@@ -18,6 +18,7 @@ import Fonts from "./primitives/Fonts";
 import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
 import CHSContent from "./common/CHSContent";
+import Styles from "./primitives/Styles";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -31,7 +32,6 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconLabelStyle = {color: 'black', fontSize: Fonts.Medium, alignSelf: 'center'};
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48};
 
     createStyles() {
@@ -108,7 +108,7 @@ class MenuView extends AbstractComponent {
                     entitySyncStatusService.setup(EntityMetaData.model());
                 }
                 },
-                {   
+                {
                     text: this.I18n.t('no'), onPress: () => {
                 },
                     style: 'cancel'
@@ -122,7 +122,7 @@ class MenuView extends AbstractComponent {
                 <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
                     <Icon name={iconName} style={MenuView.iconStyle}/>
                 </Button>
-                <Text style={MenuView.iconLabelStyle}>{menuMessageKey}</Text>
+                <Text style={Styles.menuTitle}>{menuMessageKey}</Text>
             </View>
         );
     }
@@ -130,12 +130,14 @@ class MenuView extends AbstractComponent {
     render() {
         return (
             <CHSContent>
-                <View style={this.scaleStyle({flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start'})}>
+                <View style={{
+                    flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
+                    height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground }}>
                     <View style={this.columnStyle}>
                         <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                             {this.renderSyncButton()}
                         </Button>
-                        <Text style={MenuView.iconLabelStyle}>Sync Data</Text>
+                        <Text style={Styles.menuTitle}>Sync Data</Text>
                     </View>
                     {this.renderMenuItem('settings', 'Settings', () => this.settingsView())}
                     {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}

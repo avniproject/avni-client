@@ -29,7 +29,7 @@ class EntityTypeSelector extends AbstractComponent {
 
     render() {
         var modalBackgroundStyle = {
-            backgroundColor: [EntityTypeChoiceState.states.Launched, EntityTypeChoiceState.states.EntityTypeSelected].includes(this.props.flowState) ? 'rgba(0, 0, 0, 0.5)' : 'white'
+            backgroundColor: [EntityTypeChoiceState.states.Launched, EntityTypeChoiceState.states.EntityTypeSelected].includes(this.props.flowState) ? 'rgba(0, 0, 0, 0.5)' : 'whiteColor'
         };
         return (
             <Modal
@@ -49,7 +49,7 @@ class EntityTypeSelector extends AbstractComponent {
                         alignItems: 'flex-start',
                         padding: 20,
                         alignSelf: 'center',
-                        backgroundColor: 'white'
+                        backgroundColor: 'whiteColor'
                     }]}>
                         <RadioGroup action={this.props.actions['ENTITY_TYPE_SELECTED']}
                                     selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}

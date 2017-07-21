@@ -11,6 +11,7 @@ import Reducers from "../../reducer";
 import Fonts from '../primitives/Fonts';
 import Distances from '../primitives/Distances';
 import PresetOptionItem from "../primitives/PresetOptionItem";
+import Styles from "../primitives/Styles";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -61,7 +62,7 @@ class AddressLevels extends AbstractComponent {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
         return (
             <View style={this.appendedStyle()}>
-                <Text style={DGS.formElementLabel}>{this.I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
+                <Text style={Styles.formLabel}>{this.I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',

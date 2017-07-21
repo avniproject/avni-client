@@ -3,6 +3,7 @@ import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import Styles from "../primitives/Styles";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -19,9 +20,9 @@ class TextFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View style={this.appendedStyle({flexDirection: 'column'})}>
+            <View style={{flexDirection: 'column'}}>
                 {this.label}
-                <TextInput style={{marginVertical: 0, paddingVertical: 5}} underlineColorAndroid={this.borderColor}
+                <TextInput style={Styles.formBodyText} underlineColorAndroid={this.borderColor}
                            value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);

@@ -73,13 +73,13 @@ export default {
 
 
     // Check Box
-    checkboxBgColor: Colors.DefaultPrimaryColor,
+    checkboxBgColor: Colors.AccentColor,
     checkboxSize: 16,
     checkboxTickColor: '#fff',
 
 
     // Color
-    brandPrimary : Colors.DefaultPrimaryColor,
+    brandPrimary : Colors.AccentColor,
     brandInfo: '#5bc0de',
     brandSuccess: '#5cb85c',
     brandDanger: '#d9534f',

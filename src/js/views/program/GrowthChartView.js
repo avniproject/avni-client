@@ -118,7 +118,7 @@ class GrowthChartView extends AbstractComponent {
             marginBottom: DGS.resizeTextInputHeight(10)
         });
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: 'white'}}>
+            <CHSContainer theme={themes} style={{backgroundColor: 'whiteColor'}}>
                 <CHSContent>
                     <AppHeader title={`${individualName} - Growth Chart`}/>
                     <View style={{flexDirection: 'column', flex: 1}}>
@@ -126,7 +126,7 @@ class GrowthChartView extends AbstractComponent {
                             {_.map(this.buttons, (button, index) => {
                                 return (
                                     <Button
-                                        textStyle={{color: 'white'}}
+                                        textStyle={{color: 'whiteColor'}}
                                         style={{marginTop: DGS.resizeHeight(10)}}
                                         disabled={this.shouldBeDisabled(button)}
                                         key={index}
