@@ -146,11 +146,13 @@ class GrowthChartView extends AbstractComponent {
                                 )
                             })}
                         </View>
-                        <Text style={titleStyle}>{this.state.title}</Text>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                            {_.map(this.state.graphsToBeShown, (graph, index) => this.renderChart(graph, index))}
+                        <View>
+                            <Text style={titleStyle}>{this.state.title}</Text>
+                            <View style={{flexDirection: 'column', flex: 1}}>
+                                {_.map(this.state.graphsToBeShown, (graph, index) => this.renderChart(graph, index))}
+                            </View>
+                            {this.renderOverlayForSmoothScrolling()}
                         </View>
-                        {this.renderOverlayForSmoothScrolling()}
                     </View>
                 </CHSContent>
             </CHSContainer>
