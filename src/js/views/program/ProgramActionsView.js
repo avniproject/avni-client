@@ -62,10 +62,10 @@ class ProgramActionsView extends AbstractComponent {
             <View
                 style={{flex: 1,flexDirection: 'column', marginTop: 8}}>
                 {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
-                    this.I18n.t('startGeneralVisit'), Colors.DarkPrimaryColor)}
+                    this.I18n.t('newGeneralVisit'), Colors.DarkPrimaryColor)}
                 {this.props.enrolment.isActive ?
                     this.renderButton(() => this.startProgramEncounter(), Styles.accentColor,
-                        this.I18n.t('startProgramVisit'), Colors.TextOnPrimaryColor)
+                        this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {this.props.enrolment.hasChecklist ?
