@@ -1,6 +1,6 @@
 {
   "catchment": 1,
-  "serverURL": "http://139.59.8.249:8080",
+  "serverURL": "http://demo.openchs.org:8021",
   "logLevel": 3,
   "locale": "mr_IN"
 }
