@@ -28,14 +28,14 @@ class ChecklistDisplay extends AbstractComponent {
             <View style={this.appendedStyle()}>
                 {this.props.checklists.map((checklist, checklistIndex) => {
                     const upcomingItems = checklist.upcomingItems();
-                    return <View key={`c${checklistIndex}`}>
+                    return upcomingItems.length > 0? <View key={`c${checklistIndex}`}>
                         <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('checklistPreview', {name: checklist.name, date: General.formatDate(upcomingItems[0][0].dueDate)})}</Text>
                         <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
                             {upcomingItems[0].map((checklistItem, checklistItemIndex) =>
                                 <ChecklistItemDisplay checklistItem={checklistItem} key={`c${checklistIndex}-cli${checklistItemIndex}`} style={{marginLeft: 10}} editable={this.isEditable()}/>
                             )}
                         </View>
-                    </View>
+                    </View>: <View key={`c${checklistIndex}`}/>;
                 })}
             </View>
         );

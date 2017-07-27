@@ -1,4 +1,5 @@
 import {View} from "native-base";
+import {Dimensions} from "react-native";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
@@ -13,6 +14,7 @@ import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader"
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import Styles from "../primitives/Styles";
 
 
 @Path('/GrowthChartView')
@@ -109,6 +111,11 @@ class GrowthChartView extends AbstractComponent {
         );
     }
 
+    renderOverlayForSmoothScrolling() {
+        return <View style={{flex: 1, position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, opacity: 1}}/>;
+    }
+
+
     render() {
         General.logDebug("GrowthChartView", 'render');
         const individualName = this.props.params.enrolment.individual.name;
@@ -118,15 +125,15 @@ class GrowthChartView extends AbstractComponent {
             marginBottom: DGS.resizeTextInputHeight(10)
         });
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: 'whiteColor'}}>
+            <CHSContainer theme={themes} style={{backgroundColor: Styles.whiteColor}}>
                 <CHSContent>
                     <AppHeader title={`${individualName} - Growth Chart`}/>
-                    <View style={{flexDirection: 'column', flex: 1}}>
+                    <View>
                         <View style={{flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around'}}>
                             {_.map(this.buttons, (button, index) => {
                                 return (
                                     <Button
-                                        textStyle={{color: 'whiteColor'}}
+                                        textStyle={{color: Styles.whiteColor}}
                                         style={{marginTop: DGS.resizeHeight(10)}}
                                         disabled={this.shouldBeDisabled(button)}
                                         key={index}
@@ -143,6 +150,7 @@ class GrowthChartView extends AbstractComponent {
                         <View style={{flexDirection: 'column', flex: 1}}>
                             {_.map(this.state.graphsToBeShown, (graph, index) => this.renderChart(graph, index))}
                         </View>
+                        {this.renderOverlayForSmoothScrolling()}
                     </View>
                 </CHSContent>
             </CHSContainer>

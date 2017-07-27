@@ -5,6 +5,7 @@ import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import Styles from "../primitives/Styles";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
@@ -26,10 +27,10 @@ class NumericFormElement extends AbstractFormElement {
         return (
             <View>
                 <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
-                    <Text style={DynamicGlobalStyles.formElementLabel}>{labelText}{unitText}{rangeText}</Text>
+                    <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
                 </View>
                 <View>
-                    <TextInput style={{flex: 1, marginVertical: 0, paddingVertical: 5}} underlineColorAndroid={this.borderColor} keyboardType='numeric'
+                    <TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText]} underlineColorAndroid={this.borderColor} keyboardType='numeric'
                                value={_.toString(this.props.value.getValue())} onChangeText={(text) => this.onInputChange(text)} onEndEditing={(text) => this.onInputChange(text)}/>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
@@ -48,11 +49,11 @@ class NumericFormElement extends AbstractFormElement {
         } else if (!_.isNil(this.props.element.concept.hiNormal)) {
             rangeText = `<${this.props.element.concept.hiNormal}`
         }
-        return _.isNil(rangeText) ? <Text></Text> : <Text> ({rangeText}) </Text>;
+        return _.isNil(rangeText) ? <Text></Text> : <Text style={Styles.formLabel}> ({rangeText}) </Text>;
     }
 
     unitText(){
-        return _.isNil(this.props.element.concept.unit) ? <Text></Text> : <Text> ({this.props.element.concept.unit}) </Text>;
+        return _.isNil(this.props.element.concept.unit) ? <Text></Text> : <Text style={Styles.formLabel}> ({this.props.element.concept.unit}) </Text>;
 
     }
 

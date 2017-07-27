@@ -185,7 +185,7 @@ export default {
 
 
     // Radio Button
-    radioBtnSize: (Platform.OS === 'ios') ? 25 : 23,
+    radioBtnSize: (Platform.OS === 'ios') ? 25 : 25,
     radioColor: '#009688',
 
     get radioSelectedColor() {

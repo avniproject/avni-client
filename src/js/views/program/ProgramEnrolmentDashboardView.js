@@ -26,6 +26,7 @@ import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import Styles from "../primitives/Styles";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -87,7 +88,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
-                <CHSContent>
+                <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
                     <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
                                         selectedEntityType={programEncounterTypeState.entity.encounterType}
@@ -98,8 +99,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <View>
                         <AppHeader title={this.I18n.t('individualDashboard')}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
-                        <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16}}>
-                            <View>
+                        <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor}}>
+                            <View style={{marginHorizontal: 8}}>
                                 <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
                                 <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch'}}>
                                     <View style={{justifyContent: 'flex-start', flex: 1}}>
@@ -112,7 +113,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
-                                <View>
+                                <View style={{marginHorizontal: 8}}>
                                     <View>
                                         <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
                                         <Observations observations={this.state.enrolment.observations} style={{marginVertical: DGS.resizeHeight(8)}}/>

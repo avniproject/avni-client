@@ -1,8 +1,6 @@
-import {View, StyleSheet} from "react-native";
-import React, {Component} from "react";
+import {View, } from "react-native";
+import React from "react";
 import _ from "lodash";
-import {Text, Radio} from "native-base";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from '../form/ValidationErrorMessage';
 import PresetOptionItem from "../primitives/PresetOptionItem";

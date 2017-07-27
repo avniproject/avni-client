@@ -17,6 +17,7 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import Styles from "../primitives/Styles";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -79,7 +80,7 @@ class ChecklistView extends AbstractComponent {
                         return (
                             <View style={{
                                 marginHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge),
-                                backgroundColor: 'whiteColor',
+                                backgroundColor: Styles.whiteColor,
                                 borderRadius: 5,
                                 flexDirection: 'column',
                                 flexWrap: "nowrap",

@@ -6,6 +6,7 @@ import ConceptService from "../../service/ConceptService";
 import Observation from "../../models/Observation";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
+import Styles from "../primitives/Styles";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -81,13 +82,15 @@ class Observations extends AbstractComponent {
                                 <Col style={this.styles.observationColumn} key={`${cellIndex}col1`} size={nameColSize}>
                                     <Text style={{
                                         textAlign: 'left',
-                                        fontSize: Fonts.Normal
+                                        fontSize: Fonts.Normal,
+                                        color: Styles.greyText
                                     }}>{this.I18n.t(observation.concept.name)}</Text>
                                 </Col>
                                 <Col style={this.styles.observationColumn} key={`${cellIndex}col2`} size={2}>
                                     <Text style={{
                                         textAlign: 'left',
-                                        fontSize: Fonts.Medium
+                                        fontSize: Fonts.Medium,
+                                        color: Styles.blackColor
                                     }}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
                                 </Col>
                             </Row>

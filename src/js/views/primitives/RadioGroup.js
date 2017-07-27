@@ -3,10 +3,10 @@ import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "./DynamicGlobalStyles";
 import {Text, Grid, Row, Radio} from "native-base";
-import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import PresetOptionItem from "./PresetOptionItem";
 import Distances from "./Distances";
+import Styles from "./Styles";
 
 class RadioGroup extends AbstractComponent {
     static propTypes = {
@@ -27,7 +27,7 @@ class RadioGroup extends AbstractComponent {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
         return (
             <View style={this.appendedStyle({})}>
-                <Text style={DGS.formElementLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
+                <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
@@ -40,7 +40,7 @@ class RadioGroup extends AbstractComponent {
                         <PresetOptionItem displayText={this.I18n.t(radioLabelValue.radioLabel)} checked={this.props.selectionFn(radioLabelValue.value)}
                                           multiSelect={false} validationResult={this.props.validationError}
                                           onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})} key={radioLabelValue.radioLabel}
-                                          style={{marginTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
+                                          style={{paddingTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
                     }
                 </View>
             </View>

@@ -3,6 +3,7 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
+import Styles from "../primitives/Styles";
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
@@ -38,7 +39,7 @@ class ProgramList extends AbstractComponent {
             self: {
                 borderWidth: 1,
                 borderColor: colour,
-                backgroundColor: 'whiteColor'
+                backgroundColor: Styles.whiteColor
             },
             text: {
                 color: colour,

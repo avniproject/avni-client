@@ -13,6 +13,7 @@ import {
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
+import Styles from "../primitives/Styles";
 
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
@@ -60,20 +61,20 @@ class ProgramActionsView extends AbstractComponent {
         return (
             <View
                 style={{flex: 1,flexDirection: 'column', marginTop: 8}}>
+                {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
+                    this.I18n.t('startGeneralVisit'), Colors.DarkPrimaryColor)}
                 {this.props.enrolment.isActive ?
-                    this.renderButton(() => this.startProgramEncounter(), Colors.DefaultPrimaryColor,
+                    this.renderButton(() => this.startProgramEncounter(), Styles.accentColor,
                         this.I18n.t('startProgramVisit'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {this.props.enrolment.hasChecklist ?
-                    this.renderButton(() => this.openChecklist(), Colors.DefaultPrimaryColor,
+                    this.renderButton(() => this.openChecklist(), Styles.accentColor,
                         this.I18n.t('openChecklist'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.goToView(button),
-                    Colors.DefaultPrimaryColor, button.label, Colors.TextOnPrimaryColor, index))}
-                {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
-                    this.I18n.t('startGeneralVisit'), Colors.DarkPrimaryColor)}
+                    Styles.accentColor, button.label, Colors.TextOnPrimaryColor, index))}
             </View>
         );
     }

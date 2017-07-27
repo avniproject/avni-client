@@ -12,6 +12,7 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import Styles from "../primitives/Styles";
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -36,16 +37,11 @@ class IndividualRegistrationDetailView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
-                <CHSContent>
+                <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
                     <AppHeader title={this.I18n.t('viewProfile')}/>
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual}/>
                     {this.state.individual.observations.length === 0 ? <View/> :
-                    <Card style={{
-                        flexDirection: 'column',
-                        marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
-                        borderRadius: 5,
-                        paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
-                    }}>
+                    <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor}}>
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
                     </Card>}
                 </CHSContent>

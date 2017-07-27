@@ -9,6 +9,7 @@ import {Button, Icon, Text} from "native-base";
 import PreviousEncounters from "../common/PreviousEncounters";
 import Separator from "../primitives/Separator";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
+import Styles from "../primitives/Styles";
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {
@@ -41,8 +42,8 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                 style={{position: 'absolute', height: 22, backgroundColor: Colors.SecondaryActionButtonColor, bottom: -11}}
                                 onPress={this.toggleExpandCollapse}
                                 textStyle={{color: '#212121'}}>
-                            <Text style={{fontSize: Fonts.Normal}} onPress={this.toggleExpandCollapse}>Expand</Text>
-                            <Icon style={{color: '#212121'}} name='arrow-downward'/>
+                            <Text style={{fontSize: Fonts.Normal, color: Styles.greyText}} onPress={this.toggleExpandCollapse}>Expand</Text>
+                            <Icon style={{color: '#212121', color: Styles.greyText}} name='arrow-downward'/>
                         </Button>
                     </View>
                 </View>

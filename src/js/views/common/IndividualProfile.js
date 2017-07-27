@@ -1,4 +1,4 @@
-import {View, TouchableNativeFeedback, Dimensions} from "react-native";
+import {View, TouchableNativeFeedback} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -10,10 +10,10 @@ import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
-import EntityTypeSelector from "./EntityTypeSelector";
 import General from "../../utility/General";
 import DGS from "../primitives/DynamicGlobalStyles";
-import {Line, Svg} from "react-native-svg";
+import Styles from "../primitives/Styles";
+import EntityTypeSelector from "./EntityTypeSelector";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -38,17 +38,6 @@ class IndividualProfile extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
-        return <TouchableNativeFeedback onPress={onPress}>
-            <View style={{flexDirection: 'row', backgroundColor: Colors.SecondaryActionButtonColor,
-                borderRadius: 4, minHeight: 36, marginBottom: 8, flex: 1, paddingHorizontal: 4,
-                alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'stretch', flexWrap: 'wrap'}}>
-                <Icon name={iconMode} style={{fontSize: DGS.resizeWidth(36), color: Colors.DarkPrimaryColor, paddingRight: 4}}/>
-                <Text style={{fontSize: Fonts.Medium, color: Colors.DarkPrimaryColor, alignSelf: 'center'}}>{this.I18n.t(displayTextMessageKey).toUpperCase()}</Text>
-            </View>
-            </TouchableNativeFeedback>
-    }
-
     viewProfile() {
         CHSNavigator.navigateToIndividualRegistrationDetails(this, this.props.individual);
     }
@@ -63,46 +52,49 @@ class IndividualProfile extends AbstractComponent {
         }
     }
 
+    renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
+        return <TouchableNativeFeedback onPress={onPress}>
+            <View style={{flexDirection: 'row', height: 26, borderColor: Styles.accentColor, borderWidth: 1,
+                borderStyle: 'solid', borderRadius: 2, paddingHorizontal: 4,
+                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4}}>
+                <Icon name={iconMode} style={{fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize), color: Colors.DarkPrimaryColor, paddingRight: 4}}/>
+                <Text style={Styles.programProfileButtonText}>{this.I18n.t(displayTextMessageKey)}</Text>
+            </View>
+        </TouchableNativeFeedback>
+    }
+
     render() {
         General.logDebug('IndividualProfile', 'render');
-        const lineWidth = Dimensions.get('window').width - 32;
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
-                <View style={{paddingHorizontal: 16, elevation: 3}}>
+                <View style={{alignItems: 'center', justifyContent: 'flex-end', marginVertical: 28, backgroundColor: Styles.defaultBackground}}>
                     <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
                                         actions={Actions} labelKey='selectProgram'
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
-                    <View style={{flexDirection: 'row', paddingVertical: 8, flexWrap: 'wrap'}}>
-                        <View style={{justifyContent: 'center', paddingRight: 16}}>
-                            <Icon name='person-pin' style={{justifyContent: 'center', alignSelf: 'stretch', fontSize: DGS.resizeWidth(192), color: Colors.AccentColor}}/>
-                        </View>
-                        <View style={{flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}>
-                            <View  style={{justifyContent: 'center'}}>
-                                <Text style={{fontSize: 24, alignSelf: 'center'}}>{this.props.individual.name} {this.props.individual.id}</Text>
-                                <Text style={{fontSize: 15}}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.props.individual.lowestAddressLevel.name}</Text>
-                            </View>
-
-                            <View style={{flexDirection: 'column', justifyContent: 'center', alignSelf: 'stretch'}}>
-                                {this.props.viewContext === IndividualProfile.viewContext.Individual ?
-                                    this.renderProfileActionButton('mode-edit', 'editProfile', () => {
-                                        this.editProfile()
-                                    }) :
-                                    this.renderProfileActionButton('person', 'viewProfile', () => {
-                                        this.viewProfile()
-                                    })
-                                }
-                                {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
-                                {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) : <View/>}
-                                {this.renderViewEnrolmentsIfNecessary()}
-                            </View>
-                        </View>
+                    <View style={{justifyContent: 'center', alignSelf: 'center'}}>
+                        <Icon name='person-pin' style={{justifyContent: 'center', alignSelf: 'stretch', fontSize: DGS.resizeWidth(75), color: Colors.AccentColor}}/>
                     </View>
-                    <Svg height="1" width={lineWidth}><Line x1="0" x2={lineWidth} y1="0" y2="0" stroke={Colors.GreyBackground} strokeWidth="1"/></Svg>
+                    <Text style={Styles.programProfileHeading}>{this.props.individual.name} {this.props.individual.id}</Text>
+                    <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.props.individual.lowestAddressLevel.name}</Text>
+                    <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
+                        {this.props.viewContext === IndividualProfile.viewContext.Individual ?
+                            this.renderProfileActionButton('mode-edit', 'editProfile', () => {
+                                this.editProfile()
+                            }) :
+                            this.renderProfileActionButton('person', 'viewProfile', () => {
+                                this.viewProfile()
+                            })
+                        }
+                        {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
+                        {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) : <View/>}
+                        {this.renderViewEnrolmentsIfNecessary()}
+                    </View>
                 </View>
+
             ) :
             (
                 <View style={this.appendedStyle({
-                    flexDirection: 'column', backgroundColor: Colors.AccentColor,
+                    flexDirection: 'column', backgroundColor: Colors.defaultBackground,
                     paddingHorizontal: Distances.ContentDistanceFromEdge
                 })}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>

@@ -20,7 +20,7 @@ class TextFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View style={{flexDirection: 'column'}}>
+            <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
                 <TextInput style={Styles.formBodyText} underlineColorAndroid={this.borderColor}
                            value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>

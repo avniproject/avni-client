@@ -6,6 +6,7 @@ Styles.whiteColor = '#ffffff';
 Styles.blackColor = '#000000';
 Styles.defaultBackground = '#212121';
 Styles.greyBackground = '#f7f7f7';
+Styles.greyText = '#666666';
 
 Styles.titleSize = 20;
 Styles.normalTextSize = 16;
@@ -19,6 +20,17 @@ Styles.VerticalSpacingBetweenFormElements = 20;
 Styles.VerticalSpacingDisplaySections = 16;
 Styles.VerticalSpacingBetweenOptionItems = 20;
 
+Styles.programProfileHeading = {
+    fontSize: 16,
+    color: Styles.whiteColor,
+    lineHeight: 24
+};
+
+Styles.programProfileSubheading = {
+    fontSize: 14,
+    color: Styles.whiteColor,
+    lineHeight: 24
+};
 
 Styles.navbarHelpText = {
     fontSize: 36,
@@ -126,7 +138,7 @@ Styles.buttonPrimaryTextActive = {
 Styles.programProfileButtonText = {
     fontSize: Styles.smallTextSize,
     fontStyle: 'normal',
-    color: Styles.whiteColor,
+    color: Styles.accentColor,
     alignSelf: 'center',
 };
 
@@ -176,10 +188,17 @@ Styles.userProfileSubtext = {
 };
 
 Styles.formLabel = {
-    fontSize: Styles.smallerTextSize,
+    fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
-    color: '#151515',
-    lineHeight: Styles.smallerTextSize + 4,
+    color: Styles.greyText,
+    lineHeight: Styles.normalTextSize + 8,
+};
+
+Styles.formGroupLabel = {
+    fontSize: Styles.titleSize,
+    fontStyle: 'normal',
+    color: Styles.blackColor,
+    lineHeight: Styles.titleSize + 16
 };
 
 export default Styles;
