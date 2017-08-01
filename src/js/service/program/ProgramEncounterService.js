@@ -49,16 +49,14 @@ class ProgramEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
 
         const db = this.db;
-        this.db.write(()=> {
+        this.db.write(() => {
             this._saveEncounter(programEncounter, db);
 
             nextScheduledVisits.forEach((nextScheduledVisit) => {
                 const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
                 if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
 
-                var scheduledEncounter = this.getService(ProgramEncounterService).findDueEncounter(encounterType.uuid, programEncounter.programEnrolment.uuid);
-                if (_.isNil(scheduledEncounter))
-                    scheduledEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEncounter.programEnrolment);
+                var scheduledEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEncounter.programEnrolment);
                 scheduledEncounter.updateSchedule(nextScheduledVisit);
                 this._saveEncounter(scheduledEncounter, db);
             });

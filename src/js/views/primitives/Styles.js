@@ -1,6 +1,7 @@
 class Styles {
 }
 
+
 Styles.accentColor = '#009688';
 Styles.whiteColor = '#ffffff';
 Styles.blackColor = '#000000';
@@ -131,6 +132,7 @@ Styles.buttonSecondaryInactive = {
 Styles.buttonPrimaryTextActive = {
     fontSize: Styles.smallTextSize,
     fontStyle: 'normal',
+    fontWeight: 'bold',
     color: Styles.whiteColor,
     alignSelf: 'center',
 };
@@ -199,6 +201,30 @@ Styles.formGroupLabel = {
     fontStyle: 'normal',
     color: Styles.blackColor,
     lineHeight: Styles.titleSize + 16
+};
+
+Styles.basicPrimaryButtonView = {
+    minHeight: 36,
+    marginBottom: 8,
+    elevation: 2,
+    borderRadius: 4,
+    flexWrap: 'wrap',
+    backgroundColor: Styles.accentColor,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4
+};
+
+Styles.basicSecondaryButtonView = {
+    minHeight: 36,
+    marginBottom: 8,
+    elevation: 2,
+    borderRadius: 4,
+    flexWrap: 'wrap',
+    backgroundColor: '#e0e0e0', //Colors.SecondaryActionButtonColor
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4
 };
 
 export default Styles;

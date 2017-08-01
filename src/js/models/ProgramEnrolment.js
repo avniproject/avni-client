@@ -195,6 +195,10 @@ class ProgramEnrolment extends BaseEntity {
     findObservation(conceptName) {
         return _.find(this.observations, (observation) => observation.concept.name === conceptName);
     }
+
+    scheduledEncounters() {
+        return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime);
+    }
 }
 
 export default ProgramEnrolment;

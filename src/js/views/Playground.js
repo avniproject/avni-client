@@ -1,8 +1,5 @@
 import {Animated, View, StyleSheet, Text} from "react-native";
 import React, {Component} from "react";
-import {VictoryLine, VictoryStack} from "victory-native";
-import _ from "lodash";
-
 class Playground extends Component {
     static styles = StyleSheet.create({
         container: {
@@ -33,12 +30,6 @@ class Playground extends Component {
 
         return (
             <View style={Playground.styles.container}>
-                <VictoryStack>
-                    <VictoryLine name="bar-1" data={[{x: "a", y: 2}, {x: "b", y: 3}, {x: "c", y: 5}]}/>
-                    <VictoryLine name="bar-2" data={[{x: "a", y: 1}, {x: "b", y: 4}, {x: "c", y: 5}]}/>
-                    <VictoryLine name="bar-3" data={[{x: "a", y: 3}, {x: "b", y: 2}, {x: "c", y: 6}]}/>
-                    <VictoryLine name="bar-4" data={[{x: "a", y: 2}, {x: "b", y: 3}, {x: "c", y: 3}]}/>
-                </VictoryStack>
             </View>
         );
     }

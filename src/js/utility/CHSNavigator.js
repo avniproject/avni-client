@@ -11,6 +11,7 @@ import IndividualEncounterLandingView from "../views/individual/IndividualEncoun
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
 import General from "./General";
+import StartProgramView from "../views/program/StartProgramView";
 
 class CHSNavigator {
     static navigateToProgramEnrolmentView(source, enrolment, backFunction) {
@@ -29,6 +30,14 @@ class CHSNavigator {
 
     static navigateToExitProgram(source, enrolment) {
         TypedTransition.from(source).with({enrolment: enrolment}).to(ProgramExitView);
+    }
+
+    static navigateToStartProgramView(source, enrolmentUUID) {
+        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(StartProgramView);
+    }
+
+    static goBack(source) {
+        TypedTransition.from(source).goBack()
     }
 
     static navigateToProgramEncounterView(source, programEncounter) {

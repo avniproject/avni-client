@@ -6,10 +6,7 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
-import {
-    ProgramEncounterTypeChoiceActionNames,
-    EncounterTypeChoiceActionNames
-} from "../../action/program/ProgramEnrolmentDashboardActions";
+import { EncounterTypeChoiceActionNames } from "../../action/program/ProgramEnrolmentDashboardActions";
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
@@ -32,7 +29,7 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     startProgramEncounter() {
-        this.dispatchAction(ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
+        CHSNavigator.navigateToStartProgramView(this, this.props.enrolment.uuid);
     }
 
     openChecklist() {
@@ -43,11 +40,10 @@ class ProgramActionsView extends AbstractComponent {
         TypedTransition.from(this).bookmark().with({data: _.get(button, ['openOnClick', 'data']), enrolment: this.props.enrolment}).to(GrowthChartView);
     }
 
-    renderButton(onPress, buttonColor, text, textColor, index) {
+    renderButton(onPress, buttonStyle, text, textColor, index) {
         return (
             <TouchableNativeFeedback onPress={onPress} key={index}>
-                <View  style={{ minHeight: 36, marginBottom: 8, elevation: 2, borderRadius: 4, flexWrap: 'wrap',
-                    elevation: 3, backgroundColor: buttonColor, alignItems: 'center', justifyContent: 'center'}}>
+                <View  style={buttonStyle}>
                     <Text style={{
                         fontSize: Fonts.Medium,
                         color: textColor
@@ -61,20 +57,20 @@ class ProgramActionsView extends AbstractComponent {
         return (
             <View
                 style={{flex: 1,flexDirection: 'column', marginTop: 8}}>
-                {this.renderButton(() => this.startEncounter(), Colors.SecondaryActionButtonColor,
+                {this.renderButton(() => this.startEncounter(), Styles.basicSecondaryButtonView,
                     this.I18n.t('newGeneralVisit'), Colors.DarkPrimaryColor)}
                 {this.props.enrolment.isActive ?
-                    this.renderButton(() => this.startProgramEncounter(), Styles.accentColor,
+                    this.renderButton(() => this.startProgramEncounter(), Styles.basicPrimaryButtonView,
                         this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {this.props.enrolment.hasChecklist ?
-                    this.renderButton(() => this.openChecklist(), Styles.accentColor,
+                    this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
                         this.I18n.t('openChecklist'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.goToView(button),
-                    Styles.accentColor, button.label, Colors.TextOnPrimaryColor, index))}
+                    Styles.basicPrimaryButtonView, button.label, Colors.TextOnPrimaryColor, index))}
             </View>
         );
     }

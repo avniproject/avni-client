@@ -43,10 +43,7 @@ class ProgramEnrolmentService extends BaseService {
                 const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
                 if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
 
-                var programEncounter = this.getService(ProgramEncounterService).findDueEncounter(encounterType.uuid, programEnrolment.uuid);
-                if (_.isNil(programEncounter)) {
-                    programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEnrolment);
-                }
+                var programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEnrolment);
                 programEncounter.updateSchedule(nextScheduledVisit);
                 programEnrolment.addEncounter(programEncounter);
 

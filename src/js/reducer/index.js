@@ -23,6 +23,7 @@ import {AddressLevelActions} from '../action/AddressLevelActions';
 import {ChecklistActions, ChecklistActionsMap} from '../action/program/ChecklistActions';
 import _ from 'lodash';
 import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
+import {StartProgramActions, StartProgramActionsMap} from "../action/program/StartProgramActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -40,6 +41,7 @@ export default class Reducers {
         addressLevels: 'addressLevels',
         checklist: 'checklist',
         settings: 'settings',
+        startProgramActions: "startProgramActions"
     };
     
     static createReducers(beanStore) {
@@ -58,6 +60,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.programEncounter] = Reducers._add(ProgramEncounterActionsMap, ProgramEncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegistrationDetails] = Reducers._add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions, beanStore);
         reducerMap[Reducers.reducerKeys.settings] = Reducers._add(SettingsActionsMap, SettingsActions, beanStore);
+        reducerMap[Reducers.reducerKeys.startProgramActions] = Reducers._add(StartProgramActionsMap, StartProgramActions, beanStore);
 
         return reducerMap;
     };
