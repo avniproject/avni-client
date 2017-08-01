@@ -176,8 +176,8 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     findObservationInEntireEnrolment(conceptName, currentEncounter) {
-        const encounters = this.getEncounters().splice();
-        if (!_.isNil(currentEncounter) && !encounters.some((encounter) => encounter.uuid === currentEncounter.uuid))
+        const encounters = this.getEncounters().slice();
+        if (!_.isNil(currentEncounter))
             encounters.splice(0, 0, currentEncounter);
 
         var observation;
