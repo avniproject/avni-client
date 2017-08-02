@@ -24,10 +24,6 @@ class Observation {
     toggleMultiSelectAnswer(answerUUID) {
         this.getValueWrapper().toggleAnswer(answerUUID);
     }
-
-    static valueAsString(observation, conceptService, I18n) {
-        return observation.getValueWrapper().valueAsString(conceptService, I18n);
-    }
     
     toggleSingleSelectAnswer(answerUUID) {
         if (this.getValueWrapper().hasValue(answerUUID)) {
@@ -37,19 +33,19 @@ class Observation {
         }
     }
 
-    static valueAsString(observation, conceptService) {
+    static valueAsString(observation, conceptService, i18n) {
         const valueWrapper = observation.getValueWrapper();
 
         if (observation.concept.datatype === Concept.dataType.Date) {
             return valueWrapper.asDisplayDate();
         } else if (valueWrapper.isSingleCoded) {
-            return conceptService.getConceptByUUID(valueWrapper.getConceptUUID()).name;
+            return i18n.t(conceptService.getConceptByUUID(valueWrapper.getConceptUUID()).name);
         } else if (valueWrapper.isMultipleCoded) {
             return _.join(valueWrapper.getValue().map((value) => {
-                return conceptService.getConceptByUUID(value).name;
+                return i18n.t(conceptService.getConceptByUUID(value).name);
             }), ', ');
         } else {
-            return _.toString(valueWrapper.getValue());
+            return observation.concept.datatype === Concept.dataType.Text ? i18n.t(_.toString(valueWrapper.getValue())) : _.toString(valueWrapper.getValue());
         }
     }
 
