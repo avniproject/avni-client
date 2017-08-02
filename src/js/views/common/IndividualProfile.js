@@ -75,7 +75,7 @@ class IndividualProfile extends AbstractComponent {
                         <Icon name='person-pin' style={{justifyContent: 'center', alignSelf: 'stretch', fontSize: DGS.resizeWidth(75), color: Colors.AccentColor}}/>
                     </View>
                     <Text style={Styles.programProfileHeading}>{this.props.individual.name} {this.props.individual.id}</Text>
-                    <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.props.individual.lowestAddressLevel.name}</Text>
+                    <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
                         {this.props.viewContext === IndividualProfile.viewContext.Individual ?
                             this.renderProfileActionButton('mode-edit', 'editProfile', () => {
@@ -99,7 +99,7 @@ class IndividualProfile extends AbstractComponent {
                 })}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                         <Text style={Fonts.LargeBold}>{this.props.individual.name}</Text>
-                        <Text style={Fonts.LargeRegular}>{this.props.individual.lowestAddressLevel.name}</Text>
+                        <Text style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     </View>
                     <View style={{flexDirection: 'row'}}>
                         <Text style={{fontSize: Fonts.Normal}}>

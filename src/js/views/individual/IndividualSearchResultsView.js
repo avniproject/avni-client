@@ -95,7 +95,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       flex: 1
                                   }}>
                                       <View style={{justifyContent: 'flex-end'}}>
-                                          <Text style={Styles.textStyle}>{item.lowestAddressLevel.name}</Text>
+                                          <Text style={Styles.textStyle}>{this.I18n.t(item.lowestAddressLevel.name)}</Text>
                                       </View>
                                       <View style={{ justifyContent: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end'}}>
                                       {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
