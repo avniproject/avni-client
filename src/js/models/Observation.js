@@ -24,7 +24,7 @@ class Observation {
     toggleMultiSelectAnswer(answerUUID) {
         this.getValueWrapper().toggleAnswer(answerUUID);
     }
-    
+
     toggleSingleSelectAnswer(answerUUID) {
         if (this.getValueWrapper().hasValue(answerUUID)) {
             this.valueJSON = {};
