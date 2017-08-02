@@ -60,8 +60,10 @@ class ConceptService extends BaseService {
             }
 
             if (_.isNil(existingObs)) {
-                if (!_.isEmpty(decision.value))
+                //isEmpty returns true if its date(e.g. EDD)
+                if (!_.isEmpty(decision.value) || _.isDate(decision.value)) {
                     observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
+                }
             } else {
                 if (_.isNil(decision.value)) {
                     _.remove(observations, (obs) => obs.concept.name === decision.name);
