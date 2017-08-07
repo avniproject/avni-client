@@ -14,7 +14,7 @@ run-android:
 	react-native run-android
 
 run-packager:
-	REACT_EDITOR=atom ./node_modules/react-native/packager/packager.sh start --reset-cache
+	REACT_EDITOR=subl npm start --reset-cache
 
 deps:
 	npm install
