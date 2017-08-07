@@ -15,56 +15,56 @@ export default {
     btnDisabledBg: '#b5b5b5',
     btnDisabledClr: '#f1f1f1',
 
-    get btnPrimaryBg () {
+    get btnPrimaryBg() {
         return this.brandPrimary;
     },
-    get btnPrimaryColor () {
+    get btnPrimaryColor() {
         return this.inverseTextColor;
     },
-    get btnInfoBg () {
+    get btnInfoBg() {
         return this.brandInfo;
     },
-    get btnInfoColor () {
+    get btnInfoColor() {
         return this.inverseTextColor;
     },
-    get btnSuccessBg () {
+    get btnSuccessBg() {
         return this.brandSuccess;
     },
-    get btnSuccessColor () {
+    get btnSuccessColor() {
         return this.inverseTextColor;
     },
-    get btnDangerBg () {
+    get btnDangerBg() {
         return this.brandDanger;
     },
-    get btnDangerColor () {
+    get btnDangerColor() {
         return this.inverseTextColor;
     },
-    get btnWarningBg () {
+    get btnWarningBg() {
         return this.brandWarning;
     },
-    get btnWarningColor () {
+    get btnWarningColor() {
         return this.inverseTextColor;
     },
-    get btnTextSize () {
-        return (Platform.OS==='ios') ? this.fontSizeBase* 1.5 : 14;
+    get btnTextSize() {
+        return (Platform.OS === 'ios') ? this.fontSizeBase * 1.5 : 14;
     },
-    get btnTextSizeLarge () {
-        return this.fontSizeBase* 2;
+    get btnTextSizeLarge() {
+        return this.fontSizeBase * 2;
     },
-    get btnTextSizeSmall () {
-        return this.fontSizeBase* .8;
+    get btnTextSizeSmall() {
+        return this.fontSizeBase * .8;
     },
-    get borderRadiusLarge () {
-        return this.fontSizeBase* 3.8;
+    get borderRadiusLarge() {
+        return this.fontSizeBase * 3.8;
     },
 
     buttonPadding: 6,
 
-    get iconSizeLarge () {
-        return this.iconFontSize* 1.5;
+    get iconSizeLarge() {
+        return this.iconFontSize * 1.5;
     },
-    get iconSizeSmall () {
-        return this.iconFontSize* .6;
+    get iconSizeSmall() {
+        return this.iconFontSize * .6;
     },
 
 
@@ -79,7 +79,7 @@ export default {
 
 
     // Color
-    brandPrimary : Colors.AccentColor,
+    brandPrimary: Colors.AccentColor,
     brandInfo: '#5bc0de',
     brandSuccess: '#5cb85c',
     brandDanger: '#d9534f',
@@ -91,14 +91,14 @@ export default {
     fontFamily: (Platform.OS === 'ios' ) ? 'HelveticaNeue' : 'Roboto',
     fontSizeBase: 15,
 
-    get fontSizeH1 () {
-        return this.fontSizeBase*1.8;
+    get fontSizeH1() {
+        return this.fontSizeBase * 1.8;
     },
-    get fontSizeH2 () {
-        return this.fontSizeBase* 1.6;
+    get fontSizeH2() {
+        return this.fontSizeBase * 1.6;
     },
-    get fontSizeH3 () {
-        return this.fontSizeBase* 1.2;
+    get fontSizeH3() {
+        return this.fontSizeBase * 1.2;
     },
 
 
@@ -110,13 +110,13 @@ export default {
     //FooterTab
     tabBarTextColor: (Platform.OS === 'ios' ) ? '#6b6b6b' : '#b3c7f9',
     tabBarActiveTextColor: (Platform.OS === 'ios' ) ? '#007aff' : '#fff',
-    tabActiveBgColor: (Platform.OS=='ios') ? '#cde1f9' : undefined,
+    tabActiveBgColor: (Platform.OS == 'ios') ? '#cde1f9' : undefined,
 
     //Tab
     tabDefaultBg: (Platform.OS === 'ios' ) ? '#F8F8F8' : Colors.DefaultPrimaryColor,
     topTabBarTextColor: (Platform.OS === 'ios' ) ? '#6b6b6b' : Colors.TextOnPrimaryColor,
     topTabBarActiveTextColor: (Platform.OS === 'ios' ) ? '#007aff' : Colors.TextOnPrimaryColor,
-    topTabActiveBgColor: (Platform.OS=='ios') ? '#cde1f9' : undefined,
+    topTabActiveBgColor: (Platform.OS == 'ios') ? '#cde1f9' : undefined,
     topTabBarBorderColor: (Platform.OS === 'ios' ) ? '#007aff' : '#fff',
 
 
@@ -127,9 +127,9 @@ export default {
     toolbarIconSize: (Platform.OS === 'ios' ) ? 20 : 22,
     toolbarInputColor: '#CECDD2',
     toolbarInverseBg: '#222',
-    toolbarTextColor: (Platform.OS==='ios') ? '#000' : '#fff',
+    toolbarTextColor: (Platform.OS === 'ios') ? '#000' : '#fff',
     get statusBarColor() {
-        return Color(this.toolbarDefaultBg).darken(0.2).hexString();
+        return Color(this.toolbarDefaultBg).darken(0.2).hex();
     },
 
 
@@ -145,10 +145,10 @@ export default {
     inputSuccessBorderColor: '#2b8339',
     inputErrorBorderColor: '#ed2f2f',
 
-    get inputColor () {
+    get inputColor() {
         return this.textColor;
     },
-    get inputColorPlaceholder () {
+    get inputColorPlaceholder() {
         return '#575757';
     },
 
@@ -156,8 +156,8 @@ export default {
     inputHeightBase: 40,
     inputPaddingLeft: 5,
 
-    get inputPaddingLeftIcon () {
-        return this.inputPaddingLeft* 8;
+    get inputPaddingLeftIcon() {
+        return this.inputPaddingLeft * 8;
     },
 
 
@@ -189,7 +189,7 @@ export default {
     radioColor: '#009688',
 
     get radioSelectedColor() {
-        return Color(this.radioColor).darken(0.2).hexString();
+        return Color(this.radioColor).darken(0.2).hex();
     },
 
 
@@ -220,9 +220,9 @@ export default {
     borderWidth: 1,
     contentPadding: 10,
 
-    // get darkenHeader() {
-    //     return Color(this.tabBgColor).darken(0.03).hexString();
-    // },
+    get darkenHeader() {
+        return Color(this.tabBgColor).darken(0.03).hex();
+    },
 
     dropdownBg: '#000',
     dropdownLinkColor: '#414142',
