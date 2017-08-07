@@ -220,9 +220,9 @@ export default {
     borderWidth: 1,
     contentPadding: 10,
 
-    get darkenHeader() {
-        return Color(this.tabBgColor).darken(0.03).hexString();
-    },
+    // get darkenHeader() {
+    //     return Color(this.tabBgColor).darken(0.03).hexString();
+    // },
 
     dropdownBg: '#000',
     dropdownLinkColor: '#414142',
