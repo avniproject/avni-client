@@ -33,6 +33,7 @@
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')"
   },
   "dependencies": {
+    "color": "^2.0.0",
     "immutable": "^3.8.1",
     "invariant": "2.2.2",
     "lodash": "^4.12.0",
