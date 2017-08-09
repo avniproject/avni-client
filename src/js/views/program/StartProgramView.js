@@ -100,7 +100,7 @@ class StartProgramView extends AbstractComponent {
 
                         {this.renderConjunction(this.state.encounters)}
 
-                        {this.renderRadioGroup("Choose Visit Type", this.state.encounterTypes)}
+                        {this.renderRadioGroup("Unplanned Visit", this.state.encounterTypes)}
 
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                             <TouchableNativeFeedback onPress={() => { CHSNavigator.goBack(this) }}
