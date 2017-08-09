@@ -55,15 +55,6 @@ export default class TypedTransition {
         return this;
     }
 
-    resetTo(viewClass) {
-        this.safeDismissKeyboard();
-        invariant(viewClass.path, `Parameter ${viewClass} should have a function called path`);
-        const path = viewClass.path();
-        var route = {path, queryParams: this.queryParams || {}};
-        this.navigator.resetTo(route);
-        return this;
-    }
-
     wizardCompleted(wizardViewClasses, newViewClass, params, isTyped) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
@@ -97,9 +88,5 @@ export default class TypedTransition {
     bookmark() {
         this.navigator.countOfRoutes = this.navigator.getCurrentRoutes().length;
         return this;
-    }
-
-    logRoutes() {
-        this.navigator.getCurrentRoutes().forEach((route) => console.log(route.path));
     }
 }

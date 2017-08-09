@@ -14,11 +14,11 @@ describe('Settings', () => {
         });
 
         let validationResult = settings.validate();
-        expect(validationResult.hasNoValidationError()).to.be.false;
+        expect(validationResult.hasValidationError()).to.be.false;
 
 
         validationResult = _.merge(settings, {catchment: 'a'}).validate();
-        expect(validationResult.hasNoValidationError()).to.be.true;
+        expect(validationResult.hasValidationError()).to.be.true;
         console.log(validationResult.resultFor('catchment'));
         expect(validationResult.resultFor('catchment').success).to.be.false;
         expect(validationResult.resultFor('logLevel').success).to.be.true;

@@ -2,7 +2,6 @@ import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import Individual from "../models/Individual";
 import _ from 'lodash';
-import General from "../utility/General";
 import EntityQueue from "../models/EntityQueue";
 import Program from "../models/Program";
 import ObservationsHolder from '../models/ObservationsHolder';

@@ -17,7 +17,7 @@ describe('EncounterTest', () => {
         // expect(encounter.observations[0].getValue()).is.equal(10, JSON.stringify(encounter.observations));
         const resource = encounter.toResource;
         expect(resource.observations.length).is.equal(1);
-        expect(resource.observations[0].valuePrimitive).is.equal(10);
+        expect(resource.observations[0].value).is.equal(10);
 
     });
 
@@ -29,6 +29,6 @@ describe('EncounterTest', () => {
         expect(encounter.observations[0].getValueWrapper().getConceptUUID()).is.equal('f945fade-a1f5-4091-92ca-8b7feea02672', JSON.stringify(encounter.observations));
         const resource = encounter.toResource;
         expect(resource.observations.length).is.equal(1);
-        expect(resource.observations[0].valueCoded[0]).is.equal('f945fade-a1f5-4091-92ca-8b7feea02672');
+        expect(resource.observations[0].value).is.equal('f945fade-a1f5-4091-92ca-8b7feea02672');
     });
 });
