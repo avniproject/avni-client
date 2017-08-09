@@ -72,7 +72,8 @@ class IndividualSearchResultsView extends AbstractComponent {
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent>
                     <AppHeader title={this.I18n.t("searchResults")}/>
-                    <ListView dataSource={dataSource}
+                    <ListView enableEmptySections={true}
+                              dataSource={dataSource}
                               style={{backgroundColor: Styles.greyBackground}}
                               renderRow={(item) =>
                     <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
