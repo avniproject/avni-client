@@ -33,12 +33,8 @@ class SyncService extends BaseService {
 
     sync(allEntitiesMetaData, start, done, onError) {
         start();
-        const allReferenceDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
-            return entityMetaData.type === "reference";
-        });
-        const allTxDataMetaData = _.filter(allEntitiesMetaData, (entityMetaData) => {
-            return entityMetaData.type === "tx";
-        });
+        const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
+        const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) =>entityMetaData.type === "tx");
 
         const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
         const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
