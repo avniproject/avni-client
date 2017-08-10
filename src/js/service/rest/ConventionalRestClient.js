@@ -3,6 +3,8 @@ import _ from "lodash";
 import moment from "moment";
 import General from "../../utility/General";
 import EntityMetaData from "../../models/EntityMetaData"
+import BatchRequest from "../../framework/http/BatchRequest";
+import EntityQueueService from "../EntityQueueService";
 
 class ConventionalRestClient {
     constructor(settingsService) {
@@ -14,11 +16,11 @@ class ConventionalRestClient {
         urlParts.push(this.settingsService.getSettings().serverURL);
         urlParts.push(entityModel.resourceName);
         urlParts.push("search");
-        const resourceSearchFilterURL = !_.isNil(entityModel.resourceSearchFilterURL)? entityModel.resourceSearchFilterURL : "lastModified";
+        const resourceSearchFilterURL = !_.isNil(entityModel.resourceSearchFilterURL) ? entityModel.resourceSearchFilterURL : "lastModified";
         urlParts.push(resourceSearchFilterURL);
 
         let params = [];
-        if(entityModel.type === "tx" || entityModel.name === EntityMetaData.addressLevel.name){
+        if (entityModel.type === "tx" || entityModel.name === EntityMetaData.addressLevel.name) {
             params.push(`catchmentId=${this.settingsService.getSettings().catchment}`);
         }
         params.push(`lastModifiedDateTime=${moment(lastUpdatedLocally).add(1, "ms").toISOString()}`);
@@ -58,24 +60,19 @@ class ConventionalRestClient {
         return response["page"]["number"] < (response["page"]["totalPages"] - 1);
     }
 
-    postEntity(getNextItem, onCompleteCurrentItem, onComplete, onError) {
-        const nextQueueItem = getNextItem();
-        if (_.isNil(nextQueueItem)) {
-            General.logInfo('ConventionalRestClient', `No items in the EntityQueue`);
-            onComplete();
-            return;
-        }
+    postAllEntities(allEntities, onComplete, onError, popItemFn, currentEntities = _.head(allEntities)) {
+        if (_.isEmpty(currentEntities)) return onComplete();
+        const serverURL = this.settingsService.getSettings().serverURL;
+        const url = (entity) => `${serverURL}/${entity.metaData.resourceName}s`;
+        return this.batchPostEntities(url(currentEntities), currentEntities,
+            () => this.postAllEntities(allEntities.slice(1, allEntities.length), onComplete, onError, popItemFn), onError, popItemFn);
+    }
 
-        const url = `${this.settingsService.getSettings().serverURL}/${nextQueueItem.metaData.resourceName}s`;
-        post(url, nextQueueItem.resource, (response) => {
-            if (!_.isNil(response.ok) && !response.ok) {
-                if (General.canLog(General.LogLevel.Debug)) General.logDebug('ConventionalRestClient', JSON.stringify(response));
-                onError();
-            } else {
-                onCompleteCurrentItem(nextQueueItem.entityName);
-                this.postEntity(getNextItem, onCompleteCurrentItem, onComplete, onError);
-            }
-        }, onError);
+    batchPostEntities(url, entities, onComplete, onError, popItemFn) {
+        const batchRequest = new BatchRequest();
+        entities.entities.map((entity) => batchRequest.post(url, entity.resource, () =>
+            popItemFn(entity.resource.uuid)));
+        batchRequest.fire(onComplete, onError);
     }
 }
 

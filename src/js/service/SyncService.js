@@ -34,7 +34,7 @@ class SyncService extends BaseService {
     sync(allEntitiesMetaData, start, done, onError) {
         start();
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
-        const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) =>entityMetaData.type === "tx");
+        const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
         const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
         const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
@@ -86,28 +86,11 @@ class SyncService extends BaseService {
     }
 
     pushTxData(allTxDataMetaData, onComplete, onError) {
-        this.conventionalRestClient.postEntity(() => this.getNextQueueItem(allTxDataMetaData), (entityName) => this.deleteTopQueueItem(entityName), onComplete, onError);
-    }
-
-    getNextQueueItem(allTxEntitiesMetaData) {
-        const nextTxEntityMetaData = _.last(allTxEntitiesMetaData);
-        if (_.isNil(nextTxEntityMetaData)) return null;
-
-        var nextQueueItem = this.getService(EntityQueueService).getNextQueuedItem(nextTxEntityMetaData.entityName);
-        if (_.isNil(nextQueueItem)) {
-            allTxEntitiesMetaData.pop();
-            return this.getNextQueueItem(allTxEntitiesMetaData);
-        } else {
-            nextQueueItem.resource = nextQueueItem.entity.toResource;
-            nextQueueItem.metaData = _.find(allTxEntitiesMetaData, function (item) {
-                return item.entityName === nextQueueItem.entityName;
-            });
-            return nextQueueItem;
-        }
-    }
-
-    deleteTopQueueItem(entityName) {
-        this.getService(EntityQueueService).popTopQueueItem(entityName);
+        const entityQueueService = this.getService(EntityQueueService);
+        const entitiesToPost = allTxDataMetaData.reverse()
+            .map(entityQueueService.getAllQueuedItems)
+            .filter((entities) => !_.isEmpty(entities.entities));
+        this.conventionalRestClient.postAllEntities(entitiesToPost, onComplete, onError, entityQueueService.popItem);
     }
 }
 
