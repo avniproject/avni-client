@@ -36,11 +36,11 @@ let _getText = (endpoint, cb, errorHandler) => {
         .catch(errorHandler);
 };
 
-let _post = (endpoint, file, cb, errorHandler) => {
+let _post = (endpoint, file, cb, errorHandler = _.noop) => {
     const params = makeRequest("json", {body: JSON.stringify(file)});
     return fetchFactory(endpoint, "POST", params)
         .then(cb)
-        .catch(_.isFunction(errorHandler) ? errorHandler : _.noop);
+        .catch(errorHandler);
 };
 
 export let post = _post;
