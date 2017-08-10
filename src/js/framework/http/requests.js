@@ -38,7 +38,9 @@ let _getText = (endpoint, cb, errorHandler) => {
 
 let _post = (endpoint, file, cb, errorHandler) => {
     const params = makeRequest("json", {body: JSON.stringify(file)});
-    return fetchFactory(endpoint, "POST", params).then(cb).catch(_.isFunction(errorHandler) ? errorHandler : _.noop);
+    return fetchFactory(endpoint, "POST", params)
+        .then(cb)
+        .catch(_.isFunction(errorHandler) ? errorHandler : _.noop);
 };
 
 export let post = _post;
