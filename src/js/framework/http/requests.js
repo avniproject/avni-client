@@ -1,4 +1,6 @@
 import General from "../../utility/General";
+import _ from 'lodash';
+
 const fetchFactory = (endpoint, method = "GET", params) => fetch(endpoint, {"method": method, ...params});
 
 const makeHeader = (type) => new Map([['json', {
@@ -8,6 +10,7 @@ const makeHeader = (type) => new Map([['json', {
     }
 }], ['text', {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain'}}]]).get(type);
 
+const makeRequest = (type, opts = {}) => Object.assign({...makeHeader(type), ...opts});
 
 let _get = (endpoint, cb, errorHandler) => {
     General.logDebug('Requests', `Calling: ${endpoint}`);
@@ -35,17 +38,8 @@ let _getText = (endpoint, cb, errorHandler) => {
 
 let _post = (endpoint, file, cb, errorHandler) => {
     const body = JSON.stringify(file);
-    if (General.canLog(General.LogLevel.Debug))
-        General.logDebug('Requests', `Posting: ${body} to ${endpoint}`);
-    if (errorHandler === undefined) {
-        errorHandler = (arg) => {
-            General.logDebug('Requests', `Automatically defined error handler: ${arg}`);
-        };
-    }
-
-    var params = makeHeader("json");
-    params.body = body;
-    return fetchFactory(endpoint, "POST", params).then(cb).catch(errorHandler);
+    let params = makeRequest("json", {body: body});
+    return fetchFactory(endpoint, "POST", params).then(cb).catch(_.isFunction(errorHandler) ? errorHandler : _.noop);
 };
 
 export let post = _post;

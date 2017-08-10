@@ -14,18 +14,18 @@ class BatchRequest {
     }
 
     add(endpoint, cb, errorHandler) {
-        this.requestQueue.push(()=>httpGet(endpoint, cb, errorHandler));
+        this.requestQueue.push(() => httpGet(endpoint, cb, errorHandler));
     }
 
-    post(endpoint, filecontents, cb) {
-        this.requestQueue.push(()=>httpPost(endpoint, filecontents, cb));
+    post(endpoint, filecontents, cb, errorHandler) {
+        this.requestQueue.push(() => httpPost(endpoint, filecontents, cb, errorHandler));
     }
 
     fire(finalCallback, errorCallback) {
         const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), this.none, 1);
         const notify = () => callbackQueue.pop()();
-        const notifyError = (message)=> {
-            callbackQueue[0] = ()=> errorCallback(message);
+        const notifyError = (message) => {
+            callbackQueue[0] = () => errorCallback(message);
             notify();
         };
         this.requestQueue.map((request) => request().then(notify).catch(notifyError));
