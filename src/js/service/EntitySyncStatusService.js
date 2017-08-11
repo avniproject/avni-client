@@ -8,6 +8,7 @@ import _ from "lodash";
 class EntitySyncStatusService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
+        this.get = this.get.bind(this);
     }
 
     getSchema() {
@@ -15,17 +16,15 @@ class EntitySyncStatusService extends BaseService {
     }
 
     get(entityName) {
-        const all = this.db.objects(EntitySyncStatus.schema.name);
-        const expression = `entityName = \"${entityName}\"`;
-        const entitySyncStatuses = all.filtered(expression).slice(0, 1);
-        if (_.isNil(entitySyncStatuses) || entitySyncStatuses.length === 0) return undefined;
-        return entitySyncStatuses[0];
+        return this.db.objects(EntitySyncStatus.schema.name)
+            .filtered("entityName = $0", entityName)
+            .slice()[0];
     }
 
     setup(entityMetaDataModel) {
         const self = this;
 
-        entityMetaDataModel.forEach(function(entity) {
+        entityMetaDataModel.forEach(function (entity) {
             if (_.isNil(self.get(entity.entityName))) {
                 General.logDebug('EntitySyncStatusService', `Setting up base entity sync status for ${entity.entityName}`);
                 try {

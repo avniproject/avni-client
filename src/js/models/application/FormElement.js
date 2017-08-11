@@ -39,7 +39,6 @@ class FormElement {
                 formElement.keyValues.push(KeyValue.fromResource(keyValue));
             });
         }
-
         return formElement;
     }
 

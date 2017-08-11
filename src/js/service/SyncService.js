@@ -38,12 +38,44 @@ class SyncService extends BaseService {
 
         const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
         const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
-        const pullReferenceDataFn = () => this.pullData(allReferenceDataMetaData, pullConfigurationFn, onError);
+        const pullReferenceDataFn = () => this.getData(allReferenceDataMetaData, pullConfigurationFn, onError);
         this.pushTxData(allTxDataMetaData.slice(), pullReferenceDataFn, onError);
     }
 
     pullConfiguration(onComplete, onError) {
         this.configFileService.getAllFilesAndSave(onComplete, onError);
+    }
+
+    getData(entitiesMetadata, onComplete, onError) {
+        const entitiesSyncStatus = entitiesMetadata
+            .reverse()
+            .map((entityMetadata) => Object.assign({
+                syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
+                ...entityMetadata
+            }));
+        this.conventionalRestClient.getAll(entitiesSyncStatus, this.persistAll.bind(this), onComplete, onError)
+    }
+
+    persistAll(entityModel, entityResources) {
+        if (_.isEmpty(entityResources)) return;
+        const entityService = this.getService(EntityService);
+        const entities = entityResources.map((entity) => entityModel.entityClass.fromResource(entity, entityService));
+        let entitiesToCreateFns = this.createEntities(entityModel.entityName, entities);
+        if (entityModel.nameTranslated) {
+            entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
+        }
+        if (!_.isEmpty(entityModel.parent)) {
+            const parentEntities = _.zip(entityResources, entities).map(([entityResource, entity]) => entityModel.parent.entityClass.associateChild(entity, entityModel.entityClass, entityResource, entityService));
+            entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityModel.parent.entityName, parentEntities));
+        }
+
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);
+
+        const entitySyncStatus = new EntitySyncStatus();
+        entitySyncStatus.name = entityModel.entityName;
+        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
+        entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
+        this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
     }
 
     pullData(unprocessedEntityMetaData, onComplete, onError) {

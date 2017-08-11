@@ -15,9 +15,7 @@ const makeRequest = (type, opts = {}) => Object.assign({...makeHeader(type), ...
 let _get = (endpoint, cb, errorHandler) => {
     General.logDebug('Requests', `Calling: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("json"))
-        .then((response) => {
-            return response.json();
-        })
+        .then((response) => response.json())
         .then(cb)
         .catch(errorHandler);
 };
@@ -49,11 +47,6 @@ export let get = (endpoint, cb, errorHandler) => {
     return _getText(endpoint, cb, errorHandler);
 };
 
-export let getJSON = (endpoint, cb, errorHandler) => {
-    if (errorHandler === undefined) {
-        errorHandler = (arg) => {
-            General.logDebug(`Automatically defined error handler: ${arg}`);
-        };
-    }
+export let getJSON = (endpoint, cb, errorHandler = _.noop) => {
     return _get(endpoint, cb, errorHandler);
 };

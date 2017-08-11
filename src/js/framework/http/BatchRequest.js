@@ -1,4 +1,4 @@
-import {get as httpGet, post as httpPost} from './requests';
+import {getJSON as httpGet, get as httpGetText, post as httpPost} from './requests';
 import _ from 'lodash';
 
 class BatchRequest {
@@ -13,6 +13,10 @@ class BatchRequest {
 
     }
 
+    addText(endpoint, cb, errorHandler) {
+        this.requestQueue.push(() => httpGetText(endpoint, cb, errorHandler));
+    }
+
     add(endpoint, cb, errorHandler) {
         this.requestQueue.push(() => httpGet(endpoint, cb, errorHandler));
     }
@@ -22,6 +26,7 @@ class BatchRequest {
     }
 
     fire(finalCallback, errorCallback) {
+        if (_.isEmpty(this.requestQueue)) return finalCallback();
         const callbackQueue = _.fill([finalCallback].concat(new Array(this.requestQueue.length - 1)), this.none, 1);
         const notify = () => callbackQueue.pop()();
         const notifyError = (message) => {

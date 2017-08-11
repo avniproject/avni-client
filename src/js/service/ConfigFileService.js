@@ -6,50 +6,52 @@ import _ from 'lodash';
 import SettingsService from "./SettingsService";
 import MessageService from "./MessageService";
 
+const ENCOUNTER_DECISION = "encounterDecision.js";
+const INDIVIDUAL_REGISTATION_DECISION = "individualRegistrationDecision.js";
+const PROGRAM_ENROLMENT_DECISION = "programEnrolmentDecision.js";
+const PROGRAM_ENCOUNTER_DECISION = "programEncounterDecision.js";
+const PROGRAM_CONFIG = "programConfig.js";
+const CUSTOM_MESSAGES = "customMessages.json";
+
 @Service("configFileService")
 class ConfigFileService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
-        this.encounterDecisionFile = "encounterDecision.js";
-        this.customMessageFile = "customMessages.json";
-        this.individualRegistrationFile = "individualRegistrationDecision.js";
-        this.programEnrolmentFile = "programEnrolmentDecision.js";
-        this.programEncounterFile = "programEncounterDecision.js";
-        this.programConfigFile = "programConfig.js";
-        this._createFileHandlers();
+        this.jsfiles = [ENCOUNTER_DECISION, INDIVIDUAL_REGISTATION_DECISION, PROGRAM_ENROLMENT_DECISION, PROGRAM_ENCOUNTER_DECISION, PROGRAM_CONFIG];
+        this.messagesFiles = [CUSTOM_MESSAGES];
     }
 
-    saveConfigFile(fileName, contents) {
+    saveConfigFiles(configFiles) {
         const db = this.db;
-        this.db.write(()=> db.create(ConfigFile.schema.name, ConfigFile.create(fileName, contents), true));
-    }
-
-    getEncounterDecisionFile() {
-        return this.getFile(this.encounterDecisionFile);
+        this.db.write(() => configFiles.map((configFile) => db.create(ConfigFile.schema.name, configFile, true)));
     }
 
     getFile(fileName) {
         return this.db.objectForPrimaryKey(ConfigFile.schema.name, `${fileName.toLowerCase()}`);
     }
 
+    getEncounterDecisionFile() {
+        return this.getFile(ENCOUNTER_DECISION);
+    }
+
     getProgramEnrolmentFile() {
-        return this.getFile(this.programEnrolmentFile);
+        return this.getFile(PROGRAM_ENROLMENT_DECISION);
     }
 
     getProgramEncounterFile() {
-        return this.getFile(this.programEncounterFile);
+        return this.getFile(PROGRAM_ENCOUNTER_DECISION);
     }
 
     getIndividualRegistrationFile() {
-        return this.getFile(this.individualRegistrationFile);
+        return this.getFile(INDIVIDUAL_REGISTATION_DECISION);
     }
 
     getProgramConfigFile() {
-        return this.getFile(this.programConfigFile);
+        return this.getFile(PROGRAM_CONFIG);
     }
 
     getCustomMessages() {
-        const configFile = this.db.objectForPrimaryKey(ConfigFile.schema.name, `${this.customMessageFile.toLowerCase()}`);
+        const configFile = this.db.objectForPrimaryKey(ConfigFile.schema.name, `${CUSTOM_MESSAGES.toLowerCase()}`);
         return _.isNil(configFile) ? null : JSON.parse(configFile.contents);
     }
 
@@ -70,11 +72,19 @@ class ConfigFileService extends BaseService {
     getAllFilesAndSave(cb, errorHandler) {
         const batchRequest = new BatchRequest();
         const configURL = `${this.getService(SettingsService).getSettings().serverURL}/ext`;
-
-        _.forOwn(this.fileHandlers, (handler, file) => {
-            batchRequest.add(`${configURL}/${file}`, handler, errorHandler);
-        });
-        batchRequest.fire(cb, errorHandler);
+        let configs = [];
+        this.jsfiles.map((file) =>
+            batchRequest.addText(`${configURL}/${file}`,
+                (resp) => configs.push(ConfigFile.create(file, resp)),
+                errorHandler));
+        this.messagesFiles.map((file) => batchRequest.add(`${configURL}/${file}`, (resp) => {
+            configs.push(ConfigFile.create(file, JSON.stringify(resp)));
+            this.getService(MessageService).addTranslationsFrom(resp)
+        }));
+        batchRequest.fire(() => {
+            cb();
+            this.saveConfigFiles(configs);
+        }, errorHandler);
     }
 }
 

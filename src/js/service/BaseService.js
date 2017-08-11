@@ -6,6 +6,8 @@ class BaseService {
         this.db = db;
         this.context = context;
         this.init = this.init.bind(this);
+        this.createEntities = this.createEntities.bind(this);
+        this.bulkSaveOrUpdate = this.bulkSaveOrUpdate.bind(this);
     }
 
     init() {
@@ -55,15 +57,27 @@ class BaseService {
         if (schema === undefined) schema = this.getSchema();
 
         const db = this.db;
-        this.db.write(()=> db.create(schema, entity, true));
+        this.db.write(() => db.create(schema, entity, true));
         return entity;
+    }
+
+    bulkSaveOrUpdate(entities) {
+        this.db.write(() => {
+            entities.map((entity) => entity());
+        });
+    }
+
+    createEntities(schema, entities) {
+        return entities.map((entity) => () => {
+            this.db.create(schema, entity, true)
+        });
     }
 
     save(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
         const db = this.db;
-        this.db.write(()=> db.create(schema, entity));
+        this.db.write(() => db.create(schema, entity));
         return entity;
     }
 

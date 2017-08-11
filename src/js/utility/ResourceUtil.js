@@ -6,6 +6,7 @@ class ResourceUtil {
         if (_.isNil(prop)) return undefined;
         return prop["href"];
     }
+
 }
 
 export default ResourceUtil;
