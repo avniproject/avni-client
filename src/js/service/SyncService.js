@@ -36,7 +36,7 @@ class SyncService extends BaseService {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
-        const pullTxDataFn = () => this.pullData(allTxDataMetaData, done, onError);
+        const pullTxDataFn = () => this.getData(allTxDataMetaData, done, onError);
         const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
         const pullReferenceDataFn = () => this.getData(allReferenceDataMetaData, pullConfigurationFn, onError);
         this.pushTxData(allTxDataMetaData.slice(), pullReferenceDataFn, onError);
@@ -76,45 +76,6 @@ class SyncService extends BaseService {
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
-    }
-
-    pullData(unprocessedEntityMetaData, onComplete, onError) {
-        const entityMetaData = unprocessedEntityMetaData.pop();
-        if (_.isNil(entityMetaData)) {
-            onComplete();
-            return;
-        }
-
-        const entitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
-        General.logInfo('SyncService', `${entitySyncStatus.entityName} was last loaded up to "${entitySyncStatus.loadedSince}"`);
-        this.conventionalRestClient.loadData(entityMetaData, entitySyncStatus.loadedSince, 0,
-            unprocessedEntityMetaData,
-            (resourcesWithSameTimeStamp, entityModel) => this.persist(resourcesWithSameTimeStamp, entityModel),
-            (workingAllEntitiesMetaData) => this.pullData(workingAllEntitiesMetaData, onComplete, onError),
-            [], onError);
-    }
-
-    persist(resourcesWithSameTimeStamp, entityModel) {
-        resourcesWithSameTimeStamp.forEach((resource) => {
-            const entity = entityModel.entityClass.fromResource(resource, this.getService(EntityService));
-            this.entityService.saveOrUpdate(entity, entityModel.entityName);
-            if (entityModel.nameTranslated) {
-                this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue);
-            }
-
-            if (!_.isNil(entityModel.parent)) {
-                const parentEntity = entityModel.parent.entityClass.associateChild(entity, entityModel.entityClass, resource, this.getService(EntityService));
-                this.entityService.saveOrUpdate(parentEntity, entityModel.parent.entityName);
-            }
-        });
-
-        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityModel.entityName);
-
-        const entitySyncStatus = new EntitySyncStatus();
-        entitySyncStatus.name = entityModel.entityName;
-        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
-        entitySyncStatus.loadedSince = new Date(resourcesWithSameTimeStamp[0]["lastModifiedDateTime"]);
-        this.entitySyncStatusService.saveOrUpdate(entitySyncStatus);
     }
 
     pushTxData(allTxDataMetaData, onComplete, onError) {
