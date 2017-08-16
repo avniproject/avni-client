@@ -3,13 +3,11 @@ class Wizard {
         this.numberOfPages = numberOfPages;
         this.formStartsAt = formStartsAt;
         this.currentPage = 1;
-        this.showPreviousEncounter = false;
     }
 
     clone() {
         const wizard = new Wizard(this.numberOfPages, this.formStartsAt);
         wizard.currentPage = this.currentPage;
-        wizard.showPreviousEncounter = this.showPreviousEncounter;
         return wizard;
     }
 
@@ -41,10 +39,6 @@ class Wizard {
 
     isFirstPage() {
         return this.currentPage === 1;
-    }
-
-    doShowPreviousEncounter(){
-        return this.showPreviousEncounter;
     }
 }
 

@@ -3,7 +3,6 @@ import Service from "../framework/bean/Service";
 import Concept from "../models/Concept";
 import _ from 'lodash';
 import Observation from "../models/Observation";
-import PrimitiveValue from "../models/observation/PrimitiveValue";
 import General from "../utility/General";
 
 @Service("conceptService")
@@ -40,6 +39,7 @@ class ConceptService extends BaseService {
     }
 
     addDecisions(observations, decisions) {
+        decisions = decisions || [];
         decisions.forEach((decision) => {
             const concept = this.findConcept(decision.name);
             if (_.isNil(concept)) General.logWarn('ConceptService', `${concept.name} doesn't exist`);
@@ -75,8 +75,9 @@ class ConceptService extends BaseService {
     }
 
     getObservationsFromDecisions(decisions) {
+        const flattenedDecisions = _.compact(_.flatten([decisions.registrationDecisions, decisions.enrolmentDecisions, decisions.encounterDecisions]));
         const observations = [];
-        this.addDecisions(observations, decisions);
+        this.addDecisions(observations, flattenedDecisions);
         return observations;
     }
 }

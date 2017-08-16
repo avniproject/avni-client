@@ -53,10 +53,10 @@ export class ProgramEnrolmentActions {
         const newState = state.clone();
         const service = context.get(ProgramEnrolmentService);
         if (newState.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
-            context.get(ConceptService).addDecisions(newState.enrolment.observations, action.decisions);
+            context.get(ConceptService).addDecisions(newState.enrolment.observations, action.decisions.enrolmentDecisions);
             newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits);
         } else {
-            context.get(ConceptService).addDecisions(newState.enrolment.programExitObservations, action.decisions);
+            context.get(ConceptService).addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
             service.exit(newState.enrolment);
         }
         action.cb();

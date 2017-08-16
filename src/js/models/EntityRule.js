@@ -18,35 +18,36 @@ class EntityRule {
     }
 
     getDecisions(entity) {
-        const decisions = this._safeInvokeRule(this.decisionFn, 'Decision', entity);
+        const defaultValue = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
+        const decisions = this._safeInvokeRule(this.decisionFn, 'Decision', defaultValue, entity);
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('EntityRule', `Decisions made: ${JSON.stringify(decisions)}`);
         return decisions;
     }
 
-    _safeInvokeRule(func, ruleName, ...params) {
+    _safeInvokeRule(func, ruleName, defaultValue, ...params) {
         General.logInfo('EntityRule', `Invoking rule ${ruleName} on entity: ${params[0].constructor.name}`);
-        if (_.isNil(func)) return [];
+        if (_.isNil(func)) return defaultValue;
 
         const results = func(...params);
         if (_.isNil(results)) {
             General.logInfo('EntityRule', `${ruleName} rule didn't return anything for: ${params[0].constructor.name}`);
-            return [];
-        } else if (!_.isArray(results)) {
+            return defaultValue;
+        } else if (typeof results !== typeof defaultValue) {
             General.logInfo('EntityRule', `${ruleName} didn't return an array for: ${params[0].constructor.name}`);
-            return [];
+            return defaultValue;
         }
         return results;
     }
 
     validate(entity, form) {
-        const validationResults = this._safeInvokeRule(this.validationFn, 'Validation', entity, form);
+        const validationResults = this._safeInvokeRule(this.validationFn, 'Validation', [], entity, form);
         validationResults.forEach((validationResult) => validationResult.formIdentifier = BaseEntity.fieldKeys.EXTERNAL_RULE);
         return validationResults;
     }
 
     getNextScheduledVisits(entity) {
-        const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, 'NextScheduledVisits', entity);
+        const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, 'NextScheduledVisits', [], entity);
         General.logInfo('EntityRule', `${nextScheduledVisits.length} scheduled visits returned`);
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('EntityRule', `NextScheduledVisits: ${JSON.stringify(nextScheduledVisits)}`);
@@ -54,7 +55,7 @@ class EntityRule {
     }
 
     getChecklists(enrolment) {
-        const checklists = this._safeInvokeRule(this.getChecklistFn, 'GetChecklists', enrolment);
+        const checklists = this._safeInvokeRule(this.getChecklistFn, 'GetChecklists', [], enrolment);
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('EntityRule', `Checklists: ${JSON.stringify(checklists)}`);
         return checklists;

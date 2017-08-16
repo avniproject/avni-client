@@ -58,9 +58,7 @@ class AbstractDataEntryState {
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
-            var decisions = [];
-            var checklists;
-            var nextScheduledVisits;
+            var decisions, checklists, nextScheduledVisits;
             if (!ValidationResult.hasValidationError(this.validationResults)) {
                 decisions = this.executeRule(ruleService, context);
                 checklists = this.getChecklists(ruleService, context);
@@ -79,7 +77,7 @@ class AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        return [];
+        return {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
     }
 
     getChecklists(ruleService, context) {

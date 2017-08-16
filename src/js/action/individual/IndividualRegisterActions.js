@@ -22,7 +22,7 @@ export class IndividualRegisterActions {
         return IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
     }
 
-    static enterRegistrationDate(state, action, context) {
+    static enterRegistrationDate(state, action) {
         const newState = state.clone();
         newState.individual.registrationDate = action.value;
         newState.handleValidationResult(newState.individual.validateRegistrationDate());
@@ -90,7 +90,7 @@ export class IndividualRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(ConceptService).addDecisions(newState.individual.observations, action.decisions);
+        context.get(ConceptService).addDecisions(newState.individual.observations, action.decisions.registrationDecisions);
         context.get(IndividualService).register(newState.individual);
         action.cb();
         return newState;

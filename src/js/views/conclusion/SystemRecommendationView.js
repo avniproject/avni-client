@@ -24,7 +24,7 @@ class SystemRecommendationView extends AbstractComponent {
         individual: React.PropTypes.object.isRequired,
         saveActionName: React.PropTypes.string.isRequired,
         onSaveCallback: React.PropTypes.func.isRequired,
-        decisions: React.PropTypes.array.isRequired,
+        decisions: React.PropTypes.object,
         observations: React.PropTypes.array.isRequired,
         validationErrors: React.PropTypes.array.isRequired,
         headerMessage: React.PropTypes.string,

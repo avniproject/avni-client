@@ -16,7 +16,6 @@ import DashboardView from "./program/DashboardView";
 import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import Fonts from "./primitives/Fonts";
 import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
 import CHSContent from "./common/CHSContent";

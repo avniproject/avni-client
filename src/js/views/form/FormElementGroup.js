@@ -1,5 +1,5 @@
-import {View, StyleSheet, Text} from "react-native";
-import React, {Component} from "react";
+import {View, Text} from "react-native";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MultiSelectFormElement from './MultiSelectFormElement';
 import SingleSelectFormElement from './SingleSelectFormElement';
@@ -12,14 +12,10 @@ import Concept from '../../models/Concept';
 import MultipleCodedValues from "../../models/observation/MultipleCodedValues";
 import SingleCodedValue from "../../models/observation/SingleCodedValue";
 import PrimitiveValue from "../../models/observation/PrimitiveValue";
-import DGS from '../primitives/DynamicGlobalStyles';
-import Fonts from '../primitives/Fonts';
-import Colors from '../primitives/Colors';
 import Distances from '../primitives/Distances';
 import ValidationResult from "../../models/application/ValidationResult";
 import DurationDateFormElement from "./DurationDateFormElement";
 import Duration from "../../models/Duration";
-import General from "../../utility/General";
 import Styles from "../primitives/Styles";
 
 class FormElementGroup extends AbstractComponent {

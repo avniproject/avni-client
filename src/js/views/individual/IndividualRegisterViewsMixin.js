@@ -6,7 +6,6 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import BaseEntity from "../../models/BaseEntity";
-import IndividualRegistrationDetailView from "./IndividualRegistrationDetailView";
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 
 class IndividualRegisterViewsMixin {

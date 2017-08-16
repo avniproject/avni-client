@@ -4,7 +4,6 @@ import _ from "lodash";
 import StaticFormElementGroup from "../models/application/StaticFormElementGroup";
 import Individual from "../models/Individual";
 import ObservationsHolder from "../models/ObservationsHolder";
-import ConceptService from "../service/ConceptService";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity) {
@@ -55,11 +54,14 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
+        let validateAgainstRule = ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
+        
+        return validateAgainstRule;
     }
 
     executeRule(ruleService, context) {
-        return ruleService.getDecisions(this.individual, 'Individual');
+        let decisions = ruleService.getDecisions(this.individual, 'Individual');
+        return decisions;
     }
 }
 

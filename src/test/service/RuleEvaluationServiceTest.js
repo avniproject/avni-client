@@ -14,6 +14,6 @@ describe('RuleEvaluationServiceTest', () => {
         const encounter = Encounter.create();
         encounter.observations.push(Observation.create(EntityFactory.createConcept("foo", Concept.dataType.Numeric), new PrimitiveValue(2)));
         const decisions = ruleEvaluationService.getDecisions(encounter, 'Encounter');
-        expect(decisions.length).is.equal(0, decisions);
+        expect(decisions).to.have.keys('registrationDecisions', 'enrolmentDecisions', 'encounterDecisions');
     });
 });

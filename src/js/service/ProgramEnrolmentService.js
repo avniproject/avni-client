@@ -5,15 +5,12 @@ import Individual from "../models/Individual";
 import EntityQueue from "../models/EntityQueue";
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
-import RuleEvaluationService from "./RuleEvaluationService";
 import ProgramEncounter from "../models/ProgramEncounter";
 import ObservationsHolder from '../models/ObservationsHolder';
 import EncounterType from '../models/EncounterType';
 import Checklist from '../models/Checklist';
 import ChecklistItem from '../models/ChecklistItem';
-import ConceptService from "./ConceptService";
 import General from "../utility/General";
-import moment from "moment";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -28,6 +25,15 @@ class ProgramEnrolmentService extends BaseService {
     static convertObsForSave(programEnrolment) {
         ObservationsHolder.convertObsForSave(programEnrolment.observations);
         ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
+    }
+
+    updateObservations(programEnrolment) {
+        const db = this.db;
+        this.db.write(() => {
+            ProgramEnrolmentService.convertObsForSave(programEnrolment);
+            db.create(ProgramEnrolment.schema.name, {uuid: programEnrolment.uuid, observations: programEnrolment.observations}, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+        });
     }
 
     enrol(programEnrolment, checklists, nextScheduledVisits) {
