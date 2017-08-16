@@ -46,6 +46,7 @@ android/keystores
 android/keystores/debug.keystore
 
 .idea/
+.tmp/
 android/.gradle/
 gen/
 assets/
