@@ -59,7 +59,7 @@ class SyncService extends BaseService {
     persistAll(entityModel, entityResources) {
         if (_.isEmpty(entityResources)) return;
         const entityService = this.getService(EntityService);
-        const entities = entityResources.map((entity) => entityModel.entityClass.fromResource(entity, entityService));
+        const entities = _.sortBy(entityResources, 'lastModifiedDateTime').map((entity) => entityModel.entityClass.fromResource(entity, entityService));
         let entitiesToCreateFns = this.createEntities(entityModel.entityName, entities);
         if (entityModel.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));

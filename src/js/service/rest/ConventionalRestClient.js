@@ -37,8 +37,8 @@ class ConventionalRestClient {
         const urlParts = [this.serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
         const params = (page, size) => this.makeParams({
             catchmentId: this.settingsService.getSettings().catchment,
-            lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
-            // lastModifiedDateTime: "2010-08-09T13:04:44.364Z",
+            // lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
+            lastModifiedDateTime: "2010-08-09T13:04:44.364Z",
             size: size,
             page: page
         });
@@ -50,9 +50,9 @@ class ConventionalRestClient {
             let allResourcesForEntity = processResponse(response);
             _.range(1, resourceMetadata.totalPages, 1)
                 .forEach((pageNumber) =>
-                    batchRequest
-                        .add(endpoint(pageNumber), (resp) =>
-                            allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)), onError));
+                    getJSON(endpoint((pageNumber),
+                        (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)), onError)));
+
             batchRequest.fire(() => {
                 persistFn(entityMetadata, allResourcesForEntity);
                 onComplete();
