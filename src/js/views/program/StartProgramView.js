@@ -34,14 +34,14 @@ class StartProgramView extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    renderOption(option) {
+    renderOption(option, idx) {
         return option ? <PresetOptionItem displayText={option.label}
                                           checked={option.selected}
                                           multiSelect={false}
                                           onPress={() => this.dispatchAction(Actions.ON_SELECTION_CHANGE, option)}
-                                          key={option.label}
+                                          key={idx}
                                           style={{paddingTop: Styles.VerticalSpacingBetweenOptionItems, flex: 0.5}}/>
-            : <View style={{flex: 0.5}}/>;
+            : <View key={idx} style={{flex: 0.5}}/>;
     }
 
     renderRadioGroup(heading, items) {
@@ -59,7 +59,7 @@ class StartProgramView extends AbstractComponent {
                     {_.chunk(items, 2).map((options, idx) => {
                         return (
                             <View style={{flexDirection: 'row'}} key={idx}>
-                                {_.map(options, (option, index) => this.renderOption(option))}
+                                {options.map(this.renderOption.bind(this))}
                             </View>
                         )
                     })}
