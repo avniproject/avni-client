@@ -5,6 +5,7 @@ import General from "../../utility/General";
 import EntityMetaData from "../../models/EntityMetaData"
 import BatchRequest from "../../framework/http/BatchRequest";
 import EntityQueueService from "../EntityQueueService";
+import ChainedRequests from "../../framework/http/ChainedRequests";
 
 class ConventionalRestClient {
     constructor(settingsService) {
@@ -37,23 +38,23 @@ class ConventionalRestClient {
         const urlParts = [this.serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
         const params = (page, size) => this.makeParams({
             catchmentId: this.settingsService.getSettings().catchment,
-            // lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
-            lastModifiedDateTime: "2010-08-09T13:04:44.364Z",
+            lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
+            // lastModifiedDateTime: "2010-08-09T13:04:44.364Z",
             size: size,
             page: page
         });
         const processResponse = (resp) => _.get(resp, `_embedded.${entityMetadata.resourceName}`, []);
-        const endpoint = (page = 0, size = 10) => `${urlParts}?${params(page, size)}`;
+        const endpoint = (page = 0, size = 100) => `${urlParts}?${params(page, size)}`;
         getJSON(endpoint(), (response) => {
-            const batchRequest = new BatchRequest();
+            const chainedRequests = new ChainedRequests();
             const resourceMetadata = response["page"];
             let allResourcesForEntity = processResponse(response);
             _.range(1, resourceMetadata.totalPages, 1)
                 .forEach((pageNumber) =>
-                    getJSON(endpoint((pageNumber),
-                        (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)), onError)));
+                    chainedRequests.add(endpoint(pageNumber),
+                        (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)), onError));
 
-            batchRequest.fire(() => {
+            chainedRequests.fire(() => {
                 persistFn(entityMetadata, allResourcesForEntity);
                 onComplete();
             }, onError);
