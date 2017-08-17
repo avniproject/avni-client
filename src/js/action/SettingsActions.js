@@ -4,6 +4,7 @@ import EntityService from "../service/EntityService";
 import LocaleMapping from '../models/LocaleMapping';
 import Settings from '../models/Settings';
 import General from "../utility/General";
+import MessageService from "../service/MessageService";
 
 class SettingsActions {
     static getInitialState(context) {
@@ -30,23 +31,32 @@ class SettingsActions {
     }
 
     static onServerURLChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {settings.serverURL = action.value}, context);
+        return SettingsActions._updateSettingAndSave(state, (settings) => {
+            settings.serverURL = action.value
+        }, context);
     }
 
     static toNumber(str) {
-        return General.isNumeric(str) ? _.toNumber(str): str;
+        return General.isNumeric(str) ? _.toNumber(str) : str;
     }
 
     static onLocaleChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {settings.locale = action.value}, context);
+        return SettingsActions._updateSettingAndSave(state, (settings) => {
+            settings.locale = action.value;
+            context.get(MessageService).setLocale(settings.locale.locale);
+        }, context);
     }
 
     static onCatchmentChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {settings.catchment = SettingsActions.toNumber(action.value) }, context);
+        return SettingsActions._updateSettingAndSave(state, (settings) => {
+            settings.catchment = SettingsActions.toNumber(action.value)
+        }, context);
     }
 
     static onLogLevelChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {settings.logLevel = _.toNumber(action.value)}, context);
+        return SettingsActions._updateSettingAndSave(state, (settings) => {
+            settings.logLevel = _.toNumber(action.value)
+        }, context);
     }
 }
 
