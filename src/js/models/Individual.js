@@ -86,6 +86,9 @@ class Individual extends BaseEntity {
         return individual;
     }
 
+    static merge = (childEntityClass) =>
+        BaseEntity.mergeOn(new Map([[ProgramEnrolment, 'enrolments'], [Encounter, "encounters"]]).get(childEntityClass));
+
     static associateChild(child, childEntityClass, childResource, entityService) {
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualUUID"), Individual.schema.name);
         individual = General.pick(individual, ["uuid"], ["enrolments", "encounters"]);

@@ -26,6 +26,8 @@ class Form {
         return General.assignFields(resource, new Form(), ["uuid", "name", "formType"]);
     }
 
+    static merge = ()=> BaseEntity.mergeOn('formElementGroups');
+
     static associateChild(child, childEntityClass, childResource, entityService) {
         var form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formUUID"), Form.schema.name);
         form = General.pick(form, ["uuid"], ["formElementGroups"]);

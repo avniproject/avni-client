@@ -6,6 +6,17 @@ class BaseEntity {
         EXTERNAL_RULE: 'EXTERNAL_RULE'
     };
 
+    static mergeOn(key) {
+        return (entities) => {
+            return entities.reduce((acc, entity) => {
+                let existingChildren = acc[key];
+                entity[key].forEach(child => BaseEntity.addNewChild(child, existingChildren));
+                entity[key] = existingChildren;
+                return entity;
+            })
+        }
+    }
+
     static addNewChild(newChild, existingChildren) {
         const existing = existingChildren.some((child) => {
             return newChild.uuid === child.uuid;

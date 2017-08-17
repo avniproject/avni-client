@@ -47,6 +47,11 @@ class FormElement {
         return _.isNil(selectRecord) ? false : selectRecord.getValue() === FormElement.values.Multi;
     }
 
+    excludedAnswers() {
+        const selectRecord = this.recordByKey(FormElement.keys.ExcludedAnswers);
+        return _.isNil(selectRecord) ? [] : selectRecord.getValue();
+    }
+
     recordByKey(key) {
         return _.find(this.keyValues, (keyValue) => keyValue.key === key);
     }
@@ -83,10 +88,17 @@ class FormElement {
         return failure;
     }
 
+    getAnswers() {
+        const allAnswers = this.concept.getAnswers();
+        const excludedAnswers = this.excludedAnswers().map((conceptName) => Object.assign({concept: {name: conceptName}}));
+        return _.differenceBy(allAnswers, excludedAnswers, (a) => a.concept.name);
+    }
+
     static keys = {
         Select: 'Select',
         TrueValue: 'TrueValue',
-        FalseValue: 'FalseValue'
+        FalseValue: 'FalseValue',
+        ExcludedAnswers: 'ExcludedAnswers'
     };
 
     static values = {

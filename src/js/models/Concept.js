@@ -79,6 +79,8 @@ export default class Concept {
         return concept;
     }
 
+    static merge = () => BaseEntity.mergeOn('answers');
+
     static create(name, dataType) {
         const concept = new Concept();
         concept.name = name;
@@ -110,7 +112,7 @@ export default class Concept {
     }
 
     getPossibleAnswerConcept(name) {
-       return _.find(this.answers, (conceptAnswer) => conceptAnswer.concept.name === name);
+        return _.find(this.answers, (conceptAnswer) => conceptAnswer.concept.name === name);
     }
 
     getValueWrapperFor(value) {

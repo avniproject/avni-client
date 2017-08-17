@@ -78,6 +78,9 @@ class ProgramEnrolment extends BaseEntity {
         return programEnrolment;
     }
 
+    static merge = (childEntityClass) =>
+        BaseEntity.mergeOn(new Map([[ProgramEncounter, 'encounters'], [Checklist, "checklists"]]).get(childEntityClass));
+
     static associateChild(child, childEntityClass, childResource, entityService) {
         var programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
         programEnrolment = General.pick(programEnrolment, ["uuid"], ["encounters", "checklists"]);

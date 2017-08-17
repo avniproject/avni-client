@@ -42,7 +42,7 @@ class MultiSelectFormElement extends AbstractFormElement {
             borderColor: Colors.InputBorderNormal,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
         }}>{
-            _.chunk(this.props.element.concept.getAnswers(), 2).map(([answer1, answer2], idx) => {
+            _.chunk(this.props.element.getAnswers(), 2).map(([answer1, answer2], idx) => {
                 return (
                     <View key={idx} style={{flexDirection: 'row'}}>
                         {this.renderPossibleAnswer(answer1)}
