@@ -30,7 +30,7 @@
   "close": "X",
   "serverURL": "Server URL",
   "catchmentId": "Catchment Id",
-  "locale": "Locale",
+  "locale": "Language",
   "syncConfig": "Sync Config",
   "months": "Months",
   "month": "Month",
