@@ -23,9 +23,6 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import * as Animatable from 'react-native-animatable';
 
-
-const AnimatedIcon = Animatable.createAnimatableComponent(Icon);
-
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     constructor(props, context) {
@@ -58,12 +55,6 @@ class MenuView extends AbstractComponent {
     }
 
     _preSync() {
-        this._animatedValue = new Animated.Value(0);
-        Animated.timing(this._animatedValue, {
-            toValue: 1000,
-            duration: 20000,
-            useNativeDriver: true
-        }).start();
         this.setState({syncing: true, error: false});
     }
 
@@ -97,19 +88,11 @@ class MenuView extends AbstractComponent {
     }
 
     renderSyncButton() {
-        if (this.state.syncing) {
-            const interpolatedRotateAnimation = this._animatedValue.interpolate({
-                inputRange: [0, 100],
-                outputRange: ['360deg', '0deg']
-            });
+        return this.state.syncing ?
+            (<Animatable.View iterationCount="infinite" duration={2000} animation="rotate">
+                <Icon name="sync" style={MenuView.iconStyle}/>
+            </Animatable.View>) : (<Icon name="sync" style={MenuView.iconStyle}/>);
 
-            return (
-                <AnimatedIcon name="sync" style={{color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48}} animation="rotate"/>);
-        } else if (!this.state.syncing && this.state.error) {
-            return (<Icon name='sync-problem' style={this.iconStyle}/>);
-        } else {
-            return (<Icon name='sync' style={MenuView.iconStyle}/>);
-        }
     }
 
     onDeleteSchema = () => {
