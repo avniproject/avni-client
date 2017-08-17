@@ -9,17 +9,20 @@ import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import EntityMetaData from "./models/EntityMetaData";
 
+let routes, beans, reduxStore, db = undefined;
+
 export default class App extends Component {
     constructor(props, context) {
         super(props, context);
-        this.db = new Realm(models);
-        this.beans = BeanRegistry.init(this.db, this);
+        if (db === undefined) {
+            db = new Realm(models);
+            beans = BeanRegistry.init(db, this);
+            reduxStore = AppStore.create(beans);
+            routes = PathRegistry.routes();
+            const entitySyncStatusService = beans.get(EntitySyncStatusService);
+            entitySyncStatusService.setup(EntityMetaData.model());
+        }
         this.getBean = this.getBean.bind(this);
-        this.reduxStore = AppStore.create(this.beans);
-        this.routes = PathRegistry.routes();
-
-        const entitySyncStatusService = this.beans.get(EntitySyncStatusService);
-        entitySyncStatusService.setup(EntityMetaData.model());
         console.log(`DEVICE HEIGHT=${Dimensions.get('window').height} WIDTH=${Dimensions.get('window').width}`);
     }
 
@@ -30,18 +33,18 @@ export default class App extends Component {
     };
 
     getChildContext = () => ({
-        getDB: () => this.db,
+        getDB: () => db,
         getService: (serviceName) => {
-            return this.beans.get(serviceName)
+            return beans.get(serviceName)
         },
-        getStore: () => this.reduxStore
+        getStore: () => reduxStore
     });
 
     getBean(name) {
-        return this.beans.get(name);
+        return beans.get(name);
     }
 
     render() {
-        return this.routes;
+        return routes;
     }
 }
