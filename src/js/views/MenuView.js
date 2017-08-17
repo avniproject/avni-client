@@ -3,7 +3,8 @@ import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
-import {Button, Icon} from "native-base";
+import {Button} from "native-base";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -20,6 +21,10 @@ import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
 import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
+import * as Animatable from 'react-native-animatable';
+
+
+const AnimatedIcon = Animatable.createAnimatableComponent(Icon);
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -56,7 +61,8 @@ class MenuView extends AbstractComponent {
         this._animatedValue = new Animated.Value(0);
         Animated.timing(this._animatedValue, {
             toValue: 1000,
-            duration: 20000
+            duration: 20000,
+            useNativeDriver: true
         }).start();
         this.setState({syncing: true, error: false});
     }
@@ -98,9 +104,7 @@ class MenuView extends AbstractComponent {
             });
 
             return (
-                <Animated.View style={{transform: [{rotate: interpolatedRotateAnimation}]}}>
-                    <Icon name='sync' style={this.iconStyle}/>
-                </Animated.View>);
+                <AnimatedIcon name="sync" style={{color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48}} animation="rotate"/>);
         } else if (!this.state.syncing && this.state.error) {
             return (<Icon name='sync-problem' style={this.iconStyle}/>);
         } else {
