@@ -1,6 +1,7 @@
 import {Alert, Animated, Text, View, Dimensions} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
+import _ from 'lodash';
 import Path from "../framework/routing/Path";
 import {Button, Icon} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
@@ -35,7 +36,12 @@ class MenuView extends AbstractComponent {
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48};
 
     createStyles() {
-        this.columnStyle = {marginHorizontal: DynamicGlobalStyles.resizeWidth(29), alignItems: 'center', marginTop: DynamicGlobalStyles.resizeWidth(71), flexDirection: 'column'};
+        this.columnStyle = {
+            marginHorizontal: DynamicGlobalStyles.resizeWidth(29),
+            alignItems: 'center',
+            marginTop: DynamicGlobalStyles.resizeWidth(71),
+            flexDirection: 'column'
+        };
     }
 
     settingsView() {
@@ -65,7 +71,14 @@ class MenuView extends AbstractComponent {
 
     _onError(error) {
         General.logError(this.viewName(), `Error happened during sync: ${error}`);
-        this.setState({syncing: false, error: true});
+        this.setState({syncing: false});
+        Alert.alert("Sync Failed", error.message, [{
+                text: 'Try Again',
+                onPress: () => this.sync()
+            },
+                {text: 'Cancel', onPress: _.noop, style: 'cancel'},
+            ]
+        );
     }
 
     sync() {
@@ -132,7 +145,8 @@ class MenuView extends AbstractComponent {
             <CHSContent>
                 <View style={{
                     flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
-                    height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground }}>
+                    height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground
+                }}>
                     <View style={this.columnStyle}>
                         <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                             {this.renderSyncButton()}
