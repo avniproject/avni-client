@@ -10,7 +10,6 @@ import ChainedRequests from "../../framework/http/ChainedRequests";
 class ConventionalRestClient {
     constructor(settingsService) {
         this.settingsService = settingsService;
-        this.serverURL = this.settingsService.getSettings().serverURL;
     }
 
     makeParams(paramMap) {
@@ -21,7 +20,8 @@ class ConventionalRestClient {
 
     postAllEntities(allEntities, onComplete, onError, popItemFn, currentEntities = _.head(allEntities)) {
         if (_.isEmpty(currentEntities)) return onComplete();
-        const url = (entity) => `${this.serverURL}/${entity.metaData.resourceName}s`;
+        const serverURL = this.settingsService.getSettings().serverURL;
+        const url = (entity) => `${serverURL}/${entity.metaData.resourceName}s`;
         return this.batchPostEntities(url(currentEntities), currentEntities,
             () => this.postAllEntities(_.tail(allEntities), onComplete, onError, popItemFn), onError, popItemFn);
     }
@@ -35,7 +35,8 @@ class ConventionalRestClient {
 
     getAllForEntity(entityMetadata, persistFn, onComplete, onError) {
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? entityMetadata.resourceSearchFilterURL : "lastModified";
-        const urlParts = [this.serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
+        const serverURL = this.settingsService.getSettings().serverURL;
+        const urlParts = [serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
         const params = (page, size) => this.makeParams({
             catchmentId: this.settingsService.getSettings().catchment,
             lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
