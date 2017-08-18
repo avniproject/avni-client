@@ -25,16 +25,16 @@ class EntityRule {
         return decisions;
     }
 
-    _safeInvokeRule(func, ruleName, defaultValue, ...params) {
-        General.logInfo('EntityRule', `Invoking rule ${ruleName} on entity: ${params[0].constructor.name}`);
+    _safeInvokeRule(func, ruleNameForLogging, defaultValue, ...params) {
+        General.logInfo('EntityRule', `Invoking rule ${ruleNameForLogging} on entity: ${params[0].constructor.name}`);
         if (_.isNil(func)) return defaultValue;
 
         const results = func(...params);
         if (_.isNil(results)) {
-            General.logInfo('EntityRule', `${ruleName} rule didn't return anything for: ${params[0].constructor.name}`);
+            General.logInfo('EntityRule', `${ruleNameForLogging} rule didn't return anything for: ${params[0].constructor.name}`);
             return defaultValue;
         } else if (typeof results !== typeof defaultValue) {
-            General.logInfo('EntityRule', `${ruleName} didn't return an array for: ${params[0].constructor.name}`);
+            General.logInfo('EntityRule', `${ruleNameForLogging} didn't return an array for: ${params[0].constructor.name}`);
             return defaultValue;
         }
         return results;

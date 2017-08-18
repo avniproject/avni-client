@@ -1,5 +1,5 @@
 import StubbedBaseService from "./StubbedBaseService";
-import _ from 'lodash';
+import Settings from "../../../js/models/Settings";
 
 class StubbedSettingsService extends StubbedBaseService {
     constructor(serviceData) {
@@ -7,7 +7,7 @@ class StubbedSettingsService extends StubbedBaseService {
     }
 
     getSettings() {
-        return {validate: _.noop};
+        return new Settings();
     }
 }
 

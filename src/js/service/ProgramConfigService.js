@@ -4,19 +4,32 @@ import ConfigFileService from "./ConfigFileService";
 import _ from "lodash";
 
 @Service("programConfigService")
-class ProgramConfiguration extends BaseService {
+class ProgramConfigService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
     }
 
     init() {
-        this.programConfig = null;
+        this.loaded = false;
         this.programConfigFile = this.getService(ConfigFileService).getProgramConfigFile();
     }
 
+    loadProgramConfig() {
+        if (!this.loaded) {
+            const object = eval(`${this.programConfigFile.contents}`);
+            this.programConfig = object.config;
+            this.observationRules = object.filteredFormElements;
+        }
+    }
+
     configForProgram(program) {
-        this.programConfig = this.programConfig || eval(`${this.programConfigFile.contents}`).config;
+        this.loadProgramConfig();
         return program && program.name && this.programConfig(program.name);
+    }
+
+    observationRulesForProgram(program) {
+        this.loadProgramConfig();
+        return program && program.name && this.observationRules(program.name);
     }
 
     findDashboardButtons(program) {
@@ -24,4 +37,4 @@ class ProgramConfiguration extends BaseService {
     }
 }
 
-export default ProgramConfiguration;
+export default ProgramConfigService;

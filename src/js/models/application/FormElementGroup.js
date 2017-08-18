@@ -81,6 +81,26 @@ class FormElementGroup {
     get translatedFieldValue() {
         return this.display;
     }
+
+    getApplicableFormElements(programEncounter, observationRules) {
+        if (_.isNil(programEncounter.encounterDateTime)) return this.formElements;
+
+        const applicableFormElements = [];
+        let numberOfWeeksSinceEnrolment = programEncounter.numberOfWeeksSinceEnrolment;
+
+        for (let i = 0; i < this.formElements.length; i++) {
+            const obsCondition = _.find(observationRules, (x) => x.name === this.formElements[i].concept.name);
+            const observation = programEncounter.programEnrolment.findObservationInEntireEnrolment(obsCondition.name);
+            if (obsCondition.expectedNumberOfOccurrences === 1 && !_.isNil(observation))
+                continue;
+
+            if (numberOfWeeksSinceEnrolment < obsCondition.validityStart && numberOfWeeksSinceEnrolment > obsCondition.validityEnd)
+                continue;
+
+            applicableFormElements.push(this.formElements[i]);
+        }
+        return applicableFormElements;
+    }
 }
 
 export default FormElementGroup;

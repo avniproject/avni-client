@@ -7,6 +7,7 @@ import EntityService from "../../service/EntityService";
 import ProgramEncounter from "../../models/ProgramEncounter";
 import ConceptService from "../../service/ConceptService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import ProgramConfigService from "../../service/ProgramConfigService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -15,11 +16,13 @@ class ProgramEncounterActions {
 
     static onLoad(state, action, context) {
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
+        const observationRules = context.get(ProgramConfigService).observationRulesForProgram(action.programEncounter.programEnrolment.program);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
         if (_.isNil(form)) {
             return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
         }
-        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity);
+
+        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, observationRules);
     }
 
     static onNext(state, action, context) {

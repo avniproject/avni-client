@@ -21,6 +21,7 @@ import Styles from "../primitives/Styles";
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
         group: React.PropTypes.object.isRequired,
+        filteredFormElements: React.PropTypes.object,
         observationHolder: React.PropTypes.object.isRequired,
         actions: React.PropTypes.object.isRequired,
         validationResults: React.PropTypes.array.isRequired,
@@ -36,7 +37,7 @@ class FormElementGroup extends AbstractComponent {
     }
 
     render() {
-        const formElements = this.props.group.getFormElements();
+        const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
         return (<View>
                 {formElements.length <= 1 ? <View/> :
                     <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>}

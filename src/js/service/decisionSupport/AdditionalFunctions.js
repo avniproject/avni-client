@@ -25,7 +25,7 @@ const getObservationValue = function (conceptName) {
     }
 };
 
-const _getObservationValue = function (observation, conceptName) {
+const _getObservationValue = function (observation) {
     if (_.isNil(observation)) {
         return undefined;
     }

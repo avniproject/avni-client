@@ -98,6 +98,10 @@ class ProgramEncounter extends AbstractEncounter {
     getName() {
         return 'ProgramEncounter';
     }
+
+    get numberOfWeeksSinceEnrolment() {
+        return moment.duration(moment(this.encounterDateTime).diff(moment(programEnrolment.enrolmentDateTime))).asWeeks();
+    }
 }
 
 export default ProgramEncounter;
