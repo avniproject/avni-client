@@ -10,6 +10,7 @@ if [ ! -e ${INITIALIZATION_FILE} ]; then
     sdkmanager "extras;android;m2repository"
     sdkmanager "tools"
     sdkmanager "platform-tools"
+    sdkmanager "build-tools;23.0.1"
     sdkmanager "build-tools;25.0.1"
     sdkmanager "build-tools;25.0.3"
     sdkmanager "system-images;android-25;google_apis;x86"
