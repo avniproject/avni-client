@@ -18,7 +18,7 @@ class ProgramConfigService extends BaseService {
         if (!this.loaded) {
             const object = eval(`${this.programConfigFile.contents}`);
             this.programConfig = object.config;
-            this.observationRules = object.filteredFormElements;
+            this.observationRules = object.observationRules;
         }
     }
 
@@ -29,7 +29,7 @@ class ProgramConfigService extends BaseService {
 
     observationRulesForProgram(program) {
         this.loadProgramConfig();
-        return program && program.name && this.observationRules(program.name);
+        return program && program.name && this.observationRules[program.name];
     }
 
     findDashboardButtons(program) {

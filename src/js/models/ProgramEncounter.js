@@ -100,7 +100,24 @@ class ProgramEncounter extends AbstractEncounter {
     }
 
     get numberOfWeeksSinceEnrolment() {
-        return moment.duration(moment(this.encounterDateTime).diff(moment(programEnrolment.enrolmentDateTime))).asWeeks();
+        return General.weeksBetween(this.encounterDateTime, this.programEnrolment.enrolmentDateTime);
+    }
+
+    numberOfWeeksSince(conceptName) {
+        const obs = this.programEnrolment.findObservationInEntireEnrolment(conceptName, this);
+        return General.weeksBetween(this.encounterDateTime, obs.getValue());
+    }
+
+    toJSON() {
+        return {
+            uuid: this.uuid,
+            name: this.name,
+            encounterType: this.encounterType,
+            maxDateTime: this.maxDateTime,
+            encounterDateTime: this.encounterDateTime,
+            programEnrolmentUUID: this.programEnrolment.uuid,
+            observations: this.observations
+        };
     }
 }
 

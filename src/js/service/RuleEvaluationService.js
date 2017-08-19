@@ -22,7 +22,10 @@ class RuleEvaluationService extends BaseService {
         this.decorateEncounter();
         const configFileService = this.getService(ConfigFileService);
 
-        this.entityRulesMap = new Map([['Individual', new EntityRule(configFileService.getIndividualRegistrationFile())], ['Encounter', new EntityRule(configFileService.getEncounterDecisionFile())], ['ProgramEncounter', new EntityRule(configFileService.getProgramEncounterFile())], ['ProgramEnrolment', new EntityRule(configFileService.getProgramEnrolmentFile())]]);
+        this.entityRulesMap = new Map([['Individual', new EntityRule(configFileService.getIndividualRegistrationFile())],
+            ['Encounter', new EntityRule(configFileService.getEncounterDecisionFile())],
+            ['ProgramEncounter', new EntityRule(configFileService.getProgramEncounterFile())],
+            ['ProgramEnrolment', new EntityRule(configFileService.getProgramEnrolmentFile())]]);
         this.entityRulesMap.forEach((entityRule, key) => {
             const exports = RuleEvaluationService.getExports(entityRule.ruleFile);
             if (!_.isNil(exports))
@@ -55,7 +58,10 @@ class RuleEvaluationService extends BaseService {
     static getExports(configFile) {
         if (!_.isNil(configFile)) {
             try {
-                return eval(`${configFile.contents}`);
+                General.logDebug('RuleEvaluationService', `Evaluating ${configFile}`);
+                const object = eval(`${configFile.contents}`);
+                General.logDebug('RuleEvaluationService', `${configFile} evaluated.`);
+                return object;
             } catch (error) {
                 General.logError('RuleEvaluationService', error);
                 return null;

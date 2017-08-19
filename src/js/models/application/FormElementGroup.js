@@ -4,6 +4,7 @@ import Form from './Form';
 import BaseEntity from '../BaseEntity';
 import FormElement from "./FormElement";
 import _ from 'lodash';
+import ObservationRule from '../observation/ObservationRule';
 
 class FormElementGroup {
     static schema = {
@@ -83,19 +84,23 @@ class FormElementGroup {
     }
 
     getApplicableFormElements(programEncounter, observationRules) {
+        General.logDebugObject('FormElementGroup', programEncounter);
         if (_.isNil(programEncounter.encounterDateTime)) return this.formElements;
 
         const applicableFormElements = [];
         let numberOfWeeksSinceEnrolment = programEncounter.numberOfWeeksSinceEnrolment;
 
         for (let i = 0; i < this.formElements.length; i++) {
-            const obsCondition = _.find(observationRules, (x) => x.name === this.formElements[i].concept.name);
-            const observation = programEncounter.programEnrolment.findObservationInEntireEnrolment(obsCondition.name);
-            if (obsCondition.expectedNumberOfOccurrences === 1 && !_.isNil(observation))
-                continue;
+            const obsRule = _.find(observationRules, (x) => x.conceptName === this.formElements[i].concept.name);
+            if (!_.isNil(obsRule)) {
+                const numberOfWeeksSince = obsRule.validityBasedOn === ObservationRule.ENROLMENT_DATE_VALIDITY ? numberOfWeeksSinceEnrolment : programEncounter.numberOfWeeksSince(obsRule.validityBasedOn);
+                const observation = programEncounter.programEnrolment.findObservationInEntireEnrolment(obsRule.name);
+                if (obsRule.expectedNumberOfOccurrences === 1 && !_.isNil(observation))
+                    continue;
 
-            if (numberOfWeeksSinceEnrolment < obsCondition.validityStart && numberOfWeeksSinceEnrolment > obsCondition.validityEnd)
-                continue;
+                if (numberOfWeeksSinceEnrolment < obsRule.validFrom || numberOfWeeksSinceEnrolment > obsRule.validTill)
+                    continue;
+            }
 
             applicableFormElements.push(this.formElements[i]);
         }

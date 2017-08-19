@@ -9,6 +9,9 @@ import IndividualSearchCriteria from "../../js/service/query/IndividualSearchCri
 import ChecklistItem from "../../js/models/ChecklistItem";
 import Observation from "../../js/models/Observation";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
+import ProgramEncounter from "../../js/models/ProgramEncounter";
+import ObservationRule from "../../js/models/observation/ObservationRule";
+import ProgramEnrolment from "../../js/models/ProgramEnrolment";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -86,6 +89,24 @@ class EntityFactory {
         decision.name = name;
         decision.value = value;
         return decision;
+    }
+
+    static createProgramEncounter({programEnrolment, encounterDateTime = new Date(), observations = []}) {
+        const programEncounter = ProgramEncounter.createEmptyInstance();
+        programEncounter.encounterDateTime = encounterDateTime;
+        programEncounter.observations = observations;
+        programEncounter.programEnrolment = programEnrolment;
+        return programEncounter;
+    }
+
+    static createProgramEnrolment({enrolmentDateTime = new Date()}) {
+        const programEnrolment = ProgramEnrolment.createEmptyInstance();
+        programEnrolment.enrolmentDateTime = enrolmentDateTime;
+        return programEnrolment;
+    }
+
+    static createObservationRule() {
+        return new ObservationRule();
     }
 }
 

@@ -202,6 +202,21 @@ class ProgramEnrolment extends BaseEntity {
     scheduledEncounters() {
         return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime);
     }
+
+    toJSON() {
+        return {
+            uuid: this.uuid,
+            program: this.program,
+            enrolmentDateTime: this.enrolmentDateTime,
+            observations: this.observations,
+            programExitDateTime: this.programExitDateTime,
+            programExitObservations: this.programExitObservations,
+            programOutcome: {type: 'ProgramOutcome', optional: true},
+            encounters: this.encounters,
+            checklists: this.checklists,
+            individualUUID: this.individual.uuid
+        };
+    }
 }
 
 export default ProgramEnrolment;
