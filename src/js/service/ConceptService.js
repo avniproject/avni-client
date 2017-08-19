@@ -75,6 +75,7 @@ class ConceptService extends BaseService {
     }
 
     getObservationsFromDecisions(decisions) {
+        General.logDebugObject('ConceptService', decisions);
         const flattenedDecisions = _.compact(_.flatten([decisions.registrationDecisions, decisions.enrolmentDecisions, decisions.encounterDecisions]));
         const observations = [];
         this.addDecisions(observations, flattenedDecisions);

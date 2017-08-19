@@ -80,7 +80,7 @@ class ProgramEncounterView extends AbstractComponent {
                         }
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup}
                                           actions={Actions}
-                                          validationResults={this.state.validationResults}/>
+                                          validationResults={this.state.validationResults} filteredFormElements={this.state.filteredFormElements}/>
                         <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>

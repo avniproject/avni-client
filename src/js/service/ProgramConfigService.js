@@ -29,7 +29,7 @@ class ProgramConfigService extends BaseService {
 
     observationRulesForProgram(program) {
         this.loadProgramConfig();
-        return program && program.name && this.observationRules[program.name];
+        return program && program.name && this.observationRules(program.name);
     }
 
     findDashboardButtons(program) {

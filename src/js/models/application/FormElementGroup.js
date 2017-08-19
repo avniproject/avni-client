@@ -84,7 +84,6 @@ class FormElementGroup {
     }
 
     getApplicableFormElements(programEncounter, observationRules) {
-        General.logDebugObject('FormElementGroup', programEncounter);
         if (_.isNil(programEncounter.encounterDateTime)) return this.formElements;
 
         const applicableFormElements = [];
