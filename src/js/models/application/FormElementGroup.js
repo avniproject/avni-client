@@ -90,18 +90,8 @@ class FormElementGroup {
         let numberOfWeeksSinceEnrolment = programEncounter.numberOfWeeksSinceEnrolment;
 
         for (let i = 0; i < this.formElements.length; i++) {
-            const obsRule = _.find(observationRules, (x) => x.conceptName === this.formElements[i].concept.name);
-            if (!_.isNil(obsRule)) {
-                const numberOfWeeksSince = obsRule.validityBasedOn === ObservationRule.ENROLMENT_DATE_VALIDITY ? numberOfWeeksSinceEnrolment : programEncounter.numberOfWeeksSince(obsRule.validityBasedOn);
-                const observation = programEncounter.programEnrolment.findObservationInEntireEnrolment(obsRule.name);
-                if (obsRule.expectedNumberOfOccurrences === 1 && !_.isNil(observation))
-                    continue;
-
-                if (numberOfWeeksSinceEnrolment < obsRule.validFrom || numberOfWeeksSinceEnrolment > obsRule.validTill)
-                    continue;
-            }
-
-            applicableFormElements.push(this.formElements[i]);
+            if (programEncounter.isObservationAllowed(observationRules, this.formElements[i].concept, numberOfWeeksSinceEnrolment))
+                applicableFormElements.push(this.formElements[i]);
         }
         return applicableFormElements;
     }

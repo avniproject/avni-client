@@ -5,6 +5,7 @@ import AbstractEncounter from "./AbstractEncounter";
 import _ from 'lodash';
 import moment from "moment";
 import ValidationResult from "./application/ValidationResult";
+import ObservationRule from './observation/ObservationRule';
 
 class ProgramEncounter extends AbstractEncounter {
     static fieldKeys = {
@@ -106,6 +107,25 @@ class ProgramEncounter extends AbstractEncounter {
     numberOfWeeksSince(conceptName) {
         const obs = this.programEnrolment.findObservationInEntireEnrolment(conceptName, this);
         return General.weeksBetween(this.encounterDateTime, obs.getValue());
+    }
+
+    isObservationAllowed(observationRules, concept, numberOfWeeksSinceEnrolment) {
+        const obsRule = _.find(observationRules, (x) => x.conceptName === concept.name);
+        if (!_.isNil(obsRule)) {
+            const numberOfWeeksSince = obsRule.validityBasedOn === ObservationRule.ENROLMENT_DATE_VALIDITY ? numberOfWeeksSinceEnrolment : this.numberOfWeeksSince(obsRule.validityBasedOn);
+            const observation = this.programEnrolment.findObservationInEntireEnrolment(obsRule.conceptName);
+            if (obsRule.expectedNumberOfOccurrences === 1 && !_.isNil(observation))
+                return false;
+
+            if (numberOfWeeksSinceEnrolment < obsRule.validFrom || numberOfWeeksSinceEnrolment > obsRule.validTill)
+                return false;
+        }
+
+        return true;
+    }
+
+    removeObservationsNotAllowed(observationRules) {
+        _.remove(this.observations, (obs) => !this.isObservationAllowed(observationRules, obs.concept, this.numberOfWeeksSinceEnrolment));
     }
 
     toJSON() {

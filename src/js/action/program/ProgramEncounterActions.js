@@ -32,6 +32,7 @@ class ProgramEncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        newState.programEncounter.removeObservationsNotAllowed(newState.observationRules);
         context.get(ConceptService).addDecisions(newState.programEncounter.observations, action.decisions.encounterDecisions);
         const service = context.get(ProgramEncounterService);
         service.saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
