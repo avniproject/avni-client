@@ -25,7 +25,13 @@ class MessageService extends BaseService {
 
     init() {
         this.setLocale(this.getService(SettingsService).getSettings().locale.locale);
+        this.addEnglishNameTranslations();
+        const configFileService = this.getService(ConfigFileService);
+        const customMessages = configFileService.getCustomMessages();
+        this.addTranslationsFrom(customMessages);
+    }
 
+    addEnglishNameTranslations() {
         EntityMetaData.model().forEach((entityMetaData) => {
             if (entityMetaData.nameTranslated) {
                 this.getAll(entityMetaData.entityName).forEach((entity) => {
@@ -33,10 +39,6 @@ class MessageService extends BaseService {
                 });
             }
         });
-
-        const configFileService = this.getService(ConfigFileService);
-        const customMessages = configFileService.getCustomMessages();
-        this.addTranslationsFrom(customMessages);
     }
 
     addTranslationsFrom(customMessages) {

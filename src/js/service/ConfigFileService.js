@@ -79,7 +79,9 @@ class ConfigFileService extends BaseService {
                 errorHandler));
         this.messagesFiles.map((file) => batchRequest.add(`${configURL}/${file}`, (resp) => {
             configs.push(ConfigFile.create(file, JSON.stringify(resp)));
-            this.getService(MessageService).addTranslationsFrom(resp)
+            const messageService = this.getService(MessageService);
+            messageService.addTranslationsFrom(resp);
+            messageService.addEnglishNameTranslations();
         }));
         batchRequest.fire(() => {
             cb();
