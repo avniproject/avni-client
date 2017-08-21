@@ -44,8 +44,10 @@ class Observation {
             return _.join(valueWrapper.getValue().map((value) => {
                 return i18n.t(conceptService.getConceptByUUID(value).name);
             }), ', ');
+        } else if (observation.concept.datatype === Concept.dataType.Boolean) {
+            return i18n.t(_.toString(valueWrapper.getValue()));
         } else {
-            return observation.concept.datatype === Concept.dataType.Text ? i18n.t(_.toString(valueWrapper.getValue())) : _.toString(valueWrapper.getValue());
+            return _.toString(valueWrapper.getValue());
         }
     }
 

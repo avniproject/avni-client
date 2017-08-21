@@ -20,7 +20,7 @@ class MessageService extends BaseService {
             mr_IN: Messages_mr_IN,
             hi_IN: Messages_hi_IN
         };
-        this.I18n.inDefaultLocale = (key)=>_.findKey(this.I18n.translations[this.I18n.locale], (t)=>t === key);
+        this.I18n.inDefaultLocale = (key) => _.findKey(this.I18n.translations[this.I18n.locale], (t) => t === key);
     }
 
     init() {
