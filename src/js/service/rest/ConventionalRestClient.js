@@ -29,7 +29,7 @@ class ConventionalRestClient {
     batchPostEntities(url, entities, onComplete, onError, popItemFn) {
         const batchRequest = new BatchRequest();
         entities.entities.map((entity) => batchRequest.post(url, entity.resource, () =>
-            popItemFn(entity.resource.uuid)));
+            popItemFn(entity.resource.uuid), onError));
         batchRequest.fire(onComplete, onError);
     }
 

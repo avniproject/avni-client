@@ -1,7 +1,15 @@
 import General from "../../utility/General";
 import _ from 'lodash';
 
-const fetchFactory = (endpoint, method = "GET", params) => fetch(endpoint, {"method": method, ...params});
+const acceptableResponseStatuses = [200, 201];
+
+const fetchFactory = (endpoint, method = "GET", params) => {
+    return fetch(endpoint, {"method": method, ...params})
+        .then((response) =>
+            acceptableResponseStatuses.indexOf(parseInt(response.status)) > -1 ?
+                Promise.resolve(response) :
+                Promise.reject(response));
+};
 
 const makeHeader = (type) => new Map([['json', {
     headers: {
@@ -23,18 +31,12 @@ let _get = (endpoint, cb, errorHandler) => {
 let _getText = (endpoint, cb, errorHandler) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("text"))
-        .then((response) => {
-            if (!response.ok) {
-                General.logError('Requests', `Error for ${endpoint}: ${JSON.stringify(response)}`);
-                throw new Error(`HTTP Status: ${response.status}`);
-            }
-            return response.text();
-        })
+        .then((response) => response.text())
         .then(cb)
         .catch(errorHandler);
 };
 
-let _post = (endpoint, file, cb, errorHandler = _.noop) => {
+let _post = (endpoint, file, cb, errorHandler) => {
     const params = makeRequest("json", {body: JSON.stringify(file)});
     return fetchFactory(endpoint, "POST", params)
         .then(cb)

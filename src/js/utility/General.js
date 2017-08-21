@@ -18,6 +18,11 @@ class General {
         currentLogLevel = level;
     }
 
+    static look(stuffToPrint) {
+        console.log(stuffToPrint);
+        return stuffToPrint;
+    }
+
     static getCurrentLogLevel() {
         return currentLogLevel;
     }
@@ -148,8 +153,8 @@ class General {
         if (_.isNil(a) !== _.isNil(b))
             return false;
 
-        for(var key in a) {
-            if(a[key] !== b[key]) {
+        for (var key in a) {
+            if (a[key] !== b[key]) {
                 return false;
             }
         }
