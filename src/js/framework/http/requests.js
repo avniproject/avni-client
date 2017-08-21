@@ -1,12 +1,12 @@
 import General from "../../utility/General";
 import _ from 'lodash';
 
-const acceptableResponseStatuses = [200, 201];
+const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const fetchFactory = (endpoint, method = "GET", params) => {
     return fetch(endpoint, {"method": method, ...params})
         .then((response) =>
-            acceptableResponseStatuses.indexOf(parseInt(response.status)) > -1 ?
+            ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1 ?
                 Promise.resolve(response) :
                 Promise.reject(response));
 };
