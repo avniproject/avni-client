@@ -47,7 +47,6 @@ ci-test:
 
 release:
 	cd android; ./gradlew assembleRelease
-	open android/app/build/outputs/apk
 
 release-offline:
 	cd android; ./gradlew --offline assembleRelease
