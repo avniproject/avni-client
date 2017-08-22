@@ -4,7 +4,6 @@ import Form from './Form';
 import BaseEntity from '../BaseEntity';
 import FormElement from "./FormElement";
 import _ from 'lodash';
-import ObservationRule from '../observation/ObservationRule';
 
 class FormElementGroup {
     static schema = {
@@ -77,6 +76,11 @@ class FormElementGroup {
 
     getFormElements() {
         return _.sortBy(this.formElements, (formElement) => formElement.displayOrder);
+    }
+
+    removeFormElement(formElementName) {
+        this.formElements = _.reject(this.formElements, (formElement) => formElement.matches(formElementName));
+        return this;
     }
 
     get translatedFieldValue() {

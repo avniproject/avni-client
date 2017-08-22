@@ -42,6 +42,10 @@ class FormElement {
         return formElement;
     }
 
+    matches(elementNameOrUUID) {
+        return this.name === elementNameOrUUID || this.uuid === elementNameOrUUID;
+    }
+
     isMultiSelect() {
         const selectRecord = this.recordByKey(FormElement.keys.Select);
         return _.isNil(selectRecord) ? false : selectRecord.getValue() === FormElement.values.Multi;

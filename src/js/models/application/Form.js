@@ -65,6 +65,13 @@ class Form {
         return formElement;
     }
 
+    removeFormElement(formElementName) {
+        this.formElementGroups = _.map(this.formElementGroups, (formElementGroup) => {
+           return formElementGroup.removeFormElement(formElementName);
+        });
+        return this;
+    }
+
     static formTypes = {
         IndividualProfile: 'IndividualProfile',
         Encounter: 'Encounter',
