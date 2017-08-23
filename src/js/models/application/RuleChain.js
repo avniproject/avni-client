@@ -13,7 +13,7 @@ export default class FormRuleChain {
      * or a modified context if the chain needs to proceed. It can manipulate context before
      * and after the call as it sees fit.
      *
-     * eg: A simple noop chain link being added -
+     * eg: A simple _noop chain link being added -
      * new FormRuleChain.add((next, context) => next(context));
      *
      * eg: Short circuit of the chain
