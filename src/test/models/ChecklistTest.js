@@ -1,8 +1,5 @@
 import {expect} from 'chai';
-import _ from "lodash";
 import Checklist from "../../js/models/Checklist";
-import ChecklistItem from "../../js/models/ChecklistItem";
-import Concept from "../../js/models/Concept";
 import EntityFactory from "./EntityFactory";
 
 describe('ChecklistTest', () => {

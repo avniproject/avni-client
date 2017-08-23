@@ -5,7 +5,6 @@ import EncounterType from "./EncounterType";
 import ObservationsHolder from "./ObservationsHolder";
 import General from "../utility/General";
 import ResourceUtil from "../utility/ResourceUtil";
-import moment from "moment";
 
 class AbstractEncounter extends BaseEntity {
     static fieldKeys = {

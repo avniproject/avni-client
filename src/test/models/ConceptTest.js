@@ -1,5 +1,4 @@
 import {expect} from 'chai';
-import _ from "lodash";
 import Concept from "../../js/models/Concept";
 
 describe('ConceptTest', () => {
