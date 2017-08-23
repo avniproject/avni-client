@@ -37,6 +37,4 @@ describe('Form', () => {
 
         expect(modifiedForm.findFormElement('b2')).to.equal(undefined);
     });
-
-
 });
