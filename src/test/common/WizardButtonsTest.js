@@ -1,5 +1,4 @@
 import React from "react";
-import {View, ListView} from "react-native";
 import {shallow} from "enzyme";
 import {expect} from "chai";
 import WizardButtons from "../../js/views/common/WizardButtons";

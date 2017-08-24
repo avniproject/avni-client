@@ -1,5 +1,4 @@
 import {View} from "native-base";
-import {Dimensions} from "react-native";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";

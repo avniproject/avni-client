@@ -21,6 +21,9 @@ describe('RuleConditionTest', () => {
         let conceptB1 = EntityFactory.createConcept('b1', Concept.dataType.Numeric);
         programEncounter.observations.push(Observation.create(conceptA1, JSON.stringify(new PrimitiveValue('10', Concept.dataType.Numeric))));
 
+        let anotherProgramEncounter = ProgramEncounter.createEmptyInstance();
+        anotherProgramEncounter.observations.push(Observation.create(conceptB1, JSON.stringify(new PrimitiveValue('10', Concept.dataType.Numeric))));
+        programEncounter.programEnrolment.encounters.push(anotherProgramEncounter);
 
         form = EntityFactory.createForm('foo');
         const formElementGroup1 = EntityFactory.createFormElementGroup('bar', 1, form);
@@ -64,6 +67,23 @@ describe('RuleConditionTest', () => {
         expect(a1.when.valueInEntireEnrolment('a1').equals(10).matches()).to.be.true;
         expect(a1.when.valueInEntireEnrolment('a1').equals(null).matches()).to.be.false;
         expect(a1.when.valueInEntireEnrolment('a2').equals(10).matches()).to.be.false;
+    });
+
+    it("truthy checks currently inspected value to be truthy", () => {
+        expect(a1.when.valueInEntireEnrolment('a1').is.truthy.matches()).to.be.true;
+        expect(a1.when.valueInEntireEnrolment('a2').is.truthy.matches()).to.be.false;
+        expect(a1.when.valueInEntireEnrolment('c1').is.truthy.matches()).to.be.false;
+    });
+
+    it("matchesFn checks currently inspected value to be truthy", () => {
+        expect(a1.when.valueInEntireEnrolment('a1').matchesFn(() => true).matches()).to.be.true;
+        expect(a1.when.valueInEntireEnrolment('a1').matchesFn(() => false).matches()).to.be.false;
+        expect(a1.when.valueInEntireEnrolment('c1').matchesFn((value) => {return value;}).matches()).to.be.false;
+    });
+
+    it("valueInEncounter checks for the same or a different concept's value to be equal to something", () => {
+        expect(a1.when.valueInEncounter('a1').is.truthy.matches()).to.be.true;
+        expect(a1.when.valueInEncounter('b1').is.truthy.matches()).to.be.false;
     });
 
     it('whenItem checks for a constant value. to match', () => {

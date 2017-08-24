@@ -20,6 +20,10 @@ export default class RuleCondition {
         return enrolment.findObservationInEntireEnrolment(concept);
     }
 
+    _getEnrolment(context) {
+        return context.programEnrolment || context.programEncounter.programEnrolment;
+    }
+
     get is() {
         return this._noop();
     }
@@ -65,22 +69,44 @@ export default class RuleCondition {
 
     get filledAtleastOnceInEntireEnrolment() {
         return this._addToChain((next, context) => {
-            context.matches = this._obsFromEntireEnrolment(context.programEnrolment, context.conceptName) ? true : false;
+            context.matches = this._obsFromEntireEnrolment(this._getEnrolment(context), context.conceptName) ? true : false;
             return next(context);
         })
     }
 
     valueInEntireEnrolment(conceptName) {
         return this._addToChain((next, context) => {
-            const obs = this._obsFromEntireEnrolment(context.programEnrolment, conceptName);
+            const obs = this._obsFromEntireEnrolment(this._getEnrolment(context), conceptName);
             context.valueToBeChecked = obs && obs.getValue();
             return next(context);
+        });
+    }
+
+    valueInEncounter(conceptName) {
+        return this._addToChain((next, context) => {
+           const obs = context.programEncounter.findObservation(conceptName);
+           context.valueToBeChecked = obs && obs.getValue();
+           return next(context);
         });
     }
 
     equals(value) {
         return this._addToChain((next, context) => {
             context.matches = context.valueToBeChecked === value;
+            return next(context);
+        });
+    }
+
+    matchesFn(fn) {
+        return this._addToChain((next, context) => {
+           context.matches = fn(context.valueToBeChecked)? true: false;
+           return next(context);
+        });
+    }
+
+    get truthy() {
+        return this._addToChain((next, context) => {
+            context.matches = context.valueToBeChecked ? true: false;
             return next(context);
         });
     }
