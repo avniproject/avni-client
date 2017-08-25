@@ -43,15 +43,31 @@ describe('FormElementGroupTest', () => {
         formElementGroup.addFormElement(EntityFactory.createFormElement('three', false, EntityFactory.createConcept('three', Concept.dataType.Numeric), 3));
         formElementGroup.addFormElement(EntityFactory.createFormElement('four', false, EntityFactory.createConcept('four', Concept.dataType.Numeric), 4));
 
+        const concept = EntityFactory.createConcept("foo", Concept.dataType.Date);
+        const programEnrolment = EntityFactory.createProgramEnrolment({enrolmentDateTime: new Date(2016, 11, 30)});
+
         const observationRules = [];
         observationRules.push(ObservationRule.create("one", {allowedOccurrences: 1, validTill: 12, validityBasedOn: 'foo'}));
-        observationRules.push(ObservationRule.create("two", {}));
-        observationRules.push(ObservationRule.create("three", {validFrom: 21}));
-        observationRules.push(ObservationRule.create("four", {allowedOccurrences: 1}));
+        observationRules.push(ObservationRule.create("two", {validityBasedOn: 'foo'}));
+        observationRules.push(ObservationRule.create("three", {validFrom: 21, validityBasedOn: 'foo'}));
+        observationRules.push(ObservationRule.create("four", {allowedOccurrences: 1, validityBasedOn: 'foo'}));
 
-        const concept = EntityFactory.createConcept("foo", Concept.dataType.Date);
-        const programEncounter = EntityFactory.createProgramEncounter({programEnrolment: EntityFactory.createProgramEnrolment({enrolmentDateTime: new Date(2016, 11, 30)}), encounterDateTime: new Date(2017, 0, 10),observations: [EntityFactory.createObservation(concept, new Date(2017, 0, 0))]});
-        const applicableFormElements = formElementGroup.getApplicableFormElements(programEncounter, observationRules);
-        expect(applicableFormElements.length).is.equal(3);
+        let getApplicableFormElementFor = function ({baseObservation = null, encounterDate = null}) {
+            let programEncounter = EntityFactory.createProgramEncounter({
+                programEnrolment: programEnrolment,
+                encounterDateTime: encounterDate,
+                observations: [EntityFactory.createObservation(concept, baseObservation)]
+            });
+            return formElementGroup.getApplicableFormElements(programEncounter, observationRules);
+        };
+
+        let applicableFormElements = getApplicableFormElementFor({baseObservation: new Date(2017, 0, 0), encounterDate: new Date(2017, 0, 10)});
+        expect(applicableFormElements.length).is.equal(1 + 1 + 0 + 1);
+
+        applicableFormElements = getApplicableFormElementFor({baseObservation: new Date(2017, 0, 0), encounterDate: new Date(2017, 3, 10)});
+        expect(applicableFormElements.length).is.equal(0 + 1 + 0 + 1);
+
+        applicableFormElements = getApplicableFormElementFor({baseObservation: new Date(2017, 0, 0), encounterDate: new Date(2017, 6, 10)});
+        expect(applicableFormElements.length).is.equal(0 + 1 + 1 + 1);
     });
 });

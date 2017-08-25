@@ -117,7 +117,7 @@ class ProgramEncounter extends AbstractEncounter {
             if (obsRule.expectedNumberOfOccurrences === 1 && !_.isNil(observation))
                 return false;
 
-            if (numberOfWeeksSinceEnrolment < obsRule.validFrom || numberOfWeeksSinceEnrolment > obsRule.validTill)
+            if (numberOfWeeksSince < obsRule.validFrom || numberOfWeeksSince > obsRule.validTill)
                 return false;
         }
 

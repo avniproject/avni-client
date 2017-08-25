@@ -66,7 +66,7 @@ class MenuView extends AbstractComponent {
     }
 
     _onError(error) {
-        General.logError(this.viewName(), `Error happened during sync: ${error}`);
+        General.logError(this.viewName(), `Error happened during sync: ${JSON.stringify(error)}`);
         this.setState({syncing: false});
         Alert.alert("Sync Failed", error.message, [{
                 text: 'Try Again',

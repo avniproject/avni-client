@@ -17,6 +17,7 @@ import ValidationResult from "../../models/application/ValidationResult";
 import DurationDateFormElement from "./DurationDateFormElement";
 import Duration from "../../models/Duration";
 import Styles from "../primitives/Styles";
+import General from "../../utility/General";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -43,6 +44,7 @@ class FormElementGroup extends AbstractComponent {
                     <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>}
                 {
                     formElements.map((formElement, idx) => {
+                        General.logDebugObject('FormElementGroup', formElement);
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement

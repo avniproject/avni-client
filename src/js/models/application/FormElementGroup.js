@@ -1,10 +1,9 @@
-import General from '../../utility/General';
+import General from "../../utility/General";
 import ResourceUtil from "../../utility/ResourceUtil";
-import Form from './Form';
-import BaseEntity from '../BaseEntity';
+import Form from "./Form";
+import BaseEntity from "../BaseEntity";
 import FormElement from "./FormElement";
-import _ from 'lodash';
-import ObservationRule from '../observation/ObservationRule';
+import _ from "lodash";
 
 class FormElementGroup {
     static schema = {
@@ -76,7 +75,11 @@ class FormElementGroup {
     }
 
     getFormElements() {
-        return _.sortBy(this.formElements, (formElement) => formElement.displayOrder);
+        return FormElementGroup._sortedFormElements(this.formElements);
+    }
+
+    static _sortedFormElements(list) {
+        return _.sortBy(list, (formElement) => formElement.displayOrder);
     }
 
     get translatedFieldValue() {
@@ -84,7 +87,7 @@ class FormElementGroup {
     }
 
     getApplicableFormElements(programEncounter, observationRules) {
-        if (_.isNil(programEncounter.encounterDateTime)) return this.formElements;
+        if (_.isNil(programEncounter.encounterDateTime)) return this.getFormElements();
 
         const applicableFormElements = [];
         let numberOfWeeksSinceEnrolment = programEncounter.numberOfWeeksSinceEnrolment;
@@ -93,7 +96,18 @@ class FormElementGroup {
             if (programEncounter.isObservationAllowed(observationRules, this.formElements[i].concept, numberOfWeeksSinceEnrolment))
                 applicableFormElements.push(this.formElements[i]);
         }
-        return applicableFormElements;
+        return FormElementGroup._sortedFormElements(applicableFormElements);
+    }
+
+    toJSON() {
+        return {
+            uuid: this.uuid,
+            name: this.name,
+            displayOrder: this.displayOrder,
+            display: this.display,
+            formElements: this.formElements,
+            formUUID: this.form.uuid
+        }
     }
 }
 

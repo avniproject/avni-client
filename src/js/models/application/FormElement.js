@@ -114,6 +114,20 @@ class FormElement {
         const durationOptions = this.recordByKey('durationOptions');
         return _.isNil(durationOptions) ? null : durationOptions.getValue();
     }
+
+    toJSON() {
+        return {
+            uuid: this.uuid,
+            name: this.name,
+            displayOrder: this.displayOrder,
+            mandatory: this.mandatory,
+            keyValues: this.keyValues,
+            concept: this.concept,
+            usedInSummary: this.usedInSummary,
+            generated: this.generated,
+            formElementGroupUUID: this.formElementGroup.uuid
+        };
+    }
 }
 
 export default FormElement;
