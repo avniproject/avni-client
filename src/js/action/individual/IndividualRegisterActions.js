@@ -19,7 +19,9 @@ export class IndividualRegisterActions {
     static onLoad(state, action, context) {
         const individual = _.isNil(action.individualUUID) ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
-        return IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
+        const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
+        IndividualRegisterActions.setAgeState(newState);
+        return newState;
     }
 
     static enterRegistrationDate(state, action) {
@@ -39,11 +41,14 @@ export class IndividualRegisterActions {
     static enterIndividualDOB(state, action) {
         const newState = state.clone();
         newState.individual.setDateOfBirth(action.value);
-        newState.age = newState.individual.getAge().durationValueAsString;
-        newState.ageProvidedInYears = newState.individual.getAge().isInYears;
-
+        IndividualRegisterActions.setAgeState(newState);
         newState.handleValidationResult(newState.individual.validateDateOfBirth());
         return newState;
+    }
+
+    static setAgeState(state) {
+        state.age = state.individual.getAge().durationValueAsString;
+        state.ageProvidedInYears = state.individual.getAge().isInYears;
     }
 
     static enterIndividualDOBVerified(state, action) {
