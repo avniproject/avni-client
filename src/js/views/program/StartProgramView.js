@@ -49,7 +49,8 @@ class StartProgramView extends AbstractComponent {
             return (
                 <View style={{
                     paddingHorizontal: Styles.ContentDistanceFromEdge,
-                    paddingBottom: Styles.VerticalSpacingBetweenFormElements,
+                    paddingVertical: Styles.VerticalSpacingBetweenOptionItems,
+                    marginVertical: Styles.VerticalSpacingBetweenFormElements,
                     backgroundColor: '#ffffff',
                     borderWidth: 1,
                     borderStyle: 'dashed',
