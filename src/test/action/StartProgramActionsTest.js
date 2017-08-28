@@ -130,4 +130,13 @@ describe("ProgramActions", () => {
             expect(state.selectedEncounter.encounterType.uuid).to.equal(encounterTypeSelected);
         });
     });
+
+    describe("Utility functions", () => {
+       it("asDisplayDate formats dates in the right display format", () => {
+           const encounter =  ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment);
+           encounter.name = "ANC 1";
+           encounter.scheduledDateTime = moment("1995-12-25");
+           expect(Actions.displayLabel(encounter)).to.equal("ANC 1 (25-Dec-1995)");
+       });
+    });
 });

@@ -3,6 +3,7 @@ import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
 import moment from "moment";
 import ProgramEncounter from "../../models/ProgramEncounter";
+import General from "../../utility/General";
 
 class StartProgramActions {
     static clone(state) {
@@ -11,7 +12,7 @@ class StartProgramActions {
             encounters: _.map(state.encounters, (encounter) => {
                 return {
                     key: encounter.key,
-                    label: encounter.name,
+                    label: StartProgramActions.displayLabel(encounter),
                     data: encounter.data,
                     selected: encounter.selected
                 };
@@ -27,6 +28,12 @@ class StartProgramActions {
             }),
             selectedEncounter: state.selectedEncounter
         }
+    }
+
+    static displayLabel(encounter) {
+        const encounterName = encounter.name || '';
+        const displayDate = encounter.scheduledDateTime && `(${General.toDisplayDate(encounter.scheduledDateTime)})` || '';
+        return `${encounterName} ${displayDate}`;
     }
 
     static getInitialState() {
@@ -62,7 +69,7 @@ class StartProgramActions {
         newState.enrolment = enrolment;
         newState.encounters = _.chain(enrolment.scheduledEncounters())
                 .sortBy('scheduledDateTime')
-                .map((encounter, index) => {return {key: encounter.uuid, label: encounter.name,
+                .map((encounter, index) => {return {key: encounter.uuid, label: StartProgramActions.displayLabel(encounter),
                     data: encounter, selected: index === 0}})
             .value();
 

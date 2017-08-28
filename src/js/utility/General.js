@@ -95,6 +95,10 @@ class General {
         return str;
     }
 
+    static toDisplayDate(date) {
+        return moment(date).format('DD-MMM-YYYY');
+    }
+
     static assignDateFields(dateFields, source, dest) {
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {
