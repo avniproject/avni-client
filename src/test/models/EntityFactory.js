@@ -5,7 +5,6 @@ import _ from 'lodash';
 import Concept from "../../js/models/Concept";
 import Program from "../../js/models/Program";
 import General from '../../js/utility/General';
-import IndividualSearchCriteria from "../../js/service/query/IndividualSearchCriteria";
 import ChecklistItem from "../../js/models/ChecklistItem";
 import Observation from "../../js/models/Observation";
 import PrimitiveValue from "../../js/models/observation/PrimitiveValue";
@@ -62,14 +61,6 @@ class EntityFactory {
         if (dataType === Concept.dataType.Coded)
             concept.answers = [];
         return concept;
-    }
-
-    static createIndividualSearchCriteria(name, age, lowestAddressLevels) {
-        const individualSearchCriteria = IndividualSearchCriteria.empty();
-        individualSearchCriteria.name = name;
-        individualSearchCriteria.ageInYears = age;
-        individualSearchCriteria.lowestAddressLevels = lowestAddressLevels;
-        return individualSearchCriteria;
     }
 
     static addChecklistItem(checklist, name, dueDate) {
