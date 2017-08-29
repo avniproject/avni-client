@@ -44,7 +44,6 @@ class FormElementGroup extends AbstractComponent {
                     <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>}
                 {
                     formElements.map((formElement, idx) => {
-                        General.logDebugObject('FormElementGroup', formElement);
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
