@@ -11,16 +11,17 @@ install: ansible_check
 	ansible-playbook setup/dev.yml -i setup/local
 
 run-android:
+	cd packages/openchs-android
 	react-native run-android
 
 run-packager:
-	REACT_EDITOR=subl npm start --reset-cache
+	REACT_EDITOR=subl npm start
 
 deps:
-	npm install
+	lerna bootstrap
 
 test:
-	npm test
+	lerna run test
 
 tests:
 	make test
