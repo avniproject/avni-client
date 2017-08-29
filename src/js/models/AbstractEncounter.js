@@ -50,6 +50,10 @@ class AbstractEncounter extends BaseEntity {
     findObservation(conceptName) {
         return _.find(this.observations, (observation) => observation.concept.name === conceptName);
     }
+
+    addObservation(obs) {
+        this.observations.push(obs);
+    }
 }
 
 export default AbstractEncounter;
