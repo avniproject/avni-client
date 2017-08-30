@@ -1,5 +1,5 @@
 {
-  "name": "OpenCHSClient",
+  "name": "openchs-models",
   "version": "0.0.1",
   "private": false,
   "repository": {
@@ -7,29 +7,21 @@
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
   "jest": {
-    "preset": "react-native",
     "testMatch": [
-      "<rootDir>/packages/**/test/**/*Test.js"
+      "<rootDir>/test/**/*Test.js"
     ],
     "transformIgnorePatterns": [
       "node_modules/(?!react-native|OpenCHSClient)/"
-    ],
-    "haste": {
-      "defaultPlatform": "android",
-      "platforms": [
-        "android",
-        "ios"
-      ],
-      "providesModuleNodeModules": [
-        "react",
-        "react-native"
-      ]
-    }
+    ]
   },
   "license": "AGPL-3.0",
   "scripts": {
     "test": "jest",
-    "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')"
+    "coverage": "istanbul cover --report lcov _mocha --require $(find ./src/test -name '*Test.js')"
+  },
+  "dependencies": {
+    "lodash": "^4.12.0",
+    "moment": "^2.18.1"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",
@@ -38,7 +30,6 @@
     "chai": "3.5.0",
     "enzyme": "^2.4.1",
     "jest": "20.0.1",
-    "lerna": "^2.1.1",
     "react-addons-test-utils": "15.4.1",
     "react-dom": "15.4.2",
     "react-test-renderer": "15.4.2"

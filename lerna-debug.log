@@ -1,0 +1,648 @@
+0 silly input []
+1 silly flags { _: [ 'bootstrap' ], args: [] }
+2 verbose rootPath /Users/vinay/code/sf/openchs-client
+3 info version 2.1.1
+4 silly existsSync /Users/vinay/code/sf/openchs-client/VERSION
+5 silly initialize attempt
+6 silly initialize success
+7 silly execute attempt
+8 info Bootstrapping 2 packages
+9 info lifecycle preinstall
+10 silly runScript preinstall openchs-models
+11 silly openchs-models
+12 silly runScript preinstall openchs-core
+13 silly openchs-core
+14 silly hasMatchingDependency openchs-core openchs-models
+15 silly hasDependencyInstalled openchs-core babel-jest
+16 silly dependencyIsSatisfied [ 'babel-jest',
+16 silly dependencyIsSatisfied   '20.0.1',
+16 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+17 verbose dependencyIsSatisfied babel-jest false
+18 silly hasDependencyInstalled openchs-models babel-jest
+19 silly dependencyIsSatisfied [ 'babel-jest',
+19 silly dependencyIsSatisfied   '20.0.1',
+19 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+20 verbose dependencyIsSatisfied babel-jest false
+21 silly hasDependencyInstalled openchs-core babel-preset-react-native
+22 silly dependencyIsSatisfied [ 'babel-preset-react-native',
+22 silly dependencyIsSatisfied   '1.9.2',
+22 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+23 verbose dependencyIsSatisfied babel-preset-react-native false
+24 silly hasDependencyInstalled openchs-models babel-preset-react-native
+25 silly dependencyIsSatisfied [ 'babel-preset-react-native',
+25 silly dependencyIsSatisfied   '1.9.2',
+25 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+26 verbose dependencyIsSatisfied babel-preset-react-native false
+27 silly hasDependencyInstalled openchs-core babel-preset-react-native-stage-0
+28 silly dependencyIsSatisfied [ 'babel-preset-react-native-stage-0',
+28 silly dependencyIsSatisfied   '1.0.1',
+28 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+29 verbose dependencyIsSatisfied babel-preset-react-native-stage-0 false
+30 silly hasDependencyInstalled openchs-models babel-preset-react-native-stage-0
+31 silly dependencyIsSatisfied [ 'babel-preset-react-native-stage-0',
+31 silly dependencyIsSatisfied   '1.0.1',
+31 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+32 verbose dependencyIsSatisfied babel-preset-react-native-stage-0 false
+33 silly hasDependencyInstalled openchs-core chai
+34 silly dependencyIsSatisfied [ 'chai',
+34 silly dependencyIsSatisfied   '3.5.0',
+34 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+35 verbose dependencyIsSatisfied chai false
+36 silly hasDependencyInstalled openchs-models chai
+37 silly dependencyIsSatisfied [ 'chai',
+37 silly dependencyIsSatisfied   '3.5.0',
+37 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+38 verbose dependencyIsSatisfied chai false
+39 silly hasDependencyInstalled openchs-core enzyme
+40 silly dependencyIsSatisfied [ 'enzyme',
+40 silly dependencyIsSatisfied   '^2.4.1',
+40 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+41 verbose dependencyIsSatisfied enzyme false
+42 silly hasDependencyInstalled openchs-models enzyme
+43 silly dependencyIsSatisfied [ 'enzyme',
+43 silly dependencyIsSatisfied   '^2.4.1',
+43 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+44 verbose dependencyIsSatisfied enzyme false
+45 silly hasDependencyInstalled openchs-core jest
+46 silly dependencyIsSatisfied [ 'jest',
+46 silly dependencyIsSatisfied   '20.0.1',
+46 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+47 verbose dependencyIsSatisfied jest false
+48 silly hasDependencyInstalled openchs-models jest
+49 silly dependencyIsSatisfied [ 'jest',
+49 silly dependencyIsSatisfied   '20.0.1',
+49 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+50 verbose dependencyIsSatisfied jest false
+51 silly hasDependencyInstalled openchs-core react-addons-test-utils
+52 silly dependencyIsSatisfied [ 'react-addons-test-utils',
+52 silly dependencyIsSatisfied   '15.4.1',
+52 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+53 verbose dependencyIsSatisfied react-addons-test-utils false
+54 silly hasDependencyInstalled openchs-models react-addons-test-utils
+55 silly dependencyIsSatisfied [ 'react-addons-test-utils',
+55 silly dependencyIsSatisfied   '15.4.1',
+55 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+56 verbose dependencyIsSatisfied react-addons-test-utils false
+57 silly hasDependencyInstalled openchs-core react-dom
+58 silly dependencyIsSatisfied [ 'react-dom',
+58 silly dependencyIsSatisfied   '15.4.2',
+58 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+59 verbose dependencyIsSatisfied react-dom false
+60 silly hasDependencyInstalled openchs-models react-dom
+61 silly dependencyIsSatisfied [ 'react-dom',
+61 silly dependencyIsSatisfied   '15.4.2',
+61 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+62 verbose dependencyIsSatisfied react-dom false
+63 silly hasDependencyInstalled openchs-core react-test-renderer
+64 silly dependencyIsSatisfied [ 'react-test-renderer',
+64 silly dependencyIsSatisfied   '15.4.2',
+64 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+65 verbose dependencyIsSatisfied react-test-renderer false
+66 silly hasDependencyInstalled openchs-models react-test-renderer
+67 silly dependencyIsSatisfied [ 'react-test-renderer',
+67 silly dependencyIsSatisfied   '15.4.2',
+67 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+68 verbose dependencyIsSatisfied react-test-renderer false
+69 silly hasDependencyInstalled openchs-core react
+70 silly dependencyIsSatisfied [ 'react',
+70 silly dependencyIsSatisfied   '15.4.2',
+70 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+71 verbose dependencyIsSatisfied react false
+72 silly hasDependencyInstalled openchs-core react-native
+73 silly dependencyIsSatisfied [ 'react-native',
+73 silly dependencyIsSatisfied   '0.42.3',
+73 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+74 verbose dependencyIsSatisfied react-native false
+75 silly hasDependencyInstalled openchs-core color
+76 silly dependencyIsSatisfied [ 'color',
+76 silly dependencyIsSatisfied   '^2.0.0',
+76 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+77 verbose dependencyIsSatisfied color false
+78 silly hasDependencyInstalled openchs-core immutable
+79 silly dependencyIsSatisfied [ 'immutable',
+79 silly dependencyIsSatisfied   '^3.8.1',
+79 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+80 verbose dependencyIsSatisfied immutable false
+81 silly hasDependencyInstalled openchs-core invariant
+82 silly dependencyIsSatisfied [ 'invariant',
+82 silly dependencyIsSatisfied   '2.2.2',
+82 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+83 verbose dependencyIsSatisfied invariant false
+84 silly hasDependencyInstalled openchs-core lodash
+85 silly dependencyIsSatisfied [ 'lodash',
+85 silly dependencyIsSatisfied   '^4.12.0',
+85 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+86 verbose dependencyIsSatisfied lodash false
+87 silly hasDependencyInstalled openchs-models lodash
+88 silly dependencyIsSatisfied [ 'lodash',
+88 silly dependencyIsSatisfied   '^4.12.0',
+88 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+89 verbose dependencyIsSatisfied lodash false
+90 silly hasDependencyInstalled openchs-core moment
+91 silly dependencyIsSatisfied [ 'moment',
+91 silly dependencyIsSatisfied   '^2.18.1',
+91 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+92 verbose dependencyIsSatisfied moment false
+93 silly hasDependencyInstalled openchs-models moment
+94 silly dependencyIsSatisfied [ 'moment',
+94 silly dependencyIsSatisfied   '^2.18.1',
+94 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/node_modules' ]
+95 verbose dependencyIsSatisfied moment false
+96 silly hasDependencyInstalled openchs-core native-base
+97 silly dependencyIsSatisfied [ 'native-base',
+97 silly dependencyIsSatisfied   '0.5.22',
+97 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+98 verbose dependencyIsSatisfied native-base false
+99 silly hasDependencyInstalled openchs-core react-native-animatable
+100 silly dependencyIsSatisfied [ 'react-native-animatable',
+100 silly dependencyIsSatisfied   '^1.2.3',
+100 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+101 verbose dependencyIsSatisfied react-native-animatable false
+102 silly hasDependencyInstalled openchs-core react-native-fabric
+103 silly dependencyIsSatisfied [ 'react-native-fabric',
+103 silly dependencyIsSatisfied   '^0.4.1',
+103 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+104 verbose dependencyIsSatisfied react-native-fabric false
+105 silly hasDependencyInstalled openchs-core react-native-fetch-blob
+106 silly dependencyIsSatisfied [ 'react-native-fetch-blob',
+106 silly dependencyIsSatisfied   '0.9.6',
+106 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+107 verbose dependencyIsSatisfied react-native-fetch-blob false
+108 silly hasDependencyInstalled openchs-core react-native-i18n
+109 silly dependencyIsSatisfied [ 'react-native-i18n',
+109 silly dependencyIsSatisfied   '0.1.1',
+109 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+110 verbose dependencyIsSatisfied react-native-i18n false
+111 silly hasDependencyInstalled openchs-core react-native-svg
+112 silly dependencyIsSatisfied [ 'react-native-svg',
+112 silly dependencyIsSatisfied   '5.1.5',
+112 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+113 verbose dependencyIsSatisfied react-native-svg false
+114 silly hasDependencyInstalled openchs-core react-native-vector-icons
+115 silly dependencyIsSatisfied [ 'react-native-vector-icons',
+115 silly dependencyIsSatisfied   '^4.0.0',
+115 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+116 verbose dependencyIsSatisfied react-native-vector-icons false
+117 silly hasDependencyInstalled openchs-core realm
+118 silly dependencyIsSatisfied [ 'realm',
+118 silly dependencyIsSatisfied   '1.2.0',
+118 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+119 verbose dependencyIsSatisfied realm false
+120 silly hasDependencyInstalled openchs-core redux
+121 silly dependencyIsSatisfied [ 'redux',
+121 silly dependencyIsSatisfied   '^3.6.0',
+121 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+122 verbose dependencyIsSatisfied redux false
+123 silly hasDependencyInstalled openchs-core transducers-js
+124 silly dependencyIsSatisfied [ 'transducers-js',
+124 silly dependencyIsSatisfied   '^0.4.174',
+124 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+125 verbose dependencyIsSatisfied transducers-js false
+126 silly hasDependencyInstalled openchs-core victory-native
+127 silly dependencyIsSatisfied [ 'victory-native',
+127 silly dependencyIsSatisfied   '0.8.1',
+127 silly dependencyIsSatisfied   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules' ]
+128 verbose dependencyIsSatisfied victory-native false
+129 silly root dependencies []
+130 silly leaf dependencies {
+130 silly leaf dependencies   "openchs-core": [
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "babel-jest@20.0.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "babel-preset-react-native@1.9.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "babel-preset-react-native-stage-0@1.0.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "chai@3.5.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "enzyme@^2.4.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "jest@20.0.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-addons-test-utils@15.4.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-dom@15.4.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-test-renderer@15.4.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react@15.4.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native@0.42.3",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "color@^2.0.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "immutable@^3.8.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "invariant@2.2.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "lodash@^4.12.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "moment@^2.18.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "native-base@0.5.22",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native-animatable@^1.2.3",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native-fabric@^0.4.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native-fetch-blob@0.9.6",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native-i18n@0.1.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native-svg@5.1.5",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-native-vector-icons@^4.0.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "realm@1.2.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "redux@^3.6.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "transducers-js@^0.4.174",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "victory-native@0.8.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     }
+130 silly leaf dependencies   ],
+130 silly leaf dependencies   "openchs-models": [
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "babel-jest@20.0.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "babel-preset-react-native@1.9.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "babel-preset-react-native-stage-0@1.0.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "chai@3.5.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "enzyme@^2.4.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "jest@20.0.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-addons-test-utils@15.4.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-dom@15.4.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "react-test-renderer@15.4.2",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "lodash@^4.12.0",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     },
+130 silly leaf dependencies     {
+130 silly leaf dependencies       "dependency": "moment@^2.18.1",
+130 silly leaf dependencies       "isSatisfied": false
+130 silly leaf dependencies     }
+130 silly leaf dependencies   ]
+130 silly leaf dependencies }
+131 info Installing external dependencies
+132 verbose actions 2 actions, concurrency 4
+133 silly installInDir openchs-core [ 'babel-jest@20.0.1',
+133 silly installInDir   'babel-preset-react-native@1.9.2',
+133 silly installInDir   'babel-preset-react-native-stage-0@1.0.1',
+133 silly installInDir   'chai@3.5.0',
+133 silly installInDir   'enzyme@^2.4.1',
+133 silly installInDir   'jest@20.0.1',
+133 silly installInDir   'react-addons-test-utils@15.4.1',
+133 silly installInDir   'react-dom@15.4.2',
+133 silly installInDir   'react-test-renderer@15.4.2',
+133 silly installInDir   'react@15.4.2',
+133 silly installInDir   'react-native@0.42.3',
+133 silly installInDir   'color@^2.0.0',
+133 silly installInDir   'immutable@^3.8.1',
+133 silly installInDir   'invariant@2.2.2',
+133 silly installInDir   'lodash@^4.12.0',
+133 silly installInDir   'moment@^2.18.1',
+133 silly installInDir   'native-base@0.5.22',
+133 silly installInDir   'react-native-animatable@^1.2.3',
+133 silly installInDir   'react-native-fabric@^0.4.1',
+133 silly installInDir   'react-native-fetch-blob@0.9.6',
+133 silly installInDir   'react-native-i18n@0.1.1',
+133 silly installInDir   'react-native-svg@5.1.5',
+133 silly installInDir   'react-native-vector-icons@^4.0.0',
+133 silly installInDir   'realm@1.2.0',
+133 silly installInDir   'redux@^3.6.0',
+133 silly installInDir   'transducers-js@^0.4.174',
+133 silly installInDir   'victory-native@0.8.1' ]
+134 silly installInDir backup /Users/vinay/code/sf/openchs-client/packages/openchs-core/package.json
+135 silly rename [ '/Users/vinay/code/sf/openchs-client/packages/openchs-core/package.json',
+135 silly rename   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/package.json.lerna_backup' ]
+136 silly installInDir openchs-models [ 'babel-jest@20.0.1',
+136 silly installInDir   'babel-preset-react-native@1.9.2',
+136 silly installInDir   'babel-preset-react-native-stage-0@1.0.1',
+136 silly installInDir   'chai@3.5.0',
+136 silly installInDir   'enzyme@^2.4.1',
+136 silly installInDir   'jest@20.0.1',
+136 silly installInDir   'react-addons-test-utils@15.4.1',
+136 silly installInDir   'react-dom@15.4.2',
+136 silly installInDir   'react-test-renderer@15.4.2',
+136 silly installInDir   'lodash@^4.12.0',
+136 silly installInDir   'moment@^2.18.1' ]
+137 silly installInDir backup /Users/vinay/code/sf/openchs-client/packages/openchs-models/package.json
+138 silly rename [ '/Users/vinay/code/sf/openchs-client/packages/openchs-models/package.json',
+138 silly rename   '/Users/vinay/code/sf/openchs-client/packages/openchs-models/package.json.lerna_backup' ]
+139 silly installInDir writing tempJson { dependencies:
+139 silly installInDir    { 'babel-jest': '20.0.1',
+139 silly installInDir      'babel-preset-react-native': '1.9.2',
+139 silly installInDir      'babel-preset-react-native-stage-0': '1.0.1',
+139 silly installInDir      chai: '3.5.0',
+139 silly installInDir      enzyme: '^2.4.1',
+139 silly installInDir      jest: '20.0.1',
+139 silly installInDir      'react-addons-test-utils': '15.4.1',
+139 silly installInDir      'react-dom': '15.4.2',
+139 silly installInDir      'react-test-renderer': '15.4.2',
+139 silly installInDir      react: '15.4.2',
+139 silly installInDir      'react-native': '0.42.3',
+139 silly installInDir      color: '^2.0.0',
+139 silly installInDir      immutable: '^3.8.1',
+139 silly installInDir      invariant: '2.2.2',
+139 silly installInDir      lodash: '^4.12.0',
+139 silly installInDir      moment: '^2.18.1',
+139 silly installInDir      'native-base': '0.5.22',
+139 silly installInDir      'react-native-animatable': '^1.2.3',
+139 silly installInDir      'react-native-fabric': '^0.4.1',
+139 silly installInDir      'react-native-fetch-blob': '0.9.6',
+139 silly installInDir      'react-native-i18n': '0.1.1',
+139 silly installInDir      'react-native-svg': '5.1.5',
+139 silly installInDir      'react-native-vector-icons': '^4.0.0',
+139 silly installInDir      realm: '1.2.0',
+139 silly installInDir      redux: '^3.6.0',
+139 silly installInDir      'transducers-js': '^0.4.174',
+139 silly installInDir      'victory-native': '0.8.1' } }
+140 silly installInDir writing tempJson { dependencies:
+140 silly installInDir    { 'babel-jest': '20.0.1',
+140 silly installInDir      'babel-preset-react-native': '1.9.2',
+140 silly installInDir      'babel-preset-react-native-stage-0': '1.0.1',
+140 silly installInDir      chai: '3.5.0',
+140 silly installInDir      enzyme: '^2.4.1',
+140 silly installInDir      jest: '20.0.1',
+140 silly installInDir      'react-addons-test-utils': '15.4.1',
+140 silly installInDir      'react-dom': '15.4.2',
+140 silly installInDir      'react-test-renderer': '15.4.2',
+140 silly installInDir      lodash: '^4.12.0',
+140 silly installInDir      moment: '^2.18.1' } }
+141 silly getExecOpts { cwd: '/Users/vinay/code/sf/openchs-client/packages/openchs-models' }
+142 silly installInDir [ 'npm', [ 'install' ] ]
+143 silly getExecOpts { cwd: '/Users/vinay/code/sf/openchs-client/packages/openchs-core' }
+144 silly installInDir [ 'npm', [ 'install' ] ]
+145 silly installInDir cleanup /Users/vinay/code/sf/openchs-client/packages/openchs-core/package.json
+146 silly renameSync [ '/Users/vinay/code/sf/openchs-client/packages/openchs-core/package.json.lerna_backup',
+146 silly renameSync   '/Users/vinay/code/sf/openchs-client/packages/openchs-core/package.json' ]
+147 verbose installed leaf openchs-core
+148 error execute Error: Command failed: npm install
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/set-blocking
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/setimmediate
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/shellwords
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/slash
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sntp
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map-support
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-correct
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-expression-parse
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-license-ids
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sprintf-js
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules/assert-plus
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-length
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-width
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string_decoder
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/stringstream
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-ansi
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-bom
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/supports-color
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/symbol-tree
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/test-exclude
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/throat
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tmpl
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/to-fast-properties
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tough-cookie
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tr46
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/trim-right
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tunnel-agent
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tweetnacl
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-check
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-detect
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/ua-parser-js
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules/yargs
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-to-browserify
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/util-deprecate
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uuid
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/validate-npm-package-license
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules/assert-plus
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/walker
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/watch
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/webidl-conversions
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules/iconv-lite
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-fetch
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules/webidl-conversions
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which-module
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/window-size
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wordwrap
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/worker-farm
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrap-ansi
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrappy
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xml-name-validator
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xtend
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/y18n
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules/camelcase
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules/camelcase
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules
+148 error execute npm WARN openchs-core No description
+148 error execute npm WARN openchs-core No repository field.
+148 error execute npm WARN openchs-core No license field.
+148 error execute
+148 error execute npm ERR! path /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver
+148 error execute npm ERR! code ENOENT
+148 error execute npm ERR! errno -2
+148 error execute npm ERR! syscall access
+148 error execute npm ERR! enoent ENOENT: no such file or directory, access '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver'
+148 error execute npm ERR! enoent This is related to npm not being able to find a file.
+148 error execute npm ERR! enoent
+148 error execute
+148 error execute npm ERR! A complete log of this run can be found in:
+148 error execute npm ERR!     /Users/vinay/.npm/_logs/2017-08-29T12_03_54_574Z-debug.log
+148 error execute
+148 error execute     at Promise.all.then.arr (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:236:11)
+148 error execute     at <anonymous>
+148 error execute     at process._tickCallback (internal/process/next_tick.js:169:7)
+148 error execute  callback with error
+148 error execute  { Error: Command failed: npm install
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/set-blocking
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/setimmediate
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/shellwords
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/slash
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sntp
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map-support
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-correct
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-expression-parse
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-license-ids
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sprintf-js
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules/assert-plus
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-length
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-width
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string_decoder
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/stringstream
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-ansi
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-bom
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/supports-color
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/symbol-tree
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/test-exclude
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/throat
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tmpl
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/to-fast-properties
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tough-cookie
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tr46
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/trim-right
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tunnel-agent
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tweetnacl
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-check
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-detect
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/ua-parser-js
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules/yargs
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-to-browserify
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/util-deprecate
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uuid
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/validate-npm-package-license
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules/assert-plus
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/walker
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/watch
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/webidl-conversions
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules/iconv-lite
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-fetch
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules/webidl-conversions
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which-module
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/window-size
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wordwrap
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/worker-farm
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrap-ansi
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrappy
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xml-name-validator
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xtend
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/y18n
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules/camelcase
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules/camelcase
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules
+148 error execute npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules
+148 error execute npm WARN openchs-core No description
+148 error execute npm WARN openchs-core No repository field.
+148 error execute npm WARN openchs-core No license field.
+148 error execute
+148 error execute npm ERR! path /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver
+148 error execute npm ERR! code ENOENT
+148 error execute npm ERR! errno -2
+148 error execute npm ERR! syscall access
+148 error execute npm ERR! enoent ENOENT: no such file or directory, access '/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver'
+148 error execute npm ERR! enoent This is related to npm not being able to find a file.
+148 error execute npm ERR! enoent
+148 error execute
+148 error execute npm ERR! A complete log of this run can be found in:
+148 error execute npm ERR!     /Users/vinay/.npm/_logs/2017-08-29T12_03_54_574Z-debug.log
+148 error execute
+148 error execute     at Promise.all.then.arr (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:236:11)
+148 error execute     at <anonymous>
+148 error execute     at process._tickCallback (internal/process/next_tick.js:169:7)
+148 error execute   stack: 'Error: Command failed: npm install\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/set-blocking\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/setimmediate\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/shellwords\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/slash\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sntp\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map-support\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-correct\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-expression-parse\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-license-ids\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sprintf-js\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules/assert-plus\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-length\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-width\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string_decoder\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/stringstream\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-ansi\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-bom\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/supports-color\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/symbol-tree\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/test-exclude\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/throat\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tmpl\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/to-fast-properties\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tough-cookie\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tr46\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/trim-right\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tunnel-agent\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tweetnacl\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-check\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-detect\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/ua-parser-js\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules/yargs\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-to-browserify\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/util-deprecate\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uuid\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/validate-npm-package-license\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules/assert-plus\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/walker\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/watch\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/webidl-conversions\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules/iconv-lite\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-fetch\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules/webidl-conversions\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which-module\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/window-size\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wordwrap\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/worker-farm\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrap-ansi\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrappy\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xml-name-validator\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xtend\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/y18n\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules/camelcase\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules/camelcase\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules\nnpm WARN openchs-core No description\nnpm WARN openchs-core No repository field.\nnpm WARN openchs-core No license field.\n\nnpm ERR! path /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver\nnpm ERR! code ENOENT\nnpm ERR! errno -2\nnpm ERR! syscall access\nnpm ERR! enoent ENOENT: no such file or directory, access \'/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver\'\nnpm ERR! enoent This is related to npm not being able to find a file.\nnpm ERR! enoent \n\nnpm ERR! A complete log of this run can be found in:\nnpm ERR!     /Users/vinay/.npm/_logs/2017-08-29T12_03_54_574Z-debug.log\n\n    at Promise.all.then.arr (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:236:11)\n    at <anonymous>\n    at process._tickCallback (internal/process/next_tick.js:169:7)',
+148 error execute   code: 254,
+148 error execute   killed: false,
+148 error execute   stdout: '',
+148 error execute   stderr: 'npm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/set-blocking\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/setimmediate\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/shellwords\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/slash\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sntp\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/source-map-support\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-correct\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-expression-parse\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/spdx-license-ids\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sprintf-js\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules/assert-plus\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-length\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string-width\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/string_decoder\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/stringstream\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-ansi\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/strip-bom\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/supports-color\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/symbol-tree\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/test-exclude\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/throat\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tmpl\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/to-fast-properties\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tough-cookie\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tr46\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/trim-right\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tunnel-agent\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/tweetnacl\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-check\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/type-detect\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/ua-parser-js\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules/yargs\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-to-browserify\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/util-deprecate\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uuid\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/validate-npm-package-license\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules/assert-plus\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/walker\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/watch\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/webidl-conversions\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules/iconv-lite\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-fetch\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules/webidl-conversions\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/which-module\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/window-size\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wordwrap\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/worker-farm\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrap-ansi\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/wrappy\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xml-name-validator\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/xtend\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/y18n\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules/camelcase\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules/camelcase\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/sshpk/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/uglify-js/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/verror/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-encoding/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/whatwg-url/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs-parser/node_modules\nnpm WARN checkPermissions Missing write access to /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/yargs/node_modules\nnpm WARN openchs-core No description\nnpm WARN openchs-core No repository field.\nnpm WARN openchs-core No license field.\n\nnpm ERR! path /Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver\nnpm ERR! code ENOENT\nnpm ERR! errno -2\nnpm ERR! syscall access\nnpm ERR! enoent ENOENT: no such file or directory, access \'/Users/vinay/code/sf/openchs-client/packages/openchs-core/node_modules/openchs-models/node_modules/semver\'\nnpm ERR! enoent This is related to npm not being able to find a file.\nnpm ERR! enoent \n\nnpm ERR! A complete log of this run can be found in:\nnpm ERR!     /Users/vinay/.npm/_logs/2017-08-29T12_03_54_574Z-debug.log\n',
+148 error execute   failed: true,
+148 error execute   signal: null,
+148 error execute   cmd: 'npm install',
+148 error execute   timedOut: false }

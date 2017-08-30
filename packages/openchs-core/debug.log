@@ -1,0 +1,209 @@
+{
+    "version": "4.7.0",
+    "log_level": "debug"
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:20,987: [client=0x7fdc6d9756f0:stm=0x7fdc6d973fc0] dispatch_command: log-level (completed)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [notify /Users/vinay/code/sf/openchs-client/packages/openchs-core] fsevents: got /Users/vinay/code/sf/openchs-client/packages/openchs-core/debug.log 0x10100 ItemCreated ItemIsFile\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [notify /Users/vinay/code/sf/openchs-client/packages/openchs-core] add_pending: /Users/vinay/code/sf/openchs-client/packages/openchs-core/debug.log VIA_NOTIFY\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=true)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] processing 1 events in /Users/vinay/code/sf/openchs-client/packages/openchs-core\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] w_lstat(/Users/vinay/code/sf/openchs-client/packages/openchs-core/debug.log) file=0x0 dir=0x0 res=0 Undefined error: 0\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] file changed exists=1 via_notify=1 stat-changed=0 isdir=0 /Users/vinay/code/sf/openchs-client/packages/openchs-core/debug.log\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=20ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=true)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,000: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=20ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1333 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] running subscription sane-sub rules since 1334\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] running subscription sane-sub 0x7fdc6bdb37e0\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] subscription sane-sub generated 0 results\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] last=1333  pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,024: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=40ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,069: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,069: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,069: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=80ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,154: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,154: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,154: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=160ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,318: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,318: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,318: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=320ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,642: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,642: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:21,642: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=640ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:22,284: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:22,284: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:22,284: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=1280ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:23,565: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:23,565: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:23,565: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=2560ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:26,130: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:26,130: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:26,130: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=5120ms\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:31,254: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core]  ... wake up (pinged=false)\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:31,254: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] client->stm=0x7fdc6dd35d00 sub=0x7fdc6bdb37e0 sane-sub, last=1335 pending=1335\n",
+    "unilateral": true
+}
+{
+    "version": "4.7.0",
+    "log": "2017-08-29T19:00:31,254: [io /Users/vinay/code/sf/openchs-client/packages/openchs-core] poll_events timeout=10240ms\n",
+    "unilateral": true
+}
