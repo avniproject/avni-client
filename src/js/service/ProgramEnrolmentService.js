@@ -38,7 +38,7 @@ class ProgramEnrolmentService extends BaseService {
 
     enrol(programEnrolment, checklists, nextScheduledVisits) {
         const db = this.db;
-        const entityQueueItems = [EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name)];
+        const entityQueueItems = [];
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);

@@ -38,6 +38,7 @@ let _getText = (endpoint, cb, errorHandler) => {
 
 let _post = (endpoint, file, cb, errorHandler) => {
     const params = makeRequest("json", {body: JSON.stringify(file)});
+    General.logDebug('Requests', `Posting to ${endpoint}`);
     return fetchFactory(endpoint, "POST", params)
         .then(cb)
         .catch(errorHandler);
