@@ -56,7 +56,3 @@ android/app/src/main/res/values/secrets.xml
 *.realm*
 android/app/src/main/res/values/com_crashlytics_export_strings.xml
 .java-version
-
-# lerna
-debug.log
-lerna-debug.log

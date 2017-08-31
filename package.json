@@ -6,11 +6,61 @@
     "type": "git",
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
-  "scripts": {
-    "start": "lerna run --stream start --scope openchs-android"
+  "jest": {
+    "preset": "react-native",
+    "testMatch": [
+      "<rootDir>/src/test/**/*Test.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-native|OpenCHSClient)/"
+    ],
+    "haste": {
+      "defaultPlatform": "android",
+      "platforms": [
+        "android",
+        "ios"
+      ],
+      "providesModuleNodeModules": [
+        "react",
+        "react-native"
+      ]
+    }
   },
   "license": "AGPL-3.0",
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest",
+    "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./src/test -name '*Test.js')"
+  },
+  "dependencies": {
+    "color": "^2.0.0",
+    "immutable": "^3.8.1",
+    "invariant": "2.2.2",
+    "lodash": "^4.12.0",
+    "moment": "^2.18.1",
+    "native-base": "0.5.22",
+    "react": "15.4.2",
+    "react-native": "0.42.3",
+    "react-native-animatable": "^1.2.3",
+    "react-native-fabric": "^0.4.1",
+    "react-native-fetch-blob": "0.9.6",
+    "react-native-i18n": "0.1.1",
+    "react-native-svg": "5.1.5",
+    "react-native-vector-icons": "^4.0.0",
+    "realm": "1.2.0",
+    "redux": "^3.6.0",
+    "transducers-js": "^0.4.174",
+    "victory-native": "0.8.1"
+  },
   "devDependencies": {
-    "lerna": "^2.1.2"
+    "babel-jest": "20.0.1",
+    "babel-preset-react-native": "1.9.2",
+    "jest": "20.0.1",
+    "react-addons-test-utils": "15.4.1",
+    "react-test-renderer": "15.4.2",
+    "chai": "3.5.0",
+    "enzyme": "^2.4.1",
+    "react-dom": "15.4.2",
+    "babel-preset-react-native-stage-0": "1.0.1"
   }
 }
