@@ -115,9 +115,11 @@ class Individual extends BaseEntity {
         }
     }
 
-    getAge() {
-        const ageInYears = this.getAgeInYears();
-        return ageInYears > 0 ? Duration.inYear(ageInYears) : Duration.inMonth(moment().diff(this.dateOfBirth, 'months'));
+    getAge(asOnDate) {
+        asOnDate = asOnDate || moment();
+        if (this.getAgeInYears(asOnDate) > 0) return Duration.inYear(this.getAgeInYears());
+        if (this.getAgeInMonths(asOnDate) > 0) return Duration.inMonth(asOnDate.diff(this.dateOfBirth, 'months'));
+        return Duration.inYear(0);
     }
 
     getAgeInMonths(asOnDate) {

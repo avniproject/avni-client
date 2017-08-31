@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import Individual from "../../js/models/Individual";
 import Program from "../../js/models/Program";
 import ProgramEnrolment from "../../js/models/ProgramEnrolment";
+import moment from "moment";
 
 let createProgram = function (uuid) {
     const program = new Program();
@@ -29,4 +30,26 @@ describe('IndividualTest', () => {
         individual.enrolments = [createEnrolment(enroledProgram)];
         expect(individual.eligiblePrograms(allPrograms).length).is.equal(2);
     });
+
+    describe("getAge", () => {
+        it ("sets years based on age of the individual", () => {
+            expect(new Individual().getAge().isInYears).to.be.true;
+
+
+            let individual = new Individual();
+            individual.dateOfBirth = moment().subtract(2, 'months');
+            expect(individual.getAge().isInYears).to.be.false;
+
+            individual = new Individual();
+            individual.dateOfBirth = moment().subtract(2, 'years');
+            expect(individual.getAge().isInYears).to.be.true;
+
+            //this is current behaviour because the place it is used in registering individuals does not have weeks.
+            individual = new Individual();
+            individual.dateOfBirth = moment().subtract(2, 'weeks');
+            expect(individual.getAge().isInYears).to.be.true;
+        });
+
+    });
+
 });
