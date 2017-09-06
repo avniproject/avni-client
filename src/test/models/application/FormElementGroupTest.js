@@ -46,7 +46,7 @@ describe('FormElementGroupTest', () => {
         formElementGroup.addFormElement(EntityFactory.createFormElement('four', false, concept4, 4));
 
         const concept = EntityFactory.createConcept("foo", Concept.dataType.Date);
-        const programEnrolment = EntityFactory.createProgramEnrolment({enrolmentDateTime: new Date(2017, 1, 0)});
+        const programEnrolment = EntityFactory.createEnrolment({enrolmentDateTime: new Date(2017, 1, 0)});
 
         const observationRules = [];
         observationRules.push(ObservationRule.create("one", {allowedOccurrences: 1, validTill: 12, validityBasedOn: 'foo'}));

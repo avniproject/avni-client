@@ -4,6 +4,7 @@ import moment from "moment";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import MultipleCodedValues from "./observation/MultipleCodedValues";
 import PrimitiveValue from "./observation/PrimitiveValue";
+import General from "../utility/General";
 
 class Observation {
     static schema = {

@@ -53,6 +53,10 @@ class MultipleCodedValues {
             return I18n.t(conceptService.getConceptByUUID(value).name);
         }), ', ');
     }
+
+    get numberOfAnswers() {
+        return this.answer.length;
+    }
 }
 
 export default MultipleCodedValues;

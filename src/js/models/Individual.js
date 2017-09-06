@@ -254,6 +254,19 @@ class Individual extends BaseEntity {
             this.enrolments.push(programEnrolment);
         }
     }
+
+    getPreviousEnrolment(programName, enrolmentUUID) {
+        const chronologicalEnrolments = this.chronologicalEnrolments;
+        let index = _.findIndex(chronologicalEnrolments, (enrolment) => enrolment.uuid === enrolmentUUID);
+        while (index > 0) {
+            if (chronologicalEnrolments[--index].program.name === programName) return chronologicalEnrolments[index];
+        }
+        return null;
+    }
+
+    get chronologicalEnrolments() {
+        return _.sortBy(this.enrolments, (enrolment) => enrolment.encounterDateTime);
+    }
 }
 
 export default Individual;

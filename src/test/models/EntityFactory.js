@@ -99,15 +99,23 @@ class EntityFactory {
         return programEncounter;
     }
 
-    static createProgramEnrolment({enrolmentDateTime = new Date()}) {
+    static createEnrolment({enrolmentDateTime = new Date(), program = null}) {
         const programEnrolment = ProgramEnrolment.createEmptyInstance();
         programEnrolment.enrolmentDateTime = enrolmentDateTime;
+        programEnrolment.program = program;
         return programEnrolment;
     }
 
     static createObservationRule() {
         return new ObservationRule();
     }
+
+    static createProgram = function ({uuid = General.randomUUID(), name = null}) {
+        const program = new Program();
+        program.uuid = uuid;
+        program.name = name;
+        return program;
+    };
 }
 
 export default EntityFactory;
