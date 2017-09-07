@@ -30,9 +30,10 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     render() {
+        const sortedEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.scheduledDateTime);
         return (
             <View>
-                {this.props.encounters.length === 0 ?
+                {sortedEncounters.length === 0 ?
                     (<View>
                         <View style={[DGS.common.content]}>
                             <Grid>
@@ -42,7 +43,7 @@ class PreviousEncounters extends AbstractComponent {
                             </Grid>
                         </View>
                     </View>)
-                    : this.props.encounters.map((encounter, index) => {
+                    : sortedEncounters.map((encounter, index) => {
                         const title = this.getTitle(encounter);
                         return (
                             <View key={`${index}-1`} style={this.props.style}>
