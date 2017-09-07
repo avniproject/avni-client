@@ -27,10 +27,10 @@ class ConventionalRestClient {
     }
 
     batchPostEntities(url, entities, onComplete, onError, popItemFn) {
-        const batchRequest = new BatchRequest();
-        entities.entities.map((entity) => batchRequest.post(url, entity.resource, () =>
+        const chainedRequest = new ChainedRequests();
+        entities.entities.map((entity) => chainedRequest.post(url, entity.resource, () =>
             popItemFn(entity.resource.uuid), onError));
-        batchRequest.fire(onComplete, onError);
+        chainedRequest.fire(onComplete, onError);
     }
 
     getAllForEntity(entityMetadata, persistFn, onComplete, onError) {
