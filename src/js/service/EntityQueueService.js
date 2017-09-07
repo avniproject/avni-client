@@ -18,10 +18,10 @@ class EntityQueueService extends BaseService {
 
 
     getAllQueuedItems(entityMetadata) {
-        const items = this.db.objects(EntityQueue.schema.name)
+        const items = _.uniqBy(this.db.objects(EntityQueue.schema.name)
             .filtered("entity = $0", entityMetadata.entityName)
             .sorted("savedAt")
-            .slice();
+            .slice(), 'entityUUID');
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
         return {
             metaData: entityMetadata,
