@@ -114,7 +114,8 @@ class ProgramEncounter extends AbstractEncounter {
         if (!_.isNil(obsRule)) {
             const numberOfWeeksSince = obsRule.validityBasedOn === ObservationRule.ENROLMENT_DATE_VALIDITY ? numberOfWeeksSinceEnrolment : this.numberOfWeeksSince(obsRule.validityBasedOn);
             const observation = this.programEnrolment.findObservationInEntireEnrolment(obsRule.conceptName);
-            if (obsRule.allowedOccurrences === 1 && !_.isNil(observation))
+            const observationFromCurrentEncounter = this.findObservation(obsRule.conceptName);
+            if (obsRule.allowedOccurrences === 1 && !_.isNil(observation) && _.isNil(observationFromCurrentEncounter))
                 return false;
 
             if (numberOfWeeksSince < obsRule.validFrom || numberOfWeeksSince > obsRule.validTill)

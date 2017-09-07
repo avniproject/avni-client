@@ -205,6 +205,10 @@ class ProgramEnrolment extends BaseEntity {
         return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime);
     }
 
+    addObservation(observation) {
+        this.observations.push(observation);
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

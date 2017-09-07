@@ -99,10 +99,11 @@ class EntityFactory {
         return programEncounter;
     }
 
-    static createEnrolment({enrolmentDateTime = new Date(), program = null}) {
+    static createEnrolment({enrolmentDateTime = new Date(), program = null, observations = []}) {
         const programEnrolment = ProgramEnrolment.createEmptyInstance();
         programEnrolment.enrolmentDateTime = enrolmentDateTime;
         programEnrolment.program = program;
+        programEnrolment.observations = observations;
         return programEnrolment;
     }
 
