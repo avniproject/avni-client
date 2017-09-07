@@ -142,7 +142,9 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     get lastFulfilledEncounter() {
-        return this.encounters.length > 1 ? this.encounters[this.encounters.length - 2] : null;
+        return _.chain(this.encounters)
+            .filter((encounter) => encounter.encounterDateTime)
+            .maxBy((encounter)=> encounter.encounterDateTime).value();
     }
 
     get isActive() {
