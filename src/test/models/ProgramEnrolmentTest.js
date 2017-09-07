@@ -28,7 +28,7 @@ describe('ProgramEnrolmentTest', () => {
     describe("lastFulfilledEncounter", () => {
 
         it("returns null if no encounters are present in enrolment", () => {
-            expect(ProgramEnrolment.createEmptyInstance().lastFulfilledEncounter).to.be.null;
+            expect(ProgramEnrolment.createEmptyInstance().lastFulfilledEncounter).to.be.undefined;
         });
 
         it("returns null if none of the encounters have an encounterDatetime", () => {
