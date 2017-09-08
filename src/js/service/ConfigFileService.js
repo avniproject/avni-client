@@ -55,20 +55,6 @@ class ConfigFileService extends BaseService {
         return _.isNil(configFile) ? null : JSON.parse(configFile.contents);
     }
 
-    _createFileHandlers() {
-        this.fileHandlers = {};
-        this.fileHandlers[`${this.encounterDecisionFile}`] = (response) => this.saveConfigFile(this.encounterDecisionFile, response);
-        this.fileHandlers[`${this.individualRegistrationFile}`] = (response) => this.saveConfigFile(this.individualRegistrationFile, response);
-        this.fileHandlers[`${this.programEnrolmentFile}`] = (response) => this.saveConfigFile(this.programEnrolmentFile, response);
-        this.fileHandlers[`${this.programEncounterFile}`] = (response) => this.saveConfigFile(this.programEncounterFile, response);
-        this.fileHandlers[`${this.programConfigFile}`] = (response) => this.saveConfigFile(this.programConfigFile, response);
-        this.fileHandlers[`${this.customMessageFile}`] = (response) => {
-            this.saveConfigFile(this.customMessageFile, response);
-            const messageService = this.getService(MessageService);
-            messageService.addTranslationsFrom(this.getCustomMessages());
-        }
-    }
-
     getAllFilesAndSave(cb, errorHandler) {
         const batchRequest = new BatchRequest();
         const configURL = `${this.getService(SettingsService).getSettings().serverURL}/ext`;
@@ -82,7 +68,7 @@ class ConfigFileService extends BaseService {
             const messageService = this.getService(MessageService);
             messageService.addTranslationsFrom(resp);
             messageService.addEnglishNameTranslations();
-        }));
+        }, errorHandler));
         batchRequest.fire(() => {
             cb();
             this.saveConfigFiles(configs);
