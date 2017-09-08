@@ -25,6 +25,8 @@ describe('ConceptServiceTest', () => {
         testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', ['a1', 'a2'])]);
         expect(observations.length).is.equal(2);
         expect(observations[1].getValueWrapper().getValue().length).is.equal(2);
+        testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', [])]);
+        expect(observations.length).is.equal(1);
     });
 });
 

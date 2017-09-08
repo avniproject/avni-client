@@ -65,7 +65,7 @@ class ConceptService extends BaseService {
                     observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
                 }
             } else {
-                if (_.isNil(decision.value)) {
+                if (_.isNil(decision.value) || _.isEmpty(decision.value)) {
                     _.remove(observations, (obs) => obs.concept.name === decision.name);
                 } else {
                     existingObs.valueJSON = concept.getValueWrapperFor(value);

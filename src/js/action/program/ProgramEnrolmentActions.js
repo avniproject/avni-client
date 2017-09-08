@@ -4,11 +4,7 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from 'lodash';
-import EntityService from "../../service/EntityService";
-import ProgramEnrolment from '../../models/ProgramEnrolment';
-import ObservationsHolder from "../../models/ObservationsHolder";
 import StaticFormElementGroup from "../../models/application/StaticFormElementGroup";
-import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ConceptService from "../../service/ConceptService";
 
 export class ProgramEnrolmentActions {
