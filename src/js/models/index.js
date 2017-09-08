@@ -1,7 +1,6 @@
 import Settings from "./Settings";
 import LocaleMapping from "./LocaleMapping";
 import Concept, {ConceptAnswer} from "./Concept";
-import Decision from "./Decision";
 import Individual from "./Individual";
 import AddressLevel from "./AddressLevel";
 import UserDefinedIndividualProperty from "./UserDefinedIndividualProperty";
@@ -27,7 +26,7 @@ import _ from 'lodash';
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Settings, Decision, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
+    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
     schemaVersion: 38,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {

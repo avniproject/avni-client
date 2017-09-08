@@ -3,14 +3,13 @@ import BaseService from "./BaseService";
 import ConfigFileService from "./ConfigFileService";
 import _ from "lodash";
 import DynamicDataResolver from "./DynamicDataResolver";
-import {getObservationValue, observationExists, getCodedAnswers} from "../service/decisionSupport/AdditionalFunctions";
+import {getObservationValueFromEntireEnrolment, observationExistsInEntireEnrolment, getObservationValue, observationExists, getCodedAnswers} from "../service/decisionSupport/AdditionalFunctions";
 import Encounter from "../models/Encounter";
 import Individual from "../models/Individual";
 import ProgramEncounter from "../models/ProgramEncounter";
 import ProgramEnrolment from "../models/ProgramEnrolment";
 import EntityRule from "../models/EntityRule";
 import General from "../utility/General";
-import {getObservationValueFromEntireEnrolment, observationExistsInEntireEnrolment} from "./decisionSupport/AdditionalFunctions";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {

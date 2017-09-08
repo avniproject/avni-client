@@ -43,7 +43,7 @@ class TestContext {
         if (_.isNil(stub)) {
             return {
                 getDecisions: function () {
-                    return [{name: "Treatment", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
+                    return [{name: "Treatment Advice", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
                 }
             };
         }
