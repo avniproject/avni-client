@@ -40,7 +40,10 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        return ruleService.getDecisions(this.encounter, 'Encounter');
+        let decisions = ruleService.getDecisions(this.encounter, 'Encounter');
+        context.get(ConceptService).addDecisions(this.encounter.observations, decisions.encounterDecisions);
+
+        return decisions;
     }
 
     validateEntity() {

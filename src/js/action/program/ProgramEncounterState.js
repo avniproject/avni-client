@@ -4,6 +4,7 @@ import ObservationsHolder from "../../models/ObservationsHolder";
 import AbstractEncounter from "../../models/AbstractEncounter";
 import _ from "lodash";
 import ProgramEncounter from '../../models/ProgramEncounter';
+import ConceptService from "../../service/ConceptService";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, observationRules, filteredFormElements) {
@@ -44,7 +45,14 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        return ruleService.getDecisions(this.programEncounter, ProgramEncounter.schema.name);
+        let decisions = ruleService.getDecisions(this.programEncounter, ProgramEncounter.schema.name);
+        context.get(ConceptService).addDecisions(this.programEncounter.observations, decisions.encounterDecisions);
+
+        const enrolment = this.programEncounter.programEnrolment.cloneForEdit();
+        context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
+        this.programEncounter.programEnrolment = enrolment;
+
+        return decisions;
     }
 
     getNextScheduledVisits(ruleService, context) {

@@ -51,7 +51,6 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(ConceptService).addDecisions(newState.encounter.observations, action.decisions.encounterDecisions);
         context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
         action.cb();
         return state;

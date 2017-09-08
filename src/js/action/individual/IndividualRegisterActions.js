@@ -95,7 +95,6 @@ export class IndividualRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(ConceptService).addDecisions(newState.individual.observations, action.decisions.registrationDecisions);
         context.get(IndividualService).register(newState.individual);
         action.cb();
         return newState;

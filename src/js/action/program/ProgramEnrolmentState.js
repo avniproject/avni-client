@@ -55,7 +55,14 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        return ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name);
+        let decisions = ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name);
+        if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            context.get(ConceptService).addDecisions(this.enrolment.observations, decisions.enrolmentDecisions);
+        } else {
+            context.get(ConceptService).addDecisions(this.enrolment.programExitObservations, decisions.enrolmentDecisions);
+        }
+
+        return decisions;
     }
 
     getChecklists(ruleService, context) {

@@ -32,14 +32,13 @@ class ProgramEncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+
+        context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment);
+
         newState.programEncounter.removeObservationsNotAllowed(newState.observationRules);
-        context.get(ConceptService).addDecisions(newState.programEncounter.observations, action.decisions.encounterDecisions);
         const service = context.get(ProgramEncounterService);
         service.saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
 
-        const enrolment = newState.programEncounter.programEnrolment.cloneForEdit();
-        context.get(ConceptService).addDecisions(enrolment.observations, action.decisions.enrolmentDecisions);
-        context.get(ProgramEnrolmentService).updateObservations(enrolment);
 
         action.cb();
         return newState;
