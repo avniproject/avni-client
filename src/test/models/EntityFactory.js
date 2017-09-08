@@ -57,8 +57,9 @@ class EntityFactory {
         _.forEach(answers, (answer) => concept.addAnswer(EntityFactory.createConcept(answer, Concept.dataType.NA)));
     }
 
-    static createConcept(name, dataType) {
+    static createConcept(name, dataType, uuid) {
         const concept = Concept.create(name, dataType);
+        concept.uuid = uuid;
         if (dataType === Concept.dataType.Coded)
             concept.answers = [];
         return concept;
