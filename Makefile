@@ -58,10 +58,11 @@ ci-test:
 
 
 release:
-	cd android; ./gradlew assembleRelease
+	cd packages/openchs-android/android; ./gradlew assembleRelease
 
 release-offline:
-	cd android; ./gradlew --offline assembleRelease
+	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
+
 log:
 	adb logcat *:S ReactNative:V ReactNativeJS:V
 
@@ -75,13 +76,13 @@ ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 deploy:
 	make deps
 	make release
-	@curl -T android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/dev/openchs-client-$(ts).apk?publish=1
+	@curl -T packages/openchs-android/android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/dev/openchs-client-$(ts).apk?publish=1
 
 database-client:
 	adb pull /data/data/com.openchsclient/files/default.realm
 
 reinstall-release: uninstall
-	adb install android/app/build/outputs/apk/app-release.apk
+	adb install packages/openchs-android/android/app/build/outputs/apk/app-release.apk
 
 deploy-apk-local:
-	cp android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
+	cp packages/openchs-android/android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
