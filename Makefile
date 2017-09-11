@@ -11,14 +11,20 @@ install: ansible_check
 	ansible-playbook setup/dev.yml -i setup/local
 
 run-android:
-	cd packages/openchs-android
-	react-native run-android
+	cd packages/openchs-android && react-native run-android
 
 run-packager:
 	REACT_EDITOR=subl npm start
 
 deps:
+	@echo "******** Bootstrapping dependencies ********"
 	lerna bootstrap
+	@echo "******** Installing packages in openchs-health-models ********"
+	cd packages/openchs-models && npm install
+	@echo "******** Installing packages in openchs-health-modules ********"
+	cd packages/openchs-health-modules && npm install
+	@echo "******** Installing packages in openchs-android ********"
+	cd packages/openchs-android && npm install
 
 test:
 	lerna run test
