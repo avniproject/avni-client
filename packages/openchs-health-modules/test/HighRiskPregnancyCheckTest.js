@@ -516,14 +516,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if weight is not specified", () => {
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
-            expect(complicationValues).to.be.null;
+            expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Shouldn't mark high risk if weight is above 35Kgs", () => {
             programEncounter.setObservation(weight.name, 36);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
-            expect(complicationValues).to.be.null;
+            expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if weight is equal to 35Kgs", () => {

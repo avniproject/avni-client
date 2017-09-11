@@ -6,7 +6,7 @@ const weightForHeightScores = require('./weightForHeight');
 const ProgramEncounter = require("./Entities").ProgramEncounter;
 const ProgramEnrolment = require("./Entities").ProgramEnrolment;
 
-describe('Get growth indicators - z-score, grade, status for a child', function () {
+xdescribe('Get growth indicators - z-score, grade, status for a child', function () {
     var enrolment;
     var programEncounter;
     const referenceDate = new Date(2017, 2, 20);
