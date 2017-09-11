@@ -7,10 +7,6 @@ else
 		@echo "Ansible is installed"
 endif
 
-define install
-	cd packages/openchs-$1; npm install
-endef
-
 define test
 	cd packages/openchs-$1; npm test
 endef
@@ -19,42 +15,27 @@ run-android:
 	cd packages/openchs-android && react-native run-android
 
 run-packager:
-	REACT_EDITOR=subl npm start
+	cd packages/openchs-android; REACT_EDITOR=subl npm start
+
+clean:
+	rm -rf packages/openchs-android/node_modules
+	rm -rf packages/openchs-health-modules/node_modules
+	rm -rf packages/openchs-models/node_modules
 
 deps:
-	@echo "******** Bootstrapping dependencies ********"
 	npm install
 	npm run bootstrap
-	@echo "******** Installing packages in openchs-health-models ********"
-	cd packages/openchs-models && npm install
-	@echo "******** Installing packages in openchs-health-modules ********"
-	cd packages/openchs-health-modules && npm install
-	@echo "******** Installing packages in openchs-android ********"
-	cd packages/openchs-android && npm install
-
-install-health-modules:
-	$(call install,health-modules)
 
 test-health-modules:
 	$(call test,health-modules)
 
-install-android:
-	$(call install,android)
-
 test-android:
 	$(call test,android)
-
-install-models:
-	$(call install,models)
 
 test-models:
 	$(call test,models)
 
-test:
-	lerna run test
-
-tests:
-	make test
+test: test-models test-health-modules test-android
 
 coverage:
 	npm run coverage
