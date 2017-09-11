@@ -1,0 +1,132 @@
+{
+  "name": "Child Default",
+  "uuid": "e09dddeb-ed72-40c4-ae8d-112d8893f18b",
+  "formType": "ProgramEncounter",
+  "programName": "Child",
+  "formElementGroups": [
+    {
+      "name": "Child Recent History",
+      "display": "Recent History",
+      "uuid": "00595000-54fb-40f2-9493-a57f01881aad",
+      "displayOrder": 1,
+      "formElements": [
+        {
+          "uuid": "d6b5cb76-843b-48b7-a0f1-645caf9a178e",
+          "name": "Is child having any of the following",
+          "dataType": "Coded",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "answers": ["Not passing urine", "Not passing stool", "Diarrhea", "Vomiting", "Looks blue", "Feels cold", "No problems", "Blood in stools", "Cries Continuously", "Does not feed well"]
+        },
+        {
+          "uuid": "4849b8dd-cce8-4302-b77e-5bf28a555229",
+          "name": "Number of days of diarrhea",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "018f9968-79cf-4e40-988d-1befcdff73bb",
+          "name": "Any activity problems",
+          "dataType": "Coded",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "answers": ["Convulsions", "Slow activity / lethargic", "Not feeding", "No problems"]
+        },
+        {
+          "uuid": "0dbaa2f0-080b-4657-b421-621943d4dd99",
+          "name": "Does child feel hot or have the chills",
+          "dataType": "Coded",
+          "answers": ["Yes", "No"],
+          "keyValues": [{"key": "Select", "value": "Single"}]
+        },
+        {
+          "uuid": "0311c913-eb2b-4478-b435-dc142e7fe584",
+          "name": "Is baby exclusively breastfeeding",
+          "dataType": "Coded",
+          "answers": ["Yes", "No"],
+          "keyValues": [{"key": "Select", "value": "Single"}]
+        }
+      ]
+    },
+    {
+      "name": "Child Vitals",
+      "display": "Vitals",
+      "uuid": "abde79ae-b9d5-484d-832e-be69d87824f4",
+      "displayOrder": 2,
+      "formElements": [
+        {
+          "uuid": "2d8c280d-8de5-4792-bf25-08ad5f1cd35a",
+          "name": "Temperature",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "e5529a87-915c-4e75-9376-9bc1706cb9d8",
+          "name": "Respiratory rate",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "e643f8a3-b03a-4a03-8c26-19c6bcf8538f",
+          "name": "Pulse",
+          "dataType": "Numeric"
+        }
+      ]
+    },
+    {
+      "name": "Child Examination",
+      "display": "Examination",
+      "uuid": "4c5093dd-feb3-4f94-b930-b7168bb65c71",
+      "displayOrder": 3,
+      "formElements": [
+        {
+          "uuid": "37e5335a-42bc-4a25-840a-e82e820f4f15",
+          "name": "Any breathing problems",
+          "dataType": "Coded",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "answers": ["Rib indrawing", "Breathing too fast", "Breathing too slow", "Grunting noises while breathing", "No problems"]
+        },
+        {
+          "uuid": "a489a772-08f7-49c9-8bbc-814cfdcf1525",
+          "name": "Any skin problems",
+          "dataType": "Coded",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "answers": ["Jaundice", "Umbilical cord is infected", "Skin blisters", "No problems"]
+        }
+      ]
+    },
+    {
+      "uuid": "550cc969-4021-4d13-8ad3-d8759388205b",
+      "name": "Child Anthropometry",
+      "display": "Anthropometry",
+      "displayOrder": 4,
+      "formElements": [
+        {
+          "uuid": "94a659ce-dd98-44a1-a3ea-2a8abc622990",
+          "name": "Height",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "786fa276-8baa-4315-8f72-1da2e0c888a6",
+          "name": "Weight",
+          "dataType": "Numeric"
+        }
+      ]
+    }
+  ]
+}

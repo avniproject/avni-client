@@ -1,0 +1,152 @@
+{
+  "name": "Screening",
+  "uuid": "a5e99c9e-5b3a-4730-b24b-80662e79689c",
+  "formType": "Encounter",
+  "formElementGroups": [
+    {
+      "name": "NCD Screening Symptoms",
+      "display": "Symptoms",
+      "uuid": "9386cb05-e797-476b-9d91-74b9939eaaea",
+      "formElements": [
+        {
+          "name": "Any sudden onset of any one of the following in last 6 hours",
+          "conceptName": "Stroke - Sudden onset",
+          "uuid": "7605cf7b-c640-4ffe-9dd8-3049edaa7705",
+          "dataType": "Coded",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "answers": ["Weakness of one side of body", "Inability to speak or understand", "Numbness or clumsiness of one side of body", "Loss of vision", "Unsteadiness of walking", "Severe headache", "Seizures", "Loss of consciousness"]
+        },
+        {
+          "uuid": "bce0867c-8604-4dff-b9b5-67a306c392c8",
+          "name": "How long did the symptoms last",
+          "dataType": "Coded",
+          "answers": ["Lasted few minutes", "Days, weeks or still persisting"],
+          "keyValues": [{"key": "Select", "value": "Single"}]
+        },
+        {
+          "uuid": "e90908be-e088-44ac-84fc-82a2a96108ae",
+          "name": "Any other symptoms",
+          "conceptName": "NCD Screening Other Symptoms",
+          "answers": ["Breathing difficulty particularly on exertion", "Swelling of feet", "Urinary difficulties", "History of passing stones"],
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Multi"}]
+        },
+        {
+          "uuid": "5065a0ae-58b3-4d91-8a91-aaad180b8a90",
+          "name": "Suffering from diabetes",
+          "dataType": "Coded",
+          "answers": ["Yes", "No"],
+          "keyValues": [{"key": "Select", "value": "Single"}]
+        },
+        {
+          "uuid": "4ebc7a4f-c10c-4139-92c7-3677c9486fda",
+          "name": "Medications",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Multi"}],
+          "answers": ["Frequent intake of pain relieving drugs", "Steroid intake for asthma"]
+        }
+      ]
+    },
+    {
+      "name": "NCD Screening Habits",
+      "display": "Habits",
+      "uuid": "8c01f4ad-1f7a-4e1b-a3a4-625e95295ebc",
+      "formElements": [
+        {
+          "name": "Smoking (Current or in last one year)",
+          "uuid": "1ee0adc9-b58e-4fe3-b547-bd058a654562",
+          "dataType": "Coded",
+          "answers": ["Yes", "No"],
+          "keyValues": [{"key": "Select", "value": "Single"}]
+        },
+        {
+          "uuid": "3b478529-2c7a-4eee-a0b2-3cfdf04b8882",
+          "name": "High intake of alcohol",
+          "dataType": "Coded",
+          "answers": ["Yes", "No"],
+          "keyValues": [{"key": "Select", "value": "Single"}]
+        },
+        {
+          "uuid": "238a8d29-b912-437e-9428-58801a4cd4db",
+          "name": "Lifestyle",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Multi"}],
+          "answers": ["Lack of physical activity", "High sodium intake/high salt intake"]
+        }
+      ]
+    },
+    {
+      "name": "NCD Screening Examination",
+      "display": "Examination",
+      "uuid": "f6053212-fd22-444a-92e2-fed48b781fb3",
+      "formElements": [
+        {
+          "uuid": "89379f92-5669-426c-a152-18c4d2ae4e64",
+          "name": "Systolic",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "deebe126-452d-461b-a254-62603b29f62b",
+          "name": "Diastolic",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "37dfca37-42a9-4455-bf16-91b096e4ae92",
+          "name": "Weight",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "3c62343a-517a-4870-8bc9-fb71a8e36c9c",
+          "name": "Height",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "bbdbcd95-3555-46f7-8225-85c2b7196ddc",
+          "name": "Waist circumference",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "41708514-eec0-47be-90e2-066ee8f240f4",
+          "name": "Fasting glucose (mg/dl)",
+          "conceptName": "Fasting blood glucose",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "26c71549-18f4-4447-ad1a-7a50a6764bac",
+          "name": "Post meal blood glucose, after 2 hours (mg/dl)",
+          "conceptName": "Post meal blood glucose",
+          "dataType": "Numeric"
+        },
+        {
+          "uuid": "04fd811e-c111-4fc9-87f8-e74784931a74",
+          "name": "Feet examination",
+          "dataType": "Coded",
+          "answers": ["Calluses", "Ulcers", "Prominent veins", "Edema", "Injuries"],
+          "keyValues": [{"key": "Select", "value": "Multi"}]
+        }
+      ]
+    },
+    {
+      "name": "NCD Screening Investigations",
+      "display": "Investigations",
+      "uuid": "2fd224c8-befa-478f-bce2-eee3640a0380",
+      "formElements": [
+        {
+          "name": "Total Cholesterol",
+          "uuid": "47943edb-c498-4067-96bb-2f01a82c0ab6",
+          "dataType": "Numeric"
+        },
+        {
+          "name": "Systolic",
+          "uuid": "9bfae53b-d81e-4fed-acd9-c42b791cab1a",
+          "dataType": "Numeric"
+        }
+      ]
+    }
+  ]
+}

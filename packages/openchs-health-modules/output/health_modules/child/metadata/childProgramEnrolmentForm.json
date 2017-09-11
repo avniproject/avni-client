@@ -1,0 +1,51 @@
+{
+  "name": "Child Enrolment",
+  "uuid": "1608c2c0-0334-41a6-aab0-5c61ea1eb069",
+  "formType": "ProgramEnrolment",
+  "programName": "Child",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "062ffc31-c311-485b-baf3-d5a95d10e97c",
+      "name": "Child Enrolment Basic Details",
+      "display": "Basic Details",
+      "displayOrder": 1,
+      "formElements": [
+        {
+          "name": "Birth Weight",
+          "uuid": "03daf5f7-9689-4eaa-a1f3-c95b609329b5",
+          "keyValues": [],
+          "dataType": "Numeric",
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Birth Defects",
+          "uuid": "0e656272-03c2-41a9-8935-60444909082f",
+          "keyValues": [],
+          "dataType": "Text",
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Registration at",
+          "uuid": "59903bac-e82a-42d0-b9b5-344769e26301",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "dataType": "Coded",
+          "displayOrder": 3,
+          "answers": [
+            "Birth",
+            "In migration",
+            "Retrospective registration"
+          ],
+          "mandatory": false
+        }
+      ]
+    }
+  ]
+}

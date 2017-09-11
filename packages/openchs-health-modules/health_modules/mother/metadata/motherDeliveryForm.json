@@ -1,0 +1,69 @@
+{
+  "name": "Delivery",
+  "uuid": "cc6a3c6a-c3cc-488d-a46c-d9d538fcc9c2",
+  "formType": "ProgramEncounter",
+  "programName": "Mother",
+  "formElementGroups": [
+    {
+      "name": "Mother Delivery Service Details",
+      "display": "Service Details",
+      "uuid": "586b9fc7-7db9-42b5-9e89-ee1f05ac9de8",
+      "formElements": [
+        {
+          "uuid": "77791c29-90ec-485a-9cef-298b9b575dd2",
+          "name": "Date of discharge",
+          "dataType": "Date"
+        },
+        {
+          "uuid": "f48b8eb2-a338-45fd-b63d-3c00d266d388",
+          "name": "Place of delivery",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Single"}],
+          "answers": ["Home", "Sub Center", "Primary Health Center", "Regional Hospital", "NGO Hospital", "During Transportation like in Ambulance etc."]
+        },
+        {
+          "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
+          "name": "eddcff1a-c6eb-408a-9395-664ca8809086",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Single"}],
+          "answers": ["Non-Skilled Birth Attendant (NSBA)", "TBA (Trained Birth Attendant)", "Auxillary Nurse Midwife", "Medical Officer/ Doctor"]
+        }
+      ]
+    },
+    {
+      "name": "Mother Delivery Medical Details",
+      "display": "Medical Details",
+      "uuid": "fa392acd-d9bf-4b90-b520-bc28d61300b8",
+      "formElements": [
+        {
+          "uuid": "f9453d8c-2085-4435-840f-3ddcd79f788f",
+          "name": "Type of Delivery",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Single"}],
+          "answers": ["Normal", "Caesarean", "Instrumental"]
+        },
+        {
+          "uuid": "14ebb121-7602-4644-81b3-6e171cea19ab",
+          "name": "Delivery Outcome",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Single"}],
+          "answers": ["Live Birth", "Still Birth", "Early Neonatal death within first 24 Hours of birth"]
+        },
+        {
+          "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
+          "name": "Number of babies",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Single"}],
+          "answers": ["1", "Twins", "Triplet"]
+        },
+        {
+          "uuid": "d4d13b86-435f-4fe6-bb74-6a00cd41b174",
+          "name": "Delivery Complications",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Multi"}],
+          "answers": ["Obstructed Labour", "PPH", "Uterine Rupture", "Vaginal Rupture", "Maternal Death"]
+        }
+      ]
+    }
+  ]
+}
