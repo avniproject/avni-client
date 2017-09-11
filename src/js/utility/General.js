@@ -119,10 +119,9 @@ class General {
             observationFields.forEach((observationField) => {
                 const observations = [];
                 if (!_.isNil(source[observationField])) {
-                    source[observationField].forEach((observationResource) => {
+                    _.toPairs(source[observationField]).forEach(([conceptUUID, value]) => {
                         const observation = new Observation();
-                        observation.concept = entityService.findByKey('uuid', observationResource["conceptUUID"], Concept.schema.name);
-                        const value = observationResource.value;
+                        observation.concept = entityService.findByKey('uuid', conceptUUID, Concept.schema.name);
                         observation.valueJSON = JSON.stringify(observation.concept.getValueWrapperFor(value));
                         observations.push(observation);
                     });
