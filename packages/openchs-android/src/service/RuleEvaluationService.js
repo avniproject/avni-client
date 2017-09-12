@@ -1,12 +1,9 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import _ from "lodash";
 import DynamicDataResolver from "./DynamicDataResolver";
 import {getObservationValueFromEntireEnrolment, observationExistsInEntireEnrolment, getObservationValue, observationExists, getCodedAnswers} from "../service/decisionSupport/AdditionalFunctions";
 import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule} from "openchs-models";
 import {encounterDecision, programEncounterDecision, programEnrolmentDecision, individualRegistrationDecision} from "openchs-health-modules";
-
-import General from "../utility/General";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -45,22 +42,6 @@ class RuleEvaluationService extends BaseService {
             ProgramEnrolment.prototype.getObservationValueFromEntireEnrolment = getObservationValueFromEntireEnrolment;
             ProgramEnrolment.prototype.observationExistsInEntireEnrolment = observationExistsInEntireEnrolment;
         }
-    }
-
-    static getExports(configFile) {
-        if (!_.isNil(configFile)) {
-            try {
-                General.logDebug('RuleEvaluationService', `Evaluating ${configFile}`);
-                const object = eval(`${configFile.contents}`);
-                General.logDebug('RuleEvaluationService', `${configFile} evaluated.`);
-                return object;
-            } catch (error) {
-                General.logError('RuleEvaluationService', error);
-                return null;
-            }
-        }
-
-        return null;
     }
 
     validateAgainstRule(entity, form, entityName) {

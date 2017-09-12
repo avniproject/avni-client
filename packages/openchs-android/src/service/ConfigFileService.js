@@ -30,11 +30,6 @@ class ConfigFileService extends BaseService {
         return this.getFile(PROGRAM_CONFIG);
     }
 
-    getCustomMessages() {
-        const configFile = this.db.objectForPrimaryKey(ConfigFile.schema.name, `${CUSTOM_MESSAGES.toLowerCase()}`);
-        return _.isNil(configFile) ? null : JSON.parse(configFile.contents);
-    }
-
     getAllFilesAndSave(cb, errorHandler) {
         const batchRequest = new BatchRequest();
         const configURL = `${this.getService(SettingsService).getSettings().serverURL}/ext`;

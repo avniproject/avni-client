@@ -27,23 +27,6 @@ build_env: ## Install npm dependencies
 # </env>
 
 
-# <rules>
-build_rules: ## Create webpack files for all the rules
-	python build/json_validation.py health_modules
-	rm -f output/*.js
-	./node_modules/.bin/webpack --config build/programEncounterDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/encounterDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/individualRegistrationDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/programEnrolmentDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/programConfigWebpack.config.js
-
-deploy_rules: build_rules ## build_rules and deploy them to the server
-	cp -r output/*.js ../openchs-server/external/
-	cp -r health_modules/*.json ../openchs-server/external/
-	date
-# </rules>
-
-
 # <metadata>
 deploy_metadata: ## Upload metadata to server
 	curl -X POST http://$(server):$(port)/concepts -d @health_modules/commonConcepts.json -H "Content-Type: application/json"

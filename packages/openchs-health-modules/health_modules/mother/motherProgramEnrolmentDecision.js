@@ -1,10 +1,10 @@
-import motherVisitSchedule from './motherVisitSchedule';
+import {getNextScheduledVisits as nextScheduledVisits} from './motherVisitSchedule';
 import * as programDecision from './motherProgramDecision';
 import c from '../common';
 import motherVaccinationSchedule from './motherVaccSchedule';
 
 export function getNextScheduledVisits (enrolment, today) {
-    return motherVisitSchedule.getNextScheduledVisits(enrolment, today);
+    return nextScheduledVisits(enrolment, today);
 }
 
 export function getDecisions (enrolment, today) {

@@ -6,8 +6,8 @@ import Messages_en from '../../config/messages.en.json';
 import SettingsService from '../service/SettingsService';
 import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
-import ConfigFileService from "./ConfigFileService";
 import {EntityMetaData} from 'openchs-models';
+import {customMessages} from "openchs-health-modules";
 
 @Service("messageService")
 class MessageService extends BaseService {
@@ -21,13 +21,12 @@ class MessageService extends BaseService {
             hi_IN: Messages_hi_IN
         };
         this.I18n.inDefaultLocale = (key) => _.findKey(this.I18n.translations[this.I18n.locale], (t) => t === key);
+        console.log(_.keys(customMessages))
     }
 
     init() {
         this.setLocale(this.getService(SettingsService).getSettings().locale.locale);
         this.addEnglishNameTranslations();
-        const configFileService = this.getService(ConfigFileService);
-        const customMessages = configFileService.getCustomMessages();
         this.addTranslationsFrom(customMessages);
     }
 
