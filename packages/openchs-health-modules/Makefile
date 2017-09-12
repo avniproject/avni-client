@@ -58,19 +58,16 @@ deploy_metadata: ## Upload metadata to server
 
 
 # <package>
-build_package: build_rules ## Builds a deployable package
+build_package: ## Builds a deployable package
 	rm -f output/openchs_health_modules.tar.gz
 	rm -rf output/health_modules
 	mkdir output/health_modules
-	cp -r health_modules/commonConcepts.json health_modules/child health_modules/mother health_modules/diabetes health_modules/ncd health_modules/outpatient health_modules/deploy.sh output/health_modules/
-	mkdir output/health_modules/rules
-	cp output/*.js output/health_modules/rules/
-	cp health_modules/customMessages.json output/health_modules
-	cd output/health_modules && tar zcvf ../openchs_health_modules.tar.gz commonConcepts.json child mother diabetes ncd outpatient rules customMessages.json deploy.sh
+	cp -r health_modules/commonConcepts.json health_modules/child/metadata health_modules/mother/metadata health_modules/diabetes/metadata health_modules/ncd/metadata health_modules/outpatient/metadata health_modules/deploy.sh output/health_modules/
+	cd output/health_modules && tar zcvf ../openchs_health_modules.tar.gz commonConcepts.json metadata deploy.sh
 # </package>
 
 
 # <Workflows related, Composite, Convenience and Conventional Actions>
-deploy: deploy_metadata deploy_rules
+deploy: deploy_metadata
 test: test_env
 # </Workflows related, Composite, Convenience and Conventional Actions>
