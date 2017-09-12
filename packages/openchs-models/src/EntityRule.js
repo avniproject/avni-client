@@ -8,7 +8,6 @@ class EntityRule {
     }
 
     setFunctions(exports) {
-        General.logInfo('EntityRule', `Found ${JSON.stringify(_.keys(exports))} in ${this.ruleFile.toString()}`);
         if (!_.isNil(exports)) {
             this.decisionFn = exports.getDecisions;
             this.validationFn = exports.validate;

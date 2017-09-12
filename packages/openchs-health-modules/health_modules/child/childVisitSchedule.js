@@ -1,4 +1,4 @@
-var C = require('../common');
+import C from '../common';
 
 //in days
 var visitSchedule = {
@@ -35,7 +35,4 @@ var getNextScheduledVisits = function (programEnrolment) {
     }
 };
 
-module.exports = {
-    getNextScheduledVisits: getNextScheduledVisits
-};
-
+export {getNextScheduledVisits};

@@ -1,4 +1,4 @@
-const C = require('../common');
+import C from '../common';
 
 var getVaccSchedule = function (programEnrolment) {
     const vaccScheduleItems = [];
@@ -40,6 +40,4 @@ var getVaccSchedule = function (programEnrolment) {
     return {name: 'Vaccination Schedule', items: vaccScheduleItems, baseDate: dateOfBirth};
 };
 
-module.exports = {
-    getVaccSchedule: getVaccSchedule
-};
+export  {getVaccSchedule};

@@ -1,4 +1,4 @@
-const treatmentCodes = {
+const treatmentByComplaintAndCode = {
     "Malaria": {
         "X1": {
             "1": [
@@ -1702,7 +1702,7 @@ const treatmentCodes = {
     },
 };
 
-const defaultWeightRangesToCode = [
+const weightRangesToCode = [
     {start: 3.0, end: 5.5, code: "X1"},
     {start: 5.6, end: 8.0, code: "X2"},
     {start: 8.1, end: 13.0, code: "X3"},
@@ -1834,7 +1834,7 @@ const getKeys = function (obj) {
 const getWeightRangeToCode = function (complaint, weight) {
     var weightRangeToCodeMap = complaintToWeightRangesToCodeMap[complaint];
     if (weightRangeToCodeMap === undefined || weightRangeToCodeMap === null)
-        weightRangeToCodeMap = defaultWeightRangesToCode;
+        weightRangeToCodeMap = weightRangesToCode;
 
     return weightRangeToCodeMap.find(function (entry) {
         return entry.start <= weight && entry.end >= weight;
@@ -1872,11 +1872,11 @@ const getDecisions = function (encounter) {
 
         var prescriptionSet;
         if (potentiallyPregnant && ["Cough", "Boils", "Wound"].indexOf(params.complaints[complaintIndex]) !== -1) {
-            prescriptionSet = treatmentCodes["Cifran-Special"];
+            prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
         } else if (params.complaints[complaintIndex] === "Fever" && hasMalaria(params.paracheckResult)) {
-            prescriptionSet = treatmentCodes["Malaria"];
+            prescriptionSet = treatmentByComplaintAndCode["Malaria"];
         } else {
-            prescriptionSet = treatmentCodes[params.complaints[complaintIndex]];
+            prescriptionSet = treatmentByComplaintAndCode[params.complaints[complaintIndex]];
         }
 
         var prescription = prescriptionSet[weightRangeToCode.code];
@@ -1987,9 +1987,9 @@ const validate = function (encounter, form) {
     return validationResults;
 };
 
-module.exports = {
-    getDecisions: getDecisions,
-    treatmentByComplaintAndCode: treatmentCodes,
-    weightRangesToCode: defaultWeightRangesToCode,
-    validate: validate
+export {
+    getDecisions,
+    treatmentByComplaintAndCode,
+    weightRangesToCode,
+    validate
 };

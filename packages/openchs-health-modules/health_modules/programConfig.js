@@ -21,7 +21,7 @@ const observationRules = function (programName) {
     return observationRules ? observationRules : [];
 };
 
-module.exports = {
-    config: config,
-    observationRules: observationRules
+export {
+    config,
+    observationRules
 };

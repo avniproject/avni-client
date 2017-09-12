@@ -28,8 +28,8 @@ const validate = function (individual) {
     return [];
 };
 
-module.exports = {
-    validate: validate,
-    filterElements: filterElements,
-    numberOfFormElementGroups: numberOfFormElementGroups
+export {
+    validate,
+    filterElements,
+    numberOfFormElementGroups
 };

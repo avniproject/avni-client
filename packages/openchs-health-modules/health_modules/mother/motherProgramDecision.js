@@ -1,9 +1,8 @@
-var C = require('../common');
+import C from '../common';
 
-module.exports = {};
-module.exports.getNextScheduledVisits = require('./motherVisitSchedule').getNextScheduledVisits;
+const getNextScheduledVisits = require('./motherVisitSchedule').getNextScheduledVisits;
 
-module.exports.getDecisions = function (programEnrolment, today, programEncounter) {
+const getDecisions = function (programEnrolment, today, programEncounter) {
     var decisions = [];
     const highRiskConditions = [];
 
@@ -72,3 +71,8 @@ module.exports.getDecisions = function (programEnrolment, today, programEncounte
         }
     }
 };
+
+export {
+    getDecisions,
+    getNextScheduledVisits
+}

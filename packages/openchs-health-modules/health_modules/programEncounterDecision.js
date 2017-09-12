@@ -1,8 +1,6 @@
-const allImports = {};
-allImports.Mother = require('./mother/motherProgramEncounterDecision');
-allImports.Child = require('./child/childProgramEncounterDecision');
-
-module.exports = {};
+import * as Mother from './mother/motherProgramEncounterDecision';
+import * as Child from './child/childProgramEncounterDecision';
+const allImports = {Mother: Mother, Child: Child};
 
 function targetFunction(config, programName) {
     return allImports && allImports[programName] && allImports[programName][config.fn];
@@ -22,12 +20,12 @@ const executeProgramEncounterFunc = function (config) {
     return fn(config.parameter, today);
 };
 
-module.exports.getDecisions = function (programEncounter) {
+export function getDecisions (programEncounter) {
     return executeProgramEncounterFunc({parameter: programEncounter, fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}});
-};
+}
 
-module.exports.getNextScheduledVisits = function (programEncounter) {
+export function getNextScheduledVisits (programEncounter) {
     return executeProgramEncounterFunc({parameter: programEncounter, fn: "getNextScheduledVisits"});
-};
+}
 
 module.exports.executeProgramEncounterFunc = executeProgramEncounterFunc;

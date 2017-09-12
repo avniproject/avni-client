@@ -1,23 +1,21 @@
-const motherVisitSchedule = require('./motherVisitSchedule');
-const programDecision = require('./motherProgramDecision');
-const c = require('../common');
-const motherVaccinationSchedule = require('./motherVaccSchedule');
+import motherVisitSchedule from './motherVisitSchedule';
+import * as programDecision from './motherProgramDecision';
+import c from '../common';
+import motherVaccinationSchedule from './motherVaccSchedule';
 
-module.exports = {};
-
-module.exports.getNextScheduledVisits = function (enrolment, today) {
+export function getNextScheduledVisits (enrolment, today) {
     return motherVisitSchedule.getNextScheduledVisits(enrolment, today);
-};
+}
 
-module.exports.getDecisions = function (enrolment, today) {
+export function getDecisions (enrolment, today) {
     var decisions = programDecision.getDecisions(enrolment, today);
     const lmpDate = enrolment.getObservationValue('Last Menstrual Period');
     const edd = c.addDays(lmpDate, 280);
     decisions.push({name:"Estimated Date of Delivery", value:edd});
     return {enrolmentDecisions: decisions, encounterDecisions: []};
-};
+}
 
-module.exports.validate = function (programEnrolment) {
+export function validate (programEnrolment) {
     const validationResults = [];
 
     if (programEnrolment.individual.gender === 'Male') {
@@ -43,8 +41,8 @@ module.exports.validate = function (programEnrolment) {
     }
 
     return validationResults;
-};
+}
 
-module.exports.getChecklists = function (programEnrolment, today) {
+export function getChecklists (programEnrolment, today) {
     return [/*motherVaccinationSchedule.getVaccSchedule(programEnrolment)*/];
-};
+}

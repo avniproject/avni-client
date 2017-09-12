@@ -6,10 +6,6 @@ import _ from 'lodash';
 import SettingsService from "./SettingsService";
 import MessageService from "./MessageService";
 
-const ENCOUNTER_DECISION = "encounterDecision.js";
-const INDIVIDUAL_REGISTATION_DECISION = "individualRegistrationDecision.js";
-const PROGRAM_ENROLMENT_DECISION = "programEnrolmentDecision.js";
-const PROGRAM_ENCOUNTER_DECISION = "programEncounterDecision.js";
 const PROGRAM_CONFIG = "programConfig.js";
 const CUSTOM_MESSAGES = "customMessages.json";
 
@@ -17,7 +13,7 @@ const CUSTOM_MESSAGES = "customMessages.json";
 class ConfigFileService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
-        this.jsfiles = [ENCOUNTER_DECISION, INDIVIDUAL_REGISTATION_DECISION, PROGRAM_ENROLMENT_DECISION, PROGRAM_ENCOUNTER_DECISION, PROGRAM_CONFIG];
+        this.jsfiles = [PROGRAM_CONFIG];
         this.messagesFiles = [CUSTOM_MESSAGES];
     }
 
@@ -28,22 +24,6 @@ class ConfigFileService extends BaseService {
 
     getFile(fileName) {
         return this.db.objectForPrimaryKey(ConfigFile.schema.name, `${fileName.toLowerCase()}`);
-    }
-
-    getEncounterDecisionFile() {
-        return this.getFile(ENCOUNTER_DECISION);
-    }
-
-    getProgramEnrolmentFile() {
-        return this.getFile(PROGRAM_ENROLMENT_DECISION);
-    }
-
-    getProgramEncounterFile() {
-        return this.getFile(PROGRAM_ENCOUNTER_DECISION);
-    }
-
-    getIndividualRegistrationFile() {
-        return this.getFile(INDIVIDUAL_REGISTATION_DECISION);
     }
 
     getProgramConfigFile() {

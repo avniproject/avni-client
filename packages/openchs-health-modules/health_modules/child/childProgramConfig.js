@@ -1,24 +1,24 @@
-const _ = require("lodash");
+import _ from "lodash";
 
-const heightForAgeGirlsBelow13Weeks = require('./anthropometricReference/lhfa_girls_p_0_13');
-const heightForAgeGirlsBelow2Years = require('./anthropometricReference/lhfa_girls_p_0_2');
-const heightForAgeGirlsBelow5Years = require('./anthropometricReference/lhfa_girls_p_2_5');
-const heightForAgeBoysBelow13Weeks = require('./anthropometricReference/lhfa_boys_p_0_13');
-const heightForAgeBoysBelow2Years = require('./anthropometricReference/lhfa_boys_p_0_2');
-const heightForAgeBoysBelow5Years = require('./anthropometricReference/lhfa_boys_p_2_5');
+import heightForAgeGirlsBelow13Weeks from './anthropometricReference/lhfa_girls_p_0_13';
+import heightForAgeGirlsBelow2Years from './anthropometricReference/lhfa_girls_p_0_2';
+import heightForAgeGirlsBelow5Years from './anthropometricReference/lhfa_girls_p_2_5';
+import heightForAgeBoysBelow13Weeks from './anthropometricReference/lhfa_boys_p_0_13';
+import heightForAgeBoysBelow2Years from './anthropometricReference/lhfa_boys_p_0_2';
+import heightForAgeBoysBelow5Years from './anthropometricReference/lhfa_boys_p_2_5';
 
-const weightForAgeGirlsBelow13Weeks = require('./anthropometricReference/wfa_girls_p_0_13');
-const weightForAgeGirlsBelow2Years = require('./anthropometricReference/wfa_girls_p_0_2');
-const weightForAgeGirlsBelow5Years = require('./anthropometricReference/wfa_girls_p_2_5');
-const weightForAgeBoysBelow13Weeks = require('./anthropometricReference/wfa_boys_p_0_13');
-const weightForAgeBoysBelow2Years = require('./anthropometricReference/wfa_boys_p_0_2');
-const weightForAgeBoysBelow5Years = require('./anthropometricReference/wfa_boys_p_2_5');
+import weightForAgeGirlsBelow13Weeks from './anthropometricReference/wfa_girls_p_0_13';
+import weightForAgeGirlsBelow2Years from './anthropometricReference/wfa_girls_p_0_2';
+import weightForAgeGirlsBelow5Years from './anthropometricReference/wfa_girls_p_2_5';
+import weightForAgeBoysBelow13Weeks from './anthropometricReference/wfa_boys_p_0_13';
+import weightForAgeBoysBelow2Years from './anthropometricReference/wfa_boys_p_0_2';
+import weightForAgeBoysBelow5Years from './anthropometricReference/wfa_boys_p_2_5';
 
 
-const weightForHeightGirlsBelow2Years = require('./anthropometricReference/wfh_girls_p_0_2');
-const weightForHeightGirlsBelow5Years = require('./anthropometricReference/wfh_girls_p_2_5');
-const weightForHeightBoysBelow2Years = require('./anthropometricReference/wfh_boys_p_0_2');
-const weightForHeightBoysBelow5Years = require('./anthropometricReference/wfh_boys_p_2_5');
+import weightForHeightGirlsBelow2Years from './anthropometricReference/wfh_girls_p_0_2';
+import weightForHeightGirlsBelow5Years from './anthropometricReference/wfh_girls_p_2_5';
+import weightForHeightBoysBelow2Years from './anthropometricReference/wfh_boys_p_0_2';
+import weightForHeightBoysBelow5Years from './anthropometricReference/wfh_boys_p_2_5';
 
 function obsFor(concept) {
     return function (encounter) {
@@ -329,4 +329,4 @@ const config = {
     }]
 };
 
-module.exports = config;
+export default config;

@@ -1,4 +1,4 @@
-const _ = require('../common');
+import _ from '../common';
 
 //in days
 const encounterSchedule = {
@@ -65,7 +65,4 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
     return encounters;
 };
 
-module.exports = {
-    getNextScheduledVisits: getNextScheduledVisits
-};
-
+export {getNextScheduledVisits};

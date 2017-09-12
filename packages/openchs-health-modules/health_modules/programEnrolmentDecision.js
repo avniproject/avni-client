@@ -1,30 +1,28 @@
-const allImports = {};
-allImports.Mother = require('./mother/motherProgramEnrolmentDecision');
-allImports.Child = require('./child/childProgramEnrolmentDecision');
+import * as Mother from './mother/motherProgramEnrolmentDecision';
+import * as Child from './child/childProgramEnrolmentDecision';
+const allImports = {Mother: Mother, Child: Child};
 
-module.exports = {};
-
-module.exports.getDecisions = function (enrolment) {
+export function getDecisions (enrolment) {
     return executeProgramEnrolmentFunc({parameter: enrolment, fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}})
-};
+}
 
-module.exports.getNextScheduledVisits = function (enrolment) {
+export function getNextScheduledVisits(enrolment) {
     return executeProgramEnrolmentFunc({parameter: enrolment, fn: "getNextScheduledVisits"})
-};
+}
 
-module.exports.getChecklists = function (enrolment) {
+export function getChecklists (enrolment) {
     return executeProgramEnrolmentFunc({parameter: enrolment, fn: "getChecklists"});
-};
+}
 
-module.exports.validate = function (enrolment) {
+export function validate (enrolment) {
     return executeProgramEnrolmentFunc({parameter: enrolment, fn: "validate"});
-};
+}
 
 function targetFunction(config, programName) {
     return allImports && allImports[programName] && allImports[programName][config.fn];
 }
 
-const executeProgramEnrolmentFunc = function (config) {
+export function executeProgramEnrolmentFunc (config) {
     const today = new Date();
     const programName = config.parameter.program.name;
     const fn = targetFunction(config, programName);
@@ -35,6 +33,4 @@ const executeProgramEnrolmentFunc = function (config) {
     }
 
     return fn(config.parameter, today);
-};
-
-module.exports.executeProgramEnrolmentFunc = executeProgramEnrolmentFunc;
+}

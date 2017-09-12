@@ -1,6 +1,6 @@
-const expect = require('chai').expect;
-const childProgramConfig = require('../health_modules/child/childProgramConfig');
-const moment = require('moment');
+import {expect, assert} from "chai";
+import childProgramConfig from '../health_modules/child/childProgramConfig';
+import moment from 'moment';
 
 describe('Child Program Config', function () {
     it("describes dashboard configuration for the child program", function () {

@@ -1,7 +1,7 @@
-const C = require('../common');
-const _ = require('lodash');
+import C from '../common';
+import _ from 'lodash';
 
-var getImmunisationSchedule = function (programEnrolment) {
+export function getVaccSchedule (programEnrolment) {
     const checklistItems = [];
     const lmpDate = programEnrolment.getObservationValue('Last Menstrual Period');
 
@@ -13,7 +13,7 @@ var getImmunisationSchedule = function (programEnrolment) {
     }
 
     return {name: 'Vaccination Schedule', items: checklistItems, baseDate: lmpDate};
-};
+}
 
 let ttTakenAlreadyInPreviousPregnancy = function (programEnrolment) {
     const ttInjections = programEnrolment.findObservation("TT injections taken");
@@ -21,8 +21,4 @@ let ttTakenAlreadyInPreviousPregnancy = function (programEnrolment) {
     if (!taken) {
         return ttTakenAlreadyInPreviousPregnancy(programEnrolment.individual);
     }
-};
-
-module.exports = {
-    getVaccSchedule: getImmunisationSchedule
 };

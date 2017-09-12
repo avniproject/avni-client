@@ -1,8 +1,6 @@
-const programDecision = require('./motherProgramDecision');
-var observationConditions = require('./motherProgramObservationRules').observationRules;
-var C = require('../common');
-
-module.exports = {};
+import * as programDecision from './motherProgramDecision';
+import {observationRules} from './motherProgramObservationRules';
+import C from '../common';
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];
@@ -29,7 +27,7 @@ function InvestigationAdviceBuilder() {
     return new AdviceBuilder("Investigation Advice", "Send patient to FRU immediately for");
 }
 
-module.exports.getDecisions = function (programEncounter, today) {
+export function getDecisions (programEncounter, today) {
 
     if (programEncounter.encounterType.name === 'ANC') {
 
@@ -195,13 +193,13 @@ module.exports.getDecisions = function (programEncounter, today) {
             encounterDecisions: decisions
         };
     } else return {enrolmentDecisions: [], encounterDecisions: []};
-};
+}
 
-module.exports.getNextScheduledVisits = function (programEncounter, today) {
+export function getNextScheduledVisits (programEncounter, today) {
     return programDecision.getNextScheduledVisits(programEncounter.programEnrolment, today, programEncounter);
-};
+}
 
-module.exports.getApplicableFormElements = function (formElementGroup, programEncounter, today) {
+export function getApplicableFormElements (formElementGroup, programEncounter, today) {
     var applicableFormElements = [];
     formElementGroup.getApplicableFormElements(programEncounter, observationConditions);
-};
+}

@@ -1,10 +1,10 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import ConfigFileService from "./ConfigFileService";
 import _ from "lodash";
 import DynamicDataResolver from "./DynamicDataResolver";
 import {getObservationValueFromEntireEnrolment, observationExistsInEntireEnrolment, getObservationValue, observationExists, getCodedAnswers} from "../service/decisionSupport/AdditionalFunctions";
 import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule} from "openchs-models";
+import {encounterDecision, programEncounterDecision, programEnrolmentDecision, individualRegistrationDecision} from "openchs-health-modules";
 
 import General from "../utility/General";
 
@@ -16,16 +16,12 @@ class RuleEvaluationService extends BaseService {
 
     init() {
         this.decorateEncounter();
-        const configFileService = this.getService(ConfigFileService);
-
-        this.entityRulesMap = new Map([['Individual', new EntityRule(configFileService.getIndividualRegistrationFile())],
-            ['Encounter', new EntityRule(configFileService.getEncounterDecisionFile())],
-            ['ProgramEncounter', new EntityRule(configFileService.getProgramEncounterFile())],
-            ['ProgramEnrolment', new EntityRule(configFileService.getProgramEnrolmentFile())]]);
+        this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
+            ['Encounter', new EntityRule(encounterDecision)],
+            ['ProgramEncounter', new EntityRule(programEncounterDecision)],
+            ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)]]);
         this.entityRulesMap.forEach((entityRule, key) => {
-            const exports = RuleEvaluationService.getExports(entityRule.ruleFile);
-            if (!_.isNil(exports))
-                entityRule.setFunctions(exports);
+            entityRule.setFunctions(entityRule.ruleFile);
         });
 
         this.initialised = true;
