@@ -1,7 +1,7 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
-import ConfigFileService from "./ConfigFileService";
 import _ from "lodash";
+import {config, observationRules} from "openchs-health-modules";
 
 @Service("programConfigService")
 class ProgramConfigService extends BaseService {
@@ -9,27 +9,14 @@ class ProgramConfigService extends BaseService {
         super(db, beanStore);
     }
 
-    init() {
-        this.loaded = false;
-        this.programConfigFile = this.getService(ConfigFileService).getProgramConfigFile();
-    }
-
-    loadProgramConfig() {
-        if (!this.loaded) {
-            const object = eval(`${this.programConfigFile.contents}`);
-            this.programConfig = object.config;
-            this.observationRules = object.observationRules;
-        }
-    }
+    init() { }
 
     configForProgram(program) {
-        this.loadProgramConfig();
-        return program && program.name && this.programConfig(program.name);
+        return program && program.name && config(program.name);
     }
 
     observationRulesForProgram(program) {
-        this.loadProgramConfig();
-        return program && program.name && this.observationRules(program.name);
+        return program && program.name && observationRules(program.name);
     }
 
     findDashboardButtons(program) {

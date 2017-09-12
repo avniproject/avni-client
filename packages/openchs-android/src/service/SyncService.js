@@ -7,7 +7,6 @@ import SettingsService from "./SettingsService";
 import {EntitySyncStatus} from "openchs-models";
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
-import ConfigFileService from "./ConfigFileService";
 import MessageService from "./MessageService";
 
 @Service("syncService")
@@ -26,7 +25,6 @@ class SyncService extends BaseService {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
-        this.configFileService = this.getService(ConfigFileService);
         this.messageService = this.getService(MessageService);
     }
 
@@ -36,13 +34,8 @@ class SyncService extends BaseService {
         const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
         const pullTxDataFn = () => this.getData(allTxDataMetaData, done, onError);
-        const pullConfigurationFn = () => this.pullConfiguration(pullTxDataFn, onError);
-        const pullReferenceDataFn = () => this.getData(allReferenceDataMetaData, pullConfigurationFn, onError);
+        const pullReferenceDataFn = () => this.getData(allReferenceDataMetaData, pullTxDataFn, onError);
         this.pushTxData(allTxDataMetaData.slice(), pullReferenceDataFn, onError);
-    }
-
-    pullConfiguration(onComplete, onError) {
-        this.configFileService.getAllFilesAndSave(onComplete, onError);
     }
 
     getData(entitiesMetadata, onComplete, onError) {

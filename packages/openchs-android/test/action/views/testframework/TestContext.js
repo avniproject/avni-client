@@ -1,6 +1,5 @@
 import StubbedMessageService from "../../service/stub/StubbedMessageService";
 import StubbedConceptService from "../../service/stub/StubbedConceptService";
-import StubbedConfigFileService from "../../service/stub/StubbedConfigFileService";
 import StubbedIndividualService from "../../service/stub/StubbedIndividualService";
 import StubbedFormMappingService from "../../service/stub/StubbedFormMappingService";
 import StubbedProgramEnrolmentService from "../../service/stub/StubbedProgramEnrolmentService";
@@ -8,7 +7,6 @@ import _ from 'lodash';
 import StubbedRuleEvaluationService from "../../service/stub/StubbedRuleEvaluationService";
 import MessageService from "../../../../src/service/MessageService";
 import ConceptService from "../../../../src/service/ConceptService";
-import ConfigFileService from "../../../../src/service/ConfigFileService";
 import IndividualService from "../../../../src/service/IndividualService";
 import FormMappingService from "../../../../src/service/FormMappingService";
 import ProgramEnrolmentService from "../../../../src/service/ProgramEnrolmentService";
@@ -24,7 +22,6 @@ class TestContext {
     static stubs = new Map([
         [MessageService, (serviceData) => new StubbedMessageService(serviceData)],
         [ConceptService, (serviceData) => new StubbedConceptService(serviceData)],
-        [ConfigFileService, (serviceData) => new StubbedConfigFileService(serviceData)],
         [IndividualService, (serviceData) => new StubbedIndividualService(serviceData)],
         [FormMappingService, (serviceData) => new StubbedFormMappingService(serviceData)],
         [ProgramEnrolmentService, (serviceData) => new StubbedProgramEnrolmentService(serviceData)],
