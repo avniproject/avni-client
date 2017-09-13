@@ -177,5 +177,19 @@
     "name": "Eclampsia",
     "uuid": "489f07e5-d9e1-478a-969d-3acad587a15e",
     "dataType": "N/A"
+  },
+  {
+    "name": "PNC Complications",
+    "uuid": "5e204b7a-c5df-4cc4-af45-99647b61e047",
+    "dataType": "Coded",
+    "answers": [
+      "Post-Partum Haemorrhage",
+      "Urinary Tract Infection",
+      "Genital Tract Infection",
+      "Mastitis",
+      "Post Operative Infection",
+      "Post-Partum Depression",
+      "Post-Partum Eclampsia"
+    ]
   }
 ]

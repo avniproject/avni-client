@@ -1,5 +1,5 @@
 import * as programDecision from './motherProgramDecision';
-import {observationRules} from './motherProgramObservationRules';
+import {getDecisions as pncEncounterDecisions} from './pncEncounterDecision';
 import C from '../common';
 
 function AdviceBuilder(type, prefixValue) {
@@ -28,6 +28,9 @@ function InvestigationAdviceBuilder() {
 }
 
 export function getDecisions (programEncounter, today) {
+    if (programEncounter.encounterType.name === 'PNC') {
+        return pncEncounterDecisions(programEncounter);
+    }
 
     if (programEncounter.encounterType.name === 'ANC') {
 

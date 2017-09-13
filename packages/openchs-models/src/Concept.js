@@ -17,6 +17,10 @@ export class ConceptAnswer {
         }
     };
 
+    get name() {
+        return this.concept.name;
+    }
+
     static fromResource(resource, entityService) {
         const conceptAnswer = new ConceptAnswer();
         conceptAnswer.concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
@@ -91,6 +95,7 @@ export default class Concept {
     cloneForReference() {
         const concept = Concept.create(this.name, this.datatype);
         concept.uuid = this.uuid;
+        concept.answers = this.getAnswers();
         return concept;
     }
 
@@ -116,11 +121,15 @@ export default class Concept {
     }
 
     getValueWrapperFor(value) {
-        if (this.datatype === Concept.dataType.Coded) {
+        if (this.isCodedConcept()) {
             return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value);
         } else {
             return new PrimitiveValue(value, this.datatype);
         }
+    }
+
+    isCodedConcept() {
+        return this.datatype === Concept.dataType.Coded;
     }
 
     getAnswers() {

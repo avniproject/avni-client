@@ -22,6 +22,13 @@ class Form {
         return form;
     }
 
+    removeFormElement(formElementName) {
+        this.formElementGroups = _.map(this.formElementGroups, (formElementGroup) => {
+            return formElementGroup.removeFormElement(formElementName);
+        });
+        return this;
+    }
+
     static fromResource(resource) {
         return General.assignFields(resource, new Form(), ["uuid", "name", "formType"]);
     }

@@ -58,7 +58,7 @@ class EntityFactory {
 
     static createConcept(name, dataType, uuid) {
         const concept = Concept.create(name, dataType);
-        concept.uuid = uuid;
+        concept.uuid = uuid || General.randomUUID();
         if (dataType === Concept.dataType.Coded)
             concept.answers = [];
         return concept;

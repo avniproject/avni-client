@@ -115,6 +115,10 @@ class FormElement {
         return _.isNil(durationOptions) ? null : durationOptions.getValue();
     }
 
+    matches(elementNameOrUUID) {
+        return this.name === elementNameOrUUID || this.uuid === elementNameOrUUID;
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

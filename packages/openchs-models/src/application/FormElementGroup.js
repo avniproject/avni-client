@@ -99,6 +99,11 @@ class FormElementGroup {
         return FormElementGroup._sortedFormElements(applicableFormElements);
     }
 
+    removeFormElement(formElementName) {
+        this.formElements = _.reject(this.formElements, (formElement) => formElement.matches(formElementName));
+        return this;
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

@@ -50,6 +50,7 @@
         {
           "uuid": "3ae759ca-ba9e-43dd-8e64-270fdf0d1b38",
           "name": "Any of the following difficulties",
+          "conceptName": "Post-Partum Haemorrhage symptoms",
           "dataType": "Coded",
           "keyValues": [{"key": "Select", "value": "Multi"}],
           "answers": ["Difficulty breathing", "Bad headache", "Blurred vision", "No Problem"]
@@ -95,6 +96,22 @@
           "dataType": "Coded",
           "answers": ["Yes", "No"],
           "keyValues": [{"key": "Select", "value": "Single"}]
+        },
+        {
+          "name": "Convulsions",
+          "uuid": "19e880a8-b886-436c-885e-cc5ce11cb284",
+          "dataType": "Coded",
+          "answers": ["Present", "Absent"],
+          "keyValues": [{"key": "Select", "value": "Single"}],
+          "mandatory": false
+        },
+        {
+          "uuid": "491f80c6-1e45-4a6e-8233-42a1cde8b5d7",
+          "name": "Do you have the following complaints",
+          "conceptName": "Post-Partum Depression Symptoms",
+          "dataType": "Coded",
+          "keyValues": [{"key": "Select", "value": "Multi"}],
+          "answers": ["Insomnia", "Loss of appetite", "Weakness", "Irritability", "No Problem"]
         }
       ]
     }

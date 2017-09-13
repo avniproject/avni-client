@@ -14,6 +14,10 @@ class MultipleCodedValues {
         return _.some(this.answer, (item) => item === conceptUUID);
     }
 
+    hasValue(conceptUUID) {
+        return this.isAnswerAlreadyPresent(conceptUUID);
+    }
+
     removeAnswer(conceptUUID) {
         _.remove(this.answer, (item) => item === conceptUUID);
     }
