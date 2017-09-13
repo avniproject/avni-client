@@ -17,8 +17,7 @@
   },
   "scripts": {
     "start": "",
-    "test": "jest",
-    "watch": "find ./test -name '*Test.js' | xargs mocha -w"
+    "test": "jest"
   },
   "dependencies": {
     "lodash": "^4.12.0",
@@ -35,7 +34,6 @@
     "babel-preset-react-native-stage-0": "^1.0.1",
     "chai": "^3.5.0",
     "jest": "^21.0.2",
-    "mocha": "2.4.5",
     "webpack": "^3.5.5",
     "webpack-node-externals": "^1.6.0"
   }
