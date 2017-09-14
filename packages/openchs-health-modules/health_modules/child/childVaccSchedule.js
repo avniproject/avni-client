@@ -40,4 +40,4 @@ var getVaccSchedule = function (programEnrolment) {
     return {name: 'Vaccination Schedule', items: vaccScheduleItems, baseDate: dateOfBirth};
 };
 
-export  {getVaccSchedule};
+export default {getVaccSchedule};
