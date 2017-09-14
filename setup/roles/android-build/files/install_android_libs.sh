@@ -13,6 +13,7 @@ if [ ! -e ${INITIALIZATION_FILE} ]; then
     sdkmanager "build-tools;23.0.1"
     sdkmanager "build-tools;25.0.1"
     sdkmanager "build-tools;25.0.3"
+    sdkmanager "build-tools;26.0.1"
     sdkmanager "system-images;android-25;google_apis;x86"
     sdkmanager "system-images;android-25;google_apis;x86_64"
     sdkmanager "extras;google;m2repository"
