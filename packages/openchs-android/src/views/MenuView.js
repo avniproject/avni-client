@@ -21,6 +21,7 @@ import ProgramConfigService from "../service/ProgramConfigService";
 import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import * as Animatable from 'react-native-animatable';
+import MessageService from "../service/MessageService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -60,6 +61,7 @@ class MenuView extends AbstractComponent {
     _postSync() {
         this.context.getService(RuleEvaluationService).init();
         this.context.getService(ProgramConfigService).init();
+        this.context.getService(MessageService).init();
         this.dispatchAction('RESET');
         this.setState({syncing: false, error: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
