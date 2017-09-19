@@ -20,36 +20,30 @@ const makeHeader = (type) => new Map([['json', {
 
 const makeRequest = (type, opts = {}) => Object.assign({...makeHeader(type), ...opts});
 
-let _get = (endpoint, cb, errorHandler) => {
+let _get = (endpoint) => {
     General.logDebug('Requests', `Calling: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("json"))
-        .then((response) => response.json())
-        .then(cb)
-        .catch(errorHandler);
+        .then((response) => response.json(), Promise.reject)
 };
 
-let _getText = (endpoint, cb, errorHandler) => {
+let _getText = (endpoint) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
     return fetchFactory(endpoint, "GET", makeHeader("text"))
-        .then((response) => response.text())
-        .then(cb)
-        .catch(errorHandler);
+        .then((response) => response.text(), Promise.reject)
 };
 
-let _post = (endpoint, file, cb, errorHandler) => {
+let _post = (endpoint, file) => {
     const params = makeRequest("json", {body: JSON.stringify(file)});
     General.logDebug('Requests', `Posting to ${endpoint}`);
     return fetchFactory(endpoint, "POST", params)
-        .then(cb)
-        .catch(errorHandler);
 };
 
 export let post = _post;
 
-export let get = (endpoint, cb, errorHandler) => {
-    return _getText(endpoint, cb, errorHandler);
+export let get = (endpoint) => {
+    return _getText(endpoint);
 };
 
-export let getJSON = (endpoint, cb, errorHandler = _.noop) => {
-    return _get(endpoint, cb, errorHandler);
+export let getJSON = (endpoint) => {
+    return _get(endpoint);
 };

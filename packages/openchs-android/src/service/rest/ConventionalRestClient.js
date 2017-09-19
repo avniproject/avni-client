@@ -26,7 +26,7 @@ class ConventionalRestClient {
     chainPostEntities(url, entities, onComplete, onError, popItemFn) {
         const chainedRequest = new ChainedRequests();
         entities.entities.map((entity) => chainedRequest.post(url, entity.resource, () =>
-            popItemFn(entity.resource.uuid), onError));
+            popItemFn(entity.resource.uuid)));
         chainedRequest.fire(onComplete, onError);
     }
 
@@ -43,14 +43,14 @@ class ConventionalRestClient {
         });
         const processResponse = (resp) => _.get(resp, `_embedded.${entityMetadata.resourceName}`, []);
         const endpoint = (page = 0, size = 100) => `${urlParts}?${params(page, size)}`;
-        getJSON(endpoint(), (response) => {
+        getJSON(endpoint()).then((response) => {
             const chainedRequests = new ChainedRequests();
             const resourceMetadata = response["page"];
             let allResourcesForEntity = processResponse(response);
             _.range(1, resourceMetadata.totalPages, 1)
                 .forEach((pageNumber) =>
                     chainedRequests.add(endpoint(pageNumber),
-                        (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)), onError));
+                        (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp))));
 
             chainedRequests.fire(() => {
                 persistFn(entityMetadata, allResourcesForEntity);

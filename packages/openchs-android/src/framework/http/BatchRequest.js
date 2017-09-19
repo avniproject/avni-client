@@ -13,16 +13,17 @@ class BatchRequest {
 
     }
 
-    addText(endpoint, cb, errorHandler) {
-        this.requestQueue.push(() => httpGetText(endpoint, cb, errorHandler));
+    addText(endpoint, cb) {
+        this.requestQueue.push(() => httpGetText(endpoint).then(cb, Promise.reject));
     }
 
-    add(endpoint, cb, errorHandler) {
-        this.requestQueue.push(() => httpGet(endpoint, cb, errorHandler));
+
+    add(endpoint, cb) {
+        this.requestQueue.push(() => httpGet(endpoint).then(cb, Promise.reject));
     }
 
-    post(endpoint, filecontents, cb, errorHandler) {
-        this.requestQueue.push(() => httpPost(endpoint, filecontents, cb, errorHandler));
+    post(endpoint, filecontents, cb) {
+        this.requestQueue.push(() => httpPost(endpoint, filecontents).then(cb, Promise.reject));
     }
 
     fire(finalCallback, errorCallback) {
@@ -33,7 +34,7 @@ class BatchRequest {
             callbackQueue[0] = () => errorCallback(message);
             notify();
         };
-        this.requestQueue.map((request) => request().then(notify).catch(notifyError));
+        this.requestQueue.map((request) => request().then(notify, notifyError));
     }
 }
 

@@ -9,26 +9,23 @@ class ChainedRequests {
         this.fire = this.fire.bind(this);
     }
 
-    none() {
-    }
-
-    addText(endpoint, cb, errorHandler) {
-        this.requestQueue.push(() => httpGetText(endpoint, cb, errorHandler));
+    addText(endpoint, cb) {
+        this.requestQueue.push(() => httpGetText(endpoint).then(cb, Promise.reject));
     }
 
 
-    add(endpoint, cb, errorHandler) {
-        this.requestQueue.push(() => httpGet(endpoint, cb, errorHandler));
+    add(endpoint, cb) {
+        this.requestQueue.push(() => httpGet(endpoint).then(cb, Promise.reject));
     }
 
-    post(endpoint, filecontents, cb, errorHandler) {
-        this.requestQueue.push(() => httpPost(endpoint, filecontents, cb, errorHandler));
+    post(endpoint, filecontents, cb) {
+        this.requestQueue.push(() => httpPost(endpoint, filecontents).then(cb, Promise.reject));
     }
 
     fire(finalCallback, errorCallback) {
         if (_.isEmpty(this.requestQueue)) return finalCallback();
-        this.requestQueue.reduce((acc, request) => acc.then(request).catch(errorCallback), Promise.resolve())
-            .then(finalCallback);
+        this.requestQueue.reduce((acc, request) => acc.then(request), Promise.resolve())
+            .then(finalCallback, errorCallback);
     }
 }
 
