@@ -15,7 +15,7 @@ run-android:
 	cd packages/openchs-android && react-native run-android
 
 run-packager:
-	cd packages/openchs-android; REACT_EDITOR=subl npm start
+	cd packages/openchs-android && REACT_EDITOR=subl npm start
 
 clean:
 	rm -rf packages/openchs-android/node_modules
@@ -36,26 +36,6 @@ test-models:
 	$(call test,models)
 
 test: test-models test-health-modules test-android
-
-coverage:
-	npm run coverage
-
-ci-install:
-	@echo "Provisioning CI"
-	@echo "Removing node modules"
-	rm -rf node_modules/
-	download-android
-	./install_android_libs.sh
-
-ci-test:
-	@echo "Running Tests on CI"
-	rm -rf node_modules/
-	make deps
-	make test
-	make coverage
-	npm install -g codeclimate-test-reporter
-	codeclimate-test-reporter < coverage/lcov.info
-
 
 release:
 	cd packages/openchs-android/android; ./gradlew assembleRelease
