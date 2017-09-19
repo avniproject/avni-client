@@ -19,11 +19,11 @@ class ConventionalRestClient {
         if (_.isEmpty(currentEntities)) return onComplete();
         const serverURL = this.settingsService.getSettings().serverURL;
         const url = (entity) => `${serverURL}/${entity.metaData.resourceName}s`;
-        return this.batchPostEntities(url(currentEntities), currentEntities,
+        return this.chainPostEntities(url(currentEntities), currentEntities,
             () => this.postAllEntities(_.tail(allEntities), onComplete, onError, popItemFn), onError, popItemFn);
     }
 
-    batchPostEntities(url, entities, onComplete, onError, popItemFn) {
+    chainPostEntities(url, entities, onComplete, onError, popItemFn) {
         const chainedRequest = new ChainedRequests();
         entities.entities.map((entity) => chainedRequest.post(url, entity.resource, () =>
             popItemFn(entity.resource.uuid), onError));
