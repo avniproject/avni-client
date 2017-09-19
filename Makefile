@@ -1,3 +1,4 @@
+include packages/openchs-health-modules/Makefile
 ansible_exists := $(shell ansible-playbook --version)
 ansible_check:
 ifndef ansible_exists
@@ -48,9 +49,6 @@ log:
 
 uninstall:
 	adb uninstall com.openchsclient
-
-deploy-metadata:
-	cd packages/openchs-health-modules; make deploy
 
 reinstall: uninstall run-android
 
