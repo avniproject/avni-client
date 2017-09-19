@@ -49,6 +49,9 @@ log:
 uninstall:
 	adb uninstall com.openchsclient
 
+deploy-metadata:
+	cd packages/openchs-health-modules; make deploy
+
 reinstall: uninstall run-android
 
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
