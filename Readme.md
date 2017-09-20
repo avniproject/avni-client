@@ -14,22 +14,17 @@
 [![License](https://img.shields.io/badge/license-AGPL-green.svg?style=flat)](https://github.com/openchs/openchs-client/blob/master/LICENSE)
 
 # Dev setup
-If you are setting up the machine for the first time, make sure you have homebrew
-installed. If you have homebrew installed just run
-`make install` from the root of this repository.
+ The following dependencies are required to run in local
+ - android-sdk and android libs specified in setup/roles/android-build/files/install_android_libs.sh
+ - node.js 
+ - react-native installed globally
+ - An android device (either a phone or an emulator such as genymotion)
+ - A running openchs-server (Optional. You can use the staging server - http://staging.openchs.org if you don't want to run this locally)
 
 
 # Running
-Ensure that you have CRASHLYTICS_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key. 
-To run the application `make run-android`
-In the application set the server url of the config location by going to the settings view. If you are using emulator then you would need to use IP address. e.g. http://10.0.0.3:3000/openchs 
-
-
-# Running tests in Intellij
-* Install NodeJS plugin in Intellij
-* Open the Mocha Run & Debug Configurations
-* Set environment variable as `npm_package_scripts_test=test`
-* Set Extra Mocha Options as `--require react-native-mock/mock.js --require src/test/testHelper.js`
-* Set Node Interpreter as the project node
-* Set the Working Directory to the project root
-* User interface to `bdd`
+ - Ensure that you have CRASHLYTICS_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key.
+ - Ensure android device is on and is recognised by adb (adb devices)
+ - To run the application `make run-android`
+ - In the application set the server url of the config location by going to the settings view. 
+ You can either run openchs-server locally or point to an existing server such as http://staging.openchs.org
