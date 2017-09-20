@@ -1,5 +1,5 @@
 # Build Status
-[![Build Status](https://snap-ci.com/OpenCHS/openchs-client/branch/master/build_image)](https://snap-ci.com/OpenCHS/openchs-client/branch/master)
+[![CircleCI](https://circleci.com/gh/OpenCHS/openchs-client.svg?style=svg)](https://circleci.com/gh/OpenCHS/openchs-client)
 
 # Join our discussions
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/openchs/openchs)
