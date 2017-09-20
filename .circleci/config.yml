@@ -1,0 +1,107 @@
+version: 2
+jobs:
+  test_android:
+    docker:
+      - image: circleci/node:8.40
+
+    working_directory: ~/openchs-client
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+          - v1-dependencies-
+
+      - run: sudo apt-get install make
+
+      - run: make deps
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - save_cache:
+          paths:
+           - packages/openchs-android/node_modules
+          key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+
+      - run: make test-android
+
+  test_health_modules:
+    docker:
+      - image: circleci/node:8.40
+
+    working_directory: ~/openchs-client
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
+          - v1-dependencies-
+
+      - run: sudo apt-get install make
+
+      - run: make deps
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - save_cache:
+          paths:
+           - packages/openchs-health-modules/node_modules
+          key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
+
+      - run: make test-health-modules
+
+  test_models:
+    docker:
+      - image: circleci/node:8.40
+
+    working_directory: ~/openchs-client
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
+          - v1-dependencies-
+
+      - run: sudo apt-get install make
+
+      - run: make deps
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - save_cache:
+          paths:
+           - packages/openchs-models/node_modules
+          key: v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
+
+      - run: make test-models
+
+workflows:
+  version: 2
+  test_all:
+    jobs:
+      - test_android
+      - test_models
+      - test_health_modules
+
+notify:
+  webhooks:
+    - url: https://webhooks.gitter.im/e/0fdffde721194986f2a0
