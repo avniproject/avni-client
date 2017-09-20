@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {RuleCondition} from "openchs-models";
+import RuleCondition from "./RuleCondition";
 export default class ComplicationsBuilder {
 
     constructor(context) {
