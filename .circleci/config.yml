@@ -98,6 +98,49 @@ jobs:
 
       - run: make test-models
 
+  release_android:
+    docker:
+      - image: circleci/node:8.5.0
+      - image: circleci/android:api-25-alpha
+        
+    working_directory: ~/openchs-client
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
+          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: sudo apt-get install make
+
+      - run: make release
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - save_cache:
+          paths:
+           - packages/openchs-android/node_modules
+          key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+
+      - save_cache:
+          paths:
+           - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - save_cache:
+          paths:
+           - ~/.m2
+           - ~/.gradle
+           - ~/openchs-client/packages/openchs-android/android/app/.gradle
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
+
 workflows:
   version: 2
   test_all:
@@ -105,6 +148,11 @@ workflows:
       - test_android
       - test_models
       - test_health_modules
+      - release_android:
+          requires:
+            - test_android
+            - test_models
+            - test_health_modules
 
 notify:
   webhooks:
