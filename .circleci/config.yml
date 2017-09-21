@@ -114,7 +114,7 @@ jobs:
           - v1-dependencies-{{ checksum "package.json" }}
           - v1-dependencies-
 
-      - run: sudo apt-get install make nodejs npm
+      - run: sudo apt-get install make nodejs
 
       - run: npm install -g react-native-cli
 
