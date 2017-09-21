@@ -120,7 +120,7 @@ jobs:
 
       - run: sudo npm install -g react-native-cli
 
-      - run: make deps; make release
+      - run: make deps; sudo make release
 
       - save_cache:
           paths:
