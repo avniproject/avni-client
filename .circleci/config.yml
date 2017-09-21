@@ -102,7 +102,8 @@ jobs:
     docker:
       - image: circleci/node:8.5.0
       - image: circleci/android:api-25-alpha
-        
+      - image: circleci/openjdk:8-jdk
+
     working_directory: ~/openchs-client
 
     steps:
@@ -148,11 +149,7 @@ workflows:
       - test_android
       - test_models
       - test_health_modules
-      - release_android:
-          requires:
-            - test_android
-            - test_models
-            - test_health_modules
+      - release_android
 
 notify:
   webhooks:
