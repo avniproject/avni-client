@@ -75,6 +75,9 @@ import com.android.build.OutputFile
  * ]
  */
 
+project.ext.react = [
+        extraPackagerArgs: ["--sourcemap-output", "$buildDir/generated/sourcemap.js"]
+]
 apply from: "../../node_modules/react-native/react.gradle"
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
@@ -150,6 +153,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-restart')
     compile project(':react-native-svg')
     compile project(':react-native-vector-icons')
     compile project(':react-native-fetch-blob')

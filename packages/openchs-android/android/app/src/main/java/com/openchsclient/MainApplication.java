@@ -17,6 +17,7 @@ import com.smixx.fabric.FabricPackage;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import com.facebook.soloader.SoLoader;
+import com.avishayil.rnrestart.ReactNativeRestartPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,11 +35,12 @@ public class MainApplication extends Application implements ReactApplication {
             return Arrays.<ReactPackage>asList(
                     new FabricPackage(),
                     new MainReactPackage(),
-            new SvgPackage(),
-            new VectorIconsPackage(),
+                    new SvgPackage(),
+                    new VectorIconsPackage(),
                     new RNFetchBlobPackage(),
                     new ReactNativeI18n(),
-                    new RealmReactPackage()
+                    new RealmReactPackage(),
+                    new ReactNativeRestartPackage()
             );
         }
     };
