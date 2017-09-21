@@ -1,12 +1,4 @@
 include packages/openchs-health-modules/Makefile
-ansible_exists := $(shell ansible-playbook --version)
-ansible_check:
-ifndef ansible_exists
-		@echo "Ansible is not installed. Installing Ansible"
-		brew install ansible
-else
-		@echo "Ansible is installed"
-endif
 
 define test
 	cd packages/openchs-$1; npm test

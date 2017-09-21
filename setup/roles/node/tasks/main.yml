@@ -1,7 +1,0 @@
----
-- name: Install/Update Node and NPM
-  package: name=node state=latest
-  tags:
-    - brew
-    - node
-    - apt

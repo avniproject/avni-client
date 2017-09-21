@@ -1,2 +1,0 @@
----
-android_deps: ['android-23', 'extra-android-m2repository', 'tools', 'platform-tools','build-tools-23.0.1', 'build-tools-23.0.3', 'sys-img-x86_64-android-23', 'sys-img-x86-android-23', 'extra-google-m2repository']

@@ -1,8 +1,0 @@
----
-- name: Provision Development Environment
-  hosts: all
-  roles:
-      - dev
-      - node
-      - client-build
-      - android-build

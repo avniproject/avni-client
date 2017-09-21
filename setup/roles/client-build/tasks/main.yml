@@ -1,8 +1,0 @@
----
-- name: Install react-native-cli
-  npm: name=react-native-cli global=yes state=latest
-  tags:
-    - client
-
-- name: Resolve client npm dependencies
-  npm: path=./ state=latest
