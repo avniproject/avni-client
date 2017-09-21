@@ -116,6 +116,8 @@ jobs:
 
       - run: sudo apt-get install make nodejs
 
+      - run: sudo apt-get install npm
+
       - run: npm install -g react-native-cli
 
       - run: make deps; make release
