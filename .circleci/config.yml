@@ -100,9 +100,7 @@ jobs:
 
   release_android:
     docker:
-      - image: circleci/node:8.5.0
       - image: circleci/android:api-25-alpha
-      - image: circleci/openjdk:8-jdk
 
     working_directory: ~/openchs-client
 
@@ -116,9 +114,11 @@ jobs:
           - v1-dependencies-{{ checksum "package.json" }}
           - v1-dependencies-
 
-      - run: sudo apt-get install make
+      - run: sudo apt-get install make nodejs npm
 
-      - run: make release
+      - run: npm install -g react-native-cli
+
+      - run: make deps; make release
 
       - save_cache:
           paths:
