@@ -116,7 +116,7 @@ jobs:
 
       - run: curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -
 
-      - run: sudo apt-get install nodejs build-essentials make
+      - run: sudo apt-get install nodejs build-essential make
 
       - run: sudo npm install -g react-native-cli
 
