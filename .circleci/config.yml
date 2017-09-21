@@ -3,6 +3,8 @@ jobs:
   test_android:
     docker:
       - image: circleci/node:8.5.0
+        environment:
+          - TERM: dumb
 
     working_directory: ~/openchs-client
 

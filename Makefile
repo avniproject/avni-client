@@ -31,7 +31,7 @@ test-models:
 test: test-models test-health-modules test-android
 
 release:
-	cd packages/openchs-android/android; TERM=dumb ./gradlew assembleRelease
+	cd packages/openchs-android/android; ./gradlew assembleRelease
 
 release-offline:
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
