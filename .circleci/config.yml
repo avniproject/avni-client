@@ -157,6 +157,8 @@ jobs:
           paths:
            - node_modules
 
+      - run: make release
+
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
           paths:
@@ -164,8 +166,6 @@ jobs:
            - ~/.m2
            - ~/openchs-client/packages/openchs-android/android/app/.gradle
            - ~/openchs-client/packages/openchs-android/android/.gradle
-
-      - run: make release
 
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
