@@ -26,13 +26,13 @@ test_env: ## Run unit tests
 
 # <rules>
 build_rules: ## Create webpack files for all the rules
-	python build/json_validation.py health_modules
+	python build-config/json_validation.py health_modules
 	rm -f output/*.js
-	./node_modules/.bin/webpack --config build/programEncounterDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/encounterDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/individualRegistrationDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/programEnrolmentDecisionWebpack.config.js
-	./node_modules/.bin/webpack --config build/programConfigWebpack.config.js
+	./node_modules/.bin/webpack --config build-config/programEncounterDecisionWebpack.config.js
+	./node_modules/.bin/webpack --config build-config/encounterDecisionWebpack.config.js
+	./node_modules/.bin/webpack --config build-config/individualRegistrationDecisionWebpack.config.js
+	./node_modules/.bin/webpack --config build-config/programEnrolmentDecisionWebpack.config.js
+	./node_modules/.bin/webpack --config build-config/programConfigWebpack.config.js
 
 deploy_rules: build_rules ## build_rules and deploy them to the server
 	cp -r output/*.js ../../../openchs-server/external/
