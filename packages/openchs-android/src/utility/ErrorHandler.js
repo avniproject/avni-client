@@ -9,7 +9,6 @@ export default class ErrorHandler {
         if (!__DEV__) {
             ErrorUtils.setGlobalHandler((error, isFatal) => {
                 error.message = `ErrorUtils: handled ${isFatal ? 'fatal' : 'non-fatal'} error: ${error.message}`;
-                console.log(JSON.stringify(error.message));
                 if (isFatal) {
                     StackTrace.fromError(error, {offline: true})
                         .then((x) => {
