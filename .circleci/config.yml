@@ -100,7 +100,7 @@ jobs:
 
   release_android:
     docker:
-      - image: mihirk/react-native:latest
+      - image: openchs/react-native:latest
         environment:
           - TERM: dumb
 
@@ -121,7 +121,7 @@ jobs:
 
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
 
-      - run: make deps; make release
+      - run: make deps;
 
       - save_cache:
           paths:
@@ -150,6 +150,8 @@ jobs:
            - ~/openchs-client/packages/openchs-android/android/app/.gradle
            - ~/openchs-client/packages/openchs-android/android/.gradle
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
+
+      - run: make release
 
 workflows:
   version: 2
