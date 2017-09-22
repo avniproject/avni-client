@@ -3,8 +3,6 @@ jobs:
   test_android:
     docker:
       - image: circleci/node:8.5.0
-        environment:
-          - TERM: dumb
 
     working_directory: ~/openchs-client
 
@@ -103,6 +101,9 @@ jobs:
   release_android:
     docker:
       - image: circleci/android:api-25-alpha
+        environment:
+          - TERM: dumb
+
 
     working_directory: ~/openchs-client
 
