@@ -137,42 +137,43 @@ jobs:
       - run: make deps;
 
       - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
           paths:
             - packages/openchs-health-modules/node_modules
-          key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
 
       - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
           paths:
             - packages/openchs-models/node_modules
-          key: v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
 
       - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
           paths:
            - packages/openchs-android/node_modules
-          key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+
 
       - save_cache:
+          key: v1-dependencies-{{ checksum "package.json" }}
           paths:
            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
 
       - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
           paths:
            - ~/.gradle
            - ~/.m2
            - ~/openchs-client/packages/openchs-android/android/app/.gradle
            - ~/openchs-client/packages/openchs-android/android/.gradle
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
 
       - run: make release
 
        - store_artifacts:
            path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
-           destination: openchs.apk
+           destination: openchs.{{ .BuildNum }}.apk
 
        - store_artifacts:
            path: packages/openchs-android/android/app/build/generated/sourcemap.js
-           destination: sourcemap.js
+           destination: sourcemap.{{ .BuildNum }}.js
 
 workflows:
   version: 2
