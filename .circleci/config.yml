@@ -179,7 +179,18 @@ workflows:
   version: 2
   test_all:
     jobs:
-      - release_android
+      - test_models
+      - test_android
+      - test_health_modules
+      - hold:
+          type: approval
+          requires:
+            - test_android
+            - test_health_modules
+            - test_models
+      - release_android:
+          requires: 
+            - hold
 
 notify:
   webhooks:
