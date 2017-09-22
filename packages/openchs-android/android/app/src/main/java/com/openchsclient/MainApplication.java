@@ -6,7 +6,6 @@ import android.util.Log;
 import com.facebook.react.ReactApplication;
 import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -37,7 +36,6 @@ public class MainApplication extends Application implements ReactApplication {
                     new MainReactPackage(),
                     new SvgPackage(),
                     new VectorIconsPackage(),
-                    new RNFetchBlobPackage(),
                     new ReactNativeI18n(),
                     new RealmReactPackage(),
                     new RestartPackage()
