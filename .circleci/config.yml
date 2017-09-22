@@ -118,19 +118,19 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+          - v1-dependencies-{{ checksum "packages/openchs-android/package-lock.json" }}
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
+          - v1-dependencies-{{ checksum "packages/openchs-health-modules/package-lock.json" }}
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
+          - v1-dependencies-{{ checksum "packages/openchs-models/package-lock.json" }}
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "package-lock.json" }}
 
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
 
