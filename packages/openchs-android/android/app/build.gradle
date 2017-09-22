@@ -110,7 +110,7 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
-        manifestPlaceholders = [crashlyticsAPIKey: System.getenv("CRASHLYTICS_API_KEY")]
+        manifestPlaceholders = [crashlyticsAPIKey: System.getenv("CRASHLYTICS_API_KEY")?: ""]
     }
     splits {
         abi {
@@ -153,7 +153,6 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-restart')
     compile project(':react-native-svg')
     compile project(':react-native-vector-icons')
     compile project(':react-native-fetch-blob')

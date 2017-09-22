@@ -1,6 +1,8 @@
 import {Crashlytics} from 'react-native-fabric';
-import RNRestart from 'react-native-restart';
+import {NativeModules} from 'react-native';
 import StackTrace from 'stacktrace-js';
+
+const {Restart} = NativeModules;
 
 export default class ErrorHandler {
     static set() {
@@ -12,7 +14,7 @@ export default class ErrorHandler {
                     StackTrace.fromError(error, {offline: true})
                         .then((x) => {
                             Crashlytics.recordCustomExceptionName(x.message, x.message, x);
-                            RNRestart.Restart();
+                            Restart.restart();
                         });
                 } else {
                     Crashlytics.logException(error.message);
