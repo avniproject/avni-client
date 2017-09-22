@@ -155,7 +155,6 @@ android {
 dependencies {
     compile project(':react-native-svg')
     compile project(':react-native-vector-icons')
-    compile project(':react-native-fetch-blob')
     compile project(':react-native-fabric')
     compile project(':react-native-i18n')
     compile project(':realm')

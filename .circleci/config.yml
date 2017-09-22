@@ -100,7 +100,7 @@ jobs:
 
   release_android:
     docker:
-      - image: circleci/android:api-25-alpha
+      - image: mihirk/react-native:latest
         environment:
           - TERM: dumb
 
@@ -116,12 +116,6 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
           - v1-dependencies-{{ checksum "package.json" }}
           - v1-dependencies-
-
-      - run: curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -
-
-      - run: sudo apt-get install nodejs build-essential make
-
-      - run: sudo npm install -g react-native-cli
 
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
 

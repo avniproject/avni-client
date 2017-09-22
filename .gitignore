@@ -63,3 +63,5 @@ lerna-debug.log
 
 #openchs-health-modules output
 packages/openchs-health-modules/output/
+**/com_crashlytics_export_strings.xml
+
