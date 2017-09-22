@@ -137,23 +137,23 @@ jobs:
       - run: make deps;
 
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
+          key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package-lock.json" }}
           paths:
             - packages/openchs-health-modules/node_modules
 
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
+          key: v1-dependencies-{{ checksum "packages/openchs-models/package-lock.json" }}
           paths:
             - packages/openchs-models/node_modules
 
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+          key: v1-dependencies-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
            - packages/openchs-android/node_modules
 
 
       - save_cache:
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
           paths:
            - node_modules
 
