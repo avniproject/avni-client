@@ -158,13 +158,21 @@ jobs:
 
       - save_cache:
           paths:
-           - ~/.m2
            - ~/.gradle
+           - ~/.m2
            - ~/openchs-client/packages/openchs-android/android/app/.gradle
            - ~/openchs-client/packages/openchs-android/android/.gradle
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
 
       - run: make release
+
+       - store_artifacts:
+           path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+           destination: openchs.apk
+
+       - store_artifacts:
+           path: packages/openchs-android/android/app/build/generated/sourcemap.js
+           destination: sourcemap.js
 
 workflows:
   version: 2
