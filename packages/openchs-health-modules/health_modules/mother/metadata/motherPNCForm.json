@@ -67,7 +67,7 @@
           "name": "Any vaginal problems",
           "dataType": "Coded",
           "keyValues": [{"key": "Select", "value": "Multi"}],
-          "answers": ["Heavy bleeding per vaginum", "Bad-smelling lochea", "Infected perineum suture", "No problems"]
+          "answers": ["Heavy bleeding per vaginum", "Bad-smelling lochia", "Infected perineum suture", "No problems"]
         },
         {
           "uuid": "d9b350f8-3ed0-4333-bd13-dccd363020bd",

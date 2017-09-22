@@ -21,9 +21,6 @@ server=localhost
 # <env> (Code Environment)
 test_env: ## Run unit tests
 	npm test
-
-build_env: ## Install npm dependencies
-	npm install
 # </env>
 
 

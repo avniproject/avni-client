@@ -45,7 +45,7 @@ describe("PNC encounter decisions", () => {
 
         beforeEach(() => {
             vaginalProblemsConcept = EntityFactory.createConcept("Any vaginal problems", Concept.dataType.Coded);
-            EntityFactory.addCodedAnswers(vaginalProblemsConcept, ["Heavy bleeding per vaginum", "Bad-smelling lochea", "Infected perineum suture", "No problems"]);
+            EntityFactory.addCodedAnswers(vaginalProblemsConcept, ["Heavy bleeding per vaginum", "Bad-smelling lochia", "Infected perineum suture", "No problems"]);
 
             otherDifficultiesConcept = EntityFactory.createConcept("Post-Partum Haemorrhage symptoms", Concept.dataType.Coded);
             EntityFactory.addCodedAnswers(otherDifficultiesConcept, ["Difficulty breathing", "Bad headache", "Blurred vision", "No Problem"]);
@@ -56,7 +56,7 @@ describe("PNC encounter decisions", () => {
 
         it("is added when there is bad smelling lochia", () => {
             const vaginalProblemsObs = Observation.create(vaginalProblemsConcept, new MultipleCodedValues());
-            vaginalProblemsObs.toggleMultiSelectAnswer(vaginalProblemsConcept.getPossibleAnswerConcept("Bad-smelling lochea").concept.uuid);
+            vaginalProblemsObs.toggleMultiSelectAnswer(vaginalProblemsConcept.getPossibleAnswerConcept("Bad-smelling lochia").concept.uuid);
             programEncounter.observations.push(vaginalProblemsObs);
 
 
@@ -171,7 +171,7 @@ describe("PNC encounter decisions", () => {
             EntityFactory.addCodedAnswers(abdominalProblemsConcept, ["Uterus is soft or tender", "Abdominal pain", "No problems"]);
 
             vaginalProblemsConcept = EntityFactory.createConcept("Any vaginal problems", Concept.dataType.Coded);
-            EntityFactory.addCodedAnswers(vaginalProblemsConcept, ["Heavy bleeding per vaginum", "Bad-smelling lochea", "Infected perineum suture", "No problems"]);
+            EntityFactory.addCodedAnswers(vaginalProblemsConcept, ["Heavy bleeding per vaginum", "Bad-smelling lochia", "Infected perineum suture", "No problems"]);
         });
 
         it("is added when there is soft or tender uterus", () => {

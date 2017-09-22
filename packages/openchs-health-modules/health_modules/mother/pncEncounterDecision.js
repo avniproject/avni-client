@@ -6,7 +6,7 @@ const getDecisions = (programEncounter) => {
     const complicationsBuilder = new ComplicationsBuilder({programEncounter: programEncounter, complicationsConcept: 'PNC Complications'})
 
     complicationsBuilder.addComplication("Post-Partum Haemorrhage")
-        .when.valueInEncounter("Any vaginal problems").containsAnswerConceptName("Bad-smelling lochea")
+        .when.valueInEncounter("Any vaginal problems").containsAnswerConceptName("Bad-smelling lochia")
         .or.when.valueInEncounter("Post-Partum Haemorrhage symptoms").containsAnyAnswerConceptName("Difficulty breathing", "Bad headache", "Blurred vision")
         .or.when.valueInEncounter("Systolic").is.lessThan(90)
         .or.when.valueInEncounter("Diastolic").is.lessThan(60);

@@ -203,8 +203,9 @@ class General {
     }
 
     static log(source, message, level) {
-        if (level >= General.getCurrentLogLevel())
-            console.log(`[${source}] ${message}`);
+        if (level >= General.getCurrentLogLevel()) {
+            console.log(`[${source}][${_.findKey(General.LogLevel, (l) => l === level)}] ${message}`);
+        }
     }
 
     static isoFormat(date) {

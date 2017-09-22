@@ -17,6 +17,7 @@ class ConceptService extends BaseService {
     }
 
     getConceptByUUID(conceptUUID) {
+        General.logDebug('ConceptService', conceptUUID);
         return this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID);
     }
 
