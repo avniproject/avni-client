@@ -61,11 +61,14 @@ clean_env:
 	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-models/node_modules
 
+setup_env:
+	npm install -g jest@20.0.1
+	npm install -g jest-cli@20.0.1
+
 build_env:
 	npm install
 	npm run bootstrap
-	npm install -g jest@20.0.1
-	npm install -g jest-cli@20.0.1
+
 # </env>
 
 # <packager>
