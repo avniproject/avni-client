@@ -167,13 +167,13 @@ jobs:
 
       - run: make release
 
-       - store_artifacts:
-           path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
-           destination: openchs.{{ .BuildNum }}.apk
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+          destination: openchs.{{ .BuildNum }}.apk
 
-       - store_artifacts:
-           path: packages/openchs-android/android/app/build/generated/sourcemap.js
-           destination: sourcemap.{{ .BuildNum }}.js
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          destination: sourcemap.{{ .BuildNum }}.js
 
 workflows:
   version: 2
