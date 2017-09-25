@@ -12,7 +12,13 @@ export default class ErrorHandler {
                 if (isFatal) {
                     StackTrace.fromError(error, {offline: true})
                         .then((x) => {
-                            Crashlytics.recordCustomExceptionName(x.message, x.message, x);
+                            const frameArray = x.map((row) => Object.assign({}, row, {
+                                fileName: `${row.fileName}:${row.lineNumber || 0}:${row.columnNumber || 0}`
+                            }));
+                            console.log(error.message);
+                            console.log(JSON.stringify(error));
+                            console.log(JSON.stringify(frameArray));
+                            Crashlytics.recordCustomExceptionName(x.message, x.message, frameArray);
                             Restart.restart();
                         });
                 } else {
