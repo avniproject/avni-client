@@ -41,6 +41,7 @@ class MenuView extends AbstractComponent {
         this.columnStyle = {
             marginHorizontal: DynamicGlobalStyles.resizeWidth(29),
             alignItems: 'center',
+            justifyContent: 'center',
             marginTop: DynamicGlobalStyles.resizeWidth(71),
             flexDirection: 'column'
         };
@@ -96,7 +97,12 @@ class MenuView extends AbstractComponent {
 
     }
 
-    onDeleteSchema = () => {
+    programSummary() {
+        TypedTransition.from(this).to(DashboardView);
+    }
+
+
+    onDeleteSchema() {
         const service = this.context.getService(EntityService);
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         Alert.alert(
@@ -118,17 +124,27 @@ class MenuView extends AbstractComponent {
         )
     };
 
-    renderMenuItem(iconName, menuMessageKey, pressHandler) {
-        return (<View style={this.columnStyle}>
-                <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
-                    <Icon name={iconName} style={MenuView.iconStyle}/>
-                </Button>
-                <Text style={Styles.menuTitle}>{menuMessageKey}</Text>
-            </View>
-        );
+    renderMenuItem = (maxLength) => (iconName, menuMessageKey, pressHandler, idx) => {
+        let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
+        return (<View key={idx} style={this.columnStyle}>
+            <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
+                <Icon name={iconName} style={MenuView.iconStyle}/>
+            </Button>
+            <Text style={Styles.menuTitle}>{pad}</Text>
+        </View>);
     }
 
+
     render() {
+        let menuItemsData = [
+            ["settings", "Settings", this.settingsView.bind(this)],
+            ["delete", "Delete Data", this.onDeleteSchema.bind(this)],
+            ["person-add", "Register", this.registrationView.bind(this)],
+            ["view-list", "Program Summary", this.programSummary.bind(this)]
+        ];
+        const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
+        const MenuItems = menuItemsData
+            .map(([key, display, cb], idx) => this.renderMenuItem(maxMenuItemDisplay)(key, display, cb, idx));
         return (
             <CHSContent>
                 <View style={{
@@ -141,10 +157,7 @@ class MenuView extends AbstractComponent {
                         </Button>
                         <Text style={Styles.menuTitle}>Sync Data</Text>
                     </View>
-                    {this.renderMenuItem('settings', 'Settings', () => this.settingsView())}
-                    {this.renderMenuItem('delete', 'Delete Data', () => this.onDeleteSchema())}
-                    {this.renderMenuItem('person-add', 'Register', () => this.registrationView())}
-                    {this.renderMenuItem('view-list', 'Program Summary', () => TypedTransition.from(this).to(DashboardView))}
+                    {MenuItems}
                 </View>
             </CHSContent>
         );
