@@ -23,7 +23,7 @@
         },
         {
           "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
-          "name": "eddcff1a-c6eb-408a-9395-664ca8809086",
+          "name": "Delivered By",
           "dataType": "Coded",
           "keyValues": [{"key": "Select", "value": "Single"}],
           "answers": ["Non-Skilled Birth Attendant (NSBA)", "TBA (Trained Birth Attendant)", "Auxillary Nurse Midwife", "Medical Officer/ Doctor"]
