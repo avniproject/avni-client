@@ -11,27 +11,16 @@ export default class Reducer {
         });
 
         return (state = initState, action) => {
-            try {
-                const genericActionName = `${prefix}.${action.type}`;
-                if (actions.has(genericActionName)) {
-                    General.logDebug('Reducer', `Found generic action ${genericActionName}. Invoking.`);
-                    return actions.get(genericActionName)(state, action, beans);
-                }
-
-                if (!(actions.has(action.type)))
-                    return state;
-
-                return actions.get(action.type)(state, action, beans);
-            } catch (e) {
-                const errorAction = actions.get(`${prefix}.${Reducers.ON_ERROR}`);
-                const errorActionDefined = _.isNil(errorAction);
-                General.logDebug('Reducer', `Got error: ${e}. Error action: ${errorAction}`);
-                if (errorActionDefined) {
-                    throw e;
-                } else {
-                    return errorAction(state, action, beans, e);
-                }
+            const genericActionName = `${prefix}.${action.type}`;
+            if (actions.has(genericActionName)) {
+                General.logDebug('Reducer', `Found generic action ${genericActionName}. Invoking.`);
+                return actions.get(genericActionName)(state, action, beans);
             }
+
+            if (!(actions.has(action.type)))
+                return state;
+
+            return actions.get(action.type)(state, action, beans);
         }
     }
 }

@@ -65,12 +65,6 @@ export default class Reducers {
         return reducerMap;
     };
 
-    static onError(state, action, context, error) {
-        const newState = Object.assign({}, state);
-        newState.error = error;
-        return newState;
-    }
-
     static onPossibleExternalStateChange(state, action, context) {
         const newState = Object.assign({}, state);
         newState.possibleExternalStateChange = true;
@@ -85,7 +79,6 @@ export default class Reducers {
             actions.set('RESET', () => actionClass.getInitialState(beanStore));
         if (!_.isNil(prefix)) {
             actions.set(`${prefix}.${Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY}`, Reducers.onPossibleExternalStateChange);
-            actions.set(`${prefix}.${Reducers.ON_ERROR}`, Reducers.onError);
         }
         return Reducer.factory(actions, actionClass.getInitialState(beanStore), beanStore, prefix);
     };

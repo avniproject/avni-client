@@ -80,3 +80,8 @@ run_packager:
 run_app:
 	cd packages/openchs-android && react-native run-android
 # </app>
+
+# <crash>
+analyse_crash:
+	cd packages/unminifiy && npm start ../openchs-android/android/app/build/generated/sourcemap.js $(line) $(column)
+# </crash>
