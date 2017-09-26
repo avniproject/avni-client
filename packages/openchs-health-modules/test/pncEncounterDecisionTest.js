@@ -343,6 +343,12 @@ describe("PNC encounter decisions", () => {
             programEncounter.observations = [systolicObs, convulsionsObs];
             decisions = getDecisions(programEncounter);
             expect(pncComplications(decisions)).to.be.an('array').with.lengthOf(1).that.includes("Post-Partum Eclampsia");
+
+            systolicObs.valueJSON = new PrimitiveValue(110, Concept.dataType.Numeric);
+            diastolicObs.valueJSON = new PrimitiveValue(91, Concept.dataType.Numeric);
+            programEncounter.observations = [systolicObs, diastolicObs, convulsionsObs];
+            decisions = getDecisions(programEncounter);
+            expect(pncComplications(decisions)).to.be.an('array').with.lengthOf(1).that.includes("Post-Partum Eclampsia");
         });
     });
 });
