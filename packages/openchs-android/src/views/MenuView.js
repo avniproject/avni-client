@@ -132,7 +132,7 @@ class MenuView extends AbstractComponent {
             </Button>
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
-    }
+    };
 
 
     render() {
