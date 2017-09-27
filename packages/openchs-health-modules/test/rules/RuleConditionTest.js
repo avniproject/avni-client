@@ -62,7 +62,7 @@ describe('RuleConditions', () => {
 
     });
 
-    it('filledAtleastOnceInEntireEnrolment checks if value is filledAtleastOnceInEntireEnrolment in entire enrolment', () => {
+    it('filledAtleastOnceInEntireEnrolment checks if value is filled at least once in entire enrolment', () => {
         expect(a1.when.filledAtleastOnceInEntireEnrolment.matches()).to.be.true;
         expect(a2.when.filledAtleastOnceInEntireEnrolment.matches()).to.be.false;
     });
