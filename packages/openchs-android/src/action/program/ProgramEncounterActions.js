@@ -5,7 +5,6 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import {ProgramEncounter} from "openchs-models";
-import ConceptService from "../../service/ConceptService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import ProgramConfigService from "../../service/ProgramConfigService";
 

@@ -60,9 +60,8 @@ class ConceptService extends BaseService {
             }
 
             if (_.isNil(existingObs)) {
-                //isEmpty returns true if its date(e.g. EDD)
-                if (!_.isEmpty(decision.value) || _.isDate(decision.value)) {
-                    observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
+                if (this._validValue(decision.value)) {
+                    observations.push(Observation.create(concept, concept.getValueWrapperFor(decision.value)));
                 }
             } else {
                 if (_.isNil(decision.value) || _.isEmpty(decision.value)) {
@@ -72,6 +71,14 @@ class ConceptService extends BaseService {
                 }
             }
         });
+    }
+
+    _validValue(value) {
+        return !this._invalidValue(value);
+    }
+
+    _invalidValue(value) {
+        return _.isArray(value)? _.isEmpty(value) : _.isNil(value);
     }
 
     getObservationsFromDecisions(decisions) {

@@ -16,7 +16,8 @@ describe('ConceptServiceTest', () => {
             "c3": EntityFactory.createConcept("c3", Concept.dataType.Coded, 'cb89d4e5-04ff-401e-97b9-d66ef6f89162'),
             "a1": EntityFactory.createConcept("a1", Concept.dataType.NA, 'd671335e-a6b2-44b5-a759-ce5e3a6777be'),
             "a2": EntityFactory.createConcept("a2", Concept.dataType.NA, 'ff315fcf-0316-424c-a0b9-9ee494d65ae0'),
-            "a3": EntityFactory.createConcept("a3", Concept.dataType.NA, '21472f5f-28a6-4051-9228-a0b0cf3a8d19')
+            "a3": EntityFactory.createConcept("a3", Concept.dataType.NA, '21472f5f-28a6-4051-9228-a0b0cf3a8d19'),
+            "a4": EntityFactory.createConcept("a3", Concept.dataType.Numeric, '21472f5f-28a6-4051-9228-a0b0cf3a8d19'),
         };
         const testConceptService = new TestConceptService(null, null, concepts);
         const observations = [EntityFactory.createObservation(concepts['c1'])];
@@ -44,6 +45,9 @@ describe('ConceptServiceTest', () => {
 
         testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', [])]);
         expect(observations.length).is.equal(1);
+
+        testConceptService.addDecisions(observations, [EntityFactory.createDecision("a4", 1)]);
+        expect(observations.length).is.equal(2);
     });
 });
 

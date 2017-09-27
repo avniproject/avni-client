@@ -48,6 +48,10 @@ class Observation {
         }
     }
 
+    isAbnormal() {
+        return this.concept.datatype === Concept.dataType.Numeric && this.concept.isAbnormal(this.getValue());
+    }
+
     hasNoAnswer() {
         return _.isEmpty(this.getValueWrapper().answer);
     }

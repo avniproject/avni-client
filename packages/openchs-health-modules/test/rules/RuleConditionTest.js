@@ -1,5 +1,8 @@
 import {expect} from "chai";
-import {ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue, MultipleCodedValues} from "openchs-models";
+import {
+    ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue, MultipleCodedValues,
+    Individual, Gender
+} from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
 import RuleCondition from "../../health_modules/rules/RuleCondition";
 
@@ -9,6 +12,9 @@ describe('RuleConditions', () => {
     beforeEach(()=> {
         programEncounter = ProgramEncounter.createEmptyInstance();
         programEncounter.programEnrolment = ProgramEnrolment.createEmptyInstance();
+        let male = new Gender();
+        male.name = "Male";
+        programEncounter.programEnrolment.individual = Individual.newInstance("f585d2f0-c148-460c-b7ac-d1d3923cf14c", "Ramesh", new Date(2010, 1, 1), true, male, 1);
         programEncounter.encounterDateTime = new Date();
         programEncounter.programEnrolment.enrolmentDateTime = new Date(2017, 0, 0, 5);
         programEncounter.programEnrolment.encounters.push(programEncounter);
@@ -83,6 +89,17 @@ describe('RuleConditions', () => {
     it("valueInEncounter checks for the same or a different concept's value to be equal to something", () => {
         expect(a1.when.valueInEncounter('a1').is.truthy.matches()).to.be.true;
         expect(a1.when.valueInEncounter('b1').is.truthy.matches()).to.be.false;
+    });
+
+    it("male checks if the program encounter is for a male", () => {
+        expect(a1.when.male.matches()).to.be.true;
+        expect(a1.when.female.matches()).to.be.false;
+    });
+
+    it("age checks for the age at the time of the program encounter", () => {
+       expect(a1.when.age.is.greaterThan(5, 'years').matches()).to.be.true;
+       expect(a1.when.age.is.greaterThanOrEqualTo(5, 'years').matches()).to.be.true;
+       expect(a1.when.age.is.lessThan(5, 'years').matches()).to.be.false;
     });
 
     it('whenItem checks for a constant value. to match', () => {

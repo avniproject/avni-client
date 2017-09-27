@@ -33,11 +33,6 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
-    static hasEncounterChanged(state, programEncounter) {
-        if (_.isNil(state.programEncounter)) return true;
-        return state.programEncounter.uuid !== programEncounter.uuid;
-    }
-
     validateEntityAgainstRule(ruleService) {
         return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form, ProgramEncounter.schema.name);
     }

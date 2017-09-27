@@ -1,5 +1,6 @@
 import FormRuleChain from "./RuleChain";
 import _ from "lodash";
+import moment from "moment";
 export default class RuleCondition {
 
     constructor(context) {
@@ -31,6 +32,10 @@ export default class RuleCondition {
         return context.programEnrolment || context.programEncounter.programEnrolment;
     }
 
+    _getIndividual(context) {
+        return context.individual || this._getEnrolment(context).individual;
+    }
+
     _containsAnswerConceptName(conceptName, context) {
         const answerConcept = context.obsToBeChecked.concept.getPossibleAnswerConcept(conceptName);
         const answerUuid = answerConcept && answerConcept.concept.uuid;
@@ -39,6 +44,12 @@ export default class RuleCondition {
 
     _hasCodedObs(context) {
         return context.obsToBeChecked && context.obsToBeChecked.concept.isCodedConcept();
+    }
+
+    _contextualTime(context) {
+        return moment(_.get(context, 'programEncounter.encounterDateTime')
+            || _.get(context, 'programEnrolment.enrolmentDateTime')
+            || new Date());
     }
 
     get is() {
@@ -100,6 +111,27 @@ export default class RuleCondition {
         });
     }
 
+    get male() {
+        return this._addToChain((next, context) => {
+            context.matches = this._getIndividual(context).gender.name === "Male";
+            return next(context);
+        });
+    }
+
+    get female() {
+        return this._addToChain((next, context) => {
+            context.matches = this._getIndividual(context).gender.name === "Female";
+            return next(context);
+        });
+    }
+
+    get age() {
+        return this._addToChain((next, context) => {
+            context.valueToBeChecked = this._contextualTime().diff(moment(this._getIndividual(context).dateOfBirth));
+            return next(context);
+        });
+    }
+
     valueInEncounter(conceptName) {
         return this._addToChain((next, context) => {
             const obs = context.programEncounter.findObservation(conceptName);
@@ -154,31 +186,53 @@ export default class RuleCondition {
         });
     }
 
-    lessThan(value) {
+    lessThan(value, unitIfDate) {
         return this._addToChain((next, context) => {
+            if (unitIfDate) {
+                context.matches = moment.duration(context.valueToBeChecked) < moment.duration(value, unitIfDate);
+            }
+
             context.matches = context.valueToBeChecked < value;
             return next(context);
         });
     }
 
-    lessThanOrEqualTo(value) {
+    lessThanOrEqualTo(value, unitIfDate) {
         return this._addToChain((next, context) => {
+            if (unitIfDate) {
+                context.matches = moment.duration(context.valueToBeChecked) <= moment.duration(value, unitIfDate);
+            }
+
             context.matches = context.valueToBeChecked <= value;
             return next(context);
         });
     }
 
-    greaterThan(value) {
+    greaterThan(value, unitIfDate) {
         return this._addToChain((next, context) => {
+            if (unitIfDate) {
+                context.matches = moment.duration(context.valueToBeChecked) > moment.duration(value, unitIfDate);
+            }
+
             context.matches = context.valueToBeChecked > value;
             return next(context);
         });
     }
 
-    greaterThanOrEqualTo(value) {
+    greaterThanOrEqualTo(value, unitIfDate) {
         return this._addToChain((next, context) => {
+            if (unitIfDate) {
+                context.matches = moment.duration(context.valueToBeChecked) >= moment.duration(value, unitIfDate);
+            }
+
             context.matches = context.valueToBeChecked >= value;
             return next(context);
         });
+    }
+
+    then(fn) {
+        if (this.matches()) {
+            return fn();
+        };
     }
 }

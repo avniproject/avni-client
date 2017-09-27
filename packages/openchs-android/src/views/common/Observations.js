@@ -90,7 +90,7 @@ class Observations extends AbstractComponent {
                                     <Text style={{
                                         textAlign: 'left',
                                         fontSize: Fonts.Medium,
-                                        color: Styles.blackColor
+                                        color: observation.isAbnormal()? Styles.redColor: Styles.blackColor
                                     }}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
                                 </Col>
                             </Row>

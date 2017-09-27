@@ -125,124 +125,24 @@
     "dataType": "N/A"
   },
   {
-    "name": "SD3",
-    "uuid": "ba8b3a07-9a5d-4ccd-af7d-3d6133963a2a",
-    "dataType": "N/A"
-  },
-  {
-    "name": "SD2",
-    "uuid": "ab1e3b92-a201-470a-9d40-d0db233c2b45",
-    "dataType": "N/A"
-  },
-  {
-    "name": "SD1",
-    "uuid": "5098ff32-945e-48f6-8dee-a5b209fa2248",
-    "dataType": "N/A"
-  },
-  {
-    "name": "SD0",
-    "uuid": "d7fd45dd-ee23-4d53-9580-c7bffd46be49",
-    "dataType": "N/A"
-  },
-  {
-    "name": "SD1neg",
-    "uuid": "2938d911-a8c8-4f11-9590-f91b09407078",
-    "dataType": "N/A"
-  },
-  {
-    "name": "SD2neg",
-    "uuid": "df2f293e-631e-4d04-a903-4dc2d3fedb7d",
-    "dataType": "N/A"
-  },
-  {
-    "name": "SD3neg",
-    "uuid": "0637f354-0b6e-4f19-a829-424d7df2baf4",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Severely Underweight",
-    "uuid": "0051d5c5-a130-431b-9046-5dbd393e7318",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Stunted",
-    "uuid": "5a041e9f-8665-4046-9f33-a297f496943c",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Severely stunted",
-    "uuid": "fd8d1514-9c52-4a7b-ae1b-954797f7a201",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Obese",
-    "uuid": "e43e4987-d767-44db-b7ad-d6a061099d62",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Overweight",
-    "uuid": "c147815a-227c-4985-9a54-83ae70eb3be8",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Possible risk of overweight",
-    "uuid": "1e956b9c-0e8d-45be-a8fe-8e74889d480b",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Wasted",
-    "uuid": "beab9df5-2aa2-48a5-8b0d-fa1536dcec1f",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Severely wasted",
-    "uuid": "45c28a23-d6d7-4e90-8634-741a07b8e157",
-    "dataType": "N/A"
-  },
-  {
     "name": "Weight for age z-score",
     "uuid": "c5f418f8-af4a-4a10-a70d-54f088c6a8c6",
-    "dataType": "Coded",
-    "answers": ["SD3", "SD2", "SD1", "SD0", "SD1neg", "SD2neg", "SD3neg"]
-  },
-  {
-    "name": "Weight for age grade",
-    "uuid": "a7cd6237-6bfb-486c-8dae-38b2d0aadc8e",
-    "dataType": "Numeric"
-  },
-  {
-    "name": "Weight for age status",
-    "uuid": "28d232fd-a239-46a6-b5d8-700a62fcabd8",
-    "dataType": "Coded",
-    "answers": ["Normal", "Underweight", "Severely Underweight"]
+    "dataType": "Numeric",
+    "lowNormal": -2,
+    "highNormal": 2
   },
   {
     "name": "Height for age z-score",
     "uuid": "38b0f43a-bdb0-4538-831f-9fac324ecde9",
-    "dataType": "Coded",
-    "answers": ["SD3", "SD2", "SD1", "SD0", "SD1neg", "SD2neg", "SD3neg"]
-  },
-  {
-    "name": "Height for age grade",
-    "uuid": "c94a469b-b8f7-406a-b823-8cf5be61e6ff",
-    "dataType": "Numeric"
-  },
-  {
-    "name": "Height for age status",
-    "uuid": "ab00a5df-62bb-4845-a5e6-d1cf6f21e503",
-    "dataType": "Coded",
-    "answers": ["Normal", "Stunted", "Severely stunted"]
+    "dataType": "Numeric",
+    "lowNormal": -2,
+    "highNormal": 2
   },
   {
     "name": "Weight for height z-score",
     "uuid": "6c6dcf3f-9088-49a8-a3b0-abce795c0c95",
-    "dataType": "Coded",
-    "answers": ["SD3", "SD2", "SD1", "SD0", "SD1neg", "SD2neg", "SD3neg"]
-  },
-  {
-    "name": "Weight for height status",
-    "uuid": "6014c97f-b27b-4a4b-8263-6a03ded14dc8",
-    "dataType": "Coded",
-    "answers": ["Obese", "Overweight", "Possible risk of overweight", "Normal", "Wasted", "Severely wasted"]
+    "dataType": "Numeric",
+    "lowNormal": -2,
+    "highNormal": 2
   }
 ]

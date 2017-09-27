@@ -1,3 +1,9 @@
+/**
+ * DEPRECATED. This is replaced by anthropometricDecision.js.
+ *
+ *
+ *
+ */
 import C from '../common';
 
 import weightForAgeScoresGirls from './anthropometricReference/wfa_girls_0_5_zscores';
@@ -60,15 +66,7 @@ var zScoreGradeMappingHeightForAge = {
     'SD2neg': 2,
     'SD3neg': 3
 };
-var zScoreStatusMappingBMIForAge = {
-    'SD3': 'Obese',
-    'SD2': 'Overweight',
-    'SD1': 'Possible risk of overweight',
-    'SD0': 'Normal',
-    'SD1neg': 'Normal',
-    'SD2neg': 'Wasted',
-    'SD3neg': 'Severely wasted'
-};
+
 var zScoreStatusMappingWeightForHeight = {
     'SD3': 'Obese',
     'SD2': 'Overweight',

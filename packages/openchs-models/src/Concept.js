@@ -95,6 +95,10 @@ export default class Concept {
     cloneForReference() {
         const concept = Concept.create(this.name, this.datatype);
         concept.uuid = this.uuid;
+        concept.lowAbsolute = this.lowAbsolute;
+        concept.lowNormal = this.lowNormal;
+        concept.hiNormal = this.hiNormal;
+        concept.hiAbsolute = this.hiAbsolute;
         concept.answers = this.getAnswers();
         return concept;
     }
@@ -106,6 +110,19 @@ export default class Concept {
         if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
 
         return (value < this.lowAbsolute || value > this.hiAbsolute);
+    }
+
+    isAbnormal(value) {
+        console.log(this.name + " values are " + this.lowNormal + " and " + this.hiNormal);
+        return this.isBelowLowNormal(value) || this.isAboveHiNormal(value);
+    }
+
+    isBelowLowNormal(value) {
+        return this._areValidNumbers(value, this.lowNormal) && value < this.lowNormal;
+    }
+
+    isAboveHiNormal(value) {
+        return this._areValidNumbers(value, this.hiNormal) && value > this.hiNormal;
     }
 
     addAnswer(concept) {
@@ -138,5 +155,9 @@ export default class Concept {
 
     get translatedFieldValue() {
         return this.name;
+    }
+
+    _areValidNumbers(...numbers) {
+        return _.every(numbers, (value) => value !== null && _.isFinite(value));
     }
 }
