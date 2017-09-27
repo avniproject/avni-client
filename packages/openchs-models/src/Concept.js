@@ -113,7 +113,6 @@ export default class Concept {
     }
 
     isAbnormal(value) {
-        console.log(this.name + " values are " + this.lowNormal + " and " + this.hiNormal);
         return this.isBelowLowNormal(value) || this.isAboveHiNormal(value);
     }
 
