@@ -62,24 +62,28 @@ class IndividualRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
-                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE} element={new StaticFormElement('registrationDate', true)}
+                        <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
+                                         element={new StaticFormElement('registrationDate', true)}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
                         <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
                                          element={new StaticFormElement('name', true)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.NAME)}
-                                         value={new PrimitiveValue(this.state.individual.name)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                                         value={new PrimitiveValue(this.state.individual.name)}
+                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
-                                <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}<Text style={{color: Colors.ValidationError}}> * </Text></Text>
+                                <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirth")}<Text
+                                    style={{color: Colors.ValidationError}}> * </Text></Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
-                                <Text onPress={this.showPicker.bind(this, 'simple', {date: this.state.individual.dateOfBirth})}
-                                      style={[DGS.formElementTextInput,
-                                          {
-                                              marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
-                                              color: AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputNormal
-                                          }]}>{this.dateDisplay(this.state.individual.dateOfBirth)}</Text>
+                                <Text
+                                    onPress={this.showPicker.bind(this, 'simple', {date: this.state.individual.dateOfBirth})}
+                                    style={[DGS.formElementTextInput,
+                                        {
+                                            marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
+                                            color: AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputNormal
+                                        }]}>{this.dateDisplay(this.state.individual.dateOfBirth)}</Text>
                                 <View style={{flexDirection: 'column-reverse'}}>
                                     <CheckBox checked={this.state.individual.dateOfBirthVerified}
                                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.state.individual.dateOfBirthVerified})}/>
@@ -87,17 +91,20 @@ class IndividualRegisterView extends AbstractComponent {
                                 <View style={{marginRight: DGS.resizeWidth(15)}}/>
                                 <Text style={DGS.formElementLabel}>{this.I18n.t("dateOfBirthVerified")}</Text>
                             </View>
-                            <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.DOB)}/>
+                            <ValidationErrorMessage
+                                validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.DOB)}/>
                         </View>
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>
-                                <Text style={DGS.formElementLabel}>{this.I18n.t("age")}<Text style={{color: Colors.ValidationError}}> * </Text></Text>
+                                <Text style={DGS.formElementLabel}>{this.I18n.t("age")}<Text
+                                    style={{color: Colors.ValidationError}}> * </Text></Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
-                                <TextInput style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
-                                           underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
-                                           value={_.isNil(this.state.age) ? "" : this.state.age}
-                                           onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
+                                <TextInput
+                                    style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
+                                    underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
+                                    value={_.isNil(this.state.age) ? "" : this.state.age}
+                                    onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
                                 <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
                                     <Radio selected={this.state.ageProvidedInYears}
                                            onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
@@ -114,19 +121,21 @@ class IndividualRegisterView extends AbstractComponent {
                                 </View>
                             </View>
                         </View>
-                        <RadioGroup action={Actions.REGISTRATION_ENTER_GENDER}
-                                    labelValuePairs={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
-                                    labelKey="gender"
-                                    selectionFn={(gender) => gender.equals(this.state.individual.gender)}
-                                    validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.GENDER)}
-                                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                    mandatory={true}
+                        <RadioGroup
+                            onPress={({value}) => this.dispatchAction(Actions.REGISTRATION_ENTER_GENDER, {value: value})}
+                            labelValuePairs={this.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
+                            labelKey="gender"
+                            selectionFn={(gender) => gender.equals(this.state.individual.gender)}
+                            validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.GENDER)}
+                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                            mandatory={true}
                         />
-                        <AddressLevels selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
-                                       multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}
-                                       validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
-                                       style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                       mandatory={true}
+                        <AddressLevels
+                            selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
+                            multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}
+                            validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
+                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                            mandatory={true}
                         />
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>

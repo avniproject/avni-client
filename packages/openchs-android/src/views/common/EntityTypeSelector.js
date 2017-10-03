@@ -42,6 +42,7 @@ class EntityTypeSelector extends AbstractComponent {
 
     render() {
         const {width, height} = Dimensions.get('window');
+        const ENTITY_TYPE_SELECTED_ACTION = this.props.actions['ENTITY_TYPE_SELECTED'];
         return (
             <Modal
                 animationType={"fade"}
@@ -71,7 +72,7 @@ class EntityTypeSelector extends AbstractComponent {
                     }]}>
                         <RadioGroup
                             style={{alignSelf: 'stretch'}}
-                            action={this.props.actions['ENTITY_TYPE_SELECTED']}
+                            onPress={({value}) => this.dispatchAction(ENTITY_TYPE_SELECTED_ACTION, {value: value})}
                             selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
                             labelKey={this.props.labelKey}
                             labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>

@@ -10,6 +10,7 @@ import Fonts from '../primitives/Fonts';
 import Distances from '../primitives/Distances';
 import PresetOptionItem from "../primitives/PresetOptionItem";
 import Styles from "../primitives/Styles";
+import RadioGroup from "../primitives/RadioGroup";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -18,7 +19,7 @@ class AddressLevels extends AbstractComponent {
         actionName: React.PropTypes.string.isRequired,
         validationError: React.PropTypes.object,
         style: React.PropTypes.object,
-        mandatory : React.PropTypes.bool
+        mandatory: React.PropTypes.bool
     };
 
     viewName() {
@@ -39,9 +40,12 @@ class AddressLevels extends AbstractComponent {
     }
 
     presetOption(address) {
-        return <PresetOptionItem displayText={this.I18n.t(address.name)} checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, address)}
-                                 multiSelect={this.props.multiSelect} onPress={() => this.toggleAddressLevelSelection(address)}
-                                 validationResult={this.props.validationError} style={{flex: 1, marginTop: Distances.ScaledVerticalSpacingBetweenOptionItems}}/>
+        return <PresetOptionItem displayText={this.I18n.t(address.name)}
+                                 checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, address)}
+                                 multiSelect={this.props.multiSelect}
+                                 onPress={() => this.toggleAddressLevelSelection(address)}
+                                 validationResult={this.props.validationError}
+                                 style={{flex: 1, marginTop: Distances.ScaledVerticalSpacingBetweenOptionItems}}/>
     }
 
     renderChoices() {
@@ -57,7 +61,7 @@ class AddressLevels extends AbstractComponent {
     }
 
     render() {
-        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
+        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         return (
             <View style={this.appendedStyle()}>
                 <Text style={Styles.formLabel}>{this.I18n.t("lowestAddressLevel")}{mandatoryText}</Text>

@@ -34,18 +34,27 @@ class SettingsView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={this.scaleStyle({paddingHorizontal: Distances.ContentDistanceFromEdge})}>
-                        <TextFormElement element={new StaticFormElement('serverURL')} actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
-                                         value={new PrimitiveValue(this.state.settings.serverURL)} style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <TextFormElement element={new StaticFormElement('catchmentId')} actionName={Actions.ON_CATCHMENT_CHANGE}
+                        <TextFormElement element={new StaticFormElement('serverURL')}
+                                         actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
+                                         value={new PrimitiveValue(this.state.settings.serverURL)}
+                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <TextFormElement element={new StaticFormElement('catchmentId')}
+                                         actionName={Actions.ON_CATCHMENT_CHANGE}
                                          validationResult={this.state.validationResults.resultFor('catchment')}
                                          value={new PrimitiveValue(_.toString(this.state.settings.catchment))}
                                          style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <RadioGroup action={Actions.ON_LOCALE_CHANGE} labelValuePairs={localeLabelValuePairs} labelKey='locale'
-                                    selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid} validationError={null}
+                        <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
+                                    labelValuePairs={localeLabelValuePairs} labelKey='locale'
+                                    selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid}
+                                    validationError={null}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <RadioGroup action={Actions.ON_LOG_LEVEL_CHANGE} labelValuePairs={logLevelLabelValuePairs} labelKey='logLevel'
-                                    selectionFn={(logLevel) => this.state.settings.logLevel === logLevel} validationError={null}
-                                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+
+                        <RadioGroup
+                            onPress={({value}) => this.dispatchAction(Actions.ON_LOG_LEVEL_CHANGE, {value: value})}
+                            labelValuePairs={logLevelLabelValuePairs} labelKey='logLevel'
+                            selectionFn={(logLevel) => this.state.settings.logLevel === logLevel}
+                            validationError={null}
+                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

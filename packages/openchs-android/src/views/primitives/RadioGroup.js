@@ -10,8 +10,8 @@ import Styles from "./Styles";
 
 
 export class RadioLabelValue {
-    constructor(radioLabel, value) {
-        this.radioLabel = radioLabel;
+    constructor(label, value) {
+        this.label = label;
         this.value = value;
     }
 }
@@ -22,7 +22,7 @@ class RadioGroup extends AbstractComponent {
     };
 
     static propTypes = {
-        action: React.PropTypes.string.isRequired,
+        onPress: React.PropTypes.func.isRequired,
         labelKey: React.PropTypes.string.isRequired,
         labelValuePairs: React.PropTypes.array.isRequired,
         selectionFn: React.PropTypes.func.isRequired,
@@ -49,11 +49,12 @@ class RadioGroup extends AbstractComponent {
                     paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
                     {this.props.labelValuePairs.map((radioLabelValue) =>
-                        <PresetOptionItem displayText={this.I18n.t(radioLabelValue.radioLabel)}
+                        <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
                                           checked={this.props.selectionFn(radioLabelValue.value)}
-                                          multiSelect={false} validationResult={this.props.validationError}
-                                          onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})}
-                                          key={radioLabelValue.radioLabel}
+                                          multiSelect={false}
+                                          validationResult={this.props.validationError}
+                                          onPress={() => this.props.onPress(radioLabelValue)}
+                                          key={radioLabelValue.label}
                                           style={{paddingTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
                     }
                 </View>
