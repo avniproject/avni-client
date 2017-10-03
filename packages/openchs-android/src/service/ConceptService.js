@@ -61,7 +61,7 @@ class ConceptService extends BaseService {
 
             if (_.isNil(existingObs)) {
                 if (this._validValue(decision.value)) {
-                    observations.push(Observation.create(concept, concept.getValueWrapperFor(decision.value)));
+                    observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
                 }
             } else {
                 if (_.isNil(decision.value) || _.isEmpty(decision.value)) {
