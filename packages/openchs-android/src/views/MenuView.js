@@ -138,12 +138,13 @@ class MenuView extends AbstractComponent {
     render() {
         let menuItemsData = [
             ["settings", "Settings", this.settingsView.bind(this)],
-            ["delete", "Delete Data", this.onDeleteSchema.bind(this)],
+            ["delete", "Delete Data", this.onDeleteSchema.bind(this), () => __DEV__],
             ["person-add", "Register", this.registrationView.bind(this)],
             ["view-list", "Program Summary", this.programSummary.bind(this)]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData
+            .filter(([key, display, cb, shouldRender]) => shouldRender === undefined || shouldRender())
             .map(([key, display, cb], idx) => this.renderMenuItem(maxMenuItemDisplay)(key, display, cb, idx));
         return (
             <CHSContent>
