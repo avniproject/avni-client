@@ -60,7 +60,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     render() {
-        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`)
+        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>

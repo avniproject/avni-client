@@ -69,7 +69,7 @@ class RadioGroup extends AbstractComponent {
     render() {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         return (
-            <View style={this.appendedStyle(this.props.style)}>
+            <View style={this.appendedStyle({})}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
