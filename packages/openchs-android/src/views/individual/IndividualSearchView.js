@@ -26,6 +26,14 @@ class IndividualSearchView extends AbstractComponent {
         return 'IndividualSearchView';
     }
 
+    searchIndividual() {
+        this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
+            cb: (results) => TypedTransition.from(this).with({
+                searchResults: results
+            }).to(IndividualSearchResultsView, true)
+        });
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
@@ -40,14 +48,6 @@ class IndividualSearchView extends AbstractComponent {
                 </View>
             </CHSContent>
         );
-    }
-
-    searchIndividual() {
-        this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
-            cb: (results) => TypedTransition.from(this).with({
-                searchResults: results
-            }).to(IndividualSearchResultsView, true)
-        });
     }
 }
 
