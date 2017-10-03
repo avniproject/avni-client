@@ -12,7 +12,6 @@ class SelectFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
-        multipleCodeValues: React.PropTypes.object.isRequired,
         isSelected: React.PropTypes.func.isRequired,
         validationResult: React.PropTypes.object,
     };
