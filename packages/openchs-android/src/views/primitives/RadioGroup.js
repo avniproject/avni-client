@@ -7,6 +7,7 @@ import Colors from '../primitives/Colors';
 import PresetOptionItem from "./PresetOptionItem";
 import Distances from "./Distances";
 import Styles from "./Styles";
+import _ from 'lodash';
 
 
 export class RadioLabelValue {
@@ -19,6 +20,8 @@ export class RadioLabelValue {
 class RadioGroup extends AbstractComponent {
     static defaultProps = {
         style: {},
+        inPairs: false,
+        multiSelect: false,
     };
 
     static propTypes = {
@@ -28,11 +31,39 @@ class RadioGroup extends AbstractComponent {
         selectionFn: React.PropTypes.func.isRequired,
         validationError: React.PropTypes.object,
         style: React.PropTypes.object,
-        mandatory: React.PropTypes.bool
+        mandatory: React.PropTypes.bool,
+        inPairs: React.PropTypes.bool,
+        multiSelect: React.PropTypes.bool,
     };
 
     constructor(props, context) {
         super(props, context);
+    }
+
+    renderPairedOptions() {
+        return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
+            <View style={{flexDirection: "row"}} key={idx}>
+                {rlvPair.map((rlv) =>
+                    <PresetOptionItem displayText={this.I18n.t(rlv.label)}
+                                      checked={this.props.selectionFn(rlv.value)}
+                                      multiSelect={this.props.multiSelect}
+                                      validationResult={this.props.validationError}
+                                      onPress={() => this.props.onPress(rlv)}
+                                      key={rlv.label}
+                                      style={{flex: 1, marginTop: Distances.ScaledVerticalSpacingBetweenOptionItems}}/>
+                )}
+            </View>);
+    }
+
+    renderOptions() {
+        return this.props.labelValuePairs.map(radioLabelValue =>
+            <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
+                              checked={this.props.selectionFn(radioLabelValue.value)}
+                              multiSelect={this.props.multiSelect}
+                              validationResult={this.props.validationError}
+                              onPress={() => this.props.onPress(radioLabelValue)}
+                              key={radioLabelValue.label}
+                              style={{paddingTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
     }
 
     render() {
@@ -48,15 +79,7 @@ class RadioGroup extends AbstractComponent {
                     marginTop: DGS.resizeHeight(16),
                     paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
-                    {this.props.labelValuePairs.map((radioLabelValue) =>
-                        <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
-                                          checked={this.props.selectionFn(radioLabelValue.value)}
-                                          multiSelect={false}
-                                          validationResult={this.props.validationError}
-                                          onPress={() => this.props.onPress(radioLabelValue)}
-                                          key={radioLabelValue.label}
-                                          style={{paddingTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
-                    }
+                    {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                 </View>
             </View>
         );

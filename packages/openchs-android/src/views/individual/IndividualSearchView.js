@@ -41,8 +41,10 @@ class IndividualSearchView extends AbstractComponent {
                 <View style={{marginTop: Styles.ContentDistanceFromEdge, paddingHorizontal: Styles.ContentDistanceFromEdge, flexDirection: 'column'}}>
                     <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)}/>
                     <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')} value={new PrimitiveValue(this.state.searchCriteria.age)}/>
-                    <AddressLevels multiSelect={true} selectedAddressLevels={this.state.searchCriteria.lowestAddressLevels}
-                                   actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL} style={{marginTop: Styles.VerticalSpacingBetweenFormElements, marginBottom: Styles.VerticalSpacingBetweenFormElements}}/>
+                    <AddressLevels multiSelect={true}
+                                   selectedAddressLevels={this.state.searchCriteria.lowestAddressLevels}
+                                   actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL}
+                                   style={{marginTop: Styles.VerticalSpacingBetweenFormElements, marginBottom: Styles.VerticalSpacingBetweenFormElements}}/>
                     <Button title={this.I18n.t("search")} color={Styles.accentColor} style={{marginTop: 30}}
                             onPress={() => this.searchIndividual()}/>
                 </View>

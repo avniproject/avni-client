@@ -10,7 +10,7 @@ import Fonts from '../primitives/Fonts';
 import Distances from '../primitives/Distances';
 import PresetOptionItem from "../primitives/PresetOptionItem";
 import Styles from "../primitives/Styles";
-import RadioGroup from "../primitives/RadioGroup";
+import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -31,51 +31,27 @@ class AddressLevels extends AbstractComponent {
         this.inputTextStyle = {fontSize: Fonts.Large, marginLeft: 11, color: Colors.InputNormal};
     }
 
-    toggleAddressLevelSelection(addressLevel) {
-        return this.dispatchAction(this.props.actionName, {value: addressLevel});
+    toggleAddressLevelSelection(addressLevelUuid) {
+        const selectedAddressLevel = this.state.addressLevels.find((al) => al.uuid === addressLevelUuid);
+        return this.dispatchAction(this.props.actionName, {value: selectedAddressLevel});
     }
 
     refreshState() {
         this.setState({addressLevels: this.getContextState("addressLevels")});
     }
 
-    presetOption(address) {
-        return <PresetOptionItem displayText={this.I18n.t(address.name)}
-                                 checked={BaseEntity.collectionHasEntity(this.props.selectedAddressLevels, address)}
-                                 multiSelect={this.props.multiSelect}
-                                 onPress={() => this.toggleAddressLevelSelection(address)}
-                                 validationResult={this.props.validationError}
-                                 style={{flex: 1, marginTop: Distances.ScaledVerticalSpacingBetweenOptionItems}}/>
-    }
-
-    renderChoices() {
-        return _.chunk(this.state.addressLevels, 2).map(([address1, address2], idx) => {
-                return (<View
-                    key={idx}
-                    style={{flexDirection: 'row'}}>
-                    {this.presetOption(address1)}
-                    {_.isNil(address2) ? <View/> : this.presetOption(address2)}
-                </View>)
-            }
-        );
-    }
-
     render() {
-        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
+        const valueLabelPairs = this.state.addressLevels.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         return (
-            <View style={this.appendedStyle()}>
-                <Text style={Styles.formLabel}>{this.I18n.t("lowestAddressLevel")}{mandatoryText}</Text>
-                <View style={{
-                    borderWidth: 1,
-                    borderStyle: 'dashed',
-                    borderColor: Colors.InputBorderNormal,
-                    paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                    marginTop: DGS.resizeHeight(16),
-                    paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                }}>
-                    {this.renderChoices()}
-                </View>
-            </View>
+            <RadioGroup
+                multiSelect={this.props.multiSelect}
+                style={this.props.style}
+                inPairs={true}
+                onPress={({label, value}) => this.toggleAddressLevelSelection(value)}
+                selectionFn={(addressLevel) => this.props.selectedAddressLevels.some((al) => al.uuid === addressLevel)}
+                labelKey="lowestAddressLevel"
+                mandatory={this.props.mandatory}
+                labelValuePairs={valueLabelPairs}/>
         );
     }
 }
