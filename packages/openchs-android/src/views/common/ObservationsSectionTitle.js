@@ -17,13 +17,16 @@ class ObservationsSectionTitle extends AbstractComponent {
     }
 
     render() {
+        let contextActionButtons = this.props.contextActions.map((contextAction, idx) => {
+            return <ContextActionButton labelKey={contextAction.labelKey}
+                                        onPress={() => contextAction.onPressFunc()}
+                                        key={idx}/>
+        });
         return (
             <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
-                <Text style={Fonts.MediumBold}>{this.props.title}</Text>
+                <Text style={[Fonts.MediumBold, {marginRight: 10}]}>{this.props.title}</Text>
                 <View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row'}}>
-                    {this.props.contextActions.map((contextAction, index) => {
-                        return <ContextActionButton labelKey={contextAction.labelKey} onPress={() => contextAction.onPressFunc()} key={`${index}`}/>
-                    })}
+                    {contextActionButtons}
                 </View>
             </View>
         );
