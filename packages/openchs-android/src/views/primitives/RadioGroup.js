@@ -50,7 +50,7 @@ class RadioGroup extends AbstractComponent {
                                       validationResult={this.props.validationError}
                                       onPress={() => this.props.onPress(rlv)}
                                       key={rlv.label}
-                                      style={{flex: 1, marginTop: Distances.ScaledVerticalSpacingBetweenOptionItems}}/>
+                                      style={{flex: 1, paddingVertical: Distances.VerticalSpacingBetweenOptionItems}}/>
                 )}
             </View>);
     }
@@ -63,7 +63,7 @@ class RadioGroup extends AbstractComponent {
                               validationResult={this.props.validationError}
                               onPress={() => this.props.onPress(radioLabelValue)}
                               key={radioLabelValue.label}
-                              style={{paddingTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
+                              style={{paddingVertical: Distances.VerticalSpacingBetweenOptionItems}}/>)
     }
 
     render() {
@@ -76,7 +76,6 @@ class RadioGroup extends AbstractComponent {
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                    marginTop: DGS.resizeHeight(16),
                     paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
                     {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}

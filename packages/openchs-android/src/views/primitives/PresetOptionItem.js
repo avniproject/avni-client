@@ -23,6 +23,15 @@ class PresetOptionItem extends AbstractComponent {
         super(props, context);
     }
 
+    getSelectComponent() {
+        if (this.props.multiSelect)
+            return (<CheckBox theme={themes} checked={this.props.checked}
+                              onPress={() => this.props.onPress()}/>);
+        else
+            return (<Radio theme={themes} selected={this.props.checked}
+                           onPress={() => this.props.onPress()}/>);
+    }
+
     render() {
         const color = _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError;
         const appendedStyle = this.appendedStyle({flexDirection: 'row', alignItems: 'center'});
@@ -35,15 +44,6 @@ class PresetOptionItem extends AbstractComponent {
                 </View>
             </TouchableOpacity>
         );
-    }
-
-    getSelectComponent() {
-        if (this.props.multiSelect)
-            return (<CheckBox theme={themes} checked={this.props.checked}
-                              onPress={() => this.props.onPress()}/>);
-        else
-            return (<Radio theme={themes} selected={this.props.checked}
-                           onPress={() => this.props.onPress()}/>);
     }
 }
 

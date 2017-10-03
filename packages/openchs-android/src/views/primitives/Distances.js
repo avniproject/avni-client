@@ -30,7 +30,7 @@ class Distances {
     static ContentDistanceWithinContainer = 10;
     static VerticalSpacingBetweenFormElements = 20;
     static VerticalSpacingDisplaySections = 16;
-    static VerticalSpacingBetweenOptionItems = 20;
+    static VerticalSpacingBetweenOptionItems = DGS.resizeHeight(8);
 }
 
 export default Distances;
