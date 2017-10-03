@@ -47,15 +47,20 @@ class EntityTypeSelector extends AbstractComponent {
                 animationType={"fade"}
                 transparent={true}
                 visible={[EntityTypeChoiceState.states.Launched, EntityTypeChoiceState.states.EntityTypeSelected].includes(this.props.flowState)}
-                onRequestClose={ () => {
+                onRequestClose={() => {
                     this.cancelSelection();
                     return true;
                 }}>
                 <View
-                    style={{flex: 1, flexDirection: 'column', flexWrap: 'nowrap', backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
+                    style={{
+                        flex: 1,
+                        flexDirection: 'column',
+                        flexWrap: 'nowrap',
+                        backgroundColor: "rgba(0, 0, 0, 0.5)"
+                    }}>
                     <View style={{flex: .3}}/>
                     <View style={[{
-                        width: width*0.7,
+                        width: width * 0.7,
                         flexDirection: 'column',
                         flexWrap: 'nowrap',
                         justifyContent: 'space-between',
@@ -64,12 +69,14 @@ class EntityTypeSelector extends AbstractComponent {
                         alignSelf: 'center',
                         backgroundColor: Styles.whiteColor
                     }]}>
-                        <RadioGroup action={this.props.actions['ENTITY_TYPE_SELECTED']}
-                                    selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
-                                    labelKey={this.props.labelKey}
-                                    labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
+                        <RadioGroup
+                            style={{alignSelf: 'stretch'}}
+                            action={this.props.actions['ENTITY_TYPE_SELECTED']}
+                            selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
+                            labelKey={this.props.labelKey}
+                            labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
                         <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginTop: 10}}>
-                            {this.renderButton(()=> this.cancelSelection(), 'cancel')}
+                            {this.renderButton(() => this.cancelSelection(), 'cancel')}
                             {this.renderButton(() => this.entityTypeSelectionConfirmed(), 'proceed')}
                         </View>
                     </View>

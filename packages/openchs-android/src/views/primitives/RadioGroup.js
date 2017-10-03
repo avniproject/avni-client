@@ -8,7 +8,19 @@ import PresetOptionItem from "./PresetOptionItem";
 import Distances from "./Distances";
 import Styles from "./Styles";
 
+
+export class RadioLabelValue {
+    constructor(radioLabel, value) {
+        this.radioLabel = radioLabel;
+        this.value = value;
+    }
+}
+
 class RadioGroup extends AbstractComponent {
+    static defaultProps = {
+        style: {},
+    };
+
     static propTypes = {
         action: React.PropTypes.string.isRequired,
         labelKey: React.PropTypes.string.isRequired,
@@ -16,7 +28,7 @@ class RadioGroup extends AbstractComponent {
         selectionFn: React.PropTypes.func.isRequired,
         validationError: React.PropTypes.object,
         style: React.PropTypes.object,
-        mandatory : React.PropTypes.bool
+        mandatory: React.PropTypes.bool
     };
 
     constructor(props, context) {
@@ -24,9 +36,9 @@ class RadioGroup extends AbstractComponent {
     }
 
     render() {
-        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
+        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         return (
-            <View style={this.appendedStyle({})}>
+            <View style={this.appendedStyle(this.props.style)}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 <View style={{
                     borderWidth: 1,
@@ -37,21 +49,16 @@ class RadioGroup extends AbstractComponent {
                     paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
                     {this.props.labelValuePairs.map((radioLabelValue) =>
-                        <PresetOptionItem displayText={this.I18n.t(radioLabelValue.radioLabel)} checked={this.props.selectionFn(radioLabelValue.value)}
+                        <PresetOptionItem displayText={this.I18n.t(radioLabelValue.radioLabel)}
+                                          checked={this.props.selectionFn(radioLabelValue.value)}
                                           multiSelect={false} validationResult={this.props.validationError}
-                                          onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})} key={radioLabelValue.radioLabel}
+                                          onPress={() => this.dispatchAction(this.props.action, {value: radioLabelValue.value})}
+                                          key={radioLabelValue.radioLabel}
                                           style={{paddingTop: Distances.VerticalSpacingBetweenOptionItems}}/>)
                     }
                 </View>
             </View>
         );
-    }
-}
-
-export class RadioLabelValue {
-    constructor(radioLabel, value) {
-        this.radioLabel = radioLabel;
-        this.value = value;
     }
 }
 
