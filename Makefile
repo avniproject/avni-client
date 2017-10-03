@@ -50,6 +50,8 @@ install_apk:
 
 reinstall_apk: uninstall_apk install_apk
 
+reinstall: uninstall_apk run_app
+
 local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
 # </apk>
