@@ -67,3 +67,5 @@ packages/openchs-health-modules/output/
 gradle/
 gradlew
 gradlew.bat
+
+**/openchs_rules.tar.gz

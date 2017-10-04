@@ -72,13 +72,14 @@ deploy_metadata: ## Upload metadata to server
 
 # <package>
 build_package: ## Builds a deployable package
-	rm -f output/openchs_health_modules.tar.gz
-	rm -rf output/health_modules
-	mkdir output/health_modules
-	cp -r health_modules/commonConcepts.json health_modules/child/metadata health_modules/mother/metadata health_modules/diabetes/metadata health_modules/ncd/metadata health_modules/outpatient/metadata health_modules/deploy.sh output/health_modules/
-	cd output/health_modules && tar zcvf ../openchs_health_modules.tar.gz commonConcepts.json metadata deploy.sh
+	rm -rf output/
+	mkdir -p output/
+	make build_rules
+	tar zcvf openchs_rules.tar.gz -C output .
 # </package>
 
+deploy_package: build_package
+	aws s3 cp openchs_rules.tar.gz s3://openchs/rules/openchs_rules.tar.gz --region ap-south-1
 
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata
