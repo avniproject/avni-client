@@ -33,11 +33,6 @@ build_rules: ## Create webpack files for all the rules
 	./node_modules/.bin/webpack --config build-config/individualRegistrationDecisionWebpack.config.js
 	./node_modules/.bin/webpack --config build-config/programEnrolmentDecisionWebpack.config.js
 	./node_modules/.bin/webpack --config build-config/programConfigWebpack.config.js
-
-deploy_rules: build_rules ## build_rules and deploy them to the server
-	cp -r output/*.js ../../../openchs-server/external/
-	cp -r health_modules/*.json ../../../openchs-server/external/
-	date
 # </rules>
 
 # <metadata>
