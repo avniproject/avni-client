@@ -80,7 +80,15 @@ jobs:
             - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
             - v1-dependencies-
 
-        - run: sudo apt-get install make
+
+        - run:
+            name: Install dependencies
+            command: |
+              sudo apt-get -y -qq update
+              sudo apt-get -y -qq install python3.4-dev make
+              curl -O https://bootstrap.pypa.io/get-pip.py
+              python3.4 get-pip.py --user
+              pip install awscli --upgrade --user
 
         - run: make deps
 
