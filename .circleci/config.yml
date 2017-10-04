@@ -94,7 +94,7 @@ jobs:
              - packages/openchs-health-modules/node_modules
             key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
 
-        - run: make deploy_package
+        - run: make deploy_rules
 
   test_models:
     docker:

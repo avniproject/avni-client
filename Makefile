@@ -83,6 +83,11 @@ run_app:
 	cd packages/openchs-android && react-native run-android
 # </app>
 
+# <deploy_rules>
+deploy_rules:
+	cd packages/openchs-health-modules; make deploy_package
+# </deploy_rules>
+
 # <crash>
 analyse_crash:
 	cd packages/unminifiy && npm start ../openchs-android/android/app/build/generated/sourcemap.js $(line) $(column)
