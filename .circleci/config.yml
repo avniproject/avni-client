@@ -65,6 +65,36 @@ jobs:
       - run: make test-health-modules
 
 
+  deploy_rules:
+      docker:
+        - image: circleci/node:8.5.0
+
+      working_directory: ~/openchs-client
+
+      steps:
+        - checkout
+
+        - restore_cache:
+            keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
+            - v1-dependencies-
+
+        - run: sudo apt-get install make
+
+        - run: make deps
+
+        - save_cache:
+            paths:
+              - node_modules
+            key: v1-dependencies-{{ checksum "package.json" }}
+
+        - save_cache:
+            paths:
+             - packages/openchs-health-modules/node_modules
+            key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
+
+        - run: make deploy_package
 
   test_models:
     docker:
@@ -182,6 +212,9 @@ workflows:
       - test_models
       - test_android
       - test_health_modules
+      - deploy_rules:
+          requires:
+            - test_health_modules
       - hold:
           type: approval
           requires:
