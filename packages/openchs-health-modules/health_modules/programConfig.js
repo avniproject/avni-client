@@ -1,33 +1,18 @@
 import childProgramConfig from "./child/childProgramConfig";
+import motherProgramObservationRules from "./mother/motherProgramObservationRules";
 
 const programConfigExports = {};
 programConfigExports.Child = childProgramConfig;
 
 const observationRulesExports = {};
-observationRulesExports.Mother = require('./mother/motherProgramObservationRules');
+observationRulesExports.Mother = motherProgramObservationRules;
 
 const config = function (programName) {
-    console.log(programName);
-    if (!programName) {
-        return programConfigExports;
-    }
-
-    if (programName === "Child") {
-        console.log("getting config for child")
-    }
-
-    console.log(programConfigExports[programName])
-
-    return programConfigExports[programName];
+    return !programName ? programConfigExports : programConfigExports[programName];
 };
 
 const observationRules = function (programName) {
-    if (!programName) {
-        return observationRulesExports;
-    }
-
-    var observationRules = observationRulesExports[programName];
-    return observationRules ? observationRules : [];
+    return !programName ? observationRulesExports : observationRulesExports[programName] || [];
 };
 
 export {
