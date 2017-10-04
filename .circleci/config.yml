@@ -87,8 +87,8 @@ jobs:
               sudo apt-get -y -qq update
               sudo apt-get -y -qq install python3.4-dev make
               curl -O https://bootstrap.pypa.io/get-pip.py
-              python3.4 get-pip.py --user
-              pip install awscli --upgrade --user
+              sudo python3.4 get-pip.py
+              sudo pip install awscli --upgrade
 
         - run: make deps
 
