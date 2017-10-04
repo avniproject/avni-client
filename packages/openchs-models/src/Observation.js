@@ -11,10 +11,11 @@ class Observation {
         }
     };
 
-    static create(concept, value) {
+    static create(concept, value, abnormal = false) {
         const observation = new Observation();
         observation.concept = concept;
         observation.valueJSON = value;
+        observation.abnormal = abnormal;
         return observation;
     }
 
@@ -49,7 +50,8 @@ class Observation {
     }
 
     isAbnormal() {
-        return this.concept.datatype === Concept.dataType.Numeric && this.concept.isAbnormal(this.getValue());
+        return this.concept.datatype === Concept.dataType.Numeric ?
+            this.concept.isAbnormal(this.getValue()) : this.abnormal;
     }
 
     hasNoAnswer() {

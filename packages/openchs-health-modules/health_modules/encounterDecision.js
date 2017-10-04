@@ -1932,17 +1932,21 @@ const getDecisions = function (encounter) {
         }
         decision.value = message;
 
-        if (params.weight >= 13 && params.complaints[complaintIndex] === 'Malaria')
-            decision.alert = "क्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी";
-        else if (params.complaints[complaintIndex] === 'Vomiting')
-            decision.alert = "उलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत";
-        else if (params.complaints[complaintIndex] === 'Chloroquine Resistant Malaria' && (params.age >= 16 || params.age <= 40) && params.sex === "Female") {
-            decision.alert = "पुढे दवाखान्यात पाठवावे";
-            decision.value = "";
-        } else if (params.complaints[complaintIndex] === 'Wound') {
-            decision.alert = "ड्रेसिंग";
+        if (params.weight >= 13 && params.complaints[complaintIndex] === 'Malaria') {
+            decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
+            decision.abnormal = true;
         }
-
+        else if (params.complaints[complaintIndex] === 'Vomiting') {
+            decision.value = `${decision.value}\nउलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत`;
+            decision.abnormal = true;
+        }
+        else if (params.complaints[complaintIndex] === 'Chloroquine Resistant Malaria' && (params.age >= 16 || params.age <= 40) && params.sex === "Female") {
+            decision.value = `${decision.value}\nपुढे दवाखान्यात पाठवावे`;
+            decision.abnormal = true;
+        } else if (params.complaints[complaintIndex] === 'Wound') {
+            decision.value = `${decision.value}\nड्रेसिंग`;
+            decision.abnormal = true;
+        }
         decisions.push(decision);
     }
 

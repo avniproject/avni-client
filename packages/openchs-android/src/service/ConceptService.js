@@ -61,13 +61,14 @@ class ConceptService extends BaseService {
 
             if (_.isNil(existingObs)) {
                 if (this._validValue(decision.value)) {
-                    observations.push(Observation.create(concept, concept.getValueWrapperFor(value)));
+                    observations.push(Observation.create(concept, concept.getValueWrapperFor(value), _.isBoolean(decision.abnormal) ? decision.abnormal : false));
                 }
             } else {
                 if (_.isNil(decision.value) || _.isEmpty(decision.value)) {
                     _.remove(observations, (obs) => obs.concept.name === decision.name);
                 } else {
                     existingObs.valueJSON = concept.getValueWrapperFor(value);
+                    existingObs.abnormal = _.isBoolean(decision.abnormal) ? decision.abnormal : false;
                 }
             }
         });
@@ -78,7 +79,7 @@ class ConceptService extends BaseService {
     }
 
     _invalidValue(value) {
-        return _.isArray(value)? _.isEmpty(value) : _.isNil(value);
+        return _.isArray(value) ? _.isEmpty(value) : _.isNil(value);
     }
 
     getObservationsFromDecisions(decisions) {
