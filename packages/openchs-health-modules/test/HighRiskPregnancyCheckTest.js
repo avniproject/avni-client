@@ -426,9 +426,9 @@ describe('High Risk Pregnancy Determination', () => {
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
-        it("Should have Moderate Anemia if hb is moderately below normal", () => {
+        it("Should have Moderate Anemia if hb is moderately below normal (between 7 and 11)", () => {
             const range = hb.range.Female.find((ageRange) => (age >= ageRange.ageStart && age <= ageRange.ageEnd && ageRange.ageUnit === "years"));
-            programEncounter.setObservation(hb.name, range.lowAbsolute + 1);
+            programEncounter.setObservation(hb.name, 7.1);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.exist;
@@ -437,7 +437,7 @@ describe('High Risk Pregnancy Determination', () => {
 
         it("Should have Severe Anemia if hb is severely below normal", () => {
             const range = hb.range.Female.find((ageRange) => (age >= ageRange.ageStart && age <= ageRange.ageEnd && ageRange.ageUnit === "years"));
-            programEncounter.setObservation(hb.name, range.lowAbsolute - 1);
+            programEncounter.setObservation(hb.name, 6.9);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.exist;
