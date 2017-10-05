@@ -435,7 +435,7 @@ describe('High Risk Pregnancy Determination', () => {
             expect(complicationValues).to.be.an('array').that.includes('Moderate Anemia');
         });
 
-        it("Should have Severe Anemia if hb is serverly below normal", () => {
+        it("Should have Severe Anemia if hb is severely below normal", () => {
             const range = hb.range.Female.find((ageRange) => (age >= ageRange.ageStart && age <= ageRange.ageEnd && ageRange.ageUnit === "years"));
             programEncounter.setObservation(hb.name, range.lowAbsolute - 1);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
