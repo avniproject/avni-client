@@ -1941,7 +1941,7 @@ const getDecisions = function (encounter) {
             decision.abnormal = true;
         }
         else if (params.complaints[complaintIndex] === 'Chloroquine Resistant Malaria' && (params.age >= 16 || params.age <= 40) && params.sex === "Female") {
-            decision.value = `${decision.value}\nपुढे दवाखान्यात पाठवावे`;
+            decision.value = ``;
             decision.abnormal = true;
         } else if (params.complaints[complaintIndex] === 'Wound') {
             decision.value = `${decision.value}\nड्रेसिंग`;

@@ -44,13 +44,13 @@ describe('Make Decision', function () {
     it('Complaint which allows for prescription', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         expect(decisions[0].value).to.not.equal(undefined);
-        expect(decisions[0].alert).to.equal(undefined);
+        expect(decisions[0].abnormal).to.be.falsy;
     });
 
     it('Do not give any medicine for chloroquin resistant malaria to women between 16-40', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Chloroquine Resistant Malaria"]).setGender("Female").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         expect(decisions[0].value).to.equal("");
-        expect(decisions[0].alert).to.not.equal(undefined);
+        expect(decisions[0].abnormal).to.be.truthy;
     });
 
     it('Provide day wise instructions when specified for days separately', function () {
@@ -142,8 +142,9 @@ describe('Make Decision', function () {
     it('Alert should be only for the decision for the complaint', () => {
         var complaintConceptName = "Complaint";
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Cold", "Vomiting"]).setGender("Male").setAge(10).setObservation("Weight", 22)).encounterDecisions;
-        expect(decisions[0].alert).to.equal(undefined);
-        expect((decisions[1].alert.match(/उलटी असल्यास/g) || []).length).to.equal(1, decisions[0].alert);
+        expect(decisions[0].abnormal).to.be.falsy;
+        expect((decisions[1].value.match(/उलटी असल्यास/g) || []).length).to.equal(1);
+        expect(decisions[1].abnormal).to.be.truthy;
     });
 
     it('Boundary condition of weight', () => {
