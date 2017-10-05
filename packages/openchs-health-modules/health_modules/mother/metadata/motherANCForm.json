@@ -234,7 +234,7 @@
                 "ageEnd": 100,
                 "ageUnit": "years",
                 "lowNormal": 11,
-                "lowAbsolute": 7,
+                "lowAbsolute": 0,
                 "highNormal": null,
                 "HighAbsolute": null
               }
