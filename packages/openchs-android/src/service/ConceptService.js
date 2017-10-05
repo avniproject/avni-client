@@ -64,11 +64,11 @@ class ConceptService extends BaseService {
                     observations.push(Observation.create(concept, concept.getValueWrapperFor(value), _.isBoolean(decision.abnormal) ? decision.abnormal : false));
                 }
             } else {
-                if (_.isNil(decision.value) || _.isEmpty(decision.value)) {
-                    _.remove(observations, (obs) => obs.concept.name === decision.name);
-                } else {
+                if (this._validValue(decision.value)) {
                     existingObs.valueJSON = concept.getValueWrapperFor(value);
                     existingObs.abnormal = _.isBoolean(decision.abnormal) ? decision.abnormal : false;
+                } else {
+                    _.remove(observations, (obs) => obs.concept.name === decision.name);
                 }
             }
         });
