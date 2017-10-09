@@ -8,7 +8,14 @@ import NumericFormElement from './NumericFormElement';
 import TextFormElement from './TextFormElement';
 import DateFormElement from './DateFormElement';
 import _ from "lodash";
-import {Concept, MultipleCodedValues, SingleCodedValue, PrimitiveValue, Duration, ValidationResult} from 'openchs-models';
+import {
+    Concept,
+    MultipleCodedValues,
+    SingleCodedValue,
+    PrimitiveValue,
+    Duration,
+    ValidationResult
+} from 'openchs-models';
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./DurationDateFormElement";
 import Styles from "../primitives/Styles";
@@ -30,6 +37,26 @@ class FormElementGroup extends AbstractComponent {
 
     wrap(x, idx) {
         return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}} key={idx}>{x}</View>;
+    }
+
+    getDuration(concept, formElementUserState, formElement) {
+        const observation = this.props.observationHolder.findObservation(concept);
+        if (_.isNil(observation)) {
+            return new Duration(null, formElement.durationOptions[0]);
+        } else {
+            const date = observation.getValueWrapper().getValue();
+            //TODO discuss with Vivek if this is a fix in alignment with design
+            if (_.isNil(formElementUserState)) {
+                return Duration.fromToday(formElement.durationOptions[0], date);
+            } else {
+                return Duration.fromToday(formElementUserState.durationUnit, date);
+            }
+        }
+    }
+
+    getSelectedAnswer(concept, nullReplacement) {
+        const observation = this.props.observationHolder.findObservation(concept);
+        return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
     }
 
     render() {
@@ -70,7 +97,8 @@ class FormElementGroup extends AbstractComponent {
                             return this.wrap(<BooleanFormElement key={idx}
                                                                  element={formElement}
                                                                  observationValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]} validationResult={validationResult}/>, idx);
+                                                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                                                 validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Date && _.isNil(formElement.durationOptions)) {
                             return this.wrap(<DateFormElement key={idx}
                                                               element={formElement}
@@ -84,32 +112,13 @@ class FormElementGroup extends AbstractComponent {
                                                                       duration={this.getDuration(formElement.concept, this.props.formElementsUserState[formElement.uuid], formElement)}
                                                                       noDateMessageKey='chooseADate'
                                                                       dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                                      validationResult={validationResult} element={formElement}/>, idx);
+                                                                      validationResult={validationResult}
+                                                                      element={formElement}/>, idx);
                         }
                     })
                 }
             </View>
         );
-    }
-
-    getDuration(concept, formElementUserState, formElement) {
-        const observation = this.props.observationHolder.findObservation(concept);
-        if (_.isNil(observation)) {
-            return new Duration(null, formElement.durationOptions[0]);
-        } else {
-            const date = observation.getValueWrapper().getValue();
-            //TODO discuss with Vivek if this is a fix in alignment with design
-            if (_.isNil(formElementUserState)) {
-                return Duration.fromToday(formElement.durationOptions[0], date);
-            } else {
-                return Duration.fromToday(formElementUserState.durationUnit, date);
-            }
-        }
-    }
-
-    getSelectedAnswer(concept, nullReplacement) {
-        const observation = this.props.observationHolder.findObservation(concept);
-        return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
     }
 }
 
