@@ -53,29 +53,48 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
-        return <TouchableNativeFeedback onPress={onPress}>
-            <View style={{flexDirection: 'row', height: 26, borderColor: Styles.accentColor, borderWidth: 1,
-                borderStyle: 'solid', borderRadius: 2, paddingHorizontal: 4,
-                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4}}>
-                <Icon name={iconMode} style={{fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize), color: Colors.DarkPrimaryColor, paddingRight: 4}}/>
+        return (<TouchableNativeFeedback onPress={onPress}>
+            <View style={{
+                flexDirection: 'row', height: DGS.resizeHeight(30), borderColor: Styles.accentColor, borderWidth: 1,
+                borderStyle: 'solid', borderRadius: 2, paddingHorizontal: DGS.resizeWidth(6),
+                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4
+            }}>
+                <Icon name={iconMode} style={{
+                    fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
+                    color: Colors.DarkPrimaryColor,
+                    paddingRight: 4
+                }}/>
                 <Text style={Styles.programProfileButtonText}>{this.I18n.t(displayTextMessageKey)}</Text>
             </View>
-        </TouchableNativeFeedback>
+        </TouchableNativeFeedback>);
     }
 
     render() {
         General.logDebug('IndividualProfile', 'render');
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
-                <View style={{alignItems: 'center', justifyContent: 'flex-end', marginVertical: 28, backgroundColor: Styles.defaultBackground}}>
-                    <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState} selectedEntityType={this.state.entity.program}
+                <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    marginVertical: 28,
+                    backgroundColor: Styles.defaultBackground
+                }}>
+                    <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState}
+                                        selectedEntityType={this.state.entity.program}
                                         actions={Actions} labelKey='selectProgram'
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
                     <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-                        <Icon name='person-pin' style={{justifyContent: 'center', alignSelf: 'stretch', fontSize: DGS.resizeWidth(75), color: Colors.AccentColor}}/>
+                        <Icon name='person-pin' style={{
+                            justifyContent: 'center',
+                            alignSelf: 'stretch',
+                            fontSize: DGS.resizeWidth(75),
+                            color: Colors.AccentColor
+                        }}/>
                     </View>
-                    <Text style={Styles.programProfileHeading}>{this.props.individual.name} {this.props.individual.id}</Text>
-                    <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                    <Text
+                        style={Styles.programProfileHeading}>{this.props.individual.name} {this.props.individual.id}</Text>
+                    <Text
+                        style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
                         {this.props.viewContext === IndividualProfile.viewContext.Individual ?
                             this.renderProfileActionButton('mode-edit', 'editProfile', () => {
@@ -86,7 +105,8 @@ class IndividualProfile extends AbstractComponent {
                             })
                         }
                         {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
-                        {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) : <View/>}
+                        {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
+                            <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
                     </View>
                 </View>
@@ -99,7 +119,8 @@ class IndividualProfile extends AbstractComponent {
                 })}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                         <Text style={Fonts.LargeBold}>{this.props.individual.name}</Text>
-                        <Text style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                        <Text
+                            style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     </View>
                     <View style={{flexDirection: 'row'}}>
                         <Text style={{fontSize: Fonts.Normal}}>
