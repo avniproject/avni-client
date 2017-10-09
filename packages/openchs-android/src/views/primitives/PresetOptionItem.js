@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View, StyleSheet} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {CheckBox, Radio} from "native-base";
@@ -8,7 +8,11 @@ import Styles from "./Styles";
 import themes from "./themes"
 
 class PresetOptionItem extends AbstractComponent {
-    static inputTextStyle = {marginLeft: 11, color: Colors.InputNormal};
+    static inputTextStyle = {marginLeft: 11, color: Colors.InputNormal, flex: .95};
+
+    static defaultProps = {
+        chunked: false
+    };
 
     static propTypes = {
         multiSelect: React.PropTypes.bool.isRequired,
@@ -16,8 +20,16 @@ class PresetOptionItem extends AbstractComponent {
         onPress: React.PropTypes.func,
         displayText: React.PropTypes.string.isRequired,
         validationResult: React.PropTypes.object,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        chunked: React.PropTypes.bool
     };
+
+    static styles = StyleSheet.create({
+        multiPadding: {flex: 0.05},
+        padding: {},
+        multiContent: {flex: 0.9, flexDirection: 'row', alignItems: 'center'},
+        content: {flexDirection: 'row', alignItems: 'center'},
+    });
 
     constructor(props, context) {
         super(props, context);
@@ -34,13 +46,28 @@ class PresetOptionItem extends AbstractComponent {
 
     render() {
         const color = _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError;
-        const appendedStyle = this.appendedStyle({flexDirection: 'row', alignItems: 'center'});
+        const chunked = {
+            padding: PresetOptionItem.styles.multiPadding,
+            content: PresetOptionItem.styles.multiContent,
+            container: [this.props.style, {flex: 1}]
+        };
+        const single = {
+            padding: PresetOptionItem.styles.padding,
+            content: PresetOptionItem.styles.content,
+            container: this.props.style
+        };
+        const ToRender = this.props.chunked ? chunked : single;
         return (
-            <TouchableOpacity onPress={() => this.props.onPress()} style={this.props.style}>
-                <View style={appendedStyle}>
-                    {this.getSelectComponent()}
-                    <Text
-                        style={[Styles.formBodyText, PresetOptionItem.inputTextStyle, {color: color}]}>{this.props.displayText}</Text>
+            <TouchableOpacity onPress={() => this.props.onPress()} style={ToRender.container}>
+                <View style={ToRender.container}>
+                    <View style={ToRender.padding}/>
+                    <View style={ToRender.content}>
+                        {this.getSelectComponent()}
+                        <Text style={[Styles.formBodyText, PresetOptionItem.inputTextStyle, {color: color}]}>
+                            {this.props.displayText}
+                        </Text>
+                    </View>
+                    <View style={ToRender.padding}/>
                 </View>
             </TouchableOpacity>
         );

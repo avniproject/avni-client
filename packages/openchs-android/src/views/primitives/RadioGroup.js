@@ -42,15 +42,16 @@ class RadioGroup extends AbstractComponent {
 
     renderPairedOptions() {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
-            <View style={{flexDirection: "row"}} key={idx}>
+            <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
                 {rlvPair.map((rlv) =>
                     <PresetOptionItem displayText={this.I18n.t(rlv.label)}
                                       checked={this.props.selectionFn(rlv.value)}
                                       multiSelect={this.props.multiSelect}
+                                      chunked={true}
                                       validationResult={this.props.validationError}
                                       onPress={() => this.props.onPress(rlv)}
                                       key={rlv.label}
-                                      style={{flex: 1, paddingVertical: Distances.VerticalSpacingBetweenOptionItems}}/>
+                                      style={{paddingVertical: Distances.VerticalSpacingBetweenOptionItems}}/>
                 )}
             </View>);
     }
