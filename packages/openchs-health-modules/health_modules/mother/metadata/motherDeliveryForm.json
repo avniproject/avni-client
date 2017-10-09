@@ -19,7 +19,7 @@
           "name": "Place of delivery",
           "dataType": "Coded",
           "keyValues": [{"key": "Select", "value": "Single"}],
-          "answers": ["Home", "Sub Center", "Primary Health Center", "Regional Hospital", "NGO Hospital", "During Transportation like in Ambulance etc."]
+          "answers": ["Home", "Sub Center", "Primary Health Center", "Regional Hospital", "NGO Hospital", "During Transportation like in Ambulance etc"]
         },
         {
           "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
