@@ -42,8 +42,9 @@ class IndividualEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage);
             },
+            movedNext: this.scrollToTop,
             validationFailed: (newState) => {
-            }
+            },
         });
     }
 
@@ -60,15 +61,23 @@ class IndividualEncounterView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContainer theme={themes}>
-                <CHSContent ref='abc'>
-                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)} func={() => this.previous()}/>
-                    <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed} individual={this.state.encounter.individual}
-                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER} encounters={this.state.previousEncounters}/>
+                <CHSContent ref='scroll'>
+                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)}
+                               func={() => this.previous()}/>
+                    <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
+                                                   individual={this.state.encounter.individual}
+                                                   actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}
+                                                   encounters={this.state.previousEncounters}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(26)}}>
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)} group={this.state.formElementGroup}
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)}
+                                          group={this.state.formElementGroup}
                                           actions={Actions}
                                           validationResults={this.state.validationResults}/>
-                        <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
+                        <WizardButtons previous={{
+                            func: () => this.previous(),
+                            visible: !this.state.wizard.isFirstPage(),
+                            label: this.I18n.t('previous')
+                        }}
                                        next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                     </View>
                 </CHSContent>

@@ -55,32 +55,43 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.name)}, ${this.I18n.t(state.programEncounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits);
             },
+            movedNext: this.scrollToTop
         });
     }
 
-    shouldComponentUpdate(nextProps, state) {
-        return !_.isNil(state.programEncounter);
+    shouldComponentUpdate(nextProps, nextState) {
+        return !_.isNil(nextState.programEncounter);
     }
 
     render() {
         General.logDebug('ProgramEncounterView', 'render');
         return (
             <CHSContainer theme={themes}>
-                <CHSContent>
-                    <AppHeader title={this.state.programEncounter.programEnrolment.individual.name} func={() => this.previous()}/>
+                <CHSContent ref="scroll">
+                    <AppHeader title={this.state.programEncounter.programEnrolment.individual.name}
+                               func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
-                            <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED} element={new StaticFormElement('encounterDate')}
+                            <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
+                                             element={new StaticFormElement('encounterDate')}
                                              dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
                                              validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
                             :
                             <View/>
                         }
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.programEncounter.observations)} group={this.state.formElementGroup}
-                                          actions={Actions}
-                                          validationResults={this.state.validationResults} filteredFormElements={this.state.filteredFormElements}/>
-                        <WizardButtons previous={{func: () => this.previous(), visible: !this.state.wizard.isFirstPage(), label: this.I18n.t('previous')}}
-                                       next={{func: () => this.next(), label: this.I18n.t('next')}}/>
+                        <FormElementGroup
+                            observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}
+                            group={this.state.formElementGroup}
+                            actions={Actions}
+                            validationResults={this.state.validationResults}
+                            filteredFormElements={this.state.filteredFormElements}/>
+                        <WizardButtons previous={{
+                            func: () => this.previous(),
+                            visible: !this.state.wizard.isFirstPage(),
+                            label: this.I18n.t('previous')
+                        }} next={{
+                            func: () => this.next(), label: this.I18n.t('next')
+                        }}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

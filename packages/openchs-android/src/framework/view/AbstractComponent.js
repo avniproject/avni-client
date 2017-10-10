@@ -17,6 +17,7 @@ class AbstractComponent extends Component {
         super(props, context);
         this.topLevelStateVariable = topLevelStateVariable;
         this.I18n = context.getService(MessageService).getI18n();
+        this.scrollToTop = this.scrollToTop.bind(this);
     }
 
     static styles = StyleSheet.create({
@@ -64,6 +65,11 @@ class AbstractComponent extends Component {
                 this.showError(nextState.error.message);
             this.setState(nextState);
         }
+    }
+
+    scrollToTop() {
+        this.refs.scroll._scrollview.scrollToPosition(0, 10, true);
+        this.refs.scroll._scrollview.scrollToPosition(0, 1, true);
     }
 
     componentWillUnmount() {

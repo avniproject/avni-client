@@ -67,7 +67,7 @@ class AbstractDataEntryState {
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
         } else {
             this.moveNext();
-            if (!_.isNil(action.movedNext)) action.movedNext(this);
+            if (_.isFunction(action.movedNext)) action.movedNext(this);
         }
         return this;
     }

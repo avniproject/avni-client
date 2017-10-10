@@ -34,6 +34,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.name)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits);
             },
+            movedNext: this.scrollToTop
         });
     }
 
@@ -43,12 +44,16 @@ class ProgramFormComponent extends AbstractComponent {
 
     render() {
         return (<CHSContainer theme={themes}>
-            <CHSContent>
-                <AppHeader title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})} func={this.props.backFunction}/>
+            <CHSContent ref="scroll">
+                <AppHeader
+                    title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})}
+                    func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
-                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.state.enrolment.individual}/>
-                        <DateFormElement actionName={this.props.context.dateAction} element={new StaticFormElement(this.props.context.dateKey)}
+                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                                           individual={this.props.state.enrolment.individual}/>
+                        <DateFormElement actionName={this.props.context.dateAction}
+                                         element={new StaticFormElement(this.props.context.dateKey)}
                                          dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}
                                          validationResult={AbstractDataEntryState.getValidationError(this.props.state, this.props.context.dateValidationKey)}
                                          style={{marginHorizontal: Distances.ContentDistanceFromEdge}}/>
@@ -56,9 +61,15 @@ class ProgramFormComponent extends AbstractComponent {
                     :
                     <View/>}
                 <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
-                    <FormElementGroup actions={Actions} group={this.props.state.formElementGroup} observationHolder={this.props.state.applicableObservationsHolder}
-                                      validationResults={this.props.state.validationResults} formElementsUserState={this.props.state.formElementsUserState}/>
-                    <WizardButtons previous={{visible: !this.props.state.wizard.isFirstPage(), func: () => this.previous(), label: this.I18n.t('previous')}}
+                    <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
+                                      observationHolder={this.props.state.applicableObservationsHolder}
+                                      validationResults={this.props.state.validationResults}
+                                      formElementsUserState={this.props.state.formElementsUserState}/>
+                    <WizardButtons previous={{
+                        visible: !this.props.state.wizard.isFirstPage(),
+                        func: () => this.previous(),
+                        label: this.I18n.t('previous')
+                    }}
                                    next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                 </View>
             </CHSContent>
