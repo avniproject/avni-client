@@ -68,6 +68,7 @@ class AbstractComponent extends Component {
     }
 
     scrollToTop() {
+        // Mihir: Trust me this is required. 
         this.refs.scroll._scrollview.scrollToPosition(0, 10, true);
         this.refs.scroll._scrollview.scrollToPosition(0, 1, true);
     }
