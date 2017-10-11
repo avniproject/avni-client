@@ -27,7 +27,7 @@
         },
         {
           "uuid": "f483e292-24b6-4d76-af72-8b13c9a5c596",
-          "name": "Respiratory rate",
+          "name": "Respiratory Rate",
           "dataType": "Numeric"
         },
         {
