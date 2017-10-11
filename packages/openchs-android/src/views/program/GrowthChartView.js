@@ -87,7 +87,7 @@ class GrowthChartView extends AbstractComponent {
     renderChart(chart, index) {
         const data = chart.data(this.props.params.enrolment);
         const referenceLines = _.dropRight(data);
-        const observations = _.last(data);
+        const observations = _.filter(_.last(data), (coord) => {return _.isNumber(coord.x) && _.isNumber(coord.y)});
         const dataIndex = data.length - 1;
         const colors = ["red", "orange", "green", "orange", "red"];
         const percentiles = [10, 25, 50, 75, 90];
