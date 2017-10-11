@@ -98,14 +98,6 @@
           "dataType": "Numeric",
           "displayOrder": 6,
           "mandatory": false
-        },
-        {
-          "uuid": "6929128a-747b-4b89-9cac-7dd048dd8deb",
-          "name": "TT injections taken",
-          "dataType": "Coded",
-          "answers": ["TT1", "TT2"],
-          "displayOrder": 7,
-          "keyValues": [{"key": "Select", "value": "Multi"}]
         }
       ]
     },

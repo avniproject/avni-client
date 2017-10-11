@@ -454,21 +454,24 @@
       "formElements": [
         {
           "uuid": "b220398e-6f51-4568-978d-8e632cab00be",
-          "name": "TT1/TT Booster given",
-          "conceptName": "TT1 given",
-          "dataType": "Coded",
-          "answers": [ "Yes"],
-          "displayOrder": 1,
-          "keyValues": [{"key": "Select", "value": "Single"}]
+          "name": "TT1 Date",
+          "conceptName": "TT1 Date",
+          "dataType": "Date",
+          "displayOrder": 1
+        },
+        {
+          "uuid": "4fa32ede-c17d-4e0e-b8bc-2d5ced4b2dab",
+          "name": "TT Booster Date",
+          "conceptName": "TT Booster Date",
+          "dataType": "Date",
+          "displayOrder": 2
         },
         {
           "uuid": "6cf6bb59-08bb-4a78-9bfd-d82727f7e2b8",
-          "name": "TT2 given",
-          "conceptName": "TT2 given",
-          "dataType": "Coded",
-          "answers": ["Yes"],
-          "displayOrder": 2,
-          "keyValues": [{"key": "Select", "value": "Single"}]
+          "name": "TT2 Date",
+          "conceptName": "TT2 Date",
+          "dataType": "Date",
+          "displayOrder": 3
         }
       ]
     },

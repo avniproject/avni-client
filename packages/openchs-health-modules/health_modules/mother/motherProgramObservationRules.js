@@ -22,8 +22,9 @@ addANCRule(new ObservationRule("Bile Salts", {allowedOccurrences: 1}));
 addANCRule(new ObservationRule("Bile Pigments", {allowedOccurrences: 1}));
 addANCRule(new ObservationRule("Sickling Test", {allowedOccurrences: 1}));
 addANCRule(new ObservationRule("Hb Electrophoresis", {allowedOccurrences: 1}));
-addANCRule(new ObservationRule("TT1 given", {validFrom: 13, allowedOccurrences: 1}));
-addANCRule(new ObservationRule("TT2 given", {validFrom: 21, allowedOccurrences: 1}));
+addANCRule(new ObservationRule("TT1 Date", {validFrom: 13, allowedOccurrences: 1}));
+addANCRule(new ObservationRule("TT Booster Date", {validFrom: 13, allowedOccurrences: 1}));
+addANCRule(new ObservationRule("TT2 Date", {validFrom: 21, allowedOccurrences: 1}));
 
 function addANCRule(observationRule) {
     observationRule.validityBasedOn = "Last Menstrual Period";
