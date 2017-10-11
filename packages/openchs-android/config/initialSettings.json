@@ -1,6 +1,6 @@
 {
   "catchment": 1,
-  "serverURL": "http://staging.openchs.org",
+  "serverURL": "http://demo.openchs.org",
   "logLevel": 3,
   "locale": "mr_IN"
 }
