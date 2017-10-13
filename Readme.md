@@ -25,6 +25,6 @@
 # Running
  - Ensure that you have CRASHLYTICS_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key.
  - Ensure android device is on and is recognised by adb (adb devices)
- - To run the application `make run-android`
+ - To run the application `make run_app`
  - In the application set the server url of the config location by going to the settings view. 
  You can either run openchs-server locally or point to an existing server such as http://staging.openchs.org
