@@ -35,7 +35,8 @@ class ChecklistView extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        BackAndroid.addEventListener('hardwareBackPress', () => this.goBack());
+        this.backFunction = () => this.goBack();
+        BackAndroid.addEventListener('hardwareBackPress', this.backFunction);
         return super.componentWillMount();
     }
 
@@ -43,6 +44,10 @@ class ChecklistView extends AbstractComponent {
         if (this.state.showSavedToast) {
             ToastAndroid.showWithGravity("Saved successfully", ToastAndroid.SHORT, ToastAndroid.TOP);
         }
+    }
+
+    componentWillUnmount() {
+        BackAndroid.removeEventListener('hardwareBackPress', this.backFunction);
     }
 
     save() {
