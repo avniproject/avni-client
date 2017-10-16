@@ -69,3 +69,7 @@ gradlew
 gradlew.bat
 
 **/openchs_rules.tar.gz
+
+
+# Visual Studio Code
+.vscode
