@@ -24,6 +24,8 @@ class Settings {
         const settings = new Settings();
         settings.uuid = this.uuid;
         settings.serverURL = this.serverURL;
+        settings.userId = this.userId;
+        settings.password = this.password;
         settings.catchment = this.catchment;
         settings.locale = this.locale;
         settings.logLevel = this.logLevel;
@@ -35,6 +37,8 @@ class Settings {
         let validationResults = new ValidationResults([
             ValidationResult.successful('catchment'),
             ValidationResult.successful('serverURL'),
+            ValidationResult.successful('userId'),
+            ValidationResult.successful('password'),
             ValidationResult.successful('locale'),
             ValidationResult.successful('logLevel')]);
 

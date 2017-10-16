@@ -21,8 +21,9 @@ class SettingsActions {
         const newState = SettingsActions.clone(state);
         updateFunc(newState.settings);
         newState.validationResults = newState.settings.validate();
+
         if (newState.validationResults.hasNoValidationError()) {
-            context.get(SettingsService).saveOrUpdate(newState.settings);
+            context.get(SettingsService).saveOrUpdate(newState.settings, Settings.schema.name);
         }
 
         return newState;
@@ -56,10 +57,24 @@ class SettingsActions {
             settings.logLevel = _.toNumber(action.value)
         }, context);
     }
+
+    static onUserIdChange(state, action, context) {
+        return SettingsActions._updateSettingAndSave(state, (settings) => {
+            settings.userId = action.value;
+        }, context);
+    }
+
+    static onPasswordChange(state, action, context) {
+        return SettingsActions._updateSettingAndSave(state, (settings) => {
+            settings.password = action.value;
+        }, context);
+    }
 }
 
 const SettingsActionsNames = {
     ON_SERVER_URL_CHANGE: 'S.ON_SERVER_URL_CHANGE',
+    ON_USER_ID_CHANGE: 'S.ON_USER_ID_CHANGE',
+    ON_PASSWORD_CHANGE: 'S.ON_PASSWORD_CHANGE',
     ON_LOCALE_CHANGE: 'S.ON_LOCALE_CHANGE',
     ON_CATCHMENT_CHANGE: 'S.ON_CATCHMENT_CHANGE',
     ON_LOG_LEVEL_CHANGE: 'S.ON_LOG_LEVEL_CHANGE'
@@ -69,6 +84,8 @@ const SettingsActionsMap = new Map([
     [SettingsActionsNames.ON_SERVER_URL_CHANGE, SettingsActions.onServerURLChange],
     [SettingsActionsNames.ON_LOCALE_CHANGE, SettingsActions.onLocaleChange],
     [SettingsActionsNames.ON_CATCHMENT_CHANGE, SettingsActions.onCatchmentChange],
+    [SettingsActionsNames.ON_USER_ID_CHANGE, SettingsActions.onUserIdChange],
+    [SettingsActionsNames.ON_PASSWORD_CHANGE, SettingsActions.onPasswordChange],
     [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange]
 ]);
 

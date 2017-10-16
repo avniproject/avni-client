@@ -4,5 +4,8 @@
   "restart": "पुनः आरंभ करें",
   "saveAndRestart": "बचाएँ ",
   "export": "निर्यात",
-  "answersConfirmationTitle": ""
+  "answersConfirmationTitle": "",
+
+  "userId": "यूज़र आईडी",
+  "password": "पासवर्ड"
 }

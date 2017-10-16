@@ -145,5 +145,7 @@
   "observations": "Observations",
 
   "deleteSchemaConfirmationMessage": "This will remove the reference, configuration and transaction data",
-  "deleteSchemaNoticeTitle": "Delete Data?"
+  "deleteSchemaNoticeTitle": "Delete Data?",
+  "userId": "User ID",
+  "password": "Password"
 }

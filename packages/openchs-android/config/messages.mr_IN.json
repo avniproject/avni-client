@@ -145,6 +145,9 @@
   "deleteSchemaConfirmationMessage": "तुम्हाला सर्व डाटा डीलीट करायचा आहे काय",
   "deleteSchemaNoticeTitle": "डाटा डीलीट?",
   "Other Gender": "इतर लिंग",
-  "Gender": "लिंग"
+  "Gender": "लिंग",
+
+  "userId": "वापरकर्ता ID",
+  "password": "पासवर्ड"
 }
 

@@ -81,7 +81,6 @@ export default {
                 setting.password = "";
             })
         }
-
         if (oldDB.schemaVersion < 40) {
             const settings = newDB.objects('Settings');
             _.forEach(settings, (setting) => {

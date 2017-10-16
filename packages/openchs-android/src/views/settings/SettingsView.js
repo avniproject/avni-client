@@ -38,6 +38,14 @@ class SettingsView extends AbstractComponent {
                                          actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
                                          value={new PrimitiveValue(this.state.settings.serverURL)}
                                          style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <TextFormElement element={new StaticFormElement('userId')}
+                                         actionName={Actions.ON_USER_ID_CHANGE} validationResult={null}
+                                         value={new PrimitiveValue(this.state.settings.userId)}
+                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <TextFormElement element={new StaticFormElement('password')} secureTextEntry={true}
+                                         actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
+                                         value={new PrimitiveValue(this.state.settings.password)}
+                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <TextFormElement element={new StaticFormElement('catchmentId')}
                                          actionName={Actions.ON_CATCHMENT_CHANGE}
                                          validationResult={this.state.validationResults.resultFor('catchment')}
