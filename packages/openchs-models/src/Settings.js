@@ -11,6 +11,9 @@ class Settings {
         properties: {
             uuid: 'string',
             serverURL: 'string',
+            userId: 'string',
+            password: 'string',
+            authToken: 'string',
             catchment: 'int',
             locale: {"type": "LocaleMapping"},
             logLevel: 'int'
@@ -24,6 +27,7 @@ class Settings {
         settings.catchment = this.catchment;
         settings.locale = this.locale;
         settings.logLevel = this.logLevel;
+        settings.authToken = this.authToken;
         return settings;
     }
 

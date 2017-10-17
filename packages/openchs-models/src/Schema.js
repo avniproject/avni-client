@@ -27,7 +27,7 @@ import _ from 'lodash';
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 38,
+    schemaVersion: 40,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -72,6 +72,20 @@ export default {
             const programs = newDB.objects('Program');
             _.forEach(programs, (program) => {
                 program.colour = Program.randomColour();
+            })
+        }
+        if (oldDB.schemaVersion < 39) {
+            const settings = newDB.objects('Settings');
+            _.forEach(settings, (setting) => {
+                setting.userId = "";
+                setting.password = "";
+            })
+        }
+
+        if (oldDB.schemaVersion < 40) {
+            const settings = newDB.objects('Settings');
+            _.forEach(settings, (setting) => {
+                setting.authToken = "";
             })
         }
     }

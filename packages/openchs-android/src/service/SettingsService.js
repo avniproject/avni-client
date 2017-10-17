@@ -23,6 +23,9 @@ class SettingsService extends BaseService {
             if (_.isNil(settings)) {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
+                settings.userId = "";
+                settings.password = "";
+                settings.authToken = "";
                 settings.logLevel = InitialSettings.logLevel;
                 settings.catchment = InitialSettings.catchment;
                 settings.serverURL = InitialSettings.serverURL;
