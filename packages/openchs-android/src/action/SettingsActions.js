@@ -21,7 +21,6 @@ class SettingsActions {
         const newState = SettingsActions.clone(state);
         updateFunc(newState.settings);
         newState.validationResults = newState.settings.validate();
-
         if (newState.validationResults.hasNoValidationError()) {
             context.get(SettingsService).saveOrUpdate(newState.settings, Settings.schema.name);
         }
