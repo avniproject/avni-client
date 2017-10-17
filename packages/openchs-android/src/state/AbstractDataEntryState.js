@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {ValidationResult} from "openchs-models";
+import {ValidationResult, BaseEntity} from "openchs-models";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity) {
@@ -48,6 +48,10 @@ class AbstractDataEntryState {
         return this.validationResults.some((validationResult) => !validationResult.success);
     }
 
+    removeNonRuleValidationErrors() {
+        _.remove(this.validationResults, (validationResult) => validationResult.formIdentifier === BaseEntity.fieldKeys.EXTERNAL_RULE)
+    }
+
     handleNext(action, context) {
         const validationResults = this.validateEntity();
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));
@@ -55,6 +59,7 @@ class AbstractDataEntryState {
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
+            this.removeNonRuleValidationErrors();
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
