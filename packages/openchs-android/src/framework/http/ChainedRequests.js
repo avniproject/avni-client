@@ -4,28 +4,26 @@ import _ from 'lodash';
 class ChainedRequests {
     constructor() {
         this.requestQueue = [];
-        this.add = this.add.bind(this);
-        this.post = this.post.bind(this);
-        this.fire = this.fire.bind(this);
     }
 
-    addText(endpoint, cb) {
-        this.requestQueue.push(() => httpGetText(endpoint).then(cb, Promise.reject));
+    addText(endpoint) {
+        return () => httpGetText(endpoint);
     }
 
-
-    add(endpoint, cb) {
-        this.requestQueue.push(() => httpGet(endpoint).then(cb, Promise.reject));
+    push(request) {
+        this.requestQueue.push(request);
     }
 
-    post(endpoint, filecontents, cb) {
-        this.requestQueue.push(() => httpPost(endpoint, filecontents).then(cb, Promise.reject));
+    get(endpoint, onComplete) {
+        return () => httpGet(endpoint).then(onComplete);
     }
 
-    fire(finalCallback, errorCallback) {
-        if (_.isEmpty(this.requestQueue)) return finalCallback();
-        this.requestQueue.reduce((acc, request) => acc.then(request), Promise.resolve())
-            .then(finalCallback, errorCallback);
+    post(endpoint, filecontents, onComplete) {
+        return () => httpPost(endpoint, filecontents).then(onComplete);
+    }
+
+    fire() {
+        return this.requestQueue.reduce((acc, request) => acc.then(request), Promise.resolve());
     }
 }
 

@@ -11,12 +11,6 @@ import MessageService from "./MessageService";
 
 @Service("syncService")
 class SyncService extends BaseService {
-    //Push all tx data
-    //Check app updates
-    //Pull metadata
-    //Pull configuration
-    //Pull txdata for the catchment
-
     constructor(db, context) {
         super(db, context);
     }
@@ -33,19 +27,20 @@ class SyncService extends BaseService {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
-        const pullTxDataFn = () => this.getData(allTxDataMetaData, done, onError);
-        const pullReferenceDataFn = () => this.getData(allReferenceDataMetaData, pullTxDataFn, onError);
-        this.pushTxData(allTxDataMetaData.slice(), pullReferenceDataFn, onError);
+        return this.pushTxData(allTxDataMetaData.slice())
+            .then(() => this.getData(allReferenceDataMetaData))
+            .then(() => this.getData(allTxDataMetaData))
+            .then(done, onError);
     }
 
-    getData(entitiesMetadata, onComplete, onError) {
+    getData(entitiesMetadata) {
         const entitiesSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => Object.assign({
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
                 ...entityMetadata
             }));
-        this.conventionalRestClient.getAll(entitiesSyncStatus, this.persistAll.bind(this), onComplete, onError)
+        return this.conventionalRestClient.getAll(entitiesSyncStatus, this.persistAll.bind(this));
     }
 
     persistAll(entityModel, entityResources) {
@@ -75,12 +70,12 @@ class SyncService extends BaseService {
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
     }
 
-    pushTxData(allTxDataMetaData, onComplete, onError) {
+    pushTxData(allTxDataMetaData) {
         const entityQueueService = this.getService(EntityQueueService);
         const entitiesToPost = allTxDataMetaData.reverse()
             .map(entityQueueService.getAllQueuedItems)
             .filter((entities) => !_.isEmpty(entities.entities));
-        this.conventionalRestClient.postAllEntities(entitiesToPost, onComplete, onError, entityQueueService.popItem);
+        return this.conventionalRestClient.postAllEntities(entitiesToPost, entityQueueService.popItem);
     }
 }
 

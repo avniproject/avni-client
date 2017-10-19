@@ -1,7 +1,6 @@
-import {getJSON, post} from '../../framework/http/requests';
+import {getJSON} from '../../framework/http/requests';
 import _ from "lodash";
 import moment from "moment";
-import BatchRequest from "../../framework/http/BatchRequest";
 import ChainedRequests from "../../framework/http/ChainedRequests";
 
 class ConventionalRestClient {
@@ -15,57 +14,53 @@ class ConventionalRestClient {
             .join("&");
     }
 
-    postAllEntities(allEntities, onComplete, onError, popItemFn, currentEntities = _.head(allEntities)) {
-        if (_.isEmpty(currentEntities)) return onComplete();
+    postAllEntities(allEntities, onCompleteOfIndividualPost, currentEntities = _.head(allEntities)) {
+        if (!currentEntities) return Promise.resolve();
+
         const serverURL = this.settingsService.getSettings().serverURL;
         const url = (entity) => `${serverURL}/${entity.metaData.resourceName}s`;
-        return this.chainPostEntities(url(currentEntities), currentEntities,
-            () => this.postAllEntities(_.tail(allEntities), onComplete, onError, popItemFn), onError, popItemFn);
+        return this.chainPostEntities(url(currentEntities), currentEntities, onCompleteOfIndividualPost)
+            .then(() => this.postAllEntities(_.tail(allEntities), onCompleteOfIndividualPost));
     }
 
-    chainPostEntities(url, entities, onComplete, onError, popItemFn) {
+    chainPostEntities(url, entities, onComplete) {
         const chainedRequest = new ChainedRequests();
-        entities.entities.map((entity) => chainedRequest.post(url, entity.resource, () =>
-            popItemFn(entity.resource.uuid)));
-        chainedRequest.fire(onComplete, onError);
+        entities.entities.map(
+            (entity) => chainedRequest.push(chainedRequest.post(url, entity.resource, onComplete(entity.resource.uuid))));
+
+        return chainedRequest.fire();
     }
 
-    getAllForEntity(entityMetadata, persistFn, onComplete, onError) {
+    getAllForEntity(entityMetadata, onGetOfAnEntity) {
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? entityMetadata.resourceSearchFilterURL : "lastModified";
         const serverURL = this.settingsService.getSettings().serverURL;
         const urlParts = [serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
         const params = (page, size) => this.makeParams({
             catchmentId: this.settingsService.getSettings().catchment,
             lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
-            // lastModifiedDateTime: "2010-08-09T13:04:44.364Z",
             size: size,
             page: page
         });
         const processResponse = (resp) => _.get(resp, `_embedded.${entityMetadata.resourceName}`, []);
         const endpoint = (page = 0, size = 100) => `${urlParts}?${params(page, size)}`;
-        getJSON(endpoint()).then((response) => {
+        return getJSON(endpoint()).then((response) => {
             const chainedRequests = new ChainedRequests();
             const resourceMetadata = response["page"];
             let allResourcesForEntity = processResponse(response);
             _.range(1, resourceMetadata.totalPages, 1)
-                .forEach((pageNumber) =>
-                    chainedRequests.add(endpoint(pageNumber),
-                        (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp))));
+                .forEach((pageNumber) => chainedRequests.push(chainedRequests.get(
+                    endpoint(pageNumber),
+                    (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)))));
 
-            chainedRequests.fire(() => {
-                persistFn(entityMetadata, allResourcesForEntity);
-                onComplete();
-            }, onError);
-        }, onError);
+            return chainedRequests.fire().then(() => onGetOfAnEntity(entityMetadata, allResourcesForEntity));
+        });
     }
 
-    getAll(entitiesMetadata, persistFn, onComplete, onError, currentEntityMetadata = _.head(entitiesMetadata)) {
-        if (_.isEmpty(currentEntityMetadata)) return onComplete();
-        return this.getAllForEntity(
-            currentEntityMetadata,
-            persistFn,
-            () => this.getAll(_.tail(entitiesMetadata), persistFn, onComplete, onError),
-            onError
+    getAll(entitiesMetadata, onGetOfAnEntity, currentEntityMetadata = _.head(entitiesMetadata)) {
+        if (!currentEntityMetadata) return Promise.resolve();
+
+        return this.getAllForEntity(currentEntityMetadata, onGetOfAnEntity)
+            .then(() => this.getAll(_.tail(entitiesMetadata), onGetOfAnEntity)
         );
     }
 }
