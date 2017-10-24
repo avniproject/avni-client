@@ -78,5 +78,22 @@
     "name": "Negative",
     "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
     "dataType": "N/A"
+  },
+  {
+    "name": "Convulsions",
+    "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+        "name": "Present"
+      },
+      {
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+        "name": "Absent"
+      }
+    ],
+    "mandatory": false
   }
+
 ]
