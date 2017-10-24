@@ -1,141 +1,117 @@
 [
   {
-    "name": "Chronic Hypertension",
-    "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Chronic Hypertension with Superimposed Pre-Eclampsia",
-    "uuid": "5c9992a0-56cd-4ce3-91df-631357649628",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Pregnancy Induced Hypertension",
-    "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Mild Pre-Eclampsia",
-    "uuid": "0eb43d96-dfff-4e45-91e8-1a273b419763",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Severe Pre-Eclampsia",
-    "uuid": "e6b24a5c-00f2-46c7-aa67-5b460df5cc81",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Severe Anemia",
-    "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Moderate Anemia",
-    "uuid": "c67d2c3a-c1c8-4cb7-b76e-b77e02541577",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Short Stature",
-    "uuid": "9af1e8e9-f16c-46de-8794-ac302444c63d",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Old age pregnancy",
-    "uuid": "8021adee-ad70-4644-97c6-d0804851f8d3",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Under age pregnancy",
-    "uuid": "edb0ec5e-56dc-4826-b922-52ed2e182fd8",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Grand Multipara",
-    "uuid": "338d5fb1-0493-4270-8d35-81105c239bbb",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Weight Gain Per Month less than 1kg",
-    "uuid": "73ece93d-2065-4ff2-8f87-669142d186e6",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Weight Gain Per Month more than 1.5kg",
-    "uuid": "4d95ca6e-f2a1-42bd-b52b-44fd8e853d63",
-    "dataType": "N/A"
-  },
-  {
-    "name": "HIV/AIDS Positive",
-    "uuid": "45350576-a60b-4431-90da-65604933d97c",
-    "dataType": "N/A"
-  },
-  {
-    "name": "VDRL Positive",
-    "uuid": "06c6b0ea-8ddc-4ed0-ab58-59ed67659571",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Sickling Positive",
-    "uuid": "4d2733ec-098a-407b-bfd2-1fd123dbe96d",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Sickle Cell Disease SS",
-    "uuid": "705b3ef7-e41a-4954-bc3f-9556eb002f3d",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Hepatitis B Positive",
-    "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Malaria",
-    "uuid": "0dee2973-eebe-4699-b676-b770fdd1c411",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Malpresentation",
-    "uuid": "96ec37c6-9572-4288-9220-2fe806093bde",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Ante Partum hemorrhage (APH)",
-    "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",
-    "dataType": "N/A"
-  },
-  {
     "name": "High Risk Conditions",
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
     "answers": [
-      "Chronic Hypertension",
-      "Superimposed Pre-Eclampsia",
-      "Pregnancy Induced Hypertension",
-      "Mild Pre-Eclampsia",
-      "Severe Pre-Eclampsia",
-      "Severe Anemia",
-      "Moderate Anemia",
-      "Grand Multipara",
-      "Old age pregnancy",
-      "Underweight",
-      "Short Stature",
-      "Under age pregnancy",
-      "Weight Gain Per Month less than 1kg",
-      "Weight Gain Per Month more than 1.5kg",
-      "HIV/AIDS Positive",
-      "VDRL Positive",
-      "Sickling Positive",
-      "Sickle Cell Disease SS",
-      "Hepatitis B Positive",
-      "Malaria",
-      "Malpresentation",
-      "Previous Abortion(s)",
-      "Previous Retained Placenta",
-      "Previous Still Birth",
-      "Previous Intrauterine Death",
-      "IUGR: Intra Uterine Growth Retardation",
-      "Ante Partum hemorrhage (APH)"
+      {
+        "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
+        "name": "Chronic Hypertension"
+      },
+      {
+        "uuid": "f2e5ac5b-b0f8-4088-bc42-397a3885308f",
+        "name": "Superimposed Pre-Eclampsia"
+      },
+      {
+        "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
+        "name": "Pregnancy Induced Hypertension"
+      },
+      {
+        "uuid": "0eb43d96-dfff-4e45-91e8-1a273b419763",
+        "name": "Mild Pre-Eclampsia"
+      },
+      {
+        "uuid": "e6b24a5c-00f2-46c7-aa67-5b460df5cc81",
+        "name": "Severe Pre-Eclampsia"
+      },
+      {
+        "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
+        "name": "Severe Anemia"
+      },
+      {
+        "uuid": "c67d2c3a-c1c8-4cb7-b76e-b77e02541577",
+        "name": "Moderate Anemia"
+      },
+      {
+        "uuid": "338d5fb1-0493-4270-8d35-81105c239bbb",
+        "name": "Grand Multipara"
+      },
+      {
+        "uuid": "8021adee-ad70-4644-97c6-d0804851f8d3",
+        "name": "Old age pregnancy"
+      },
+      {
+        "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
+        "name": "Underweight"
+      },
+      {
+        "uuid": "9af1e8e9-f16c-46de-8794-ac302444c63d",
+        "name": "Short Stature"
+      },
+      {
+        "uuid": "edb0ec5e-56dc-4826-b922-52ed2e182fd8",
+        "name": "Under age pregnancy"
+      },
+      {
+        "uuid": "73ece93d-2065-4ff2-8f87-669142d186e6",
+        "name": "Weight Gain Per Month less than 1kg"
+      },
+      {
+        "uuid": "4d95ca6e-f2a1-42bd-b52b-44fd8e853d63",
+        "name": "Weight Gain Per Month more than 1.5kg"
+      },
+      {
+        "uuid": "45350576-a60b-4431-90da-65604933d97c",
+        "name": "HIV/AIDS Positive"
+      },
+      {
+        "uuid": "06c6b0ea-8ddc-4ed0-ab58-59ed67659571",
+        "name": "VDRL Positive"
+      },
+      {
+        "uuid": "4d2733ec-098a-407b-bfd2-1fd123dbe96d",
+        "name": "Sickling Positive"
+      },
+      {
+        "uuid": "705b3ef7-e41a-4954-bc3f-9556eb002f3d",
+        "name": "Sickle Cell Disease SS"
+      },
+      {
+        "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c",
+        "name": "Hepatitis B Positive"
+      },
+      {
+        "uuid": "0dee2973-eebe-4699-b676-b770fdd1c411",
+        "name": "Malaria"
+      },
+      {
+        "uuid": "96ec37c6-9572-4288-9220-2fe806093bde",
+        "name": "Malpresentation"
+      },
+      {
+        "uuid": "af7ae32a-dc5f-4ac2-a372-1baa6edf0b53",
+        "name": "Previous Abortion(s)"
+      },
+      {
+        "uuid": "9b9b1c0e-8dd3-4520-8c46-4488fd030fa9",
+        "name": "Previous Retained Placenta"
+      },
+      {
+        "uuid": "937a4d2a-7e38-4ca5-8309-113199d4a27e",
+        "name": "Previous Still Birth"
+      },
+      {
+        "uuid": "217d0b53-0314-4a64-b710-82fc8fe1bf9c",
+        "name": "Previous Intrauterine Death"
+      },
+      {
+        "uuid": "6b641e43-b981-4c10-a83c-fafac4654372",
+        "name": "IUGR: Intra Uterine Growth Retardation"
+      },
+      {
+        "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",
+        "name": "Ante Partum hemorrhage (APH)"
+      }
     ]
   },
   {
@@ -144,52 +120,34 @@
     "dataType": "Date"
   },
   {
-    "name": "Breast Examination - Nipple",
-    "uuid": "e7139d02-6c9f-44ad-b156-68091e5a4b96",
-    "dataType": "Coded",
-    "answers": [
-      "Retracted",
-      "Flat",
-      "Normal"
-    ]
-  },
-  {
-    "name": "TT1",
-    "uuid": "96319095-480d-4701-aeb1-2ef161cdc069",
-    "dataType": "N/A"
-  },
-  {
-    "name": "TT Booster",
-    "uuid": "da8638a2-81f3-4491-8ec8-6295701db04f",
-    "dataType": "N/A"
-  },
-  {
-    "name": "TT2",
-    "uuid": "c63c486e-0105-4f34-8566-7cfdb4a84cb5",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Miscarriage",
-    "uuid": "fb079822-6338-46fe-9919-112686850e2d",
-    "dataType": "N/A"
-  },
-  {
-    "name": "Eclampsia",
-    "uuid": "489f07e5-d9e1-478a-969d-3acad587a15e",
-    "dataType": "N/A"
-  },
-  {
     "name": "PNC Complications",
     "uuid": "5e204b7a-c5df-4cc4-af45-99647b61e047",
     "dataType": "Coded",
     "answers": [
-      "Post-Partum Haemorrhage",
-      "Urinary Tract Infection",
-      "Genital Tract Infection",
-      "Mastitis",
-      "Post Operative Infection",
-      "Post-Partum Depression",
-      "Post-Partum Eclampsia"
+      {
+        "uuid": "154aeecb-2c8f-43f4-b86c-e070b83a516d",
+        "name": "Post-Partum Haemorrhage"
+      },
+      {
+        "uuid": "69072b54-1258-4851-917f-0657667f3bcd",
+        "name": "Urinary Tract Infection"
+      },
+      {
+        "uuid": "40325a6e-bbf7-4a85-96d5-f79d0e447543",
+        "name": "Genital Tract Infection"
+      },
+      {
+        "uuid": "948e4a90-66ad-47ee-8d7a-e003e03fb434",
+        "name": "Mastitis"
+      },
+      {
+        "uuid": "681007b0-13a2-4910-aae8-47f1edae0a4b",
+        "name": "Post Operative Infection"
+      },
+      {
+        "uuid": "ac1e984c-28be-4ce2-887c-262749151350",
+        "name": "Post-Partum Depression"
+      }
     ]
   }
 ]
