@@ -8,8 +8,8 @@
     {
       "uuid": "062ffc31-c311-485b-baf3-d5a95d10e97c",
       "name": "Child Enrolment Basic Details",
-      "display": "Basic Details",
       "displayOrder": 1,
+      "display": "Basic Details",
       "formElements": [
         {
           "name": "Birth Weight",
@@ -39,9 +39,18 @@
           "dataType": "Coded",
           "displayOrder": 3,
           "answers": [
-            "Birth",
-            "In migration",
-            "Retrospective registration"
+            {
+              "uuid": "46bc3a4b-bc43-42b5-a990-18fdaefa9a8b",
+              "name": "Birth"
+            },
+            {
+              "uuid": "e9e0c7f4-9de8-42c8-901b-c228ea18b92c",
+              "name": "In migration"
+            },
+            {
+              "uuid": "2c566f57-61c8-41eb-91db-9c8adf011819",
+              "name": "Retrospective registration"
+            }
           ],
           "mandatory": false
         }

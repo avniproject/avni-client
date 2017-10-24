@@ -5,63 +5,212 @@
   "programName": "Mother",
   "formElementGroups": [
     {
-      "name": "Mother Delivery Service Details",
-      "display": "Service Details",
       "uuid": "586b9fc7-7db9-42b5-9e89-ee1f05ac9de8",
+      "name": "Mother Delivery Service Details",
+      "displayOrder": 1,
+      "display": "Service Details",
       "formElements": [
         {
-          "uuid": "77791c29-90ec-485a-9cef-298b9b575dd2",
           "name": "Date of discharge",
-          "dataType": "Date"
+          "uuid": "77791c29-90ec-485a-9cef-298b9b575dd2",
+          "keyValues": [],
+          "dataType": "Date",
+          "displayOrder": 1,
+          "mandatory": false
         },
         {
-          "uuid": "f48b8eb2-a338-45fd-b63d-3c00d266d388",
           "name": "Place of delivery",
+          "uuid": "f48b8eb2-a338-45fd-b63d-3c00d266d388",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "keyValues": [{"key": "Select", "value": "Single"}],
-          "answers": ["Home", "Sub Center", "Primary Health Center", "Regional Hospital", "NGO Hospital", "During Transportation like in Ambulance etc"]
+          "displayOrder": 2,
+          "answers": [
+            {
+              "uuid": "bb75a86c-05af-4b05-b699-860737d19e57",
+              "name": "Home"
+            },
+            {
+              "uuid": "fe24e909-6346-4e84-bacc-2ec5ae85bed8",
+              "name": "Sub Center"
+            },
+            {
+              "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43",
+              "name": "Primary Health Center"
+            },
+            {
+              "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda",
+              "name": "Regional Hospital"
+            },
+            {
+              "uuid": "cdb94629-a710-43f0-b5ce-3921905f24f2",
+              "name": "NGO Hospital"
+            },
+            {
+              "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7",
+              "name": "During Transportation like in Ambulance etc"
+            }
+          ],
+          "mandatory": false
         },
         {
-          "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
           "name": "Delivered By",
+          "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "keyValues": [{"key": "Select", "value": "Single"}],
-          "answers": ["Non-Skilled Birth Attendant (NSBA)", "TBA (Trained Birth Attendant)", "Auxillary Nurse Midwife", "Medical Officer/ Doctor"]
+          "displayOrder": 3,
+          "answers": [
+            {
+              "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2",
+              "name": "Non-Skilled Birth Attendant (NSBA)"
+            },
+            {
+              "uuid": "f6947afd-9592-4ac8-808a-4cd5bdc1443e",
+              "name": "TBA (Trained Birth Attendant)"
+            },
+            {
+              "uuid": "d3f764e5-938a-42dd-bdef-02614d424f8d",
+              "name": "Auxillary Nurse Midwife"
+            },
+            {
+              "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27",
+              "name": "Medical Officer/ Doctor"
+            }
+          ],
+          "mandatory": false
         }
       ]
     },
     {
-      "name": "Mother Delivery Medical Details",
-      "display": "Medical Details",
       "uuid": "fa392acd-d9bf-4b90-b520-bc28d61300b8",
+      "name": "Mother Delivery Medical Details",
+      "displayOrder": 2,
+      "display": "Medical Details",
       "formElements": [
         {
-          "uuid": "f9453d8c-2085-4435-840f-3ddcd79f788f",
           "name": "Type of Delivery",
+          "uuid": "f9453d8c-2085-4435-840f-3ddcd79f788f",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "keyValues": [{"key": "Select", "value": "Single"}],
-          "answers": ["Normal", "Caesarean", "Instrumental"]
+          "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+              "name": "Normal"
+            },
+            {
+              "uuid": "f5192c76-f772-4e84-8fea-16d980de15bc",
+              "name": "Caesarean"
+            },
+            {
+              "uuid": "eeaf9b42-71f7-49d4-80c6-a498619d1645",
+              "name": "Instrumental"
+            }
+          ],
+          "mandatory": false
         },
         {
-          "uuid": "14ebb121-7602-4644-81b3-6e171cea19ab",
           "name": "Delivery Outcome",
+          "uuid": "14ebb121-7602-4644-81b3-6e171cea19ab",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "keyValues": [{"key": "Select", "value": "Single"}],
-          "answers": ["Live Birth", "Still Birth", "Early Neonatal death within first 24 Hours of birth"]
+          "displayOrder": 2,
+          "answers": [
+            {
+              "uuid": "e3999b21-821c-4c6e-9953-156e70b9217c",
+              "name": "Live Birth"
+            },
+            {
+              "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
+              "name": "Still Birth"
+            },
+            {
+              "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
+              "name": "Early Neonatal death within first 24 Hours of birth"
+            }
+          ],
+          "mandatory": false
         },
         {
-          "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
           "name": "Number of babies",
+          "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "keyValues": [{"key": "Select", "value": "Single"}],
-          "answers": ["1", "Twins", "Triplet"]
+          "displayOrder": 3,
+          "answers": [
+            {
+              "uuid": "9139d435-2178-46d9-aea9-429597e533b2",
+              "name": "1"
+            },
+            {
+              "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0",
+              "name": "Twins"
+            },
+            {
+              "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab",
+              "name": "Triplet"
+            }
+          ],
+          "mandatory": false
         },
         {
-          "uuid": "d4d13b86-435f-4fe6-bb74-6a00cd41b174",
           "name": "Delivery Complications",
+          "uuid": "d4d13b86-435f-4fe6-bb74-6a00cd41b174",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
           "dataType": "Coded",
-          "keyValues": [{"key": "Select", "value": "Multi"}],
-          "answers": ["Obstructed Labour", "PPH", "Uterine Rupture", "Vaginal Rupture", "Maternal Death"]
+          "displayOrder": 4,
+          "answers": [
+            {
+              "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152",
+              "name": "Obstructed Labour"
+            },
+            {
+              "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4",
+              "name": "PPH"
+            },
+            {
+              "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
+              "name": "Uterine Rupture"
+            },
+            {
+              "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
+              "name": "Vaginal Rupture"
+            },
+            {
+              "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373",
+              "name": "Maternal Death"
+            }
+          ],
+          "mandatory": false
         }
       ]
     }

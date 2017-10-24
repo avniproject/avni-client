@@ -8,8 +8,8 @@
     {
       "uuid": "2dff8c09-bed3-4848-943f-b2240b70d7ed",
       "name": "ANC Enrolment Basic Details",
-      "display": "Basic Details",
       "displayOrder": 1,
+      "display": "Basic Details",
       "formElements": [
         {
           "name": "Mother card number",
@@ -30,7 +30,16 @@
         {
           "name": "Last Menstrual Period",
           "uuid": "10a7bb47-6780-4b43-9ebd-842b1f5cc58f",
-          "keyValues": [{"key": "durationOptions", "value": ["days", "weeks", "months"]}],
+          "keyValues": [
+            {
+              "key": "durationOptions",
+              "value": [
+                "days",
+                "weeks",
+                "months"
+              ]
+            }
+          ],
           "dataType": "Date",
           "displayOrder": 3,
           "mandatory": true
@@ -48,8 +57,8 @@
     {
       "uuid": "71b33c6d-e029-43be-baff-452c3e31890d",
       "name": "ANC Enrolment Obstetrics History",
-      "display": "Obstetrics History",
       "displayOrder": 2,
+      "display": "Obstetrics History",
       "formElements": [
         {
           "name": "Gravida",
@@ -104,33 +113,87 @@
     {
       "uuid": "50a2d045-88fe-44e3-86e0-0dba16f53818",
       "name": "ANC Enrolment past pregnancy complications",
-      "display": "Past pregnancy complications",
       "displayOrder": 3,
+      "display": "Past pregnancy complications",
       "formElements": [
         {
-          "uuid": "4ae32d41-7c2e-4d7d-8ac6-566c9331f3a1",
           "name": "Obstetrics History",
-          "dataType": "Coded",
-          "answers": [
-            "Ante Partum Haemorrhage",
-            "Post Partum Haemorrhage",
-            "Pre Eclampsia/ Eclampsia",
-            "Pregnancy Induced Hypertension",
-            "Intrauterine Growth Retardation",
-            "Three or more than three spontaneous abortions",
-            "Pre-term labour",
-            "Still birth",
-            "Retained Placenta",
-            "LSCS/C-section",
-            "Neonatal death within first 28 days",
-            "Retained Placenta",
-            "Prolonged labour",
-            "Threatened abortion",
-            "Intrapartum Death",
-            "Intrauterine Death",
-            "Instrumental Delivery"
+          "uuid": "4ae32d41-7c2e-4d7d-8ac6-566c9331f3a1",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
           ],
-          "keyValues": [{"key": "Select", "value": "Multi"}]
+          "dataType": "Coded",
+          "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff",
+              "name": "Ante Partum Haemorrhage"
+            },
+            {
+              "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca",
+              "name": "Post Partum Haemorrhage"
+            },
+            {
+              "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
+              "name": "Pre Eclampsia/ Eclampsia"
+            },
+            {
+              "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
+              "name": "Pregnancy Induced Hypertension"
+            },
+            {
+              "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2",
+              "name": "Intrauterine Growth Retardation"
+            },
+            {
+              "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931",
+              "name": "Three or more than three spontaneous abortions"
+            },
+            {
+              "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951",
+              "name": "Pre-term labour"
+            },
+            {
+              "uuid": "40e599a8-f073-4eae-abbc-df8315f1aa5a",
+              "name": "Still birth"
+            },
+            {
+              "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9",
+              "name": "Retained Placenta"
+            },
+            {
+              "uuid": "eb68c395-17dc-4679-828c-487753228e9f",
+              "name": "LSCS/C-section"
+            },
+            {
+              "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba",
+              "name": "Neonatal death within first 28 days"
+            },
+            {
+              "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3",
+              "name": "Prolonged labour"
+            },
+            {
+              "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
+              "name": "Threatened abortion"
+            },
+            {
+              "uuid": "92ba84ab-b395-48c4-b867-932524f60d15",
+              "name": "Intrapartum Death"
+            },
+            {
+              "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1",
+              "name": "Intrauterine Death"
+            },
+            {
+              "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376",
+              "name": "Instrumental Delivery"
+            }
+          ],
+          "mandatory": false
         }
       ]
     }

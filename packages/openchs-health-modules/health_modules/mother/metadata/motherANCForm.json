@@ -14,37 +14,93 @@
         {
           "name": "Pedal Edema",
           "uuid": "32bed768-4074-45c4-92a6-4bc27f43bbdc",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
           "name": "Pallor",
           "uuid": "6b5f0898-6ea3-4395-91e2-6e415cada5ff",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 2,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
           "name": "Convulsions",
           "uuid": "e4511f13-5b2a-4df2-9e7b-72729c1f6923",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 3,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
           "name": "Icterus",
           "uuid": "a9a50a04-6e62-4398-b0ed-1039f82fe323",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 4,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -56,8 +112,8 @@
           "mandatory": false
         },
         {
-          "uuid": "5682fc9d-a852-445d-9e8e-d67a1fa51266",
           "name": "Breast Examination - Nipple",
+          "uuid": "5682fc9d-a852-445d-9e8e-d67a1fa51266",
           "keyValues": [
             {
               "key": "Select",
@@ -65,12 +121,26 @@
             }
           ],
           "dataType": "Coded",
+          "displayOrder": 8,
           "answers": [
-            "Retracted nipple",
-            "Flat",
-            "Normal"
+            {
+              "uuid": "3273b055-0222-44b6-b0a6-7d45fb4e1b33",
+              "name": "Retracted"
+            },
+            {
+              "uuid": "4b82ab07-c454-4646-b63f-c9272db78a7f",
+              "name": "Retracted nipple"
+            },
+            {
+              "uuid": "040e37d2-12ff-465c-8bf2-990358805f11",
+              "name": "Flat"
+            },
+            {
+              "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+              "name": "Normal"
+            }
           ],
-          "displayOrder": 8
+          "mandatory": false
         }
       ]
     },
@@ -92,50 +162,86 @@
           "dataType": "Coded",
           "displayOrder": 1,
           "answers": [
-            "Cephalic",
-            "Breech",
-            "Transverse"
+            {
+              "uuid": "ab96f92f-6412-43e2-bb20-aabecd3aefad",
+              "name": "Cephalic"
+            },
+            {
+              "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6",
+              "name": "Breech"
+            },
+            {
+              "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47",
+              "name": "Transverse"
+            }
           ],
           "mandatory": false
         },
         {
-          "uuid": "e7a89295-3b62-403d-9690-814488bc0a3d",
           "name": "Fundal Height",
+          "uuid": "e7a89295-3b62-403d-9690-814488bc0a3d",
+          "keyValues": [],
           "dataType": "Numeric",
           "unit": "Week(s)",
           "displayOrder": 2
         },
         {
-          "uuid": "3170cf31-535c-4030-bec1-59229f26d81e",
           "name": "Fundal height from pubic symphysis",
+          "uuid": "3170cf31-535c-4030-bec1-59229f26d81e",
+          "keyValues": [],
           "dataType": "Numeric",
           "unit": "centimeter(s)",
           "displayOrder": 3
         },
         {
-          "uuid": "2440a24d-74ad-457a-813b-cce5dfedc136",
           "name": "Fetal movements",
-          "dataType": "Coded",
-          "answers": [
-            "Normal",
-            "Reduced",
-            "Absent"
-          ],
+          "uuid": "2440a24d-74ad-457a-813b-cce5dfedc136",
           "keyValues": [
             {
               "key": "Select",
               "value": "Single"
             }
           ],
-          "displayOrder": 4
+          "dataType": "Coded",
+          "displayOrder": 4,
+          "answers": [
+            {
+              "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+              "name": "Normal"
+            },
+            {
+              "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63",
+              "name": "Reduced"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
+          "mandatory": false
         },
         {
-          "uuid": "c30e4c6c-a823-47ff-8c8c-328f89a2587f",
           "name": "Fetal Heart Sound",
+          "uuid": "c30e4c6c-a823-47ff-8c8c-328f89a2587f",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
-          "displayOrder": 5
+          "displayOrder": 5,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
+          "mandatory": false
         }
       ]
     },
@@ -213,10 +319,22 @@
           "dataType": "Coded",
           "displayOrder": 2,
           "answers": [
-            "Negative",
-            "Positive for PF",
-            "Positive for PV",
-            "Positive for PF and PV"
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            },
+            {
+              "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
+              "name": "Positive for PF"
+            },
+            {
+              "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
+              "name": "Positive for PV"
+            },
+            {
+              "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
+              "name": "Positive for PF and PV"
+            }
           ],
           "mandatory": false
         },
@@ -259,11 +377,17 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Positive",
-            "Negative"
-          ],
           "displayOrder": 5,
+          "answers": [
+            {
+              "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+              "name": "Positive"
+            },
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -276,11 +400,17 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Positive",
-            "Negative"
-          ],
           "displayOrder": 6,
+          "answers": [
+            {
+              "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+              "name": "Positive"
+            },
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -293,11 +423,17 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Positive",
-            "Negative"
-          ],
           "displayOrder": 7,
+          "answers": [
+            {
+              "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+              "name": "Positive"
+            },
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -310,11 +446,17 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Positive",
-            "Negative"
-          ],
           "displayOrder": 8,
+          "answers": [
+            {
+              "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+              "name": "Positive"
+            },
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -327,11 +469,17 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Positive",
-            "Negative"
-          ],
           "displayOrder": 9,
+          "answers": [
+            {
+              "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+              "name": "Positive"
+            },
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -344,11 +492,17 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Positive",
-            "Negative"
-          ],
           "displayOrder": 10,
+          "answers": [
+            {
+              "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+              "name": "Positive"
+            },
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -361,12 +515,21 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "AA",
-            "SS",
-            "AS"
-          ],
           "displayOrder": 11,
+          "answers": [
+            {
+              "uuid": "daa7c62f-c663-4981-a134-1f662b3036d0",
+              "name": "AA"
+            },
+            {
+              "uuid": "3648a650-2f3e-4c2c-a899-c0a8212aace1",
+              "name": "SS"
+            },
+            {
+              "uuid": "77ee8a6a-2a01-421f-85ca-fc0ab39abcdb",
+              "name": "AS"
+            }
+          ],
           "mandatory": false
         }
       ]
@@ -387,15 +550,33 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Trace",
-            "+1",
-            "+2",
-            "+3",
-            "+4",
-            "Absent"
-          ],
           "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+              "name": "Trace"
+            },
+            {
+              "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+              "name": "+1"
+            },
+            {
+              "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+              "name": "+2"
+            },
+            {
+              "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+              "name": "+3"
+            },
+            {
+              "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+              "name": "+4"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -408,15 +589,33 @@
             }
           ],
           "dataType": "Coded",
-          "answers": [
-            "Trace",
-            "+1",
-            "+2",
-            "+3",
-            "+4",
-            "Absent"
-          ],
           "displayOrder": 2,
+          "answers": [
+            {
+              "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+              "name": "Trace"
+            },
+            {
+              "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+              "name": "+1"
+            },
+            {
+              "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+              "name": "+2"
+            },
+            {
+              "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+              "name": "+3"
+            },
+            {
+              "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+              "name": "+4"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         }
       ]
@@ -430,10 +629,24 @@
         {
           "name": "US Scanning Done",
           "uuid": "e5e671fe-0acf-44e1-9629-0796b274fe65",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Yes", "No"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "e97f6eb6-a393-4c34-81ef-a9f2a623f59e",
+              "name": "Yes"
+            },
+            {
+              "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+              "name": "No"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -482,27 +695,55 @@
       "displayOrder": 8,
       "formElements": [
         {
-          "uuid": "828eb65a-019a-4600-813d-1e846c73ce27",
           "name": "Pregnancy Complaints",
-          "dataType": "Coded",
-          "answers": [
-            "Morning Sickness",
-            "Severe Abdominal Pain",
-            "Fever",
-            "Headache",
-            "Difficulty in breathing",
-            "PV bleeding",
-            "Blurring of vision",
-            "PV leaking",
-            "Decreased Fetal movements"
-          ],
-          "displayOrder": 1,
+          "uuid": "828eb65a-019a-4600-813d-1e846c73ce27",
           "keyValues": [
             {
               "key": "Select",
               "value": "Multi"
             }
-          ]
+          ],
+          "dataType": "Coded",
+          "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+              "name": "Morning Sickness"
+            },
+            {
+              "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+              "name": "Severe Abdominal Pain"
+            },
+            {
+              "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+              "name": "Fever"
+            },
+            {
+              "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e",
+              "name": "Headache"
+            },
+            {
+              "uuid": "8e1ef29f-c2d6-4586-97a1-5c791251c4f0",
+              "name": "Difficulty in breathing"
+            },
+            {
+              "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+              "name": "PV bleeding"
+            },
+            {
+              "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+              "name": "Blurring of vision"
+            },
+            {
+              "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+              "name": "PV leaking"
+            },
+            {
+              "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+              "name": "Decreased Fetal movements"
+            }
+          ],
+          "mandatory": false
         }
       ]
     }

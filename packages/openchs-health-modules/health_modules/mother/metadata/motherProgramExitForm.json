@@ -23,10 +23,22 @@
           "dataType": "Coded",
           "displayOrder": 1,
           "answers": [
-            "Death",
-            "Abortion",
-            "Shifted to other geographical area",
-            "Completion"
+            {
+              "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
+              "name": "Death"
+            },
+            {
+              "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
+              "name": "Abortion"
+            },
+            {
+              "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
+              "name": "Shifted to other geographical area"
+            },
+            {
+              "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
+              "name": "Completion"
+            }
           ],
           "mandatory": true
         },

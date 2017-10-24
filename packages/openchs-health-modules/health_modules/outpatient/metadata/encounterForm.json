@@ -7,8 +7,8 @@
     {
       "uuid": "52c7a463-3044-4ac6-8bfa-dae86fd20878",
       "name": "Outpatient Vitals",
-      "display": "Vitals",
       "displayOrder": 1,
+      "display": "Vitals",
       "formElements": [
         {
           "name": "Weight",
@@ -63,25 +63,53 @@
     {
       "uuid": "cfca8e29-cbf2-4fda-a691-b8fa15abab14",
       "name": "Outpatient Physical Examination",
-      "display": "Physical Examination",
       "displayOrder": 2,
+      "display": "Physical Examination",
       "formElements": [
         {
           "name": "Pallor",
           "uuid": "0321fdc2-055f-44ac-a24e-c66314f04127",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 1,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
           "name": "Pedal Edema",
           "uuid": "57db3bc2-4a09-4351-bf44-edfe46e00ac1",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
           "dataType": "Coded",
-          "answers": ["Present", "Absent"],
-          "keyValues": [{"key": "Select", "value": "Single"}],
           "displayOrder": 2,
+          "answers": [
+            {
+              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+              "name": "Present"
+            },
+            {
+              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+              "name": "Absent"
+            }
+          ],
           "mandatory": false
         },
         {
@@ -96,10 +124,22 @@
           "dataType": "Coded",
           "displayOrder": 3,
           "answers": [
-            "Boils",
-            "Wound",
-            "Scabies",
-            "Ring Worm"
+            {
+              "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9",
+              "name": "Boils"
+            },
+            {
+              "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c",
+              "name": "Wound"
+            },
+            {
+              "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5",
+              "name": "Scabies"
+            },
+            {
+              "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137",
+              "name": "Ring Worm"
+            }
           ],
           "mandatory": false
         },
@@ -115,10 +155,22 @@
           "dataType": "Coded",
           "displayOrder": 4,
           "answers": [
-            "Negative",
-            "Positive for PF",
-            "Positive for PV",
-            "Positive for PF and PV"
+            {
+              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
+              "name": "Negative"
+            },
+            {
+              "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
+              "name": "Positive for PF"
+            },
+            {
+              "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
+              "name": "Positive for PV"
+            },
+            {
+              "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
+              "name": "Positive for PF and PV"
+            }
           ],
           "mandatory": false
         }
@@ -127,8 +179,8 @@
     {
       "uuid": "866bae7d-1a10-48de-a68d-2aef17f92b6b",
       "name": "Outpatient Complaints",
-      "display": "Complaints",
       "displayOrder": 3,
+      "display": "Complaints",
       "formElements": [
         {
           "name": "Complaint",
@@ -140,30 +192,76 @@
             },
             {
               "key": "ExcludedAnswers",
-              "value": [
-                
-              ]
+              "value": []
             }
           ],
           "dataType": "Coded",
           "displayOrder": 1,
           "answers": [
-            "Fever",
-            "Chloroquine Resistant Malaria",
-            "Body Ache",
-            "Headache",
-            "Giddiness",
-            "Vomiting",
-            "Cough",
-            "Cold",
-            "Acidity",
-            "Abdominal Pain",
-            "Diarrhoea",
-            "Boils",
-            "Wound",
-            "Scabies",
-            "Ring Worm",
-            "Pregnancy"
+            {
+              "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+              "name": "Fever"
+            },
+            {
+              "uuid": "567ed59c-7cfb-46ff-a0f5-e2ea042a03b6",
+              "name": "Chloroquine Resistant Malaria"
+            },
+            {
+              "uuid": "7dba1853-3147-47da-b016-7d306d19320f",
+              "name": "Body Ache"
+            },
+            {
+              "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e",
+              "name": "Headache"
+            },
+            {
+              "uuid": "4b569ac1-3965-47a0-9ca7-2317f40fdd61",
+              "name": "Giddiness"
+            },
+            {
+              "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4",
+              "name": "Vomiting"
+            },
+            {
+              "uuid": "63658ea8-0447-4180-8026-bed500486e13",
+              "name": "Cough"
+            },
+            {
+              "uuid": "bddfcbbf-b706-4e08-845e-cd64dd43752a",
+              "name": "Cold"
+            },
+            {
+              "uuid": "96c17d14-f663-4b62-ba28-1efe49ee9ddd",
+              "name": "Acidity"
+            },
+            {
+              "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c",
+              "name": "Abdominal Pain"
+            },
+            {
+              "uuid": "88af3c67-3828-4f4b-8993-1497a86bf2bf",
+              "name": "Diarrhoea"
+            },
+            {
+              "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9",
+              "name": "Boils"
+            },
+            {
+              "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c",
+              "name": "Wound"
+            },
+            {
+              "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5",
+              "name": "Scabies"
+            },
+            {
+              "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137",
+              "name": "Ring Worm"
+            },
+            {
+              "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8",
+              "name": "Pregnancy"
+            }
           ],
           "mandatory": true
         }
