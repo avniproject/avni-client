@@ -4,6 +4,7 @@ import _ from 'lodash';
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const fetchFactory = (endpoint, method = "GET", params) => {
+    console.log(JSON.stringify(params));
     return fetch(endpoint, {"method": method, ...params})
         .then((response) =>
             ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1 ?
@@ -20,30 +21,35 @@ const makeHeader = (type) => new Map([['json', {
 
 const makeRequest = (type, opts = {}) => Object.assign({...makeHeader(type), ...opts});
 
-let _get = (endpoint) => {
+const addAuthIfRequired = (request, authToken) => {
+    console.log(authToken)
+    return _.isEmpty(authToken)? request: _.merge({}, request, {headers: {'X-session-token': authToken}});
+};
+
+let _get = (endpoint, authToken) => {
     General.logDebug('Requests', `Calling: ${endpoint}`);
-    return fetchFactory(endpoint, "GET", makeHeader("json"))
+    return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("json"), authToken))
         .then((response) => response.json(), Promise.reject)
 };
 
-let _getText = (endpoint) => {
+let _getText = (endpoint, authToken) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
-    return fetchFactory(endpoint, "GET", makeHeader("text"))
+    return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("text"), authToken))
         .then((response) => response.text(), Promise.reject)
 };
 
-let _post = (endpoint, file) => {
-    const params = makeRequest("json", {body: JSON.stringify(file)});
+let _post = (endpoint, file, authToken) => {
+    const params = addAuthIfRequired(makeRequest("json", {body: JSON.stringify(file)}), authToken);
     General.logDebug('Requests', `Posting to ${endpoint}`);
     return fetchFactory(endpoint, "POST", params)
 };
 
 export let post = _post;
 
-export let get = (endpoint) => {
-    return _getText(endpoint);
+export let get = (endpoint, authToken) => {
+    return _getText(endpoint, authToken);
 };
 
-export let getJSON = (endpoint) => {
-    return _get(endpoint);
+export let getJSON = (endpoint, authToken) => {
+    return _get(endpoint, authToken);
 };

@@ -47,8 +47,8 @@ class SettingsService extends BaseService {
         return settings[0];
     }
 
-    saveOrUpdate(entity, schema) {
-        const output = super.saveOrUpdate(entity, schema);
+    saveOrUpdate(entity) {
+        const output = super.saveOrUpdate(entity, Settings.schema.name);
         General.setCurrentLogLevel(this.getSettings().logLevel);
         return output;
     }

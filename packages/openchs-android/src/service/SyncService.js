@@ -18,8 +18,13 @@ class SyncService extends BaseService {
     init() {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
-        this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
+        this.settingsService = this.getService(SettingsService);
+        this.conventionalRestClient = new ConventionalRestClient(this.settingsService);
         this.messageService = this.getService(MessageService);
+    }
+
+    authenticate() {
+        return this.conventionalRestClient.authenticate();
     }
 
     sync(allEntitiesMetaData, start, done, onError) {
@@ -27,7 +32,8 @@ class SyncService extends BaseService {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
-        return this.pushTxData(allTxDataMetaData.slice())
+        return this.authenticate()
+            .then(() => this.pushTxData(allTxDataMetaData.slice()))
             .then(() => this.getData(allReferenceDataMetaData))
             .then(() => this.getData(allTxDataMetaData))
             .then(done, onError);

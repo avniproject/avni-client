@@ -22,7 +22,7 @@ class SettingsActions {
         updateFunc(newState.settings);
         newState.validationResults = newState.settings.validate();
         if (newState.validationResults.hasNoValidationError()) {
-            context.get(SettingsService).saveOrUpdate(newState.settings, Settings.schema.name);
+            context.get(SettingsService).saveOrUpdate(newState.settings);
         }
 
         return newState;

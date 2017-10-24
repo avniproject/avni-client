@@ -1,5 +1,4 @@
 import {getJSON as httpGet, get as httpGetText, post as httpPost} from './requests';
-import _ from 'lodash';
 
 class ChainedRequests {
     constructor() {
@@ -14,12 +13,12 @@ class ChainedRequests {
         this.requestQueue.push(request);
     }
 
-    get(endpoint, onComplete) {
-        return () => httpGet(endpoint).then(onComplete);
+    get(endpoint, authToken, onComplete) {
+        return () => httpGet(endpoint, authToken).then(onComplete);
     }
 
-    post(endpoint, filecontents, onComplete) {
-        return () => httpPost(endpoint, filecontents).then(onComplete);
+    post(endpoint, filecontents, authToken, onComplete) {
+        return () => httpPost(endpoint, filecontents, authToken).then(onComplete);
     }
 
     fire() {
