@@ -15,7 +15,11 @@
           "name": "Date of abortion",
           "uuid": "1f54eacd-2004-4b9b-8f29-c67d94f74103",
           "keyValues": [],
-          "dataType": "Date",
+          "concept": {
+            "name": "Date of abortion",
+            "uuid": "c82404a6-78f6-4e55-93b8-51acc5d8aa68",
+            "dataType": "Date"
+          },
           "displayOrder": 1,
           "mandatory": true
         },
@@ -23,7 +27,11 @@
           "name": "Date of discharge",
           "uuid": "041c5758-d2aa-473c-b3f1-20fc529056cd",
           "keyValues": [],
-          "dataType": "Date",
+          "concept": {
+            "name": "Date of discharge",
+            "uuid": "b4d6b6b6-fff0-4dda-8f60-aa273ff20250",
+            "dataType": "Date"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -36,18 +44,22 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Type of Abortion",
+            "uuid": "94e3ad45-ae52-41dc-a26a-27b4973cbd04",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Spontaneous",
+                "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5"
+              },
+              {
+                "name": "Induced",
+                "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0"
+              }
+            ]
+          },
           "displayOrder": 3,
-          "answers": [
-            {
-              "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
-              "name": "Induced"
-            },
-            {
-              "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5",
-              "name": "Spontaneous"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -59,18 +71,22 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Place of abortion",
+            "uuid": "b8893e96-89fd-4965-93ea-b9307dd69be0",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Institutional",
+                "uuid": "071291ce-e644-4d66-89b9-94d14364effc"
+              },
+              {
+                "name": "Home",
+                "uuid": "bb75a86c-05af-4b05-b699-860737d19e57"
+              }
+            ]
+          },
           "displayOrder": 4,
-          "answers": [
-            {
-              "uuid": "bb75a86c-05af-4b05-b699-860737d19e57",
-              "name": "Home"
-            },
-            {
-              "uuid": "071291ce-e644-4d66-89b9-94d14364effc",
-              "name": "Institutional"
-            }
-          ],
           "mandatory": false
         }
       ]

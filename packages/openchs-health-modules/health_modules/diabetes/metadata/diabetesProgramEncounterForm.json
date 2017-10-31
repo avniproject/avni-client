@@ -15,8 +15,11 @@
           "name": "Fasting glucose (mg/dl)",
           "uuid": "a8993278-2c9f-4c91-b95f-8435f25f0aeb",
           "keyValues": [],
-          "conceptName": "Fasting blood glucose",
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Fasting blood glucose",
+            "uuid": "76c0bd04-73af-4bdf-846e-f194de5f3fe7",
+            "dataType": "Numeric"
+          },
           "displayOrder": 1,
           "mandatory": false
         },
@@ -24,8 +27,11 @@
           "name": "Post meal blood glucose, after 2 hours (mg/dl)",
           "uuid": "c5d45a21-39b4-41dd-96b9-e93c3f8c669c",
           "keyValues": [],
-          "conceptName": "Post meal blood glucose",
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Post meal blood glucose",
+            "uuid": "41e972b1-e4df-41c9-9b86-6ba4cbdba456",
+            "dataType": "Numeric"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -33,7 +39,16 @@
           "name": "Systolic",
           "uuid": "953298fa-aacc-4d8a-96c0-c28954715ba9",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Systolic",
+            "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
+            "dataType": "Numeric",
+            "lowAbsolute": 20.0,
+            "highAbsolute": 190.0,
+            "lowNormal": 90.0,
+            "highNormal": 140.0,
+            "unit": "mm Hg"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -41,7 +56,16 @@
           "name": "Diastolic",
           "uuid": "4bf7f979-1d4c-46c9-998e-087845ed1847",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Diastolic",
+            "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
+            "dataType": "Numeric",
+            "lowAbsolute": 10.0,
+            "highAbsolute": 120.0,
+            "lowNormal": 50.0,
+            "highNormal": 90.0,
+            "unit": "mm Hg"
+          },
           "displayOrder": 4,
           "mandatory": false
         }

@@ -15,7 +15,11 @@
           "name": "Birth Weight",
           "uuid": "03daf5f7-9689-4eaa-a1f3-c95b609329b5",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Birth Weight",
+            "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14",
+            "dataType": "Numeric"
+          },
           "displayOrder": 1,
           "mandatory": false
         },
@@ -23,7 +27,11 @@
           "name": "Birth Defects",
           "uuid": "0e656272-03c2-41a9-8935-60444909082f",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "Birth Defects",
+            "uuid": "408ce177-eac2-4103-8b5e-3f8bc67bea2b",
+            "dataType": "Text"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -36,22 +44,26 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Registration at",
+            "uuid": "7a67c0ed-0cfc-4025-b479-5c14330c9f87",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Birth",
+                "uuid": "46bc3a4b-bc43-42b5-a990-18fdaefa9a8b"
+              },
+              {
+                "name": "In migration",
+                "uuid": "e9e0c7f4-9de8-42c8-901b-c228ea18b92c"
+              },
+              {
+                "name": "Retrospective registration",
+                "uuid": "2c566f57-61c8-41eb-91db-9c8adf011819"
+              }
+            ]
+          },
           "displayOrder": 3,
-          "answers": [
-            {
-              "uuid": "46bc3a4b-bc43-42b5-a990-18fdaefa9a8b",
-              "name": "Birth"
-            },
-            {
-              "uuid": "e9e0c7f4-9de8-42c8-901b-c228ea18b92c",
-              "name": "In migration"
-            },
-            {
-              "uuid": "2c566f57-61c8-41eb-91db-9c8adf011819",
-              "name": "Retrospective registration"
-            }
-          ],
           "mandatory": false
         }
       ]

@@ -15,7 +15,11 @@
           "name": "Mother card number",
           "uuid": "54917f80-15ea-416b-8746-7f2717a0dc84",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "Mother card number",
+            "uuid": "be667c2a-48f7-4654-bd47-221788616c1c",
+            "dataType": "Text"
+          },
           "displayOrder": 1,
           "mandatory": false
         },
@@ -23,7 +27,11 @@
           "name": "ANC registration no",
           "uuid": "cadad826-0b4c-4474-b256-697b49159111",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "ANC registration no",
+            "uuid": "bf1fb39e-ec62-4110-9942-042a91503457",
+            "dataType": "Text"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -40,7 +48,11 @@
               ]
             }
           ],
-          "dataType": "Date",
+          "concept": {
+            "name": "Last Menstrual Period",
+            "uuid": "1cc6fd5d-1359-483e-a971-4bf36e34a72d",
+            "dataType": "Date"
+          },
           "displayOrder": 3,
           "mandatory": true
         },
@@ -48,7 +60,16 @@
           "name": "Height",
           "uuid": "1e3afc0f-4f40-46f5-ab20-0739c30f99cd",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Height",
+            "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
+            "dataType": "Numeric",
+            "lowAbsolute": 20.0,
+            "highAbsolute": 300.0,
+            "lowNormal": 30.0,
+            "highNormal": 200.0,
+            "unit": "cm"
+          },
           "displayOrder": 4,
           "mandatory": false
         }
@@ -64,7 +85,11 @@
           "name": "Gravida",
           "uuid": "a21ba591-9f62-44b4-addc-44df0eea168b",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Gravida",
+            "uuid": "dc2c23e9-19ad-471f-81d1-213069ccc975",
+            "dataType": "Numeric"
+          },
           "displayOrder": 1,
           "mandatory": false
         },
@@ -72,7 +97,11 @@
           "name": "Parity",
           "uuid": "8e82a356-22a7-44ae-b28f-2b30fd6f9664",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Parity",
+            "uuid": "2d679fd5-a75b-46bd-96c2-10c180187342",
+            "dataType": "Numeric"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -80,7 +109,11 @@
           "name": "Number of abortion",
           "uuid": "7c43bedd-dbd8-46d0-9a3f-8517dcb7e18d",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Number of abortion",
+            "uuid": "38b9986b-76e8-4015-ae51-48152b1cd42c",
+            "dataType": "Numeric"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -88,7 +121,11 @@
           "name": "Number of male children",
           "uuid": "0abd0e1e-484c-48c9-ab3a-ffa14b66c9c5",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Number of male children",
+            "uuid": "1b749b48-bfae-470d-8219-a735dae99f7a",
+            "dataType": "Numeric"
+          },
           "displayOrder": 4,
           "mandatory": false
         },
@@ -96,7 +133,11 @@
           "name": "Number of female children",
           "uuid": "8b7b54a0-6f07-40b4-b080-f2023ec2ee2f",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Number of female children",
+            "uuid": "d924596e-e08e-4829-b4c3-77a0411d18c7",
+            "dataType": "Numeric"
+          },
           "displayOrder": 5,
           "mandatory": false
         },
@@ -104,7 +145,11 @@
           "name": "Age of youngest child",
           "uuid": "d07f9fdc-2dbe-4b21-abce-eb79c30470b8",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Age of youngest child",
+            "uuid": "305f693c-c8b6-4e3e-9a82-a6e91a3e462f",
+            "dataType": "Numeric"
+          },
           "displayOrder": 6,
           "mandatory": false
         }
@@ -125,74 +170,78 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Obstetrics History",
+            "uuid": "8a4ab436-6767-45d5-95d7-075d9459609e",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Post Partum Haemorrhage",
+                "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca"
+              },
+              {
+                "name": "Intrauterine Death",
+                "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1"
+              },
+              {
+                "name": "Threatened abortion",
+                "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b"
+              },
+              {
+                "name": "Ante Partum Haemorrhage",
+                "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff"
+              },
+              {
+                "name": "Three or more than three spontaneous abortions",
+                "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931"
+              },
+              {
+                "name": "LSCS/C-section",
+                "uuid": "eb68c395-17dc-4679-828c-487753228e9f"
+              },
+              {
+                "name": "Still birth",
+                "uuid": "40e599a8-f073-4eae-abbc-df8315f1aa5a"
+              },
+              {
+                "name": "Pre-term labour",
+                "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951"
+              },
+              {
+                "name": "Retained Placenta",
+                "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9"
+              },
+              {
+                "name": "Instrumental Delivery",
+                "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376"
+              },
+              {
+                "name": "Prolonged labour",
+                "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3"
+              },
+              {
+                "name": "Intrauterine Growth Retardation",
+                "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2"
+              },
+              {
+                "name": "Pre Eclampsia/ Eclampsia",
+                "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1"
+              },
+              {
+                "name": "Pregnancy Induced Hypertension",
+                "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad"
+              },
+              {
+                "name": "Neonatal death within first 28 days",
+                "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba"
+              },
+              {
+                "name": "Intrapartum Death",
+                "uuid": "92ba84ab-b395-48c4-b867-932524f60d15"
+              }
+            ]
+          },
           "displayOrder": 1,
-          "answers": [
-            {
-              "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff",
-              "name": "Ante Partum Haemorrhage"
-            },
-            {
-              "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca",
-              "name": "Post Partum Haemorrhage"
-            },
-            {
-              "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
-              "name": "Pre Eclampsia/ Eclampsia"
-            },
-            {
-              "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
-              "name": "Pregnancy Induced Hypertension"
-            },
-            {
-              "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2",
-              "name": "Intrauterine Growth Retardation"
-            },
-            {
-              "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931",
-              "name": "Three or more than three spontaneous abortions"
-            },
-            {
-              "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951",
-              "name": "Pre-term labour"
-            },
-            {
-              "uuid": "40e599a8-f073-4eae-abbc-df8315f1aa5a",
-              "name": "Still birth"
-            },
-            {
-              "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9",
-              "name": "Retained Placenta"
-            },
-            {
-              "uuid": "eb68c395-17dc-4679-828c-487753228e9f",
-              "name": "LSCS/C-section"
-            },
-            {
-              "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba",
-              "name": "Neonatal death within first 28 days"
-            },
-            {
-              "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3",
-              "name": "Prolonged labour"
-            },
-            {
-              "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
-              "name": "Threatened abortion"
-            },
-            {
-              "uuid": "92ba84ab-b395-48c4-b867-932524f60d15",
-              "name": "Intrapartum Death"
-            },
-            {
-              "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1",
-              "name": "Intrauterine Death"
-            },
-            {
-              "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376",
-              "name": "Instrumental Delivery"
-            }
-          ],
           "mandatory": false
         }
       ]

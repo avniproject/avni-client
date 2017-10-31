@@ -20,29 +20,37 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Child exit reason",
+            "uuid": "be1239e9-bab3-4fa8-aa8e-1af7e10e18c7",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Shifted to other geographical area",
+                "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6"
+              },
+              {
+                "name": "Death",
+                "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83"
+              },
+              {
+                "name": "Completion",
+                "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
+              }
+            ]
+          },
           "displayOrder": 1,
-          "answers": [
-            {
-              "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
-              "name": "Death"
-            },
-            {
-              "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
-              "name": "Shifted to other geographical area"
-            },
-            {
-              "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
-              "name": "Completion"
-            }
-          ],
           "mandatory": true
         },
         {
           "name": "Death reason",
           "uuid": "f6efd6e9-ea2d-4a8f-baeb-6fe12a86f7d8",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "Death reason",
+            "uuid": "28f33edf-4476-4330-a6ff-9a12a2c53e5f",
+            "dataType": "Text"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -50,7 +58,11 @@
           "name": "Death place",
           "uuid": "83e6cb7b-5f2d-4c5b-a9d1-0be071d6e956",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "Death place",
+            "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
+            "dataType": "Text"
+          },
           "displayOrder": 3,
           "mandatory": false
         }

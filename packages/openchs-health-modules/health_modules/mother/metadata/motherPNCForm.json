@@ -15,7 +15,16 @@
           "name": "Systolic",
           "uuid": "68bfde5c-92b7-4188-b2a2-bb96abfc174e",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Systolic",
+            "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
+            "dataType": "Numeric",
+            "lowAbsolute": 20.0,
+            "highAbsolute": 190.0,
+            "lowNormal": 90.0,
+            "highNormal": 140.0,
+            "unit": "mm Hg"
+          },
           "displayOrder": 1,
           "mandatory": false
         },
@@ -23,7 +32,16 @@
           "name": "Diastolic",
           "uuid": "a427afb1-a183-4d92-88eb-2a40e4a00058",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Diastolic",
+            "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
+            "dataType": "Numeric",
+            "lowAbsolute": 10.0,
+            "highAbsolute": 120.0,
+            "lowNormal": 50.0,
+            "highNormal": 90.0,
+            "unit": "mm Hg"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -31,7 +49,11 @@
           "name": "Temperature",
           "uuid": "a60089b0-71d7-487d-9102-1e8b52789bf7",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Temperature",
+            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
+            "dataType": "Numeric"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -39,7 +61,11 @@
           "name": "Respiratory Rate",
           "uuid": "f483e292-24b6-4d76-af72-8b13c9a5c596",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Respiratory Rate",
+            "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
+            "dataType": "Numeric"
+          },
           "displayOrder": 4,
           "mandatory": false
         },
@@ -47,7 +73,11 @@
           "name": "Pulse",
           "uuid": "62c01607-c063-49cd-ac39-ea1541243c44",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Pulse",
+            "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
+            "dataType": "Numeric"
+          },
           "displayOrder": 5,
           "mandatory": false
         },
@@ -55,7 +85,11 @@
           "name": "Hb % Level",
           "uuid": "3217fb80-e129-424a-891b-e1b32e10eead",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Hb % Level",
+            "uuid": "bf79f9bf-1dc7-4bb5-8747-a9e2ab1e73f3",
+            "dataType": "Numeric"
+          },
           "displayOrder": 6,
           "mandatory": false
         }
@@ -76,27 +110,30 @@
               "value": "Multi"
             }
           ],
-          "conceptName": "Post-Partum Haemorrhage symptoms",
-          "dataType": "Coded",
+          "concept": {
+            "name": "Post-Partum Haemorrhage symptoms",
+            "uuid": "863b3d4b-31df-4313-9a20-66749c1f175d",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Blurred vision",
+                "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c"
+              },
+              {
+                "name": "Difficulty breathing",
+                "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44"
+              },
+              {
+                "name": "Bad headache",
+                "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e"
+              },
+              {
+                "name": "No Problem",
+                "uuid": "09fe6531-c83f-4f7e-86ec-06775d2b9fb8"
+              }
+            ]
+          },
           "displayOrder": 1,
-          "answers": [
-            {
-              "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
-              "name": "Difficulty breathing"
-            },
-            {
-              "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
-              "name": "Bad headache"
-            },
-            {
-              "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c",
-              "name": "Blurred vision"
-            },
-            {
-              "uuid": "09fe6531-c83f-4f7e-86ec-06775d2b9fb8",
-              "name": "No Problem"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -108,22 +145,26 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Any abdominal problems",
+            "uuid": "2de99de4-558c-44b0-9882-abe7d892fe6c",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Abdominal pain",
+                "uuid": "38062391-f042-4a09-9d00-01f18c1b46c2"
+              },
+              {
+                "name": "Uterus is soft or tender",
+                "uuid": "6c670fde-e4c1-4885-b672-452de7a023e0"
+              },
+              {
+                "name": "No problems",
+                "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1"
+              }
+            ]
+          },
           "displayOrder": 2,
-          "answers": [
-            {
-              "uuid": "6c670fde-e4c1-4885-b672-452de7a023e0",
-              "name": "Uterus is soft or tender"
-            },
-            {
-              "uuid": "38062391-f042-4a09-9d00-01f18c1b46c2",
-              "name": "Abdominal pain"
-            },
-            {
-              "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1",
-              "name": "No problems"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -135,26 +176,30 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Any vaginal problems",
+            "uuid": "a4b8583b-80af-4a9f-b506-037a7abb1f43",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Heavy bleeding per vaginum",
+                "uuid": "396d9f7d-2dc7-4517-9543-85f1a8cbf00c"
+              },
+              {
+                "name": "No problems",
+                "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1"
+              },
+              {
+                "name": "Bad-smelling lochia",
+                "uuid": "abbd780c-e5a4-4558-b576-86394b359822"
+              },
+              {
+                "name": "Infected perineum suture",
+                "uuid": "f67e74ea-f048-40b1-abaa-19ff8ac20b10"
+              }
+            ]
+          },
           "displayOrder": 3,
-          "answers": [
-            {
-              "uuid": "396d9f7d-2dc7-4517-9543-85f1a8cbf00c",
-              "name": "Heavy bleeding per vaginum"
-            },
-            {
-              "uuid": "abbd780c-e5a4-4558-b576-86394b359822",
-              "name": "Bad-smelling lochia"
-            },
-            {
-              "uuid": "f67e74ea-f048-40b1-abaa-19ff8ac20b10",
-              "name": "Infected perineum suture"
-            },
-            {
-              "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1",
-              "name": "No problems"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -166,22 +211,26 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Any difficulties with urinating",
+            "uuid": "0f01b6f6-b7e3-41ea-8d49-9df23196125b",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Difficulty passing urine",
+                "uuid": "34ac55d2-84e1-44a5-981d-d3cf1fedd0cf"
+              },
+              {
+                "name": "Burning sensation when urinating",
+                "uuid": "46388ba8-f8b8-4105-bac5-50027b96d4fc"
+              },
+              {
+                "name": "No difficulties",
+                "uuid": "a440c668-a9d8-4ac4-8652-0660e0ca6364"
+              }
+            ]
+          },
           "displayOrder": 4,
-          "answers": [
-            {
-              "uuid": "34ac55d2-84e1-44a5-981d-d3cf1fedd0cf",
-              "name": "Difficulty passing urine"
-            },
-            {
-              "uuid": "46388ba8-f8b8-4105-bac5-50027b96d4fc",
-              "name": "Burning sensation when urinating"
-            },
-            {
-              "uuid": "a440c668-a9d8-4ac4-8652-0660e0ca6364",
-              "name": "No difficulties"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -193,26 +242,30 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Any breast problems",
+            "uuid": "88fe8286-316d-4ee8-be86-2d8c3840881c",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "No Problem",
+                "uuid": "09fe6531-c83f-4f7e-86ec-06775d2b9fb8"
+              },
+              {
+                "name": "Cracked Nipple",
+                "uuid": "804a3c4c-e42e-47b0-923b-43c808c631bc"
+              },
+              {
+                "name": "Nipple hardness",
+                "uuid": "e109964e-1f6f-49dd-9cdf-b862f91f3b65"
+              },
+              {
+                "name": "Breast hardness",
+                "uuid": "9d5b4823-959b-4650-bec2-ed7a1db7c057"
+              }
+            ]
+          },
           "displayOrder": 5,
-          "answers": [
-            {
-              "uuid": "9d5b4823-959b-4650-bec2-ed7a1db7c057",
-              "name": "Breast hardness"
-            },
-            {
-              "uuid": "e109964e-1f6f-49dd-9cdf-b862f91f3b65",
-              "name": "Nipple hardness"
-            },
-            {
-              "uuid": "804a3c4c-e42e-47b0-923b-43c808c631bc",
-              "name": "Cracked Nipple"
-            },
-            {
-              "uuid": "09fe6531-c83f-4f7e-86ec-06775d2b9fb8",
-              "name": "No Problem"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -224,26 +277,30 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "How is the Cesarean incision area",
+            "uuid": "a70eb606-3155-49f1-b2b4-6bc858ea6d31",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Normal",
+                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
+              },
+              {
+                "name": "Indurated",
+                "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d"
+              },
+              {
+                "name": "Looks red",
+                "uuid": "6323bb46-3510-4a7f-9531-4ebd32278911"
+              },
+              {
+                "name": "Filled with pus",
+                "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5"
+              }
+            ]
+          },
           "displayOrder": 6,
-          "answers": [
-            {
-              "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
-              "name": "Normal"
-            },
-            {
-              "uuid": "6323bb46-3510-4a7f-9531-4ebd32278911",
-              "name": "Looks red"
-            },
-            {
-              "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d",
-              "name": "Indurated"
-            },
-            {
-              "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5",
-              "name": "Filled with pus"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -255,18 +312,22 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Does feel hot or have the chills",
+            "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "No",
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              },
+              {
+                "name": "Yes",
+                "uuid": "e97f6eb6-a393-4c34-81ef-a9f2a623f59e"
+              }
+            ]
+          },
           "displayOrder": 7,
-          "answers": [
-            {
-              "uuid": "e97f6eb6-a393-4c34-81ef-a9f2a623f59e",
-              "name": "Yes"
-            },
-            {
-              "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-              "name": "No"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -278,18 +339,22 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Convulsions",
+            "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+              },
+              {
+                "name": "Present",
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+              }
+            ]
+          },
           "displayOrder": 8,
-          "answers": [
-            {
-              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-              "name": "Present"
-            },
-            {
-              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-              "name": "Absent"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -301,31 +366,34 @@
               "value": "Multi"
             }
           ],
-          "conceptName": "Post-Partum Depression Symptoms",
-          "dataType": "Coded",
+          "concept": {
+            "name": "Post-Partum Depression Symptoms",
+            "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Insomnia",
+                "uuid": "492f2658-5a54-4d47-894c-af90d02730b7"
+              },
+              {
+                "name": "No Problem",
+                "uuid": "09fe6531-c83f-4f7e-86ec-06775d2b9fb8"
+              },
+              {
+                "name": "Irritability",
+                "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c"
+              },
+              {
+                "name": "Loss of appetite",
+                "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce"
+              },
+              {
+                "name": "Weakness",
+                "uuid": "25ec9a8c-07df-471c-afac-4919d016464d"
+              }
+            ]
+          },
           "displayOrder": 9,
-          "answers": [
-            {
-              "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
-              "name": "Insomnia"
-            },
-            {
-              "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
-              "name": "Loss of appetite"
-            },
-            {
-              "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
-              "name": "Weakness"
-            },
-            {
-              "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
-              "name": "Irritability"
-            },
-            {
-              "uuid": "09fe6531-c83f-4f7e-86ec-06775d2b9fb8",
-              "name": "No Problem"
-            }
-          ],
           "mandatory": false
         }
       ]

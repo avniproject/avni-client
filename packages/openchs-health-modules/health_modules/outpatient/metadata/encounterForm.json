@@ -14,7 +14,16 @@
           "name": "Weight",
           "uuid": "7b7fd4ed-61b5-490e-be96-251dcfd9dda4",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Weight",
+            "uuid": "75b1656e-2777-4753-9612-ce03a766a5e1",
+            "dataType": "Numeric",
+            "lowAbsolute": 0.0,
+            "highAbsolute": 300.0,
+            "lowNormal": 1.0,
+            "highNormal": 100.0,
+            "unit": "kg"
+          },
           "displayOrder": 1,
           "mandatory": true
         },
@@ -22,7 +31,11 @@
           "name": "Temperature",
           "uuid": "294c23fb-aef2-499c-b91f-3294df5a28c0",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Temperature",
+            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
+            "dataType": "Numeric"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -30,7 +43,11 @@
           "name": "Respiratory Rate",
           "uuid": "1840d8b3-93a8-4a17-8ef9-40767e21a0a7",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Respiratory Rate",
+            "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
+            "dataType": "Numeric"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -38,7 +55,11 @@
           "name": "Pulse",
           "uuid": "d24edbd7-1ee5-4065-9f77-18aacd9bb88d",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Pulse",
+            "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
+            "dataType": "Numeric"
+          },
           "displayOrder": 4,
           "mandatory": false
         },
@@ -46,7 +67,16 @@
           "name": "Systolic",
           "uuid": "785c1b57-f494-49c1-aa88-499c9e0af894",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Systolic",
+            "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
+            "dataType": "Numeric",
+            "lowAbsolute": 20.0,
+            "highAbsolute": 190.0,
+            "lowNormal": 90.0,
+            "highNormal": 140.0,
+            "unit": "mm Hg"
+          },
           "displayOrder": 5,
           "mandatory": false
         },
@@ -54,7 +84,16 @@
           "name": "Diastolic",
           "uuid": "e02226d8-2dd2-4cd7-ae1a-321a40d913f4",
           "keyValues": [],
-          "dataType": "Numeric",
+          "concept": {
+            "name": "Diastolic",
+            "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
+            "dataType": "Numeric",
+            "lowAbsolute": 10.0,
+            "highAbsolute": 120.0,
+            "lowNormal": 50.0,
+            "highNormal": 90.0,
+            "unit": "mm Hg"
+          },
           "displayOrder": 6,
           "mandatory": false
         }
@@ -75,18 +114,22 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Pallor",
+            "uuid": "226f8715-563b-4a8b-8afa-f75cce2767af",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Present",
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+              },
+              {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+              }
+            ]
+          },
           "displayOrder": 1,
-          "answers": [
-            {
-              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-              "name": "Present"
-            },
-            {
-              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-              "name": "Absent"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -98,18 +141,22 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Pedal Edema",
+            "uuid": "b441c480-1a19-4ad0-9d0a-196485aacf12",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+              },
+              {
+                "name": "Present",
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+              }
+            ]
+          },
           "displayOrder": 2,
-          "answers": [
-            {
-              "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-              "name": "Present"
-            },
-            {
-              "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-              "name": "Absent"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -121,26 +168,30 @@
               "value": "Multi"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Skin Condition",
+            "uuid": "bff2c24c-32d2-4400-a691-4f43fa59090a",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Scabies",
+                "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5"
+              },
+              {
+                "name": "Wound",
+                "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c"
+              },
+              {
+                "name": "Ring Worm",
+                "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137"
+              },
+              {
+                "name": "Boils",
+                "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9"
+              }
+            ]
+          },
           "displayOrder": 3,
-          "answers": [
-            {
-              "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9",
-              "name": "Boils"
-            },
-            {
-              "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c",
-              "name": "Wound"
-            },
-            {
-              "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5",
-              "name": "Scabies"
-            },
-            {
-              "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137",
-              "name": "Ring Worm"
-            }
-          ],
           "mandatory": false
         },
         {
@@ -152,26 +203,30 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Paracheck",
+            "uuid": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Positive for PF",
+                "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7"
+              },
+              {
+                "name": "Positive for PF and PV",
+                "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea"
+              },
+              {
+                "name": "Positive for PV",
+                "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b"
+              },
+              {
+                "name": "Negative",
+                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
+              }
+            ]
+          },
           "displayOrder": 4,
-          "answers": [
-            {
-              "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
-              "name": "Negative"
-            },
-            {
-              "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
-              "name": "Positive for PF"
-            },
-            {
-              "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
-              "name": "Positive for PV"
-            },
-            {
-              "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
-              "name": "Positive for PF and PV"
-            }
-          ],
           "mandatory": false
         }
       ]
@@ -195,74 +250,78 @@
               "value": []
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Complaint",
+            "uuid": "561c5f87-03f0-4135-be19-88ed548c1ce1",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Giddiness",
+                "uuid": "4b569ac1-3965-47a0-9ca7-2317f40fdd61"
+              },
+              {
+                "name": "Chloroquine Resistant Malaria",
+                "uuid": "567ed59c-7cfb-46ff-a0f5-e2ea042a03b6"
+              },
+              {
+                "name": "Headache",
+                "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
+              },
+              {
+                "name": "Scabies",
+                "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5"
+              },
+              {
+                "name": "Acidity",
+                "uuid": "96c17d14-f663-4b62-ba28-1efe49ee9ddd"
+              },
+              {
+                "name": "Body Ache",
+                "uuid": "7dba1853-3147-47da-b016-7d306d19320f"
+              },
+              {
+                "name": "Abdominal Pain",
+                "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c"
+              },
+              {
+                "name": "Ring Worm",
+                "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137"
+              },
+              {
+                "name": "Wound",
+                "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c"
+              },
+              {
+                "name": "Cold",
+                "uuid": "bddfcbbf-b706-4e08-845e-cd64dd43752a"
+              },
+              {
+                "name": "Fever",
+                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456"
+              },
+              {
+                "name": "Pregnancy",
+                "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8"
+              },
+              {
+                "name": "Cough",
+                "uuid": "63658ea8-0447-4180-8026-bed500486e13"
+              },
+              {
+                "name": "Boils",
+                "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9"
+              },
+              {
+                "name": "Diarrhoea",
+                "uuid": "88af3c67-3828-4f4b-8993-1497a86bf2bf"
+              },
+              {
+                "name": "Vomiting",
+                "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4"
+              }
+            ]
+          },
           "displayOrder": 1,
-          "answers": [
-            {
-              "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
-              "name": "Fever"
-            },
-            {
-              "uuid": "567ed59c-7cfb-46ff-a0f5-e2ea042a03b6",
-              "name": "Chloroquine Resistant Malaria"
-            },
-            {
-              "uuid": "7dba1853-3147-47da-b016-7d306d19320f",
-              "name": "Body Ache"
-            },
-            {
-              "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e",
-              "name": "Headache"
-            },
-            {
-              "uuid": "4b569ac1-3965-47a0-9ca7-2317f40fdd61",
-              "name": "Giddiness"
-            },
-            {
-              "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4",
-              "name": "Vomiting"
-            },
-            {
-              "uuid": "63658ea8-0447-4180-8026-bed500486e13",
-              "name": "Cough"
-            },
-            {
-              "uuid": "bddfcbbf-b706-4e08-845e-cd64dd43752a",
-              "name": "Cold"
-            },
-            {
-              "uuid": "96c17d14-f663-4b62-ba28-1efe49ee9ddd",
-              "name": "Acidity"
-            },
-            {
-              "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c",
-              "name": "Abdominal Pain"
-            },
-            {
-              "uuid": "88af3c67-3828-4f4b-8993-1497a86bf2bf",
-              "name": "Diarrhoea"
-            },
-            {
-              "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9",
-              "name": "Boils"
-            },
-            {
-              "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c",
-              "name": "Wound"
-            },
-            {
-              "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5",
-              "name": "Scabies"
-            },
-            {
-              "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137",
-              "name": "Ring Worm"
-            },
-            {
-              "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8",
-              "name": "Pregnancy"
-            }
-          ],
           "mandatory": true
         }
       ]

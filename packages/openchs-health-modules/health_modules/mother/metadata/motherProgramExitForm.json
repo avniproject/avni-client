@@ -8,8 +8,8 @@
     {
       "uuid": "0f2c45e2-d5fa-40cc-855d-18deedd4e459",
       "name": "Mother Exit Basic Details",
-      "display": "Basic Details",
       "displayOrder": 1,
+      "display": "Basic Details",
       "formElements": [
         {
           "name": "Mother exit reason",
@@ -20,33 +20,41 @@
               "value": "Single"
             }
           ],
-          "dataType": "Coded",
+          "concept": {
+            "name": "Mother exit reason",
+            "uuid": "5a2fca73-f3b6-4b7a-bc04-5fd8f5993fa1",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Completion",
+                "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
+              },
+              {
+                "name": "Death",
+                "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83"
+              },
+              {
+                "name": "Abortion",
+                "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d"
+              },
+              {
+                "name": "Shifted to other geographical area",
+                "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6"
+              }
+            ]
+          },
           "displayOrder": 1,
-          "answers": [
-            {
-              "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
-              "name": "Death"
-            },
-            {
-              "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
-              "name": "Abortion"
-            },
-            {
-              "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
-              "name": "Shifted to other geographical area"
-            },
-            {
-              "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
-              "name": "Completion"
-            }
-          ],
           "mandatory": true
         },
         {
           "name": "Death reason",
           "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "Death reason",
+            "uuid": "28f33edf-4476-4330-a6ff-9a12a2c53e5f",
+            "dataType": "Text"
+          },
           "displayOrder": 2,
           "mandatory": false
         },
@@ -54,7 +62,11 @@
           "name": "Death place",
           "uuid": "1ca19a30-1b67-4dd3-9994-c2048813aeff",
           "keyValues": [],
-          "dataType": "Text",
+          "concept": {
+            "name": "Death place",
+            "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
+            "dataType": "Text"
+          },
           "displayOrder": 3,
           "mandatory": false
         }
