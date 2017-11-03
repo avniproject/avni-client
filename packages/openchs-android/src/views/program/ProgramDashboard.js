@@ -9,6 +9,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import moment from "moment";
 import _ from 'lodash';
 import TabularListView from '../common/TabularListView';
+import CHSNavigator from '../../utility/CHSNavigator';
 
 class ProgramDashboard extends AbstractComponent {
     static propTypes = {
@@ -52,7 +53,7 @@ class ProgramDashboard extends AbstractComponent {
                     <TabularListView data={this.props.summary.openEncounters}
                                      headerTitleKeys={['scheduledDate', 'name', 'lowestAddressLevel', 'lastVisitDate']}
                                      tableTitle={this.I18n.t('upcomingVisits')}
-                                     handleClick={() => {}}
+                                     handleClick={(programEncounter) => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, programEncounter.programEnrolment.individual.uuid, programEncounter.programEnrolment.uuid)}
                                      getRow={ProgramDashboard.displayItemsForProgramEncounters}
                                      emptyTableMessage={this.I18n.t('noOpenEncounters')}
                     />
