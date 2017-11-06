@@ -1,0 +1,139 @@
+{
+  "name": "Adolescent Yearly Encounter",
+  "uuid": "24e6d4b1-befd-405e-b618-99d5a799f79d",
+  "formType": "ProgramEncounter",
+  "programName": "Adolescent",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "39bde451-55f2-4837-be1f-3bd4beb1e231",
+      "name": "Family Details",
+      "displayOrder": 1,
+      "display": "Family Details",
+      "formElements": [
+        {
+          "name": "Parents life status",
+          "uuid": "d34c393e-3891-45a7-bfad-b8a9d67b384a",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Parents Expired",
+            "uuid": "474d90be-e5ee-446a-a812-b7ad872d3f36",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Mother",
+                "uuid": "69262111-ab2e-468b-a0f6-a1ac462da4be"
+              },
+              {
+                "name": "Father",
+                "uuid": "13b829e0-490e-4a1a-bc78-7a6fed7f7699"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Staying with whom",
+          "uuid": "e78ea331-7faa-4a98-8e45-8bd6e780daa8",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Staying with whom",
+            "uuid": "72f27a28-c96b-472b-9d51-200c2de8e75d",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Parents",
+                "uuid": "fa97b82e-0876-4fc5-b4c2-ccae2a8bedbe"
+              },
+              {
+                "name": "Relatives",
+                "uuid": "3d0ee43f-8355-475a-8f3f-7b556861f256"
+              },
+              {
+                "name": "Hostel",
+                "uuid": "3b07d5a0-24c3-46e5-b81c-50c4cff2f47d"
+              }
+            ]
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Father's addiction",
+          "uuid": "3e15ab00-7067-45eb-81b1-07baeb8a8a44",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Father's addiction",
+            "uuid": "65d6a574-531c-4d22-bed2-fd75e8995307",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Alcohol",
+                "uuid": "832aa2db-a806-4d08-9e04-7f8271bfc554"
+              },
+              {
+                "name": "Tobacco",
+                "uuid": "9f0bf575-b4aa-4797-9412-591848e48cbd"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Mother's addiction",
+          "uuid": "c5a6cb16-1ba0-4f64-8e3e-172b87695ba6",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Mother's addiction",
+            "uuid": "e4da0a05-077c-4271-8e7b-6c91a5d322aa",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Alcohol",
+                "uuid": "832aa2db-a806-4d08-9e04-7f8271bfc554"
+              },
+              {
+                "name": "Tobacco",
+                "uuid": "9f0bf575-b4aa-4797-9412-591848e48cbd"
+              }
+            ]
+          },
+          "displayOrder": 4,
+            "mandatory": false
+        },
+        {
+          "name": "Number of brothers",
+          "uuid": "39c0c534-941d-41f2-99ef-8e4aac3589ef",
+          "keyValues": [],
+          "concept": {
+            "name": "Number of brothers",
+            "uuid": "6678c856-adc1-4c21-a4e0-d710dcd8647e",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
+    }
+  ]
+}
