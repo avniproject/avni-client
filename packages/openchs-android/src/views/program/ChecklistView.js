@@ -47,6 +47,7 @@ class ChecklistView extends AbstractComponent {
     }
 
     componentWillUnmount() {
+        super.componentWillUnmount();
         BackAndroid.removeEventListener('hardwareBackPress', this.backFunction);
     }
 
