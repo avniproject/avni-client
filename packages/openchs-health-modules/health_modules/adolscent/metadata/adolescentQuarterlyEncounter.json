@@ -1,0 +1,141 @@
+{
+  "name": "Adolescent Quarterly Encounter",
+  "uuid": "9c4acf75-3a4d-46f9-a560-ccb4ad4145e4",
+  "formType": "ProgramEncounter",
+  "programName": "Adolescent",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "1e4ad9b0-e68d-4bb5-b5c8-c3e731e580aa",
+      "name": "Illness Details",
+      "displayOrder": 1,
+      "display": "Illness Details",
+      "formElements": [
+        {
+          "name": "Sickness in last 3 months",
+          "uuid": "24b01526-e759-42f5-bcfb-6b13671a0a8a",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Sickness in last 3 months",
+            "uuid": "719fc446-50b0-4212-9e91-47bfd1aa5559",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Fever",
+                "uuid": "065b0b0c-95d2-477b-bd02-14626f7c2198"
+              },
+              {
+                "name": "Diarrhoea",
+                "uuid": "16094cb7-e963-4e95-a882-f63f6df91ba0"
+              },
+              {
+                "name": "Abdominal Pain",
+                "uuid": "1f2f19fa-2c9a-4da5-94fb-6153e220c512"
+              },
+              {
+                "name": "Jaundice",
+                "uuid": "4c7b0bf7-f461-4eeb-bbde-7f2a7fae7b1d"
+              },
+              {
+                "name": "Others",
+                "uuid": "a18c0a99-b5db-4acc-bb46-2095d95bbb3c"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Hospitalized in last 3 months",
+          "uuid": "93758c1c-c8bf-4962-8bbb-d237f47571a4",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Hospitalized in last 3 months",
+            "uuid": "342a4172-131a-41fd-a9c7-ae16603b582f",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "99a361a7-4d85-4459-bf78-aaae9a294310"
+              }
+            ]
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Do you have any addiction",
+          "uuid": "94fda24a-f856-435d-9838-6ee0851f1080",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Do you have any addiction",
+            "uuid": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Alcohol",
+                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+              },
+              {
+                "name": "Tobacco",
+                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
+              }
+            ]
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "How are your friends?",
+          "uuid": "11f0a812-c419-4b1a-8db3-e8c0dca7c47c",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "How are your friends?",
+            "uuid": "d9b98bba-885c-4f78-9bf6-ba251128a5c3",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Good",
+                "uuid": "4e87f0fb-cc55-4c58-bd13-950474dc52ed"
+              },
+              {
+                "name": "Addicted",
+                "uuid": "f4683034-6a95-4cf3-a482-c1add2e685b4"
+              },
+              {
+                "name": "No Friend",
+                "uuid": "e8c867b1-a036-41ef-9a10-6eea593adacf"
+              }
+            ]
+          },
+          "displayOrder": 4,
+          "mandatory": false
+        }
+      ]
+    }
+  ]
+}
