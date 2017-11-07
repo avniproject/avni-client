@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Adolescent Vulnerabilities",
+    "uuid": "2eb87840-160d-4ee0-bb4c-55dc00c8998a",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "f8e3347d-5ffe-496d-9858-5ea8095d7c96",
+        "name": "School dropout"
+      },
+      {
+        "uuid": "f8e3347d-5ffe-496d-9858-5ea8095d7c96",
+        "name": "Addiction"
+      }
+    ]
+  },
+  {
+    "name": "BMI",
+    "uuid": "7ac0d759-c50d-4971-88e0-84274224c839",
+    "dataType": "Numeric"
+  }
+]

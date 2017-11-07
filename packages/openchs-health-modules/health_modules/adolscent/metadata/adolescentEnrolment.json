@@ -12,6 +12,33 @@
       "display": "Family Details",
       "formElements": [
         {
+          "name": "Parents expired?",
+          "uuid": "726e439b-cd89-4036-9a5f-e6cf74b03179",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Parents expired?",
+            "uuid": "913d7e9f-0d2b-41da-986a-8f6d7988197f",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Father",
+                "uuid": "e99d5b43-07b3-4a7d-8803-8b65928b9d54"
+              },
+              {
+                "name": "Mother",
+                "uuid": "020ecb42-8bbb-4bdf-9a26-24c33123e546"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
           "name": "Chronic sickness in family",
           "uuid": "dac41807-08af-43b9-a75b-7bbb77547321",
           "keyValues": [
@@ -51,7 +78,7 @@
               }
             ]
           },
-          "displayOrder": 1,
+          "displayOrder": 2,
           "mandatory": false
         },
         {
@@ -63,7 +90,7 @@
             "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
             "dataType": "Numeric"
           },
-          "displayOrder": 2,
+          "displayOrder": 3,
           "mandatory": true
         },
         {
@@ -75,7 +102,7 @@
             "uuid": "f4ad3b83-8673-4040-9972-571ae93149ab",
             "dataType": "Numeric"
           },
-          "displayOrder": 3,
+          "displayOrder": 4,
           "mandatory": false
         },
         {
@@ -87,7 +114,7 @@
             "uuid": "5e60baa0-c394-4140-80a6-424384a2f567",
             "dataType": "Numeric"
           },
-          "displayOrder": 4,
+          "displayOrder": 5,
           "mandatory": false
         },
         {
@@ -126,7 +153,7 @@
               }
             ]
           },
-          "displayOrder": 4,
+          "displayOrder": 6,
           "mandatory": false
         },
         {
@@ -169,7 +196,7 @@
               }
             ]
           },
-          "displayOrder": 5,
+          "displayOrder": 7,
           "mandatory": false
         },
         {
@@ -196,7 +223,7 @@
               }
             ]
           },
-          "displayOrder": 6,
+          "displayOrder": 8,
           "mandatory": false
         },
         {
@@ -223,7 +250,7 @@
               }
             ]
           },
-          "displayOrder": 7,
+          "displayOrder": 9,
           "mandatory": false
         },
         {
@@ -254,7 +281,7 @@
               }
             ]
           },
-          "displayOrder": 8,
+          "displayOrder": 10,
           "mandatory": false
         }
       ]
