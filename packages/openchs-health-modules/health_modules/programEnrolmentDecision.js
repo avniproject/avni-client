@@ -1,6 +1,7 @@
 import * as Mother from './mother/motherProgramEnrolmentDecision';
 import * as Child from './child/childProgramEnrolmentDecision';
-const allImports = {Mother: Mother, Child: Child};
+import * as Adolescent from './adolescent/adolescentEnrolment';
+const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
 
 export function getDecisions (enrolment) {
     return executeProgramEnrolmentFunc({parameter: enrolment, fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}})
