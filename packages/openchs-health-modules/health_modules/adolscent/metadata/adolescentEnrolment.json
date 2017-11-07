@@ -225,6 +225,37 @@
           },
           "displayOrder": 7,
           "mandatory": false
+        },
+        {
+          "name": "Sickling",
+          "uuid": "06b147ae-9ad5-4bd9-bcbe-1f80eb0c7d02",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Sickling",
+            "uuid": "d706a31d-c516-47aa-b466-15ca62b0bb8b",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Negative",
+                "uuid": "815ec9d4-9cae-412d-acb6-48c1fc628aa6"
+              },
+              {
+                "name": "Trait",
+                "uuid": "c208e45f-060e-43fd-854f-339c6c24292d"
+              },
+              {
+                "name": "Disease",
+                "uuid": "550520cf-ec9f-4ef2-998e-1f9104adb2a2"
+              }
+            ]
+          },
+          "displayOrder": 8,
+          "mandatory": false
         }
       ]
     },
