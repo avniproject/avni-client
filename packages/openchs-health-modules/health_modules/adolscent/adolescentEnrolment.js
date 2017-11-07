@@ -4,12 +4,12 @@ import _ from "lodash";
 
 const getDecisions = (programEnrolment, today) => {
     let enrolmentDecisions = [];
-    const complicationsBuilder = new ComplicationsBuilder({
+    const vulnerabilitiesBuilder = new ComplicationsBuilder({
         programEnrolment: programEnrolment,
         complicationsConcept: 'Adolescent Vulnerabilities'
     });
 
-    complicationsBuilder.addComplication("School dropout")
+    vulnerabilitiesBuilder.addComplication("School dropout")
         .when.valueInEntireEnrolment("Parents expired?").containsAnyAnswerConceptName("Father", "Mother")
         .or
         .when.valueInEntireEnrolment("Father's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco")
@@ -20,17 +20,17 @@ const getDecisions = (programEnrolment, today) => {
         .or
         .when.valueInEntireEnrolment("Number of family members").greaterThan(6);
 
-    complicationsBuilder.addComplication("Addiction")
+    vulnerabilitiesBuilder.addComplication("Addiction")
         .when.valueInEntireEnrolment("Parents expired?").containsAnyAnswerConceptName("Father", "Mother")
         .or
         .when.valueInEntireEnrolment("Father's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco")
         .or
         .when.valueInEntireEnrolment("Mother's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco");
 
-    complicationsBuilder.addComplication("Addiction")
+    vulnerabilitiesBuilder.addComplication("Addiction")
         .when.valueInEntireEnrolment("Number of family members").greaterThan(6);
 
-    if (complicationsBuilder.hasComplications()) enrolmentDecisions.concat(complicationsBuilder.getComplications());
+    if (vulnerabilitiesBuilder.hasComplications()) enrolmentDecisions.concat(vulnerabilitiesBuilder.getComplications());
     return {enrolmentDecisions: enrolmentDecisions, encounterDecisions: [], registrationDecisions: []};
 };
 
