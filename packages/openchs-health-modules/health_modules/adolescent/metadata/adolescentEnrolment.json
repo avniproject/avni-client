@@ -145,7 +145,7 @@
               },
               {
                 "name": "Other",
-                "uuid": "672dd923-4c7e-432f-9efd-a70293febf0e"
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               },
               {
                 "name": "Job",
@@ -192,7 +192,7 @@
               },
               {
                 "name": "Other",
-                "uuid": "672dd923-4c7e-432f-9efd-a70293febf0e"
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]
           },
@@ -269,7 +269,7 @@
             "answers": [
               {
                 "name": "Negative",
-                "uuid": "815ec9d4-9cae-412d-acb6-48c1fc628aa6"
+                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
               },
               {
                 "name": "Trait",
@@ -308,11 +308,11 @@
             "answers": [
               {
                 "name": "Yes",
-                "uuid": "ede17a96-2802-4cee-a5d0-ea0345cd7a7d"
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
               },
               {
                 "name": "No",
-                "uuid": "7252d5d6-8ee6-4753-b60f-048f6994825a"
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
               }
             ]
           },
@@ -371,7 +371,7 @@
               },
               {
                 "name": "Other",
-                "uuid": "06475731-9618-4771-8e64-338410777b3e"
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]
           },
@@ -398,7 +398,7 @@
               },
               {
                 "name": "Labour",
-                "uuid": "04edbd49-4227-4c30-9282-40d076513852"
+                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
               },
               {
                 "name": "Domestic work",
@@ -410,7 +410,7 @@
               },
               {
                 "name": "Other",
-                "uuid": "06475731-9618-4771-8e64-338410777b3e"
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]
           },

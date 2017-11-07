@@ -61,6 +61,13 @@ deploy_metadata: ## Upload metadata to server
 
 	curl -X POST http://$(server):$(port)/programs -d @health_modules/diabetes/metadata/diabetesProgram.json -H "Content-Type: application/json"
 	curl -X POST http://$(server):$(port)/forms -d @health_modules/diabetes/metadata/diabetesProgramEncounterForm.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/programs -d @health_modules/adolescent/metadata/adolescentProgram.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/concepts -d @health_modules/adolescent/metadata/adolescentConcepts.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentEnrolment.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentMonthlyEncounter.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentQuarterlyEncounter.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentYearlyEncounter.json -H "Content-Type: application/json"
+		curl -X POST http://$(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentHalfYearlyEncounter.json -H "Content-Type: application/json"
 	date
 # </metadata>
 

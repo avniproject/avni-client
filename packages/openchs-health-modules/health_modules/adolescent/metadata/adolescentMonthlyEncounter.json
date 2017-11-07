@@ -31,7 +31,7 @@
               },
               {
                 "name": "No",
-                "uuid": "99a361a7-4d85-4459-bf78-aaae9a294310"
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
               }
             ]
           },
@@ -112,16 +112,12 @@
                 "uuid": "1c478c50-4761-460c-b33c-a18d0c1500f7"
               },
               {
-                "name": "Leg Pain",
-                "uuid": "381d2539-c358-414a-9b9a-a2de1fb93193"
-              },
-              {
                 "name": "Nausea Vomitting",
                 "uuid": "761b7f7a-5db7-4115-aa84-32fcfce5ddfc"
               },
               {
                 "name": "Headache",
-                "uuid": "aa25dd75-4de7-4fc3-bd43-5c65dde52641"
+                "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
               },
               {
                 "name": "Abnormal Vagina",
@@ -203,7 +199,7 @@
               },
               {
                 "name": "No",
-                "uuid": "99a361a7-4d85-4459-bf78-aaae9a294310"
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
               }
             ]
           },
@@ -230,7 +226,7 @@
               },
               {
                 "name": "Heavy Bleeding",
-                "uuid": "c75a7b25-a9d3-4bd1-a090-31715965db86"
+                "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1"
               },
               {
                 "name": "No Toilet Facility in School",
@@ -238,7 +234,7 @@
               },
               {
                 "name": "Other",
-                "uuid": "577fa06d-1005-4077-8cbe-ea8844a6f1f9"
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]
           },

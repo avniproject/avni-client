@@ -27,11 +27,11 @@
             "answers": [
               {
                 "name": "Fever",
-                "uuid": "065b0b0c-95d2-477b-bd02-14626f7c2198"
+                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456"
               },
               {
                 "name": "Diarrhoea",
-                "uuid": "16094cb7-e963-4e95-a882-f63f6df91ba0"
+                "uuid": "88af3c67-3828-4f4b-8993-1497a86bf2bf"
               },
               {
                 "name": "Abdominal Pain",
@@ -42,8 +42,8 @@
                 "uuid": "4c7b0bf7-f461-4eeb-bbde-7f2a7fae7b1d"
               },
               {
-                "name": "Others",
-                "uuid": "a18c0a99-b5db-4acc-bb46-2095d95bbb3c"
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]
           },
@@ -70,7 +70,7 @@
               },
               {
                 "name": "No",
-                "uuid": "99a361a7-4d85-4459-bf78-aaae9a294310"
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
               }
             ]
           },
