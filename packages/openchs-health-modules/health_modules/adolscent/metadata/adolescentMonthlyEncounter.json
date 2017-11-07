@@ -1,0 +1,263 @@
+{
+  "name": "Adolescent Monthly Encounter",
+  "uuid": "a53a4f8d-0ce2-4a63-9442-a4317db5730a",
+  "formType": "ProgramEncounter",
+  "programName": "Adolescent",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "b226bc70-0719-479b-b194-84e8b86709a5",
+      "name": "Medication Details",
+      "displayOrder": 1,
+      "display": "Medication Details",
+      "formElements": [
+        {
+          "name": "Iron tablets",
+          "uuid": "6938d320-b8de-4d34-acf0-1bab845cc62a",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Iron tablets",
+            "uuid": "7e9d4242-6dd0-4a37-82a0-8b7def9f55f8",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "99a361a7-4d85-4459-bf78-aaae9a294310"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "From Where?",
+          "uuid": "2080689c-381d-48f6-aea6-0e823c17fa7a",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "From Where?",
+            "uuid": "1df3e1a7-a6d8-4293-891e-71a874c6a59e",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Government",
+                "uuid": "a57b1479-0cef-46bb-94ba-f3d0751c2e74"
+              },
+              {
+                "name": "Sewa Rural",
+                "uuid": "fe25fad8-de07-4720-b709-78cbd1ac6163"
+              }
+            ]
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Iron tablets consumed in last month",
+          "uuid": "3b12c0d1-b859-4616-89b0-19e89a618798",
+          "keyValues": [],
+          "concept": {
+            "name": "Iron tablets consumed in last month",
+            "uuid": "44658020-0674-4899-b2f2-f9624ed0362d",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "39eb43e8-18d2-4450-bfbc-a53cd8a0e737",
+      "name": "Menstruation Details",
+      "displayOrder": 2,
+      "display": "Menstruation Details",
+      "formElements": [
+        {
+          "name": "Menstrual disorder",
+          "uuid": "e5f98ea7-c438-4833-a31a-1a5b28560c01",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Menstrual disorder",
+            "uuid": "0f87eac1-cf6a-4632-8af2-29a935451fe4",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Lower Abdominal Pain",
+                "uuid": "92ad8878-b476-4291-aa76-3377fa7cf19c"
+              },
+              {
+                "name": "Backache",
+                "uuid": "33385edf-93bc-4513-aa03-480ce3bc7b5c"
+              },
+              {
+                "name": "Leg Pain",
+                "uuid": "1c478c50-4761-460c-b33c-a18d0c1500f7"
+              },
+              {
+                "name": "Leg Pain",
+                "uuid": "381d2539-c358-414a-9b9a-a2de1fb93193"
+              },
+              {
+                "name": "Nausea Vomitting",
+                "uuid": "761b7f7a-5db7-4115-aa84-32fcfce5ddfc"
+              },
+              {
+                "name": "Headache",
+                "uuid": "aa25dd75-4de7-4fc3-bd43-5c65dde52641"
+              },
+              {
+                "name": "Abnormal Vagina",
+                "uuid": "aa30fb91-4b64-438b-b09e-4c7ff2701d71"
+              },
+              {
+                "name": "Discharge",
+                "uuid": "34d80fc6-b756-4fb2-8b2e-8169d353271f"
+              },
+              {
+                "name": "Heavy Bleeding",
+                "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1"
+              },
+              {
+                "name": "Irregular Mensis",
+                "uuid": "ce47ae12-e61c-49cc-8ccd-715f9d5cb76d"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Any treatment taken",
+          "uuid": "585cdd75-4768-4075-b23e-10843d8f1eaf",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Any treatment taken",
+            "uuid": "bd3d1ba3-0a85-4aa7-a62c-78254d8e0762",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Home Remedy",
+                "uuid": "c215bcd4-6057-4544-b0bd-1339c8e75d5d"
+              },
+              {
+                "name": "Consult Doctor",
+                "uuid": "905d4a48-7fe6-43ac-a64f-61b906596b34"
+              },
+              {
+                "name": "Tablet from shop",
+                "uuid": "19394a8e-bd38-46a2-a5e4-23f063125477"
+              },
+              {
+                "name": "Tablet from kit",
+                "uuid": "750c91e9-f768-4888-9103-423c3736d203"
+              },
+              {
+                "name": "No treatment",
+                "uuid": "e4ab2c89-d464-4f6b-94e5-046902e7a076"
+              }
+            ]
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Does she remain absent during menstruation?",
+          "uuid": "cf7ddfd5-2a8f-4b19-8e79-75f7701dcc8e",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Does she remain absent during menstruation?",
+            "uuid": "4cae960e-5e1e-4b23-9927-d95db35d83e3",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "99a361a7-4d85-4459-bf78-aaae9a294310"
+              }
+            ]
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "Why is she absent during menstruation?",
+          "uuid": "34371c88-6494-4fb6-bcce-1ccca599dfcf",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Why is she absent during menstruation?",
+            "uuid": "c1288e8a-9b6a-4928-aa6d-3010814ee5c2",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Pain",
+                "uuid": "9676fe70-082f-456c-88c0-28fb48171098"
+              },
+              {
+                "name": "Heavy Bleeding",
+                "uuid": "c75a7b25-a9d3-4bd1-a090-31715965db86"
+              },
+              {
+                "name": "No Toilet Facility in School",
+                "uuid": "f4f14fea-5a02-445d-be41-039670675525"
+              },
+              {
+                "name": "Other",
+                "uuid": "577fa06d-1005-4077-8cbe-ea8844a6f1f9"
+              }
+            ]
+          },
+          "displayOrder": 4,
+          "mandatory": false
+        },
+        {
+          "name": "How many days does she take off during menstruation?",
+          "uuid": "43f5eb60-7204-4ba8-952a-9594e8203596",
+          "keyValues": [],
+          "concept": {
+            "name": "How many days does she take off during menstruation?",
+            "uuid": "ea7676d9-6609-4c6f-9187-2137bf3c9cbe",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 5,
+          "mandatory": false
+        }
+      ]
+    }
+  ]
+}
