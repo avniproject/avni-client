@@ -5,6 +5,7 @@ programEncounterExports.Child = require('./child/childProgramEncounterDecision')
 const programEnrolmentExports = {};
 programEnrolmentExports.Mother = require('./mother/motherProgramEnrolmentDecision');
 programEnrolmentExports.Child = require('./child/childProgramEnrolmentDecision');
+programEnrolmentExports.Adolescent = require('./adolescent/adolescentEnrolment');
 
 const programConfigExports = {};
 programConfigExports.Child = require('./child/childProgramConfig');
@@ -12,13 +13,13 @@ programConfigExports.Child = require('./child/childProgramConfig');
 module.exports = {};
 
 function targetFunction(config, programName) {
-    const exports = config.type === 'enrolment'? programEnrolmentExports: programEncounterExports;
+    const exports = config.type === 'enrolment' ? programEnrolmentExports : programEncounterExports;
     return exports && exports[programName] && exports[programName][config.fn];
 }
 
 module.exports.execute = function (config) {
     const today = new Date();
-    const enrolment = config.type === 'enrolment'? config.parameter: config.parameter.programEnrolment;
+    const enrolment = config.type === 'enrolment' ? config.parameter : config.parameter.programEnrolment;
     const programName = enrolment.program.name;
     const fn = targetFunction(config, programName);
 
