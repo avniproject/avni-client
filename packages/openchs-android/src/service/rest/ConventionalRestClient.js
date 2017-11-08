@@ -19,9 +19,9 @@ class ConventionalRestClient {
         return post(`${settings.serverURL}/login`, {username: settings.userId, password: settings.password})
             .then((response) => response.json())
             .then((response) => {
-                    const updatedSettings = settings.clone();
-                    updatedSettings.authToken = response.authToken;
-                    this.settingsService.saveOrUpdate(updatedSettings);
+                const updatedSettings = settings.clone();
+                updatedSettings.authToken = response.authToken;
+                this.settingsService.saveOrUpdate(updatedSettings);
             });
     }
 
@@ -67,7 +67,7 @@ class ConventionalRestClient {
 
     getAll(entitiesMetadata, onGetOfAnEntity) {
         return _.reduce(entitiesMetadata,
-            (acc, entityMetadata) => this.getAllForEntity(entityMetadata, onGetOfAnEntity),
+            (acc, entityMetadata) => acc.then(() => this.getAllForEntity(entityMetadata, onGetOfAnEntity)),
             Promise.resolve());
     }
 }
