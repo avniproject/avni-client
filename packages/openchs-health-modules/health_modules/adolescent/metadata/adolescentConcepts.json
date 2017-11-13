@@ -1,5 +1,10 @@
 [
   {
+    "name": "School dropout",
+    "uuid": "b5e3310a-7628-40d9-8bb3-961a6c302c84",
+    "dataType": "N/A"
+  },
+  {
     "name": "Adolescent Vulnerabilities",
     "uuid": "2eb87840-160d-4ee0-bb4c-55dc00c8998a",
     "dataType": "Coded",

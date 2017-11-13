@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import RuleCondition from "./RuleCondition";
+
 export default class ComplicationsBuilder {
 
     constructor(context) {
@@ -20,7 +21,7 @@ export default class ComplicationsBuilder {
                 complications.push(conditionObj.concept);
             }
         });
-        return {name: this.context.complicationsConcept, value: complications};
+        return {name: this.context.complicationsConcept, value: _.uniq(complications)};
     }
 
     hasComplications() {

@@ -1,5 +1,6 @@
 import ComplicationsBuilder from "../rules/complicationsBuilder";
 import _ from "lodash";
+import {getNextScheduledVisits} from './adolescentVisitSchedule';
 
 
 const getDecisions = (programEnrolment, today) => {
@@ -29,9 +30,11 @@ const getDecisions = (programEnrolment, today) => {
 
     vulnerabilitiesBuilder.addComplication("Addiction")
         .when.valueInEntireEnrolment("Number of family members").greaterThan(6);
-
-    if (vulnerabilitiesBuilder.hasComplications()) enrolmentDecisions.concat(vulnerabilitiesBuilder.getComplications());
+    console.log(programEnrolment);
+    console.log(vulnerabilitiesBuilder.hasComplications());
+    console.log(vulnerabilitiesBuilder.getComplications());
+    enrolmentDecisions.push(vulnerabilitiesBuilder.getComplications());
     return {enrolmentDecisions: enrolmentDecisions, encounterDecisions: [], registrationDecisions: []};
 };
 
-export {getDecisions};
+export {getDecisions, getNextScheduledVisits};
