@@ -10,9 +10,7 @@ class TextFormElement extends AbstractFormElement {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
         value: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        style: React.PropTypes.object,
-        secureTextEntry: React.PropTypes.bool
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -23,7 +21,7 @@ class TextFormElement extends AbstractFormElement {
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
-                <TextInput style={Styles.formBodyText} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
+                <TextInput {...this.props} style={Styles.formBodyText} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
                            value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);

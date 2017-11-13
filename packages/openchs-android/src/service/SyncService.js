@@ -8,6 +8,7 @@ import {EntitySyncStatus} from "openchs-models";
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
+import AuthService from "./AuthService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -21,22 +22,22 @@ class SyncService extends BaseService {
         this.settingsService = this.getService(SettingsService);
         this.conventionalRestClient = new ConventionalRestClient(this.settingsService);
         this.messageService = this.getService(MessageService);
+        this.authService = this.getService(AuthService);
     }
 
     authenticate() {
-        return this.conventionalRestClient.authenticate();
+        return this.authService.getAuthToken();
     }
 
-    sync(allEntitiesMetaData, start, done, onError) {
-        start();
+    sync(allEntitiesMetaData) {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
         return this.authenticate()
+            .then((idToken) => this.conventionalRestClient.setToken(idToken))
             .then(() => this.pushTxData(allTxDataMetaData.slice()))
             .then(() => this.getData(allReferenceDataMetaData))
-            .then(() => this.getData(allTxDataMetaData))
-            .then(done, onError);
+            .then(() => this.getData(allTxDataMetaData));
     }
 
     getData(entitiesMetadata) {

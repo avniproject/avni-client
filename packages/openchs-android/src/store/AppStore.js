@@ -6,8 +6,7 @@ import ErrorHandler from "../utility/ErrorHandler";
 class AppStore {
     static create(beans) {
         const combinedReducers = this.createCombinedReducer(beans);
-        return createStore(combinedReducers);
-        // return createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler)));
+        return createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler)));
     }
 
     static errorHandler(error, getState, lastAction, dispatch) {

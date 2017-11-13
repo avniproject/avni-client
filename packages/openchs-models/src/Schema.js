@@ -87,5 +87,13 @@ export default {
                 setting.authToken = "";
             })
         }
+        if (oldDB.schemaVersion < 41) {
+            const settings = newDB.objects('Settings');
+            _.forEach(settings, (setting) => {
+                setting.poolId = "";
+                setting.clientId = "";
+                setting.organisationName = "";
+            })
+        }
     }
 };

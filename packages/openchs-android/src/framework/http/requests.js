@@ -4,7 +4,6 @@ import _ from 'lodash';
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const fetchFactory = (endpoint, method = "GET", params) => {
-    console.log(JSON.stringify(params));
     return fetch(endpoint, {"method": method, ...params})
         .then((response) =>
             ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1 ?
@@ -22,8 +21,7 @@ const makeHeader = (type) => new Map([['json', {
 const makeRequest = (type, opts = {}) => Object.assign({...makeHeader(type), ...opts});
 
 const addAuthIfRequired = (request, authToken) => {
-    console.log(authToken)
-    return _.isEmpty(authToken)? request: _.merge({}, request, {headers: {'X-session-token': authToken}});
+    return _.isEmpty(authToken)? request: _.merge({}, request, {headers: {'AUTH-TOKEN': authToken}});
 };
 
 let _get = (endpoint, authToken) => {

@@ -11,12 +11,12 @@ class Settings {
         properties: {
             uuid: 'string',
             serverURL: 'string',
-            userId: 'string',
-            password: 'string',
-            authToken: 'string',
             catchment: 'int',
             locale: {"type": "LocaleMapping"},
-            logLevel: 'int'
+            logLevel: 'int',
+            poolId: 'string',
+            clientId: 'string',
+            organisationName: 'string'
         }
     };
 
@@ -24,12 +24,12 @@ class Settings {
         const settings = new Settings();
         settings.uuid = this.uuid;
         settings.serverURL = this.serverURL;
-        settings.userId = this.userId;
-        settings.password = this.password;
         settings.catchment = this.catchment;
         settings.locale = this.locale;
         settings.logLevel = this.logLevel;
-        settings.authToken = this.authToken;
+        settings.poolId = this.poolId;
+        settings.clientId = this.clientId;
+        settings.organisationName = this.organisationName;
         return settings;
     }
 
@@ -37,8 +37,6 @@ class Settings {
         let validationResults = new ValidationResults([
             ValidationResult.successful('catchment'),
             ValidationResult.successful('serverURL'),
-            ValidationResult.successful('userId'),
-            ValidationResult.successful('password'),
             ValidationResult.successful('locale'),
             ValidationResult.successful('logLevel')]);
 

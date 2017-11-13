@@ -1,4 +1,5 @@
 import DGS from "./DynamicGlobalStyles";
+import {Dimensions} from "react-native";
 
 class Distances {
     static get ScaledContentDistanceFromEdge() {
@@ -23,6 +24,14 @@ class Distances {
 
     static get ScaledContentDistanceWithinContainer() {
         return DGS.resizeWidth(Distances.ContentDistanceWithinContainer);
+    }
+
+    static get DeviceWidth() {
+        return Dimensions.get('window').width;
+    }
+
+    static get DeviceHeight() {
+        return Dimensions.get('window').height;
     }
 
     static ContentDistanceFromEdge = 16;

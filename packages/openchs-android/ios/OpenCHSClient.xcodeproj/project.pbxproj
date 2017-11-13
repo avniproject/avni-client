@@ -25,6 +25,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		4BE420ECAE4D49D8AD1E4636 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 846D2720E74A4E24B289679E /* libRNSVG.a */; };
 		6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FFF05AE4806E4237A36107D8 /* libRCTRestart.a */; };
+		1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +149,8 @@
 		846D2720E74A4E24B289679E /* libRNSVG.a */ = {isa = PBXFileReference; name = "libRNSVG.a"; path = "libRNSVG.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */ = {isa = PBXFileReference; name = "RCTRestart.xcodeproj"; path = "../node_modules/react-native-restart/ios/RCTRestart.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		FFF05AE4806E4237A36107D8 /* libRCTRestart.a */ = {isa = PBXFileReference; name = "libRCTRestart.a"; path = "libRCTRestart.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */ = {isa = PBXFileReference; name = "RNAWSCognito.xcodeproj"; path = "../node_modules/react-native-aws-cognito-js/ios/RNAWSCognito.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */ = {isa = PBXFileReference; name = "libRNAWSCognito.a"; path = "libRNAWSCognito.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +179,7 @@
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				4BE420ECAE4D49D8AD1E4636 /* libRNSVG.a in Frameworks */,
 				6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */,
+				1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +314,7 @@
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
 				9EA04D05DB004BDB9205FA0E /* RNSVG.xcodeproj */,
 				AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */,
+				7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -642,7 +647,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -659,7 +663,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
@@ -680,6 +683,10 @@
 				);
 				PRODUCT_NAME = OpenCHSClient;
 				VERSIONING_SYSTEM = "apple-generic";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-aws-cognito-js/ios/**",
+				);
 			};
 			name = Debug;
 		};
@@ -697,6 +704,10 @@
 				);
 				PRODUCT_NAME = OpenCHSClient;
 				VERSIONING_SYSTEM = "apple-generic";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-aws-cognito-js/ios/**",
+				);
 			};
 			name = Release;
 		};

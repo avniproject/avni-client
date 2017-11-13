@@ -144,7 +144,7 @@
   "systemRecommendations": "System Recommendations",
   "observations": "Observations",
 
-  "deleteSchemaConfirmationMessage": "This will remove the reference, configuration and transaction data",
+  "deleteSchemaConfirmationMessage": "You will lose information that is not synced",
   "deleteSchemaNoticeTitle": "Delete Data?",
   "userId": "User ID",
   "password": "Password"

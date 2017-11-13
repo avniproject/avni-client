@@ -13,11 +13,15 @@ export default class TypedTransition {
         return this;
     }
 
-    to(viewClass, isTyped) {
+    to(viewClass, isTyped, replace) {
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const route = this.createRoute(viewClass, this.queryParams, isTyped);
-        this.navigator.push(route);
+        if (replace) {
+            this.navigator.replace(route);
+        } else {
+            this.navigator.push(route);
+        }
         return this;
     }
 
@@ -80,8 +84,8 @@ export default class TypedTransition {
 
     popToBookmark() {
         if (!_.isNil(this.navigator.countOfRoutes)) {
-           this._popN(this.navigator.getCurrentRoutes().length - this.navigator.countOfRoutes);
-           this.navigator.countOfRoutes = null;
+            this._popN(this.navigator.getCurrentRoutes().length - this.navigator.countOfRoutes);
+            this.navigator.countOfRoutes = null;
         }
     }
 

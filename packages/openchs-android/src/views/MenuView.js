@@ -4,7 +4,7 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
 import {Button} from "native-base";
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -22,9 +22,19 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import * as Animatable from 'react-native-animatable';
 import MessageService from "../service/MessageService";
+import AuthenticationError from "../service/AuthenticationError";
+import AuthService from "../service/AuthService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
+    static propType = {
+        startSync: React.PropTypes.bool
+    };
+
+    static defaultProps = {
+        startSync: false
+    };
+
     constructor(props, context) {
         super(props, context);
         this.state = {syncing: false, error: false};
@@ -55,6 +65,10 @@ class MenuView extends AbstractComponent {
         CHSNavigator.navigateToIndividualRegisterView(this);
     }
 
+    changePasswordView() {
+        CHSNavigator.navigateToChangePasswordView(this);
+    }
+
     _preSync() {
         this.setState({syncing: true, error: false});
     }
@@ -71,19 +85,34 @@ class MenuView extends AbstractComponent {
     _onError(error) {
         General.logError(this.viewName(), `Error happened during sync: ${JSON.stringify(error)}`);
         this.setState({syncing: false});
-        Alert.alert("Sync Failed", error.message, [{
-                text: 'Try Again',
-                onPress: () => this.sync()
-            },
-                {text: 'Cancel', onPress: _.noop, style: 'cancel'},
-            ]
-        );
+        if (error instanceof AuthenticationError) {
+            General.logWarn(this.viewName(), "Could not authenticate. Redirecting to login view");
+            General.logWarn(this.viewName(), error);
+            CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToLandingView(source, true, {tabIndex: 1, menuProps: {startSync: true}}));
+        } else {
+            Alert.alert("Sync Failed", error.message, [{
+                    text: 'Try Again',
+                    onPress: () => this.sync()
+                },
+                    {text: 'Cancel', onPress: _.noop, style: 'cancel'},
+                ]
+            );
+        }
+    }
+
+    componentWillMount() {
+        if (this.props.startSync) {
+            this.sync();
+        }
     }
 
     sync() {
         try {
             const syncService = this.context.getService(SyncService);
-            syncService.sync(EntityMetaData.model(), this._preSync.bind(this), this._postSync.bind(this), this._onError.bind(this));
+            const onError = this._onError.bind(this);
+            const postSync = this._postSync.bind(this);
+            this._preSync();
+            syncService.sync(EntityMetaData.model()).then(postSync, onError);
         } catch (e) {
             this._onError(e);
         }
@@ -102,17 +131,20 @@ class MenuView extends AbstractComponent {
     }
 
 
-    onDeleteSchema() {
+    onDelete() {
         const service = this.context.getService(EntityService);
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
+        const authService = this.context.getService(AuthService);
         Alert.alert(
             this.I18n.t('deleteSchemaNoticeTitle'),
             this.I18n.t('deleteSchemaConfirmationMessage'),
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                    service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-                    entitySyncStatusService.setup(EntityMetaData.model());
+                    authService.logout().then(() => {
+                        service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+                        entitySyncStatusService.setup(EntityMetaData.model());
+                    });
                 }
                 },
                 {
@@ -138,8 +170,9 @@ class MenuView extends AbstractComponent {
     render() {
         let menuItemsData = [
             ["settings", "Settings", this.settingsView.bind(this)],
-            ["delete", "Delete Data", this.onDeleteSchema.bind(this), () => __DEV__],
-            ["person-add", "Register", this.registrationView.bind(this)],
+            ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
+            ["account-plus", "Register", this.registrationView.bind(this)],
+            ["account-key", "Change Password", this.changePasswordView.bind(this)],
             ["view-list", "Program Summary", this.programSummary.bind(this)]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;

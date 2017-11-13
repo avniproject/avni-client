@@ -11,16 +11,27 @@ import {StatusBar} from "react-native";
 import Styles from "./primitives/Styles";
 
 @Path('/landingView')
-@PathRoot
 class LandingView extends AbstractComponent {
-    static propTypes = {};
+    static propTypes = {
+        tabIndex: React.PropTypes.number,
+        menuProps: React.PropTypes.object
+    };
+
+    static defaultProps = {
+        tabIndex: 0
+    };
 
     constructor(props, context) {
         super(props, context);
+        console.log("Landing view called with props", props)
     }
 
     viewName() {
         return "LandingView";
+    }
+
+    componentDidMount() {
+        this._tabs.goToPage(this.props.tabIndex);
     }
 
     render() {
@@ -28,9 +39,9 @@ class LandingView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent>
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                    <Tabs>
+                    <Tabs ref={ t => this._tabs = t }>
                         <IndividualSearchView tabLabel='Home' tabStyle={{backgroundColor: 'red'}}/>
-                        <MenuView tabLabel='Menu'/>
+                        <MenuView tabLabel='Menu' {...this.props.menuProps}/>
                     </Tabs>
                 </CHSContent>
             </CHSContainer>

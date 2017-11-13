@@ -11,8 +11,23 @@ import IndividualEncounterLandingView from "../views/individual/IndividualEncoun
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
 import StartProgramView from "../views/program/StartProgramView";
+import LoginView from "../views/LoginView";
+import LandingView from "../views/LandingView";
+import MenuView from "../views/MenuView";
+import ForgotPasswordView from "../views/ForgotPasswordView";
+import SetPasswordView from "../views/SetPasswordView";
+import ResetForgottenPasswordView from "../views/ResetForgottenPasswordView";
+import ChangePasswordView from "../views/ChangePasswordView";
 
 class CHSNavigator {
+    static navigateToLoginView(source, backFunction) {
+        TypedTransition.from(source).with({backFunction: backFunction}).to(LoginView, true, _.isNil(backFunction));
+    }
+
+    static navigateToLandingView(source, replace, props) {
+        TypedTransition.from(source).with(props).to(LandingView, true, replace);
+    }
+
     static navigateToProgramEnrolmentView(source, enrolment, backFunction) {
         TypedTransition.from(source).with({enrolment: enrolment, backFunction: backFunction}).to(ProgramEnrolmentView, true);
     }
@@ -84,6 +99,26 @@ class CHSNavigator {
 
     static goHome(view) {
         TypedTransition.from(view).toBeginning();
+    }
+
+    static navigateToMenuView(source, startSync) {
+        TypedTransition.from(source).with({startSync: startSync}).to(MenuView, true);
+    }
+
+    static navigateToForgotPasswordView(source) {
+        TypedTransition.from(source).to(ForgotPasswordView, true);
+    }
+
+    static navigateToSetPasswordView(source, user) {
+        TypedTransition.from(source).with({user: user}).to(SetPasswordView, true);
+    }
+
+    static navigateToResetPasswordView(source, user) {
+        TypedTransition.from(source).with({user: user}).to(ResetForgottenPasswordView, true);
+    }
+
+    static navigateToChangePasswordView(source) {
+        TypedTransition.from(source).to(ChangePasswordView, true);
     }
 }
 

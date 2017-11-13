@@ -62,6 +62,14 @@ Styles.dialogTitle = {
     lineHeight: 28,
 };
 
+Styles.settingsTitle = {
+    fontSize: Styles.titleSize,
+    fontStyle: 'normal',
+    color: Styles.blackColor,
+    lineHeight: 28,
+    marginVertical: 16
+};
+
 Styles.menuTitle = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
@@ -143,6 +151,15 @@ Styles.programProfileButtonText = {
     fontStyle: 'normal',
     color: Styles.accentColor,
     alignSelf: 'center',
+};
+
+Styles.logoPlaceHolder = {
+    fontSize: Styles.titleSize,
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    color: Styles.blackColor,
+    alignSelf: 'center',
+    paddingBottom: Styles.titleSize + 72,
 };
 
 Styles.programProfileProgramTitleUnselected2 = {

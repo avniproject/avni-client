@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -15,6 +15,7 @@ import Distances from '../primitives/Distances';
 import {PrimitiveValue} from "openchs-models";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import Styles from "../primitives/Styles";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -33,30 +34,19 @@ class SettingsView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
-                    <View style={this.scaleStyle({paddingHorizontal: Distances.ContentDistanceFromEdge})}>
+                    <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                        <Text style={Styles.settingsTitle}>
+                            {`${this.state.settings.organisationName} - Catchment ${this.state.settings.catchment}`}
+                        </Text>
                         <TextFormElement element={new StaticFormElement('serverURL')}
                                          actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
                                          value={new PrimitiveValue(this.state.settings.serverURL)}
-                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <TextFormElement element={new StaticFormElement('userId')}
-                                         actionName={Actions.ON_USER_ID_CHANGE} validationResult={null}
-                                         value={new PrimitiveValue(this.state.settings.userId)}
-                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <TextFormElement element={new StaticFormElement('password')} secureTextEntry={true}
-                                         actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
-                                         value={new PrimitiveValue(this.state.settings.password)}
-                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-                        <TextFormElement element={new StaticFormElement('catchmentId')}
-                                         actionName={Actions.ON_CATCHMENT_CHANGE}
-                                         validationResult={this.state.validationResults.resultFor('catchment')}
-                                         value={new PrimitiveValue(_.toString(this.state.settings.catchment))}
                                          style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'
                                     selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid}
                                     validationError={null}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-
                         <RadioGroup
                             onPress={({value}) => this.dispatchAction(Actions.ON_LOG_LEVEL_CHANGE, {value: value})}
                             labelValuePairs={logLevelLabelValuePairs} labelKey='logLevel'

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.airlabsinc.RNAWSCognitoPackage;
 import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactInstanceManager;
@@ -34,6 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
             return Arrays.<ReactPackage>asList(
                     new FabricPackage(),
                     new MainReactPackage(),
+            new RNAWSCognitoPackage(),
                     new SvgPackage(),
                     new VectorIconsPackage(),
                     new ReactNativeI18n(),
