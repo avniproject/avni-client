@@ -40,6 +40,18 @@ class ProgramEnrolment extends BaseEntity {
         return programEnrolment;
     }
 
+    static fromObject(enrolment) {
+        const programEnrolment = new ProgramEnrolment();
+        programEnrolment.uuid = enrolment.uuid;
+        programEnrolment.program = enrolment.program;
+        programEnrolment.enrolmentDateTime = enrolment.enrolmentDateTime;
+        programEnrolment.observations = enrolment.observations;
+        programEnrolment.programExitObservations = enrolment.programExitObservations;
+        programEnrolment.encounters = enrolment.encounters;
+        programEnrolment.checklists = enrolment.checklists;
+        return programEnrolment;
+    }
+
     get toResource() {
         const resource = _.pick(this, ["uuid"]);
         resource["programUUID"] = this.program.uuid;
@@ -144,7 +156,7 @@ class ProgramEnrolment extends BaseEntity {
     get lastFulfilledEncounter() {
         return _.chain(this.encounters)
             .filter((encounter) => encounter.encounterDateTime)
-            .maxBy((encounter)=> encounter.encounterDateTime).value();
+            .maxBy((encounter) => encounter.encounterDateTime).value();
     }
 
     get isActive() {
