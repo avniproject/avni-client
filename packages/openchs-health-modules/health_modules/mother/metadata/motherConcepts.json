@@ -106,7 +106,51 @@
       },
       {
         "uuid": "6b641e43-b981-4c10-a83c-fafac4654372",
-        "name": "IUGR: Intra Uterine Growth Retardation"
+        "name": "Previous Intrauterine Growth Retardation"
+      },
+      {
+        "uuid": "e6759d31-2529-4919-b38b-34cb09188767",
+        "name": "Previous Post Partum Haemorrhage"
+      },
+      {
+        "uuid": "43524d76-5f86-485f-b101-3b669ca3431e",
+        "name": "Previous Threatened Abortion"
+      },
+      {
+        "uuid": "de5d06c1-df58-4e0f-949c-52100f769932",
+        "name": "Previous LSCS/C-section"
+      },
+      {
+        "uuid": "79a37abe-1a1d-41fc-9732-c95b7108553e",
+        "name": "Previous Pre-term labour"
+      },
+      {
+        "uuid": "4f40dbfb-008f-4b34-856e-d668207cdb7e",
+        "name": "Previous Instrumental Delivery"
+      },
+      {
+        "uuid": "24bd28bc-9301-446f-94c0-9264bf3e4cd8",
+        "name": "Previous Prolonged labour"
+      },
+      {
+        "uuid": "5d0ba446-65b7-4704-b435-6071bf49bcd0",
+        "name": "Previous Pre Eclampsia/ Eclampsia"
+      },
+      {
+        "uuid": "d8637e17-faef-42fe-b2da-a16cfd7de33f",
+        "name": "Previous Pregnancy Induced Hypertension"
+      },
+      {
+        "uuid": "1b4f8d76-8272-4afe-ba1a-c277421d74d4",
+        "name": "Previous Neonatal death within first 28 days"
+      },
+      {
+        "uuid": "9133804d-26a0-4546-a459-15b2c9ade793",
+        "name": "Previous Intrapartum Death"
+      },
+      {
+        "uuid": "36824575-042b-4137-ba3c-ce1145ce81e8",
+        "name": "Previous Ante Partum Haemorrhage"
       },
       {
         "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",

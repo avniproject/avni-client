@@ -77,9 +77,9 @@
     },
     {
       "uuid": "71b33c6d-e029-43be-baff-452c3e31890d",
-      "name": "ANC Enrolment Obstetrics History",
+      "name": "ANC Enrolment Pregnancy History",
       "displayOrder": 2,
-      "display": "Obstetrics History",
+      "display": "Pregnancy History",
       "formElements": [
         {
           "name": "Gravida",
@@ -184,7 +184,7 @@
                 "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1"
               },
               {
-                "name": "Threatened abortion",
+                "name": "Threatened Abortion",
                 "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b"
               },
               {
@@ -192,7 +192,7 @@
                 "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff"
               },
               {
-                "name": "Three or more than three spontaneous abortions",
+                "name": "3 or more than 3 spontaneous abortions",
                 "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931"
               },
               {
@@ -200,8 +200,8 @@
                 "uuid": "eb68c395-17dc-4679-828c-487753228e9f"
               },
               {
-                "name": "Still birth",
-                "uuid": "40e599a8-f073-4eae-abbc-df8315f1aa5a"
+                "name": "Still Birth",
+                "uuid": "797c7923-1993-49d9-b759-1706aae62ae9"
               },
               {
                 "name": "Pre-term labour",

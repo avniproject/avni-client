@@ -47,28 +47,31 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
             addIfNotExists('Grand Multipara');
     }
 
+    function addObsHistoryRisk(obstetricsHistory, answer, risk){
+        if (C.contains(obstetricsHistory, answer)) {
+            addIfNotExists(risk);
+        }
+    }
+
     function analyzeHistoryBasedComplications() {
         const obstetricsHistory = getObservationValueFromEntireEnrolment('Obstetrics History');
 
-        if (C.contains(obstetricsHistory, 'Intrauterine Growth Retardation')) {
-            addIfNotExists("IUGR: Intra Uterine Growth Retardation");
-        }
-
-        if (C.contains(obstetricsHistory, 'Still birth')) {
-            addIfNotExists("Previous Still Birth");
-        }
-
-        if (C.contains(obstetricsHistory, 'Intrauterine Death')) {
-            addIfNotExists("Previous Intrauterine Death");
-        }
-
-        if (C.contains(obstetricsHistory, 'Retained Placenta')) {
-            addIfNotExists("Previous Retained Placenta");
-        }
-
-        if (C.contains(obstetricsHistory, 'Three or more than three spontaneous abortions')) {
-            addIfNotExists("Previous Abortion(s)");
-        }
+        addObsHistoryRisk(obstetricsHistory, 'Post Partum Haemorrhage', 'Previous Post Partum Haemorrhage');
+        addObsHistoryRisk(obstetricsHistory, 'Intrauterine Death', 'Previous Intrauterine Death');
+        addObsHistoryRisk(obstetricsHistory, 'Threatened Abortion', 'Previous Threatened Abortion');
+        addObsHistoryRisk(obstetricsHistory, '3 or more than 3 spontaneous abortions', 'Previous Abortion(s)');
+        addObsHistoryRisk(obstetricsHistory, 'LSCS/C-section', 'Previous LSCS/C-section');
+        addObsHistoryRisk(obstetricsHistory, 'Still Birth', 'Previous Still Birth');
+        addObsHistoryRisk(obstetricsHistory, 'Pre-term labour', 'Previous Pre-term labour');
+        addObsHistoryRisk(obstetricsHistory, 'Retained Placenta', 'Previous Retained Placenta');
+        addObsHistoryRisk(obstetricsHistory, 'Instrumental Delivery', 'Previous Instrumental Delivery');
+        addObsHistoryRisk(obstetricsHistory, 'Prolonged labour', 'Previous Prolonged labour');
+        addObsHistoryRisk(obstetricsHistory, 'Intrauterine Growth Retardation', 'Previous Intrauterine Growth Retardation');
+        addObsHistoryRisk(obstetricsHistory, 'Pre Eclampsia/ Eclampsia', 'Previous Pre Eclampsia/ Eclampsia');
+        addObsHistoryRisk(obstetricsHistory, 'Pregnancy Induced Hypertension', 'Previous Pregnancy Induced Hypertension');
+        addObsHistoryRisk(obstetricsHistory, 'Post Neonatal death within first 28 days', 'Previous Neonatal death within first 28 days');
+        addObsHistoryRisk(obstetricsHistory, 'Intrapartum Death', 'Previous Intrapartum Death');
+        addObsHistoryRisk(obstetricsHistory, 'Ante Partum Haemorrhage', 'Previous Ante Partum Haemorrhage');
     }
 };
 
