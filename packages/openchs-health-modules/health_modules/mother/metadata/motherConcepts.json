@@ -153,9 +153,18 @@
         "name": "Previous Ante Partum Haemorrhage"
       },
       {
+        "uuid": "6f969c17-cc0d-48cf-8ca4-835c02de4e1c",
+        "name": "Previous Multiple Births"
+      },
+      {
         "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",
         "name": "Ante Partum hemorrhage (APH)"
+      },
+      {
+        "uuid": "902df2a5-6403-4cb8-8732-e1e62bfa2364",
+        "name": "Absent Foetal Movements"
       }
+
     ]
   },
   {

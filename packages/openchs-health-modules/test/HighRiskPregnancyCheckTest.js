@@ -42,7 +42,7 @@ describe('High Risk Pregnancy Determination', () => {
         let decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
 
         let complications = C.findValue(decisions, "High Risk Conditions");
-        expect(complications).to.be.an('array').that.is.empty;;
+        expect(complications).to.be.an('array').that.is.empty;
 
         programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
             .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
@@ -646,11 +646,11 @@ describe('High Risk Pregnancy Determination', () => {
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.exist;
-            expect(complicationValues).to.be.an('array').that.includes('IUGR: Intra Uterine Growth Retardation');
+            expect(complicationValues).to.be.an('array').that.includes('Previous Intrauterine Growth Retardation');
         });
 
         it("Should mark high risk if Previous Still Birth in Obstetrics History", () => {
-            enrolment.setObservation(obstetricsHistory.name, ['Still birth']);
+            enrolment.setObservation(obstetricsHistory.name, ['Still Birth']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.exist;
@@ -673,8 +673,8 @@ describe('High Risk Pregnancy Determination', () => {
             expect(complicationValues).to.be.an('array').that.includes('Previous Retained Placenta');
         });
 
-        it("Should mark high risk if Retained Placenta in Obstetrics History", () => {
-            enrolment.setObservation(obstetricsHistory.name, ['Three or more than three spontaneous abortions']);
+        it("Should mark high risk if 3 or more than 3 spontaneous abortions in Obstetrics History", () => {
+            enrolment.setObservation(obstetricsHistory.name, ['3 or more than 3 spontaneous abortions']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.exist;

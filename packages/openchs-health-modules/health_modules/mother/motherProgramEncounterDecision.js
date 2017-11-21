@@ -49,7 +49,7 @@ export function getDecisions (programEncounter, today) {
         analyseSickling();
         analyseHepatitisB();
         analyseMalaria();
-        analyseFoetalPresentation();
+        analyseAbdominalExamination();
         analyseOtherRisks();
 
         function addComplicationsObservation() {
@@ -175,11 +175,16 @@ export function getDecisions (programEncounter, today) {
                 addComplication('Malaria');
         }
 
-        function analyseFoetalPresentation() {
+        function analyseAbdominalExamination() {
             var foetalPresentation = getObservationValueFromEntireEnrolment('Foetal presentation');
             if (foetalPresentation === 'Breech' || foetalPresentation === 'Transverse') {
                 addComplication('Malpresentation');
             }
+            var foetalMovements = getObservationValueFromEntireEnrolment('Foetal movements');
+            if (foetalMovements === 'Absent') {
+                addComplication('Absent Foetal Movements');
+            }
+
         }
 
         var highRiskConditions = C.findValue(decisions, 'High Risk Conditions');

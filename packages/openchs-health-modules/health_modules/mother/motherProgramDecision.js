@@ -72,6 +72,7 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
         addObsHistoryRisk(obstetricsHistory, 'Post Neonatal death within first 28 days', 'Previous Neonatal death within first 28 days');
         addObsHistoryRisk(obstetricsHistory, 'Intrapartum Death', 'Previous Intrapartum Death');
         addObsHistoryRisk(obstetricsHistory, 'Ante Partum Haemorrhage', 'Previous Ante Partum Haemorrhage');
+        addObsHistoryRisk(obstetricsHistory, 'Multiple Births', 'Previous Multiple Births');
     }
 };
 

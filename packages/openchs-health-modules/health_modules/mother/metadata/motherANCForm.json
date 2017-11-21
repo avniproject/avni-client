@@ -93,7 +93,7 @@
           "mandatory": false
         },
         {
-          "name": "Icterus",
+          "name": "Jaundice",
           "uuid": "a9a50a04-6e62-4398-b0ed-1039f82fe323",
           "keyValues": [
             {
@@ -102,8 +102,8 @@
             }
           ],
           "concept": {
-            "name": "Icterus",
-            "uuid": "8f56ed67-f549-43db-80ef-a7b6b06dc87c",
+            "name": "Jaundice",
+            "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
             "dataType": "Coded",
             "answers": [
               {
@@ -170,130 +170,9 @@
       ]
     },
     {
-      "uuid": "1ca46e2e-36bc-415b-ba50-9021588e676a",
-      "name": "Per Abdominal Examination",
-      "displayOrder": 2,
-      "display": "Per Abdominal Examination",
-      "formElements": [
-        {
-          "name": "Foetal presentation",
-          "uuid": "689a1fc1-08cc-442b-9266-b7e147e7c8fa",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
-          "concept": {
-            "name": "Foetal presentation",
-            "uuid": "e57a15aa-e335-4b73-a593-e55af1a3bb25",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Cephalic",
-                "uuid": "ab96f92f-6412-43e2-bb20-aabecd3aefad"
-              },
-              {
-                "name": "Breech",
-                "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6"
-              },
-              {
-                "name": "Transverse",
-                "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47"
-              }
-            ]
-          },
-          "displayOrder": 1,
-          "mandatory": false
-        },
-        {
-          "name": "Fundal Height",
-          "uuid": "e7a89295-3b62-403d-9690-814488bc0a3d",
-          "keyValues": [],
-          "concept": {
-            "name": "Fundal Height",
-            "uuid": "1e46713d-162d-4657-922d-1f458a3011a5",
-            "dataType": "Numeric"
-          },
-          "displayOrder": 2,
-          "mandatory": false
-        },
-        {
-          "name": "Fundal height from pubic symphysis",
-          "uuid": "3170cf31-535c-4030-bec1-59229f26d81e",
-          "keyValues": [],
-          "concept": {
-            "name": "Fundal height from pubic symphysis",
-            "uuid": "fefe6bd1-8111-42dc-9be4-056ab0f5fd36",
-            "dataType": "Numeric"
-          },
-          "displayOrder": 3,
-          "mandatory": false
-        },
-        {
-          "name": "Fetal movements",
-          "uuid": "2440a24d-74ad-457a-813b-cce5dfedc136",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
-          "concept": {
-            "name": "Fetal movements",
-            "uuid": "f90bb5df-c7fa-4266-8141-3534f3e47e6c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
-                "name": "Normal",
-                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
-              },
-              {
-                "name": "Reduced",
-                "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63"
-              }
-            ]
-          },
-          "displayOrder": 4,
-          "mandatory": false
-        },
-        {
-          "name": "Fetal Heart Sound",
-          "uuid": "c30e4c6c-a823-47ff-8c8c-328f89a2587f",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
-          "concept": {
-            "name": "Fetal Heart Sound",
-            "uuid": "b32881ad-45e7-4c16-b072-9d75929e6873",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
-              },
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              }
-            ]
-          },
-          "displayOrder": 5,
-          "mandatory": false
-        }
-      ]
-    },
-    {
       "uuid": "cb8b6812-b58b-428d-afbd-7f53748c684d",
       "name": "ANC Mother Vitals",
-      "displayOrder": 3,
+      "displayOrder": 2,
       "display": "Vitals",
       "formElements": [
         {
@@ -369,9 +248,201 @@
       ]
     },
     {
+      "uuid": "1ca46e2e-36bc-415b-ba50-9021588e676a",
+      "name": "Per Abdominal Examination",
+      "displayOrder": 3,
+      "display": "Per Abdominal Examination",
+      "formElements": [
+        {
+          "name": "Foetal presentation",
+          "uuid": "689a1fc1-08cc-442b-9266-b7e147e7c8fa",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Foetal presentation",
+            "uuid": "e57a15aa-e335-4b73-a593-e55af1a3bb25",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Cephalic",
+                "uuid": "ab96f92f-6412-43e2-bb20-aabecd3aefad"
+              },
+              {
+                "name": "Breech",
+                "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6"
+              },
+              {
+                "name": "Transverse",
+                "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Fundal Height",
+          "uuid": "e7a89295-3b62-403d-9690-814488bc0a3d",
+          "keyValues": [],
+          "concept": {
+            "name": "Fundal Height",
+            "uuid": "1e46713d-162d-4657-922d-1f458a3011a5",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Fundal height from pubic symphysis",
+          "uuid": "3170cf31-535c-4030-bec1-59229f26d81e",
+          "keyValues": [],
+          "concept": {
+            "name": "Fundal height from pubic symphysis",
+            "uuid": "fefe6bd1-8111-42dc-9be4-056ab0f5fd36",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "Foetal movements",
+          "uuid": "2440a24d-74ad-457a-813b-cce5dfedc136",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Foetal movements",
+            "uuid": "f90bb5df-c7fa-4266-8141-3534f3e47e6c",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+              },
+              {
+                "name": "Normal",
+                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
+              },
+              {
+                "name": "Reduced",
+                "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63"
+              }
+            ]
+          },
+          "displayOrder": 4,
+          "mandatory": false
+        },
+        {
+          "name": "Foetal Heart Sound",
+          "uuid": "c30e4c6c-a823-47ff-8c8c-328f89a2587f",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Foetal Heart Sound",
+            "uuid": "b32881ad-45e7-4c16-b072-9d75929e6873",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Present",
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+              },
+              {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+              }
+            ]
+          },
+          "displayOrder": 5,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "11db35e5-4082-4943-b67d-2ed4f543ce89",
+      "name": "Complaints",
+      "displayOrder": 4,
+      "display": "Complaints",
+      "formElements": [
+        {
+          "name": "Pregnancy Complaints",
+          "uuid": "828eb65a-019a-4600-813d-1e846c73ce27",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Multi"
+            }
+          ],
+          "concept": {
+            "name": "Pregnancy Complaints",
+            "uuid": "4688c1bf-573f-4554-b56b-166dc3ea85d6",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Headache",
+                "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
+              },
+              {
+                "name": "Difficulty in breathing",
+                "uuid": "8e1ef29f-c2d6-4586-97a1-5c791251c4f0"
+              },
+              {
+                "name": "Morning Sickness",
+                "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1"
+              },
+              {
+                "name": "Fever",
+                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456"
+              },
+              {
+                "name": "Blurring of vision",
+                "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9"
+              },
+              {
+                "name": "Burning Urination",
+                "uuid": "8a07fe4d-1814-4f80-90fe-5fbedf2a0518"
+              },
+              {
+                "name": "White Discharge",
+                "uuid": "1ff880ff-477d-4519-a664-a612a393dd60"
+              },
+              {
+                "name": "PV leaking",
+                "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5"
+              },
+              {
+                "name": "PV bleeding",
+                "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0"
+              },
+              {
+                "name": "Severe Abdominal Pain",
+                "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0"
+              },
+              {
+                "name": "Decreased Foetal movements",
+                "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
       "uuid": "07458686-88c5-448f-92ed-c150c0629b4f",
       "name": "ANC Lab Diagnostics - Blood",
-      "displayOrder": 4,
+      "displayOrder": 5,
       "display": "Lab Diagnostics - Blood",
       "formElements": [
         {
@@ -643,7 +714,7 @@
     {
       "uuid": "33b4dfd6-2b49-4230-8132-46bd2232c2db",
       "name": "ANC Lab Diagnostics - Urine",
-      "displayOrder": 5,
+      "displayOrder": 6,
       "display": "Lab Diagnostics - Urine",
       "formElements": [
         {
@@ -737,7 +808,7 @@
     {
       "uuid": "353eec4f-052f-466b-9acb-7a740e5c19e5",
       "name": "ANC Lab Diagnostics - USG",
-      "displayOrder": 6,
+      "displayOrder": 7,
       "display": "Lab Diagnostics - USG",
       "formElements": [
         {
@@ -784,7 +855,7 @@
     {
       "uuid": "f9301aef-48af-4ee7-8435-e66c1e23fd21",
       "name": "ANC Vaccination",
-      "displayOrder": 7,
+      "displayOrder": 8,
       "display": "Vaccination",
       "formElements": [
         {
@@ -821,69 +892,6 @@
             "dataType": "Date"
           },
           "displayOrder": 3,
-          "mandatory": false
-        }
-      ]
-    },
-    {
-      "uuid": "11db35e5-4082-4943-b67d-2ed4f543ce89",
-      "name": "Complaints",
-      "displayOrder": 8,
-      "display": "Complaints",
-      "formElements": [
-        {
-          "name": "Pregnancy Complaints",
-          "uuid": "828eb65a-019a-4600-813d-1e846c73ce27",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
-          "concept": {
-            "name": "Pregnancy Complaints",
-            "uuid": "4688c1bf-573f-4554-b56b-166dc3ea85d6",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "PV leaking",
-                "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5"
-              },
-              {
-                "name": "Difficulty in breathing",
-                "uuid": "8e1ef29f-c2d6-4586-97a1-5c791251c4f0"
-              },
-              {
-                "name": "Morning Sickness",
-                "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1"
-              },
-              {
-                "name": "Fever",
-                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456"
-              },
-              {
-                "name": "Blurring of vision",
-                "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9"
-              },
-              {
-                "name": "PV bleeding",
-                "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0"
-              },
-              {
-                "name": "Headache",
-                "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
-              },
-              {
-                "name": "Severe Abdominal Pain",
-                "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0"
-              },
-              {
-                "name": "Decreased Fetal movements",
-                "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83"
-              }
-            ]
-          },
-          "displayOrder": 1,
           "mandatory": false
         }
       ]
