@@ -732,8 +732,20 @@
             "dataType": "Coded",
             "answers": [
               {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+              },
+              {
                 "name": "Trace",
                 "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c"
+              },
+              {
+                "name": "+1",
+                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea"
+              },
+              {
+                "name": "+2",
+                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1"
               },
               {
                 "name": "+3",
@@ -742,18 +754,6 @@
               {
                 "name": "+4",
                 "uuid": "98d05a6e-2234-4238-85d2-92835581803d"
-              },
-              {
-                "name": "+1",
-                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea"
-              },
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
-                "name": "+2",
-                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1"
               }
             ]
           },
@@ -775,24 +775,24 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "+3",
-                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a"
-              },
-              {
                 "name": "Absent",
                 "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
               },
               {
-                "name": "+2",
-                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1"
+                "name": "Trace",
+                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c"
               },
               {
                 "name": "+1",
                 "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea"
               },
               {
-                "name": "Trace",
-                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c"
+                "name": "+2",
+                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1"
+              },
+              {
+                "name": "+3",
+                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a"
               },
               {
                 "name": "+4",
