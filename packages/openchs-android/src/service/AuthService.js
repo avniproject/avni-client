@@ -96,18 +96,23 @@ class AuthService extends BaseService {
     }
 
     userExists() {
-        return this._getSettings().then((settings) => {
-            return new Promise((resolve) => {
-                if (this._authIsStubbed(settings)) {
-                    resolve(true);
-                    return;
-                }
+        return new Promise((resolve) => {
+            const settings = this.settingsService.getSettings();
 
-                return this.getUser().then((user) => {
-                    resolve(user !== null);
-                    return;
-                });
-            })
+            //Fail fast. Do not do round trip server requests if settings is absent
+            if (this._authParametersAbsent(settings)) {
+                return false;
+            }
+
+            if (this._authIsStubbed(settings)) {
+                resolve(true);
+                return;
+            }
+
+            return this.getUser().then((user) => {
+                resolve(user !== null);
+                return;
+            });
         });
     }
 

@@ -13,8 +13,18 @@ class RootView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+    }
+
+    /**
+     * Login page will be shown on startup only if
+     * 1. User has never logged in to the app
+     * 2. User is able to access the CHS server
+     */
+    componentWillMount() {
         const authService = this.context.getService(AuthService);
-        authService.userExists().then((userExists) => userExists? CHSNavigator.navigateToLandingView(this, true) : CHSNavigator.navigateToLoginView(this));
+        authService.userExists().then(
+            (userExists) => userExists ? CHSNavigator.navigateToLandingView(this, true) : CHSNavigator.navigateToLoginView(this),
+            CHSNavigator.navigateToLandingView(this, true));
     }
 
     render() {
