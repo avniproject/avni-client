@@ -1,8 +1,5 @@
-import {expect} from 'chai';
-import _ from "lodash";
+import {assert} from 'chai';
 import Checklist from "../src/Checklist";
-import ChecklistItem from "../src/ChecklistItem";
-import Concept from "../src/Concept";
 import EntityFactory from "./EntityFactory";
 
 describe('ChecklistTest', () => {
@@ -16,10 +13,10 @@ describe('ChecklistTest', () => {
         EntityFactory.addChecklistItem(checklist, 'c.2', new Date(2035, 3, 4));
 
         const upcomingItems = checklist.upcomingItems();
-        expect(upcomingItems.length).is.equal(3);
-        expect(upcomingItems[0].length).is.equal(2);
-        expect(upcomingItems[0][0].dueDate.valueOf()).is.equal(new Date(2035, 1, 1).valueOf());
-        expect(upcomingItems[1].length).is.equal(1);
-        expect(upcomingItems[2].length).is.equal(2);
+        assert.equal(upcomingItems.length, 3);
+        assert.equal(upcomingItems[0].length, 2);
+        assert.equal(upcomingItems[0][0].dueDate.valueOf(), new Date(2035, 1, 1).valueOf());
+        assert.equal(upcomingItems[1].length, 1);
+        assert.equal(upcomingItems[2].length, 2);
     });
 });

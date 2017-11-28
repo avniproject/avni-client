@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {assert} from "chai";
 import BaseEntity from "../src/BaseEntity";
 import EntityFactory from "./EntityFactory";
 import General from "../src/utility/General";
@@ -6,15 +6,15 @@ import FormElementGroup from "../src/application/FormElementGroup";
 
 describe('BaseEntityTest', () => {
     it('collectionHasEntity', () => {
-        expect(BaseEntity.collectionHasEntity([{uuid: 'abc'}], {uuid: 'abc'})).to.equal(true);
-        expect(BaseEntity.collectionHasEntity([{uuid: 'abc'}], {uuid: 'efg'})).to.equal(false);
+        assert.equal(BaseEntity.collectionHasEntity([{uuid: 'abc'}], {uuid: 'abc'}), true);
+        assert.equal(BaseEntity.collectionHasEntity([{uuid: 'abc'}], {uuid: 'efg'}), false);
     });
 
     it('validateFieldIsNotEmpty', () => {
         const baseEntity = new BaseEntity();
-        expect(baseEntity.validateFieldForEmpty(null, '').success).is.equal(false);
-        expect(baseEntity.validateFieldForEmpty(new Date(), '').success).is.equal(true);
-        expect(baseEntity.validateFieldForEmpty('', '').success).is.equal(false);
+        assert.equal(baseEntity.validateFieldForEmpty(null, '').success, false);
+        assert.equal(baseEntity.validateFieldForEmpty(new Date(), '').success, true);
+        assert.equal(baseEntity.validateFieldForEmpty('', '').success, false);
     });
 
     it('addNewChild', () => {
@@ -22,8 +22,8 @@ describe('BaseEntityTest', () => {
         const formElementGroup = new FormElementGroup();
         formElementGroup.uuid = General.randomUUID();
         BaseEntity.addNewChild(formElementGroup, form.formElementGroups);
-        expect(form.numberOfPages).is.equal(1);
+        assert.equal(form.numberOfPages, 1);
         BaseEntity.addNewChild(formElementGroup, form.formElementGroups);
-        expect(form.numberOfPages).is.equal(1);
+        assert.equal(form.numberOfPages, 1);
     });
 });

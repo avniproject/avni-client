@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {assert} from "chai";
 import EntityFactory from "../EntityFactory";
 import Concept from '../../src/Concept';
 import ObservationRule from "../../src/observation/ObservationRule";
@@ -13,16 +13,16 @@ describe('FormElementGroupTest', () => {
         const third = EntityFactory.createFormElementGroup('baz', 3, form);
         form.addFormElementGroup(third);
 
-        expect(first.next()).is.not.equal(undefined);
-        expect(second.next()).is.not.equal(undefined);
-        expect(third.next()).is.equal(undefined);
+        assert.notEqual(first.next(), undefined);
+        assert.notEqual(second.next(),undefined);
+        assert.equal(third.next(),undefined);
 
-        expect(first.previous()).is.equal(undefined);
-        expect(third.previous()).is.not.equal(undefined);
-        expect(second.previous()).is.not.equal(undefined);
+        assert.equal(first.previous(), undefined);
+        assert.notEqual(third.previous(), undefined);
+        assert.notEqual(second.previous(), undefined);
 
-        expect(first.isFirst).is.equal(true);
-        expect(second.isFirst).is.equal(false);
+        assert.equal(first.isFirst, true);
+        assert.equal(second.isFirst, false);
     });
 
     it('getFormElements', () => {
@@ -30,7 +30,7 @@ describe('FormElementGroupTest', () => {
         const formElementGroup = EntityFactory.createFormElementGroup('foo', 1, form);
         formElementGroup.addFormElement(EntityFactory.createFormElement("bar", false, EntityFactory.createConcept("bar", Concept.dataType.Text), 2));
         formElementGroup.addFormElement(EntityFactory.createFormElement("baz", false, EntityFactory.createConcept("bar", Concept.dataType.Text), 1));
-        expect(formElementGroup.getFormElements().length).is.equal(2);
+        assert.equal(formElementGroup.getFormElements().length, 2);
     });
 
     it('getApplicableFormElements', () => {
@@ -66,13 +66,13 @@ describe('FormElementGroupTest', () => {
         };
 
         let applicableFormElements = getApplicableFormElementFor({encounterDate: new Date(2017, 0, 10)});
-        expect(applicableFormElements.length).is.equal(1 + 1 + 0 + 1);
+        assert.equal(applicableFormElements.length, 1 + 1 + 0 + 1);
 
         applicableFormElements = getApplicableFormElementFor({encounterDate: new Date(2017, 3, 10)});
-        expect(applicableFormElements.length).is.equal(0 + 1 + 0 + 1);
+        assert.equal(applicableFormElements.length, 0 + 1 + 0 + 1);
 
         applicableFormElements = getApplicableFormElementFor({encounterDate: new Date(2017, 6, 10)});
-        expect(applicableFormElements.length).is.equal(0 + 1 + 1 + 1);
+        assert.equal(applicableFormElements.length, 0 + 1 + 1 + 1);
 
         var programEnrolment = createProgramEnrolment();
         var existingEncounter = EntityFactory.createProgramEncounter({
@@ -82,7 +82,7 @@ describe('FormElementGroupTest', () => {
         });
         programEnrolment.addEncounter(existingEncounter);
         applicableFormElements = getApplicableFormElementFor({encounterDate: new Date(2017, 6, 10), enrolment: programEnrolment});
-        expect(applicableFormElements.length).is.equal(0 + 1 + 1 + 0);
+        assert.equal(applicableFormElements.length, 0 + 1 + 1 + 0);
 
         programEnrolment = createProgramEnrolment();
         var editedEncounter = EntityFactory.createProgramEncounter({
@@ -92,6 +92,6 @@ describe('FormElementGroupTest', () => {
         });
         programEnrolment.addEncounter(editedEncounter);
         applicableFormElements = formElementGroup.getApplicableFormElements(editedEncounter, observationRules);
-        expect(applicableFormElements.length).is.equal(0 + 1 + 1 + 1);
+        assert.equal(applicableFormElements.length, 0 + 1 + 1 + 1);
     });
 });

@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import {assert} from 'chai';
 import EntityFactory from "../EntityFactory";
 
 describe('Form', () => {
@@ -14,8 +14,8 @@ describe('Form', () => {
         formElementGroup2.addFormElement(formElement);
 
         const foundFormElement = form.findFormElement('b2');
-        expect(foundFormElement).is.not.equal(undefined);
-        expect(foundFormElement.uuid).is.equal(formElement.uuid);
+        assert.notEqual(foundFormElement, undefined);
+        assert.equal(foundFormElement.uuid, formElement.uuid);
     });
 
     it("can remove an element within itself by name", () => {
@@ -29,11 +29,11 @@ describe('Form', () => {
         const formElement = EntityFactory.createFormElement('b2');
         formElementGroup2.addFormElement(formElement);
 
-        expect(form.findFormElement('b2')).to.equal(formElement);
-        expect(form.findFormElement('a1')).not.to.equal(undefined);
+        assert.equal(form.findFormElement('b2'), formElement);
+        assert.notEqual(form.findFormElement('a1'), undefined);
 
         const modifiedForm = form.removeFormElement('b2');
 
-        expect(modifiedForm.findFormElement('b2')).to.equal(undefined);
+        assert.equal(modifiedForm.findFormElement('b2'), undefined);
     });
 });

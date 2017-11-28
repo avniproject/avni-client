@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import {assert} from 'chai';
 import Concept from "../src/Concept";
 
 describe('ConceptTest', () => {
@@ -13,49 +13,49 @@ describe('ConceptTest', () => {
 
     it('violatesRange for concept with range', () => {
         const concept = createConcept(10, 65);
-        expect(concept.violatesRange("a")).is.false;
-        expect(concept.violatesRange(20)).is.false;
-        expect(concept.violatesRange(10)).is.false;
-        expect(concept.violatesRange(65)).is.false;
-        expect(concept.violatesRange(5)).is.true;
-        expect(concept.violatesRange(66)).is.true;
+        assert.isFalse(concept.violatesRange("a"));
+        assert.isFalse(concept.violatesRange(20));
+        assert.isFalse(concept.violatesRange(10));
+        assert.isFalse(concept.violatesRange(65));
+        assert.isTrue(concept.violatesRange(5));
+        assert.isTrue(concept.violatesRange(66));
     });
 
     it('violatesRange for concept without range', () => {
         const concept = new Concept();
-        expect(concept.violatesRange(20)).is.false;
-        expect(concept.violatesRange()).is.false;
-        expect(concept.violatesRange(null)).is.false;
-        expect(concept.violatesRange("1")).is.false;
+        assert.isFalse(concept.violatesRange(20));
+        assert.isFalse(concept.violatesRange());
+        assert.isFalse(concept.violatesRange(null));
+        assert.isFalse(concept.violatesRange("1"));
     });
 
     it("isAbnormal shows abnormal when ranges provided", () => {
        const concept = createConcept(10, 20, 5, 50);
-       expect(concept.isAbnormal(4)).to.be.true;
-       expect(concept.isAbnormal(5)).to.be.false;
-       expect(concept.isAbnormal(6)).to.be.false;
-       expect(concept.isAbnormal(49)).to.be.false;
-       expect(concept.isAbnormal(50)).to.be.false;
-       expect(concept.isAbnormal(51)).to.be.true;
+       assert.isTrue(concept.isAbnormal(4));
+       assert.isFalse(concept.isAbnormal(5));
+       assert.isFalse(concept.isAbnormal(6));
+       assert.isFalse(concept.isAbnormal(49));
+       assert.isFalse(concept.isAbnormal(50));
+       assert.isTrue(concept.isAbnormal(51));
     });
 
     it("isAbnormal shows abnormal when ranges partially provided", () => {
         let concept;
         concept = createConcept(10, 20, null, 50);
-        expect(concept.isAbnormal(4)).to.be.false;
-        expect(concept.isAbnormal(5)).to.be.false;
-        expect(concept.isAbnormal(6)).to.be.false;
-        expect(concept.isAbnormal(49)).to.be.false;
-        expect(concept.isAbnormal(50)).to.be.false;
-        expect(concept.isAbnormal(51)).to.be.true;
+        assert.isFalse(concept.isAbnormal(4));
+        assert.isFalse(concept.isAbnormal(5));
+        assert.isFalse(concept.isAbnormal(6));
+        assert.isFalse(concept.isAbnormal(49));
+        assert.isFalse(concept.isAbnormal(50));
+        assert.isTrue(concept.isAbnormal(51));
 
         concept = createConcept(10, 20, 5, null);
-        expect(concept.isAbnormal(4)).to.be.true;
-        expect(concept.isAbnormal(5)).to.be.false;
-        expect(concept.isAbnormal(6)).to.be.false;
-        expect(concept.isAbnormal(49)).to.be.false;
-        expect(concept.isAbnormal(50)).to.be.false;
-        expect(concept.isAbnormal(51)).to.be.false;
+        assert.isTrue(concept.isAbnormal(4));
+        assert.isFalse(concept.isAbnormal(5));
+        assert.isFalse(concept.isAbnormal(6));
+        assert.isFalse(concept.isAbnormal(49));
+        assert.isFalse(concept.isAbnormal(50));
+        assert.isFalse(concept.isAbnormal(51));
     });
 
 });

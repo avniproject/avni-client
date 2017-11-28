@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {assert} from "chai";
 import Encounter from "../src/Encounter";
 import Observation from "../src/Observation";
 import Concept from "../src/Concept";
@@ -14,10 +14,10 @@ describe('EncounterTest', () => {
         encounter.observations.push(Observation.create(EntityFactory.createConcept('foo', Concept.dataType.Numeric), JSON.stringify(new PrimitiveValue('10', Concept.dataType.Numeric))));
         encounter.encounterType = new EncounterType();
         encounter.individual = new Individual();
-        // expect(encounter.observations[0].getValue()).is.equal(10, JSON.stringify(encounter.observations));
+        // assert.equal(encounter.observations[0].getValue(), 10, JSON.stringify(encounter.observations));
         const resource = encounter.toResource;
-        expect(resource.observations.length).is.equal(1);
-        expect(resource.observations[0].value).is.equal(10);
+        assert.equal(resource.observations.length, 1);
+        assert.equal(resource.observations[0].value, 10);
 
     });
 
@@ -26,9 +26,9 @@ describe('EncounterTest', () => {
         encounter.observations.push(Observation.create(EntityFactory.createConcept('foo', Concept.dataType.Coded), new SingleCodedValue('f945fade-a1f5-4091-92ca-8b7feea02672')));
         encounter.encounterType = new EncounterType();
         encounter.individual = new Individual();
-        expect(encounter.observations[0].getValueWrapper().getConceptUUID()).is.equal('f945fade-a1f5-4091-92ca-8b7feea02672', JSON.stringify(encounter.observations));
+        assert.equal(encounter.observations[0].getValueWrapper().getConceptUUID(), 'f945fade-a1f5-4091-92ca-8b7feea02672', JSON.stringify(encounter.observations));
         const resource = encounter.toResource;
-        expect(resource.observations.length).is.equal(1);
-        expect(resource.observations[0].value).is.equal('f945fade-a1f5-4091-92ca-8b7feea02672');
+        assert.equal(resource.observations.length, 1);
+        assert.equal(resource.observations[0].value, 'f945fade-a1f5-4091-92ca-8b7feea02672');
     });
 });

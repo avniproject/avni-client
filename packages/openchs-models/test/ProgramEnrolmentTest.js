@@ -1,5 +1,6 @@
-import {expect} from "chai";
+import {assert} from "chai";
 import moment from "moment";
+import _ from "lodash";
 import ProgramEnrolment from "../src/ProgramEnrolment";
 import ProgramEncounter from "../src/ProgramEncounter";
 
@@ -8,7 +9,7 @@ describe('ProgramEnrolmentTest', () => {
         const enrolment = ProgramEnrolment.createEmptyInstance();
         const expectedChecklists = [{name: 'Vaccination', items: [{name: 'A1', dueDate: new Date(), maxDate: new Date()}]}];
         const checklists = enrolment.createChecklists(expectedChecklists, {getConceptByName: () => {return {name: 'A1'}}});
-        expect(checklists.length).is.equal(1);
+        assert.equal(checklists.length, 1);
     });
 
     it('getEncounters', () => {
@@ -19,27 +20,27 @@ describe('ProgramEnrolmentTest', () => {
         enrolment.addEncounter(newest);
         enrolment.addEncounter(createEncounter(new Date(2017, 2, 1)));
 
-        expect(enrolment.getEncounters()[0].uuid).is.equal(newest.uuid);
+        assert.equal(enrolment.getEncounters()[0].uuid, newest.uuid);
     });
 
     describe("lastFulfilledEncounter", () => {
 
         it("returns null if no encounters are present in enrolment", () => {
-            expect(ProgramEnrolment.createEmptyInstance().lastFulfilledEncounter).to.be.undefined;
+            assert.isUndefined(ProgramEnrolment.createEmptyInstance().lastFulfilledEncounter);
         });
 
         it("returns null if none of the encounters have an encounterDatetime", () => {
             const enrolment = ProgramEnrolment.createEmptyInstance();
             enrolment.addEncounter(createEncounter(null));
 
-            expect(enrolment.lastFulfilledEncounter).to.be.undefined;
+            assert.isUndefined(enrolment.lastFulfilledEncounter);
 
             enrolment.addEncounter(createEncounter(null));
 
-            expect(enrolment.lastFulfilledEncounter).to.be.undefined;
+            assert.isUndefined(enrolment.lastFulfilledEncounter);
 
             enrolment.addEncounter(createEncounter(new Date()));
-            expect(enrolment.lastFulfilledEncounter).not.to.be.undefined;
+            assert.isDefined(enrolment.lastFulfilledEncounter);
         });
 
         it("returns the encounter with the greatest encounterDateTime", () => {
@@ -47,22 +48,22 @@ describe('ProgramEnrolmentTest', () => {
             const todaysEncounter = createEncounter(new Date());
             enrolment.addEncounter(todaysEncounter);
 
-            expect(enrolment.lastFulfilledEncounter).to.equal(todaysEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter, todaysEncounter);
 
             const yesterdaysEncounter = createEncounter(moment().subtract(1, 'days').toDate());
             enrolment.addEncounter(yesterdaysEncounter);
 
-            expect(enrolment.lastFulfilledEncounter).to.equal(todaysEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter, todaysEncounter);
 
             const tomorrowsEncounter = createEncounter(moment().add(1, 'days').toDate());
             enrolment.addEncounter(tomorrowsEncounter);
 
-            expect(enrolment.lastFulfilledEncounter).to.equal(tomorrowsEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter, tomorrowsEncounter);
 
             const encounterNotYetFilled = createEncounter(undefined);
             enrolment.addEncounter(encounterNotYetFilled);
 
-            expect(enrolment.lastFulfilledEncounter).to.equal(tomorrowsEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter, tomorrowsEncounter);
         });
 
     });

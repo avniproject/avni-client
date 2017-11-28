@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {expect} from 'chai';
+import {assert} from 'chai';
 import Settings from "../src/Settings";
 
 describe('Settings', () => {
@@ -14,15 +14,15 @@ describe('Settings', () => {
         });
 
         let validationResult = settings.validate();
-        expect(validationResult.hasValidationError()).to.be.false;
+        assert.isFalse(validationResult.hasValidationError());
 
 
         validationResult = _.merge(settings, {catchment: 'a'}).validate();
-        expect(validationResult.hasValidationError()).to.be.true;
+        assert.isTrue(validationResult.hasValidationError());
         console.log(validationResult.resultFor('catchment'));
-        expect(validationResult.resultFor('catchment').success).to.be.false;
-        expect(validationResult.resultFor('logLevel').success).to.be.true;
-        expect(validationResult.resultFor('serverURL').success).to.be.true;
+        assert.isFalse(validationResult.resultFor('catchment').success);
+        assert.isTrue(validationResult.resultFor('logLevel').success);
+        assert.isTrue(validationResult.resultFor('serverURL').success);
 
     });
 });
