@@ -1,4 +1,4 @@
-var expect = require('chai').expect;
+var assert = require('chai').assert;
 var getchildVisitSchedule = require('../health_modules/child/childVisitSchedule');
 const ProgramEnrolment = require("./Entities").ProgramEnrolment;
 const ProgramEncounter = require("./Entities").ProgramEncounter;
@@ -10,8 +10,8 @@ describe('Create PNC Visit Schedule for Child', function () {
     it('Decide next visit details', function(){
         progEnrolment.encounters.push(new ProgramEncounter('PNC', undefined, 'PNC 2'));
         var nextVisit = getchildVisitSchedule.getNextScheduledVisits(progEnrolment);
-        expect(nextVisit.name).is.equal('PNC 3');
-        expect(matchDate(nextVisit.dueDate, new Date(2017, 0, 10))).is.equal(true);
+        assert.equal(nextVisit.name, 'PNC 3');
+        assert.isTrue(matchDate(nextVisit.dueDate, new Date(2017, 0, 10)));
     });
 
     var matchDate = function (date1, date2) {
@@ -21,7 +21,7 @@ describe('Create PNC Visit Schedule for Child', function () {
     it('Dont create next visit incase all visits are done', function(){
         progEnrolment.encounters.push(new ProgramEncounter('PNC', undefined, 'PNC 4'));
         var nextVisit = getchildVisitSchedule.getNextScheduledVisits(progEnrolment);
-        expect(nextVisit).is.equal(null);
+        assert.equal(nextVisit, null);
     });
 });
 

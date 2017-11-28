@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {assert} from "chai";
 import FormFilter from "../../health_modules/rules/FormFilter";
 import {ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue} from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
@@ -38,15 +38,15 @@ describe('FormFilter', () => {
 
 
     it('take in a context object that has a form and an encounter', () => {
-        expect(formFilter.context.form).to.equal(form);
+        assert.equal(formFilter.context.form, form);
     });
 
     it('can hide a form element by name', () => {
         formFilter.hide('a2');
 
         let filteredForm = formFilter.filteredForm();
-        expect(filteredForm.findFormElement('a1')).not.to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).to.be.undefined;
+        assert.isDefined(filteredForm.findFormElement('a1'));
+        assert.isUndefined(filteredForm.findFormElement('a2'));
 
     });
 
@@ -54,16 +54,16 @@ describe('FormFilter', () => {
         formFilter.hide('a1').when.filledAtleastOnceInEntireEnrolment;
 
         let filteredForm = formFilter.filteredForm();
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 
     it('can hide a form element by name when an enrolment observation is not filledAtleastOnceInEntireEnrolment', () => {
         formFilter.hide('a1').when.filledAtleastOnceInEntireEnrolment;
 
         let filteredForm = formFilter.filteredForm();
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 
     it('can hide a form element by name when an enrolment observation is equal to a specific value', () => {
@@ -71,8 +71,8 @@ describe('FormFilter', () => {
 
         let filteredForm = formFilter.filteredForm();
 
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 
     it('can also provide the value for concept directly', () => {
@@ -80,8 +80,8 @@ describe('FormFilter', () => {
 
         let filteredForm = formFilter.filteredForm();
 
-        expect(filteredForm.findFormElement('a1')).not.to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).to.be.undefined;
+        assert.isDefined(filteredForm.findFormElement('a1'));
+        assert.isUndefined(filteredForm.findFormElement('a2'));
     });
 
     it('can hide a form element by name when an enrolment observation is less than to a specific value', () => {
@@ -89,8 +89,8 @@ describe('FormFilter', () => {
 
         let filteredForm = formFilter.filteredForm();
 
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 
     it('can have negation rules using the not function', () => {
@@ -98,8 +98,8 @@ describe('FormFilter', () => {
 
         let filteredForm = formFilter.filteredForm();
 
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 
     it('uses and as a conjunction', () => {
@@ -107,8 +107,8 @@ describe('FormFilter', () => {
 
         let filteredForm = formFilter.filteredForm();
 
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 
     it('uses or as a conjunction', () => {
@@ -116,7 +116,7 @@ describe('FormFilter', () => {
 
         let filteredForm = formFilter.filteredForm();
 
-        expect(filteredForm.findFormElement('a1')).to.be.undefined;
-        expect(filteredForm.findFormElement('a2')).not.to.be.undefined;
+        assert.isUndefined(filteredForm.findFormElement('a1'));
+        assert.isDefined(filteredForm.findFormElement('a2'));
     });
 });

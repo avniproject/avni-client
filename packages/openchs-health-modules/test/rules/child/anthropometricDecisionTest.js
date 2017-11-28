@@ -32,7 +32,7 @@ describe("Anthropometric Decisions", () => {
         programEncounter.programEnrolment.individual = girl;
 
         let decisions = getDecisions(programEncounter);
-        expect(decisions).to.have.all.keys("enrolmentDecisions", "encounterDecisions", "registrationDecisions");
+        assert.hasAllKeys(decisions, ["enrolmentDecisions", "encounterDecisions", "registrationDecisions"]);
     });
 
     it("calculates z-scores for weight for age, height for age and weight for height", () => {
@@ -46,9 +46,9 @@ describe("Anthropometric Decisions", () => {
         programEncounter.observations.push(heightObs);
 
         let decisions = getDecisions(programEncounter).encounterDecisions;
-        expect(C.findValue(decisions, "Weight for age z-score")).to.equal(-0.1);
-        expect(C.findValue(decisions, "Height for age z-score")).to.equal(0);
-        expect(C.findValue(decisions, "Weight for height z-score")).to.equal(0.2);
+        assert.equal(C.findValue(decisions, "Weight for age z-score"), -0.1);
+        assert.equal(C.findValue(decisions, "Height for age z-score"), 0);
+        assert.equal(C.findValue(decisions, "Weight for height z-score"), 0.2);
     });
 
     it("does not calculate if values not available", () => {
@@ -63,8 +63,8 @@ describe("Anthropometric Decisions", () => {
         programEncounter.observations.push(heightObs);
 
         let decisions = getDecisions(programEncounter).encounterDecisions;
-        expect(C.findValue(decisions, "Weight for age z-score")).to.be.null;
-        expect(C.findValue(decisions, "Height for age z-score")).to.equal(0);
-        expect(C.findValue(decisions, "Weight for height z-score")).to.be.null;
+        assert.isNull(C.findValue(decisions, "Weight for age z-score"));
+        assert.equal(C.findValue(decisions, "Height for age z-score"), 0);
+        assert.isNull(C.findValue(decisions, "Weight for height z-score"));
     });
 });

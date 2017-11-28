@@ -1,10 +1,10 @@
-import {expect, assert} from "chai";
+import {assert} from "chai";
 import childProgramConfig from '../health_modules/child/childProgramConfig';
 import moment from 'moment';
 
 describe('Child Program Config', function () {
     it("describes dashboard configuration for the child program", function () {
-        expect(childProgramConfig).to.be.ok;
+        assert.isOk(childProgramConfig);
     });
 
     describe("adds a button to the program dashboard", function () {
@@ -62,7 +62,7 @@ describe('Child Program Config', function () {
         it("that is mapped to a line chart for weight for Age", function () {
             var weightForAgeWidget = childProgramConfig.programDashboardButtons[0].openOnClick.data.graphsBelow13Weeks[0];
             var weightForAgeData = weightForAgeWidget.data(enrolmentStub);
-            expect(weightForAgeData.length).to.equal(6);
+            assert.equal(weightForAgeData.length, 6);
             console.log(weightForAgeData[0]);
         });
         //

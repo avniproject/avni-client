@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {assert} from "chai";
 import {
     ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue, MultipleCodedValues,
     Individual, Gender
@@ -57,53 +57,53 @@ describe('RuleConditions', () => {
     });
 
     it('match to true by default', () => {
-        expect(a1.matches()).to.be.true;
-        expect(a2.matches()).to.be.true;
+        assert.isTrue(a1.matches());
+        assert.isTrue(a2.matches());
 
     });
 
     it('filledAtleastOnceInEntireEnrolment checks if value is filled at least once in entire enrolment', () => {
-        expect(a1.when.filledAtleastOnceInEntireEnrolment.matches()).to.be.true;
-        expect(a2.when.filledAtleastOnceInEntireEnrolment.matches()).to.be.false;
+        assert.isTrue(a1.when.filledAtleastOnceInEntireEnrolment.matches());
+        assert.isFalse(a2.when.filledAtleastOnceInEntireEnrolment.matches());
     });
 
 
     it("valueInEntireEnrolment checks for the same or a different concept's value to be equal to something", () => {
-        expect(a1.when.valueInEntireEnrolment('a1').equals(10).matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a1').equals(null).matches()).to.be.false;
-        expect(a1.when.valueInEntireEnrolment('a2').equals(10).matches()).to.be.false;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').equals(10).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a1').equals(null).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a2').equals(10).matches());
     });
 
     it("truthy checks currently inspected value to be truthy", () => {
-        expect(a1.when.valueInEntireEnrolment('a1').is.truthy.matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a2').is.truthy.matches()).to.be.false;
-        expect(a1.when.valueInEntireEnrolment('c1').is.truthy.matches()).to.be.false;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.truthy.matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a2').is.truthy.matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('c1').is.truthy.matches());
     });
 
     it("matchesFn checks currently inspected value to be truthy", () => {
-        expect(a1.when.valueInEntireEnrolment('a1').matchesFn(() => true).matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a1').matchesFn(() => false).matches()).to.be.false;
-        expect(a1.when.valueInEntireEnrolment('c1').matchesFn((value) => {return value;}).matches()).to.be.false;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').matchesFn(() => true).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a1').matchesFn(() => false).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('c1').matchesFn((value) => {return value;}).matches());
     });
 
     it("valueInEncounter checks for the same or a different concept's value to be equal to something", () => {
-        expect(a1.when.valueInEncounter('a1').is.truthy.matches()).to.be.true;
-        expect(a1.when.valueInEncounter('b1').is.truthy.matches()).to.be.false;
+        assert.isTrue(a1.when.valueInEncounter('a1').is.truthy.matches());
+        assert.isFalse(a1.when.valueInEncounter('b1').is.truthy.matches());
     });
 
     it("male checks if the program encounter is for a male", () => {
-        expect(a1.when.male.matches()).to.be.true;
-        expect(a1.when.female.matches()).to.be.false;
+        assert.isTrue(a1.when.male.matches());
+        assert.isFalse(a1.when.female.matches());
     });
 
     it("age checks for the age at the time of the program encounter", () => {
-       expect(a1.when.age.is.greaterThan(5, 'years').matches()).to.be.true;
-       expect(a1.when.age.is.greaterThanOrEqualTo(5, 'years').matches()).to.be.true;
-       expect(a1.when.age.is.lessThan(5, 'years').matches()).to.be.false;
+        assert.isTrue(a1.when.age.is.greaterThan(5, 'years').matches());
+        assert.isTrue(a1.when.age.is.greaterThanOrEqualTo(5, 'years').matches());
+       assert.isFalse(a1.when.age.is.lessThan(5, 'years').matches());
     });
 
     it('whenItem checks for a constant value. to match', () => {
-        expect(a2.whenItem(programEncounter.programEnrolment.findObservationInEntireEnrolment('a1').getValue()).equals(10).matches()).to.be.true;
+        assert.isTrue(a2.whenItem(programEncounter.programEnrolment.findObservationInEntireEnrolment('a1').getValue()).equals(10).matches());
     });
 
     it("containsAnswerConceptName checks if the specified concept name exists in the result", () => {
@@ -119,16 +119,16 @@ describe('RuleConditions', () => {
             programEnrolment: programEncounter.programEnrolment
         });
 
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 1").matches()).to.be.true;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 2").matches()).to.be.false;
-        expect(ruleCondition.when.valueInEncounter("non-existent question").containsAnswerConceptName("coded answer 2").matches()).to.be.false;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("non-existent answer").matches()).to.be.false;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName(undefined).matches()).to.be.false;
-        expect(ruleCondition.when.valueInEncounter(undefined).containsAnswerConceptName(undefined).matches()).to.be.false;
+        assert.isTrue(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 1").matches());
+        assert.isFalse(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 2").matches());
+        assert.isFalse(ruleCondition.when.valueInEncounter("non-existent question").containsAnswerConceptName("coded answer 2").matches());
+        assert.isFalse(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("non-existent answer").matches());
+        assert.isFalse(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName(undefined).matches());
+        assert.isFalse(ruleCondition.when.valueInEncounter(undefined).containsAnswerConceptName(undefined).matches());
 
         codedObservation.toggleMultiSelectAnswer(codedConceptA1.getPossibleAnswerConcept("coded answer 2").concept.uuid);
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 1").matches()).to.be.true;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 2").matches()).to.be.true;
+        assert.isTrue(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 1").matches());
+        assert.isTrue(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnswerConceptName("coded answer 2").matches());
     });
 
     it("containsAnyAnswerConceptName checks if any of the specified concept names exists in the result", () => {
@@ -144,39 +144,39 @@ describe('RuleConditions', () => {
             programEnrolment: programEncounter.programEnrolment
         });
 
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 1").matches()).to.be.true;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 2").matches()).to.be.false;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 1", "coded answer 2").matches()).to.be.true;
-        expect(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 1", "coded answer 2", "non-existent answer").matches()).to.be.true;
+        assert.isTrue(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 1").matches());
+        assert.isFalse(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 2").matches());
+        assert.isTrue(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 1", "coded answer 2").matches());
+        assert.isTrue(ruleCondition.when.valueInEncounter(codedConceptA1.name).containsAnyAnswerConceptName("coded answer 1", "coded answer 2", "non-existent answer").matches());
 
     });
 
     it('lessThan and greaterThan can be used to do inequality checks', () => {
-        expect(a1.when.valueInEntireEnrolment('a1').is.lessThan(20).matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a1').is.lessThan(5).matches()).to.be.false;
-        expect(a1.when.valueInEntireEnrolment('a1').is.lessThan(10).matches()).to.be.false;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.lessThan(20).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a1').is.lessThan(5).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a1').is.lessThan(10).matches());
 
-        expect(a1.when.valueInEntireEnrolment('a1').is.greaterThan(5).matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a1').is.greaterThan(20).matches()).to.be.false;
-        expect(a1.when.valueInEntireEnrolment('a1').is.greaterThan(5).matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a1').is.greaterThan(10).matches()).to.be.false;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.greaterThan(5).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a1').is.greaterThan(20).matches());
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.greaterThan(5).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('a1').is.greaterThan(10).matches());
     });
 
     it('not negates any condition', () => {
-        expect(a1.when.valueInEntireEnrolment('a1').is.not.lessThan(5).matches()).to.be.true;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.not.lessThan(5).matches());
     });
 
     it('and can be used to do multiple checks', () => {
-        expect(a1.when.valueInEntireEnrolment('a1').is.lessThan(15).and.valueInEntireEnrolment('a1').is.greaterThan(5).matches()).to.be.true;
-        expect(a1.when.valueInEntireEnrolment('a1').is.lessThan(15).and.greaterThan(5).matches()).to.be.true;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.lessThan(15).and.valueInEntireEnrolment('a1').is.greaterThan(5).matches());
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.lessThan(15).and.greaterThan(5).matches());
     });
 
     it('or can be used to do multiple checks as well', () => {
-        expect(a1.when.valueInEntireEnrolment('a1').is.lessThan(5).or.valueInEntireEnrolment('a1').is.greaterThan(5).matches()).to.be.true;
+        assert.isTrue(a1.when.valueInEntireEnrolment('a1').is.lessThan(5).or.valueInEntireEnrolment('a1').is.greaterThan(5).matches());
     });
 
     it("and and or are evaluated right to left", () => {
-        expect(a1.when.whenItem(1).is.lessThan(5).and.greaterThan(5).or.lessThan(5).matches()).to.be.true;
-        expect(a1.when.whenItem(1).is.greaterThan(5).and.lessThan(5).or.greaterThan(5).matches()).to.be.false;
+        assert.isTrue(a1.when.whenItem(1).is.lessThan(5).and.greaterThan(5).or.lessThan(5).matches());
+        assert.isFalse(a1.when.whenItem(1).is.greaterThan(5).and.lessThan(5).or.greaterThan(5).matches());
     });
 });
