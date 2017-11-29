@@ -339,21 +339,7 @@
               "value": "Single"
             }
           ],
-          "concept": {
-            "name": "Convulsions",
-            "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
-                "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
-              }
-            ]
-          },
+          "conceptUUID": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
           "displayOrder": 8,
           "mandatory": false
         },

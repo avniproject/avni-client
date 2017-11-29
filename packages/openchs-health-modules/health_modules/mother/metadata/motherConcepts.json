@@ -6,7 +6,7 @@
     "answers": [
       {
         "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
-        "name": "Chronic Hypertension"
+        "name": "Essential Hypertension"
       },
       {
         "uuid": "f2e5ac5b-b0f8-4088-bc42-397a3885308f",
@@ -162,9 +162,16 @@
       },
       {
         "uuid": "902df2a5-6403-4cb8-8732-e1e62bfa2364",
-        "name": "Absent Foetal Movements"
+        "name": "Foetal Movements Absent"
+      },
+      {
+        "uuid": "2facaa69-1164-4847-82bd-a0216e9c1a50",
+        "name": "Jaundice Present"
+      },
+      {
+        "uuid": "b694eefb-6b9d-4123-98a4-1bfc39a7dcb4",
+        "name": "Convulsions Present"
       }
-
     ]
   },
   {

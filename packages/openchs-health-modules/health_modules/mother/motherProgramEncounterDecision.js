@@ -49,6 +49,8 @@ export function getDecisions (programEncounter, today) {
         analyseSickling();
         analyseHepatitisB();
         analyseMalaria();
+        analyseJaundice();
+        analyseConvulsions();
         analyseAbdominalExamination();
         analyseOtherRisks();
 
@@ -100,7 +102,7 @@ export function getDecisions (programEncounter, today) {
             const isChronicHypertensive = highRiskConditions && highRiskConditions.indexOf('Chronic Hypertension') >= 0;
 
             if (pregnancyPeriodInWeeks <= 20 && isBloodPressureHigh) {
-                addComplication('Chronic Hypertension');
+                addComplication('Essential Hypertension');
                 if (urineAlbuminIsMild || urineAlbuminIsSevere) {
                     addComplication('Superimposed Pre-Eclampsia');
                 }
@@ -175,6 +177,18 @@ export function getDecisions (programEncounter, today) {
                 addComplication('Malaria');
         }
 
+        function analyseJaundice() {
+            var jaundice = getObservationValueFromEntireEnrolment('Jaundice');
+            if (jaundice === 'Present')
+                addComplication('Jaundice Present');
+        }
+
+        function analyseConvulsions() {
+            var convulsions = getObservationValueFromEntireEnrolment('Convulsions');
+            if (convulsions === 'Present')
+                addComplication('Convulsions Present');
+        }
+
         function analyseAbdominalExamination() {
             var foetalPresentation = getObservationValueFromEntireEnrolment('Foetal presentation');
             if (foetalPresentation === 'Breech' || foetalPresentation === 'Transverse') {
@@ -182,7 +196,7 @@ export function getDecisions (programEncounter, today) {
             }
             var foetalMovements = getObservationValueFromEntireEnrolment('Foetal movements');
             if (foetalMovements === 'Absent') {
-                addComplication('Absent Foetal Movements');
+                addComplication('Foetal Movements Absent');
             }
 
         }

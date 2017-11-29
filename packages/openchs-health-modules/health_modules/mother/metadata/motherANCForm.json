@@ -26,13 +26,14 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
                 "name": "Present",
                 "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+              },
+              {
+                "name": "Absent",
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
               }
+
             ]
           },
           "displayOrder": 1,
@@ -74,21 +75,7 @@
               "value": "Single"
             }
           ],
-          "concept": {
-            "name": "Convulsions",
-            "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
-                "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
-              }
-            ]
-          },
+          "conceptUUID": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
           "displayOrder": 3,
           "mandatory": false
         },
@@ -436,7 +423,20 @@
           },
           "displayOrder": 1,
           "mandatory": false
+        },
+        {
+          "name": "Any Other Complaint",
+          "uuid": "a73fc108-f1fb-46e3-a373-65698d9d6f3e",
+          "keyValues": [],
+          "concept": {
+            "name": "Any Other Complaint",
+            "uuid": "079a0348-a308-471d-87dc-715dcb149125",
+            "dataType": "Text"
+          },
+          "displayOrder": 2,
+          "mandatory": false
         }
+
       ]
     },
     {
@@ -639,12 +639,12 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              },
-              {
                 "name": "Positive",
                 "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+              },
+              {
+                "name": "Negative",
+                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
               }
             ]
           },
