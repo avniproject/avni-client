@@ -50,7 +50,7 @@ describe('High Risk Pregnancy Determination', () => {
         decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
         complications = C.findValue(decisions, "High Risk Conditions");
         expect(complications).to.exist;
-        expect(complications).to.be.an('array').to.have.lengthOf(1).that.includes('Chronic Hypertension');
+        expect(complications).to.be.an('array').to.have.lengthOf(1).that.includes('Essential Hypertension');
     });
 
     describe("Less than 20 weeks of pregnancy", () => {
@@ -84,9 +84,9 @@ describe('High Risk Pregnancy Determination', () => {
 
         });
 
-        describe('Chronic Hypertension', () => {
+        describe('Essential Hypertension', () => {
 
-            it("Should not mark Chronic Hypertension as if BP is normal", () => {
+            it("Should not mark Essential Hypertension as if BP is normal", () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
@@ -95,31 +95,31 @@ describe('High Risk Pregnancy Determination', () => {
             });
 
 
-            it("Should mark Chronic Hypertension as High Risk If Systolic is abnormal high", () => {
+            it("Should mark Essential Hypertension as High Risk If Systolic is abnormal high", () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                 const complications = C.findValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
-                expect(complications).to.be.an('array').that.includes('Chronic Hypertension');
+                expect(complications).to.be.an('array').that.includes('Essential Hypertension');
             });
 
-            it("Should mark Chronic Hypertension as High Risk If Diastolic is abnormal high", () => {
+            it("Should mark Essential Hypertension as High Risk If Diastolic is abnormal high", () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                 const complications = C.findValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
-                expect(complications).to.be.an('array').that.includes('Chronic Hypertension');
+                expect(complications).to.be.an('array').that.includes('Essential Hypertension');
             });
 
-            it("Should mark Chronic Hypertension as High Risk If Diastolic and Systolic is abnormal high", () => {
+            it("Should mark Essential Hypertension as High Risk If Diastolic and Systolic is abnormal high", () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                 const complications = C.findValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
-                expect(complications).to.be.an('array').that.includes('Chronic Hypertension');
+                expect(complications).to.be.an('array').that.includes('Essential Hypertension');
             });
         });
 
@@ -144,7 +144,7 @@ describe('High Risk Pregnancy Determination', () => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, 'High Risk Conditions');
                     expect(complications).to.exist;
-                    expect(complications).to.be.an('array').that.includes('Chronic Hypertension');
+                    expect(complications).to.be.an('array').that.includes('Essential Hypertension');
                     expect(complications).to.be.an('array').to.not.include('Superimposed Pre-Eclampsia');
                 });
 
@@ -161,7 +161,7 @@ describe('High Risk Pregnancy Determination', () => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, 'High Risk Conditions');
                     expect(complications).to.exist;
-                    expect(complications).to.be.an('array').that.includes('Chronic Hypertension');
+                    expect(complications).to.be.an('array').that.includes('Essential Hypertension');
                     expect(complications).to.be.an('array').that.includes('Superimposed Pre-Eclampsia');
                 });
 
@@ -268,7 +268,7 @@ describe('High Risk Pregnancy Determination', () => {
 
             describe("High BP during the first 20 weeks", () => {
                 beforeEach(() => {
-                    enrolment.setObservation('High Risk Conditions', ["Chronic Hypertension"]);
+                    enrolment.setObservation('High Risk Conditions', ["Essential Hypertension"]);
                 });
 
                 it("Should mark high risk for high Systolic BP given normal before 20 Weeks", () => {

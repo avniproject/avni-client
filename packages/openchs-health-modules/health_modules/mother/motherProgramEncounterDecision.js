@@ -99,14 +99,14 @@ export function getDecisions (programEncounter, today) {
             const obsHistoryOfPregnancyInducedHypertension = C.contains(obsHistory, 'Pregnancy Induced Hypertension');
             const hasConvulsions = getObservationValue('Convulsions') === "Present"; //will be identified in hospital
             let highRiskConditions = getObservationValueFromEntireEnrolment('High Risk Conditions');
-            const isChronicHypertensive = highRiskConditions && highRiskConditions.indexOf('Chronic Hypertension') >= 0;
+            const isEssentialHypertensive = highRiskConditions && highRiskConditions.indexOf('Essential Hypertension') >= 0;
 
             if (pregnancyPeriodInWeeks <= 20 && isBloodPressureHigh) {
                 addComplication('Essential Hypertension');
                 if (urineAlbuminIsMild || urineAlbuminIsSevere) {
                     addComplication('Superimposed Pre-Eclampsia');
                 }
-            } else if (pregnancyPeriodInWeeks > 20 && !isChronicHypertensive) {
+            } else if (pregnancyPeriodInWeeks > 20 && !isEssentialHypertensive) {
                 if (!obsHistoryOfPregnancyInducedHypertension && isBloodPressureHigh) {
                     addComplication('Pregnancy Induced Hypertension');
                     if (hasConvulsions && (urineAlbuminIsMild || urineAlbuminIsSevere))
