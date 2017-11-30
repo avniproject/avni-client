@@ -39,7 +39,6 @@ class SettingsService extends BaseService {
                 dbInScope.create('Settings', settings, true);
             }
         });
-        console.log()
         General.setCurrentLogLevel(this.getSettings().logLevel);
     }
 
