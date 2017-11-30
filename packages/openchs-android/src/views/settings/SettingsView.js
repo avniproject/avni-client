@@ -38,10 +38,6 @@ class SettingsView extends AbstractComponent {
                         <Text style={Styles.settingsTitle}>
                             {`${this.state.settings.organisationName} - Catchment ${this.state.settings.catchment}`}
                         </Text>
-                        <TextFormElement element={new StaticFormElement('serverURL')}
-                                         actionName={Actions.ON_SERVER_URL_CHANGE} validationResult={null}
-                                         value={new PrimitiveValue(this.state.settings.serverURL)}
-                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'
                                     selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid}

@@ -9,6 +9,13 @@ endef
 clean: clean_env
 
 deps: build_env
+ip:=$(shell ifconfig | grep -A 2 'vboxnet' | tail -1 | cut -d ' ' -f 2 | cut -d ' ' -f 1)
+setup_hosts:
+	cd packages/openchs-android; adb root
+	cd packages/openchs-android; adb remount
+	cd packages/openchs-android; cat /etc/hosts|sed 's/127.0.0.1/'$(ip)'/' > /tmp/hosts-adb
+	echo '$(ip)	dev.openchs.org' >> /tmp/hosts-adb
+	cd packages/openchs-android; adb push /tmp/hosts-adb /system/etc/hosts
 
 test-health-modules:
 	$(call test,health-modules)
@@ -20,6 +27,7 @@ test-models:
 	$(call test,models)
 
 test: test-models test-health-modules test-android
+
 
 release:
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
@@ -79,7 +87,7 @@ run_packager:
 # </packager>
 
 # <app>
-run_app:
+run_app: setup_hosts
 	cd packages/openchs-android && react-native run-android
 # </app>
 

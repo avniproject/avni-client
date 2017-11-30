@@ -141,6 +141,7 @@ jobs:
       - image: openchs/react-native:latest
         environment:
           - TERM: dumb
+          - ENVFILE: .env.staging
           - GRADLE_OPTS: "-Xmx250m -Xms250m"
 
 

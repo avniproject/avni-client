@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 buildscript {
     repositories {
@@ -154,6 +155,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-config')
     compile project(':react-native-aws-cognito-js')
     compile project(':react-native-svg')
     compile project(':react-native-vector-icons')

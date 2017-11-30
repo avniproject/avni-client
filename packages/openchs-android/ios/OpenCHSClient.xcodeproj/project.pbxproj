@@ -26,6 +26,7 @@
 		4BE420ECAE4D49D8AD1E4636 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 846D2720E74A4E24B289679E /* libRNSVG.a */; };
 		6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FFF05AE4806E4237A36107D8 /* libRCTRestart.a */; };
 		1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */; };
+		9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +152,8 @@
 		FFF05AE4806E4237A36107D8 /* libRCTRestart.a */ = {isa = PBXFileReference; name = "libRCTRestart.a"; path = "libRCTRestart.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */ = {isa = PBXFileReference; name = "RNAWSCognito.xcodeproj"; path = "../node_modules/react-native-aws-cognito-js/ios/RNAWSCognito.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */ = {isa = PBXFileReference; name = "libRNAWSCognito.a"; path = "libRNAWSCognito.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativeConfig.xcodeproj"; path = "../node_modules/react-native-config/ios/ReactNativeConfig.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */ = {isa = PBXFileReference; name = "libReactNativeConfig.a"; path = "libReactNativeConfig.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +183,7 @@
 				4BE420ECAE4D49D8AD1E4636 /* libRNSVG.a in Frameworks */,
 				6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */,
 				1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */,
+				9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +319,7 @@
 				9EA04D05DB004BDB9205FA0E /* RNSVG.xcodeproj */,
 				AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */,
 				7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */,
+				ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -647,6 +652,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -663,6 +669,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
@@ -686,6 +693,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-aws-cognito-js/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
 				);
 			};
 			name = Debug;
@@ -707,6 +715,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-aws-cognito-js/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
 				);
 			};
 			name = Release;

@@ -4,6 +4,7 @@ import InitialSettings from '../../config/initialSettings.json';
 import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
 import {Settings, LocaleMapping} from "openchs-models";
+import Config from 'react-native-config'
 import _ from 'lodash';
 
 @Service("settingsService")
@@ -26,7 +27,7 @@ class SettingsService extends BaseService {
                 settings.password = "";
                 settings.logLevel = InitialSettings.logLevel;
                 settings.catchment = InitialSettings.catchment;
-                settings.serverURL = InitialSettings.serverURL;
+                settings.serverURL = Config.SERVER_URL;
                 settings.poolId = "";
                 settings.clientId = "";
                 settings.organisationName = "";
@@ -38,7 +39,7 @@ class SettingsService extends BaseService {
                 dbInScope.create('Settings', settings, true);
             }
         });
-
+        console.log()
         General.setCurrentLogLevel(this.getSettings().logLevel);
     }
 
