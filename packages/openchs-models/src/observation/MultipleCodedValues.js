@@ -30,6 +30,10 @@ class MultipleCodedValues {
         }
     }
 
+    hasAnyAbnormalAnswer(abnormalAnswerUUIDs){
+        return _.some(this.answer, (item) => {return _.some(abnormalAnswerUUIDs, _.matches(item))});
+    }
+
     getValue() {
         return this.answer;
     }

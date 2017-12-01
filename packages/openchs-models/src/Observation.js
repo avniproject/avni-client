@@ -50,9 +50,14 @@ class Observation {
     }
 
     isAbnormal() {
-        return this.concept.datatype === Concept.dataType.Numeric ?
-            this.concept.isAbnormal(this.getValue()) : this.abnormal;
-    }
+    //This is to support the old version of app where observation are being set explicitly true.
+        // Developer is just being lazy here.
+        if (this.abnormal === true) {
+            return true;
+        }
+    return this.concept.isAbnormal(this.getValue());
+}
+
 
     hasNoAnswer() {
         return _.isEmpty(this.getValueWrapper().answer);

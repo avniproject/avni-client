@@ -13,7 +13,8 @@ export class ConceptAnswer {
         properties: {
             uuid: 'string',
             concept: 'Concept',
-            answerOrder: 'int'
+            answerOrder: 'int',
+            abnormal: 'bool'
         }
     };
 
@@ -26,6 +27,7 @@ export class ConceptAnswer {
         conceptAnswer.concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptAnswerUUID"), Concept.schema.name);
         conceptAnswer.uuid = resource.uuid;
         conceptAnswer.answerOrder = resource.order;
+        conceptAnswer.abnormal = resource.abnormal;
         return conceptAnswer;
     }
 }
@@ -113,7 +115,21 @@ export default class Concept {
     }
 
     isAbnormal(value) {
-        return this.isBelowLowNormal(value) || this.isAboveHiNormal(value);
+        let valueWrapper = this.getValueWrapperFor(value);
+        switch(this.datatype){
+            case Concept.dataType.Numeric:
+                return this.isBelowLowNormal(valueWrapper.answer) || this.isAboveHiNormal(valueWrapper.answer);
+            case Concept.dataType.Coded:
+                return valueWrapper.hasAnyAbnormalAnswer(this.abnormalAnswers());
+            default:
+                return false;
+        }
+    }
+
+    abnormalAnswers() {
+        let abnormalAnswers = _.filter(this.answers,
+            (conceptAnswer) => conceptAnswer.abnormal).map((conceptAnswer) => {return conceptAnswer.concept.uuid})
+        return abnormalAnswers;
     }
 
     isBelowLowNormal(value) {
@@ -159,4 +175,5 @@ export default class Concept {
     _areValidNumbers(...numbers) {
         return _.every(numbers, (value) => value !== null && _.isFinite(value));
     }
+
 }

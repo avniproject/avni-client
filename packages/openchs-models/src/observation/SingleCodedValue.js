@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 class SingleCodedValue {
     constructor(answerUUID) {
         this.answer = answerUUID;
@@ -23,6 +25,10 @@ class SingleCodedValue {
         const singleCodedValue = new SingleCodedValue();
         singleCodedValue.answer = this.answer;
         return singleCodedValue;
+    }
+
+    hasAnyAbnormalAnswer(abnormalAnswerUUIDs){
+        return _.some(abnormalAnswerUUIDs, _.matches(this.answer));
     }
 
     get isSingleCoded() {
