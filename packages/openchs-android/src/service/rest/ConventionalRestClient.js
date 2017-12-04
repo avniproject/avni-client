@@ -24,9 +24,11 @@ class ConventionalRestClient {
     }
 
     chainPostEntities(url, entities, authToken, onComplete) {
-        const chainedRequest = new ChainedRequests();
-        entities.entities.map((entity) => chainedRequest.push(chainedRequest.post(url, entity.resource, authToken, onComplete(entity.resource.uuid))));
-        return chainedRequest.fire();
+        return () => {
+            const chainedRequest = new ChainedRequests();
+            entities.entities.map((entity) => chainedRequest.push(chainedRequest.post(url, entity.resource, authToken, onComplete(entity.resource.uuid))));
+            return chainedRequest.fire();
+        }
     }
 
     getAllForEntity(entityMetadata, onGetOfAnEntity) {
