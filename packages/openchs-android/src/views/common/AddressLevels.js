@@ -1,15 +1,8 @@
-import {View, StyleSheet, Text} from "react-native";
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import _ from "lodash";
-import {BaseEntity} from "openchs-models";
-import DGS from '../primitives/DynamicGlobalStyles';
-import Colors from '../primitives/Colors';
+import Colors from "../primitives/Colors";
 import Reducers from "../../reducer";
-import Fonts from '../primitives/Fonts';
-import Distances from '../primitives/Distances';
-import PresetOptionItem from "../primitives/PresetOptionItem";
-import Styles from "../primitives/Styles";
+import Fonts from "../primitives/Fonts";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
 class AddressLevels extends AbstractComponent {
@@ -51,6 +44,7 @@ class AddressLevels extends AbstractComponent {
                 selectionFn={(addressLevel) => this.props.selectedAddressLevels.some((al) => al.uuid === addressLevel)}
                 labelKey="lowestAddressLevel"
                 mandatory={this.props.mandatory}
+                validationError={this.props.validationError}
                 labelValuePairs={valueLabelPairs}/>
         );
     }
