@@ -14,7 +14,7 @@ export default class ErrorHandler {
     }
 
     static postError(error, isFatal) {
-        console.log(`[ErrorHandler] IsFatal=${isFatal}`);
+        console.log(`[ErrorHandler] IsFatal=${isFatal} ${error}`);
         console.log(JSON.stringify(error));
         error.message = `ErrorUtils: handled ${isFatal ? 'fatal' : 'non-fatal'} error: ${error.message}`;
         if (isFatal) {

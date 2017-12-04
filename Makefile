@@ -45,8 +45,13 @@ deploy:
 	make release
 	@curl -T packages/openchs-android/android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/dev/openchs-client-$(ts).apk?publish=1
 
-database-client:
-	adb pull /data/data/com.openchsclient/files/default.realm
+# <db>
+get_db:
+	adb pull /data/data/com.openchsclient/files/default.realm ../
+
+open_db: get_db
+	open ../default.realm
+# </db>
 
 
 # <apk>

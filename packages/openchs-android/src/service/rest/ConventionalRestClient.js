@@ -57,9 +57,9 @@ class ConventionalRestClient {
         });
     }
 
-    getAll(entitiesMetadata, onGetOfAnEntity) {
-        return _.reduce(entitiesMetadata,
-            (acc, entityMetadata) => acc.then(() => this.getAllForEntity(entityMetadata, onGetOfAnEntity)),
+    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity) {
+        return _.reduce(entitiesMetadataWithSyncStatus,
+            (acc, entityMetadataWithSyncStatus) => acc.then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity)),
             Promise.resolve());
     }
 
