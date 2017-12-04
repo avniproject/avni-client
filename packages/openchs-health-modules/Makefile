@@ -57,10 +57,6 @@ deploy_metadata: ## Upload metadata to server
 	curl -X POST http://$(server):$(port)/forms -d @health_modules/child/metadata/childDefaultProgramEncounterForm.json -H "Content-Type: application/json"
 	curl -X POST http://$(server):$(port)/forms -d @health_modules/child/metadata/childProgramExitForm.json -H "Content-Type: application/json"
 
-	curl -X POST http://$(server):$(port)/forms -d @health_modules/ncd/metadata/screeningEncounterForm.json -H "Content-Type: application/json"
-
-	curl -X POST http://$(server):$(port)/programs -d @health_modules/diabetes/metadata/diabetesProgram.json -H "Content-Type: application/json"
-	curl -X POST http://$(server):$(port)/forms -d @health_modules/diabetes/metadata/diabetesProgramEncounterForm.json -H "Content-Type: application/json"
 	curl -X POST http://$(server):$(port)/programs -d @health_modules/adolescent/metadata/adolescentProgram.json -H "Content-Type: application/json"
 	curl -X POST http://$(server):$(port)/concepts -d @health_modules/adolescent/metadata/adolescentConcepts.json -H "Content-Type: application/json"
 	curl -X POST http://$(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentEnrolment.json -H "Content-Type: application/json"
