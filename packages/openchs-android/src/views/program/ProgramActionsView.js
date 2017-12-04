@@ -11,6 +11,7 @@ import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
 import Styles from "../primitives/Styles";
+import General from "../../utility/General";
 
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
@@ -21,6 +22,7 @@ class ProgramActionsView extends AbstractComponent {
     static propTypes = {
         programDashboardButtons: React.PropTypes.array.isRequired,
         enrolment: React.PropTypes.object.isRequired,
+        encounterTypes: React.PropTypes.array.isRequired
     };
 
     startEncounter() {
@@ -42,6 +44,7 @@ class ProgramActionsView extends AbstractComponent {
 
     renderButton(onPress, buttonStyle, text, textColor, index) {
         return (
+            this.props.encounterTypes.length === 0 ? <View/> :
             <TouchableNativeFeedback onPress={onPress} key={index}>
                 <View  style={buttonStyle}>
                     <Text style={{

@@ -14,6 +14,7 @@ class Program extends ReferenceEntity {
 
     static fromResource(resource) {
         const program =  ReferenceEntity.fromResource(resource, new Program());
+        program.uuid = resource.programUUID;
         program.colour = _.isNil(resource.colour)? Program.randomColour() : resource.colour;
         return program;
     }

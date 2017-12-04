@@ -39,10 +39,15 @@ class FormMappingService extends BaseService {
     }
 
     findEncounterTypesForEncounter() {
+        //TODO: There are some encounter types whose mapping is synchronised to the client but the encounter types themselves are not, as form mapping API doesn't return mappings based on the organisation yet.
         const formMappings = this.findAllByCriteria(`form.formType="${Form.formTypes.Encounter}"`);
-        return formMappings.map((formMapping) => {
-            return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
+        let encounterTypes = [];
+        formMappings.forEach((formMapping) => {
+            let encounterType = this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
+            if (!_.isNil(encounterType))
+                encounterTypes.push(encounterType);
         });
+        return encounterTypes;
     }
 
     findFormForEncounterType(encounterType) {

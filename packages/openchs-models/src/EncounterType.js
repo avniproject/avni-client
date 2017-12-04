@@ -11,7 +11,9 @@ class EncounterType extends ReferenceEntity {
     };
 
     static fromResource(resource) {
-        return ReferenceEntity.fromResource(resource, new EncounterType());
+        let entity = ReferenceEntity.fromResource(resource, new EncounterType());
+        entity.uuid = resource.encounterTypeUUID;
+        return entity;
     }
 
     clone() {

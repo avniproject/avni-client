@@ -23,8 +23,8 @@ class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
     static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference", nameTranslated: false};
     static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "reference", nameTranslated: true};
-    static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "encounterType", type: "reference", nameTranslated: true};
-    static program = {entityName: "Program", entityClass: Program, resourceName: "program", type: "reference", nameTranslated: true};
+    static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "operationalEncounterType", type: "reference", nameTranslated: true};
+    static program = {entityName: "Program", entityClass: Program, resourceName: "operationalProgram", type: "reference", nameTranslated: true};
     static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
     static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference", nameTranslated: true};
     static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};

@@ -110,7 +110,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     </View>
                                     <ProgramActionsView programDashboardButtons={dashboardButtons}
                                                         enrolment={this.state.enrolment}
-                                                        onOpenChecklist={() => this.openChecklist()}/>
+                                                        onOpenChecklist={() => this.openChecklist()}
+                                                        encounterTypes={encounterTypeState.entityTypes}/>
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
