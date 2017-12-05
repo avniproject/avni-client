@@ -117,15 +117,18 @@
             "answers": [
               {
                 "name": "Blurred vision",
-                "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c"
+                "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c",
+                "abnormal": true
               },
               {
                 "name": "Difficulty breathing",
-                "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44"
+                "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
+                "abnormal": true
               },
               {
                 "name": "Bad headache",
-                "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e"
+                "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
+                "abnormal": true
               },
               {
                 "name": "No Problem",
@@ -152,11 +155,13 @@
             "answers": [
               {
                 "name": "Abdominal pain",
-                "uuid": "38062391-f042-4a09-9d00-01f18c1b46c2"
+                "uuid": "38062391-f042-4a09-9d00-01f18c1b46c2",
+                "abnormal": true
               },
               {
                 "name": "Uterus is soft or tender",
-                "uuid": "6c670fde-e4c1-4885-b672-452de7a023e0"
+                "uuid": "6c670fde-e4c1-4885-b672-452de7a023e0",
+                "abnormal": true
               },
               {
                 "name": "No problems",
@@ -183,19 +188,22 @@
             "answers": [
               {
                 "name": "Heavy bleeding per vaginum",
-                "uuid": "396d9f7d-2dc7-4517-9543-85f1a8cbf00c"
+                "uuid": "396d9f7d-2dc7-4517-9543-85f1a8cbf00c",
+                "abnormal": true
+              },
+              {
+                "name": "Bad-smelling lochia",
+                "uuid": "abbd780c-e5a4-4558-b576-86394b359822",
+                "abnormal": true
+              },
+              {
+                "name": "Infected perineum suture",
+                "uuid": "f67e74ea-f048-40b1-abaa-19ff8ac20b10",
+                "abnormal": true
               },
               {
                 "name": "No problems",
                 "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1"
-              },
-              {
-                "name": "Bad-smelling lochia",
-                "uuid": "abbd780c-e5a4-4558-b576-86394b359822"
-              },
-              {
-                "name": "Infected perineum suture",
-                "uuid": "f67e74ea-f048-40b1-abaa-19ff8ac20b10"
               }
             ]
           },
@@ -218,11 +226,13 @@
             "answers": [
               {
                 "name": "Difficulty passing urine",
-                "uuid": "34ac55d2-84e1-44a5-981d-d3cf1fedd0cf"
+                "uuid": "34ac55d2-84e1-44a5-981d-d3cf1fedd0cf",
+                "abnormal": true
               },
               {
                 "name": "Burning Urination",
-                "uuid": "8a07fe4d-1814-4f80-90fe-5fbedf2a0518"
+                "uuid": "8a07fe4d-1814-4f80-90fe-5fbedf2a0518",
+                "abnormal": true
               },
               {
                 "name": "No difficulties",
@@ -253,15 +263,18 @@
               },
               {
                 "name": "Cracked Nipple",
-                "uuid": "804a3c4c-e42e-47b0-923b-43c808c631bc"
+                "uuid": "804a3c4c-e42e-47b0-923b-43c808c631bc",
+                "abnormal": true
               },
               {
                 "name": "Nipple hardness",
-                "uuid": "e109964e-1f6f-49dd-9cdf-b862f91f3b65"
+                "uuid": "e109964e-1f6f-49dd-9cdf-b862f91f3b65",
+                "abnormal": true
               },
               {
                 "name": "Breast hardness",
-                "uuid": "9d5b4823-959b-4650-bec2-ed7a1db7c057"
+                "uuid": "9d5b4823-959b-4650-bec2-ed7a1db7c057",
+                "abnormal": true
               }
             ]
           },
@@ -288,15 +301,18 @@
               },
               {
                 "name": "Indurated",
-                "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d"
+                "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d",
+                "abnormal": true
               },
               {
                 "name": "Looks red",
-                "uuid": "6323bb46-3510-4a7f-9531-4ebd32278911"
+                "uuid": "6323bb46-3510-4a7f-9531-4ebd32278911",
+                "abnormal": true
               },
               {
                 "name": "Filled with pus",
-                "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5"
+                "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5",
+                "abnormal": true
               }
             ]
           },
@@ -323,7 +339,8 @@
               },
               {
                 "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
+                "abnormal": true
               }
             ]
           },
@@ -359,7 +376,8 @@
             "answers": [
               {
                 "name": "Insomnia",
-                "uuid": "492f2658-5a54-4d47-894c-af90d02730b7"
+                "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
+                "abnormal": true
               },
               {
                 "name": "No Problem",
@@ -367,15 +385,18 @@
               },
               {
                 "name": "Irritability",
-                "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c"
+                "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
+                "abnormal": true
               },
               {
                 "name": "Loss of appetite",
-                "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce"
+                "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
+                "abnormal": true
               },
               {
                 "name": "Weakness",
-                "uuid": "25ec9a8c-07df-471c-afac-4919d016464d"
+                "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
+                "abnormal": true
               }
             ]
           },

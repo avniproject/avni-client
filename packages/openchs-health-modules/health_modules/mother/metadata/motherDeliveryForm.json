@@ -156,11 +156,13 @@
             "answers": [
               {
                 "name": "Early Neonatal death within first 24 Hours of birth",
-                "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399"
+                "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
+                "abnormal": true
               },
               {
                 "name": "Still Birth",
-                "uuid": "797c7923-1993-49d9-b759-1706aae62ae9"
+                "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
+                "abnormal": true
               },
               {
                 "name": "Live Birth",
@@ -218,23 +220,28 @@
             "answers": [
               {
                 "name": "Uterine Rupture",
-                "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b"
+                "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
+                "abnormal": true
               },
               {
                 "name": "Vaginal Rupture",
-                "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444"
+                "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
+                "abnormal": true
               },
               {
                 "name": "Obstructed Labour",
-                "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152"
+                "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152",
+                "abnormal": true
               },
               {
                 "name": "PPH",
-                "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4"
+                "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4",
+                "abnormal": true
               },
               {
                 "name": "Maternal Death",
-                "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373"
+                "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373",
+                "abnormal": true
               }
             ]
           },

@@ -228,27 +228,33 @@
     "answers": [
       {
         "uuid": "154aeecb-2c8f-43f4-b86c-e070b83a516d",
-        "name": "Post-Partum Haemorrhage"
+        "name": "Post-Partum Haemorrhage",
+        "abnormal": true
       },
       {
         "uuid": "69072b54-1258-4851-917f-0657667f3bcd",
-        "name": "Urinary Tract Infection"
+        "name": "Urinary Tract Infection",
+        "abnormal": true
       },
       {
         "uuid": "40325a6e-bbf7-4a85-96d5-f79d0e447543",
-        "name": "Genital Tract Infection"
+        "name": "Genital Tract Infection",
+        "abnormal": true
       },
       {
         "uuid": "948e4a90-66ad-47ee-8d7a-e003e03fb434",
-        "name": "Mastitis"
+        "name": "Mastitis",
+        "abnormal": true
       },
       {
         "uuid": "681007b0-13a2-4910-aae8-47f1edae0a4b",
-        "name": "Post Operative Infection"
+        "name": "Post Operative Infection",
+        "abnormal": true
       },
       {
         "uuid": "ac1e984c-28be-4ce2-887c-262749151350",
-        "name": "Post-Partum Depression"
+        "name": "Post-Partum Depression",
+        "abnormal": true
       }
     ]
   }

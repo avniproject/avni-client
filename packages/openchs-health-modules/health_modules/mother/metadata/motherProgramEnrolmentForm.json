@@ -177,71 +177,88 @@
             "answers": [
               {
                 "name": "Threatened Abortion",
-                "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b"
+                "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
+                "abnormal": true
               },
               {
                 "name": "3 or more than 3 spontaneous abortions",
-                "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931"
+                "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931",
+                "abnormal": true
               },
               {
                 "name": "Pregnancy Induced Hypertension",
-                "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad"
+                "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
+                "abnormal": true
               },
               {
                 "name": "Intrauterine Death",
-                "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1"
+                "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1",
+                "abnormal": true
               },
               {
                 "name": "Pre Eclampsia/ Eclampsia",
-                "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1"
+                "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
+                "abnormal": true
               },
               {
                 "name": "Ante Partum Haemorrhage",
-                "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff"
+                "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff",
+                "abnormal": true
               },
               {
                 "name": "Intrauterine Growth Retardation",
-                "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2"
+                "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2",
+                "abnormal": true
               },
               {
                 "name": "Pre-term labour",
-                "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951"
+                "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951",
+                "abnormal": true
               },
               {
                 "name": "Prolonged labour",
-                "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3"
+                "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3",
+                "abnormal": true
               },
               {
                 "name": "Instrumental Delivery",
-                "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376"
+                "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376",
+                "abnormal": true
               },
               {
                 "name": "LSCS/C-section",
-                "uuid": "eb68c395-17dc-4679-828c-487753228e9f"
+                "uuid": "eb68c395-17dc-4679-828c-487753228e9f",
+                "abnormal": true
               },
               {
                 "name": "Still Birth",
-                "uuid": "797c7923-1993-49d9-b759-1706aae62ae9"
+                "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
+                "abnormal": true
               },
               {
                 "name": "Multiple Births",
-                "uuid": "b5719e3e-db9c-49c1-af0c-3047b1b9c57a"
+                "uuid": "b5719e3e-db9c-49c1-af0c-3047b1b9c57a",
+                "abnormal": true
               },
               {
                 "name": "Retained Placenta",
-                "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9"
+                "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9",
+                "abnormal": true
               },
               {
                 "name": "Post Partum Haemorrhage",
-                "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca"
+                "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca",
+                "abnormal": true
               },
               {
                 "name": "Intrapartum Death",
-                "uuid": "92ba84ab-b395-48c4-b867-932524f60d15"
+                "uuid": "92ba84ab-b395-48c4-b867-932524f60d15",
+                "abnormal": true
               },
               {
                 "name": "Neonatal death within first 28 days",
-                "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba"
+                "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba",
+                "abnormal": true
               }
             ]
           },

@@ -27,7 +27,8 @@
             "answers": [
               {
                 "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+                "abnormal": true
               },
               {
                 "name": "Absent",
@@ -55,7 +56,8 @@
             "answers": [
               {
                 "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+                "abnormal": true
               },
               {
                 "name": "Absent",
@@ -95,7 +97,8 @@
             "answers": [
               {
                 "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+                "abnormal": true
               },
               {
                 "name": "Absent",
@@ -143,11 +146,13 @@
               },
               {
                 "name": "Retracted",
-                "uuid": "3273b055-0222-44b6-b0a6-7d45fb4e1b33"
+                "uuid": "3273b055-0222-44b6-b0a6-7d45fb4e1b33",
+                "abnormal": true
               },
               {
                 "name": "Flat",
-                "uuid": "040e37d2-12ff-465c-8bf2-990358805f11"
+                "uuid": "040e37d2-12ff-465c-8bf2-990358805f11",
+                "abnormal": true
               }
             ]
           },
@@ -260,11 +265,13 @@
               },
               {
                 "name": "Breech",
-                "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6"
+                "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6",
+                "abnormal": true
               },
               {
                 "name": "Transverse",
-                "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47"
+                "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47",
+                "abnormal": true
               }
             ]
           },
@@ -311,7 +318,8 @@
             "answers": [
               {
                 "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+                "abnormal": true
               },
               {
                 "name": "Normal",
@@ -319,7 +327,8 @@
               },
               {
                 "name": "Reduced",
-                "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63"
+                "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63",
+                "abnormal": true
               }
             ]
           },
@@ -346,7 +355,8 @@
               },
               {
                 "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+                "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+                "abnormal": true
               }
             ]
           },
@@ -377,47 +387,58 @@
             "answers": [
               {
                 "name": "Headache",
-                "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
+                "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e",
+                "abnormal": true
               },
               {
                 "name": "Difficulty in breathing",
-                "uuid": "8e1ef29f-c2d6-4586-97a1-5c791251c4f0"
+                "uuid": "8e1ef29f-c2d6-4586-97a1-5c791251c4f0",
+                "abnormal": true
               },
               {
                 "name": "Morning Sickness",
-                "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1"
+                "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+                "abnormal": true
               },
               {
                 "name": "Fever",
-                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456"
+                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+                "abnormal": true
               },
               {
                 "name": "Blurring of vision",
-                "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9"
+                "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+                "abnormal": true
               },
               {
                 "name": "Burning Urination",
-                "uuid": "8a07fe4d-1814-4f80-90fe-5fbedf2a0518"
+                "uuid": "8a07fe4d-1814-4f80-90fe-5fbedf2a0518",
+                "abnormal": true
               },
               {
                 "name": "White Discharge",
-                "uuid": "1ff880ff-477d-4519-a664-a612a393dd60"
+                "uuid": "1ff880ff-477d-4519-a664-a612a393dd60",
+                "abnormal": true
               },
               {
                 "name": "PV leaking",
-                "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5"
+                "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+                "abnormal": true
               },
               {
                 "name": "PV bleeding",
-                "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0"
+                "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+                "abnormal": true
               },
               {
                 "name": "Severe Abdominal Pain",
-                "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0"
+                "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+                "abnormal": true
               },
               {
                 "name": "Decreased Foetal movements",
-                "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83"
+                "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+                "abnormal": true
               }
             ]
           },
@@ -473,15 +494,18 @@
             "answers": [
               {
                 "name": "Positive for PF",
-                "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7"
+                "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
+                "abnormal": true
               },
               {
                 "name": "Positive for PF and PV",
-                "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea"
+                "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
+                "abnormal": true
               },
               {
                 "name": "Positive for PV",
-                "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b"
+                "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
+                "abnormal": true
               },
               {
                 "name": "Negative",
@@ -536,7 +560,8 @@
               },
               {
                 "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+                "abnormal": true
               }
             ]
           },
@@ -559,7 +584,8 @@
             "answers": [
               {
                 "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+                "abnormal": true
               },
               {
                 "name": "Negative",
@@ -586,7 +612,8 @@
             "answers": [
               {
                 "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+                "abnormal": true
               },
               {
                 "name": "Negative",
@@ -667,7 +694,8 @@
             "answers": [
               {
                 "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+                "abnormal": true
               },
               {
                 "name": "Negative",
@@ -694,7 +722,8 @@
             "answers": [
               {
                 "name": "SS",
-                "uuid": "3648a650-2f3e-4c2c-a899-c0a8212aace1"
+                "uuid": "3648a650-2f3e-4c2c-a899-c0a8212aace1",
+                "abnormal": true
               },
               {
                 "name": "AS",
@@ -737,23 +766,28 @@
               },
               {
                 "name": "Trace",
-                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c"
+                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+                "abnormal": true
               },
               {
                 "name": "+1",
-                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea"
+                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+                "abnormal": true
               },
               {
                 "name": "+2",
-                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1"
+                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+                "abnormal": true
               },
               {
                 "name": "+3",
-                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a"
+                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+                "abnormal": true
               },
               {
                 "name": "+4",
-                "uuid": "98d05a6e-2234-4238-85d2-92835581803d"
+                "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+                "abnormal": true
               }
             ]
           },
@@ -780,23 +814,28 @@
               },
               {
                 "name": "Trace",
-                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c"
+                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+                "abnormal": true
               },
               {
                 "name": "+1",
-                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea"
+                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+                "abnormal": true
               },
               {
                 "name": "+2",
-                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1"
+                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+                "abnormal": true
               },
               {
                 "name": "+3",
-                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a"
+                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+                "abnormal": true
               },
               {
                 "name": "+4",
-                "uuid": "98d05a6e-2234-4238-85d2-92835581803d"
+                "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+                "abnormal": true
               }
             ]
           },
