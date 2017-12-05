@@ -13,7 +13,7 @@ const getDecisions = (programEncounter) => {
 
     complicationsBuilder.addComplication("Urinary Tract Infection")
         .when.valueInEncounter("Any abdominal problems").containsAnswerConceptName("Abdominal pain")
-        .or.when.valueInEncounter("Any difficulties with urinating").containsAnyAnswerConceptName("Difficulty passing urine", "Burning sensation when urinating");
+        .or.when.valueInEncounter("Any difficulties with urinating").containsAnyAnswerConceptName("Difficulty passing urine", "Burning Urination");
 
     complicationsBuilder.addComplication("Genital Tract Infection")
         .when.valueInEncounter("Any abdominal problems").containsAnswerConceptName("Uterus is soft or tender")

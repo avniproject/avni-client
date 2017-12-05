@@ -137,7 +137,7 @@ describe("PNC encounter decisions", () => {
             EntityFactory.addCodedAnswers(abdominalProblemsConcept, ["Uterus is soft or tender", "Abdominal pain", "No problems"]);
 
             difficultyUrinatingConcept = EntityFactory.createConcept("Any difficulties with urinating", Concept.dataType.Coded);
-            EntityFactory.addCodedAnswers(difficultyUrinatingConcept, ["Difficulty passing urine", "Burning sensation when urinating", "No difficulties"]);
+            EntityFactory.addCodedAnswers(difficultyUrinatingConcept, ["Difficulty passing urine", "Burning Urination", "No difficulties"]);
         });
 
         it("is added when there is lower abdominal pain, difficulty passing urine or burning sensation while urinating", () => {
