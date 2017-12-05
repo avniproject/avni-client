@@ -74,6 +74,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.ON_PROGRAM_CHANGE, {program: program});
     }
 
+
+    getEnrolmentHeaderMessage(enrolment) {
+        return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
@@ -127,10 +132,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                 </CHSContent>
             </CHSContainer>
         );
-    }
-
-    getEnrolmentHeaderMessage(enrolment) {
-        return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
     }
 }
 
