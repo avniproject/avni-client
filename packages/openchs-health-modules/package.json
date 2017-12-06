@@ -25,6 +25,7 @@
     "openchs-models": "0.0.1"
   },
   "devDependencies": {
+    "amazon-cognito-identity-js": "1.28.0",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-jest": "20.0.1",
