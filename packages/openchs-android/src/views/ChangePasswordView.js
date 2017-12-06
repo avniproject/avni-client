@@ -53,7 +53,9 @@ class ChangePasswordView extends AbstractComponent {
     }
 
     changePassword() {
-        this.setState(() => {return { showSpinner: true }});
+        this.setState(() => {
+            return {showSpinner: true}
+        });
 
         this.context.getService(AuthService).changePassword(this.state.password, this.state.newPassword).then(
             () => {
@@ -126,12 +128,14 @@ class ChangePasswordView extends AbstractComponent {
                             alignItems: 'center',
                             paddingTop: 8
                         }}>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <CheckBox checked={this.state.showPassword} onPress={() => this.setState((oldState) => {
-                                    return {showPassword: !oldState.showPassword}
-                                })}/>
-                                <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show passwords"}</Text>
-                            </View>
+                            <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
+                                return {showPassword: !oldState.showPassword}
+                            })}>
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <CheckBox checked={this.state.showPassword}/>
+                                    <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show passwords"}</Text>
+                                </View>
+                            </TouchableNativeFeedback>
                             <TouchableNativeFeedback onPress={() => {
                                 this.forgotPassword()
                             }} background={TouchableNativeFeedback.SelectableBackground()}>
