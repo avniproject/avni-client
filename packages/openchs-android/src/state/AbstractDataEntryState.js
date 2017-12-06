@@ -72,6 +72,9 @@ class AbstractDataEntryState {
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
         } else {
             this.moveNext();
+            if (this.hasNoFormElements()) {
+                return this.handleNext(action, context);
+            }
             if (_.isFunction(action.movedNext)) action.movedNext(this);
         }
         return this;
@@ -122,6 +125,10 @@ class AbstractDataEntryState {
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
         this.isNewEntity = isNewEntity;
+    }
+
+    hasNoFormElements() {
+        return false;
     }
 }
 

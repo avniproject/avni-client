@@ -57,6 +57,10 @@ class ProgramEncounterState extends AbstractDataEntryState {
         this.setFilteredFormElements();
     }
 
+    hasNoFormElements() {
+        return _.isEmpty(this.filteredFormElements);
+    }
+
     setFilteredFormElements() {
         this.filteredFormElements = this.formElementGroup.getApplicableFormElements(this.programEncounter, this.observationRules);
     }
