@@ -205,11 +205,7 @@
           "name": "Pulse",
           "uuid": "099dd8f5-ed61-4195-ba8c-2a9f26317642",
           "keyValues": [],
-          "concept": {
-            "name": "Pulse",
-            "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
           "displayOrder": 3,
           "mandatory": false
         },
@@ -217,11 +213,7 @@
           "name": "Respiratory Rate",
           "uuid": "407b2857-e5cd-4805-9b2c-c43c2e819b04",
           "keyValues": [],
-          "concept": {
-            "name": "Respiratory Rate",
-            "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
           "displayOrder": 4,
           "mandatory": false
         },
@@ -229,11 +221,7 @@
           "name": "Temperature",
           "uuid": "86d906d2-f44f-4743-9044-f7b23df6d5d8",
           "keyValues": [],
-          "concept": {
-            "name": "Temperature",
-            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
           "displayOrder": 5,
           "mandatory": false
         }
@@ -520,11 +508,7 @@
           "name": "Hb",
           "uuid": "549367fb-a795-472d-9ad2-06e281dfc17e",
           "keyValues": [],
-          "concept": {
-            "name": "Hb",
-            "uuid": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
           "displayOrder": 3,
           "mandatory": false
         },
@@ -555,13 +539,13 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              },
-              {
                 "name": "Positive",
                 "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
                 "abnormal": true
+              },
+              {
+                "name": "Negative",
+                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
               }
             ]
           },
@@ -640,7 +624,8 @@
             "answers": [
               {
                 "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+                "abnormal": true
               },
               {
                 "name": "Negative",
@@ -667,7 +652,8 @@
             "answers": [
               {
                 "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
+                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+                "abnormal": true
               },
               {
                 "name": "Negative",

@@ -49,11 +49,7 @@
           "name": "Temperature",
           "uuid": "a60089b0-71d7-487d-9102-1e8b52789bf7",
           "keyValues": [],
-          "concept": {
-            "name": "Temperature",
-            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
           "displayOrder": 3,
           "mandatory": false
         },
@@ -61,11 +57,7 @@
           "name": "Respiratory Rate",
           "uuid": "f483e292-24b6-4d76-af72-8b13c9a5c596",
           "keyValues": [],
-          "concept": {
-            "name": "Respiratory Rate",
-            "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
           "displayOrder": 4,
           "mandatory": false
         },
@@ -73,11 +65,7 @@
           "name": "Pulse",
           "uuid": "62c01607-c063-49cd-ac39-ea1541243c44",
           "keyValues": [],
-          "concept": {
-            "name": "Pulse",
-            "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
           "displayOrder": 5,
           "mandatory": false
         },

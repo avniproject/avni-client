@@ -39,11 +39,7 @@
           "name": "Hemoglobin Test",
           "uuid": "1cc11aaf-ba51-4de1-b744-d13a5b038344",
           "keyValues": [],
-          "concept": {
-            "name": "Hb",
-            "uuid": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
           "displayOrder": 3,
           "mandatory": false
         }

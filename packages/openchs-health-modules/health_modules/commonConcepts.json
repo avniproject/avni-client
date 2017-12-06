@@ -45,6 +45,39 @@
     "unit": "cm"
   },
   {
+    "name": "Hb",
+    "uuid": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
+    "dataType": "Numeric",
+    "lowNormal": 12,
+    "highNormal": 15.5,
+    "unit": "g/dL"
+  },
+  {
+    "name": "Pulse",
+    "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
+    "dataType": "Numeric",
+    "lowNormal": 60,
+    "highNormal": 100,
+    "unit": "beats/minute"
+  },
+  {
+    "name": "Respiratory Rate",
+    "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
+    "dataType": "Numeric",
+    "lowNormal": 16,
+    "highNormal": 20,
+    "unit": "breaths/minute"
+  },
+  {
+    "name": "Temperature",
+    "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
+    "dataType": "Numeric",
+    "lowNormal": 98.0,
+    "highNormal": 98.6,
+    "unit": "°F"
+  },
+
+  {
     "name": "Underweight",
     "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
     "dataType": "N/A"
@@ -86,7 +119,8 @@
     "answers": [
       {
         "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-        "name": "Present"
+        "name": "Present",
+        "abnormal": true
       },
       {
         "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
