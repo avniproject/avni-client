@@ -34,14 +34,6 @@ class ObservationsHolderActions {
         return newState;
     }
 
-    static onPrevious(state, action, context) {
-        const newState = state.clone();
-        newState.movePrevious();
-        if (!(_.isNil(action) || _.isNil(action.cb)))
-            action.cb(newState);
-        return newState;
-    }
-
     static onDurationChange(state, action, context) {
         const newState = state.clone();
         var dateValue;

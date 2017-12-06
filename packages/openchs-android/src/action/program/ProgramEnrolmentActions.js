@@ -41,8 +41,11 @@ export class ProgramEnrolmentActions {
     }
 
     static onNext(state, action, context) {
-        const programEnrolmentState = state.clone();
-        return programEnrolmentState.handleNext(action, context);
+        return state.clone().handleNext(action, context);
+    }
+
+    static onPrevious(state, action, context) {
+        return state.clone().handlePrevious(action, context);
     }
 
     static onSave(state, action, context) {
@@ -84,7 +87,7 @@ export default new Map([
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
-    [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
+    [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious],
     [actions.SAVE, ProgramEnrolmentActions.onSave]
 ]);
 

@@ -14,6 +14,7 @@ class ProgramEncounterActions {
     }
 
     static onLoad(state, action, context) {
+        console.log("loading pea")
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
         const observationRules = context.get(ProgramConfigService).observationRulesForProgram(action.programEncounter.programEnrolment.program);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
@@ -25,8 +26,12 @@ class ProgramEncounterActions {
     }
 
     static onNext(state, action, context) {
-        const programEncounterState = state.clone();
-        return programEncounterState.handleNext(action, context);
+        return state.clone().handleNext(action, context);
+    }
+
+    static onPrevious(state, action, context) {
+        console.log("Running ONPREVIOUS")
+        return state.clone().handlePrevious(action, context);
     }
 
     static onSave(state, action, context) {
@@ -71,7 +76,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [ProgramEncounterActionsNames.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
     [ProgramEncounterActionsNames.NEXT, ProgramEncounterActions.onNext],
-    [ProgramEncounterActionsNames.PREVIOUS, ObservationsHolderActions.onPrevious],
+    [ProgramEncounterActionsNames.PREVIOUS, ProgramEncounterActions.onPrevious],
     [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged],
     [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave]
 ]);

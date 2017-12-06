@@ -32,6 +32,10 @@ export class EncounterActions {
         return newState;
     }
 
+    static onPrevious(state, action, context) {
+        return state.clone().handlePrevious(action, context);
+    }
+
     static onEncounterViewLoad(state, action, context) {
         return state.clone();
     }
@@ -72,7 +76,7 @@ const individualEncounterViewActions = {
 };
 
 const individualEncounterViewActionsMap = new Map([
-    [individualEncounterViewActions.PREVIOUS, ObservationsHolderActions.onPrevious],
+    [individualEncounterViewActions.PREVIOUS, EncounterActions.onPrevious],
     [individualEncounterViewActions.NEXT, EncounterActions.onNext],
     [individualEncounterViewActions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [individualEncounterViewActions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],

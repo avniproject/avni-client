@@ -52,6 +52,18 @@ class AbstractDataEntryState {
         _.remove(this.validationResults, (validationResult) => validationResult.formIdentifier === BaseEntity.fieldKeys.EXTERNAL_RULE)
     }
 
+    handlePrevious(action, context) {
+        console.log("handling previous")
+        this.movePrevious();
+        if (this.hasNoFormElements()) {
+            console.log("No form elements. moving on")
+            return this.handlePrevious(action, context);
+        }
+        if (!(_.isNil(action) || _.isNil(action.cb)))
+            action.cb(newState);
+        return this;
+    }
+
     handleNext(action, context) {
         const validationResults = this.validateEntity();
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));
@@ -59,6 +71,9 @@ class AbstractDataEntryState {
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
+            while (this.hasNoFormElements()) {
+                this.movePrevious();
+            }
             this.removeNonRuleValidationErrors();
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);

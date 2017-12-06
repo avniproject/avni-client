@@ -85,9 +85,11 @@ export class IndividualRegisterActions {
     }
 
     static onNext(state, action, context) {
-        const newState = state.clone();
-        newState.handleNext(action, context);
-        return newState;
+        return state.clone().handleNext(action, context);
+    }
+
+    static onPrevious(state, action, context) {
+        return state.clone().handlePrevious(action, context);
     }
 
     static onSave(state, action, context) {
@@ -120,7 +122,7 @@ const actions = {
 export default new Map([
     [actions.ON_LOAD, IndividualRegisterActions.onLoad],
     [actions.NEXT, IndividualRegisterActions.onNext],
-    [actions.PREVIOUS, ObservationsHolderActions.onPrevious],
+    [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],
     [actions.REGISTRATION_ENTER_NAME, IndividualRegisterActions.enterIndividualName],
     [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
