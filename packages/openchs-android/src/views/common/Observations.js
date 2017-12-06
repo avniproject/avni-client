@@ -103,41 +103,6 @@ class Observations extends AbstractComponent {
 
         );
     }
-
-    getTextElement(observation) {
-        if (observation.getValueWrapper().isMultipleCoded) {
-            return <Text >{observation.getValueWrapper().getValue().map((value, cellIndex) =>{
-                let answerConcept = this.context.getService(ConceptService).getConceptByUUID(value);
-                const  conceptAnswer = observation.concept.answers.find((conceptAnswer) => conceptAnswer.concept.name === answerConcept.name);
-                return <Text key={`${cellIndex}`}><Text style={{
-                textAlign: 'left',
-                fontSize: Fonts.Medium,
-                color: conceptAnswer.abnormal? Styles.redColor: Styles.blackColor
-                }} >{this.I18n.t(answerConcept.name)}</Text> {this.getComma(cellIndex < observation.getValueWrapper().getValue().length - 1)}</Text>
-            })
-            }</Text>
-        }else if (observation.getValueWrapper().isSingleCoded){
-            let answerConcept = this.context.getService(ConceptService).getConceptByUUID(observation.getValueWrapper().getValue());
-            const  conceptAnswer = observation.concept.answers.find((conceptAnswer) => conceptAnswer.concept.name === answerConcept.name);
-            return <Text style={{
-                textAlign: 'left',
-                fontSize: Fonts.Medium,
-                color: conceptAnswer.abnormal? Styles.redColor: Styles.blackColor
-            }} >{this.I18n.t(answerConcept.name)}</Text>
-        }
-            else{
-            return <Text style={{
-                textAlign: 'left',
-                fontSize: Fonts.Medium,
-                color: observation.isAbnormal()? Styles.redColor: Styles.blackColor
-            }}>{Observation.valueAsString(observation, this.context.getService(ConceptService), this.I18n)}</Text>
-        }
-
-    }
-
-    getComma(get) {
-        return get === true ?  <Text style={{color: Styles.blackColor}}>,</Text> : null;
-    }
 }
 
 export default Observations;
