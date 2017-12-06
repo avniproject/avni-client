@@ -1,6 +1,7 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import {ValidationResult, BaseEntity} from "openchs-models";
+import General from "../utility/General";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity) {
@@ -53,10 +54,9 @@ class AbstractDataEntryState {
     }
 
     handlePrevious(action, context) {
-        console.log("handling previous")
         this.movePrevious();
         if (this.hasNoFormElements()) {
-            console.log("No form elements. moving on")
+            General.logDebug("No form elements here. Moving to previous screen");
             return this.handlePrevious(action, context);
         }
         if (!(_.isNil(action) || _.isNil(action.cb)))
@@ -72,6 +72,7 @@ class AbstractDataEntryState {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
             while (this.hasNoFormElements()) {
+                General.logDebug("No form elements here. Moving to next screen");
                 this.movePrevious();
             }
             this.removeNonRuleValidationErrors();
@@ -88,6 +89,7 @@ class AbstractDataEntryState {
         } else {
             this.moveNext();
             if (this.hasNoFormElements()) {
+                General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);
             }
             if (_.isFunction(action.movedNext)) action.movedNext(this);

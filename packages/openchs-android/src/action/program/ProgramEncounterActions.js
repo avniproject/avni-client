@@ -14,7 +14,6 @@ class ProgramEncounterActions {
     }
 
     static onLoad(state, action, context) {
-        console.log("loading pea")
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
         const observationRules = context.get(ProgramConfigService).observationRulesForProgram(action.programEncounter.programEnrolment.program);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
@@ -30,7 +29,6 @@ class ProgramEncounterActions {
     }
 
     static onPrevious(state, action, context) {
-        console.log("Running ONPREVIOUS")
         return state.clone().handlePrevious(action, context);
     }
 

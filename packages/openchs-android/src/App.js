@@ -24,7 +24,6 @@ export default class App extends Component {
             entitySyncStatusService.setup(EntityMetaData.model());
         }
         this.getBean = this.getBean.bind(this);
-        console.log(`DEVICE HEIGHT=${Dimensions.get('window').height} WIDTH=${Dimensions.get('window').width}`);
     }
 
     static childContextTypes = {

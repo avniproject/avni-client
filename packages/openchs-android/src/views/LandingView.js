@@ -23,7 +23,6 @@ class LandingView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        console.log("Landing view called with props", props)
     }
 
     viewName() {
