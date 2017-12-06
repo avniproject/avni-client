@@ -60,7 +60,7 @@ class AbstractDataEntryState {
             return this.handlePrevious(action, context);
         }
         if (!(_.isNil(action) || _.isNil(action.cb)))
-            action.cb(newState);
+            action.cb(this);
         return this;
     }
 
