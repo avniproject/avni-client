@@ -95,12 +95,14 @@ class ResetForgottenPasswordView extends AbstractComponent {
                                    onChangeText={(password) => this.setState({password})}
                                    secureTextEntry={!this.state.showPassword}/>
 
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <CheckBox checked={this.state.showPassword} onPress={() => this.setState((oldState) => {
-                                return {showPassword: !oldState.showPassword}
-                            })}/>
-                            <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show password"}</Text>
-                        </View>
+                        <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
+                            return {showPassword: !oldState.showPassword}
+                        })}>
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <CheckBox checked={this.state.showPassword}/>
+                                <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show password"}</Text>
+                            </View>
+                        </TouchableNativeFeedback>
 
                         <TouchableNativeFeedback onPress={() => {
                             this.setNewPassword()

@@ -17,8 +17,7 @@ class LoginActions {
     }
 
     static onPasswordChange(state, action) {
-        let newState = Object.assign({}, state, {password: action.value});
-        return newState;
+        return Object.assign({}, state, {password: action.value});
     }
 
     static onLoginStarted(state, action, context) {
@@ -38,6 +37,7 @@ class LoginActions {
                 },
                 (error) => {
                     General.logError("LoginActions", error);
+                    General.logErrorObject("LoginActions", error);
                     action.failure(error.message);
                     return;
                 },

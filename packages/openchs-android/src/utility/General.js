@@ -202,6 +202,10 @@ class General {
         General.log(source, message, General.LogLevel.Error);
     }
 
+    static logErrorObject(source, message) {
+        General.log(source, JSON.stringify(message), General.LogLevel.Error);
+    }
+
     static log(source, message, level) {
         if (level >= General.getCurrentLogLevel()) {
             console.log(`[${source}][${_.findKey(General.LogLevel, (l) => l === level)}] ${message}`);
