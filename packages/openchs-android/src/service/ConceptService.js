@@ -40,45 +40,62 @@ class ConceptService extends BaseService {
 
     addDecisions(observations, decisions) {
         decisions = decisions || [];
-        decisions.forEach((decision) => {
-            const concept = this.findConcept(decision.name);
-            if (_.isNil(concept)) General.logWarn('ConceptService', `${concept.name} doesn't exist`);
+        decisions.forEach((decision) => this.addUpdateOrRemoveObs(observations, decision));
+    }
 
-            const existingObs = observations.find((obs) => obs.concept.name === decision.name);
-            var value;
-            if (concept.datatype === Concept.dataType.Coded) {
-                value = [];
+    addUpdateOrRemoveObs(observations, decision) {
+        const concept = this.conceptFor(decision.name);
+        let value = this.obsValue(concept, decision);
+
+        const existingObs = observations.find((obs) => obs.concept.name === decision.name);
+        if (_.isNil(existingObs)) {
+            this.addObs(value, observations, concept, decision);
+        } else {
+            if (this._hasValue(value)) {
+                this.updateObs(existingObs, concept, value, decision);
+            } else {
+                _.remove(observations, (obs) => obs.concept.name === decision.name);
+            }
+        }
+    }
+
+    updateObs(existingObs, concept, value, decision) {
+        existingObs.valueJSON = concept.getValueWrapperFor(value);
+        existingObs.abnormal = _.isBoolean(decision.abnormal) ? decision.abnormal : false;
+    }
+
+    addObs(value, observations, concept, decision) {
+        if (this._hasValue(value)) {
+            observations.push(Observation.create(concept, concept.getValueWrapperFor(value), _.isBoolean(decision.abnormal) ? decision.abnormal : false));
+        }
+    }
+
+    obsValue(concept, decision) {
+        switch(concept.datatype){
+            case Concept.dataType.Coded:
+                let value = [];
                 decision.value.forEach((codedAnswerConceptName) => {
-                    const answerConcept = this.findConcept(codedAnswerConceptName);
-                    if (_.isNil(answerConcept))
-                        General.logWarn('ConceptService', `${concept.name} doesn't exist`);
-                    else
-                        value.push(answerConcept.uuid);
-                });
-            } else {
-                value = decision.value;
-            }
-
-            if (_.isNil(existingObs)) {
-                if (this._validValue(decision.value)) {
-                    observations.push(Observation.create(concept, concept.getValueWrapperFor(value), _.isBoolean(decision.abnormal) ? decision.abnormal : false));
-                }
-            } else {
-                if (this._validValue(decision.value)) {
-                    existingObs.valueJSON = concept.getValueWrapperFor(value);
-                    existingObs.abnormal = _.isBoolean(decision.abnormal) ? decision.abnormal : false;
-                } else {
-                    _.remove(observations, (obs) => obs.concept.name === decision.name);
-                }
-            }
-        });
+                const answerConcept = this.conceptFor(codedAnswerConceptName);
+                if (!_.isNil(answerConcept)) {
+                    value.push(answerConcept.uuid);
+                }});
+                return value;
+            default:
+                return decision.value;
+        }
     }
 
-    _validValue(value) {
-        return !this._invalidValue(value);
+    conceptFor(conceptName) {
+        const concept = this.findConcept(conceptName);
+        if (_.isNil(concept)) General.logWarn('ConceptService', `${concept.name} doesn't exist`);
+        return concept;
     }
 
-    _invalidValue(value) {
+    _hasValue(value) {
+        return !this._isEmpty(value);
+    }
+
+    _isEmpty(value) {
         return _.isArray(value) ? _.isEmpty(value) : _.isNil(value);
     }
 
