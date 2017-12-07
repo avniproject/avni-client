@@ -2,8 +2,8 @@ import {TextInput, View} from "react-native";
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from "../form/ValidationErrorMessage";
-import Styles from "../primitives/Styles";
+import ValidationErrorMessage from "../../form/ValidationErrorMessage";
+import Styles from "../../primitives/Styles";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {

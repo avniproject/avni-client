@@ -14,12 +14,12 @@ import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import {Individual, PrimitiveValue} from "openchs-models";
-import TextFormElement from "../form/TextFormElement";
+import TextFormElement from "../form/formElement/TextFormElement";
 import General from "../../utility/General";
 import Colors from "../primitives/Colors";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import DateFormElement from "../form/DateFormElement";
+import DateFormElement from "../form/formElement/DateFormElement";
 import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
 

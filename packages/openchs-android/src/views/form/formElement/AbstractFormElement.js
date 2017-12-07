@@ -1,9 +1,9 @@
-import AbstractComponent from "../../framework/view/AbstractComponent";
+import AbstractComponent from "../../../framework/view/AbstractComponent";
 import _ from 'lodash';
-import Colors from '../primitives/Colors';
+import Colors from '../../primitives/Colors';
 import React from "react";
 import {Text} from "native-base";
-import Styles from "../primitives/Styles";
+import Styles from "../../primitives/Styles";
 
 
 class AbstractFormElement extends AbstractComponent {
@@ -12,7 +12,8 @@ class AbstractFormElement extends AbstractComponent {
     }
 
     get label() {
-        const mandatoryText = this.props.element.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text></Text>;
+        const mandatoryText = this.props.element.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> :
+            <Text></Text>;
         return <Text style={Styles.formLabel}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
     }
 
@@ -26,6 +27,18 @@ class AbstractFormElement extends AbstractComponent {
 
     get textColor() {
         return this.hasNoValidationError ? Colors.InputNormal : Colors.ValidationError;
+    }
+
+    renderFormElement() {
+        return (<View/>)
+    }
+
+    renderView() {
+        return (<View/>);
+    }
+
+    render() {
+        return this.showElement ? this.renderFormElement() : this.renderView();
     }
 }
 

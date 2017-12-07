@@ -1,11 +1,11 @@
 import {TextInput, View} from "react-native";
 import React from "react";
 import {Text} from "native-base";
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import DynamicGlobalStyles from "../../primitives/DynamicGlobalStyles";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from "../form/ValidationErrorMessage";
-import Styles from "../primitives/Styles";
+import ValidationErrorMessage from "../../form/ValidationErrorMessage";
+import Styles from "../../primitives/Styles";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {

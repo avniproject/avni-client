@@ -8,7 +8,7 @@ import {SettingsActionsNames as Actions} from "../../action/SettingsActions";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import Reducers from "../../reducer";
-import TextFormElement from "../form/TextFormElement";
+import TextFormElement from "../form/formElement/TextFormElement";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import Distances from '../primitives/Distances';

@@ -9,7 +9,7 @@ import Reducers from "../../reducer";
 import {IndividualSearchActionNames as Actions} from "../../action/individual/IndividualSearchActions";
 import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import TextFormElement from "../form/TextFormElement";
+import TextFormElement from "../form/formElement/TextFormElement";
 import {PrimitiveValue} from "openchs-models";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";

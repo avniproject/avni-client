@@ -3,10 +3,10 @@ import React from "react";
 import {Radio} from "native-base";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import DGS from "../primitives/DynamicGlobalStyles";
-import DatePicker from "../primitives/DatePicker";
-import Colors from '../primitives/Colors';
-import Distances from "../primitives/Distances";
+import DGS from "../../primitives/DynamicGlobalStyles";
+import DatePicker from "../../primitives/DatePicker";
+import Colors from '../../primitives/Colors';
+import Distances from "../../primitives/Distances";
 
 class DurationDateFormElement extends AbstractFormElement {
     static propTypes = {

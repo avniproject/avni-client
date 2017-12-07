@@ -2,7 +2,7 @@ import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import {StatusBar, Text, TouchableNativeFeedback, View} from "react-native";
-import TextFormElement from "./form/TextFormElement";
+import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
 import {LoginActionsNames as Actions} from '../action/LoginActions';
 import Distances from './primitives/Distances';

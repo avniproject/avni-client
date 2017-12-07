@@ -1,12 +1,12 @@
 import {View, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import MultiSelectFormElement from './MultiSelectFormElement';
-import SingleSelectFormElement from './SingleSelectFormElement';
-import BooleanFormElement from './BooleanFormElement';
-import NumericFormElement from './NumericFormElement';
-import TextFormElement from './TextFormElement';
-import DateFormElement from './DateFormElement';
+import FormElementFactory from './formElement/FormElementFactory';
+import MultiSelectFormElement from './formElement/MultiSelectFormElement';
+import SingleSelectFormElement from './formElement/SingleSelectFormElement';
+import NumericFormElement from './formElement/NumericFormElement';
+import TextFormElement from './formElement/TextFormElement';
+import DateFormElement from './formElement/DateFormElement';
 import _ from "lodash";
 import {
     Concept,
@@ -17,7 +17,7 @@ import {
     ValidationResult
 } from 'openchs-models';
 import Distances from '../primitives/Distances';
-import DurationDateFormElement from "./DurationDateFormElement";
+import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
 import General from "../../utility/General";
 
@@ -61,6 +61,7 @@ class FormElementGroup extends AbstractComponent {
 
     render() {
         const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
+        // this.props.group.getFormElements().map((formElement) => FormElementFactory.get(this.props));
         return (<View>
                 {formElements.length < 1 ? <View/> :
                     <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>}

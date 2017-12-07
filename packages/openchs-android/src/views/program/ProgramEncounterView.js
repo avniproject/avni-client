@@ -12,7 +12,7 @@ import {ObservationsHolder, PrimitiveValue, AbstractEncounter} from "openchs-mod
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import DateFormElement from "../../views/form/DateFormElement";
+import DateFormElement from "../../views/form/formElement/DateFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import General from "../../utility/General";

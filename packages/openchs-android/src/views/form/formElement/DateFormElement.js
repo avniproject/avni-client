@@ -1,8 +1,8 @@
 import {View} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import DatePicker from "../primitives/DatePicker";
-import Distances from "../primitives/Distances";
+import DatePicker from "../../primitives/DatePicker";
+import Distances from "../../primitives/Distances";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {

@@ -2,11 +2,11 @@ import {Text, View} from "react-native";
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from "../form/ValidationErrorMessage";
-import Colors from "../primitives/Colors";
-import Distances from "../primitives/Distances";
-import PresetOptionItem from "../primitives/PresetOptionItem";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import ValidationErrorMessage from "../../form/ValidationErrorMessage";
+import Colors from "../../primitives/Colors";
+import Distances from "../../primitives/Distances";
+import PresetOptionItem from "../../primitives/PresetOptionItem";
+import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 
 class SelectFormElement extends AbstractFormElement {
     static propTypes = {

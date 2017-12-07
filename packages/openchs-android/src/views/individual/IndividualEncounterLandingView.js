@@ -16,7 +16,7 @@ import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue}
 import CHSNavigator from "../../utility/CHSNavigator";
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import DateFormElement from "../form/DateFormElement";
+import DateFormElement from "../form/formElement/DateFormElement";
 import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";

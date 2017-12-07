@@ -6,7 +6,7 @@ import IndividualProfile from "../common/IndividualProfile";
 import themes from "../primitives/themes";
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import DateFormElement from "../form/DateFormElement";
+import DateFormElement from "../form/formElement/DateFormElement";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
 import {PrimitiveValue} from "openchs-models";
