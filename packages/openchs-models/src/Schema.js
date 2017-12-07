@@ -95,5 +95,12 @@ export default {
                 setting.organisationName = "";
             })
         }
+        if (oldDB.schemaVersion < 42) {
+            const individuals = newDB.objects('Individual');
+            _.forEach(individuals, (individual) => {
+                individual.firstName = "";
+                individual.lastName = "";
+            })
+        }
     }
 };

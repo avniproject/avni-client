@@ -28,10 +28,20 @@ export class IndividualRegisterActions {
         return newState;
     }
 
-    static enterIndividualName(state, action) {
+    static enterFirstName(state, action) {
         const newState = state.clone();
-        newState.individual.name = action.value;
-        newState.handleValidationResult(newState.individual.validateName());
+        newState.individual.setFirstName(action.value);
+        newState.handleValidationResult(newState.individual.validateFirstName());
+        return newState;
+    }
+
+    static enterLastName(state, action) {
+        console.log(state.individual);
+        const newState = state.clone();
+        newState.individual.setLastName(action.value);
+        newState.handleValidationResult(newState.individual.validateLastName());
+        console.log(newState.individual);
+        console.log(newState.clone().individual);
         return newState;
     }
 
@@ -105,7 +115,8 @@ const actions = {
     NEXT: "REGISTRATION_NEXT",
     PREVIOUS: "REGISTRATION_PREVIOUS",
     REGISTRATION_ENTER_REGISTRATION_DATE: "REGISTRATION_ENTER_REGISTRATION_DATE",
-    REGISTRATION_ENTER_NAME: "REGISTRATION_ENTER_NAME",
+    REGISTRATION_ENTER_FIRST_NAME: "REGISTRATION_ENTER_FIRST_NAME",
+    REGISTRATION_ENTER_LAST_NAME: "REGISTRATION_ENTER_LAST_NAME",
     REGISTRATION_ENTER_DOB: "REGISTRATION_ENTER_DOB",
     REGISTRATION_ENTER_DOB_VERIFIED: "REGISTRATION_ENTER_DOB_VERIFIED",
     REGISTRATION_ENTER_AGE: "REGISTRATION_ENTER_AGE",
@@ -124,7 +135,8 @@ export default new Map([
     [actions.NEXT, IndividualRegisterActions.onNext],
     [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],
-    [actions.REGISTRATION_ENTER_NAME, IndividualRegisterActions.enterIndividualName],
+    [actions.REGISTRATION_ENTER_FIRST_NAME, IndividualRegisterActions.enterFirstName],
+    [actions.REGISTRATION_ENTER_LAST_NAME, IndividualRegisterActions.enterLastName],
     [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
     [actions.REGISTRATION_ENTER_DOB_VERIFIED, IndividualRegisterActions.enterIndividualDOBVerified],
     [actions.REGISTRATION_ENTER_AGE, IndividualRegisterActions.enterIndividualAge],

@@ -68,7 +68,7 @@ class ProgramEncounterView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">
-                    <AppHeader title={this.state.programEncounter.programEnrolment.individual.name}
+                    <AppHeader title={this.state.programEncounter.programEnrolment.individual.nameString}
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?

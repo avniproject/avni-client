@@ -81,7 +81,7 @@ class ChecklistView extends AbstractComponent {
             <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <CHSContent>
                     {this.showToast()}
-                    <AppHeader func={() => this.goBack()} title={`${this.state.checklists[0].programEnrolment.individual.name} - ${this.I18n.t('checklists')}`}/>
+                    <AppHeader func={() => this.goBack()} title={`${this.state.checklists[0].programEnrolment.individual.nameString} - ${this.I18n.t('checklists')}`}/>
                     {this.state.checklists.map((checklist, index) => {
                         return (
                             <View style={{

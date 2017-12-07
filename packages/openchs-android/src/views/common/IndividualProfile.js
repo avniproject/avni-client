@@ -92,7 +92,7 @@ class IndividualProfile extends AbstractComponent {
                         }}/>
                     </View>
                     <Text
-                        style={Styles.programProfileHeading}>{this.props.individual.name} {this.props.individual.id}</Text>
+                        style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                     <Text
                         style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
@@ -118,7 +118,7 @@ class IndividualProfile extends AbstractComponent {
                     paddingHorizontal: Distances.ContentDistanceFromEdge
                 })}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={Fonts.LargeBold}>{this.props.individual.name}</Text>
+                        <Text style={Fonts.LargeBold}>{this.props.individual.nameString}</Text>
                         <Text
                             style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     </View>

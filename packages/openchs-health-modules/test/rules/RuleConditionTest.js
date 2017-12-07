@@ -14,7 +14,7 @@ describe('RuleConditions', () => {
         programEncounter.programEnrolment = ProgramEnrolment.createEmptyInstance();
         let male = new Gender();
         male.name = "Male";
-        programEncounter.programEnrolment.individual = Individual.newInstance("f585d2f0-c148-460c-b7ac-d1d3923cf14c", "Ramesh", new Date(2010, 1, 1), true, male, 1);
+        programEncounter.programEnrolment.individual = Individual.newInstance("f585d2f0-c148-460c-b7ac-d1d3923cf14c", "Ramesh", "Nair",  new Date(2010, 1, 1), true, male, 1);
         programEncounter.encounterDateTime = new Date();
         programEncounter.programEnrolment.enrolmentDateTime = new Date(2017, 0, 0, 5);
         programEncounter.programEnrolment.encounters.push(programEncounter);

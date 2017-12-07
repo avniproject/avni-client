@@ -66,10 +66,15 @@ class IndividualRegisterView extends AbstractComponent {
                                          element={new StaticFormElement('registrationDate', true)}
                                          dateValue={new PrimitiveValue(this.state.individual.registrationDate)}
                                          validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
-                        <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
-                                         element={new StaticFormElement('name', true)}
-                                         validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.NAME)}
-                                         value={new PrimitiveValue(this.state.individual.name)}
+                        <TextFormElement actionName={Actions.REGISTRATION_ENTER_FIRST_NAME}
+                                         element={new StaticFormElement('firstName', true)}
+                                         validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.FIRST_NAME)}
+                                         value={new PrimitiveValue(this.state.individual.firstName)}
+                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        <TextFormElement actionName={Actions.REGISTRATION_ENTER_LAST_NAME}
+                                         element={new StaticFormElement('lastName', true)}
+                                         validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LAST_NAME)}
+                                         value={new PrimitiveValue(this.state.individual.lastName)}
                                          style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         <View style={[this.formRow, {flexDirection: 'column'}]}>
                             <View>

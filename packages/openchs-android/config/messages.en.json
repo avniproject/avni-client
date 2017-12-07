@@ -48,6 +48,8 @@
   "download": "Download",
   "individualSearch": "Individual Search",
   "name": "Name",
+  "firstName": "First Name",
+  "lastName": "Last Name",
   "value": "Value",
   "age": "Age (in years)",
   "lowestAddressLevel": "Village",

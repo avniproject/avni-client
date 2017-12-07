@@ -35,7 +35,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
     static displayItemsForProgramEnrolment(programEnrolment) {
         const displayItems = [];
         displayItems.push(moment(programEnrolment.enrolmentDateTime).format('DD-MM-YYYY'));
-        displayItems.push(programEnrolment.individual.name);
+        displayItems.push(programEnrolment.individual.nameString);
         displayItems.push(programEnrolment.individual.lowestAddressLevel.name);
         return displayItems;
     }

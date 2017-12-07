@@ -31,6 +31,8 @@
   "Female": "स्त्री",
   "Other": "Other",
   "name": "नाव",
+  "firstName": "पहिले नाव",
+  "lastName": "आडनाव",
   "lowestAddressLevel": "गाव",
   "confirmation": "Confirmation",
   "save": "सेव्ह करा ",

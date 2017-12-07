@@ -14,7 +14,7 @@ class IndividualHeader extends AbstractComponent {
     render() {
         return (<View style={{flexDirection: "column"}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                <Text>{this.props.individual.name}</Text>
+                <Text>{this.props.individual.nameString}</Text>
                 <Text>{this.props.individual.lowestAddressLevel.name}</Text>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>

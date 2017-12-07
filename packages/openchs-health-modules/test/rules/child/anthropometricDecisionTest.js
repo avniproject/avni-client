@@ -20,8 +20,8 @@ describe("Anthropometric Decisions", () => {
         const FEMALE = new Gender();
         MALE.name = 'Male';
         FEMALE.name = 'Female';
-        girl = Individual.newInstance("5aab53df-d598-45c1-9528-48dd1abd4927", "Nisha Rajendran", moment(), true, FEMALE);
-        boy = Individual.newInstance("3f28bb80-d7ae-4e0c-8b1d-56e371f23f37", "Ramesh Srivastava", moment(), true, MALE);
+        girl = Individual.newInstance("5aab53df-d598-45c1-9528-48dd1abd4927", "Nisha",  "Rajendran", moment(), true, FEMALE);
+        boy = Individual.newInstance("3f28bb80-d7ae-4e0c-8b1d-56e371f23f37", "Ramesh",  "Srivastava", moment(), true, MALE);
 
         weightConcept = EntityFactory.createConcept("Weight", Concept.dataType.Numeric);
         heightConcept = EntityFactory.createConcept("Height", Concept.dataType.Numeric);

@@ -12,7 +12,7 @@ describe('IndividualHeaderTest', () => {
 
     it('view', () => {
         Individual.newInstance()
-        var maya = Individual.newInstance("d5b08dab-0974-4871-8962-ac644de0b489", "maya", moment().subtract(5, 'years').toDate(), false, "Male", AddressLevel.create("c85dc72b-5e17-41ac-a726-15548022b62b", "Nijhma", 1));
+        var maya = Individual.newInstance("d5b08dab-0974-4871-8962-ac644de0b489", "maya", "rani", moment().subtract(5, 'years').toDate(), false, "Male", AddressLevel.create("c85dc72b-5e17-41ac-a726-15548022b62b", "Nijhma", 1));
         const wrapper = shallow(<IndividualHeader individual=
                                                       {
                                                           maya

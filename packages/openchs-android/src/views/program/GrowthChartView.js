@@ -117,7 +117,7 @@ class GrowthChartView extends AbstractComponent {
 
     render() {
         General.logDebug("GrowthChartView", 'render');
-        const individualName = this.props.params.enrolment.individual.name;
+        const individualName = this.props.params.enrolment.individual.nameString;
         const titleStyle = _.merge(Fonts.Title, {
             alignSelf: 'center',
             marginTop: DGS.resizeHeight(10),
