@@ -135,9 +135,11 @@ class LoginView extends AbstractComponent {
                                 alignItems: 'center',
                                 paddingTop: 8
                             }}>
-                                <TouchableNativeFeedback onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
+                                <TouchableNativeFeedback
+                                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <CheckBox checked={this.state.showPassword}/>
+                                        <CheckBox onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
+                                                  checked={this.state.showPassword}/>
                                         <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show password"}</Text>
                                     </View>
                                 </TouchableNativeFeedback>
