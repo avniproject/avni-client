@@ -20,8 +20,8 @@ class ProgramEncounter extends AbstractEncounter {
             uuid: 'string',
             name: {type: 'string', optional: true},
             encounterType: 'EncounterType',
-            scheduledDateTime: {type: 'date', optional: true},
-            maxDateTime: {type: 'date', optional: true},
+            earliestVisitDateTime: {type: 'date', optional: true},
+            maxVisitDateTime: {type: 'date', optional: true},
             encounterDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'}
@@ -32,7 +32,7 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = AbstractEncounter.fromResource(resource, entityService, new ProgramEncounter());
 
         programEncounter.programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        General.assignDateFields(["scheduledDateTime", "maxDateTime"], resource, programEncounter);
+        General.assignDateFields(["earliestVisitDateTime", "maxVisitDateTime"], resource, programEncounter);
         programEncounter.name = resource.name;
         return programEncounter;
     }
@@ -43,10 +43,10 @@ class ProgramEncounter extends AbstractEncounter {
             resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource.programEnrolmentUUID = this.programEnrolment.uuid;
         resource.name = this.name;
-        if (!_.isNil(this.scheduledDateTime))
-            resource.scheduledDateTime = moment(this.scheduledDateTime).format();
-        if (!_.isNil(this.maxDateTime))
-            resource.maxDateTime = moment(this.maxDateTime).format();
+        if (!_.isNil(this.earliestVisitDateTime))
+            resource.earliestVisitDateTime = moment(this.earliestVisitDateTime).format();
+        if (!_.isNil(this.maxVisitDateTime))
+            resource.maxVisitDateTime = moment(this.maxVisitDateTime).format();
         return resource;
     }
 
@@ -62,15 +62,15 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = super.cloneForEdit(new ProgramEncounter());
         programEncounter.programEnrolment = this.programEnrolment;
         programEncounter.name = this.name;
-        programEncounter.scheduledDateTime = this.scheduledDateTime;
-        programEncounter.maxDateTime = this.maxDateTime;
+        programEncounter.earliestVisitDateTime = this.earliestVisitDateTime;
+        programEncounter.maxVisitDateTime = this.maxVisitDateTime;
         return programEncounter;
     }
 
     getEncounterDateValues() {
         const encounterDateValues = super.getEncounterDateValues();
-        encounterDateValues[ProgramEncounter.fieldKeys.SCHEDULED_DATE_TIME] = this.scheduledDateTime;
-        encounterDateValues[ProgramEncounter.fieldKeys.MAX_DATE_TIME] = this.maxDateTime;
+        encounterDateValues[ProgramEncounter.fieldKeys.SCHEDULED_DATE_TIME] = this.earliestVisitDateTime;
+        encounterDateValues[ProgramEncounter.fieldKeys.MAX_DATE_TIME] = this.maxVisitDateTime;
         return encounterDateValues;
     }
 
@@ -91,8 +91,8 @@ class ProgramEncounter extends AbstractEncounter {
     }
 
     updateSchedule(scheduledVisit) {
-        this.scheduledDateTime = scheduledVisit.dueDate;
-        this.maxDateTime = scheduledVisit.maxDate;
+        this.earliestVisitDateTime = scheduledVisit.earliestDate;
+        this.maxVisitDateTime = scheduledVisit.maxDate;
         this.name = scheduledVisit.name;
     }
 
@@ -134,7 +134,7 @@ class ProgramEncounter extends AbstractEncounter {
             uuid: this.uuid,
             name: this.name,
             encounterType: this.encounterType,
-            maxDateTime: this.maxDateTime,
+            maxVisitDateTime: this.maxVisitDateTime,
             encounterDateTime: this.encounterDateTime,
             programEnrolmentUUID: this.programEnrolment.uuid,
             observations: this.observations

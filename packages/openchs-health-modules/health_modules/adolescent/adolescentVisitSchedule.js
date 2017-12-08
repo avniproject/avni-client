@@ -1,10 +1,10 @@
 import _ from '../common';
 
 const encounterSchedule = {
-    "Monthly Visit": {due: 30, max: 40},
-    "Quarterly Visit": {due: 90, max: 100},
-    "Half Yearly Visit": {due: 180, max: 190},
-    "Annual Visit": {due: 360, max: 370}
+    "Monthly Visit": {earliest: 30, max: 40},
+    "Quarterly Visit": {earliest: 90, max: 100},
+    "Half Yearly Visit": {earliest: 180, max: 190},
+    "Annual Visit": {earliest: 360, max: 370}
 };
 
 const getNextScheduledVisits = function (programEnrolment, today, currentEncounter) {
@@ -18,12 +18,12 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
 
         let schedule = encounterSchedule[encounterType];
         console.log(encounterType, name, schedule);
-        const dueDate = _.addDays(baseDate, schedule.due);
+        const earliestDate = _.addDays(baseDate, schedule.earliest);
         const maxDate = _.addDays(baseDate, schedule.max);
         encounters.push({
             name: name,
             encounterType: encounterType,
-            dueDate: dueDate,
+            earliestDate: earliestDate,
             maxDate: maxDate
         });
         return maxDate;

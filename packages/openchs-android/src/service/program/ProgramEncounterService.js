@@ -17,14 +17,14 @@ class ProgramEncounterService extends BaseService {
 
     getProgramSummary(program) {
         const encounterSummary = {};
-        const unfulfilledEncounters = this.db.objects(ProgramEncounter.schema.name).filtered(`encounterDateTime == null AND scheduledDateTime != null AND programEnrolment.program.uuid == \"${program.uuid}\"`).sorted('scheduledDateTime');
+        const unfulfilledEncounters = this.db.objects(ProgramEncounter.schema.name).filtered(`encounterDateTime == null AND earliestVisitDateTime != null AND programEnrolment.program.uuid == \"${program.uuid}\"`).sorted('earliestVisitDateTime');
         encounterSummary.upcoming = 0;
         encounterSummary.overdue = 0;
 
         unfulfilledEncounters.forEach((programEncounter) => {
-            if (moment(programEncounter.scheduledDateTime).subtract(7, 'days').isAfter(moment())) {
+            if (moment(programEncounter.earliestVisitDateTime).subtract(7, 'days').isAfter(moment())) {
                 encounterSummary.upcoming++;
-            } else if (General.dateAIsAfterB(new Date(), programEncounter.scheduledDateTime)) {
+            } else if (General.dateAIsAfterB(new Date(), programEncounter.earliestVisitDateTime)) {
                 encounterSummary.overdue++;
             }
         });

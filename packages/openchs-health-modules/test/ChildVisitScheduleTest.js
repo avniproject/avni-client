@@ -11,7 +11,7 @@ describe('Create PNC Visit Schedule for Child', function () {
         progEnrolment.encounters.push(new ProgramEncounter('PNC', undefined, 'PNC 2'));
         var nextVisit = getchildVisitSchedule.getNextScheduledVisits(progEnrolment);
         assert.equal(nextVisit.name, 'PNC 3');
-        assert.isTrue(matchDate(nextVisit.dueDate, new Date(2017, 0, 10)));
+        assert.isTrue(matchDate(nextVisit.earliestDate, new Date(2017, 0, 10)));
     });
 
     var matchDate = function (date1, date2) {

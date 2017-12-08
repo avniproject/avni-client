@@ -32,7 +32,7 @@ class StartProgramActions {
 
     static displayLabel(encounter) {
         const encounterName = encounter.name || '';
-        const displayDate = encounter.scheduledDateTime && `(${General.toDisplayDate(encounter.scheduledDateTime)})` || '';
+        const displayDate = encounter.earliestVisitDateTime && `(${General.toDisplayDate(encounter.earliestVisitDateTime)})` || '';
         return `${encounterName} ${displayDate}`;
     }
 
@@ -68,7 +68,7 @@ class StartProgramActions {
         }
         newState.enrolment = enrolment;
         newState.encounters = _.chain(enrolment.scheduledEncounters())
-                .sortBy('scheduledDateTime')
+                .sortBy('earliestVisitDateTime')
                 .map((encounter, index) => {return {key: encounter.uuid, label: StartProgramActions.displayLabel(encounter),
                     data: encounter, selected: index === 0}})
             .value();

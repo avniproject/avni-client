@@ -2,10 +2,10 @@ import C from '../common';
 
 //in days
 var visitSchedule = {
-    "PNC 1": {due: 1, max: 1},
-    "PNC 2": {due: 3, max: 3},
-    "PNC 3": {due: 7, max: 7},
-    "PNC 4": {due: 42, max: 42}
+    "PNC 1": {earliest: 1, max: 1},
+    "PNC 2": {earliest: 3, max: 3},
+    "PNC 3": {earliest: 7, max: 7},
+    "PNC 4": {earliest: 42, max: 42}
 };
 
 var getNextScheduledVisits = function (programEnrolment) {
@@ -29,7 +29,7 @@ var getNextScheduledVisits = function (programEnrolment) {
         var schedule = visitSchedule[name];
         return {
             name: name,
-            dueDate: C.addDays(C.copyDate(baseDate), schedule.due),
+            earliestDate: C.addDays(C.copyDate(baseDate), schedule.earliest),
             maxDate: C.addDays(C.copyDate(baseDate), schedule.max)
         };
     }

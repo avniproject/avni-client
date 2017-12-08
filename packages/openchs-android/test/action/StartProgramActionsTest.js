@@ -55,9 +55,9 @@ describe("ProgramActions", () => {
         });
 
         it("sorts them by scheduled date", () => {
-            enrolment.encounters[0].scheduledDateTime = moment().add(10, 'days');
-            enrolment.encounters[1].scheduledDateTime = moment().add(20, 'days');
-            enrolment.encounters[2].scheduledDateTime = moment().add(5, 'days');
+            enrolment.encounters[0].earliestVisitDateTime = moment().add(10, 'days');
+            enrolment.encounters[1].earliestVisitDateTime = moment().add(20, 'days');
+            enrolment.encounters[2].earliestVisitDateTime = moment().add(5, 'days');
 
             const state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
 
@@ -67,9 +67,9 @@ describe("ProgramActions", () => {
         });
 
         it("and selects the next scheduled encounter", () => {
-            enrolment.encounters[0].scheduledDateTime = moment().add(10, 'days');
-            enrolment.encounters[1].scheduledDateTime = moment().add(20, 'days');
-            enrolment.encounters[2].scheduledDateTime = moment().add(5, 'days');
+            enrolment.encounters[0].earliestVisitDateTime = moment().add(10, 'days');
+            enrolment.encounters[1].earliestVisitDateTime = moment().add(20, 'days');
+            enrolment.encounters[2].earliestVisitDateTime = moment().add(5, 'days');
 
             const state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
             expect(state.encounters[0].key).to.equal(enrolment.encounters[2].uuid);
@@ -113,9 +113,9 @@ describe("ProgramActions", () => {
 
         it("sets the selected encounter to the one selected", () => {
             let state = {};
-            enrolment.encounters[0].scheduledDateTime = moment().add(5, 'days');
-            enrolment.encounters[1].scheduledDateTime = moment().add(10, 'days');
-            enrolment.encounters[2].scheduledDateTime = moment().add(15, 'days');
+            enrolment.encounters[0].earliestVisitDateTime = moment().add(5, 'days');
+            enrolment.encounters[1].earliestVisitDateTime = moment().add(10, 'days');
+            enrolment.encounters[2].earliestVisitDateTime = moment().add(15, 'days');
 
             state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
             expect(state.selectedEncounter.uuid).to.equal(enrolment.encounters[0].uuid);
@@ -133,7 +133,7 @@ describe("ProgramActions", () => {
        it("asDisplayDate formats dates in the right display format", () => {
            const encounter =  ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment);
            encounter.name = "ANC 1";
-           encounter.scheduledDateTime = moment("1995-12-25");
+           encounter.earliestVisitDateTime = moment("1995-12-25");
            expect(Actions.displayLabel(encounter)).to.equal("ANC 1 (25-Dec-1995)");
        });
     });

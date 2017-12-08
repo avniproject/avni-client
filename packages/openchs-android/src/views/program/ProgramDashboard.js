@@ -22,7 +22,7 @@ class ProgramDashboard extends AbstractComponent {
 
     static displayItemsForProgramEncounters(programEncounter) {
         const displayItems = [];
-        displayItems.push(moment(programEncounter.scheduledDateTime).format('DD-MM-YYYY'));
+        displayItems.push(moment(programEncounter.earliestVisitDateTime).format('DD-MM-YYYY'));
         displayItems.push(programEncounter.programEnrolment.individual.nameString);
         displayItems.push(programEncounter.programEnrolment.individual.lowestAddressLevel.name);
         const lastFulfilledEncounter = programEncounter.programEnrolment.lastFulfilledEncounter;
