@@ -14,12 +14,8 @@
         {
           "name": "Reason for exit",
           "uuid": "a1c63f7b-344f-4ae9-aa78-b7835333647b",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Adolescent exit reason",
             "uuid": "04d33465-0cd3-4755-8329-b057a3d8f707",
@@ -53,12 +49,8 @@
         {
           "name": "Cause of Death",
           "uuid": "82a98940-8e63-423e-9bee-e137d9ce12bb",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "conceptUUID": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
           "displayOrder": 2,
           "mandatory": false

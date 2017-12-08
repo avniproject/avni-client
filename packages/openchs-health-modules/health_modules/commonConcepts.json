@@ -132,6 +132,7 @@
     "name": "Cause of Death",
     "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
     "dataType": "Coded",
+    "type": "SingleSelect",
     "answers": [
       {
         "uuid": "6fe263cf-581a-4c5b-aa5a-026ca8fc44e4",
