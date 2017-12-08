@@ -162,21 +162,7 @@
           "uuid": "d96be539-c3a4-44d8-9545-3cceb482715b",
           "keyValues": [],
           "type":"SingleSelect",
-          "concept": {
-            "name": "Have you suffered from Road Traffic Accident in last 6 months?",
-            "uuid": "81e12454-fcc5-4ff4-a978-0511e233891c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
-          },
+          "conceptUUID": "81e12454-fcc5-4ff4-a978-0511e233891c",
           "displayOrder": 1,
           "mandatory": false
         }

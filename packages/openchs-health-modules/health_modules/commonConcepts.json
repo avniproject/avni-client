@@ -156,6 +156,10 @@
     "uuid": "43ab00db-b0d3-4e75-ab98-ebd7cfa414e5",
     "name": "Unspecified Cause of Death",
     "dataType": "Text"
+  },
+  {
+    "name": "No Problem",
+    "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+    "dataType": "N/A"
   }
-
 ]

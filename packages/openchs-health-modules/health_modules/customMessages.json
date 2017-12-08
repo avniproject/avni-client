@@ -486,6 +486,19 @@
     "Cause of Death (Unspecified above)": "મૃત્યુનું કારણ (ઉપરોક્ત અનિશ્ચિત)",
     "Exit Details": "બહાર નીકળો વિગતો",
     "Adolescent Enrolment": "કિશોરો નોંધણી",
-    "Adolescent": "કિશોરો"
+    "Adolescent": "કિશોરો",
+
+    "School going": "શું તમે શાળામાં જઇ રહ્યા છો?",
+    "If not in school (dropped out) Reasons for dropping out": "જો શાળા છોડી દીધી તો શાળા છોડવાના કારણો:",
+    "What he/she is doing now?": "અત્યારે તમે શું કરો છો?",
+    "In which standard he/she is studying?": "અત્યારે તમે કયા ધોરણમા અભ્યાસ કરો છો?",
+    "Iron tablets": "આયર્ન ગોળીઓ મળે છે?",
+    "Albendazole tablets received?": "આલ્બેંડાઝોલ ગોળી મળે છે?",
+    "Are you taking regular treatment for Sickle cell disease?": "શું તમે સિકલ સેલ રોગ માટે નિયમિત સારવાર લઈ રહ્યા છો?",
+    "Is there any problem regarding menstruation?": "માસિક અંગે કોઈ સમસ્યા છે?",
+    "Do you have any addiction": "શું તમને કોઈ વ્યસન છે?",
+    "Do you drive vehicle (2 wheeler)?": "શુ તમે વાહન ચલાવો છો? (દ્વિચક્રીય)",
+    "Have you suffered from Road Traffic Accident in last 6 months?": "શું તમને છેલ્લા 6 મહિનામાં રોડ ટ્રાફિક અકસ્માત થયો છે?",
+    "How the accident has happened?": "કેવી રીતે અકસ્માત થયો છે?"
   }
 }

@@ -23,5 +23,194 @@
     "name": "BMI",
     "uuid": "7ac0d759-c50d-4971-88e0-84274224c839",
     "dataType": "Numeric"
+  },
+  {
+    "name": "Standard",
+    "uuid": "fda18675-59dc-4a69-82f7-4e137c274073",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "6",
+        "uuid": "e9ce8718-ef32-4870-b3cb-b5e733fc115a"
+      },
+      {
+        "name": "7",
+        "uuid": "aafae271-765c-4347-be3b-3fc1e00e63a1"
+      },
+      {
+        "name": "8",
+        "uuid": "d7443a73-80b7-4320-9c45-6558595be70a"
+      },
+      {
+        "name": "9",
+        "uuid": "29d29318-6b0c-4a2b-85e3-5392bd5a668f"
+      },
+      {
+        "name": "10",
+        "uuid": "7f0e1fbd-a1b9-4121-b630-dfec36a2dfd0"
+      },
+      {
+        "name": "11",
+        "uuid": "72165544-dcef-4322-a07d-242a6e7771e0"
+      },
+      {
+        "name": "12",
+        "uuid": "9b141130-a1c7-4e3b-bc95-5b9b157f7160"
+      }
+    ]
+  },
+  {
+    "name": "Reason for dropping out",
+    "uuid": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Not interested in studies",
+        "uuid": "384bdb12-0761-414e-8459-962aed124ead"
+      },
+      {
+        "name": "Poor economic condition",
+        "uuid": "0e84adb9-f99a-408d-9a40-44a5d00866a1"
+      },
+      {
+        "name": "Domestic work",
+        "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
+      },
+      {
+        "name": "Marriage",
+        "uuid": "104c7ffb-fb43-45a0-876b-77fba9ee7759"
+      },
+      {
+        "name": "Migration",
+        "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c"
+      },
+      {
+        "name": "No school in village",
+        "uuid": "af10b937-e9f2-4b9b-8cfe-1d59bc0b21f6"
+      },
+      {
+        "name": "12th Passed, School study completed",
+        "uuid": "cd551661-1456-46bc-9855-7548e62c40f6"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      }
+    ]
+  },
+  {
+    "name": "If dropped out what are they doing now",
+    "uuid": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Nothing at home",
+        "uuid": "f5ab8e0f-7184-407f-a566-82fcb83cd348"
+      },
+      {
+        "name": "Labour",
+        "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
+      },
+      {
+        "name": "Domestic work",
+        "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
+      },
+      {
+        "name": "Joined other course",
+        "uuid": "6fd0f6c5-4fd0-4a40-a8d1-62712e00e091"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      }
+    ]
+  },
+  {
+    "name": "Menstrual disorders",
+    "uuid": "0f87eac1-cf6a-4632-8af2-29a935451fe4",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Lower Abdominal Pain",
+        "uuid": "92ad8878-b476-4291-aa76-3377fa7cf19c"
+      },
+      {
+        "name": "Backache",
+        "uuid": "33385edf-93bc-4513-aa03-480ce3bc7b5c"
+      },
+      {
+        "name": "Leg Pain",
+        "uuid": "1c478c50-4761-460c-b33c-a18d0c1500f7"
+      },
+      {
+        "name": "Nausea Vomitting",
+        "uuid": "761b7f7a-5db7-4115-aa84-32fcfce5ddfc"
+      },
+      {
+        "name": "Headache",
+        "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
+      },
+      {
+        "name": "Abnormal Vaginal Discharge",
+        "uuid": "aa30fb91-4b64-438b-b09e-4c7ff2701d71"
+      },
+      {
+        "name": "Heavy Bleeding",
+        "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1"
+      },
+      {
+        "name": "Irregular Menses",
+        "uuid": "ce47ae12-e61c-49cc-8ccd-715f9d5cb76d"
+      },
+      {
+        "name": "No Problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      }
+    ]
+  },
+  {
+    "name": "Addiction Details",
+    "uuid": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Alcohol",
+        "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+      },
+      {
+        "name": "Tobacco",
+        "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
+      }
+    ]
+  },
+  {
+    "name": "Drives 2 wheeler",
+    "uuid": "6cb38e42-ada5-4c0e-af4e-f9f64b0c0c0c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
+  },
+  {
+    "name": "Road accident in past 6 months",
+    "uuid": "81e12454-fcc5-4ff4-a978-0511e233891c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
   }
 ]

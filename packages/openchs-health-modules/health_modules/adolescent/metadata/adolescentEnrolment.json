@@ -347,41 +347,7 @@
           "uuid": "0c101eab-e914-4186-b86b-db3547cb2e83",
           "keyValues": [],
           "type":"SingleSelect",
-          "concept": {
-            "name": "Reason for dropping out",
-            "uuid": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Not interested in studies",
-                "uuid": "384bdb12-0761-414e-8459-962aed124ead"
-              },
-              {
-                "name": "Poor economic condition",
-                "uuid": "0e84adb9-f99a-408d-9a40-44a5d00866a1"
-              },
-              {
-                "name": "Domestic work",
-                "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
-              },
-              {
-                "name": "Marriage",
-                "uuid": "104c7ffb-fb43-45a0-876b-77fba9ee7759"
-              },
-              {
-                "name": "Migration",
-                "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c"
-              },
-              {
-                "name": "No school in village",
-                "uuid": "af10b937-e9f2-4b9b-8cfe-1d59bc0b21f6"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
-          },
+          "conceptUUID": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
           "displayOrder": 3,
           "mandatory": false
         },
@@ -390,33 +356,7 @@
           "uuid": "6e4a4a98-c7ef-4585-bdd3-c29c45041fa0",
           "keyValues": [],
           "type":"SingleSelect",
-          "concept": {
-            "name": "If dropped out what are they doing now",
-            "uuid": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Nothing at home",
-                "uuid": "f5ab8e0f-7184-407f-a566-82fcb83cd348"
-              },
-              {
-                "name": "Labour",
-                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
-              },
-              {
-                "name": "Domestic work",
-                "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
-              },
-              {
-                "name": "Joined other course",
-                "uuid": "6fd0f6c5-4fd0-4a40-a8d1-62712e00e091"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
-          },
+          "conceptUUID":"fedc7739-ddd8-4627-86b0-4ecdc066601e",
           "displayOrder": 4,
           "mandatory": false
         }

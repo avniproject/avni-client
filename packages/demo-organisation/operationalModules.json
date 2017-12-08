@@ -1,5 +1,5 @@
 {
   "organisationName": "demo",
-  "encounterTypes": ["Outpatient", "Delivery", "Abortion", "Child Default", "ANC", "PNC", "Monthly Visit", "Quarterly Visit", "Annual Visit", "Half Yearly Visit"],
+  "encounterTypes": ["Outpatient", "Delivery", "Abortion", "Child Default", "ANC", "PNC", "Monthly Visit", "Quarterly Visit", "Annual Visit", "Half Yearly Visit", "Adolescent Monthly Visit (11th and 12th std)"],
   "programs": ["Mother", "Child", "Adolescent"]
 }

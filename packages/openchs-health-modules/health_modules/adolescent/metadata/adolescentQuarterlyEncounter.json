@@ -74,21 +74,7 @@
           "uuid": "94fda24a-f856-435d-9838-6ee0851f1080",
           "keyValues": [],
           "type":"MultiSelect",
-          "concept": {
-            "name": "Do you have any addiction",
-            "uuid": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
-              },
-              {
-                "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
-              }
-            ]
-          },
+          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
           "displayOrder": 3,
           "mandatory": false
         },

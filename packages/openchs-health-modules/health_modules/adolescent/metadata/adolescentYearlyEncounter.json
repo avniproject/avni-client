@@ -680,21 +680,7 @@
           "uuid": "d86047bd-f057-4b2f-a061-6759fe74677a",
           "keyValues": [],
           "type": "SingleSelect",
-          "concept": {
-            "name": "Do you drive vehicle (2 wheeler)?",
-            "uuid": "6cb38e42-ada5-4c0e-af4e-f9f64b0c0c0c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
-          },
+          "conceptUUID": "6cb38e42-ada5-4c0e-af4e-f9f64b0c0c0c",
           "displayOrder": 3,
           "mandatory": false
         },

@@ -75,6 +75,7 @@ dev_deploy_metadata: ## Upload metadata to server
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentQuarterlyEncounter.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentYearlyEncounter.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentHalfYearlyEncounter.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
+	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescent11thAnd12thStdForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	date
 
 
