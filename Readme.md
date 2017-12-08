@@ -4,9 +4,6 @@
 # Join our discussions
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/openchs/openchs)
 
-# Bintray
-[ ![Download](https://api.bintray.com/packages/openchs/generic/openchs-client/images/download.svg) ](https://bintray.com/openchs/generic/openchs-client/_latestVersion)
-
 # License
 [![License](https://img.shields.io/badge/license-AGPL-green.svg?style=flat)](https://github.com/openchs/openchs-client/blob/master/LICENSE)
 
