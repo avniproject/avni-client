@@ -4,9 +4,6 @@
 # Join our discussions
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/openchs/openchs)
 
-# Code Quality
-[![Code Climate](https://codeclimate.com/github/OpenCHS/openchs-client/badges/gpa.svg)](https://codeclimate.com/github/OpenCHS/openchs-client)   [![Test Coverage](https://codeclimate.com/github/OpenCHS/openchs-client/badges/coverage.svg)](https://codeclimate.com/github/OpenCHS/openchs-client/coverage)  [![Dependency Status](https://gemnasium.com/badges/github.com/OpenCHS/openchs-client.svg)](https://gemnasium.com/github.com/OpenCHS/openchs-client)
-
 # Bintray
 [ ![Download](https://api.bintray.com/packages/openchs/generic/openchs-client/images/download.svg) ](https://bintray.com/openchs/generic/openchs-client/_latestVersion)
 
