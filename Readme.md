@@ -28,3 +28,12 @@
  - To run the application `make run_app`
  - In the application set the server url of the config location by going to the settings view. 
  You can either run openchs-server locally or point to an existing server such as http://staging.openchs.org
+ 
+
+# Running Tests on Intellij
+- Open the openchs-client as one project
+- Go to any of the tests in the package you are working on.
+- Edit Configuration, edit the global Jest configuration.
+- Change the working directory to the package you are working on.
+- Change the Jest to use the package specific jest from the node modules
+- Use the Global Node Interpreter (preferably the latest version) 
