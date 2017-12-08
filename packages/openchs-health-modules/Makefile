@@ -70,6 +70,7 @@ dev_deploy_metadata: ## Upload metadata to server
 	curl -X POST $(server):$(port)/programs -d @health_modules/adolescent/metadata/adolescentProgram.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/concepts -d @health_modules/adolescent/metadata/adolescentConcepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentEnrolment.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
+	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentProgramExitForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentMonthlyEncounter.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"   -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentQuarterlyEncounter.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentYearlyEncounter.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"

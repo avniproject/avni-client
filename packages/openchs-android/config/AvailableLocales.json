@@ -13,5 +13,10 @@
     "locale": "mr_IN",
     "displayText": "Marathi",
     "uuid": "7cc3e696-5306-4c43-8145-6bc91d210e6c"
+  },
+  {
+    "locale": "gu_IN",
+    "displayText": "Gujarati",
+    "uuid": "2e7b129a-8c34-4e20-b208-a000a5ce4a08"
   }
 ]

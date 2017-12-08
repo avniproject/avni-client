@@ -43,14 +43,10 @@
           "mandatory": true
         },
         {
-          "name": "Death reason",
+          "name": "Cause of Death",
           "uuid": "f6efd6e9-ea2d-4a8f-baeb-6fe12a86f7d8",
           "keyValues": [],
-          "concept": {
-            "name": "Death reason",
-            "uuid": "28f33edf-4476-4330-a6ff-9a12a2c53e5f",
-            "dataType": "Text"
-          },
+          "conceptUUID": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
           "displayOrder": 2,
           "mandatory": false
         },

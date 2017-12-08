@@ -1,0 +1,76 @@
+{
+  "name": "Adolescent Exit",
+  "uuid": "5f8dc84d-90ff-46ca-9a56-169bd778687f",
+  "formType": "ProgramExit",
+  "programName": "Adolescent",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "1b9612d9-49b3-4ce0-b9a2-ece4bfd03c37",
+      "name": "Adolescent Exit Basic Details",
+      "displayOrder": 1,
+      "display": "Basic Details",
+      "formElements": [
+        {
+          "name": "Reason for exit",
+          "uuid": "a1c63f7b-344f-4ae9-aa78-b7835333647b",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "concept": {
+            "name": "Adolescent exit reason",
+            "uuid": "04d33465-0cd3-4755-8329-b057a3d8f707",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Age more than 20 years",
+                "uuid": "569a0841-46a8-4397-b179-4a1c27a54ea0"
+              },
+              {
+                "name": "Death",
+                "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83"
+              },
+              {
+                "name": "Migration",
+                "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c"
+              },
+              {
+                "name": "Marriage",
+                "uuid": "104c7ffb-fb43-45a0-876b-77fba9ee7759"
+              },
+              {
+                "name": "Pregnancy",
+                "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Cause of Death",
+          "uuid": "82a98940-8e63-423e-9bee-e137d9ce12bb",
+          "keyValues": [
+            {
+              "key": "Select",
+              "value": "Single"
+            }
+          ],
+          "conceptUUID": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Cause of Death (Unspecified above)",
+          "uuid": "69c11cd8-4f2b-42a7-b189-c4338d4ea573",
+          "conceptUUID": "43ab00db-b0d3-4e75-ab98-ebd7cfa414e5",
+          "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
+    }
+  ]
+}

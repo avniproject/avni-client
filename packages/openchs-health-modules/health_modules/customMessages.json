@@ -239,7 +239,7 @@
     "Shifted to other geographical area": "अन्य क्षेत्रामध्ये स्थानांतरीत होणे",
     "Completion": "पूर्णता",
     "Mother exit reason": "मातृत्व कार्यक्रमातून बाहेर निघण्याचे कारण",
-    "Death reason": "मृत्यू चे कारण",
+    "Cause of Death": "मृत्यू चे कारण",
     "Death place": "मृत्यूचे ठिकाण",
     "BCG": "BCG",
     "OPV 0": "OPV 0",
@@ -460,5 +460,20 @@
     "PNC 4": "PNC 4",
     "true": "true",
     "false": "false"
+  },
+  "gu_IN": {
+    "Reason for exit": "બહાર નીકળતા કારણ",
+    "Adolescent exit reason": "પ્રોગ્રામમાંથી નીકળી જવાનાં કારણો",
+    "Age more than 20 years": "ઉંમર: 20 વર્ષ કરતાં વધુ",
+    "Death": "મૃત્યુ",
+    "Migration": "સ્થળાંતર",
+    "Marriage": "લગ્ન",
+    "Pregnancy": "ગર્ભાવસ્થા",
+    "Cause of Death": "મૃત્યુનું કારણ",
+    "Suicide": "આત્મહત્યા",
+    "Accident": "અકસ્માત",
+    "Illness": "માંદગી",
+    "Other": "અન્ય",
+    "Cause of Death (Unspecified above)": "મૃત્યુનું કારણ (ઉપરોક્ત અનિશ્ચિત)"
   }
 }

@@ -126,8 +126,35 @@
         "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
         "name": "Absent"
       }
-    ],
-    "mandatory": false
+    ]
+  },
+  {
+    "name": "Cause of Death",
+    "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "6fe263cf-581a-4c5b-aa5a-026ca8fc44e4",
+        "name": "Suicide"
+      },
+      {
+        "uuid": "80824328-aaf2-41f3-b389-0205a58d76d2",
+        "name": "Accident"
+      },
+      {
+        "uuid": "49c44725-b3f1-4004-a150-0c7f7377f5c2",
+        "name": "Illness"
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "name": "Other"
+      }
+    ]
+  },
+  {
+    "uuid": "43ab00db-b0d3-4e75-ab98-ebd7cfa414e5",
+    "name": "Unspecified Cause of Death",
+    "dataType": "Text"
   }
 
 ]
