@@ -1,2 +1,23 @@
 ﻿{
+  "name": "નામ",
+  "age": "ઉંમર (વર્ષોમાં)",
+  "lowestAddressLevel": "ગામ",
+
+  "months": "મહિના",
+  "month": "માસ",
+  "years": "વર્ષો",
+  "year": "વર્ષ",
+  "date": "તારીખ",
+  "days": "દિવસ",
+
+
+  "Male": "પુરૂષ",
+  "Female": "સ્ત્રી",
+  "Other": "અન્ય",
+
+  "enrolInSpecificProgram": "{{program}} નોંધણી",
+
+  "exitDate": "બહાર નીકળો તારીખ",
+  "chooseADate": "તારીખ મૂકો"
+
 }

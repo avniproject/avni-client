@@ -9,7 +9,7 @@
       "uuid": "1b9612d9-49b3-4ce0-b9a2-ece4bfd03c37",
       "name": "Adolescent Exit Basic Details",
       "displayOrder": 1,
-      "display": "Basic Details",
+      "display": "Exit Details",
       "formElements": [
         {
           "name": "Reason for exit",

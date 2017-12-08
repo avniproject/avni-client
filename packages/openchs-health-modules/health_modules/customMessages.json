@@ -462,6 +462,15 @@
     "false": "false"
   },
   "gu_IN": {
+    "Govali": "ગોવલી",
+    "KGBV, Ranipura": "કેજીબીવી, રાણીપુરા",
+    "Aambos": "એમોબોસ",
+    "Jhagadia": "ઝગડિયા",
+    "Dharoli": "ધારોલી",
+    "Kanya ashram, Jhagadia": "કન્યા આશ્રમ, ઝગડિયા",
+    "Zokla": "ઝોકલા",
+    "Karaad": "કરડ",
+    "Daria": "ડારિયા",
     "Reason for exit": "બહાર નીકળતા કારણ",
     "Adolescent exit reason": "પ્રોગ્રામમાંથી નીકળી જવાનાં કારણો",
     "Age more than 20 years": "ઉંમર: 20 વર્ષ કરતાં વધુ",
@@ -474,6 +483,9 @@
     "Accident": "અકસ્માત",
     "Illness": "માંદગી",
     "Other": "અન્ય",
-    "Cause of Death (Unspecified above)": "મૃત્યુનું કારણ (ઉપરોક્ત અનિશ્ચિત)"
+    "Cause of Death (Unspecified above)": "મૃત્યુનું કારણ (ઉપરોક્ત અનિશ્ચિત)",
+    "Exit Details": "બહાર નીકળો વિગતો",
+    "Adolescent Enrolment": "કિશોરો નોંધણી",
+    "Adolescent": "કિશોરો"
   }
 }
