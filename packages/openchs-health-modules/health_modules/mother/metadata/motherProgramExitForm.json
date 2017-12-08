@@ -14,12 +14,8 @@
         {
           "name": "Mother exit reason",
           "uuid": "fcb4209d-f752-4898-aa7a-b9be066dfb0d",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Mother exit reason",
             "uuid": "5a2fca73-f3b6-4b7a-bc04-5fd8f5993fa1",

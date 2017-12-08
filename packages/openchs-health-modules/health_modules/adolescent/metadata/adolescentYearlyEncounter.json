@@ -54,12 +54,8 @@
         {
           "name": "Is there any physical defect?",
           "uuid": "9bbf1c05-9a0c-47eb-9123-85ccbad53428",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there any physical defect?",
             "uuid": "bd4bab3c-f0c5-4427-a2cb-325e538774e3",
@@ -81,12 +77,8 @@
         {
           "name": "Is there a swelling at lower back?",
           "uuid": "0a8f3c1f-6b0c-4edb-a9a2-618775983eef",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there a swelling at lower back?",
             "uuid": "53ba2bf5-e8d8-4f88-86a3-0068465086ac",
@@ -108,12 +100,8 @@
         {
           "name": "Is there Cleft lip/Cleft palate?",
           "uuid": "a52c2d8a-b917-4fad-94db-b0dbc8f430e6",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there Cleft lip/Cleft palate?",
             "uuid": "e36ee991-51f2-4443-afbc-ab96a7ec4276",
@@ -135,12 +123,8 @@
         {
           "name": "Is there large gap between toe and finger?",
           "uuid": "956f9805-01c3-4c7f-b2e2-f09730bdc3a9",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there large gap between toe and finger?",
             "uuid": "14598553-b87c-4c7c-b97a-27c83effae73",
@@ -162,12 +146,8 @@
         {
           "name": "Is her nails/tongue pale?",
           "uuid": "9d83462c-14f8-47c8-aac7-ec7f24c63645",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is her nails/tongue pale?",
             "uuid": "f621f0e0-f73f-4443-b02f-0b9d7cb5a5a6",
@@ -197,12 +177,8 @@
         {
           "name": "Is she/he severely malnourished?",
           "uuid": "2d1d7d27-39ca-4477-8c73-beebd71d81e9",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is she/he severely malnourished?",
             "uuid": "7a71445d-6faa-4db6-95e1-f891312d0a33",
@@ -224,12 +200,8 @@
         {
           "name": "Is there a swelling over throat?",
           "uuid": "6068b4c2-35b2-4165-b8a8-3a50f2d5ba86",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there a swelling over throat?",
             "uuid": "54a4c12f-7e67-471d-a668-eddc3b712c0d",
@@ -251,12 +223,8 @@
         {
           "name": "Are there dental carries?",
           "uuid": "2b762900-9ba7-4778-b12b-196d4a4e18d8",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": " Are there dental carries?",
             "uuid": "4f29a019-05f5-4d50-a255-81ab7e12b4a3",
@@ -278,12 +246,8 @@
         {
           "name": "Is there a white patch in her eyes?",
           "uuid": "12eb8b40-ce21-4a25-a41c-af030eaa1870",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there a white patch in her eyes?",
             "uuid": "41b9cc54-8f06-4d9f-a70d-f9311b95c747",
@@ -305,12 +269,8 @@
         {
           "name": "Is she slower than others in learning and understanding new things?",
           "uuid": "40dccb2c-04dc-455c-be2f-ef89208cba5f",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is she slower than others in learning and understanding new things?",
             "uuid": "fdd74e4f-363b-4f74-a38c-d7e8ad1b00a1",
@@ -332,12 +292,8 @@
         {
           "name": "Does she have skin problems?",
           "uuid": "765d99fb-4d9c-4488-bb49-36c29e5f4677",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Does she have skin problems?",
             "uuid": "4db4857f-7caa-4bd8-a528-09e8416e8f11",
@@ -367,12 +323,8 @@
         {
           "name": "Is there any problem in leg bone?",
           "uuid": "36e9b39d-da3a-401b-8b97-70ed225eeeff",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there any problem in leg bone?",
             "uuid": "1701b2f7-aaad-4808-9dcc-05437dd569f7",
@@ -394,12 +346,8 @@
         {
           "name": "Does she have difficulty in breathing while playing?",
           "uuid": "7d81bf6a-dede-4a62-915b-1c01daaa59e7",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Does she have difficulty in breathing while playing?",
             "uuid": "50d57508-77c3-4561-b8fc-402bd6d7a413",
@@ -421,12 +369,8 @@
         {
           "name": "Is there any developmental delay or disability seen?",
           "uuid": "07ff2dcd-eaa9-4487-a219-59426b6d8f61",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there any developmental delay or disability seen?",
             "uuid": "cbcfdd44-dac8-435f-9cd9-35f20db1f367",
@@ -448,12 +392,8 @@
         {
           "name": "Does she have impaired vision?",
           "uuid": "9504a9f3-276f-403c-88cd-6bb3545265fb",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Does she have impaired vision?",
             "uuid": "f3794468-8ff5-44a3-a279-2d8d2fb5aa78",
@@ -475,12 +415,8 @@
         {
           "name": "Is there pus coming from ear?",
           "uuid": "ed348ca3-fba9-4210-84bf-7d0205f7cad7",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there pus coming from ear?",
             "uuid": "15004f46-0720-417a-ab03-8805a3b549c4",
@@ -502,12 +438,8 @@
         {
           "name": "Does she have impaired hearing?",
           "uuid": "499954cb-fb4d-4431-82ec-e333c1388e35",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Does she have impaired hearing?",
             "uuid": "4c58ddb2-0ba9-490d-ba07-f1cd70e0905a",
@@ -537,12 +469,8 @@
         {
           "name": "Has she ever suffered from convulsions?",
           "uuid": "4f28a054-d428-4896-8a2a-8d6dea0d4453",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Has she ever suffered from convulsions?",
             "uuid": "5af82adf-6be9-4792-9b3d-543b4b00f816",
@@ -564,12 +492,8 @@
         {
           "name": "Is there any neurological motor defect?",
           "uuid": "489dc432-ebde-4ce4-a99a-b105a9b09002",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is there any neurological motor defect?",
             "uuid": "14bb22df-1348-4336-9e4a-66b0741a6c3b",
@@ -591,12 +515,8 @@
         {
           "name": "Is her behavior different from others?",
           "uuid": "d3c6de4a-3d85-409c-9d8e-020c84661403",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Is her behavior different from others?",
             "uuid": "f0e3c0db-0f01-4c3d-a468-b740849d0011",
@@ -626,12 +546,8 @@
         {
           "name": "Menstrutation started",
           "uuid": "7930250e-fe98-4b76-bd35-3e6b615a74c9",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Menstrutation started",
             "uuid": "9cb4c266-0511-48f6-a058-d4f1fa3eb17c",
@@ -665,12 +581,8 @@
         {
           "name": "Absorbent material used",
           "uuid": "ae6daa31-8cf7-4eeb-842e-373121b4c69f",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Absorbent material used",
             "uuid": "a54fcfad-8656-46ae-9706-671a600eabca",
@@ -708,12 +620,8 @@
         {
           "name": "Is there any other condition you want to mention about him/her?",
           "uuid": "4bcdf0ba-2521-4f62-a553-3c95f37b5466",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Is there any other condition you want to mention about him/her?",
             "uuid": "b00a5ea2-e09c-43aa-b514-ac3c50474647",
@@ -747,12 +655,8 @@
         {
           "name": "Do you have vehicle (2 wheeler)?",
           "uuid": "2109a527-ad43-4ca8-9804-67d8307f92ae",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Do you have vehicle (2 wheeler)?",
             "uuid": "9e0c2c7b-824c-4600-a87b-820913cbf55a",
@@ -774,12 +678,8 @@
         {
           "name": "Do you drive vehicle (2 wheeler)?",
           "uuid": "d86047bd-f057-4b2f-a061-6759fe74677a",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Do you drive vehicle (2 wheeler)?",
             "uuid": "6cb38e42-ada5-4c0e-af4e-f9f64b0c0c0c",
@@ -801,12 +701,8 @@
         {
           "name": "Do you have licence for the vehicle?",
           "uuid": "648199a4-81a2-4eaf-9141-daa728c045e1",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Do you have licence for the vehicle?",
             "uuid": "14ab52fd-3f32-445e-9095-21e269ecf0e0",
@@ -828,12 +724,8 @@
         {
           "name": "Do you wear helmet while driving?",
           "uuid": "64d0cd3a-0772-4fc7-b94a-4ab483c44a06",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Do you wear helmet while driving?",
             "uuid": "d39811bd-8bb9-469f-af19-9915f08767c5",

@@ -14,12 +14,8 @@
         {
           "name": "Sexually active",
           "uuid": "16158b6f-0f96-4b58-9127-61a8289be2a1",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Sexually active",
             "uuid": "cd637ed2-5a97-4f36-970a-3af1f27dfe78",
@@ -41,12 +37,8 @@
         {
           "name": "Unprotected sex",
           "uuid": "452453a7-11c4-46af-8ec8-95ecd1793221",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Unprotected sex",
             "uuid": "672815aa-4c3f-457b-ac87-fa0b3924c957",
@@ -68,12 +60,8 @@
         {
           "name": "Partners",
           "uuid": "b138ce2d-9689-42ed-a668-5419ebc7ffbf",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Partners",
             "uuid": "84e60852-0d0b-4e8e-a3b0-f22d079d42d9",
@@ -95,12 +83,8 @@
         {
           "name": "Burning Micturition",
           "uuid": "874db147-95db-48fb-bd51-c9b3de823156",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Burning Micturition",
             "uuid": "d86fbdcd-cbd3-4c13-9067-3bbde010438f",
@@ -122,12 +106,8 @@
         {
           "name": "Ulcer over genitalia",
           "uuid": "b83ef993-903a-4b56-a228-f8222dee9714",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Ulcer over genitalia",
             "uuid": "66dd68ee-6118-47df-95ee-a0d115a75a12",
@@ -149,12 +129,8 @@
         {
           "name": "Yellowish discharge from Vagina / penis",
           "uuid": "0cfaf695-8c32-4a5e-ad1c-879bff8f4c24",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Yellowish discharge from Vagina / penis",
             "uuid": "65fe703a-9756-4688-96d7-6854e783caa1",
@@ -184,12 +160,8 @@
         {
           "name": "Have you suffered from Road Traffic Accident in last 6 months?",
           "uuid": "d96be539-c3a4-44d8-9545-3cceb482715b",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Have you suffered from Road Traffic Accident in last 6 months?",
             "uuid": "81e12454-fcc5-4ff4-a978-0511e233891c",

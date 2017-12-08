@@ -38,12 +38,8 @@
         {
           "name": "Registration at",
           "uuid": "59903bac-e82a-42d0-b9b5-344769e26301",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Registration at",
             "uuid": "7a67c0ed-0cfc-4025-b479-5c14330c9f87",

@@ -164,12 +164,8 @@
         {
           "name": "Obstetrics History",
           "uuid": "4ae32d41-7c2e-4d7d-8ac6-566c9331f3a1",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Obstetrics History",
             "uuid": "8a4ab436-6767-45d5-95d7-075d9459609e",

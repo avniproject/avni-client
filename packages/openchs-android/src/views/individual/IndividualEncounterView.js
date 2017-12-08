@@ -58,6 +58,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     render() {
+        console.log(this.state.formElementGroup);
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContainer theme={themes}>

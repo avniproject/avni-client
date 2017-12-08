@@ -14,12 +14,8 @@
         {
           "name": "Sickness in last 3 months",
           "uuid": "24b01526-e759-42f5-bcfb-6b13671a0a8a",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Sickness in last 3 months",
             "uuid": "719fc446-50b0-4212-9e91-47bfd1aa5559",
@@ -53,12 +49,8 @@
         {
           "name": "Hospitalized in last 3 months",
           "uuid": "93758c1c-c8bf-4962-8bbb-d237f47571a4",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Hospitalized in last 3 months",
             "uuid": "342a4172-131a-41fd-a9c7-ae16603b582f",
@@ -80,12 +72,8 @@
         {
           "name": "Do you have any addiction",
           "uuid": "94fda24a-f856-435d-9838-6ee0851f1080",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Do you have any addiction",
             "uuid": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
@@ -107,12 +95,8 @@
         {
           "name": "How are your friends?",
           "uuid": "11f0a812-c419-4b1a-8db3-e8c0dca7c47c",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "How are your friends?",
             "uuid": "d9b98bba-885c-4f78-9bf6-ba251128a5c3",

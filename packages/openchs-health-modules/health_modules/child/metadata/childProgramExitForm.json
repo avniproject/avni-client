@@ -14,12 +14,8 @@
         {
           "name": "Child exit reason",
           "uuid": "443462ad-4de0-4d6f-bfbc-bc8c1404b131",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Child exit reason",
             "uuid": "be1239e9-bab3-4fa8-aa8e-1af7e10e18c7",

@@ -14,12 +14,8 @@
         {
           "name": "Parents life status?",
           "uuid": "836e439b-cd89-4036-9a5f-e6cf74b03179",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Parents life status?",
             "uuid": "9083aae8-0a78-4b5b-9177-dd993e6d088c",
@@ -49,12 +45,8 @@
         {
           "name": "Parents marital status?",
           "uuid": "5f6f1a77-cd80-4b1f-8261-51c9253f09e9",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Parents marital status?",
             "uuid": "e3665fae-913b-48d8-9362-61b7d1125b9b",
@@ -84,12 +76,8 @@
         {
           "name": "Chronic sickness in family",
           "uuid": "dac41807-08af-43b9-a75b-7bbb77547321",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Chronic sickness in family",
             "uuid": "d2f7ac65-54d1-4f4b-b213-a29587e16abd",
@@ -167,12 +155,8 @@
         {
           "name": "Father's Occupation",
           "uuid": "0f3b49e4-529b-4d79-9e9c-c8ae7b882dfa",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Father's Occupation",
             "uuid": "03f05606-6e82-414d-9bdb-c8c3ed6da78d",
@@ -206,12 +190,8 @@
         {
           "name": "Mother's Occupation",
           "uuid": "27572da0-3156-4cf5-9ae3-4e8193ce26e6",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Mother's Occupation",
             "uuid": "fe01d85e-a331-4426-be38-e9573ba5cff4",
@@ -249,12 +229,8 @@
         {
           "name": "Father's Addiction",
           "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Father's Addiction",
             "uuid": "d7400e65-5649-4010-b44f-77fba043b6eb",
@@ -276,12 +252,8 @@
         {
           "name": "Mother's Addiction",
           "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Mother's Addiction",
             "uuid": "5c92013d-1dcc-4a7d-83dd-a9606d861953",
@@ -303,12 +275,8 @@
         {
           "name": "Sickling",
           "uuid": "06b147ae-9ad5-4bd9-bcbe-1f80eb0c7d02",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Sickling",
             "uuid": "d706a31d-c516-47aa-b466-15ca62b0bb8b",
@@ -342,12 +310,8 @@
         {
           "name": "Goes to school",
           "uuid": "af0ce303-5e2f-429f-b2f8-d174da2644f4",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Goes to school",
             "uuid": "02667a3f-348b-4b2a-9301-72240de53f4e",
@@ -381,12 +345,8 @@
         {
           "name": "Reason for dropping out",
           "uuid": "0c101eab-e914-4186-b86b-db3547cb2e83",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Reason for dropping out",
             "uuid": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
@@ -428,12 +388,8 @@
         {
           "name": "If dropped out what are they doing now",
           "uuid": "6e4a4a98-c7ef-4585-bdd3-c29c45041fa0",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "If dropped out what are they doing now",
             "uuid": "fedc7739-ddd8-4627-86b0-4ecdc066601e",

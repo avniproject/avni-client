@@ -14,12 +14,8 @@
         {
           "name": "Is child having any of the following",
           "uuid": "d6b5cb76-843b-48b7-a0f1-645caf9a178e",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Is child having any of the following",
             "uuid": "9f5d3794-cf4c-47a3-bc65-7e47f55ec7fd",
@@ -85,12 +81,8 @@
         {
           "name": "Any activity problems",
           "uuid": "018f9968-79cf-4e40-988d-1befcdff73bb",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Any activity problems",
             "uuid": "16dd616a-4fc9-4fcc-8f24-4123a6dcfa21",
@@ -120,12 +112,8 @@
         {
           "name": "Does child feel hot or have the chills",
           "uuid": "0dbaa2f0-080b-4657-b421-621943d4dd99",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Does child feel hot or have the chills",
             "uuid": "1ef3c052-2437-4adc-ae05-e155bc62c207",
@@ -147,12 +135,8 @@
         {
           "name": "Is baby exclusively breastfeeding",
           "uuid": "0311c913-eb2b-4478-b435-dc142e7fe584",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Is baby exclusively breastfeeding",
             "uuid": "5a3b65c1-1647-47d0-ad66-d8b22722c472",
@@ -214,12 +198,8 @@
         {
           "name": "Any breathing problems",
           "uuid": "37e5335a-42bc-4a25-840a-e82e820f4f15",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Any breathing problems",
             "uuid": "17d5ed6e-b571-4e02-bebe-0c9db2c8f5ca",
@@ -253,12 +233,8 @@
         {
           "name": "Any skin problems",
           "uuid": "a489a772-08f7-49c9-8bbc-814cfdcf1525",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Any skin problems",
             "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",

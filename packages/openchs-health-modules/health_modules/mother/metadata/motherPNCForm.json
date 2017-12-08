@@ -92,12 +92,8 @@
         {
           "name": "Any of the following difficulties",
           "uuid": "3ae759ca-ba9e-43dd-8e64-270fdf0d1b38",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Post-Partum Haemorrhage symptoms",
             "uuid": "863b3d4b-31df-4313-9a20-66749c1f175d",
@@ -130,12 +126,8 @@
         {
           "name": "Any abdominal problems",
           "uuid": "04627edc-a358-451a-9772-d98084e81a36",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Any abdominal problems",
             "uuid": "2de99de4-558c-44b0-9882-abe7d892fe6c",
@@ -163,12 +155,8 @@
         {
           "name": "Any vaginal problems",
           "uuid": "5975a1d5-f43e-441e-a758-b2d4913dc543",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Any vaginal problems",
             "uuid": "a4b8583b-80af-4a9f-b506-037a7abb1f43",
@@ -201,12 +189,8 @@
         {
           "name": "Any difficulties with urinating",
           "uuid": "d9b350f8-3ed0-4333-bd13-dccd363020bd",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Any difficulties with urinating",
             "uuid": "0f01b6f6-b7e3-41ea-8d49-9df23196125b",
@@ -234,12 +218,8 @@
         {
           "name": "Any breast problems",
           "uuid": "2765a380-21ca-4989-b14a-1d69eea9f8c4",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Any breast problems",
             "uuid": "88fe8286-316d-4ee8-be86-2d8c3840881c",
@@ -272,12 +252,8 @@
         {
           "name": "How is the Cesarean incision area",
           "uuid": "827f5d7c-e0fa-4725-91dd-a7a93149b1ad",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "How is the Cesarean incision area",
             "uuid": "a70eb606-3155-49f1-b2b4-6bc858ea6d31",
@@ -310,12 +286,8 @@
         {
           "name": "Does feel hot or have the chills",
           "uuid": "0e15828b-b23f-4022-b6e1-d400f1ac608f",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Does feel hot or have the chills",
             "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
@@ -338,12 +310,8 @@
         {
           "name": "Convulsions",
           "uuid": "19e880a8-b886-436c-885e-cc5ce11cb284",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "conceptUUID": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
           "displayOrder": 8,
           "mandatory": false
@@ -351,12 +319,8 @@
         {
           "name": "Do you have the following complaints",
           "uuid": "491f80c6-1e45-4a6e-8233-42a1cde8b5d7",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Post-Partum Depression Symptoms",
             "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",

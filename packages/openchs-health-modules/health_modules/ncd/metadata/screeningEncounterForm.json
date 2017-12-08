@@ -13,12 +13,8 @@
         {
           "name": "Any sudden onset of any one of the following in last 6 hours",
           "uuid": "7605cf7b-c640-4ffe-9dd8-3049edaa7705",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Stroke - Sudden onset",
             "uuid": "551af987-c107-43ee-9699-ea0d6763c5cf",
@@ -64,12 +60,8 @@
         {
           "name": "How long did the symptoms last",
           "uuid": "bce0867c-8604-4dff-b9b5-67a306c392c8",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "How long did the symptoms last",
             "uuid": "b80b5580-6ea3-429a-9773-a68bb8985e17",
@@ -91,12 +83,8 @@
         {
           "name": "Any other symptoms",
           "uuid": "e90908be-e088-44ac-84fc-82a2a96108ae",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "NCD Screening Other Symptoms",
             "uuid": "700f8bba-e79d-4952-8597-7107bac4d6dc",
@@ -126,12 +114,8 @@
         {
           "name": "Suffering from diabetes",
           "uuid": "5065a0ae-58b3-4d91-8a91-aaad180b8a90",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Suffering from diabetes",
             "uuid": "078d6b4d-81f7-4ab9-8159-89de436da31f",
@@ -153,12 +137,8 @@
         {
           "name": "Medications",
           "uuid": "4ebc7a4f-c10c-4139-92c7-3677c9486fda",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Medications",
             "uuid": "a3d999d4-57f4-40ee-99ab-4f1ee1bd1e1b",
@@ -188,12 +168,8 @@
         {
           "name": "Smoking (Current or in last one year)",
           "uuid": "1ee0adc9-b58e-4fe3-b547-bd058a654562",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Smoking (Current or in last one year)",
             "uuid": "facdca21-7cb0-46d4-aef2-8df27f306844",
@@ -215,12 +191,8 @@
         {
           "name": "High intake of alcohol",
           "uuid": "3b478529-2c7a-4eee-a0b2-3cfdf04b8882",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "High intake of alcohol",
             "uuid": "db566116-4e36-4a86-a735-03a9545aa60b",
@@ -242,12 +214,8 @@
         {
           "name": "Lifestyle",
           "uuid": "238a8d29-b912-437e-9428-58801a4cd4db",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Lifestyle",
             "uuid": "23014529-92a4-4c58-a1dd-1cdc7c3bab5b",
@@ -381,12 +349,8 @@
         {
           "name": "Feet examination",
           "uuid": "04fd811e-c111-4fc9-87f8-e74784931a74",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Feet examination",
             "uuid": "289a3ddd-603d-4681-ba62-a2cfa8183f0b",

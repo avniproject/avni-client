@@ -14,12 +14,8 @@
         {
           "name": "Iron tablets",
           "uuid": "6938d320-b8de-4d34-acf0-1bab845cc62a",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Iron tablets",
             "uuid": "7e9d4242-6dd0-4a37-82a0-8b7def9f55f8",
@@ -41,12 +37,8 @@
         {
           "name": "From Where?",
           "uuid": "2080689c-381d-48f6-aea6-0e823c17fa7a",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "From Where?",
             "uuid": "1df3e1a7-a6d8-4293-891e-71a874c6a59e",
@@ -88,12 +80,8 @@
         {
           "name": "Menstrual disorder",
           "uuid": "e5f98ea7-c438-4833-a31a-1a5b28560c01",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Menstrual disorder",
             "uuid": "0f87eac1-cf6a-4632-8af2-29a935451fe4",
@@ -143,12 +131,8 @@
         {
           "name": "Any treatment taken",
           "uuid": "585cdd75-4768-4075-b23e-10843d8f1eaf",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"MultiSelect",
           "concept": {
             "name": "Any treatment taken",
             "uuid": "bd3d1ba3-0a85-4aa7-a62c-78254d8e0762",
@@ -182,12 +166,8 @@
         {
           "name": "Does she remain absent during menstruation?",
           "uuid": "cf7ddfd5-2a8f-4b19-8e79-75f7701dcc8e",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Does she remain absent during menstruation?",
             "uuid": "4cae960e-5e1e-4b23-9927-d95db35d83e3",
@@ -209,12 +189,8 @@
         {
           "name": "Why is she absent during menstruation?",
           "uuid": "34371c88-6494-4fb6-bcce-1ccca599dfcf",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type":"SingleSelect",
           "concept": {
             "name": "Why is she absent during menstruation?",
             "uuid": "c1288e8a-9b6a-4928-aa6d-3010814ee5c2",

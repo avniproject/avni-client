@@ -18,6 +18,7 @@ class FormElement {
             keyValues: {type: 'list', objectType: 'KeyValue'},
             concept: 'Concept',
             usedInSummary: 'bool',
+            type: {type: 'string', optional: true},
             generated: 'bool',
             formElementGroup: 'FormElementGroup'
         }
@@ -27,7 +28,7 @@ class FormElement {
         const formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formElementGroupUUID"), FormElementGroup.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptUUID"), Concept.schema.name);
 
-        const formElement = General.assignFields(resource, new FormElement(), ["uuid", "name", "displayOrder", "mandatory", "usedInSummary", "generated"], []);
+        const formElement = General.assignFields(resource, new FormElement(), ["uuid", "name", "displayOrder", "mandatory", "usedInSummary", "generated", "type"], []);
         formElement.formElementGroup = formElementGroup;
         formElement.concept = concept;
 
@@ -43,8 +44,8 @@ class FormElement {
     }
 
     isMultiSelect() {
-        const selectRecord = this.recordByKey(FormElement.keys.Select);
-        return _.isNil(selectRecord) ? false : selectRecord.getValue() === FormElement.values.Multi;
+        console.log(this.type);
+        return this.type === "MultiSelect";
     }
 
     excludedAnswers() {
@@ -57,8 +58,8 @@ class FormElement {
     }
 
     isSingleSelect() {
-        const selectRecord = this.recordByKey(FormElement.keys.Select);
-        return _.isNil(selectRecord) ? false : selectRecord.getValue() === FormElement.values.Single;
+        console.log(this.type);
+        return this.type === "SingleSelect";
     }
 
     get truthDisplayValue() {

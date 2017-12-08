@@ -96,12 +96,8 @@
         {
           "name": "Pallor",
           "uuid": "0321fdc2-055f-44ac-a24e-c66314f04127",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Pallor",
             "uuid": "226f8715-563b-4a8b-8afa-f75cce2767af",
@@ -123,12 +119,8 @@
         {
           "name": "Pedal Edema",
           "uuid": "57db3bc2-4a09-4351-bf44-edfe46e00ac1",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Pedal Edema",
             "uuid": "b441c480-1a19-4ad0-9d0a-196485aacf12",
@@ -150,12 +142,8 @@
         {
           "name": "Skin Condition",
           "uuid": "bfae2b55-5b91-4a1b-a6df-58d3cacf00b0",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Skin Condition",
             "uuid": "bff2c24c-32d2-4400-a691-4f43fa59090a",
@@ -185,12 +173,8 @@
         {
           "name": "Paracheck",
           "uuid": "d797bb0c-7f75-4748-9db2-bd0349c1ee65",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Paracheck",
             "uuid": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8",
@@ -230,14 +214,11 @@
           "uuid": "55bec1f0-a726-4a9d-93eb-eb6e06231d36",
           "keyValues": [
             {
-              "key": "Select",
-              "value": "Multi"
-            },
-            {
               "key": "ExcludedAnswers",
               "value": []
             }
           ],
+          "type": "MultiSelect",
           "concept": {
             "name": "Complaint",
             "uuid": "561c5f87-03f0-4135-be19-88ed548c1ce1",

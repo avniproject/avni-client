@@ -26,12 +26,8 @@
         {
           "name": "Place of delivery",
           "uuid": "f48b8eb2-a338-45fd-b63d-3c00d266d388",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Place of delivery",
             "uuid": "a0405799-1e3c-40ef-90ba-84c9c0931660",
@@ -69,12 +65,8 @@
         {
           "name": "Delivered By",
           "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Delivered By",
             "uuid": "58b6367a-825f-43e2-b6b7-b35a5cbc3a09",
@@ -112,12 +104,8 @@
         {
           "name": "Type of Delivery",
           "uuid": "f9453d8c-2085-4435-840f-3ddcd79f788f",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Type of Delivery",
             "uuid": "69d0acf1-c32b-4694-9bc2-874b5e7a44c8",
@@ -143,12 +131,8 @@
         {
           "name": "Delivery Outcome",
           "uuid": "14ebb121-7602-4644-81b3-6e171cea19ab",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Delivery Outcome",
             "uuid": "36b7b1a8-d191-4bbe-ad3c-0e25a48334e0",
@@ -176,12 +160,8 @@
         {
           "name": "Number of babies",
           "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Number of babies",
             "uuid": "884cd2fb-1e50-4a2e-a9ae-2b90d4a78ede",
@@ -207,12 +187,8 @@
         {
           "name": "Delivery Complications",
           "uuid": "d4d13b86-435f-4fe6-bb74-6a00cd41b174",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Multi"
-            }
-          ],
+          "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "name": "Delivery Complications",
             "uuid": "42fcfd17-4e35-4981-96b3-1d028915d808",

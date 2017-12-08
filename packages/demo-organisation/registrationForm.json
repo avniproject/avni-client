@@ -45,12 +45,8 @@
         {
           "name": "Education Level",
           "uuid": "9035da14-ec2f-489f-89c8-a776c986d968",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Education Level",
             "uuid": "ffd6b888-b2b5-4fcb-82fc-1f81c4c5e620",

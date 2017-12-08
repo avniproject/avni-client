@@ -38,12 +38,8 @@
         {
           "name": "Type of Abortion",
           "uuid": "abf596f7-aefd-4938-86b0-49e75fdf6511",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Type of Abortion",
             "uuid": "94e3ad45-ae52-41dc-a26a-27b4973cbd04",
@@ -65,12 +61,8 @@
         {
           "name": "Place of abortion",
           "uuid": "012590a5-15e9-445a-b75f-e41a9d0688cf",
-          "keyValues": [
-            {
-              "key": "Select",
-              "value": "Single"
-            }
-          ],
+          "keyValues": [],
+          "type": "SingleSelect",
           "concept": {
             "name": "Place of abortion",
             "uuid": "b8893e96-89fd-4965-93ea-b9307dd69be0",
