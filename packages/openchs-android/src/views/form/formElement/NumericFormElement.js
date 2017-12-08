@@ -20,24 +20,6 @@ class NumericFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    render() {
-        let rangeText = this.rangeText();
-        let unitText = this.unitText();
-        let labelText = this.label;
-        return (
-            <View>
-                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
-                    <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
-                </View>
-                <View>
-                    <TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText]} underlineColorAndroid={this.borderColor} keyboardType='numeric'
-                               value={_.toString(this.props.value.getValue())} onChangeText={(text) => this.onInputChange(text)} onEndEditing={(text) => this.onInputChange(text)}/>
-                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
-                </View>
-            </View>
-    );
-    }
-
     rangeText() {
         let rangeText = null;
         if (!_.isNil(this.props.element.concept.lowNormal)) {
@@ -52,14 +34,38 @@ class NumericFormElement extends AbstractFormElement {
         return _.isNil(rangeText) ? <Text></Text> : <Text style={Styles.formLabel}> ({rangeText}) </Text>;
     }
 
-    unitText(){
-        return _.isNil(this.props.element.concept.unit) ? <Text></Text> : <Text style={Styles.formLabel}> ({this.props.element.concept.unit}) </Text>;
+    unitText() {
+        return _.isNil(this.props.element.concept.unit) ? <Text></Text> :
+            <Text style={Styles.formLabel}> ({this.props.element.concept.unit}) </Text>;
 
     }
 
     onInputChange(text) {
         this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text});
     }
+
+    render() {
+        let rangeText = this.rangeText();
+        let unitText = this.unitText();
+        let labelText = this.label;
+        return (
+            <View>
+                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
+                    <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
+                </View>
+                <View>
+                    <TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText]}
+                               underlineColorAndroid={this.borderColor} keyboardType='numeric'
+                               value={_.toString(this.props.value.getValue())}
+                               onChangeText={(text) => this.onInputChange(text)}
+                               onEndEditing={(text) => this.onInputChange(text)}/>
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                </View>
+            </View>
+        );
     }
 
-    export default NumericFormElement;
+
+}
+
+export default NumericFormElement;
