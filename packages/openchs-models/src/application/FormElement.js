@@ -44,7 +44,7 @@ class FormElement {
     }
 
     getType() {
-        return this.concept.datatype === this.concept.datatype.Coded ? this.type : this.concept.datatype;
+        return this.concept.datatype === Concept.dataType.Coded ? this.type : this.concept.datatype;
     }
 
     isMultiSelect() {
