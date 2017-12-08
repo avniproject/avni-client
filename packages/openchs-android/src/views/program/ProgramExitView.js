@@ -39,9 +39,15 @@ class ProgramExitView extends AbstractComponent {
         return ProgramEnrolmentState.isInitialised(nextState);
     }
 
+    onBack() {
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.params.enrolment, usage: ProgramExitView.context.usage});
+        this.goBack();
+    }
+
+
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent state={this.state} context={ProgramExitView.context}/>;
+        return <ProgramFormComponent state={this.state} context={ProgramExitView.context} backFunction={() => this.onBack()}/>;
     }
 }
 
