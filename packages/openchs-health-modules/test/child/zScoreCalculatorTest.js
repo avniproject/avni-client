@@ -14,7 +14,7 @@ describe("zScoreCalculator", () => {
             female = new Gender();
             female.name = 'Female';
 
-            individual = Individual.newInstance("2425e7ce-5872-42c0-b3f2-95a134830478", "Raman Singh", moment().toDate(), true, male, 1);
+            individual = Individual.newInstance("2425e7ce-5872-42c0-b3f2-95a134830478", "Raman", "Singh", moment().toDate(), true, male, 1);
         });
 
         it("calculates z-scores for an individual", () => {
