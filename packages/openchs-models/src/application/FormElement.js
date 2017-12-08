@@ -43,8 +43,11 @@ class FormElement {
         return formElement;
     }
 
+    getType() {
+        return this.concept.datatype === this.concept.datatype.Coded ? this.type : this.concept.datatype;
+    }
+
     isMultiSelect() {
-        console.log(this.type);
         return this.type === "MultiSelect";
     }
 
@@ -58,7 +61,6 @@ class FormElement {
     }
 
     isSingleSelect() {
-        console.log(this.type);
         return this.type === "SingleSelect";
     }
 

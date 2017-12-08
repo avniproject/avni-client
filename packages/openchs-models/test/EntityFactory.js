@@ -42,13 +42,14 @@ class EntityFactory {
         return form;
     }
 
-    static createFormElement(name, mandatory, concept, displayOrder) {
+    static createFormElement(name, mandatory, concept, displayOrder, type) {
         const formElement = new FormElement();
         formElement.uuid = General.randomUUID();
         formElement.name = name;
         formElement.mandatory = mandatory;
         formElement.concept = concept;
         formElement.displayOrder = displayOrder;
+        formElement.type = type;
         return formElement;
     }
 
