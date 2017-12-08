@@ -15,8 +15,12 @@ class IndividualSearchCriteria {
     getFilterCriteria() {
         let criteria = [];
         if (!_.isEmpty(this.name)) {
-            criteria.push(`name CONTAINS[c] "${this.name}"`);
+            _.chain(this.name)
+                .split(' ')
+                .map((token) => token.trim()).filter((token) => !_.isEmpty(token))
+                .forEach((token) => {criteria.push(`name CONTAINS[c] "${token}"` )}).value();
         }
+
         if (!_.isEmpty(this.ageInYears)) {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
