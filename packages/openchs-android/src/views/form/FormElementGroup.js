@@ -1,7 +1,6 @@
 import {View, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import FormElementFactory from './formElement/FormElementFactory';
 import MultiSelectFormElement from './formElement/MultiSelectFormElement';
 import SingleSelectFormElement from './formElement/SingleSelectFormElement';
 import NumericFormElement from './formElement/NumericFormElement';

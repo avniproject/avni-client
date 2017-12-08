@@ -5,7 +5,6 @@ import {getNextScheduledVisits} from './adolescentVisitSchedule';
 
 const getDecisions = (programEnrolment, today) => {
     let enrolmentDecisions = [];
-    console.log(programEnrolment);
     const vulnerabilitiesBuilder = new ComplicationsBuilder({
         programEnrolment: programEnrolment,
         complicationsConcept: 'Adolescent Vulnerabilities'

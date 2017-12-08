@@ -17,7 +17,6 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
         if (_.encounterExists(currentEncounters, encounterType, name)) return;
 
         let schedule = encounterSchedule[encounterType];
-        console.log(encounterType, name, schedule);
         const earliestDate = _.addDays(baseDate, schedule.earliest);
         const maxDate = _.addDays(baseDate, schedule.max);
         encounters.push({

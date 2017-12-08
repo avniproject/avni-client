@@ -31,8 +31,6 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
     const deliveryEncounter = matchingEncounter(currentEncounters, 'Delivery', 'Delivery');
 
     const deliveryDate = deliveryEncounter && deliveryEncounter.encounterDateTime;
-    console.log("Delivery encounter is " + deliveryEncounter);
-    console.log("Delivery date is " + deliveryDate);
 
     const addEncounter = function (baseDate, encounterType, name) {
         if (_.encounterExists(currentEncounters, encounterType, name)) return;

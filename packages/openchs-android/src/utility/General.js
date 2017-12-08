@@ -17,7 +17,7 @@ class General {
     }
 
     static look(stuffToPrint) {
-        console.log(stuffToPrint);
+        General.logDebug('General', stuffToPrint);
         return stuffToPrint;
     }
 

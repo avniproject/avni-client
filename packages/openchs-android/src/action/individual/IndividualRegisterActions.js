@@ -36,12 +36,9 @@ export class IndividualRegisterActions {
     }
 
     static enterLastName(state, action) {
-        console.log(state.individual);
         const newState = state.clone();
         newState.individual.setLastName(action.value);
         newState.handleValidationResult(newState.individual.validateLastName());
-        console.log(newState.individual);
-        console.log(newState.clone().individual);
         return newState;
     }
 
