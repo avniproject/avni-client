@@ -17,6 +17,7 @@ import FormElement from "./application/FormElement";
 import FormElementGroup from "./application/FormElementGroup";
 import Form from "./application/Form";
 import KeyValue from "./application/KeyValue";
+import Format from "./application/Format";
 import EntityQueue from "./EntityQueue";
 import FormMapping from "./application/FormMapping";
 import ConfigFile from "./ConfigFile";
@@ -26,8 +27,8 @@ import _ from 'lodash';
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem],
-    schemaVersion: 43,
+    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format],
+    schemaVersion: 44,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

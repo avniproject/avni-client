@@ -5,6 +5,7 @@ import General from "../utility/General";
 import _ from "lodash";
 import ValidationResult from "./ValidationResult";
 import KeyValue from "./KeyValue";
+import Format from "./Format"
 
 class FormElement {
     static schema = {
@@ -20,7 +21,8 @@ class FormElement {
             usedInSummary: 'bool',
             type: {type: 'string', optional: true},
             generated: 'bool',
-            formElementGroup: 'FormElementGroup'
+            formElementGroup: 'FormElementGroup',
+            validFormat: {type: 'Format', optional: true}
         }
     };
 
@@ -39,6 +41,10 @@ class FormElement {
             _.forEach(resource["keyValues"], (keyValue) => {
                 formElement.keyValues.push(KeyValue.fromResource(keyValue));
             });
+        }
+        if(!_.isNil(resource["validFormat"])){
+            console.log(resource["validFormat"]);
+            formElement.validFormat = Format.fromResource(resource["validFormat"]);
         }
         return formElement;
     }
@@ -85,7 +91,10 @@ class FormElement {
         }
         else if (this.concept.datatype === Concept.dataType.Numeric && this.concept.violatesRange(value)) {
             failure.messageKey = 'numberOutOfRangeMessage';
-        } else {
+        } else if(!_.isEmpty(this.validFormat) && !this.validFormat.valid(value)){
+            failure.messageKey = this.validFormat.descriptionKey;
+        }
+        else {
             return new ValidationResult(true, this.uuid, null);
         }
         return failure;
