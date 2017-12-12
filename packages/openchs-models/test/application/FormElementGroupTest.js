@@ -1,7 +1,9 @@
 import {assert} from "chai";
 import EntityFactory from "../EntityFactory";
 import Concept from '../../src/Concept';
-import ObservationRule from "../../src/observation/ObservationRule";
+import FormElement from "openchs-models/src/application/FormElement";
+import FormElementStatus from "../../src/application/FormElementStatus";
+import FormElementGroup from "../../src/application/FormElementGroup";
 
 describe('FormElementGroupTest', () => {
     it('previous and next', () => {
@@ -32,4 +34,19 @@ describe('FormElementGroupTest', () => {
         formElementGroup.addFormElement(EntityFactory.createFormElement("baz", false, EntityFactory.createConcept("bar", Concept.dataType.Text), 1));
         assert.equal(formElementGroup.getFormElements().length, 2);
     });
+
+    it('filterElements', () => {
+        let formElements = [createFormElement('ABCD'), createFormElement('EFGH'), createFormElement('IJKL')];
+        let formElementStatuses = [new FormElementStatus('ABCD', true, 1), new FormElementStatus('EFGH', false, 1), new FormElementStatus('IJKL', true, 1)];
+        let formElementGroup = new FormElementGroup();
+        formElementGroup.formElements = formElements;
+        let filteredElements = formElementGroup.filterElements(formElementStatuses);
+        assert.equal(filteredElements.length, 2);
+    });
+
+    function createFormElement(uuid) {
+        let x = new FormElement();
+        x.uuid = uuid;
+        return x;
+    }
 });

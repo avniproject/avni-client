@@ -8,7 +8,6 @@ import StaticFormElementGroup from "./src/application/StaticFormElementGroup";
 import ValidationResult from "./src/application/ValidationResult";
 import ValidationResults from "./src/application/ValidationResults";
 import MultipleCodedValues from "./src/observation/MultipleCodedValues";
-import ObservationRule from "./src/observation/ObservationRule";
 import PrimitiveValue from "./src/observation/PrimitiveValue";
 import SingleCodedValue from "./src/observation/SingleCodedValue";
 import AbstractEncounter from "./src/AbstractEncounter";
@@ -51,7 +50,6 @@ export  {
     ValidationResult,
     ValidationResults,
     MultipleCodedValues,
-    ObservationRule,
     PrimitiveValue,
     SingleCodedValue,
     AbstractEncounter,

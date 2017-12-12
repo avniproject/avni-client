@@ -91,6 +91,10 @@ class FormElementGroup {
         return this;
     }
 
+    filterElements(formElementStatuses) {
+        return _.filter(this.formElements, (formElement) => _.some(formElementStatuses, (formElementStatus) => formElementStatus.uuid === formElement.uuid && formElementStatus.visibility));
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

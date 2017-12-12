@@ -9,7 +9,6 @@ import ChecklistItem from "../src/ChecklistItem";
 import Observation from "../src/Observation";
 import PrimitiveValue from "../src/observation/PrimitiveValue";
 import ProgramEncounter from "../src/ProgramEncounter";
-import ObservationRule from "../src/observation/ObservationRule";
 import ProgramEnrolment from "../src/ProgramEnrolment";
 
 class EntityFactory {
@@ -98,10 +97,6 @@ class EntityFactory {
         programEnrolment.program = program;
         programEnrolment.observations = observations;
         return programEnrolment;
-    }
-
-    static createObservationRule() {
-        return new ObservationRule();
     }
 
     static createProgram = function ({uuid = General.randomUUID(), name = null}) {

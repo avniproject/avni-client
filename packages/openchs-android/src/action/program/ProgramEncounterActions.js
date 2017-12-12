@@ -15,13 +15,14 @@ class ProgramEncounterActions {
 
     static onLoad(state, action, context) {
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
-        let filteredFormElements = context.get(RuleEvaluationService).filterFormElements(action.programEncounter, form.firstFormElementGroup);
+        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.programEncounter, form.firstFormElementGroup);
+        let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
         if (_.isNil(form)) {
             return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
         }
 
-        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, form.firstFormElementGroup, filteredFormElements);
+        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, form.firstFormElementGroup, filteredElements);
     }
 
     static onNext(state, action, context) {
@@ -36,11 +37,8 @@ class ProgramEncounterActions {
         const newState = state.clone();
 
         context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment);
-
-        newState.programEncounter.removeObservationsNotAllowed(newState.observationRules);
         const service = context.get(ProgramEncounterService);
         service.saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
-
 
         action.cb();
         return newState;
