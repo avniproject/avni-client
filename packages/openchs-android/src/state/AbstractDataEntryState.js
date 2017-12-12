@@ -76,7 +76,7 @@ class AbstractDataEntryState {
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
-            var decisions, checklists, nextScheduledVisits;
+            let decisions, checklists, nextScheduledVisits;
             if (!ValidationResult.hasValidationError(this.validationResults)) {
                 decisions = this.executeRule(ruleService, context);
                 checklists = this.getChecklists(ruleService, context);

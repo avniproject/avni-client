@@ -18,7 +18,8 @@ class EleventhAndTwlefthStandard {
     }
 
     reasonForDroppingOut(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, true);
+        let observationValue = programEncounter.getObservationValue('School going');
+        return new FormElementStatus(formElement.uuid, observationValue === 'Dropped Out');
     }
 
     whatHeSheIsDoingNow(programEncounter, formElement) {

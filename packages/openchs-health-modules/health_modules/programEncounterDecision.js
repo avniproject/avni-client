@@ -1,6 +1,7 @@
 import * as Mother from './mother/motherProgramEncounterDecision';
 import * as Child from './child/childProgramEncounterDecision';
 import * as Adolescent from './adolescent/adolescentProgramEncounterDecision';
+import FormElementStatus from "../../openchs-models/src/application/FormElementStatus";
 const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
 
 function targetFunction(fn, programName) {
@@ -29,7 +30,7 @@ export function getNextScheduledVisits (programEncounter) {
 }
 
 export function filterFormElements(programEncounter, formElementGroup) {
-    return executeProgramEncounterFunc({parameter: [programEncounter, formElementGroup], fn: "filterFormElements", defaultValue: formElementGroup.formElements});
+    return executeProgramEncounterFunc({parameter: [programEncounter, formElementGroup], fn: "filterFormElements", defaultValue: formElementGroup.formElements.map((formElement) => new FormElementStatus(formElement.uuid, true, undefined))});
 }
 
 module.exports.executeProgramEncounterFunc = executeProgramEncounterFunc;
