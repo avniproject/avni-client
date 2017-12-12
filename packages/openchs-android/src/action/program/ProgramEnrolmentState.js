@@ -18,6 +18,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
             this.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? enrolment.observations : enrolment.programExitObservations);
     }
 
+    getEntity() {
+        return this.enrolment;
+    }
+
     clone() {
         const newState = new ProgramEnrolmentState();
         super.clone(newState);

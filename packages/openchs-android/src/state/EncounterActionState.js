@@ -11,6 +11,10 @@ class EncounterActionState extends AbstractDataEntryState {
         this.previousEncountersDisplayed = false;
     }
 
+    getEntity() {
+        return this.encounter;
+    }
+
     clone() {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();

@@ -8,6 +8,11 @@ class StubbedRuleEvaluationService {
     getDecisions() {
         return [];
     }
+
+    filterFormElements(entity, formElementGroup) {
+        if (formElementGroup) return formElementGroup.formElements;
+        return [];
+    }
 }
 
 export default StubbedRuleEvaluationService;

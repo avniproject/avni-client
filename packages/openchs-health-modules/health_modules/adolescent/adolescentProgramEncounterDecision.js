@@ -3,12 +3,12 @@ import FormElementStatus from "../../../openchs-models/src/application/FormEleme
 
 export function filterFormElements (programEncounter, formElementGroup, today) {
     return formElementGroup.formElements.map((formElement) => {
-        let nameWOSpecialChars = formElement.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '');
+        let nameWOSpecialChars = formElement.name.replace(/[-[\]{}()*+?.,\\^$|#]/g, '');
         let fnName = _.camelCase(nameWOSpecialChars);
         let eleventhAndTwlefthStandard = new EleventhAndTwlefthStandard();
         let fn = eleventhAndTwlefthStandard[fnName];
         if (_.isNil(fn)) return new FormElementStatus(formElement.uuid, true);
-        return fn(programEncounter);
+        return fn(programEncounter, formElement);
     });
 }
 

@@ -13,6 +13,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         this.individual = individual;
     }
 
+    getEntity() {
+        return this.individual;
+    }
+
     static createLoadState(form, genders, individual) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
         const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true);

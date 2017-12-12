@@ -18,6 +18,10 @@ class StubbedDataEntryState extends AbstractDataEntryState {
     validateEntity() {
         return this.validationResults;
     }
+
+    getEntity() {
+        return this.observationsHolder;
+    }
 }
 
 export default StubbedDataEntryState;

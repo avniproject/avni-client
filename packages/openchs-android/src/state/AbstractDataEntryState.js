@@ -2,6 +2,7 @@ import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import {ValidationResult, BaseEntity} from "openchs-models";
 import General from "../utility/General";
+import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity) {
@@ -16,6 +17,9 @@ class AbstractDataEntryState {
         newState.formElementGroup = this.formElementGroup;
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
         return newState;
+    }
+
+    getEntity() {
     }
 
     handleValidationResult(validationResult) {
@@ -65,6 +69,7 @@ class AbstractDataEntryState {
     }
 
     handleNext(action, context) {
+        const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity();
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));
         this.handleValidationResults(allValidationResults);
@@ -73,7 +78,6 @@ class AbstractDataEntryState {
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
             this.moveToLastPageWithFormElements();
             this.removeNonRuleValidationErrors();
-            const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
             let decisions, checklists, nextScheduledVisits;
@@ -85,6 +89,7 @@ class AbstractDataEntryState {
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
         } else {
             this.moveNext();
+            ObservationHolderActions.updatedFormElements(this.getEntity(), this.formElementGroup, this, context);
             if (this.hasNoFormElements()) {
                 General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);

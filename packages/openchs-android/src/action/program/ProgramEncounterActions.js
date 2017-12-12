@@ -47,7 +47,6 @@ class ProgramEncounterActions {
     static encounterDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.programEncounter.encounterDateTime = action.value;
-        newState.setFilteredFormElements();
         newState.handleValidationResults(newState.programEncounter.validate());
         return newState;
     }

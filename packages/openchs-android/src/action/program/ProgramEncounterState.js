@@ -11,6 +11,10 @@ class ProgramEncounterState extends AbstractDataEntryState {
         this.filteredFormElements = filteredFormElements;
     }
 
+    getEntity() {
+        return this.programEncounter;
+    }
+
     static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements) {
         return new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, programEncounter, filteredFormElements);
     }
@@ -50,22 +54,8 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name);
     }
 
-    moveNext() {
-        super.moveNext();
-        this.setFilteredFormElements();
-    }
-
     hasNoFormElements() {
         return _.isEmpty(this.filteredFormElements);
-    }
-
-    setFilteredFormElements() {
-        this.filteredFormElements = this.formElementGroup.formElements;
-    }
-
-    movePrevious() {
-        super.movePrevious();
-        this.setFilteredFormElements();
     }
 }
 

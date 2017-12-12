@@ -56,8 +56,8 @@ class RuleEvaluationService extends BaseService {
         return this.entityRulesMap.get('ProgramEnrolment').getChecklists(enrolment);
     }
 
-    filterFormElements(programEncounter, formElementGroup) {
-        return this.entityRulesMap.get('ProgramEncounter').filterFormElements(programEncounter, formElementGroup);
+    filterFormElements(entity, formElementGroup) {
+        return this.entityRulesMap.get('ProgramEncounter').filterFormElements(entity, formElementGroup);
     }
 }
 

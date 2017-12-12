@@ -1,13 +1,22 @@
 import _ from "lodash";
 import {Concept, Duration} from 'openchs-models';
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+import General from "../../utility/General";
 
 class ObservationsHolderActions {
+    static updatedFormElements(entity, formElementGroup, state, context) {
+        const ruleService = context.get(RuleEvaluationService);
+        let formElementStatuses = ruleService.filterFormElements(entity, formElementGroup);
+        state.filteredFormElements = formElementGroup.filterElements(formElementStatuses);
+    }
+
     static onPrimitiveObsUpdateValue(state, action, context) {
         const newState = state.clone();
         if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
 
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
+        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
@@ -15,22 +24,25 @@ class ObservationsHolderActions {
         const newState = state.clone();
         const validationResult = action.formElement.validate(action.value);
         newState.handleValidationResult(validationResult);
+        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
-    static toggleMultiSelectAnswer(state, action) {
+    static toggleMultiSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
+        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
-    static toggleSingleSelectAnswer(state, action) {
+    static toggleSingleSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
+        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
@@ -48,6 +60,7 @@ class ObservationsHolderActions {
 
         const validationResult = action.formElement.validate(dateValue);
         newState.handleValidationResult(validationResult);
+        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 }
