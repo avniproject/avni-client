@@ -47,6 +47,7 @@
           "uuid": "61d8ffa3-e2e5-46ed-ba05-883ca5685910",
           "keyValues": [],
           "type": "SingleSelect",
+          "mandatory": true,
           "conceptUUID": "fedc7739-ddd8-4627-86b0-4ecdc066601e"
         },
         {
@@ -97,6 +98,7 @@
               }
             ]
           },
+          "mandatory": true,
           "displayOrder": 1
         },
         {
@@ -142,6 +144,7 @@
               }
             ]
           },
+          "mandatory": true,
           "displayOrder": 3
         },
         {
@@ -150,6 +153,7 @@
           "keyValues": [],
           "type": "MultiSelect",
           "conceptUUID": "0f87eac1-cf6a-4632-8af2-29a935451fe4",
+          "mandatory": true,
           "displayOrder": 4
         },
         {
@@ -158,8 +162,7 @@
           "keyValues": [],
           "type": "MultiSelect",
           "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
-          "displayOrder": 5,
-          "mandatory": true
+          "displayOrder": 5
         }
       ]
     },
@@ -208,6 +211,7 @@
               }
             ]
           },
+          "mandatory": true,
           "displayOrder": 3
         }
       ]
