@@ -5,20 +5,18 @@ import _ from "lodash";
 import ConceptService from "../../service/ConceptService";
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, isNewEntity, programEncounter, observationRules, filteredFormElements) {
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements) {
         super([], formElementGroup, wizard, isNewEntity);
         this.programEncounter = programEncounter;
-        this.observationRules = observationRules;
         this.filteredFormElements = filteredFormElements;
     }
 
-    static createOnLoad(programEncounter, form, isNewEntity, observationRules) {
-        const formElementGroup = form.firstFormElementGroup;
-        return new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, programEncounter, observationRules, formElementGroup.getApplicableFormElements(programEncounter, observationRules));
+    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements) {
+        return new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, programEncounter, filteredFormElements);
     }
 
     clone() {
-        return new ProgramEncounterState(this.formElementGroup, this.wizard.clone(), this.isNewEntity, this.programEncounter.cloneForEdit(), this.observationRules, this.filteredFormElements);
+        return new ProgramEncounterState(this.formElementGroup, this.wizard.clone(), this.isNewEntity, this.programEncounter.cloneForEdit(), this.filteredFormElements);
     }
 
     get observationsHolder() {
@@ -62,7 +60,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     setFilteredFormElements() {
-        this.filteredFormElements = this.formElementGroup.getApplicableFormElements(this.programEncounter, this.observationRules);
+        this.filteredFormElements = this.formElementGroup.formElements;
     }
 
     movePrevious() {

@@ -86,19 +86,6 @@ class FormElementGroup {
         return this.display;
     }
 
-    getApplicableFormElements(programEncounter, observationRules) {
-        if (_.isNil(programEncounter.encounterDateTime)) return this.getFormElements();
-
-        const applicableFormElements = [];
-        let numberOfWeeksSinceEnrolment = programEncounter.numberOfWeeksSinceEnrolment;
-
-        for (let i = 0; i < this.formElements.length; i++) {
-            if (programEncounter.isObservationAllowed(observationRules, this.formElements[i].concept, numberOfWeeksSinceEnrolment))
-                applicableFormElements.push(this.formElements[i]);
-        }
-        return FormElementGroup._sortedFormElements(applicableFormElements);
-    }
-
     removeFormElement(formElementName) {
         this.formElements = _.reject(this.formElements, (formElement) => formElement.matches(formElementName));
         return this;

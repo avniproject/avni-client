@@ -6,7 +6,7 @@ import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import {ProgramEncounter} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
-import ProgramConfigService from "../../service/ProgramConfigService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -15,13 +15,13 @@ class ProgramEncounterActions {
 
     static onLoad(state, action, context) {
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
-        const observationRules = context.get(ProgramConfigService).observationRulesForProgram(action.programEncounter.programEnrolment.program);
+        let filteredFormElements = context.get(RuleEvaluationService).filterFormElements(action.programEncounter, form.firstFormElementGroup);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
         if (_.isNil(form)) {
             return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
         }
 
-        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, observationRules);
+        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, form.firstFormElementGroup, filteredFormElements);
     }
 
     static onNext(state, action, context) {

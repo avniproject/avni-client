@@ -15,10 +15,6 @@ class ProgramConfigService extends BaseService {
         return program && program.name && programConfig.config(program.name);
     }
 
-    observationRulesForProgram(program) {
-        return program && program.name && programConfig.observationRules(program.name);
-    }
-
     findDashboardButtons(program) {
         return _.get(this.configForProgram(program), ['programDashboardButtons']);
     }

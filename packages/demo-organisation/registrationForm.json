@@ -33,6 +33,18 @@
           },
           "displayOrder": 2,
           "mandatory": false
+        },
+        {
+          "name": "AADHAAR No",
+          "uuid": "f75cd6e1-c8a0-4cd9-8ed0-761552f42f9c",
+          "keyValues": [],
+          "concept": {
+            "name": "AADHAAR No",
+            "uuid": "2ce5b32f-3871-44be-a5c9-1c496893cfea",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 3,
+          "mandatory": false
         }
       ]
     },

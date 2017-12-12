@@ -1,13 +1,13 @@
 import * as Mother from './mother/motherProgramEncounterDecision';
 import * as Child from './child/childProgramEncounterDecision';
-const allImports = {Mother: Mother, Child: Child};
+import * as Adolescent from './adolescent/adolescentProgramEncounterDecision';
+const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
 
 function targetFunction(config, programName) {
     return allImports && allImports[programName] && allImports[programName][config.fn];
 }
 
-const executeProgramEncounterFunc = function (config) {
-    const today = new Date();
+const executeProgramEncounterFunc = function (config, today = new Date()) {
     const enrolment = config.parameter.programEnrolment;
     const programName = enrolment.program.name;
     const fn = targetFunction(config, programName);
@@ -25,7 +25,11 @@ export function getDecisions (programEncounter) {
 }
 
 export function getNextScheduledVisits (programEncounter) {
-    return executeProgramEncounterFunc({parameter: programEncounter, fn: "getNextScheduledVisits"});
+    return executeProgramEncounterFunc({parameter: programEncounter, fn: "getNextScheduledVisits", defaultValue: []});
+}
+
+export function filterFormElements(programEncounter, formElementGroup) {
+    return executeProgramEncounterFunc({parameter: programEncounter, fn: "filterFormElements", defaultValue: formElementGroup.formElements});
 }
 
 module.exports.executeProgramEncounterFunc = executeProgramEncounterFunc;

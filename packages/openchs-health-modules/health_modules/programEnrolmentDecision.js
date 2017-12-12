@@ -23,8 +23,7 @@ function targetFunction(config, programName) {
     return allImports && allImports[programName] && allImports[programName][config.fn];
 }
 
-export function executeProgramEnrolmentFunc (config) {
-    const today = new Date();
+export function executeProgramEnrolmentFunc (config, today = new Date()) {
     const programName = config.parameter.program.name;
     const fn = targetFunction(config, programName);
 
