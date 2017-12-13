@@ -5,8 +5,8 @@ import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 
 class AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity) {
-        this.setState(validationResults, formElementGroup, wizard, isNewEntity);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
     }
 
     clone(newState) {
@@ -15,11 +15,17 @@ class AbstractDataEntryState {
             newState.validationResults.push(ValidationResult.clone(validationResult));
         });
         newState.formElementGroup = this.formElementGroup;
+        newState.filteredFormElements = this.filteredFormElements;
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
         return newState;
     }
 
     getEntity() {
+        throw new Error("getEntity should be overridden");
+    }
+
+    getEntityType() {
+        throw new Error("getEntityType should be overridden");
     }
 
     handleValidationResult(validationResult) {
@@ -59,6 +65,7 @@ class AbstractDataEntryState {
 
     handlePrevious(action, context) {
         this.movePrevious();
+        ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
         if (this.hasNoFormElements()) {
             General.logDebug("No form elements here. Moving to previous screen");
             return this.handlePrevious(action, context);
@@ -71,7 +78,7 @@ class AbstractDataEntryState {
     handleNext(action, context) {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity();
-        const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder));
+        const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements));
         this.handleValidationResults(allValidationResults);
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
@@ -89,9 +96,8 @@ class AbstractDataEntryState {
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
         } else {
             this.moveNext();
-            ObservationHolderActions.updatedFormElements(this.getEntity(), this.formElementGroup, this, context);
+            ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
             if (this.hasNoFormElements()) {
-                General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);
             }
             if (_.isFunction(action.movedNext)) action.movedNext(this);
@@ -145,15 +151,16 @@ class AbstractDataEntryState {
         return [];
     }
 
-    setState(validationResults, formElementGroup, wizard, isNewEntity) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
         this.isNewEntity = isNewEntity;
+        this.filteredFormElements = filteredFormElements;
     }
 
     hasNoFormElements() {
-        return false;
+        return _.isEmpty(this.filteredFormElements);
     }
 }
 

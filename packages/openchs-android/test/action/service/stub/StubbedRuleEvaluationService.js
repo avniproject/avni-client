@@ -1,4 +1,4 @@
-import {ValidationResult} from "openchs-models";
+import {FormElementStatus, ValidationResult} from "openchs-models";
 
 class StubbedRuleEvaluationService {
     validateAgainstRule(entity) {
@@ -9,8 +9,8 @@ class StubbedRuleEvaluationService {
         return [];
     }
 
-    filterFormElements(entity, formElementGroup) {
-        if (formElementGroup) return formElementGroup.formElements;
+    filterFormElements(entity, entityType, formElementGroup) {
+        if (formElementGroup) return formElementGroup.formElements.map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
         return [];
     }
 }

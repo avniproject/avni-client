@@ -9,8 +9,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         Exit: 'Exit'
     };
 
-    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment) {
-        super(validationResults, formElementGroup, wizard, isNewEnrolment);
+    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements) {
+        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements);
         this.usage = usage;
         this.enrolment = enrolment;
         this.formElementsUserState = {};
@@ -20,6 +20,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getEntity() {
         return this.enrolment;
+    }
+
+    getEntityType() {
+        return ProgramEnrolment.schema.name;
     }
 
     clone() {

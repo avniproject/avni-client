@@ -4,9 +4,9 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
 
 class ObservationsHolderActions {
-    static updatedFormElements(entity, formElementGroup, state, context) {
+    static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
-        let formElementStatuses = ruleService.filterFormElements(entity, formElementGroup);
+        let formElementStatuses = ruleService.filterFormElements(state.getEntity(), state.getEntityType(), formElementGroup);
         state.filteredFormElements = formElementGroup.filterElements(formElementStatuses);
     }
 
@@ -16,39 +16,39 @@ class ObservationsHolderActions {
             return newState;
 
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
-        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
+        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         return newState;
     }
 
     static onPrimitiveObsEndEditing(state, action, context) {
         const newState = state.clone();
+        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         const validationResult = action.formElement.validate(action.value);
         newState.handleValidationResult(validationResult);
-        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
     static toggleMultiSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
+        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
-        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
     static toggleSingleSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);
+        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
-        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
         return newState;
     }
 
     static onDurationChange(state, action, context) {
         const newState = state.clone();
-        var dateValue;
+        let dateValue;
         if (_.isNil(action.duration)) {
             dateValue = action.value;
         } else {
@@ -57,10 +57,10 @@ class ObservationsHolderActions {
             newState.formElementsUserState[action.formElement.uuid] = {durationUnit: action.duration.durationUnit};
         }
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, dateValue);
-
+        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         const validationResult = action.formElement.validate(dateValue);
         newState.handleValidationResult(validationResult);
-        ObservationsHolderActions.updatedFormElements(newState.getEntity(), newState.formElementGroup, newState, context);
+
         return newState;
     }
 }

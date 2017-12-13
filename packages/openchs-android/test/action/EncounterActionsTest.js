@@ -7,6 +7,7 @@ import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";
 import WizardNextActionStub from './WizardNextActionStub';
 import TestContext from "./views/testframework/TestContext";
+import General from "../../src/utility/General";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();
@@ -28,8 +29,7 @@ let createIntialState = function (dataType, firstFormElementMandatory, secondFor
     const formElement2 = createFormElement(dataType, secondFormElementMandatory, 'd1ab1bfd-aa13-4e86-ac67-9b46387ee446');
     formElementGroup2.addFormElement(formElement2);
 
-    const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1));
-    state.encounter = Encounter.create();
+    const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1), false, Encounter.create(), formElementGroup.formElements);
     state.encounter.individual = Individual.createEmptyInstance();
     state.encounter.encounterDateTime = new Date();
     return {state, formElement, formElement2};
@@ -171,7 +171,6 @@ describe('EncounterActionsTest', () => {
 
     it('next should be allowed if there are no validation errors in the same FEG', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
-
         var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement}, testContext);
         newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(newState, {value: '', formElement: formElement2}, testContext);
         var action = WizardNextActionStub.forMovedNext();

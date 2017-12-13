@@ -1,18 +1,20 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {ObservationsHolder, AbstractEncounter, ProgramEncounter} from "openchs-models";
-import _ from "lodash";
+import {AbstractEncounter, ObservationsHolder, ProgramEncounter} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements) {
-        super([], formElementGroup, wizard, isNewEntity);
+        super([], formElementGroup, wizard, isNewEntity, filteredFormElements);
         this.programEncounter = programEncounter;
-        this.filteredFormElements = filteredFormElements;
     }
 
     getEntity() {
         return this.programEncounter;
+    }
+
+    getEntityType() {
+        return ProgramEncounter.schema.name;
     }
 
     static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements) {
@@ -52,10 +54,6 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     getNextScheduledVisits(ruleService, context) {
         return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name);
-    }
-
-    hasNoFormElements() {
-        return _.isEmpty(this.filteredFormElements);
     }
 }
 

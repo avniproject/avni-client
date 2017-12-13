@@ -4,8 +4,9 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from 'lodash';
-import {StaticFormElementGroup} from "openchs-models";
+import {StaticFormElementGroup, ProgramEnrolment} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -19,7 +20,9 @@ export class ProgramEnrolmentActions {
             const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
             const formElementGroup = _.isNil(form) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
-            return new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment);
+            let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.programEnrolment, ProgramEnrolment.schema.name, formElementGroup);
+            let filteredElements = formElementGroup.filterElements(formElementStatuses);
+            return new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment, filteredElements);
         }
         else {
             return state.clone();

@@ -15,7 +15,7 @@ class ProgramEncounterActions {
 
     static onLoad(state, action, context) {
         const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
-        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.programEncounter, form.firstFormElementGroup);
+        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.programEncounter, ProgramEncounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
         if (_.isNil(form)) {

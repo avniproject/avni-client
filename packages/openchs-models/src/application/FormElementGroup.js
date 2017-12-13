@@ -58,9 +58,9 @@ class FormElementGroup {
         return this.displayOrder === 1;
     }
 
-    validate(observationHolder) {
+    validate(observationHolder, filteredFormElements) {
         const validationResults = [];
-        this.formElements.forEach((formElement) => {
+        filteredFormElements.forEach((formElement) => {
             const observation = observationHolder.findObservation(formElement.concept);
             const validationResult = formElement.validate(_.isNil(observation) ? null : observation.getValue());
             validationResults.push(validationResult);

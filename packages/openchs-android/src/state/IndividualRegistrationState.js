@@ -5,8 +5,8 @@ import ConceptService from "../service/ConceptService";
 import {StaticFormElementGroup, Individual, ObservationsHolder} from "openchs-models";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity) {
-        super(validationResults, formElementGroup, wizard, isNewEntity);
+    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
@@ -17,9 +17,13 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return this.individual;
     }
 
+    getEntityType() {
+        return Individual.schema.name;
+    }
+
     static createLoadState(form, genders, individual) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true);
+        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, []);
         individualRegistrationState.form = form;
         return individualRegistrationState;
     }

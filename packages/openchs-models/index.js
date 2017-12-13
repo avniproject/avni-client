@@ -38,6 +38,7 @@ import ReferenceEntity from "./src/ReferenceEntity";
 import Schema from "./src/Schema";
 import Settings from "./src/Settings";
 import UserDefinedIndividualProperty from "./src/UserDefinedIndividualProperty";
+import FormElementStatus from "./src/application/FormElementStatus";
 
 export  {
     Form,
@@ -80,5 +81,6 @@ export  {
     ReferenceEntity,
     Schema,
     Settings,
-    UserDefinedIndividualProperty
+    UserDefinedIndividualProperty,
+    FormElementStatus
 };

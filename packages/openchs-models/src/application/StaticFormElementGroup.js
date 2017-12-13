@@ -30,6 +30,10 @@ class StaticFormElementGroup {
     getFormElements() {
         return [];
     }
+
+    filterElements(formElementStatuses) {
+        return this.getFormElements();
+    }
 }
 
 export default StaticFormElementGroup;

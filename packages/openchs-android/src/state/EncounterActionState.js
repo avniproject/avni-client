@@ -3,16 +3,21 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import {AbstractEncounter, ObservationsHolder} from "openchs-models";
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
+import {Encounter} from "openchs-models";
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter) {
-        super(validationResults, formElementGroup, wizard, isNewEntity);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
     }
 
     getEntity() {
         return this.encounter;
+    }
+
+    getEntityType() {
+        return Encounter.schema.name;
     }
 
     clone() {
@@ -34,8 +39,8 @@ class EncounterActionState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
-    static createOnLoadState(form, encounter, isNewEncounter) {
-        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter);
+    static createOnLoadState(form, encounter, isNewEncounter, filteredFormElements) {
+        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter, filteredFormElements);
     }
 
     validateEntityAgainstRule(ruleService) {

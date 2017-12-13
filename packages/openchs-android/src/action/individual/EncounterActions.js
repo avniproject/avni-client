@@ -4,7 +4,8 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import _ from "lodash";
 import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
-import ConceptService from "../../service/ConceptService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {Encounter} from "openchs-models";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -23,7 +24,9 @@ export class EncounterActions {
         }
 
         const form = context.get(FormMappingService).findFormForEncounterType(encounter.encounterType);
-        return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter);
+        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
+        let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
+        return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
     }
 
     static onNext(state, action, context) {
