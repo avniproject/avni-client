@@ -71,10 +71,7 @@ class AbstractDataEntryState {
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
-            while (this.hasNoFormElements()) {
-                General.logDebug("No form elements here. Moving to next screen");
-                this.movePrevious();
-            }
+            this.moveToLastPageWithFormElements();
             this.removeNonRuleValidationErrors();
             const ruleService = context.get(RuleEvaluationService);
             const validationResults = this.validateEntityAgainstRule(ruleService);
@@ -95,6 +92,12 @@ class AbstractDataEntryState {
             if (_.isFunction(action.movedNext)) action.movedNext(this);
         }
         return this;
+    }
+
+    moveToLastPageWithFormElements() {
+        while (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
+            this.movePrevious();
+        }
     }
 
     validateEntityAgainstRule(ruleService) {
