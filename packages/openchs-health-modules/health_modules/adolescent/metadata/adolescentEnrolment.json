@@ -12,12 +12,12 @@
       "display": "Family Details",
       "formElements": [
         {
-          "name": "Parents life status?",
+          "name": "Parents",
           "uuid": "836e439b-cd89-4036-9a5f-e6cf74b03179",
           "keyValues": [],
           "type":"SingleSelect",
           "concept": {
-            "name": "Parents life status?",
+            "name": "Parents life status",
             "uuid": "9083aae8-0a78-4b5b-9177-dd993e6d088c",
             "dataType": "Coded",
             "answers": [
@@ -43,35 +43,103 @@
           "mandatory": true
         },
         {
-          "name": "Parents marital status?",
-          "uuid": "5f6f1a77-cd80-4b1f-8261-51c9253f09e9",
+          "name": "Staying with whom",
+          "uuid": "3c77390c-5c9d-4345-9ae8-28b74b568bfc",
           "keyValues": [],
           "type":"SingleSelect",
           "concept": {
-            "name": "Parents marital status?",
-            "uuid": "e3665fae-913b-48d8-9362-61b7d1125b9b",
+            "name": "Staying with",
+            "uuid": "eb47f6b7-1f64-4008-87f3-a781c7c342cd",
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Married",
-                "uuid": "1ca9350c-6af8-4256-9468-1c8b9ecab889"
+                "name": "Parents",
+                "uuid": "fdad6445-316c-4cb7-a327-332e25469dc7"
               },
               {
-                "name": "Separated",
-                "uuid": "340e1ede-041f-437c-be15-9ab61f356125"
+                "name": "Relatives",
+                "uuid": "bf99bcf7-5046-4835-9eb3-6fc5d558d60b"
               },
               {
-                "name": "Spouse Expired",
-                "uuid": "a4eeaf13-206d-4a67-a1f0-13a5fd6572de"
-              },
-              {
-                "name": "Both Expired",
-                "uuid": "0e7d6595-6217-4498-aa97-79c2edbb875a"
+                "name": "Hostel",
+                "uuid": "b14dc6d9-c724-4005-b407-77b365e8241d"
               }
             ]
           },
           "displayOrder": 2,
           "mandatory": true
+        },
+        {
+          "name": "Number of family members",
+          "uuid": "e9807a5f-b37e-4888-a6a4-5e2a930dc2ea",
+          "keyValues": [],
+          "concept": {
+            "name": "Number of family members",
+            "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 3,
+          "mandatory": true
+        },
+        {
+          "name": "Number of brothers",
+          "uuid": "4446e4c0-2cd0-4257-a7f4-44a58c1a9179",
+          "keyValues": [],
+          "concept": {
+            "name": "Number of brothers",
+            "uuid": "f4ad3b83-8673-4040-9972-571ae93149ab",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 4,
+          "mandatory": false
+        },
+        {
+          "name": "Number of sisters",
+          "uuid": "dbb08a98-270e-4899-8ac7-cbca55ac025b",
+          "keyValues": [],
+          "concept": {
+            "name": "Number of sisters",
+            "uuid": "5e60baa0-c394-4140-80a6-424384a2f567",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 5,
+          "mandatory": false
+        },
+        {
+          "name": "Father's Occupation",
+          "uuid": "0f3b49e4-529b-4d79-9e9c-c8ae7b882dfa",
+          "keyValues": [],
+          "type":"SingleSelect",
+          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+          "displayOrder": 6,
+          "mandatory": false
+        },
+        {
+          "name": "Father's Addiction",
+          "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
+          "keyValues": [],
+          "type":"MultiSelect",
+          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+          "displayOrder": 7,
+          "mandatory": false
+        },
+        {
+          "name": "Mother's Occupation",
+          "uuid": "27572da0-3156-4cf5-9ae3-4e8193ce26e6",
+          "keyValues": [],
+          "type":"SingleSelect",
+          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+          "displayOrder": 8,
+          "mandatory": false
+        },
+        {
+          "name": "Mother's Addiction",
+          "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
+          "keyValues": [],
+          "type":"MultiSelect",
+          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+          "displayOrder": 9,
+          "mandatory": false
         },
         {
           "name": "Chronic sickness in family",
@@ -113,252 +181,8 @@
               }
             ]
           },
-          "displayOrder": 3,
-          "mandatory": true
-        },
-        {
-          "name": "Number of family members",
-          "uuid": "e9807a5f-b37e-4888-a6a4-5e2a930dc2ea",
-          "keyValues": [],
-          "concept": {
-            "name": "Number of family members",
-            "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
-            "dataType": "Numeric"
-          },
-          "displayOrder": 4,
-          "mandatory": true
-        },
-        {
-          "name": "Number of brothers",
-          "uuid": "4446e4c0-2cd0-4257-a7f4-44a58c1a9179",
-          "keyValues": [],
-          "concept": {
-            "name": "Number of brothers",
-            "uuid": "f4ad3b83-8673-4040-9972-571ae93149ab",
-            "dataType": "Numeric"
-          },
-          "displayOrder": 5,
-          "mandatory": false
-        },
-        {
-          "name": "Number of sisters",
-          "uuid": "dbb08a98-270e-4899-8ac7-cbca55ac025b",
-          "keyValues": [],
-          "concept": {
-            "name": "Number of sisters",
-            "uuid": "5e60baa0-c394-4140-80a6-424384a2f567",
-            "dataType": "Numeric"
-          },
-          "displayOrder": 6,
-          "mandatory": false
-        },
-        {
-          "name": "Father's Occupation",
-          "uuid": "0f3b49e4-529b-4d79-9e9c-c8ae7b882dfa",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "concept": {
-            "name": "Father's Occupation",
-            "uuid": "03f05606-6e82-414d-9bdb-c8c3ed6da78d",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Labour",
-                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
-              },
-              {
-                "name": "Farming",
-                "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
-              },
-              {
-                "name": "Business",
-                "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
-              },
-              {
-                "name": "Job",
-                "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
-          },
-          "displayOrder": 7,
-          "mandatory": false
-        },
-        {
-          "name": "Mother's Occupation",
-          "uuid": "27572da0-3156-4cf5-9ae3-4e8193ce26e6",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "concept": {
-            "name": "Mother's Occupation",
-            "uuid": "fe01d85e-a331-4426-be38-e9573ba5cff4",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Housework",
-                "uuid": "a80a9db9-c2d3-4899-b0c1-a05ecb2d3036"
-              },
-              {
-                "name": "Labour",
-                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
-              },
-              {
-                "name": "Farming",
-                "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
-              },
-              {
-                "name": "Job",
-                "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
-              },
-              {
-                "name": "Business",
-                "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
-          },
-          "displayOrder": 8,
-          "mandatory": false
-        },
-        {
-          "name": "Father's Addiction",
-          "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
-          "keyValues": [],
-          "type":"MultiSelect",
-          "concept": {
-            "name": "Father's Addiction",
-            "uuid": "d7400e65-5649-4010-b44f-77fba043b6eb",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
-              },
-              {
-                "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
-              }
-            ]
-          },
-          "displayOrder": 9,
-          "mandatory": false
-        },
-        {
-          "name": "Mother's Addiction",
-          "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
-          "keyValues": [],
-          "type":"MultiSelect",
-          "concept": {
-            "name": "Mother's Addiction",
-            "uuid": "5c92013d-1dcc-4a7d-83dd-a9606d861953",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
-              },
-              {
-                "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
-              }
-            ]
-          },
           "displayOrder": 10,
-          "mandatory": false
-        },
-        {
-          "name": "Sickling",
-          "uuid": "06b147ae-9ad5-4bd9-bcbe-1f80eb0c7d02",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "concept": {
-            "name": "Sickling",
-            "uuid": "d706a31d-c516-47aa-b466-15ca62b0bb8b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              },
-              {
-                "name": "Trait",
-                "uuid": "c208e45f-060e-43fd-854f-339c6c24292d"
-              },
-              {
-                "name": "Disease",
-                "uuid": "550520cf-ec9f-4ef2-998e-1f9104adb2a2"
-              }
-            ]
-          },
-          "displayOrder": 11,
-          "mandatory": false
-        }
-      ]
-    },
-    {
-      "uuid": "abc50ba8-9da2-4d54-9b67-19eba5a2e814",
-      "name": "Schooling Details",
-      "displayOrder": 2,
-      "display": "Schooling Details",
-      "formElements": [
-        {
-          "name": "Goes to school",
-          "uuid": "af0ce303-5e2f-429f-b2f8-d174da2644f4",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "concept": {
-            "name": "Goes to school",
-            "uuid": "02667a3f-348b-4b2a-9301-72240de53f4e",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
-          },
-          "displayOrder": 1,
-          "mandatory": false
-        },
-        {
-          "name": "Dropped out of school in which standard",
-          "uuid": "f8e1b9f4-6927-4ddb-878b-13caad9c27fc",
-          "keyValues": [],
-          "concept": {
-            "name": "Dropped out of school in which standard",
-            "uuid": "42d9ee8d-486a-4bb6-b50c-5c372cc4d463",
-            "dataType": "Numeric"
-          },
-          "displayOrder": 2,
-          "mandatory": false
-        },
-        {
-          "name": "Reason for dropping out",
-          "uuid": "0c101eab-e914-4186-b86b-db3547cb2e83",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "conceptUUID": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
-          "displayOrder": 3,
-          "mandatory": false
-        },
-        {
-          "name": "If dropped out what are they doing now",
-          "uuid": "6e4a4a98-c7ef-4585-bdd3-c29c45041fa0",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "conceptUUID":"fedc7739-ddd8-4627-86b0-4ecdc066601e",
-          "displayOrder": 4,
-          "mandatory": false
+          "mandatory": true
         }
       ]
     }

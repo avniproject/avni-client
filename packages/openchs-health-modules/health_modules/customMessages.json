@@ -501,7 +501,6 @@
     "Do you drive vehicle (2 wheeler)?": "શુ તમે વાહન ચલાવો છો? (દ્વિચક્રીય)",
     "Have you suffered from Road Traffic Accident in last 6 months?": "શું તમને છેલ્લા 6 મહિનામાં રોડ ટ્રાફિક અકસ્માત થયો છે?",
     "How the accident has happened?": "કેવી રીતે અકસ્માત થયો છે?",
-
     "Required12Digits": "આવશ્યક 12 અંકો",
     "Required10Digits": "આવશ્યક 10 અંકો",
     "Mother's Name": "માતાનુ નામ",
@@ -513,6 +512,16 @@
     "BPL": "બીપીએલ",
     "Antyodaya": "અંત્યોદય",
     "Contact Number": "સંપર્ક નંબર",
-    "Caste Category": "જાતિ વર્ગ"
+    "Caste Category": "જાતિ વર્ગ",
+    "Parents": "માતાપિતા",
+    "Staying with whom": "તમે કોની સાથે રહો છો?",
+    "Father's occupation": "પિતાનો વ્યવસાય",
+    "Father's addiction": "પિતાનો વ્યસન",
+    "Mother's occupation": "માતાનો વ્યવસાય",
+    "Mother's addiction": "માતાનો વ્યસન",
+    "Chronic sickness in Family": "શું તમારા પરિવારમાં કોઈ ગંભીર બીમારી છે?",
+    "Family members": "તમારા પરિવારમાં કેટલા સભ્યો છે?",
+    "How many Brothers": "કેટલા ભાઈઓ",
+    "How many Sisters": "કેટલા બહેનો"
   }
 }

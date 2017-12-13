@@ -212,5 +212,36 @@
         "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
       }
     ]
+  },
+  {
+    "name": "Occupation",
+    "uuid": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Labour",
+        "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
+      },
+      {
+        "name": "Farming",
+        "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
+      },
+      {
+        "name": "Business",
+        "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
+      },
+      {
+        "name": "Job",
+        "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      },
+      {
+        "name": "Dont know",
+        "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
+      }
+    ]
   }
 ]
