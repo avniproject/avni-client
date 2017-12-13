@@ -1,10 +1,11 @@
 import _ from "lodash";
 
 class FormElementStatus {
-    constructor(uuid, visibility, value) {
+    constructor(uuid, visibility, value, answersToSkip = []) {
         this.uuid = uuid;
         this.visibility = visibility;
         this.value = value;
+        this.answersToSkip = answersToSkip;
     }
 }
 

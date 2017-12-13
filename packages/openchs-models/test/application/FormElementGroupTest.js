@@ -16,8 +16,8 @@ describe('FormElementGroupTest', () => {
         form.addFormElementGroup(third);
 
         assert.notEqual(first.next(), undefined);
-        assert.notEqual(second.next(),undefined);
-        assert.equal(third.next(),undefined);
+        assert.notEqual(second.next(), undefined);
+        assert.equal(third.next(), undefined);
 
         assert.equal(first.previous(), undefined);
         assert.notEqual(third.previous(), undefined);
@@ -44,9 +44,22 @@ describe('FormElementGroupTest', () => {
         assert.equal(filteredElements.length, 2);
     });
 
-    function createFormElement(uuid) {
+    it('filterElementAnswers', () => {
+        let formElements = [createFormElement('ABCD', ["Answer 1", "Answer 2"]), createFormElement('EFGH'), createFormElement('IJKL', ["Answer 3", "Answer 4"])];
+        let formElementStatuses = [new FormElementStatus('ABCD', true, 1, ["Answer 1"]), new FormElementStatus('EFGH', false, 1), new FormElementStatus('IJKL', true, 1, ["Answer 3", "Answer 4"])];
+        let formElementGroup = new FormElementGroup();
+        formElementGroup.formElements = formElements;
+        let filteredElements = formElementGroup.filterElements(formElementStatuses);
+        assert.equal(filteredElements[0].answersToExclude.length, 1);
+        assert.equal(filteredElements[1].answersToExclude.length, 2);
+    });
+
+    function createFormElement(uuid, answers = []) {
         let x = new FormElement();
         x.uuid = uuid;
+        x.getRawAnswers = function () {
+            return answers;
+        }
         return x;
     }
 });

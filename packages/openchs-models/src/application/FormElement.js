@@ -42,7 +42,7 @@ class FormElement {
                 formElement.keyValues.push(KeyValue.fromResource(keyValue));
             });
         }
-        if(!_.isNil(resource["validFormat"])){
+        if (!_.isNil(resource["validFormat"])) {
             console.log(resource["validFormat"]);
             formElement.validFormat = Format.fromResource(resource["validFormat"]);
         }
@@ -60,6 +60,10 @@ class FormElement {
     excludedAnswers() {
         const selectRecord = this.recordByKey(FormElement.keys.ExcludedAnswers);
         return _.isNil(selectRecord) ? [] : selectRecord.getValue();
+    }
+
+    set answersToSkip(answersToExclude) {
+        this.answersToExclude = answersToExclude;
     }
 
     recordByKey(key) {
@@ -91,7 +95,7 @@ class FormElement {
         }
         else if (this.concept.datatype === Concept.dataType.Numeric && this.concept.violatesRange(value)) {
             failure.messageKey = 'numberOutOfRangeMessage';
-        } else if(!_.isEmpty(this.validFormat) && !_.isEmpty(_.toString(value)) && !this.validFormat.valid(value)){
+        } else if (!_.isEmpty(this.validFormat) && !_.isEmpty(_.toString(value)) && !this.validFormat.valid(value)) {
             failure.messageKey = this.validFormat.descriptionKey;
         }
         else {
@@ -103,7 +107,12 @@ class FormElement {
     getAnswers() {
         const allAnswers = this.concept.getAnswers();
         const excludedAnswers = this.excludedAnswers().map((conceptName) => Object.assign({concept: {name: conceptName}}));
-        return _.differenceBy(allAnswers, excludedAnswers, (a) => a.concept.name);
+        return _.differenceBy(allAnswers, excludedAnswers.concat(_.isEmpty(this.answersToExclude) ? [] : this.answersToExclude),
+            (a) => a.concept.name);
+    }
+
+    getRawAnswers() {
+        return this.concept.getAnswers();
     }
 
     static keys = {

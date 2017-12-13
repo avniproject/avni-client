@@ -92,7 +92,14 @@ class FormElementGroup {
     }
 
     filterElements(formElementStatuses) {
-        let filtered = _.filter(this.formElements, (formElement) => _.some(formElementStatuses, (formElementStatus) => formElementStatus.uuid === formElement.uuid && formElementStatus.visibility));
+        let filtered = _.filter(this.formElements,
+            (formElement) => _.some(formElementStatuses, (formElementStatus) =>
+                formElementStatus.uuid === formElement.uuid
+                && formElementStatus.visibility
+                && (() => {
+                    formElement.answersToSkip = formElementStatus.answersToSkip;
+                    return true;
+                })()));
         return FormElementGroup._sortedFormElements(filtered);
     }
 

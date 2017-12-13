@@ -15,7 +15,7 @@
           "name": "Iron tablets",
           "uuid": "6938d320-b8de-4d34-acf0-1bab845cc62a",
           "keyValues": [],
-          "type":"SingleSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Iron tablets",
             "uuid": "7e9d4242-6dd0-4a37-82a0-8b7def9f55f8",
@@ -38,7 +38,7 @@
           "name": "From Where?",
           "uuid": "2080689c-381d-48f6-aea6-0e823c17fa7a",
           "keyValues": [],
-          "type":"SingleSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "From Where?",
             "uuid": "1df3e1a7-a6d8-4293-891e-71a874c6a59e",
@@ -81,7 +81,7 @@
           "name": "Menstrual disorder",
           "uuid": "e5f98ea7-c438-4833-a31a-1a5b28560c01",
           "keyValues": [],
-          "type":"MultiSelect",
+          "type": "MultiSelect",
           "conceptUUID": "0f87eac1-cf6a-4632-8af2-29a935451fe4",
           "displayOrder": 1,
           "mandatory": false
@@ -90,7 +90,7 @@
           "name": "Any treatment taken",
           "uuid": "585cdd75-4768-4075-b23e-10843d8f1eaf",
           "keyValues": [],
-          "type":"MultiSelect",
+          "type": "MultiSelect",
           "concept": {
             "name": "Any treatment taken",
             "uuid": "bd3d1ba3-0a85-4aa7-a62c-78254d8e0762",
@@ -125,7 +125,7 @@
           "name": "Does she remain absent during menstruation?",
           "uuid": "cf7ddfd5-2a8f-4b19-8e79-75f7701dcc8e",
           "keyValues": [],
-          "type":"SingleSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Does she remain absent during menstruation?",
             "uuid": "4cae960e-5e1e-4b23-9927-d95db35d83e3",
@@ -148,7 +148,7 @@
           "name": "Why is she absent during menstruation?",
           "uuid": "34371c88-6494-4fb6-bcce-1ccca599dfcf",
           "keyValues": [],
-          "type":"SingleSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Why is she absent during menstruation?",
             "uuid": "c1288e8a-9b6a-4928-aa6d-3010814ee5c2",
@@ -186,6 +186,41 @@
           },
           "displayOrder": 5,
           "mandatory": false
+        },
+        {
+          "name": "Have you been to the hospital for any of the following ailments",
+          "uuid": "684fa08b-6df6-4622-a766-99a4938d86fd",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Have you been to the hospital for any of the following ailments",
+            "uuid": "be247c21-3906-49aa-adfb-60abf7b91a3e",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "RTI",
+                "uuid": "c45597c7-4004-4de2-88e4-fc2a33d2d481"
+              },
+              {
+                "name": "Severe Anemia",
+                "uuid": "1aff631c-e487-4202-a862-122b45168ac6"
+              },
+              {
+                "name": "Severe Malnutrition",
+                "uuid": "580d8b52-03e7-4f81-8a07-256bc62fbbde"
+              },
+              {
+                "name": "Sickle Cell Disease",
+                "uuid": "00ff88d0-d8bd-493b-98e2-fe60f6f9ce66"
+              },
+              {
+                "name": "Menstrual disorders",
+                "uuid": "0f87eac1-cf6a-4632-8af2-29a935451fe4"
+              }
+            ],
+            "displayOrder": 6,
+            "mandatory": false
+          }
         }
       ]
     }
