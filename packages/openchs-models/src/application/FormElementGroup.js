@@ -92,7 +92,8 @@ class FormElementGroup {
     }
 
     filterElements(formElementStatuses) {
-        return _.filter(this.formElements, (formElement) => _.some(formElementStatuses, (formElementStatus) => formElementStatus.uuid === formElement.uuid && formElementStatus.visibility));
+        let filtered = _.filter(this.formElements, (formElement) => _.some(formElementStatuses, (formElementStatus) => formElementStatus.uuid === formElement.uuid && formElementStatus.visibility));
+        return FormElementGroup._sortedFormElements(filtered);
     }
 
     toJSON() {
