@@ -154,5 +154,17 @@
   "deleteSchemaConfirmationMessage": "તમે એવી માહિતી ગુમાવશો જે સમન્વયિત નથી",
   "deleteSchemaNoticeTitle": "ડેટા કાઢી નાખો?",
   "userId": "વપરાશકર્તા ID",
-  "password": "પાસવર્ડ"
+  "password": "પાસવર્ડ",
+
+  "Religion": "ધર્મ",
+  "Hindu": "હિંદુ",
+  "Muslim": "મુસ્લિમ",
+  "Sikh": "શીખ",
+  "Christian": "ખ્રિસ્તી",
+  "Jain": "જૈન",
+  "ST": "ST",
+  "SC": "SC",
+  "OBC": "OBC",
+  "General": "જનરલ",
+  "Caste": "જાતિ"
 }

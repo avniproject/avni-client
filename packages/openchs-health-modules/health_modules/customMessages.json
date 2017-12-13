@@ -86,7 +86,7 @@
     "ST": "ST",
     "OBC": "OBC",
     "General": "जनरल",
-    "Caste Categories": "जाती विभाग",
+    "Caste Category": "जाती विभाग",
     "Madia": "माडीया",
     "Gond": "गोंड",
     "Kalar": "कलार",
@@ -459,7 +459,8 @@
     "PNC 3": "PNC 3",
     "PNC 4": "PNC 4",
     "true": "true",
-    "false": "false"
+    "false": "false",
+    "Required12Digits": "Required 12 digits"
   },
   "gu_IN": {
     "Govali": "ગોવલી",
@@ -499,6 +500,19 @@
     "Do you have any addiction": "શું તમને કોઈ વ્યસન છે?",
     "Do you drive vehicle (2 wheeler)?": "શુ તમે વાહન ચલાવો છો? (દ્વિચક્રીય)",
     "Have you suffered from Road Traffic Accident in last 6 months?": "શું તમને છેલ્લા 6 મહિનામાં રોડ ટ્રાફિક અકસ્માત થયો છે?",
-    "How the accident has happened?": "કેવી રીતે અકસ્માત થયો છે?"
+    "How the accident has happened?": "કેવી રીતે અકસ્માત થયો છે?",
+
+    "Required12Digits": "આવશ્યક 12 અંકો",
+    "Required10Digits": "આવશ્યક 10 અંકો",
+    "Mother's Name": "માતાનુ નામ",
+    "Father's Name": "પિતાનું નામ",
+    "Aadhar ID": "આધાર આઈડી",
+    "Details": "વિગતો",
+    "Ration Card": "રેશન કાર્ડ",
+    "APL": "એપીએલ",
+    "BPL": "બીપીએલ",
+    "Antyodaya": "અંત્યોદય",
+    "Contact Number": "સંપર્ક નંબર",
+    "Caste Category": "જાતિ વર્ગ"
   }
 }

@@ -161,5 +161,59 @@
     "name": "No Problem",
     "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
     "dataType": "N/A"
+  },
+  {
+    "name": "Caste Category",
+    "uuid": "61ab6413-5c6a-4512-ab6e-7d5cd1439569",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "ST",
+        "uuid": "dd076e03-68ae-4b53-adf6-641c69b9a518"
+      },
+      {
+        "name": "SC",
+        "uuid": "a3519a96-350e-4da4-90d9-827c0ff15538"
+      },
+      {
+        "name": "OBC",
+        "uuid": "e92925ed-4a15-40c0-a0a7-a21c965dad48"
+      },
+      {
+        "name": "General",
+        "uuid": "cae99772-b389-4baf-849b-9c7c2b06c951"
+      }
+    ]
+  },
+  {
+    "name": "Religion",
+    "uuid": "c922c13c-1fa2-42dd-a7e8-d234b0324870",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Hindu",
+        "uuid": "5f1f8a86-478b-4e7b-ae5e-ac7b207e65b8"
+      },
+      {
+        "name": "Muslim",
+        "uuid": "2e41ff7c-13ad-4bb3-964a-29f098691a7d"
+      },
+      {
+        "name": "Christian",
+        "uuid": "48daa405-dcdb-4706-9dbd-a54562012331"
+      },
+      {
+        "name": "Sikh",
+        "uuid": "9e791139-2d68-45b3-81b6-78e8c3ba9662"
+      },
+      {
+        "name": "Jain",
+        "uuid": "1819bf5a-775c-4f28-af9e-650dbc5e0570"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      }
+    ]
   }
 ]
