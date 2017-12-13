@@ -216,10 +216,6 @@ class General {
     static isNumeric(str) {
         return !isNaN(parseFloat(str)) && isFinite(str);
     }
-
-    static weeksBetween(arg1, arg2) {
-        return moment.duration(moment(arg1).diff(moment(arg2))).asWeeks();
-    }
 }
 
 export default General;

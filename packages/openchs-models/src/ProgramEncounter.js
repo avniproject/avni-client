@@ -99,13 +99,8 @@ class ProgramEncounter extends AbstractEncounter {
         return 'ProgramEncounter';
     }
 
-    get numberOfWeeksSinceEnrolment() {
-        return General.weeksBetween(this.encounterDateTime, this.programEnrolment.enrolmentDateTime);
-    }
-
-    numberOfWeeksSince(conceptName) {
-        const obs = this.programEnrolment.findObservationInEntireEnrolment(conceptName, this);
-        return General.weeksBetween(this.encounterDateTime, obs.getValue());
+    findObservationInEntireEnrolment(conceptName) {
+        return this.programEnrolment.findObservationInEntireEnrolment(conceptName);
     }
 
     toJSON() {
