@@ -49,7 +49,7 @@
           "type":"SingleSelect",
           "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Father's Addiction",
@@ -67,7 +67,7 @@
           "type":"SingleSelect",
           "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
           "displayOrder": 4,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Mother's Addiction",
@@ -112,7 +112,9 @@
           "concept": {
             "name": "Number of family members",
             "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
-            "dataType": "Numeric"
+            "dataType": "Numeric",
+            "lowAbsolute": 0,
+            "highAbsolute": 99
           },
           "displayOrder": 7,
           "mandatory": true
@@ -124,10 +126,12 @@
           "concept": {
             "name": "Number of brothers",
             "uuid": "f4ad3b83-8673-4040-9972-571ae93149ab",
-            "dataType": "Numeric"
+            "dataType": "Numeric",
+            "lowAbsolute": 0,
+            "highAbsolute": 99
           },
           "displayOrder": 8,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Number of sisters",
@@ -136,10 +140,12 @@
           "concept": {
             "name": "Number of sisters",
             "uuid": "5e60baa0-c394-4140-80a6-424384a2f567",
-            "dataType": "Numeric"
+            "dataType": "Numeric",
+            "lowAbsolute": 0,
+            "highAbsolute": 99
           },
           "displayOrder": 9,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Chronic sickness in family",
