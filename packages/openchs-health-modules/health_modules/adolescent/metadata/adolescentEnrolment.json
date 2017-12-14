@@ -15,9 +15,9 @@
           "name": "Parents",
           "uuid": "836e439b-cd89-4036-9a5f-e6cf74b03179",
           "keyValues": [],
-          "type":"SingleSelect",
+          "type": "SingleSelect",
           "concept": {
-            "name": "Parents life status",
+            "name": "Parents' life status",
             "uuid": "9083aae8-0a78-4b5b-9177-dd993e6d088c",
             "dataType": "Coded",
             "answers": [
@@ -36,6 +36,10 @@
               {
                 "name": "Both Expired",
                 "uuid": "0e7d6595-6217-4498-aa97-79c2edbb875a"
+              },
+              {
+                "name": "Separated",
+                "uuid": "00f2eb9a-94c6-48eb-bfad-0b93784d3cb9"
               }
             ]
           },
@@ -46,8 +50,38 @@
           "name": "Father's Occupation",
           "uuid": "0f3b49e4-529b-4d79-9e9c-c8ae7b882dfa",
           "keyValues": [],
-          "type":"SingleSelect",
-          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Father's Occupation",
+            "uuid": "fb3214f4-d040-40bc-bd38-883ad5e0cae7",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Labour",
+                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
+              },
+              {
+                "name": "Farming",
+                "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
+              },
+              {
+                "name": "Business",
+                "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
+              },
+              {
+                "name": "Job",
+                "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+              },
+              {
+                "name": "Don't know",
+                "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
+              }
+            ]
+          },
           "displayOrder": 2,
           "mandatory": true
         },
@@ -55,8 +89,22 @@
           "name": "Father's Addiction",
           "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
           "keyValues": [],
-          "type":"MultiSelect",
-          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+          "type": "MultiSelect",
+          "concept": {
+            "name": "Father's Addiction",
+            "uuid": "e90dee68-0a5f-4dd3-ae26-9b6229c4a02a",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Alcohol",
+                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+              },
+              {
+                "name": "Tobacco",
+                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
+              }
+            ]
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -64,8 +112,38 @@
           "name": "Mother's Occupation",
           "uuid": "27572da0-3156-4cf5-9ae3-4e8193ce26e6",
           "keyValues": [],
-          "type":"SingleSelect",
-          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Mother's Occupation",
+            "uuid": "dc9882a4-ceff-4dc9-b6fc-3e2ba7e9b197",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Labour",
+                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
+              },
+              {
+                "name": "Farming",
+                "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
+              },
+              {
+                "name": "Business",
+                "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
+              },
+              {
+                "name": "Job",
+                "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+              },
+              {
+                "name": "Don't know",
+                "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
+              }
+            ]
+          },
           "displayOrder": 4,
           "mandatory": true
         },
@@ -73,8 +151,22 @@
           "name": "Mother's Addiction",
           "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
           "keyValues": [],
-          "type":"MultiSelect",
-          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+          "type": "MultiSelect",
+          "concept": {
+            "name": "Mother's Addiction",
+            "uuid": "a3200784-2512-477b-9e78-f1c947d7dd75",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Alcohol",
+                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+              },
+              {
+                "name": "Tobacco",
+                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
+              }
+            ]
+          },
           "displayOrder": 5,
           "mandatory": false
         },
@@ -82,7 +174,7 @@
           "name": "Staying with whom",
           "uuid": "3c77390c-5c9d-4345-9ae8-28b74b568bfc",
           "keyValues": [],
-          "type":"SingleSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Staying with",
             "uuid": "eb47f6b7-1f64-4008-87f3-a781c7c342cd",
@@ -151,7 +243,7 @@
           "name": "Chronic sickness in family",
           "uuid": "dac41807-08af-43b9-a75b-7bbb77547321",
           "keyValues": [],
-          "type":"MultiSelect",
+          "type": "MultiSelect",
           "concept": {
             "name": "Chronic sickness in family",
             "uuid": "d2f7ac65-54d1-4f4b-b213-a29587e16abd",
