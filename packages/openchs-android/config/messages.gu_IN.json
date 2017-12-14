@@ -41,7 +41,7 @@
   "encounterDateNotInBetweenEnrolmentAndExitDate": "નોંધણી અને બહાર નીકળવાની તારીખો વચ્ચે તારીખની મુલાકાત ન કરો",
   "registrationBeforeDateOfBirth": "નોંધણી જન્મ તારીખ પહેલાં ન હોઈ શકે",
 
-  "numberOutOfRangeMessage": "ઇનપુટ નંબર {{value}} મંજૂર શ્રેણીમાંથી બહાર",
+  "numberOutOfRangeMessage": "મૂલ્ય માન્ય શ્રેણીની બહાર છે",
   "dateOfBirthCannotBeInFuture": "જન્મ તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
 
   "syncError": "સમન્વયન નિષ્ફળ થયું",
