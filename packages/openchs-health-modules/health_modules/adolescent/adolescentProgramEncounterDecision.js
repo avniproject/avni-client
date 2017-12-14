@@ -8,8 +8,7 @@ const encounterTypeHandlerMap = new Map([
     ['Monthly Visit', new MonthlyEncounter()]
 ]);
 
-export function filterFormElements(programEncounter, formElementGroup, today) {
+export function filterFormElements(programEncounter, formElementGroup) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
-    return FormFilterHelper.filterFormElements(handler, programEncounter, formElementGroup, today);
+    return FormFilterHelper.filterFormElements(handler, programEncounter, formElementGroup);
 }
-

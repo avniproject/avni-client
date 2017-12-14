@@ -43,6 +43,42 @@
           "mandatory": true
         },
         {
+          "name": "Father's Occupation",
+          "uuid": "0f3b49e4-529b-4d79-9e9c-c8ae7b882dfa",
+          "keyValues": [],
+          "type":"SingleSelect",
+          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Father's Addiction",
+          "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
+          "keyValues": [],
+          "type":"MultiSelect",
+          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "Mother's Occupation",
+          "uuid": "27572da0-3156-4cf5-9ae3-4e8193ce26e6",
+          "keyValues": [],
+          "type":"SingleSelect",
+          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
+          "displayOrder": 4,
+          "mandatory": false
+        },
+        {
+          "name": "Mother's Addiction",
+          "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
+          "keyValues": [],
+          "type":"MultiSelect",
+          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
+          "displayOrder": 5,
+          "mandatory": false
+        },
+        {
           "name": "Staying with whom",
           "uuid": "3c77390c-5c9d-4345-9ae8-28b74b568bfc",
           "keyValues": [],
@@ -66,7 +102,7 @@
               }
             ]
           },
-          "displayOrder": 2,
+          "displayOrder": 6,
           "mandatory": true
         },
         {
@@ -78,7 +114,7 @@
             "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
             "dataType": "Numeric"
           },
-          "displayOrder": 3,
+          "displayOrder": 7,
           "mandatory": true
         },
         {
@@ -90,7 +126,7 @@
             "uuid": "f4ad3b83-8673-4040-9972-571ae93149ab",
             "dataType": "Numeric"
           },
-          "displayOrder": 4,
+          "displayOrder": 8,
           "mandatory": false
         },
         {
@@ -102,42 +138,6 @@
             "uuid": "5e60baa0-c394-4140-80a6-424384a2f567",
             "dataType": "Numeric"
           },
-          "displayOrder": 5,
-          "mandatory": false
-        },
-        {
-          "name": "Father's Occupation",
-          "uuid": "0f3b49e4-529b-4d79-9e9c-c8ae7b882dfa",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
-          "displayOrder": 6,
-          "mandatory": false
-        },
-        {
-          "name": "Father's Addiction",
-          "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
-          "keyValues": [],
-          "type":"MultiSelect",
-          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
-          "displayOrder": 7,
-          "mandatory": false
-        },
-        {
-          "name": "Mother's Occupation",
-          "uuid": "27572da0-3156-4cf5-9ae3-4e8193ce26e6",
-          "keyValues": [],
-          "type":"SingleSelect",
-          "conceptUUID": "f4f3498c-dd40-4cac-bcba-f7c7574457dd",
-          "displayOrder": 8,
-          "mandatory": false
-        },
-        {
-          "name": "Mother's Addiction",
-          "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
-          "keyValues": [],
-          "type":"MultiSelect",
-          "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
           "displayOrder": 9,
           "mandatory": false
         },

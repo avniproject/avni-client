@@ -43,7 +43,6 @@ class FormElement {
             });
         }
         if (!_.isNil(resource["validFormat"])) {
-            console.log(resource["validFormat"]);
             formElement.validFormat = Format.fromResource(resource["validFormat"]);
         }
         return formElement;
