@@ -15,6 +15,11 @@ import {
     ProgramEnrolmentDashboardActions,
     ProgramEnrolmentDashboardActionsMap
 } from '../action/program/ProgramEnrolmentDashboardActions';
+import {
+    MyDashboardActions,
+    MyDashboardActionsMap,
+    MyDashboardPrefix
+} from '../action/mydashboard/MyDashboardActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {
     IndividualRegistrationDetailsActions,
@@ -41,6 +46,7 @@ export default class Reducers {
         individualRegistrationDetails: 'individualRegistrationDetails',
         individualSearch: 'individualSearch',
         addressLevels: 'addressLevels',
+        myDashboard: 'myDashboard',
         checklist: 'checklist',
         settings: 'settings',
         startProgramActions: "startProgramActions",
@@ -64,6 +70,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.settings] = Reducers._add(SettingsActionsMap, SettingsActions, beanStore);
         reducerMap[Reducers.reducerKeys.startProgramActions] = Reducers._add(StartProgramActionsMap, StartProgramActions, beanStore);
         reducerMap[Reducers.reducerKeys.loginActions] = Reducers._add(LoginActionsMap, LoginActions, beanStore);
+        reducerMap[Reducers.reducerKeys.myDashboard] = Reducers._add(MyDashboardActionsMap, MyDashboardActions, beanStore, MyDashboardPrefix);
 
         return reducerMap;
     };

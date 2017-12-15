@@ -36,6 +36,8 @@ class IndividualService extends BaseService {
         const individual = this.findByUUID(individualUUID);
         return individual.eligiblePrograms(programs);
     }
+
+
 }
 
 export default IndividualService;
