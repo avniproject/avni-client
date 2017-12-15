@@ -24,7 +24,6 @@ class AddressLevel extends BaseEntity {
     }
 
     static fromResource(resource) {
-        console.log(resource);
         return AddressLevel.create(resource["uuid"], resource["title"], resource["level"], undefined, resource['type']);
     }
 
