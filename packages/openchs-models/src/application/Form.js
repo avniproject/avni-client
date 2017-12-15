@@ -12,7 +12,7 @@ class Form {
             uuid: 'string',
             formType: 'string',
             name: 'string',
-            formElementGroups: {type:'list', objectType: 'FormElementGroup'}
+            formElementGroups: {type: 'list', objectType: 'FormElementGroup'}
         }
     };
 
@@ -33,7 +33,7 @@ class Form {
         return General.assignFields(resource, new Form(), ["uuid", "name", "formType"]);
     }
 
-    static merge = ()=> BaseEntity.mergeOn('formElementGroups');
+    static merge = () => BaseEntity.mergeOn('formElementGroups');
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formUUID"), Form.schema.name);
@@ -70,6 +70,20 @@ class Form {
             if (!_.isNil(foundFormElement)) formElement = foundFormElement;
         });
         return formElement;
+    }
+
+    orderObservations(observations) {
+        const orderedObservations = [];
+        const conceptOrdering = _.sortBy(this.formElementGroups, (feg) => feg.displayOrder)
+            .map((feg) => _.sortBy(feg.formElements, (fe) => fe.displayOrder)
+                .map((fe) => fe.concept));
+        _.flatten(conceptOrdering).map((concept) => {
+            const foundObs = observations.find((obs) => obs.concept.uuid === concept.uuid);
+            if (!_.isNil(foundObs)) orderedObservations.push(foundObs);
+        });
+        const extraObs = observations
+            .filter((obs) => _.isNil(orderedObservations.find((oobs) => oobs.concept.uuid === obs.concept.uuid)));
+        return orderedObservations.concat(extraObs);
     }
 
     static formTypes = {

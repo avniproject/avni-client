@@ -14,12 +14,14 @@ class Observations extends AbstractComponent {
         observations: React.PropTypes.any.isRequired,
         style: React.PropTypes.object,
         title: React.PropTypes.string,
-        highlight: React.PropTypes.bool
+        highlight: React.PropTypes.bool,
+        form: React.PropTypes.object
     };
 
     constructor(props, context) {
         super(props, context);
         this.createObservationsStyles(props.highlight);
+        this.getOrderedObservation = this.getOrderedObservation.bind(this);
     }
 
     createObservationsStyles(highlight) {
@@ -67,18 +69,22 @@ class Observations extends AbstractComponent {
         if (this.props.title) return (<Text style={Fonts.Title}>{this.props.title}</Text>);
     }
 
+    getOrderedObservation() {
+        return _.isNil(this.props.form) ? this.props.observations :
+            this.props.form.orderObservations(this.props.observations);
+    }
+
     render() {
         if (this.props.observations.length === 0) return <View/>;
 
         const conceptService = this.context.getService(ConceptService);
         const nameColSize = this.allObservationNamesSmall ? 1 : 2;
-
         return (
             <View style={{flexDirection: "column"}}>
                 {this.renderTitle()}
                 <Grid style={this.appendedStyle(this.styles.observationTable)}>
                     {
-                        this.props.observations.map((observation, cellIndex) => {
+                        this.getOrderedObservation().map((observation, cellIndex) => {
                             return <Row style={this.styles.observationRow} key={`${cellIndex}`}>
                                 <Col style={this.styles.observationColumn} key={`${cellIndex}col1`} size={nameColSize}>
                                     <Text style={{
@@ -91,7 +97,7 @@ class Observations extends AbstractComponent {
                                     <Text style={{
                                         textAlign: 'left',
                                         fontSize: Fonts.Medium,
-                                        color: observation.isAbnormal()? Styles.redColor: Styles.blackColor
+                                        color: observation.isAbnormal() ? Styles.redColor : Styles.blackColor
                                     }}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
                                 </Col>
                             </Row>

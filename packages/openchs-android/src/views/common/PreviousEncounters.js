@@ -11,6 +11,7 @@ import ObservationsSectionTitle from "../common/ObservationsSectionTitle";
 import {Encounter} from "openchs-models";
 import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
+import FormMappingService from "../../service/FormMappingService";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -31,6 +32,7 @@ class PreviousEncounters extends AbstractComponent {
 
     render() {
         const sortedEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
+        const formMappingService = this.context.getService(FormMappingService);
         return (
             <View>
                 {sortedEncounters.length === 0 ?

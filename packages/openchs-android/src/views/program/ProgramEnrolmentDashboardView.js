@@ -27,6 +27,7 @@ import ProgramActionsView from './ProgramActionsView';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
+import FormMappingService from "../../service/FormMappingService";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -41,6 +42,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
+        this.getForm = this.getForm.bind(this);
     }
 
     componentWillMount() {
@@ -79,6 +81,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
     }
 
+    getForm() {
+        const formMappingService = this.context.getService(FormMappingService);
+        return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
@@ -89,29 +96,47 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
         }
         const dashboardButtons = this.state.dashboardButtons || [];
-
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
-                    <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames} flowState={programEncounterTypeState.flowState}
+                    <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames}
+                                        flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
                                         selectedEntityType={programEncounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
 
 
-                    <EntityTypeSelector actions={EncounterTypeChoiceActionNames} flowState={encounterTypeState.flowState} entityTypes={encounterTypeState.entityTypes}
-                                        labelKey='followupTypes' selectedEntityType={encounterTypeState.entity.encounterType}
+                    <EntityTypeSelector actions={EncounterTypeChoiceActionNames}
+                                        flowState={encounterTypeState.flowState}
+                                        entityTypes={encounterTypeState.entityTypes}
+                                        labelKey='followupTypes'
+                                        selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View>
                         <AppHeader title={this.I18n.t('individualDashboard')}/>
-                        <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual} viewContext={IndividualProfile.viewContext.Program}/>
-                        <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor}}>
+                        <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
+                                           viewContext={IndividualProfile.viewContext.Program}/>
+                        <Card style={{
+                            flexDirection: 'column',
+                            borderRadius: 5,
+                            marginHorizontal: 16,
+                            backgroundColor: Styles.whiteColor
+                        }}>
                             <View style={{marginHorizontal: 8}}>
-                                <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>{this.I18n.t('programList')}</Text>
-                                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch'}}>
+                                <Text style={{
+                                    fontSize: Fonts.Large,
+                                    color: Colors.InputNormal
+                                }}>{this.I18n.t('programList')}</Text>
+                                <View style={{
+                                    flex: 2,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'stretch'
+                                }}>
                                     <View style={{justifyContent: 'flex-start', flex: 1}}>
                                         <ProgramList enrolments={enrolments}
-                                                     selectedEnrolment={this.state.enrolment} onProgramSelect={(program) => this.programSelect(program)}/>
+                                                     selectedEnrolment={this.state.enrolment}
+                                                     onProgramSelect={(program) => this.programSelect(program)}/>
                                     </View>
                                     <ProgramActionsView programDashboardButtons={dashboardButtons}
                                                         enrolment={this.state.enrolment}
@@ -122,8 +147,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             {enrolments.length === 0 ? <View/> :
                                 <View style={{marginHorizontal: 8}}>
                                     <View>
-                                        <ObservationsSectionTitle contextActions={contextActions} title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
-                                        <Observations observations={this.state.enrolment.observations} style={{marginVertical: DGS.resizeHeight(8)}}/>
+                                        <ObservationsSectionTitle contextActions={contextActions}
+                                                                  title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
+                                        <Observations form={this.getForm()}
+                                                      observations={this.state.enrolment.observations}
+                                                      style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
                                     <PreviousEncounters encounters={this.state.enrolment.encounters}/>
                                 </View>}
