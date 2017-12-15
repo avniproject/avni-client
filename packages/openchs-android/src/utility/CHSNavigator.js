@@ -29,7 +29,10 @@ class CHSNavigator {
     }
 
     static navigateToProgramEnrolmentView(source, enrolment, backFunction) {
-        TypedTransition.from(source).with({enrolment: enrolment, backFunction: backFunction}).to(ProgramEnrolmentView, true);
+        TypedTransition.from(source).with({
+            enrolment: enrolment,
+            backFunction: backFunction
+        }).to(ProgramEnrolmentView, true);
     }
 
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, usage) {
@@ -38,7 +41,10 @@ class CHSNavigator {
             from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView, true);
         } else {
             const wizardViewClass = usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolmentView : ProgramExitView;
-            from.wizardCompleted([wizardViewClass, SystemRecommendationView], ProgramEnrolmentDashboardView, {individualUUID: individualUUID, enrolmentUUID: selectedEnrolmentUUID}, true);
+            from.wizardCompleted([wizardViewClass, SystemRecommendationView], ProgramEnrolmentDashboardView, {
+                individualUUID: individualUUID,
+                enrolmentUUID: selectedEnrolmentUUID
+            }, true);
         }
     }
 
@@ -67,18 +73,22 @@ class CHSNavigator {
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter) {
-        TypedTransition.from(source).bookmark().with({encounter: encounter, individualUUID: individualUUID}).to(IndividualEncounterLandingView, true);
+        TypedTransition.from(source).bookmark().with({
+            encounter: encounter,
+            individualUUID: individualUUID
+        }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form) {
         const onSaveCallback = (source) => {
             TypedTransition.from(source).popToBookmark();
         };
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage);
+        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form);
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits) {
+    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form) {
         TypedTransition.from(source).with({
+            form: form,
             decisions: decisions,
             individual: individual,
             saveActionName: saveActionName,

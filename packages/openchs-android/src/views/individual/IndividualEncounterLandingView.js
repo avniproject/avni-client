@@ -20,6 +20,7 @@ import DateFormElement from "../form/formElement/DateFormElement";
 import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
+import FormMappingService from "../../service/FormMappingService";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -54,7 +55,9 @@ class IndividualEncounterLandingView extends AbstractComponent {
             },
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage);
+                const formMappingService = this.context.getService(FormMappingService);
+                const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType);
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage, form);
             }
         });
     }

@@ -16,6 +16,7 @@ import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import FormMappingService from "../../service/FormMappingService";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -40,7 +41,9 @@ class IndividualEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.NEXT, {
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage);
+                const formMappingService = this.context.getService(FormMappingService);
+                const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType);
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage, form);
             },
             movedNext: this.scrollToTop,
             validationFailed: (newState) => {

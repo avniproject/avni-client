@@ -19,6 +19,7 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import FormMappingService from "../../service/FormMappingService";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -53,7 +54,9 @@ class ProgramEncounterView extends AbstractComponent {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid);
                 };
                 const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.name)}, ${this.I18n.t(state.programEncounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits);
+                const formMappingService = this.context.getService(FormMappingService);
+                const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
             },
             movedNext: this.scrollToTop
         });

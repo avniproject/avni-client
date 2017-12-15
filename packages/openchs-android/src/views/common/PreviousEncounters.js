@@ -47,12 +47,13 @@ class PreviousEncounters extends AbstractComponent {
                     </View>)
                     : sortedEncounters.map((encounter, index) => {
                         const title = this.getTitle(encounter);
+                        const form = formMappingService.findFormForEncounterType(encounter.encounterType);
                         return (
                             <View key={`${index}-1`} style={this.props.style}>
                                 <ObservationsSectionTitle
                                     contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]}
                                     title={title}/>
-                                <Observations observations={encounter.observations} key={`${index}-2`}/>
+                                <Observations form={form} observations={encounter.observations} key={`${index}-2`}/>
                             </View>
                         );
                     })}</View>

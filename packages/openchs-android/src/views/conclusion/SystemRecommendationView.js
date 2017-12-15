@@ -29,7 +29,8 @@ class SystemRecommendationView extends AbstractComponent {
         validationErrors: React.PropTypes.array.isRequired,
         headerMessage: React.PropTypes.string,
         checklists: React.PropTypes.array,
-        nextScheduledVisits: React.PropTypes.array
+        nextScheduledVisits: React.PropTypes.array,
+        form: React.PropTypes.object
     };
 
     static styles = {
@@ -65,7 +66,8 @@ class SystemRecommendationView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}/>
                     <View style={{flexDirection: 'column'}}>
-                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.individual} style={{
+                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                                           individual={this.props.individual} style={{
                             backgroundColor: Colors.GreyContentBackground,
                             paddingHorizontal: 24,
                             paddingBottom: 12,
@@ -78,17 +80,27 @@ class SystemRecommendationView extends AbstractComponent {
                                         return (
                                             <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
                                                   key={`error${index}`}>
-                                                <Text style={{fontSize: Fonts.Medium, color: Colors.ValidationError}}>{this.I18n.t(validationResult.messageKey)}</Text>
+                                                <Text style={{
+                                                    fontSize: Fonts.Medium,
+                                                    color: Colors.ValidationError
+                                                }}>{this.I18n.t(validationResult.messageKey)}</Text>
                                             </View>
                                         );
                                     })
                                 }
-                                <Observations highlight observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)} title={this.I18n.t('systemRecommendations')}/>
+                                <Observations highlight
+                                              observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
+                                              title={this.I18n.t('systemRecommendations')}/>
                             </View>
-                            <Observations observations={this.props.observations} title={this.I18n.t('observations')}/>
+                            <Observations observations={this.props.observations} form={this.props.form}
+                                          title={this.I18n.t('observations')}/>
                             <ChecklistDisplay checklists={this.props.checklists} editable={false}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
-                                           next={{func: () => this.save(), visible: this.props.validationErrors.length === 0, label: this.I18n.t('save')}}
+                                           next={{
+                                               func: () => this.save(),
+                                               visible: this.props.validationErrors.length === 0,
+                                               label: this.I18n.t('save')
+                                           }}
                                            style={{marginHorizontal: 24}}/>
 
                         </View>
