@@ -7,9 +7,9 @@
   "formElementGroups": [
     {
       "uuid": "4a99ff80-9c80-426b-9ca9-b9129cc88cb6",
-      "name": "Schooling details",
+      "name": "Educational Details",
       "displayOrder": 1,
-      "display": "Schooling details",
+      "display": "Educational Details",
       "formElements": [
         {
           "name": "School going",

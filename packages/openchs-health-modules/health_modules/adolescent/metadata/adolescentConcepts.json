@@ -169,6 +169,16 @@
     ]
   },
   {
+    "name": "Alcohol",
+    "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Tobacco",
+    "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34",
+    "dataType": "N/A"
+  },
+  {
     "name": "Addiction Details",
     "uuid": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
     "dataType": "Coded",
@@ -212,5 +222,35 @@
         "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
       }
     ]
+  },
+  {
+    "name": "Labour",
+    "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Farming",
+    "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Business",
+    "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Job",
+    "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Other",
+    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Don't know",
+    "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45",
+    "dataType": "N/A"
   }
 ]

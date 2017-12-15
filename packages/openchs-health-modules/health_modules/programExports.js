@@ -5,7 +5,7 @@ programEncounterExports.Child = require('./child/childProgramEncounterDecision')
 const programEnrolmentExports = {};
 programEnrolmentExports.Mother = require('./mother/motherProgramEnrolmentDecision');
 programEnrolmentExports.Child = require('./child/childProgramEnrolmentDecision');
-programEnrolmentExports.Adolescent = require('./adolescent/adolescentEnrolment');
+programEnrolmentExports.Adolescent = require('./adolescent/adolescentProgramEnrolmentDecision');
 
 const programConfigExports = {};
 programConfigExports.Child = require('./child/childProgramConfig');

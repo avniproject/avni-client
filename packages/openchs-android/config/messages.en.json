@@ -20,7 +20,7 @@
   "encounterDateNotInBetweenEnrolmentAndExitDate": "Encounter date not in between enrolment and exit dates",
   "registrationBeforeDateOfBirth": "Registration cannot be before date of birth",
 
-  "numberOutOfRangeMessage": "The input number {{value}} out of allowed range",
+  "numberOutOfRangeMessage": "Value is outside allowed range",
   "dateOfBirthCannotBeInFuture": "The date of birth cannot be in future",
   "ageTooHigh": "Age is person is above 120 years",
 

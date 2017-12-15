@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 class FormElementStatus {
     constructor(uuid, visibility, value, answersToSkip = []) {
         this.uuid = uuid;

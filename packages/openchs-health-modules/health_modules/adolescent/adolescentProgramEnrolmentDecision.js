@@ -1,6 +1,7 @@
 import ComplicationsBuilder from "../rules/complicationsBuilder";
-import _ from "lodash";
 import {getNextScheduledVisits} from './adolescentVisitSchedule';
+import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
+import FormFilterHelper from "../rules/FormFilterHelper";
 
 
 const getDecisions = (programEnrolment, today) => {
@@ -34,4 +35,9 @@ const getDecisions = (programEnrolment, today) => {
     return {enrolmentDecisions: enrolmentDecisions, encounterDecisions: [], registrationDecisions: []};
 };
 
-export {getDecisions, getNextScheduledVisits};
+const filterFormElements = (programEnrolment, formElementGroup) => {
+    let handler = new EnrolmentFormHandler();
+    return FormFilterHelper.filterFormElements(handler, programEnrolment, formElementGroup);
+};
+
+export {getDecisions, getNextScheduledVisits, filterFormElements};

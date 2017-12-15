@@ -64,7 +64,8 @@ class ProgramFormComponent extends AbstractComponent {
                     <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
                                       observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}
-                                      formElementsUserState={this.props.state.formElementsUserState}/>
+                                      formElementsUserState={this.props.state.formElementsUserState}
+                                      filteredFormElements={this.props.state.filteredFormElements}/>
                     <WizardButtons previous={{
                         visible: !this.props.state.wizard.isFirstPage(),
                         func: () => this.previous(),

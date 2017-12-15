@@ -1,6 +1,6 @@
 import FormFilterHelper from "../../rules/FormFilterHelper";
 
-export default class EleventhAndTwlefthStandard {
+export default class EleventhAndTwelfthStandardFormHandler {
     reasonForDroppingOut(programEncounter, formElement) {
         return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'School going', 'Dropped Out');
     }

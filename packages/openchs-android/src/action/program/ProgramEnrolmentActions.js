@@ -20,7 +20,7 @@ export class ProgramEnrolmentActions {
             const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
             const formElementGroup = _.isNil(form) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
-            let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.programEnrolment, ProgramEnrolment.schema.name, formElementGroup);
+            let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
             return new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment, filteredElements);
         }

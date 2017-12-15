@@ -8,10 +8,10 @@ class FormFilterHelper {
     static filterFormElements(handler, entity, formElementGroup, today) {
         if (handler['preFilter'])
             handler['preFilter'](entity, formElementGroup, today);
+
         return formElementGroup.formElements.map((formElement) => {
             let nameWOSpecialChars = formElement.name.replace(FormFilterHelper.removeSpecialCharsRegex, '');
             let fnName = _.camelCase(nameWOSpecialChars);
-            // console.log(`Resolved function name=${fnName}`);
             let fn = handler[fnName];
             if (_.isNil(fn)) return new FormElementStatus(formElement.uuid, true);
             return fn.bind(handler)(entity, formElement, today);
