@@ -5,7 +5,7 @@ import moment from "moment";
 class FormFilterHelper {
     static removeSpecialCharsRegex = new RegExp(/[-[\]{}()*+?.,\\^$|#]/g);
 
-    static filterFormElements(handler, entity, formElementGroup, today) {
+    static filterFormElements(handler = {}, entity, formElementGroup, today) {
         if (handler['preFilter'])
             handler['preFilter'](entity, formElementGroup, today);
 

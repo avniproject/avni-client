@@ -38,7 +38,7 @@ export default class EnrolmentFormHandler {
 
     _parentStatusContains(statuses, programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
-        statusBuilder.show().when.valueInEnrolment("Parents life status").containsAnyAnswerConceptName(...statuses);
+        statusBuilder.show().when.valueInEnrolment("Parents' life status").containsAnyAnswerConceptName(...statuses);
 
         return statusBuilder.build();
     }

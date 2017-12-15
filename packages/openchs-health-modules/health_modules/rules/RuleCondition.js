@@ -19,7 +19,6 @@ export default class RuleCondition {
 
     _look(item) {
         return this._addToChain((next, context) => {
-            console.log(JSON.stringify(item? _.get(context, item) : context));
             return next(context);
         });
     }
@@ -109,6 +108,25 @@ export default class RuleCondition {
     valueInEntireEnrolment(conceptName) {
         return this._addToChain((next, context) => {
             const obs = this._obsFromEntireEnrolment(this._getEnrolment(context), conceptName);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.getValue();
+            return next(context);
+        });
+    }
+
+    latestValueInAllEncounters(conceptName) {
+        return this._addToChain((next, context) => {
+            const enrolment = this._getEnrolment(context);
+            const obs = enrolment.findLatestObservationFromEncounters(conceptName, context.programEncounter);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.getValue();
+            return next(context);
+        });
+    }
+
+    latestValueInPreviousEncounters(conceptName) {
+        return this._addToChain((next, context) => {
+            const obs = this._getEnrolment(context).findLatestObservationFromPreviousEncounters(conceptName, context.programEncounter);
             context.obsToBeChecked = obs;
             context.valueToBeChecked = obs && obs.getValue();
             return next(context);

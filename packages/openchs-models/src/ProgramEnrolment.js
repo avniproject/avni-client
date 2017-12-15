@@ -193,17 +193,43 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     findObservationInEntireEnrolment(conceptName, currentEncounter) {
-        const encounters = this.getEncounters().slice();
-        if (!_.isNil(currentEncounter))
-            encounters.splice(0, 0, currentEncounter);
+        const encounters = _.chain(this.getEncounters())
+            .concat(currentEncounter)
+            .compact()
+            .sortBy((enc) => enc.encounterDateTime)
+            .value();
 
+        return this._findObservationFromEntireEnrolment(conceptName, encounters, true);
+    }
+
+    findLatestObservationFromEncounters(conceptName, currentEncounter) {
+        const encounters = _.chain(this.getEncounters())
+            .concat(currentEncounter)
+            .compact()
+            .sortBy((enc) => enc.encounterDateTime)
+            .reverse()
+            .value();
+
+        return this._findObservationFromEntireEnrolment(conceptName, encounters, false);
+    }
+
+    findLatestObservationFromPreviousEncounters(conceptName, encounter) {
+        const encounters = _.chain(this.getEncounters())
+            .reverse()
+            .filter((enc) => enc.encounterDateTime < encounter.encounterDateTime)
+            .value();
+
+        return this._findObservationFromEntireEnrolment(conceptName, encounters, false);
+    }
+
+    _findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment = true) {
         var observation;
         for (var i = 0; i < encounters.length; i++) {
             observation = encounters[i].findObservation(conceptName);
             if (!_.isNil(observation)) break;
         }
 
-        if (_.isNil(observation))
+        if (_.isNil(observation) && checkInEnrolment)
             return this.findObservation(conceptName);
 
         return observation;
@@ -227,7 +253,7 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     findEncounter(encounterTypeName, encounterName) {
-        return this.encounters.find(function(encounter) {
+        return this.encounters.find(function (encounter) {
             return encounter.encounterType.name === encounterTypeName && encounter.name === encounterName;
         });
     }

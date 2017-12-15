@@ -11,11 +11,13 @@
     "answers": [
       {
         "uuid": "b5e3310a-7628-40d9-8bb3-961a6c302c84",
-        "name": "School dropout"
+        "name": "School dropout",
+        "abnormal": true
       },
       {
         "uuid": "f8e3347d-5ffe-496d-9858-5ea8095d7c96",
-        "name": "Addiction"
+        "name": "Addiction",
+        "abnormal": true
       }
     ]
   },
@@ -99,7 +101,7 @@
     ]
   },
   {
-    "name": "If dropped out what are they doing now",
+    "name": "What he/she is doing now?",
     "uuid": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
     "dataType": "Coded",
     "answers": [
@@ -132,35 +134,43 @@
     "answers": [
       {
         "name": "Lower Abdominal Pain",
-        "uuid": "92ad8878-b476-4291-aa76-3377fa7cf19c"
+        "uuid": "92ad8878-b476-4291-aa76-3377fa7cf19c",
+        "abnormal": true
       },
       {
         "name": "Backache",
-        "uuid": "33385edf-93bc-4513-aa03-480ce3bc7b5c"
+        "uuid": "33385edf-93bc-4513-aa03-480ce3bc7b5c",
+        "abnormal": true
       },
       {
         "name": "Leg Pain",
-        "uuid": "1c478c50-4761-460c-b33c-a18d0c1500f7"
+        "uuid": "1c478c50-4761-460c-b33c-a18d0c1500f7",
+        "abnormal": true
       },
       {
-        "name": "Nausea Vomitting",
-        "uuid": "761b7f7a-5db7-4115-aa84-32fcfce5ddfc"
+        "name": "Nausea and Vomiting",
+        "uuid": "761b7f7a-5db7-4115-aa84-32fcfce5ddfc",
+        "abnormal": true
       },
       {
         "name": "Headache",
-        "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
+        "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e",
+        "abnormal": true
       },
       {
         "name": "Abnormal Vaginal Discharge",
-        "uuid": "aa30fb91-4b64-438b-b09e-4c7ff2701d71"
+        "uuid": "aa30fb91-4b64-438b-b09e-4c7ff2701d71",
+        "abnormal": true
       },
       {
         "name": "Heavy Bleeding",
-        "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1"
+        "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1",
+        "abnormal": true
       },
       {
         "name": "Irregular Menses",
-        "uuid": "ce47ae12-e61c-49cc-8ccd-715f9d5cb76d"
+        "uuid": "ce47ae12-e61c-49cc-8ccd-715f9d5cb76d",
+        "abnormal": true
       },
       {
         "name": "No Problem",
@@ -185,41 +195,17 @@
     "answers": [
       {
         "name": "Alcohol",
-        "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+        "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a",
+        "abnormal": true
       },
       {
         "name": "Tobacco",
-        "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
-      }
-    ]
-  },
-  {
-    "name": "Drives 2 wheeler",
-    "uuid": "6cb38e42-ada5-4c0e-af4e-f9f64b0c0c0c",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Yes",
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+        "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34",
+        "abnormal": true
       },
       {
-        "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-      }
-    ]
-  },
-  {
-    "name": "Road accident in past 6 months",
-    "uuid": "81e12454-fcc5-4ff4-a978-0511e233891c",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Yes",
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-      },
-      {
-        "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+        "name": "No addiction",
+        "uuid": "e7692e49-8d61-4b9c-b8a0-94706a014370"
       }
     ]
   },

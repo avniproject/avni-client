@@ -6,19 +6,19 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
-import { EncounterTypeChoiceActionNames } from "../../action/program/ProgramEnrolmentDashboardActions";
+import {EncounterTypeChoiceActionNames} from "../../action/program/ProgramEnrolmentDashboardActions";
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
 import Styles from "../primitives/Styles";
-import General from "../../utility/General";
 
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
-    constructor(props, context){
+    constructor(props, context) {
         super(props, context, "something");
         this.goToView = this.goToView.bind(this);
     }
+
     static propTypes = {
         programDashboardButtons: React.PropTypes.array.isRequired,
         enrolment: React.PropTypes.object.isRequired,
@@ -39,14 +39,16 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     goToView(button) {
-        TypedTransition.from(this).bookmark().with({data: _.get(button, ['openOnClick', 'data']), enrolment: this.props.enrolment}).to(GrowthChartView);
+        TypedTransition.from(this).bookmark().with({
+            data: _.get(button, ['openOnClick', 'data']),
+            enrolment: this.props.enrolment
+        }).to(GrowthChartView);
     }
 
     renderButton(onPress, buttonStyle, text, textColor, index) {
         return (
-            this.props.encounterTypes.length === 0 ? <View/> :
             <TouchableNativeFeedback onPress={onPress} key={index}>
-                <View  style={buttonStyle}>
+                <View style={buttonStyle}>
                     <Text style={{
                         fontSize: Fonts.Medium,
                         color: textColor
@@ -59,9 +61,11 @@ class ProgramActionsView extends AbstractComponent {
     render() {
         return (
             <View
-                style={{flex: 1,flexDirection: 'column', marginTop: 8}}>
-                {this.renderButton(() => this.startEncounter(), Styles.basicSecondaryButtonView,
-                    this.I18n.t('newGeneralVisit'), Colors.DarkPrimaryColor)}
+                style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
+                {_.isEmpty(this.props.encounterTypes) ? <View/> :
+                    this.renderButton(() => this.startEncounter(), Styles.basicSecondaryButtonView,
+                        this.I18n.t('newGeneralVisit'), Colors.DarkPrimaryColor)
+                }
                 {this.props.enrolment.isActive ?
                     this.renderButton(() => this.startProgramEncounter(), Styles.basicPrimaryButtonView,
                         this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)

@@ -1,5 +1,4 @@
 import ComplicationsBuilder from "../rules/complicationsBuilder";
-import {getNextScheduledVisits} from './adolescentVisitSchedule';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import FormFilterHelper from "../rules/FormFilterHelper";
 
@@ -38,6 +37,11 @@ const getDecisions = (programEnrolment, today) => {
 const filterFormElements = (programEnrolment, formElementGroup) => {
     let handler = new EnrolmentFormHandler();
     return FormFilterHelper.filterFormElements(handler, programEnrolment, formElementGroup);
+};
+
+const getNextScheduledVisits = function (programEnrolment, today, currentEncounter) {
+
+
 };
 
 export {getDecisions, getNextScheduledVisits, filterFormElements};

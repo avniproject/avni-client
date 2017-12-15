@@ -165,56 +165,6 @@
           "displayOrder": 5
         }
       ]
-    },
-    {
-      "uuid": "6b3255f3-44dc-462b-8214-cbdc83b79335",
-      "name": "Accident and Driving",
-      "displayOrder": 3,
-      "display": "Accident and Driving",
-      "formElements": [
-        {
-          "name": "Do you drive vehicle (2 wheeler)?",
-          "uuid": "f97e1164-5bae-4119-ba82-52e41bfd3b09",
-          "type": "SingleSelect",
-          "conceptUUID": "6cb38e42-ada5-4c0e-af4e-f9f64b0c0c0c",
-          "displayOrder": 1,
-          "mandatory": true
-        },
-        {
-          "name": "Have you suffered from Road Traffic Accident in last 6 months",
-          "uuid": "4cf7d351-0e5d-4013-8059-809a63a9b461",
-          "type": "SingleSelect",
-          "conceptUUID": "81e12454-fcc5-4ff4-a978-0511e233891c",
-          "displayOrder": 2,
-          "mandatory": true
-        },
-        {
-          "name": "How did the accident happen",
-          "uuid": "a53df418-530d-4d89-9560-014847879634",
-          "type": "SingleSelect",
-          "concept": {
-            "name": "How did the accident happen",
-            "uuid": "0c34ea54-7cf1-4fbf-9178-246497c258bd",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "While walking",
-                "uuid": "279e208d-bac3-4c6e-b782-f8d509240604"
-              },
-              {
-                "name": "While driving",
-                "uuid": "61085c9b-0a05-49a9-8a39-0f678f1f2626"
-              },
-              {
-                "name": "While having a ride (Back seat)",
-                "uuid": "65c20b4f-03a5-4fd6-8e03-fd387539c6d1"
-              }
-            ]
-          },
-          "mandatory": true,
-          "displayOrder": 3
-        }
-      ]
     }
   ]
 }

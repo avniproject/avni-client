@@ -4,18 +4,16 @@ export default class FormElementStatusBuilder {
 
     constructor(context) {
         this.context = context;
-        this.visibilityRule = new RuleCondition();
-        this.valueRule = new RuleCondition();
+        this.visibilityRule = new RuleCondition(context);
+        this.valueRule = new RuleCondition(context);
     }
 
     show() {
-        this.visibilityRule = new RuleCondition(this.context);
         return this.visibilityRule;
     }
 
     value(value) {
         this.value = value;
-        this.valueRule = new RuleCondition(this.context);
         return this.valueRule;
     }
 

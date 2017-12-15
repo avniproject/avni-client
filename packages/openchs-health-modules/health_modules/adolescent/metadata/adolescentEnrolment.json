@@ -27,19 +27,23 @@
               },
               {
                 "name": "Only Father Alive",
-                "uuid": "1645d2d8-9dc8-4a6a-ad6c-50b0cca09190"
+                "uuid": "1645d2d8-9dc8-4a6a-ad6c-50b0cca09190",
+                "abnormal": true
               },
               {
                 "name": "Only Mother Alive",
-                "uuid": "6b384012-b46d-4397-b17e-a0b4fa2e4469"
+                "uuid": "6b384012-b46d-4397-b17e-a0b4fa2e4469",
+                "abnormal": true
               },
               {
                 "name": "Both Expired",
-                "uuid": "0e7d6595-6217-4498-aa97-79c2edbb875a"
+                "uuid": "0e7d6595-6217-4498-aa97-79c2edbb875a",
+                "abnormal": true
               },
               {
                 "name": "Separated",
-                "uuid": "00f2eb9a-94c6-48eb-bfad-0b93784d3cb9"
+                "uuid": "00f2eb9a-94c6-48eb-bfad-0b93784d3cb9",
+                "abnormal": true
               }
             ]
           },
@@ -97,16 +101,22 @@
             "answers": [
               {
                 "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a",
+                "abnormal": true
               },
               {
                 "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
+                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34",
+                "abnormal": true
+              },
+              {
+                "name": "No addiction",
+                "uuid": "e7692e49-8d61-4b9c-b8a0-94706a014370"
               }
             ]
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Mother's Occupation",
@@ -118,6 +128,10 @@
             "uuid": "dc9882a4-ceff-4dc9-b6fc-3e2ba7e9b197",
             "dataType": "Coded",
             "answers": [
+              {
+                "name": "Housework",
+                "uuid": "3e7e80cc-1744-4292-a34f-1beff9dd2316"
+              },
               {
                 "name": "Labour",
                 "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
@@ -159,16 +173,22 @@
             "answers": [
               {
                 "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a"
+                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a",
+                "abnormal": true
               },
               {
                 "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34"
+                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34",
+                "abnormal": true
+              },
+              {
+                "name": "No addiction",
+                "uuid": "e7692e49-8d61-4b9c-b8a0-94706a014370"
               }
             ]
           },
           "displayOrder": 5,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Staying with whom",
@@ -251,23 +271,28 @@
             "answers": [
               {
                 "name": "Diabetes",
-                "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505"
+                "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
+                "abnormal": true
               },
               {
                 "name": "Hypertension",
-                "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f"
+                "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
+                "abnormal": true
               },
               {
                 "name": "TB",
-                "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191"
+                "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
+                "abnormal": true
               },
               {
                 "name": "Cancer",
-                "uuid": "e8480835-eca9-44ff-920c-dd0c909a4492"
+                "uuid": "e8480835-eca9-44ff-920c-dd0c909a4492",
+                "abnormal": true
               },
               {
                 "name": "Sicklecell Disease",
-                "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f"
+                "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
+                "abnormal": true
               },
               {
                 "name": "No Sickness",
@@ -275,7 +300,8 @@
               },
               {
                 "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+                "abnormal": true
               }
             ]
           },
