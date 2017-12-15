@@ -18,6 +18,8 @@ import FormElement from "./application/FormElement";
 import FormMapping from "./application/FormMapping";
 import Checklist from "./Checklist";
 import ChecklistItem from "./ChecklistItem";
+import UserInfoService from "../../openchs-android/src/service/UserInfoService";
+import UserInfo from "./UserInfo";
 
 class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
@@ -88,7 +90,7 @@ class EntityMetaData {
     };
 
     static entitiesLoadedFromServer() {
-        return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping], (first, second) => {
+        return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping, UserInfo], (first, second) => {
             if (_.isNil(second)) return false;
 
             return first.schema.name === second.schema.name;
