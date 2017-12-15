@@ -4,6 +4,7 @@
     {
       "name": "Ghotpadi",
       "uuid": "b9103c96-7ed7-4798-a866-89419103d361",
+      "type": "Villages",
       "addressLevels": [
         {
           "uuid": "293203b7-b0f8-4ff3-84bb-0757344924fc",
@@ -35,6 +36,7 @@
     {
       "name": "Gopnar",
       "uuid": "c5219099-aa23-4b56-b2b0-a70d4d41e73e",
+      "type": "Villages",
       "addressLevels": [
         {
           "uuid": "b3221785-7821-4582-96a8-3c624a95085c",
@@ -66,6 +68,7 @@
     {
       "name": "Jinjgaon",
       "uuid": "6baffece-beea-4882-91b3-cf0866423ce8",
+      "type": "Villages",
       "addressLevels": [
         {
           "uuid": "fb8da154-410f-4d99-9ab9-49e61d938c9b",
@@ -92,6 +95,7 @@
     {
       "name": "Midapalli",
       "uuid": "5f3ca616-955f-4e01-8521-6e7122327d08",
+      "type": "Villages",
       "addressLevels": [
         {
           "uuid": "85addb4c-b835-43d6-b92e-450d00f6ce76",
@@ -118,6 +122,7 @@
     {
       "name": "Mirgudwancha",
       "uuid": "d23c6262-6ed6-4b18-9868-48eeff7200a7",
+      "type": "Villages",
       "addressLevels": [
         {
           "uuid": "bd2d019f-e501-4a4c-b48e-787e6dcca47d",
@@ -144,6 +149,7 @@
     {
       "name": "Pengunda",
       "uuid": "fc56fe8d-2fdf-4502-bd2d-2d2907d5a996",
+      "type": "Villages",
       "addressLevels": [
         {
           "uuid": "f8e8ff01-b496-4f32-b809-4e2a40e97aa5",
