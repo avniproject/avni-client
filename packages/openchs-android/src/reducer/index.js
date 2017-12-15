@@ -8,16 +8,18 @@ import {
     IndividualEncounterViewActionsMap
 } from "../action/individual/EncounterActions";
 import {
-    DashboardActions,
-    DashboardActionsMap
-} from "../action/program/DashboardActions";
-import {
     ProgramEnrolmentsActions,
     ProgramEnrolmentsActionsMap
 } from "../action/program/ProgramEnrolmentsActions";
-import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} from '../action/program/ProgramEnrolmentDashboardActions';
+import {
+    ProgramEnrolmentDashboardActions,
+    ProgramEnrolmentDashboardActionsMap
+} from '../action/program/ProgramEnrolmentDashboardActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
-import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
+import {
+    IndividualRegistrationDetailsActions,
+    IndividualRegistrationDetailsActionsMap
+} from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
 import {AddressLevelActions} from '../action/AddressLevelActions';
 import {ChecklistActions, ChecklistActionsMap} from '../action/program/ChecklistActions';
@@ -33,7 +35,6 @@ export default class Reducers {
         encounter: "encounter",
         individualRegister: "individualRegister",
         individualProfile: 'individualProfile',
-        dashboard: 'dashboard',
         programEnrolments: 'programEnrolments',
         programEnrolmentDashboard: 'programEnrolmentDashboard',
         programEncounter: 'programEncounter',
@@ -45,7 +46,7 @@ export default class Reducers {
         startProgramActions: "startProgramActions",
         loginActions: 'loginActions'
     };
-    
+
     static createReducers(beanStore) {
         const reducerMap = {};
         reducerMap[Reducers.reducerKeys.checklist] = Reducers._add(ChecklistActionsMap, ChecklistActions, beanStore);
@@ -56,7 +57,6 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.programEnrolment] = Reducers._add(ProgramEnrolmentActionMap, ProgramEnrolmentActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualGeneralHistory] = Reducers._add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions, beanStore);
         reducerMap[Reducers.reducerKeys.encounter] = Reducers._add(IndividualEncounterViewActionsMap, EncounterActions, beanStore);
-        reducerMap[Reducers.reducerKeys.dashboard] = Reducers._add(DashboardActionsMap, DashboardActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolments] = Reducers._add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolmentDashboard] = Reducers._add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions, beanStore, ProgramEnrolmentDashboardActions.ACTION_PREFIX);
         reducerMap[Reducers.reducerKeys.programEncounter] = Reducers._add(ProgramEncounterActionsMap, ProgramEncounterActions, beanStore);

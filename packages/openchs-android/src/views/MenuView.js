@@ -12,7 +12,7 @@ import {EntityMetaData} from "openchs-models";
 import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
-import DashboardView from "./program/DashboardView";
+import MyDashboardView from "./mydashbaord/MyDashboardView";
 import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
@@ -126,8 +126,8 @@ class MenuView extends AbstractComponent {
 
     }
 
-    programSummary() {
-        TypedTransition.from(this).to(DashboardView);
+    myDashboard() {
+        TypedTransition.from(this).to(MyDashboardView);
     }
 
 
@@ -173,7 +173,7 @@ class MenuView extends AbstractComponent {
             ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
             ["account-plus", "Register", this.registrationView.bind(this)],
             ["account-key", "Change Password", this.changePasswordView.bind(this)],
-            ["view-list", "Program Summary", this.programSummary.bind(this)]
+            ["view-list", "My Dashboard", this.myDashboard.bind(this)]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData
