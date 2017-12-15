@@ -8,21 +8,24 @@ class AddressLevel extends BaseEntity {
             uuid: "string",
             name: "string",
             level: "int",
+            type: {type: 'string', optional: true},
             parentAddressLevel: {type: "AddressLevel", optional: true}
         }
     };
 
-    static create(uuid, title, level, parentAddressLevel) {
+    static create(uuid, title, level, parentAddressLevel, type) {
         const addressLevel = new AddressLevel();
         addressLevel.uuid = uuid;
         addressLevel.name = title;
         addressLevel.level = level;
         addressLevel.parentAddressLevel = parentAddressLevel;
+        addressLevel.type = type;
         return addressLevel;
     }
 
     static fromResource(resource) {
-        return AddressLevel.create(resource["uuid"], resource["title"], resource["level"]);
+        console.log(resource);
+        return AddressLevel.create(resource["uuid"], resource["title"], resource["level"], undefined, resource['type']);
     }
 
     cloneForReference() {
