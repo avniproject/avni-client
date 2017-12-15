@@ -18,7 +18,6 @@ import FormElement from "./application/FormElement";
 import FormMapping from "./application/FormMapping";
 import Checklist from "./Checklist";
 import ChecklistItem from "./ChecklistItem";
-import UserInfoService from "../../openchs-android/src/service/UserInfoService";
 import UserInfo from "./UserInfo";
 
 class EntityMetaData {
