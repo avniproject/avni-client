@@ -30,7 +30,6 @@ class SettingsService extends BaseService {
                 settings.serverURL = Config.SERVER_URL;
                 settings.poolId = "";
                 settings.clientId = "";
-                settings.organisationName = "";
                 dbInScope.create('Settings', settings, true);
             }
 

@@ -10,7 +10,6 @@
   "allQuestionnaireSessionsSummary": "Your data",
   "decisionsMadeBySystem": "Generated data",
   "deleteConfirmation": "Do you want to delete all saved sessions?",
-
   "validationResult": "Validation Error",
   "numericValueValidation": "Is not a valid number",
   "emptyValidationMessage": "There is no value specified",
@@ -19,17 +18,16 @@
   "encounterDateBeforeRegistrationDate": "Encounter date cannot be before registration date",
   "encounterDateNotInBetweenEnrolmentAndExitDate": "Encounter date not in between enrolment and exit dates",
   "registrationBeforeDateOfBirth": "Registration cannot be before date of birth",
-
-  "numberOutOfRangeMessage": "Value is outside allowed range",
+  "numberOutOfRangeMessage": "The input number {{value}} out of allowed range",
   "dateOfBirthCannotBeInFuture": "The date of birth cannot be in future",
   "ageTooHigh": "Age is person is above 120 years",
-
   "syncError": "Sync Failed",
   "exportError": "Export Failed",
   "settings": "Settings",
   "close": "X",
   "serverURL": "Server URL",
   "catchmentId": "Catchment Id",
+  "Intervention Area": "Intervention Area",
   "locale": "Language",
   "syncConfig": "Sync Config",
   "months": "Months",
@@ -53,6 +51,7 @@
   "value": "Value",
   "age": "Age (in years)",
   "lowestAddressLevel": "Village",
+  "Villages": "Villages",
   "search": "SEARCH",
   "register": "REGISTER",
   "searchResults": "Search Results",
@@ -111,7 +110,6 @@
   "notEnrolledInAnyProgram": "Not enrolled in any program",
   "openChecklist": "Open Checklist",
   "checklists": "Checklists",
-
   "completed": "Completed on  {{completedOn}}",
   "dueOn": "Due on {{dueOn}}",
   "expired": "EXPIRED",
@@ -120,7 +118,6 @@
   "askIfNotComplete": "This checklist item is not complete",
   "isNotDueOn": "{{checklistItemName}} is not due yet on {{dueDate}}",
   "isAfterMaxDate": "{{checklistItemName}} is after the MAX date allowed {{maxDate}}",
-
   "ENCOUNTER_DATE_TIME": "Visit date",
   "enterData": "Enter data",
   "systemRecommendationsTitleForRegistration": "Registration",
@@ -137,16 +134,13 @@
   "Info": "Info",
   "Debug": "Debug",
   "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}",
-
   "lessThan13Weeks": "< 13 Weeks",
   "lessThan2Years": "<2 Years",
   "2To5Years": "2 to 5 Years",
   "individualDashboard": "Dashboard",
   "scheduled": "Scheduled",
-
   "systemRecommendations": "System Recommendations",
   "observations": "Observations",
-
   "deleteSchemaConfirmationMessage": "You will lose information that is not synced",
   "deleteSchemaNoticeTitle": "Delete Data?",
   "userId": "User ID",

@@ -2,6 +2,7 @@ import ValidationResult from "./application/ValidationResult";
 import _ from "lodash";
 import ValidationResults from "./application/ValidationResults";
 import General from "./utility/General";
+
 class Settings {
     static UUID = '2aa81079-38c3-4d9f-8380-f50544b32b3d';
 
@@ -15,8 +16,7 @@ class Settings {
             locale: {"type": "LocaleMapping"},
             logLevel: 'int',
             poolId: 'string',
-            clientId: 'string',
-            organisationName: 'string'
+            clientId: 'string'
         }
     };
 
@@ -29,7 +29,6 @@ class Settings {
         settings.logLevel = this.logLevel;
         settings.poolId = this.poolId;
         settings.clientId = this.clientId;
-        settings.organisationName = this.organisationName;
         return settings;
     }
 
@@ -41,7 +40,7 @@ class Settings {
             ValidationResult.successful('logLevel')]);
 
         if (_.isEmpty(this.serverURL)) validationResults.addOrReplace(ValidationResult.failureForEmpty("serverURL"));
-        if (!General.isNumeric(this.catchment))validationResults.addOrReplace(ValidationResult.failureForNumeric('catchment'));
+        if (!General.isNumeric(this.catchment)) validationResults.addOrReplace(ValidationResult.failureForNumeric('catchment'));
         if (_.isEmpty(this.locale)) validationResults.addOrReplace(ValidationResult.failureForEmpty("locale"));
         if (!General.isNumeric(this.logLevel)) validationResults.addOrReplace(ValidationResult.failureForNumeric('logLevel'));
 

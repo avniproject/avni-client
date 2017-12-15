@@ -25,7 +25,7 @@ class AddressLevels extends AbstractComponent {
     }
 
     toggleAddressLevelSelection(addressLevelUuid) {
-        const selectedAddressLevel = this.state.addressLevels.find((al) => al.uuid === addressLevelUuid);
+        const selectedAddressLevel = this.state.addressLevels.addressLevels.find((al) => al.uuid === addressLevelUuid);
         return this.dispatchAction(this.props.actionName, {value: selectedAddressLevel});
     }
 
@@ -34,7 +34,7 @@ class AddressLevels extends AbstractComponent {
     }
 
     render() {
-        const valueLabelPairs = this.state.addressLevels.map(({uuid, name}) => new RadioLabelValue(name, uuid));
+        const valueLabelPairs = this.state.addressLevels.addressLevels.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         return (
             <RadioGroup
                 multiSelect={this.props.multiSelect}
@@ -42,7 +42,7 @@ class AddressLevels extends AbstractComponent {
                 inPairs={true}
                 onPress={({label, value}) => this.toggleAddressLevelSelection(value)}
                 selectionFn={(addressLevel) => this.props.selectedAddressLevels.some((al) => al.uuid === addressLevel)}
-                labelKey="lowestAddressLevel"
+                labelKey={`${this.state.addressLevels.catchmentType}`}
                 mandatory={this.props.mandatory}
                 validationError={this.props.validationError}
                 labelValuePairs={valueLabelPairs}/>

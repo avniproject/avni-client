@@ -9,6 +9,8 @@ import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
+import {UserInfo} from "openchs-models";
+import UserInfoService from "./UserInfoService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -23,6 +25,7 @@ class SyncService extends BaseService {
         this.conventionalRestClient = new ConventionalRestClient(this.settingsService);
         this.messageService = this.getService(MessageService);
         this.authService = this.getService(AuthService);
+        this.userInfoService = this.getService(UserInfoService);
     }
 
     authenticate() {
@@ -35,9 +38,19 @@ class SyncService extends BaseService {
 
         return this.authenticate()
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
+            .then(() => this.getUserInfo())
             .then(() => this.pushTxData(allTxEntityMetaData.slice()))
             .then(() => this.getData(allReferenceDataMetaData))
             .then(() => this.getData(allTxEntityMetaData));
+    }
+
+    getUserInfo() {
+        const settings = this.settingsService.getSettings();
+        return this.conventionalRestClient.getUserInfo(settings.catchment, this.persistUserInfo.bind(this));
+    }
+
+    persistUserInfo(userInfoResource) {
+        return this.userInfoService.saveOrUpdate(UserInfo.fromResource(userInfoResource));
     }
 
     getData(entitiesMetadata) {

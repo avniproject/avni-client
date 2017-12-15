@@ -14,6 +14,12 @@ class ConventionalRestClient {
             .join("&");
     }
 
+    getUserInfo(catchmentId, persistFn) {
+        let settings = this.settingsService.getSettings();
+        const serverURL = settings.serverURL;
+        return getJSON(`${serverURL}/userInfo?catchmentId=${catchmentId}`, this.token).then(persistFn);
+    }
+
     postAllEntities(allEntities, onCompleteOfIndividualPost) {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;

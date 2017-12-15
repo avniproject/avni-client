@@ -4,17 +4,28 @@ import EntityService from "../service/EntityService";
 import {LocaleMapping, Settings} from 'openchs-models';
 import General from "../utility/General";
 import MessageService from "../service/MessageService";
+import UserInfoService from '../service/UserInfoService';
 
 class SettingsActions {
     static getInitialState(context) {
         const settings = context.get(SettingsService).getSettings();
+        const userInfo = context.get(UserInfoService).getUserInfo();
         const localeMappings = context.get(EntityService).getAll(LocaleMapping.schema.name);
         const validationResults = settings.validate();
-        return {settings: settings, localeMappings: localeMappings, validationResults: validationResults};
+        return {
+            settings: settings,
+            localeMappings: localeMappings,
+            validationResults: validationResults,
+            userInfo: userInfo
+        };
     }
 
     static clone(state) {
-        return {settings: state.settings.clone(), localeMappings: state.localeMappings};
+        return {
+            settings: state.settings.clone(),
+            localeMappings: state.localeMappings,
+            userInfo: state.userInfo.clone()
+        };
     }
 
     static _updateSettingAndSave(state, updateFunc, context) {

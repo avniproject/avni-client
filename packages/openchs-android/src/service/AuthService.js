@@ -219,7 +219,6 @@ class AuthService extends BaseService {
         const settings = this.settingsService.getSettings();
         let modifications = {};
         modifications.catchment = _.toNumber(detailsFromToken['custom:catchmentId']);
-        modifications.organisationName = detailsFromToken['custom:organisationName'];
         if (modifications.catchment !== settings.catchment) {
             General.logInfo("AuthService", "Catchment change detected. Deleting all data");
             this._deleteData();

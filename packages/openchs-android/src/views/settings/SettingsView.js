@@ -36,7 +36,7 @@ class SettingsView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <Text style={Styles.settingsTitle}>
-                            {`${this.state.settings.organisationName} - Catchment ${this.state.settings.catchment}`}
+                            {`${this.state.userInfo.organisationName} - Catchment ${this.state.settings.catchment}`}
                         </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'

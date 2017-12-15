@@ -29,6 +29,7 @@ import Gender from "./src/Gender";
 import Individual from "./src/Individual";
 import LocaleMapping from "./src/LocaleMapping";
 import Observation from "./src/Observation";
+import UserInfo from "./src/UserInfo";
 import ObservationsHolder from "./src/ObservationsHolder";
 import Program from "./src/Program";
 import ProgramEncounter from "./src/ProgramEncounter";
@@ -40,7 +41,7 @@ import Settings from "./src/Settings";
 import UserDefinedIndividualProperty from "./src/UserDefinedIndividualProperty";
 import FormElementStatus from "./src/application/FormElementStatus";
 
-export  {
+export {
     Form,
     FormElement,
     FormElementGroup,
@@ -82,5 +83,6 @@ export  {
     Schema,
     Settings,
     UserDefinedIndividualProperty,
-    FormElementStatus
+    FormElementStatus,
+    UserInfo
 };
