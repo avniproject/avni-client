@@ -17,6 +17,8 @@ import EntityService from "../../../../src/service/EntityService";
 import StubbedEntityService from "../../service/stub/StubbedEntityService";
 import SettingsService from "../../../../src/service/SettingsService";
 import StubbedSettingsService from "../../service/stub/StubbedSettingsService";
+import UserInfoService from "../../../../src/service/UserInfoService";
+import StubbedUserInfoService from "../../service/stub/StubbedUserInfoService";
 
 class TestContext {
     static stubs = new Map([
@@ -28,7 +30,8 @@ class TestContext {
         [RuleEvaluationService, (serviceData) => new StubbedRuleEvaluationService(serviceData)],
         [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)],
         [EntityService, (serviceData) => new StubbedEntityService(serviceData)],
-        [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)]
+        [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)],
+        [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)]
     ]);
 
     constructor(serviceData) {
@@ -40,7 +43,12 @@ class TestContext {
         if (_.isNil(stub)) {
             return {
                 getDecisions: function () {
-                    return [{name: "Treatment Advice", code: "ABC001", value: "The patient should be referred to the hospital immediately as he may having tuberculosis", alert: "ALERT MESSAGE"}]
+                    return [{
+                        name: "Treatment Advice",
+                        code: "ABC001",
+                        value: "The patient should be referred to the hospital immediately as he may having tuberculosis",
+                        alert: "ALERT MESSAGE"
+                    }]
                 }
             };
         }
