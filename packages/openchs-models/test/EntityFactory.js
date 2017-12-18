@@ -10,6 +10,7 @@ import Observation from "../src/Observation";
 import PrimitiveValue from "../src/observation/PrimitiveValue";
 import ProgramEncounter from "../src/ProgramEncounter";
 import ProgramEnrolment from "../src/ProgramEnrolment";
+import Individual from "../src/Individual";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -17,6 +18,13 @@ class EntityFactory {
         program.uuid = General.randomUUID();
         program.name = name;
         return program;
+    }
+
+    static createIndividual(name) {
+        let individual = new Individual();
+        individual.uuid = General.randomUUID();
+        individual.name = name;
+        return individual;
     }
 
     static createSafeFormElementGroup(form) {
@@ -91,11 +99,12 @@ class EntityFactory {
         return programEncounter;
     }
 
-    static createEnrolment({enrolmentDateTime = new Date(), program = null, observations = []}) {
+    static createEnrolment({enrolmentDateTime = new Date(), program = null, observations = [], individual}) {
         const programEnrolment = ProgramEnrolment.createEmptyInstance();
         programEnrolment.enrolmentDateTime = enrolmentDateTime;
         programEnrolment.program = program;
         programEnrolment.observations = observations;
+        programEnrolment.individual = individual;
         return programEnrolment;
     }
 

@@ -19,21 +19,20 @@ class MyDashboardActions {
         const programs = entityService.getAll(Program.schema.name);
         const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
         const allEncounterTypes = entityService.getAll(EncounterType.schema.name);
-        const addressLevels = {};
+        const results = {};
         programs.map((program) => {
             allEncounterTypes.map((encounterType) => {
                 allAddressLevels.map((addressLevel) => {
                     const individualAggregates = {};
                     individualAggregates.scheduled = individualService.totalScheduledVisits(program, addressLevel, encounterType);
                     individualAggregates.overdue = individualService.totalOverdueVisits(program, addressLevel, encounterType);
-                    individualAggregates.completed = individualService.totalCompletedVisits(program, addressLevel, encounterType, new Date());
+                    individualAggregates.completed = individualService.totalCompletedVisits(program, addressLevel, encounterType, new Date(), new Date());
                     individualAggregates.highRisk = individualService.totalHighRisk(program, addressLevel, encounterType);
-                    addressLevels[addressLevel.name] = individualAggregates;
+                    results[`${addressLevel.name} ${encounterType.name} ${program.name}`] = individualAggregates;
                 });
             })
         });
-        console.log(addressLevels);
-        return {addressLevels: addressLevels};
+        return {addressLevels: results};
     }
 }
 

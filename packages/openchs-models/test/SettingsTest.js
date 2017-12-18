@@ -19,7 +19,6 @@ describe('Settings', () => {
 
         validationResult = _.merge(settings, {catchment: 'a'}).validate();
         assert.isTrue(validationResult.hasValidationError());
-        console.log(validationResult.resultFor('catchment'));
         assert.isFalse(validationResult.resultFor('catchment').success);
         assert.isTrue(validationResult.resultFor('logLevel').success);
         assert.isTrue(validationResult.resultFor('serverURL').success);
