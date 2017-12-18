@@ -4,6 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import themes from "../primitives/themes";
+import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
@@ -25,6 +26,11 @@ class MyDashboardView extends AbstractComponent {
     static styles = StyleSheet.create({
         container: {}
     });
+
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD);
+        super.componentWillMount();
+    }
 
     render() {
         return (
