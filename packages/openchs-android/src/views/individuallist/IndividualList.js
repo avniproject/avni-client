@@ -42,7 +42,7 @@ class IndividualList extends AbstractComponent {
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <CHSContent>
-                    <AppHeader title={"List of Individuals"}/>
+                    <AppHeader title={`${this.props.params.address.name} - ${_.startCase(this.props.params.listType)}`}/>
                 </CHSContent>
             </CHSContainer>
         );
