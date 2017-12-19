@@ -48,6 +48,23 @@ class IndividualService extends BaseService {
             .map((encounter) => encounter.programEnrolment.individual);
     }
 
+    allScheduledVisitsIn(addressLevel) {
+        const todayMorning = moment(new Date()).startOf('day').toDate();
+        const encounters = this.db.objects(ProgramEncounter.schema.name)
+            .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
+                'AND earliestVisitDateTime <= $1 ' +
+                'AND maxVisitDateTime >= $1 ' +
+                'AND encounterDateTime = null ',
+                addressLevel.uuid,
+                todayMorning)
+            .map(_.identity);
+        return this._uniqIndividualsFrom(encounters);
+    }
+
+    allScheduledVisitsCount(addressLevel) {
+        return this.allScheduledVisitsIn(addressLevel).length;
+    }
+
     withScheduledVisits(program, addressLevel, encounterType) {
         const todayMorning = moment(new Date()).startOf('day').toDate();
         const encounters = this.db.objects(ProgramEncounter.schema.name)
@@ -63,11 +80,26 @@ class IndividualService extends BaseService {
                 encounterType.uuid)
             .map(_.identity);
         return this._uniqIndividualsFrom(encounters);
-
     }
 
     totalScheduledVisits(program, addressLevel, encounterType) {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
+    }
+
+    allOverdueVisits(addressLevel) {
+        const todayMorning = moment(new Date()).startOf('day').toDate();
+        const encounters = this.db.objects(ProgramEncounter.schema.name)
+            .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
+                'AND maxVisitDateTime < $1 ' +
+                'AND encounterDateTime = null ',
+                addressLevel.uuid,
+                todayMorning)
+            .map(_.identity);
+        return this._uniqIndividualsFrom(encounters);
+    }
+
+    allOverdueVisitsCount(addressLevel) {
+        return this.allOverdueVisits(addressLevel).length;
     }
 
     overdueVisits(program, addressLevel, encounterType) {
@@ -90,6 +122,23 @@ class IndividualService extends BaseService {
         return this.overdueVisits(program, addressLevel, encounterType).length;
     }
 
+    allCompletedVisitsIn(addressLevel, fromDate = new Date(), tillDate = new Date()) {
+        fromDate = moment(fromDate).startOf('day').toDate();
+        tillDate = moment(tillDate).endOf('day').toDate();
+        const encounters = this.db.objects(ProgramEncounter.schema.name)
+            .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
+                'AND encounterDateTime <= $1 ' +
+                'AND encounterDateTime >= $2 ',
+                addressLevel.uuid,
+                tillDate,
+                fromDate).map(_.identity);
+        return this._uniqIndividualsFrom(encounters);
+    }
+
+    allCompletedVisitsCount(addressLevel, fromDate = new Date(), tillDate = new Date()) {
+        return this.allCompletedVisitsIn(addressLevel, fromDate, tillDate).length;
+    }
+
     completedVisits(program, addressLevel, encounterType, fromDate = new Date(), tillDate = new Date()) {
         fromDate = moment(fromDate).startOf('day').toDate();
         tillDate = moment(tillDate).endOf('day').toDate();
@@ -109,6 +158,20 @@ class IndividualService extends BaseService {
 
     totalCompletedVisits(program, addressLevel, encounterType, fromDate, tillDate) {
         return this.completedVisits(program, addressLevel, encounterType, tillDate).length;
+    }
+
+    allHighRiskPatients(addressLevel) {
+        const HIGH_RISK_CONCEPTS = ["High Risk Conditions"];
+        let allEnrolments = this.db.objects(ProgramEnrolment.schema.name)
+            .filtered("individual.lowestAddressLevel.uuid = $0 ",
+                addressLevel.uuid);
+        return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
+            .some((concept) => !_.isEmpty(enrolment.findObservationInEntireEnrolment(concept))))
+            .map((enrolment) => enrolment.individual);
+    }
+
+    allHighRiskPatientCount(addressLevel) {
+        return this.allHighRiskPatients(addressLevel).length;
     }
 
     highRiskPatients(program, addressLevel) {

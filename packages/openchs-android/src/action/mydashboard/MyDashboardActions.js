@@ -17,32 +17,24 @@ class MyDashboardActions {
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
-        const programs = entityService.getAll(Program.schema.name);
         const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
-        const allEncounterTypes = entityService.getAll(EncounterType.schema.name);
         const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
         allAddressLevels.map((addressLevel) => {
-            programs.map((program) => {
-                allEncounterTypes.map((encounterType) => {
-                    let existingResultForAddress = Object.assign({
-                        address: nameAndID(addressLevel),
-                        visits: {
-                            scheduled: {count: 0, abnormal: false},
-                            overdue: {count: 0, abnormal: false},
-                            completed: {count: 0, abnormal: false},
-                            highRisk: {count: 0, abnormal: true}
-                        },
-                    }, results[addressLevel.uuid]);
-                    existingResultForAddress.visits.scheduled.count += individualService.totalScheduledVisits(program, addressLevel, encounterType);
-                    existingResultForAddress.visits.overdue.count += individualService.totalOverdueVisits(program, addressLevel, encounterType);
-                    existingResultForAddress.visits.completed.count += individualService.totalCompletedVisits(program, addressLevel, encounterType, new Date(), new Date());
-                    results[addressLevel.uuid] = existingResultForAddress;
-                });
-                results[addressLevel.uuid].visits.highRisk.count = results[addressLevel.uuid].visits.highRisk.count +
-                    individualService.totalHighRisk(program, addressLevel);
-            })
-
+            let existingResultForAddress = Object.assign({
+                address: nameAndID(addressLevel),
+                visits: {
+                    scheduled: {count: 0, abnormal: false},
+                    overdue: {count: 0, abnormal: false},
+                    completed: {count: 0, abnormal: false},
+                    highRisk: {count: 0, abnormal: true}
+                },
+            }, results[addressLevel.uuid]);
+            existingResultForAddress.visits.scheduled.count += individualService.allScheduledVisitsCount(addressLevel);
+            existingResultForAddress.visits.overdue.count += individualService.allOverdueVisitsCount(addressLevel);
+            existingResultForAddress.visits.completed.count += individualService.allCompletedVisitsCount(addressLevel, new Date(), new Date());
+            existingResultForAddress.visits.highRisk.count += individualService.allHighRiskPatientCount(addressLevel);
+            results[addressLevel.uuid] = existingResultForAddress;
         });
 
         return {visits: results};

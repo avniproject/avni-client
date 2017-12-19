@@ -34,7 +34,10 @@ class SyncService extends BaseService {
 
     sync(allEntitiesMetaData) {
         // CREATE FAKE DATA
+        // import FakeDataService from "./FakeDataService";
         // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
+        // this.getService(FakeDataService).createFakeOverdueEncountersFor(700);
+        // this.getService(FakeDataService).createFakeCompletedEncountersFor(700);
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
         return this.authenticate()
