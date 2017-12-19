@@ -92,6 +92,10 @@ run_packager:
 # <app>
 run_app: setup_hosts
 	cd packages/openchs-android && react-native run-android
+
+# sometimes there are errors for which we need to run the following to get the exact problem
+run_app_debug: setup_hosts
+	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
 # </app>
 
 

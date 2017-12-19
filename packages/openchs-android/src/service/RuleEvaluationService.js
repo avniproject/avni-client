@@ -1,7 +1,7 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import DynamicDataResolver from "./DynamicDataResolver";
-import {getObservationValueFromEntireEnrolment, observationExistsInEntireEnrolment, getObservationValue, observationExists, getCodedAnswers} from "../service/decisionSupport/AdditionalFunctions";
+import {getObservationValue} from "../service/decisionSupport/AdditionalFunctions";
 import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule, FormElementStatus} from "openchs-models";
 import {encounterDecision, programEncounterDecision, programEnrolmentDecision, individualRegistrationDecision} from "openchs-health-modules";
 
@@ -35,12 +35,7 @@ class RuleEvaluationService extends BaseService {
             allObservationHolderPrototypes.forEach((currentPrototype) => {
                 currentPrototype.dynamicDataResolver = dynamicDataResolver;
                 currentPrototype.getObservationValue = getObservationValue;
-                currentPrototype.observationExists = observationExists;
-                currentPrototype.getCodedAnswers = getCodedAnswers;
             });
-
-            ProgramEnrolment.prototype.getObservationValueFromEntireEnrolment = getObservationValueFromEntireEnrolment;
-            ProgramEnrolment.prototype.observationExistsInEntireEnrolment = observationExistsInEntireEnrolment;
         }
     }
 
