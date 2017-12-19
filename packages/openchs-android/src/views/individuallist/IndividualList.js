@@ -18,7 +18,7 @@ class IndividualList extends AbstractComponent {
     static propTypes = {};
 
     viewName() {
-        return "MyDashboard";
+        return "IndividualList";
     }
 
     constructor(props, context) {
