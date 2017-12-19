@@ -23,10 +23,11 @@ class AddressVisitRow extends AbstractComponent {
     });
 
     render() {
-        const visitBlocks = _.toPairs(this.props.visits).map(([title, number], idx) =>
+        const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) =>
             (<VisitBlock key={idx}
+                         highlight={numberObj.abnormal}
                          title={title}
-                         number={number}/>));
+                         number={numberObj.count}/>));
         return (
             <View style={AddressVisitRow.styles.container}>
                 <AddressHeader address={this.props.address}/>

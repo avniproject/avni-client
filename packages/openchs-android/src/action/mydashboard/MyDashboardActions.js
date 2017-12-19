@@ -28,18 +28,18 @@ class MyDashboardActions {
                     let existingResultForAddress = Object.assign({
                         address: nameAndID(addressLevel),
                         visits: {
-                            scheduled: 0,
-                            overdue: 0,
-                            completed: 0,
-                            highRisk: 0
-                        }
+                            scheduled: {count: 0, abnormal: false},
+                            overdue: {count: 0, abnormal: false},
+                            completed: {count: 0, abnormal: false},
+                            highRisk: {count: 0, abnormal: true}
+                        },
                     }, results[addressLevel.uuid]);
-                    existingResultForAddress.visits.scheduled += individualService.totalScheduledVisits(program, addressLevel, encounterType);
-                    existingResultForAddress.visits.overdue += individualService.totalOverdueVisits(program, addressLevel, encounterType);
-                    existingResultForAddress.visits.completed += individualService.totalCompletedVisits(program, addressLevel, encounterType, new Date(), new Date());
+                    existingResultForAddress.visits.scheduled.count += individualService.totalScheduledVisits(program, addressLevel, encounterType);
+                    existingResultForAddress.visits.overdue.count += individualService.totalOverdueVisits(program, addressLevel, encounterType);
+                    existingResultForAddress.visits.completed.count += individualService.totalCompletedVisits(program, addressLevel, encounterType, new Date(), new Date());
                     results[addressLevel.uuid] = existingResultForAddress;
                 });
-                results[addressLevel.uuid].visits.highRisk = results[addressLevel.uuid].visits.highRisk +
+                results[addressLevel.uuid].visits.highRisk.count = results[addressLevel.uuid].visits.highRisk.count +
                     individualService.totalHighRisk(program, addressLevel);
             })
 

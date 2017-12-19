@@ -11,6 +11,7 @@ class VisitBlock extends AbstractComponent {
     static propTypes = {
         title: React.PropTypes.string,
         number: React.PropTypes.number,
+        highlight: React.PropTypes.bool
     };
 
     static styles = StyleSheet.create({
@@ -30,19 +31,20 @@ class VisitBlock extends AbstractComponent {
         title: {
             color: "#2c2c2c",
         },
-        number: {
-            color: "#2c2c2c",
+        highlight: {
+            color: "#960000",
         }
     });
 
     render() {
         const title = _.startCase(this.props.title);
+        const textColor = this.props.highlight ? VisitBlock.styles.highlight : VisitBlock.styles.title;
         return (
             <View style={VisitBlock.styles.container}>
-                <Text style={[Fonts.typography("paperFontCaption"), VisitBlock.styles.title]}>
+                <Text style={[Fonts.typography("paperFontCaption"), textColor]}>
                     {title}
                 </Text>
-                <Text style={[Fonts.typography("paperFontButton"), VisitBlock.styles.number]}>
+                <Text style={[Fonts.typography("paperFontButton"), textColor]}>
                     {this.props.number}
                 </Text>
             </View>
