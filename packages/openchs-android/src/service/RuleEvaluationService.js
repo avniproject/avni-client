@@ -1,7 +1,5 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import DynamicDataResolver from "./DynamicDataResolver";
-import {getObservationValue} from "../service/decisionSupport/AdditionalFunctions";
 import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule, FormElementStatus} from "openchs-models";
 import {encounterDecision, programEncounterDecision, programEnrolmentDecision, individualRegistrationDecision} from "openchs-health-modules";
 
@@ -12,7 +10,6 @@ class RuleEvaluationService extends BaseService {
     }
 
     init() {
-        this.decorateEncounter();
         this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
             ['Encounter', new EntityRule(encounterDecision)],
             ['ProgramEncounter', new EntityRule(programEncounterDecision)],
@@ -20,23 +17,10 @@ class RuleEvaluationService extends BaseService {
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);
         });
-
-        this.initialised = true;
     }
 
     getDecisions(entity, entityName) {
         return this.entityRulesMap.get(entityName).getDecisions(entity);
-    }
-
-    decorateEncounter() {
-        if (!this.initialised) {
-            const dynamicDataResolver = new DynamicDataResolver(this.context);
-            const allObservationHolderPrototypes = [Encounter.prototype, ProgramEncounter.prototype, ProgramEnrolment.prototype];
-            allObservationHolderPrototypes.forEach((currentPrototype) => {
-                currentPrototype.dynamicDataResolver = dynamicDataResolver;
-                currentPrototype.getObservationValue = getObservationValue;
-            });
-        }
     }
 
     validateAgainstRule(entity, form, entityName) {

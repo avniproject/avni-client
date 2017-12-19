@@ -209,7 +209,7 @@ class ProgramEnrolment extends BaseEntity {
         return observation;
     }
 
-    fetchObservationValueInEntireEnrolment(conceptName, programEncounter) {
+    getObservationReadableValueInEntireEnrolment(conceptName, programEncounter) {
         let obs = this.findObservationInEntireEnrolment(conceptName, programEncounter);
         return obs ? obs.getReadableValue() : undefined;
     }
@@ -237,8 +237,12 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     //get has been taken by the prototype
-    fetchObservationValue(conceptName) {
+    getObservationValue(conceptName) {
         return this.findObservation(conceptName).getValue();
+    }
+
+    getObservationReadableValue(conceptName) {
+        return this.findObservation(conceptName).getReadableValue();
     }
 
     toJSON() {

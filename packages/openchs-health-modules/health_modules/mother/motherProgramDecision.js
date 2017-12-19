@@ -23,11 +23,11 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
     }
 
     function getObservationValueFromEntireEnrolment(conceptName) {
-        return programEnrolment.fetchObservationValueInEntireEnrolment(conceptName, programEncounter);
+        return programEnrolment.getObservationReadableValueInEntireEnrolment(conceptName, programEncounter);
     }
 
     function observationExistsInEntireEnrolment(conceptName) {
-        return !_.isNil(programEnrolment.fetchObservationValueInEntireEnrolment(conceptName, programEncounter));
+        return !_.isNil(programEnrolment.getObservationReadableValueInEntireEnrolment(conceptName, programEncounter));
     }
 
     function analyseOtherRisks() {
