@@ -29,10 +29,10 @@ class AddressHeader extends AbstractComponent {
     render() {
         return (
             <View style={AddressHeader.styles.container}>
-                <Text style={[Fonts.typography("paperFontSubhead"), AddressHeader.styles.title]}>
+                <Text style={[Fonts.typography("paperFontHeadline"), AddressHeader.styles.title]}>
                     {this.props.address.name}
                 </Text>
-                <Text style={[Fonts.typography("paperFontBody2"), AddressHeader.styles.viewall]}>
+                <Text style={[Fonts.typography("paperFontTitle"), AddressHeader.styles.viewall]}>
                     VIEW ALL
                 </Text>
             </View>

@@ -20,8 +20,8 @@ class VisitBlock extends AbstractComponent {
             justifyContent: 'center',
             alignItems: 'center',
             flexWrap: 'wrap',
-            width: DGS.resizeWidth(76),
-            height: DGS.resizeHeight(72),
+            width: DGS.resizeWidth(127),
+            height: DGS.resizeHeight(120),
             shadowOffset: {width: 0, height: 2},
             shadowOpacity: 1.0,
             backgroundColor: 'white',
@@ -41,10 +41,10 @@ class VisitBlock extends AbstractComponent {
         const textColor = this.props.highlight ? VisitBlock.styles.highlight : VisitBlock.styles.title;
         return (
             <View style={VisitBlock.styles.container}>
-                <Text style={[Fonts.typography("paperFontCaption"), textColor]}>
+                <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400"}]}>
                     {title}
                 </Text>
-                <Text style={[Fonts.typography("paperFontButton"), textColor]}>
+                <Text style={[Fonts.typography("paperFontTitle"), textColor]}>
                     {this.props.number}
                 </Text>
             </View>

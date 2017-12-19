@@ -18,7 +18,7 @@ class AddressVisitRow extends AbstractComponent {
             flexDirection: 'row',
             flexWrap: 'nowrap',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
         }
     });
 
