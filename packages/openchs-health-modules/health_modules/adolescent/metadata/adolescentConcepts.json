@@ -204,8 +204,13 @@
         "abnormal": true
       },
       {
-        "name": "No addiction",
-        "uuid": "e7692e49-8d61-4b9c-b8a0-94706a014370"
+        "name": "Both",
+        "uuid": "246df73a-07d8-4924-8cf9-787dea8278fe",
+        "abnormal": true
+      },
+      {
+        "name": "None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
       }
     ]
   },

@@ -41,6 +41,13 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    otherActivityPleaseSpecify(programEncounter, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        statusBuilder.show().when.valueInEncounter("What he/she is doing now?").containsAnswerConceptName("Other");
+
+        return statusBuilder.build();
+    }
+
     nameOfSchool(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when
@@ -76,6 +83,16 @@ export default class RoutineEncounterHandler {
     hemoglobinTest(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("Hemoglobin Test Done").containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
+
+    sicklingTestDone(programEncounter, formElement) {
+        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build();
+    }
+
+    sicklingTestResult(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        statusBuilder.show().when.valueInEncounter("Sickling Test Done").containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
 
@@ -226,14 +243,23 @@ export default class RoutineEncounterHandler {
             .latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes")
             .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type).not.equals("Village");
 
+        console.log(statusBuilder.build());
         return statusBuilder.build();
     }
 
-    whyIsSheAbsentDuringMenstruation(programEncounter, formElement) {
+    reasonForRemainingAbsentDuringMenstruation(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
         statusBuilder.show().when
             .valueInEncounter("Does she remain absent during menstruation?")
             .containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
+
+    otherReasonPleaseSpecify(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        statusBuilder.show().when
+            .valueInEncounter("Reason for remaining absent during menstruation")
+            .containsAnswerConceptName("Other");
         return statusBuilder.build();
     }
 
@@ -250,8 +276,26 @@ export default class RoutineEncounterHandler {
         return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build();
     }
 
+    otherConditionsPleaseSpecify(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        statusBuilder.show().when
+            .valueInEncounter("Is there any other condition you want to mention about him/her?")
+            .containsAnswerConceptName("Other");
+
+        return statusBuilder.build();
+    }
+
     sicknessInLast3Months(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build();
+    }
+
+    otherSicknessPleaseSpecify(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY);
+        statusBuilder.show().when
+            .valueInEncounter("Sickness in last 3 months")
+            .containsAnswerConceptName("Other");
+
+        return statusBuilder.build();
     }
 
     hospitalizedInLast3Months(programEncounter, formElement) {
