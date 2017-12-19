@@ -10,6 +10,10 @@ import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
 class IndividualService extends BaseService {
     constructor(db, context) {
         super(db, context);
+        this.allHighRiskPatients = this.allHighRiskPatients.bind(this);
+        this.allCompletedVisitsIn = this.allCompletedVisitsIn.bind(this);
+        this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
+        this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
     }
 
     getSchema() {
@@ -86,7 +90,7 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisits(addressLevel) {
+    allOverdueVisitsIn(addressLevel) {
         const todayMorning = moment(new Date()).startOf('day').toDate();
         const encounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
@@ -99,7 +103,7 @@ class IndividualService extends BaseService {
     }
 
     allOverdueVisitsCount(addressLevel) {
-        return this.allOverdueVisits(addressLevel).length;
+        return this.allOverdueVisitsIn(addressLevel).length;
     }
 
     overdueVisits(program, addressLevel, encounterType) {

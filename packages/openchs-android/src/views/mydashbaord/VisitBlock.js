@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
 import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
 import DGS from '../primitives/DynamicGlobalStyles';
@@ -41,14 +41,16 @@ class VisitBlock extends AbstractComponent {
         const title = _.startCase(this.props.title);
         const textColor = this.props.highlight ? VisitBlock.styles.highlight : VisitBlock.styles.title;
         return (
-            <View style={VisitBlock.styles.container}>
-                <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400"}]}>
-                    {title}
-                </Text>
-                <Text style={[Fonts.typography("paperFontTitle"), textColor]}>
-                    {this.props.number}
-                </Text>
-            </View>
+            <TouchableNativeFeedback onPress={this.props.onPress}>
+                <View style={VisitBlock.styles.container}>
+                    <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400"}]}>
+                        {title}
+                    </Text>
+                    <Text style={[Fonts.typography("paperFontTitle"), textColor]}>
+                        {this.props.number}
+                    </Text>
+                </View>
+            </TouchableNativeFeedback>
         );
     }
 }

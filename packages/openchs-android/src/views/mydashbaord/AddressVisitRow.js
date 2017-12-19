@@ -5,6 +5,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import AddressHeader from './AddressHeader';
 import VisitBlock from './VisitBlock';
 import DGS from "../primitives/DynamicGlobalStyles";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import IndividualList from "../individuallist/IndividualList";
 
 class AddressVisitRow extends AbstractComponent {
     static propTypes = {
@@ -22,10 +24,18 @@ class AddressVisitRow extends AbstractComponent {
         }
     });
 
+    onPressHandler(address, title) {
+        return () => TypedTransition.from(this).with({
+            address: address,
+            listType: title
+        }).to(IndividualList);
+    }
+
     render() {
         const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) =>
             (<VisitBlock key={idx}
                          highlight={numberObj.abnormal}
+                         onPress={this.onPressHandler.bind(this)(this.props.address, title)}
                          title={title}
                          number={numberObj.count}/>));
         return (
