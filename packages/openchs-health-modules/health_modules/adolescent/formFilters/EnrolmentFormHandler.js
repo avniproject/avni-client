@@ -1,4 +1,6 @@
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormFilterHelper from "../../rules/FormFilterHelper";
+
 export default class EnrolmentFormHandler {
 
     fathersOccupation(programEnrolment, formElement) {
@@ -15,6 +17,14 @@ export default class EnrolmentFormHandler {
 
     mothersAddiction(programEnrolment, formElement) {
         return this._motherIsAlive(programEnrolment, formElement);
+    }
+
+    causeOfDeath(programEncounter, formElement) {
+        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Adolescent exit reason', 'Death');
+    }
+
+    causeOfDeathUnspecifiedAbove(programEncounter, formElement) {
+        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Cause of Death', 'Other');
     }
 
 
