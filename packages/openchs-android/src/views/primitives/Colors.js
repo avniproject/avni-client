@@ -1,3 +1,5 @@
+import {color} from './MaterialDesign';
+
 class Colors {
     static DarkPrimaryColor = '#00796B'; // for header, footer etc
     static DefaultPrimaryColor = '#212121'; //default button colors, whenever you need a color
@@ -22,6 +24,10 @@ class Colors {
     static ChecklistItemUnfulfilled = 'greenyellow';
     static ChecklistItemFulfilled = 'green';
     static ChecklistItemExpired = 'red';
+
+    static getCode(colorName) {
+        return color[colorName];
+    }
 }
 
 export default Colors;

@@ -4,6 +4,7 @@ import {Individual, EntityQueue, Program, ObservationsHolder} from "openchs-mode
 import _ from 'lodash';
 import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
 import moment from 'moment';
+import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -110,8 +111,20 @@ class IndividualService extends BaseService {
         return this.completedVisits(program, addressLevel, encounterType, tillDate).length;
     }
 
-    totalHighRisk() {
-        return 4;
+    highRiskPatients(program, addressLevel) {
+        const HIGH_RISK_CONCEPTS = ["High Risk Conditions"];
+        let allEnrolments = this.db.objects(ProgramEnrolment.schema.name)
+            .filtered("program.uuid = $0 " +
+                "AND individual.lowestAddressLevel.uuid = $1 ",
+                program.uuid,
+                addressLevel.uuid);
+        return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
+            .some((concept) => !_.isEmpty(enrolment.findObservationInEntireEnrolment(concept))))
+            .map((enrolment) => enrolment.individual);
+    }
+
+    totalHighRisk(program, addressLevel) {
+        return this.highRiskPatients(program, addressLevel).length;
     }
 }
 

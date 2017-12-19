@@ -1,5 +1,6 @@
 import React from "react";
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, ListView} from 'react-native';
+import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -9,7 +10,9 @@ import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import Filters from "./Filters";
+import AddressVisitRow from './AddressVisitRow';
+import Distances from '../primitives/Distances'
+import Separator from '../primitives/Separator';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -21,10 +24,14 @@ class MyDashboardView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
+        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     }
 
     static styles = StyleSheet.create({
-        container: {}
+        container: {
+            marginRight: Distances.ScaledContentDistanceFromEdge,
+            marginLeft: Distances.ScaledContentDistanceFromEdge
+        }
     });
 
     componentWillMount() {
@@ -33,12 +40,16 @@ class MyDashboardView extends AbstractComponent {
     }
 
     render() {
+        const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.TextOnPrimaryColor}}>
+            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('dashboard')}/>
                     <View style={MyDashboardView.styles.container}>
-                        <Filters/>
+                        <ListView dataSource={dataSource}
+                                  renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}
+                                  renderRow={(rowData) => <AddressVisitRow address={rowData.address}
+                                                                           visits={rowData.visits}/>}/>
                     </View>
                 </CHSContent>
             </CHSContainer>
