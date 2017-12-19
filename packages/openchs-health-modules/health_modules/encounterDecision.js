@@ -1833,7 +1833,7 @@ const getKeys = function (obj) {
 
 const getWeightRangeToCode = function (complaint, weight) {
     var weightRangeToCodeMap = complaintToWeightRangesToCodeMap[complaint];
-    if (weightRangeToCodeMap === undefined || weightRangeToCodeMap === null)
+    if (_.isNil(weightRangeToCodeMap))
         weightRangeToCodeMap = weightRangesToCode;
 
     return weightRangeToCodeMap.find(function (entry) {
@@ -1842,7 +1842,7 @@ const getWeightRangeToCode = function (complaint, weight) {
 };
 
 const hasMalaria = function (paracheckResult) {
-    return paracheckResult !== undefined && paracheckResult.length === 1 &&
+    return !_.isNil(paracheckResult) && paracheckResult.length === 1 &&
         paracheckResult[0].includes("Positive");
 };
 

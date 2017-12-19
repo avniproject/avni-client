@@ -4,6 +4,7 @@ var riskPredictor = require('../health_modules/ncd/cvdRiskPredictor');
 const ProgramEncounter = require("./Entities").ProgramEncounter;
 const Individual = require("./Entities").Individual;
 const C = require('../health_modules/common');
+import {Gender} from "openchs-models";
 
 describe('Make Decision', function () {
     var programEncounter;
@@ -12,14 +13,14 @@ describe('Make Decision', function () {
     beforeEach(function () {
         programEncounter = new ProgramEncounter();
         programEncounter.individual = new Individual();
-        programEncounter.individual.setAge(55);
+        programEncounter.individual.setAge(55, true);
         programEncounter.setObservation("Smoking (Current or in last one year)", "Yes");
         programEncounter.setObservation("Systolic", 150);
     });
 
     it('Check for diabetes case and female', function () {
         programEncounter.setObservation("Suffering from diabetes", "Yes");
-        programEncounter.individual.setGender("Female");
+        programEncounter.individual.gender = Gender.create("Female");
         var decision = riskPredictor.getCvdRisk(programEncounter);
         assert.equal('Moderate',decision.riskClassification);
         assert.equal('10 to <20%',decision.riskPercentage);
@@ -29,7 +30,7 @@ describe('Make Decision', function () {
 
     it('Check for diabetes case and male', function () {
         programEncounter.setObservation("Suffering from diabetes", "Yes");
-        programEncounter.individual.setGender("Male");
+        programEncounter.individual.gender = Gender.create("Male");
         var decision = riskPredictor.getCvdRisk(programEncounter);
         assert.equal(2, decision.risklevel);
         assert.equal(50, decision.ageGroup);
@@ -37,11 +38,10 @@ describe('Make Decision', function () {
 
     it('Check for non-diabetes and female', function () {
         programEncounter.setObservation("Suffering from diabetes", "No");
-        programEncounter.individual.setGender("Female");
+        programEncounter.individual.gender = Gender.create("Female");
         var decision = riskPredictor.getCvdRisk(programEncounter);
         assert.equal(2, decision.risklevel);
         assert.equal(50, decision.ageGroup);
     });
-
 });
 

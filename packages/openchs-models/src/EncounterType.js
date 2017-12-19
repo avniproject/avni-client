@@ -1,4 +1,5 @@
 import ReferenceEntity from "./ReferenceEntity";
+import General from "./utility/General";
 
 class EncounterType extends ReferenceEntity {
     static schema = {
@@ -9,6 +10,13 @@ class EncounterType extends ReferenceEntity {
             name: 'string',
         }
     };
+
+    static create(name) {
+        let encounterType = new EncounterType();
+        encounterType.uuid = General.randomUUID();
+        encounterType.name = name;
+        return encounterType;
+    }
 
     static fromResource(resource) {
         let entity = ReferenceEntity.fromResource(resource, new EncounterType());

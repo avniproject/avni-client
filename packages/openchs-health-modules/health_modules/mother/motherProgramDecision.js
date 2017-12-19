@@ -1,4 +1,5 @@
 import C from '../common';
+import _ from "lodash";
 
 const getNextScheduledVisits = require('./motherVisitSchedule').getNextScheduledVisits;
 
@@ -22,11 +23,11 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
     }
 
     function getObservationValueFromEntireEnrolment(conceptName) {
-        return programEnrolment.getObservationValueFromEntireEnrolment(conceptName, programEncounter);
+        return programEnrolment.fetchObservationValueInEntireEnrolment(conceptName, programEncounter);
     }
 
     function observationExistsInEntireEnrolment(conceptName) {
-        return programEnrolment.getObservationValueFromEntireEnrolment(conceptName, programEncounter);
+        return !_.isNil(programEnrolment.fetchObservationValueInEntireEnrolment(conceptName, programEncounter));
     }
 
     function analyseOtherRisks() {

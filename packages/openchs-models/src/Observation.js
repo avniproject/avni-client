@@ -50,13 +50,13 @@ class Observation {
     }
 
     isAbnormal() {
-    //This is to support the old version of app where observation are being set explicitly true.
+        //This is to support the old version of app where observation are being set explicitly true.
         // Developer is just being lazy here.
         if (this.abnormal === true) {
             return true;
         }
-    return this.concept.isAbnormal(this.getValue());
-}
+        return this.concept.isAbnormal(this.getValue());
+    }
 
 
     hasNoAnswer() {
@@ -84,6 +84,21 @@ class Observation {
 
     getValue() {
         return this.getValueWrapper().getValue();
+    }
+
+    setValue(valueWrapper) {
+        this.valueJSON = valueWrapper;
+    }
+
+    getReadableValue() {
+        let value = this.getValue();
+        if (this.concept.datatype === Concept.dataType.Coded) {
+            return _.isNil(value) ? value : value.map((conceptAnswerUUID) => {
+                let answer = _.find(this.concept.answers, (conceptAnswer) => conceptAnswer.concept.uuid === conceptAnswerUUID);
+                return answer.name;
+            });
+        }
+        return value;
     }
 }
 

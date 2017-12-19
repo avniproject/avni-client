@@ -12,18 +12,13 @@ var getNextScheduledVisits = function (programEnrolment) {
     var observations = programEnrolment.observations;
     var encounters = programEnrolment.encounters;
 
+    let dateOfBirth = programEnrolment.individual.dateOfBirth;
 
-    var deliveryDate = observations !== undefined ? programEnrolment.getObservationValue('Date of Delivery') : undefined;
-
-    if (programEnrolment.program.name === 'Child' && programEnrolment.observationExists('Date of Delivery')) {
-        if (C.encounterExists(encounters, 'PNC', 'PNC 4')) return null;
-        if (C.encounterExists(encounters, 'PNC', 'PNC 3')) return createNextVisit(deliveryDate, 'PNC 4');
-        if (C.encounterExists(encounters, 'PNC', 'PNC 2')) return createNextVisit(deliveryDate, 'PNC 3');
-        if (C.encounterExists(encounters, 'PNC', 'PNC 1')) return createNextVisit(deliveryDate, 'PNC 2');
-        return createNextVisit(deliveryDate, 'PNC 1');
-
-    }
-    return null;
+    if (C.encounterExists(encounters, 'PNC', 'PNC 4')) return null;
+    if (C.encounterExists(encounters, 'PNC', 'PNC 3')) return createNextVisit(dateOfBirth, 'PNC 4');
+    if (C.encounterExists(encounters, 'PNC', 'PNC 2')) return createNextVisit(dateOfBirth, 'PNC 3');
+    if (C.encounterExists(encounters, 'PNC', 'PNC 1')) return createNextVisit(dateOfBirth, 'PNC 2');
+    return createNextVisit(dateOfBirth, 'PNC 1');
 
     function createNextVisit(baseDate, name) {
         var schedule = visitSchedule[name];

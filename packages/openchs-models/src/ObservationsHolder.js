@@ -3,6 +3,7 @@ import Observation from "./Observation";
 import PrimitiveValue from "./observation/PrimitiveValue";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import MultipleCodedValues from "./observation/MultipleCodedValues";
+import General from "./utility/General";
 
 class ObservationsHolder {
     constructor(observations) {
@@ -23,7 +24,7 @@ class ObservationsHolder {
 
     addOrUpdatePrimitiveObs(concept, value) {
         const observation = this.getObservation(concept);
-        if(!_.isEmpty(observation)) {
+        if (!_.isEmpty(observation)) {
             _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
         }
         if (!_.isEmpty(_.toString(value))) {
@@ -69,7 +70,20 @@ class ObservationsHolder {
         });
     }
 
+    getObservationReadableValue(concept) {
+        let obs = this.getObservation(concept);
+        return obs ? obs.getReadableValue() : null;
+    }
 
+    addOrUpdateObservation(concept, value) {
+        let observation = this.getObservation(concept);
+        let valueWrapper = concept.getValueWrapperFor(value);
+
+        if (observation)
+            observation.setValue(valueWrapper);
+        else
+            this.observations.push(Observation.create(concept, valueWrapper));
+    }
 }
 
 export default ObservationsHolder;

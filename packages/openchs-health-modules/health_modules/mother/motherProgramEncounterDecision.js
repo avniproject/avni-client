@@ -38,7 +38,7 @@ export function getDecisions (programEncounter, today) {
 
         var decisions = [];
 
-        const lmpDate = programEncounter.programEnrolment.getObservationValue('Last Menstrual Period');
+        const lmpDate = programEncounter.programEnrolment.fetchObservationValue('Last Menstrual Period');
         const pregnancyPeriodInWeeks = C.getWeeks(lmpDate, programEncounter.encounterDateTime);
 
         let investigationAdviceBuilder = new InvestigationAdviceBuilder();
@@ -72,7 +72,7 @@ export function getDecisions (programEncounter, today) {
         }
 
         function getObservationValueFromEntireEnrolment(conceptName) {
-            return programEncounter.programEnrolment.getObservationValueFromEntireEnrolment(conceptName, programEncounter);
+            return programEncounter.programEnrolment.fetchObservationValueInEntireEnrolment(conceptName, programEncounter);
         }
 
         function getObservationValue(conceptName) {
@@ -80,7 +80,7 @@ export function getDecisions (programEncounter, today) {
         }
 
         function observationExistsInEntireEnrolment(conceptName) {
-            return programEncounter.programEnrolment.getObservationValueFromEntireEnrolment(conceptName, programEncounter);
+            return programEncounter.programEnrolment.fetchObservationValueInEntireEnrolment(conceptName, programEncounter);
         }
 
         function analyseHypertensiveRisks() {

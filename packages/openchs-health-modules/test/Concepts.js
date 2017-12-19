@@ -17,12 +17,19 @@ const MotherProgramEnrolmentForm = require('../health_modules/mother/metadata/mo
 const MotherProgramExitForm = require('../health_modules/mother/metadata/motherProgramExitForm.json');
 const ScreeningEncounterForm = require('../health_modules/ncd/metadata/screeningEncounterForm.json');
 const OPDEncounterForm = require('../health_modules/outpatient/metadata/encounterForm.json');
+import {Concept} from "openchs-models";
 
 
 const IMPORTED_CONCEPTS = _.flatten([CommonConcepts, ChildConcepts, MotherConcepts, OPDConcepts]);
 const FORM_CONCEPTS = _.flatten(_.flatten([ChildProgramEncounterForm, ChildProgramEnrolmentForm, ChildProgramExitForm, DiabetesProgramEncounterForm, MotherAbortionForm, MotherANCForm, MotherDeliveryForm, MotherPNCForm, MotherProgramEnrolmentForm, MotherProgramExitForm, ScreeningEncounterForm, OPDEncounterForm]
     .map((formDef) => formDef.formElementGroups.map((fegs) => fegs.formElements))));
 
-module.exports = _.mapValues(_.groupBy(IMPORTED_CONCEPTS.concat(FORM_CONCEPTS), 'name'), (val) => val[0]);
+let concepts = _.mapValues(_.groupBy(IMPORTED_CONCEPTS.concat(FORM_CONCEPTS), 'name'), (val) => val[0]);
+module.exports = concepts;
 
+module.exports.findConcept = function (conceptName) {
+    let conceptData = _.find(concepts, (concept) => concept.name === conceptName);
+    let concept = _.isNil(conceptData.concept) ? conceptData : conceptData.concept;
+    return Object.assign(new Concept(), concept);
+};
 

@@ -5,7 +5,7 @@ const ProgramEncounter = require("./Entities").ProgramEncounter;
 
 describe('Create PNC Visit Schedule for Child', function () {
     var progEnrolment = new ProgramEnrolment('Child', [new ProgramEncounter('PNC 1', new Date(2017, 0, 4))]);
-    progEnrolment.setObservation('Date of Delivery', new Date(2017, 0, 3));
+    progEnrolment.individual.dateOfBirth = new Date(2017, 0, 3);
 
     it('Decide next visit details', function(){
         progEnrolment.encounters.push(new ProgramEncounter('PNC', undefined, 'PNC 2'));

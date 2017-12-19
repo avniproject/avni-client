@@ -1,4 +1,5 @@
 import ReferenceEntity from "./ReferenceEntity";
+import General from "./utility/General";
 
 class Gender extends ReferenceEntity {
     static schema = {
@@ -9,6 +10,13 @@ class Gender extends ReferenceEntity {
             name: "string"
         }
     };
+
+    static create(name) {
+        let gender = new Gender();
+        gender.uuid = General.randomUUID();
+        gender.name = name;
+        return gender;
+    }
 
     static fromResource(resource) {
         return ReferenceEntity.fromResource(resource, new Gender());
