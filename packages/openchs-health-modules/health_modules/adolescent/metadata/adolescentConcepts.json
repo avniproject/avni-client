@@ -18,9 +18,212 @@
         "uuid": "f8e3347d-5ffe-496d-9858-5ea8095d7c96",
         "name": "Addiction",
         "abnormal": true
+      },
+      {
+        "uuid": "4bfce912-3480-4219-b3ce-098e7942bba5",
+        "name": "Malnutrition",
+        "abnormal": true
+      },
+      {
+        "uuid": "fe43444a-defe-497b-8d87-851e92e9ca81",
+        "name": "Poor Performance in School",
+        "abnormal": true
+      },
+      {
+        "uuid": "274a9f8f-bc2a-46a5-a740-0ef05ceb5ee3",
+        "name": "HIV",
+        "abnormal": true
+      },
+      {
+        "uuid": "9e126913-9ee6-49a6-ac40-13d2b00d26a9",
+        "name": "STD",
+        "abnormal": true
+      },
+      {
+        "uuid": "4f1c4d88-8d87-4a53-8e3a-1bb163e13b66",
+        "name": "Early Pregnancy",
+        "abnormal": true
+      },
+      {
+        "uuid": "eb6254e5-ed09-43e8-bb0b-a4e7326e0300",
+        "name": "Early Marriage",
+        "abnormal": true
       }
     ]
   },
+  {
+    "name": "Reason for School Dropout Vulnerability",
+    "uuid": "f161e8f8-7c20-4e5a-8ad7-80a09c60126e",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "e93a0585-f148-4ac6-a354-9cb34f4c9368",
+        "name": "Single or No Parents",
+        "abnormal": true
+      },
+      {
+        "uuid": "20dafff7-569c-46fa-9d3c-788b2edae718",
+        "name": "Adolescent Addiction",
+        "abnormal": true
+      },
+      {
+        "uuid": "dac41807-08af-43b9-a75b-7bbb77547321",
+        "name": "Chronic sickness in Family",
+        "abnormal": true
+      },
+      {
+        "uuid": "78fedb7d-fa30-4377-b136-b4367f9b04ff",
+        "name": "Family Size > 6",
+        "abnormal": true
+      },
+      {
+        "uuid": "7348b656-6d8e-4fb7-9ff8-5e667cd31151",
+        "name": "Low BMI",
+        "abnormal": true
+      },
+      {
+        "uuid": "6470c6f2-45b6-4135-b5d4-a4d95ea56168",
+        "name": "Low Hemoglobin",
+        "abnormal": true
+      },
+      {
+        "uuid": "00ff88d0-d8bd-493b-98e2-fe60f6f9ce66",
+        "name": "Sickle Cell Disease",
+        "abnormal": true
+      },
+      {
+        "uuid": "40a0388a-64ec-46bc-bf7d-d20e15f4fd32",
+        "name": "Menstrual Disorder",
+        "abnormal": true
+      },
+      {
+        "uuid": "29bed2cf-d1de-43be-b8fb-acc1c7ad0e2e",
+        "name": "Sickness",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Reason for Addiction Vulnerability",
+    "uuid": "f7f7108d-0d9b-4492-9cb6-9c475857a2f9",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ec8545f3-c3b1-4b5c-8ffe-8ce6ff81c0f5",
+        "name": "Parents' Addiction",
+        "abnormal": true
+      },
+      {
+        "uuid": "57c76bc9-a626-4d64-9a9d-7d9e7853f336",
+        "name": "Friends Addiction",
+        "abnormal": true
+      },
+      {
+        "uuid": "20dafff7-569c-46fa-9d3c-788b2edae718",
+        "name": "Adolescent Addiction",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Reason for Early Marriage Vulnerability",
+    "uuid": "dc9e46a2-dddc-4847-9224-e19c099c693a",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "d46e7d44-c0bd-4dc9-adf8-1fb9a1a5e6e0",
+        "name": "School dropped out",
+        "abnormal": true
+      },
+      {
+        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
+        "name": "Sexually Active",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Reason for Early Pregnancy Vulnerability",
+    "uuid": "b249d6a2-fb5c-43aa-998e-fece3c37a6d4",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "d46e7d44-c0bd-4dc9-adf8-1fb9a1a5e6e0",
+        "name": "School dropped out",
+        "abnormal": true
+      },
+      {
+        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
+        "name": "Sexually Active",
+        "abnormal": true
+      },
+      {
+        "uuid": "dc663538-b036-4211-ab61-e77f12b19872",
+        "name": "Reproductive Tract Infections",
+        "abnormal": true
+      }
+
+    ]
+  },
+  {
+    "name": "Reason for Poor Performance in School Vulnerability",
+    "uuid": "0e9b6e73-b46c-4b8b-a67d-d96679cad176",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "7348b656-6d8e-4fb7-9ff8-5e667cd31151",
+        "name": "Low BMI",
+        "abnormal": true
+      },
+      {
+        "uuid": "6470c6f2-45b6-4135-b5d4-a4d95ea56168",
+        "name": "Low Hemoglobin",
+        "abnormal": true
+      },
+      {
+        "uuid": "00ff88d0-d8bd-493b-98e2-fe60f6f9ce66",
+        "name": "Sickle Cell Disease",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Reason for Malnutrition Vulnerability",
+    "uuid": "e6df877f-4408-4065-8e21-57b15f1adb18",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "78fedb7d-fa30-4377-b136-b4367f9b04ff",
+        "name": "Family Size > 6",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Reason for HIV Vulnerability",
+    "uuid": "b63e2aad-d698-4310-8528-c1c2eb07aca9",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
+        "name": "Sexually Active",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Reason for STD Vulnerability",
+    "uuid": "3cbb068d-303e-49aa-879d-21e96e970c06",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
+        "name": "Sexually Active",
+        "abnormal": true
+      }
+    ]
+  },
+
   {
     "name": "BMI",
     "uuid": "7ac0d759-c50d-4971-88e0-84274224c839",
