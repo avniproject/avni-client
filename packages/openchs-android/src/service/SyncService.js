@@ -11,6 +11,7 @@ import MessageService from "./MessageService";
 import AuthService from "./AuthService";
 import {UserInfo} from "openchs-models";
 import UserInfoService from "./UserInfoService";
+import FakeDataService from './FakeDataService';
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -34,7 +35,6 @@ class SyncService extends BaseService {
 
     sync(allEntitiesMetaData) {
         // CREATE FAKE DATA
-        // import FakeDataService from "./FakeDataService";
         // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
         // this.getService(FakeDataService).createFakeOverdueEncountersFor(700);
         // this.getService(FakeDataService).createFakeCompletedEncountersFor(700);

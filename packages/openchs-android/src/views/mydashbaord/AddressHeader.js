@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import Fonts from '../primitives/Fonts';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -28,15 +28,12 @@ class AddressHeader extends AbstractComponent {
 
     render() {
         return (
-            <TouchableNativeFeedback onPress={() => console.log("YAO")}
-                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={AddressHeader.styles.container}>
-                    <Text style={[Fonts.typography("paperFontHeadline"), AddressHeader.styles.title]}>
-                        {this.props.address.name}
-                    </Text>
-                    <Text/>
-                </View>
-            </TouchableNativeFeedback>
+            <View style={AddressHeader.styles.container}>
+                <Text style={[Fonts.typography("paperFontHeadline"), AddressHeader.styles.title]}>
+                    {this.props.address.name}
+                </Text>
+                <Text/>
+            </View>
         );
     }
 }

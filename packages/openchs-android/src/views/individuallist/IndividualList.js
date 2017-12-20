@@ -14,6 +14,7 @@ import CHSContent from "../common/CHSContent";
 import Distances from '../primitives/Distances'
 import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
+import Fonts from "../primitives/Fonts";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -32,6 +33,12 @@ class IndividualList extends AbstractComponent {
         container: {
             marginRight: Distances.ScaledContentDistanceFromEdge,
             marginLeft: Distances.ScaledContentDistanceFromEdge
+        },
+        header: {
+            fontWeight: "500",
+            color: Colors.InputNormal,
+            marginTop: DynamicGlobalStyles.resizeHeight(16),
+            marginBottom: DynamicGlobalStyles.resizeHeight(16)
         }
     });
 
@@ -42,13 +49,19 @@ class IndividualList extends AbstractComponent {
 
     render() {
         const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
+        const visitType = _.startCase(this.props.params.listType);
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
-                    title={`${this.props.params.address.name} - ${_.startCase(this.props.params.listType)}`}/>
+                    title={`${this.props.params.address.name} - ${visitType}`}/>
                 <CHSContent>
                     <ListView
+                        style={IndividualList.styles.container}
                         initialListSize={20}
+                        renderHeader={() => (
+                            <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
+                                {`Patients with ${visitType} Visits - ${this.props.params.total}`}
+                            </Text>)}
                         onEndReachedThreshold={DynamicGlobalStyles.windowHeight}
                         scrollRenderAheadDistance={DynamicGlobalStyles.windowHeight / 4}
                         onEndReached={() => this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params})}

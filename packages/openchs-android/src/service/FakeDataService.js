@@ -28,20 +28,30 @@ class FakeDataService extends BaseService {
         let encounterType = this.db.objects(EncounterType.schema.name).filtered("name = $0", "ANC").slice(0, 1)[0];
         faker.seed(123);
         _.range(0, numberOfIndividuals).map((i) => {
-            General.logDebug("Starting -- ", i);
-            const individual = Individual.newInstance(General.randomUUID(),
-                faker.name.findName(), faker.name.findName(), new Date(), true, gender, address);
-            individual.registrationDate = new Date();
-            const enrolment = ProgramEnrolment.createEmptyInstance();
-            enrolment.individual = individual;
-            enrolment.program = program;
-            let scheduledProgramEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
-            scheduledProgramEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
-            scheduledProgramEncounter.maxVisitDateTime = moment(new Date()).add(2, 'days').toDate();
-            this.saveOrUpdate(individual, Individual.schema.name);
-            this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
-            this.saveOrUpdate(scheduledProgramEncounter, ProgramEncounter.schema.name);
-            General.logDebug("Finishing -- ", i);
+            General.logDebug("Starting scheduled -- ", i);
+            try {
+                let name = faker.name.findName().split(" ");
+                const individual = Individual.newInstance(General.randomUUID(),
+                    name[0], name[1], new Date(), true, gender, address);
+                individual.registrationDate = new Date();
+                const enrolment = ProgramEnrolment.createEmptyInstance();
+                enrolment.individual = individual;
+                enrolment.program = program;
+                let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+                programEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
+                programEncounter.maxVisitDateTime = moment(new Date()).add(2, 'days').toDate();
+                programEncounter.programEnrolment = enrolment;
+                let savedIndividual = this.saveOrUpdate(individual, Individual.schema.name);
+                let savedEnrolment = this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
+                let savedPE = this.saveOrUpdate(programEncounter, ProgramEncounter.schema.name);
+                this.saveOrUpdate({uuid: individual.uuid, enrolments: [enrolment]}, Individual.schema.name);
+                this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
+            } catch (e) {
+                General.logDebugObject("Failed scheduled :(", e);
+            }
+            finally {
+                General.logDebug("Finishing scheduled -- ", i);
+            }
         });
     }
 
@@ -52,20 +62,32 @@ class FakeDataService extends BaseService {
         let encounterType = this.db.objects(EncounterType.schema.name).filtered("name = $0", "ANC").slice(0, 1)[0];
         faker.seed(123);
         _.range(0, numberOfIndividuals).map((i) => {
-            General.logDebug("Starting -- ", i);
-            const individual = Individual.newInstance(General.randomUUID(),
-                faker.name.findName(), faker.name.findName(), new Date(), true, gender, address);
-            individual.registrationDate = new Date();
-            const enrolment = ProgramEnrolment.createEmptyInstance();
-            enrolment.individual = individual;
-            enrolment.program = program;
-            let overdueEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
-            overdueEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
-            overdueEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
-            this.saveOrUpdate(individual, Individual.schema.name);
-            this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
-            this.saveOrUpdate(overdueEncounter, ProgramEncounter.schema.name);
-            General.logDebug("Finishing -- ", i);
+            General.logDebug("Starting Overdue -- ", i);
+            try {
+                let name = faker.name.findName().split(" ");
+                const individual = Individual.newInstance(General.randomUUID(),
+                    name[0], name[1], new Date(), true, gender, address);
+                individual.registrationDate = new Date();
+                const enrolment = ProgramEnrolment.createEmptyInstance();
+                enrolment.individual = individual;
+                enrolment.program = program;
+                let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+                programEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
+                programEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
+                programEncounter.programEnrolment = enrolment;
+                let savedIndividual = this.saveOrUpdate(individual, Individual.schema.name);
+                let savedEnrolment = this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
+                let savedPE = this.saveOrUpdate(programEncounter, ProgramEncounter.schema.name);
+                this.saveOrUpdate({uuid: individual.uuid, enrolments: [enrolment]}, Individual.schema.name);
+                this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
+            }
+            catch (e) {
+                General.logDebugObject("Failed overdue :(", e);
+            }
+
+            finally {
+                General.logDebug("Finishing overdue -- ", i);
+            }
         });
     }
 
@@ -76,21 +98,30 @@ class FakeDataService extends BaseService {
         let encounterType = this.db.objects(EncounterType.schema.name).filtered("name = $0", "ANC").slice(0, 1)[0];
         faker.seed(123);
         _.range(0, numberOfIndividuals).map((i) => {
-            General.logDebug("Starting -- ", i);
-            const individual = Individual.newInstance(General.randomUUID(),
-                faker.name.findName(), faker.name.findName(), new Date(), true, gender, address);
-            individual.registrationDate = new Date();
-            const enrolment = ProgramEnrolment.createEmptyInstance();
-            enrolment.individual = individual;
-            enrolment.program = program;
-            let completedEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
-            completedEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
-            completedEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
-            completedEncounter.encounterDateTime = new Date();
-            this.saveOrUpdate(individual, Individual.schema.name);
-            this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
-            this.saveOrUpdate(completedEncounter, ProgramEncounter.schema.name);
-            General.logDebug("Finishing -- ", i);
+            General.logDebug("Starting completed -- ", i);
+            try {
+                let name = faker.name.findName().split(" ");
+                const individual = Individual.newInstance(General.randomUUID(),
+                    name[0], name[1], new Date(), true, gender, address);
+                individual.registrationDate = new Date();
+                const enrolment = ProgramEnrolment.createEmptyInstance();
+                enrolment.individual = individual;
+                enrolment.program = program;
+                let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+                programEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
+                programEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
+                programEncounter.encounterDateTime = new Date();
+                programEncounter.programEnrolment = enrolment;
+                let savedIndividual = this.saveOrUpdate(individual, Individual.schema.name);
+                let savedEnrolment = this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
+                let savedPE = this.saveOrUpdate(programEncounter, ProgramEncounter.schema.name);
+                this.saveOrUpdate({uuid: individual.uuid, enrolments: [enrolment]}, Individual.schema.name);
+                this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
+            } catch (e) {
+                General.logDebugObject("Failed scheduled :(", e);
+            } finally {
+                General.logDebug("Finishing completed -- ", i);
+            }
         });
     }
 }
