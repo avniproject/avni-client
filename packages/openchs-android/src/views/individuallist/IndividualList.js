@@ -1,6 +1,7 @@
 import React from "react";
 import {Text, View, StyleSheet, ListView} from 'react-native';
 import _ from 'lodash';
+import {Header} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -11,7 +12,8 @@ import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Distances from '../primitives/Distances'
-import Separator from '../primitives/Separator';
+import IndividualDetails from './IndividualDetails';
+import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -39,10 +41,20 @@ class IndividualList extends AbstractComponent {
     }
 
     render() {
+        const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
+                <AppHeader
+                    title={`${this.props.params.address.name} - ${_.startCase(this.props.params.listType)}`}/>
                 <CHSContent>
-                    <AppHeader title={`${this.props.params.address.name} - ${_.startCase(this.props.params.listType)}`}/>
+                    <ListView
+                        initialListSize={20}
+                        onEndReachedThreshold={DynamicGlobalStyles.windowHeight}
+                        scrollRenderAheadDistance={DynamicGlobalStyles.windowHeight / 4}
+                        onEndReached={() => this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params})}
+                        removeClippedSubviews={true}
+                        dataSource={dataSource}
+                        renderRow={(individual) => <IndividualDetails individual={individual}/>}/>
                 </CHSContent>
             </CHSContainer>
         );

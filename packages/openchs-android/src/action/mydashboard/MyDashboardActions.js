@@ -4,9 +4,11 @@ import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import EncounterType from "../../../../openchs-models/src/EncounterType";
 
+const PAGE_SIZE = 20;
+
 class MyDashboardActions {
     static getInitialState() {
-        return {visits: {}, individuals: []};
+        return {visits: {}, individuals: {begin: 0, end: PAGE_SIZE, data: []}};
     }
 
 
@@ -49,7 +51,19 @@ class MyDashboardActions {
             ["completed", individualService.allCompletedVisitsIn],
             ["highRisk", individualService.allHighRiskPatients]
         ]);
-        return {...state, individuals: methodMap.get(action.listType)(action.address, new Date(), new Date())};
+        const individuals = [...state.individuals.data,
+            ...methodMap.get(action.listType)(action.address, new Date(), new Date())
+                .slice(state.individuals.begin, state.individuals.end)];
+        console.log(state.individuals.begin);
+        console.log(state.individuals.end);
+        return {
+            ...state,
+            individuals: {
+                begin: state.individuals.begin + PAGE_SIZE,
+                end: state.individuals.end + PAGE_SIZE,
+                data: individuals
+            }
+        };
     }
 }
 

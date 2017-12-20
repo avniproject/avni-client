@@ -24,10 +24,11 @@ class AddressVisitRow extends AbstractComponent {
         }
     });
 
-    onPressHandler(address, title) {
+    onPressHandler(address, title, count) {
         return () => TypedTransition.from(this).with({
             address: address,
-            listType: title
+            listType: title,
+            total: count
         }).to(IndividualList);
     }
 
@@ -35,7 +36,7 @@ class AddressVisitRow extends AbstractComponent {
         const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) =>
             (<VisitBlock key={idx}
                          highlight={numberObj.abnormal}
-                         onPress={this.onPressHandler.bind(this)(this.props.address, title)}
+                         onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count)}
                          title={title}
                          number={numberObj.count}/>));
         return (
