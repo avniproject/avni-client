@@ -1,11 +1,9 @@
 import FormFilterHelper from "../rules/FormFilterHelper";
-import MonthlyEncounter from './formFilters/MonthlyEncounter';
 
 import EleventhAndTwelfthStandardFormHandler from './formFilters/EleventhAndTwelfthStandardFormHandler';
 
 const encounterTypeHandlerMap = new Map([
-    ['Adolescent Monthly Visit (11th and 12th std)', new EleventhAndTwelfthStandardFormHandler()],
-    ['Monthly Visit', new MonthlyEncounter()]
+    ['Adolescent Monthly Visit (11th and 12th std)', new EleventhAndTwelfthStandardFormHandler()]
 ]);
 
 export function filterFormElements(programEncounter, formElementGroup) {
