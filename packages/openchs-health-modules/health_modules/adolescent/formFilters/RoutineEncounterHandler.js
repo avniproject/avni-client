@@ -21,9 +21,11 @@ export default class RoutineEncounterHandler {
     }
 
     reasonForDroppingOut(programEncounter, formElement) {
+        console.log("this is being called")
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Dropped Out");
 
+        console.log(statusBuilder.build());
         return statusBuilder.build();
     }
 
