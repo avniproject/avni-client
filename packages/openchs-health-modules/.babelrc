@@ -3,6 +3,7 @@
     "env"
   ],
   "plugins": [
-    "transform-class-properties", "transform-export-extensions"
+    "transform-class-properties",
+    "transform-export-extensions"
   ]
 }

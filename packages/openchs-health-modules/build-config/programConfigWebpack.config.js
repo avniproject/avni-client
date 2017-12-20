@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-    entry: './health_modules/programConfig.js',
+    entry: ['babel-polyfill', './health_modules/programConfig.js'],
     output: {
         path: path.resolve(__dirname, '../output'),
         filename: 'programConfig.js'

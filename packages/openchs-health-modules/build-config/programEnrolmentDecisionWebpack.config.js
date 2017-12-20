@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-    entry: './health_modules/programEnrolmentDecision.js',
+    entry: ['babel-polyfill', './health_modules/programEnrolmentDecision.js'],
     output: {
         path: path.resolve(__dirname, '../output'),
         filename: 'programEnrolmentDecision.js'
