@@ -307,7 +307,7 @@ export default class RoutineEncounterHandler {
         return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build();
     }
 
-    howAreYourFriends(programEncounter, formElement) {
+    areYourFriendsAddicted(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build();
     }
 
