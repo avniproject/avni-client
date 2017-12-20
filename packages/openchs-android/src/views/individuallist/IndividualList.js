@@ -66,6 +66,7 @@ class IndividualList extends AbstractComponent {
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
+                        enableEmptySections={true}
                         renderHeader={() => (
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
                                 {`Patients with ${visitType} Visits - ${this.props.params.total}`}
