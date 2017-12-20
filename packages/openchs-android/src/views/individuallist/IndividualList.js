@@ -15,6 +15,7 @@ import Distances from '../primitives/Distances'
 import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
+import General from "../../utility/General";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -43,8 +44,15 @@ class IndividualList extends AbstractComponent {
     });
 
     componentWillMount() {
+        General.logDebug("IndividualList", "Component Will Mount");
         this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
         super.componentWillMount();
+    }
+
+    componentWillUnmount() {
+        General.logDebug("IndividualList", "Component Will UnMount");
+        this.dispatchAction(Actions.RESET_LIST);
+        super.componentWillUnmount();
     }
 
     render() {
@@ -62,9 +70,6 @@ class IndividualList extends AbstractComponent {
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
                                 {`Patients with ${visitType} Visits - ${this.props.params.total}`}
                             </Text>)}
-                        onEndReachedThreshold={DynamicGlobalStyles.windowHeight}
-                        scrollRenderAheadDistance={DynamicGlobalStyles.windowHeight / 4}
-                        onEndReached={() => this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params})}
                         removeClippedSubviews={true}
                         dataSource={dataSource}
                         renderRow={(individual) => <IndividualDetails individual={individual}/>}/>

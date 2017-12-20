@@ -5,7 +5,7 @@ import Fonts from '../primitives/Fonts';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Separator from "../primitives/Separator";
-import Colors from "../primitives/Colors";
+import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import CHSNavigator from "../../utility/CHSNavigator";
 
 
@@ -72,9 +72,9 @@ class IndividualDetails extends AbstractComponent {
         const badges = this.props.individual.enrolments.map(({program}, idx) =>
             <Badge key={idx} style={{backgroundColor: program.color}}>{program.name}</Badge>);
         return (
-            <TouchableNativeFeedback onPress={() =>
-                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid)}
-                                     background={TouchableNativeFeedback.SelectableBackground()}>
+            <TouchableNativeFeedback
+                onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid)}
+                background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={IndividualDetails.styles.container}>
                     <View style={IndividualDetails.styles.nameContainer}>
                         <View style={{flex: 1}}>

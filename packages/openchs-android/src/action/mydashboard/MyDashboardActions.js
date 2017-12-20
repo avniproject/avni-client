@@ -4,11 +4,9 @@ import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import EncounterType from "../../../../openchs-models/src/EncounterType";
 
-const PAGE_SIZE = 20;
-
 class MyDashboardActions {
     static getInitialState() {
-        return {visits: {}, individuals: {begin: 0, end: PAGE_SIZE, data: []}};
+        return {visits: {}, individuals: {data: []}};
     }
 
 
@@ -52,16 +50,22 @@ class MyDashboardActions {
             ["highRisk", individualService.allHighRiskPatients]
         ]);
         const individuals = [...state.individuals.data,
-            ...methodMap.get(action.listType)(action.address, new Date(), new Date())
-                .slice(state.individuals.begin, state.individuals.end)];
+            ...methodMap.get(action.listType)(action.address, new Date(), new Date())];
         return {
             ...state,
             individuals: {
-                begin: state.individuals.begin + PAGE_SIZE,
-                end: state.individuals.end + PAGE_SIZE,
-                data: individuals
+                data: individuals,
             }
         };
+    }
+
+    static resetList(state, action, context) {
+        return {
+            ...state,
+            individuals: {
+                data: [],
+            }
+        }
     }
 }
 
@@ -69,12 +73,14 @@ const MyDashboardPrefix = "MyD";
 
 const MyDashboardActionNames = {
     ON_LOAD: `${MyDashboardPrefix}.ON_LOAD`,
-    ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`
+    ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`,
+    RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`
 };
 
 const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.ON_LOAD, MyDashboardActions.onLoad],
     [MyDashboardActionNames.ON_LIST_LOAD, MyDashboardActions.onListLoad],
+    [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
 ]);
 
 export {
