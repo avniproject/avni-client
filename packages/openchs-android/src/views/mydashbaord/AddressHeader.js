@@ -34,9 +34,7 @@ class AddressHeader extends AbstractComponent {
                     <Text style={[Fonts.typography("paperFontHeadline"), AddressHeader.styles.title]}>
                         {this.props.address.name}
                     </Text>
-                    <Text style={[Fonts.typography("paperFontTitle"), AddressHeader.styles.viewall]}>
-                        VIEW ALL
-                    </Text>
+                    <Text/>
                 </View>
             </TouchableNativeFeedback>
         );
