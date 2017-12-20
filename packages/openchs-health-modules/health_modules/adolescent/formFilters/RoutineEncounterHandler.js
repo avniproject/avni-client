@@ -243,7 +243,6 @@ export default class RoutineEncounterHandler {
             .latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes")
             .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type).not.equals("Village");
 
-        console.log(statusBuilder.build());
         return statusBuilder.build();
     }
 
