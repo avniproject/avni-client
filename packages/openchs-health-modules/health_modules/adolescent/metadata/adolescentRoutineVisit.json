@@ -1167,7 +1167,7 @@
           "name": "Do you have any addiction",
           "uuid": "94fda24a-f856-435d-9838-6ee0851f1080",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "conceptUUID": "2ebca9be-3be3-4d11-ada0-187563ff04f8",
           "displayOrder": 6,
           "mandatory": true
