@@ -54,8 +54,6 @@ class MyDashboardActions {
         const individuals = [...state.individuals.data,
             ...methodMap.get(action.listType)(action.address, new Date(), new Date())
                 .slice(state.individuals.begin, state.individuals.end)];
-        console.log(state.individuals.begin);
-        console.log(state.individuals.end);
         return {
             ...state,
             individuals: {
