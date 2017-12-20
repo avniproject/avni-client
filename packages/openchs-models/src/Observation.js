@@ -92,11 +92,14 @@ class Observation {
 
     getReadableValue() {
         let value = this.getValue();
-        if (this.concept.datatype === Concept.dataType.Coded) {
-            return _.isNil(value) ? value : value.map((conceptAnswerUUID) => {
-                let answer = _.find(this.concept.answers, (conceptAnswer) => conceptAnswer.concept.uuid === conceptAnswerUUID);
-                return answer.name;
-            });
+        if (!_.isNil(value) && this.concept.datatype === Concept.dataType.Coded) {
+            switch (typeof value) {
+                case "string":
+                    return this.concept.answers.find((conceptAnswer) => conceptAnswer.concept.uuid === value).name;
+                case "object":
+                    return value.map((answerUUID) =>
+                        this.concept.answers.find((ca) => ca.concept.uuid === answerUUID).name);
+            }
         }
         return value;
     }
