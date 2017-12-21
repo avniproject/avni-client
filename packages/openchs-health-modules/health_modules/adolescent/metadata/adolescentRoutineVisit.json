@@ -1057,11 +1057,6 @@
                 "abnormal": true
               },
               {
-                "name": "Epilepsy",
-                "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
-                "abnormal": true
-              },
-              {
                 "name": "No Problem",
                 "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
               },

@@ -1,7 +1,7 @@
 import FormFilterHelper from "../rules/FormFilterHelper";
 
-import EleventhAndTwelfthStandardFormHandler from './formFilters/EleventhAndTwelfthStandardFormHandler';
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
+import {getEncounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
 
 const encounterTypeHandlerMap = new Map([
     ['Annual Visit', new RoutineEncounterHandler()],
@@ -10,6 +10,9 @@ const encounterTypeHandlerMap = new Map([
     ['Monthly Visit', new RoutineEncounterHandler()]
 ]);
 
+export function getDecisions (programEncounter, today) {
+    return {enrolmentDecisions: [], encounterDecisions: vulnerabilityDecisionsFromEncounter(programEncounter), registrationDecisions: []};
+}
 export function filterFormElements(programEncounter, formElementGroup) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
     return FormFilterHelper.filterFormElements(handler, programEncounter, formElementGroup);
