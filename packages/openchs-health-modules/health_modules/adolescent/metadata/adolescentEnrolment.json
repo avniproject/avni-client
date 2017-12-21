@@ -93,7 +93,7 @@
           "name": "Father's Addiction",
           "uuid": "1e56fff0-239f-4044-8c5e-27e2779579df",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Father's Addiction",
             "uuid": "e90dee68-0a5f-4dd3-ae26-9b6229c4a02a",
@@ -170,7 +170,7 @@
           "name": "Mother's Addiction",
           "uuid": "3d061485-5d64-447b-9a06-541795ede5ff",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Mother's Addiction",
             "uuid": "a3200784-2512-477b-9e78-f1c947d7dd75",
