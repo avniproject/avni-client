@@ -17,12 +17,14 @@ class ObservationsHolderActions {
 
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
         ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.formElements, newState.filteredFormElements);
         return newState;
     }
 
     static onPrimitiveObsEndEditing(state, action, context) {
         const newState = state.clone();
         ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.formElements, newState.filteredFormElements);
         const validationResult = action.formElement.validate(action.value);
         newState.handleValidationResult(validationResult);
         return newState;
@@ -32,6 +34,7 @@ class ObservationsHolderActions {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
         ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.formElements, newState.filteredFormElements);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
         return newState;
@@ -41,6 +44,7 @@ class ObservationsHolderActions {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);
         ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.formElements, newState.filteredFormElements);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
         return newState;
@@ -58,6 +62,7 @@ class ObservationsHolderActions {
         }
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, dateValue);
         ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.formElements, newState.filteredFormElements);
         const validationResult = action.formElement.validate(dateValue);
         newState.handleValidationResult(validationResult);
 

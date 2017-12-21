@@ -32,6 +32,12 @@ class ObservationsHolder {
         }
     }
 
+    removeNonApplicableObs(allFormElements, applicableFormElements) {
+        const inApplicableFormElements = _.differenceBy(allFormElements, applicableFormElements, (fe) => fe.uuid);
+        inApplicableFormElements
+            .map((fe) => _.remove(this.observations, (obs) => obs.concept.uuid === fe.concept.uuid));
+    }
+
     toggleSingleSelectAnswer(concept, answerUUID) {
         return this.toggleCodedAnswer(concept, answerUUID, true);
     }
