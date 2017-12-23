@@ -9,14 +9,14 @@
         {
           "uuid": "293203b7-b0f8-4ff3-84bb-0757344924fc",
           "level": 1,
-          "name": "Ghotpadi Village",
-          "type": "Village"
+          "name": "Ghotpadi Boarding School",
+          "type": "Boarding"
         },
         {
           "uuid": "9fbe6eea-9f8b-4277-834d-658174213937",
           "level": 1,
-          "name": "Bhatpar Village",
-          "type": "Village"
+          "name": "Bhatpar School",
+          "type": "School"
         },
         {
           "uuid": "2379b506-47e1-414a-aa92-d5daae1c52c8",

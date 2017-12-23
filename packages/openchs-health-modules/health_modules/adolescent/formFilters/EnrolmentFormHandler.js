@@ -2,6 +2,19 @@ import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 import FormFilterHelper from "../../rules/FormFilterHelper";
 
 export default class EnrolmentFormHandler {
+    schoolGoing(programEnrolment, formElement) {
+        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement);
+    }
+
+    droppedOutOfWhichStandard(programEnrolment, formElement) {
+        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement)
+            && this._isDroppedOut(programEnrolment, formElement);
+    }
+
+    howManyMonthsSinceLastSchoolAttendance(programEnrolment, formElement) {
+        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement)
+            && this._hasntBeenComingToSchool(programEnrolment, formElement);
+    }
 
     fathersOccupation(programEnrolment, formElement) {
         return this._fatherIsAlive(programEnrolment, formElement);
@@ -40,6 +53,26 @@ export default class EnrolmentFormHandler {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
         statusBuilder.show().when.valueInEnrolment("Parents' life status").containsAnyAnswerConceptName(...statuses);
 
+        return statusBuilder.build();
+    }
+
+    _schoolAttendanceStatus(programEnrolment, formElement, requiredAnswer) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment("Has been coming to school").containsAnswerConceptName(requiredAnswer);
+        return statusBuilder.build();
+    }
+
+    _isDroppedOut(programEnrolment, formElement) {
+        return this._schoolAttendanceStatus(programEnrolment, formElement, "Dropped Out");
+    }
+
+    _hasntBeenComingToSchool(programEnrolment, formElement) {
+        return this._schoolAttendanceStatus(programEnrolment, formElement, "No");
+    }
+
+    _registeredAtSchoolOrBoarding(programEnrolment, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.addressType.equals("School").or.equals("Boarding");
         return statusBuilder.build();
     }
 

@@ -1,6 +1,7 @@
 import FormRuleChain from "./RuleChain";
 import _ from "lodash";
 import moment from "moment";
+
 export default class RuleCondition {
 
     constructor(context) {
@@ -156,6 +157,13 @@ export default class RuleCondition {
         });
     }
 
+    get addressType() {
+        return this._addToChain((next, context) => {
+            context.valueToBeChecked = this._getIndividual(context).lowestAddressLevel.type;
+            return next(context);
+        })
+    }
+
     get age() {
         return this._addToChain((next, context) => {
             context.valueToBeChecked = this._contextualTime().diff(moment(this._getIndividual(context).dateOfBirth));
@@ -205,14 +213,14 @@ export default class RuleCondition {
 
     matchesFn(fn) {
         return this._addToChain((next, context) => {
-            context.matches = fn(context.valueToBeChecked)? true: false;
+            context.matches = fn(context.valueToBeChecked) ? true : false;
             return next(context);
         });
     }
 
     get truthy() {
         return this._addToChain((next, context) => {
-            context.matches = context.valueToBeChecked ? true: false;
+            context.matches = context.valueToBeChecked ? true : false;
             return next(context);
         });
     }
@@ -264,6 +272,6 @@ export default class RuleCondition {
     then(fn) {
         if (this.matches()) {
             return fn();
-        };
+        }
     }
 }

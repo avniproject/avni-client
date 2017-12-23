@@ -5,23 +5,27 @@ import {
 } from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
 import RuleCondition from "../../health_modules/rules/RuleCondition";
+import AddressLevel from "../../../openchs-models/src/AddressLevel";
 
 describe('RuleConditions', () => {
     var programEncounter, form, a1, a2, codedConceptA1;
 
-    beforeEach(()=> {
+    beforeEach(() => {
         programEncounter = ProgramEncounter.createEmptyInstance();
         programEncounter.programEnrolment = ProgramEnrolment.createEmptyInstance();
+        let address = AddressLevel.create("eea64e54-dd5b-41fb-91aa-c6b4f4490bea", "Boarding", 1, undefined, "Boarding");
         let male = new Gender();
         male.name = "Male";
-        programEncounter.programEnrolment.individual = Individual.newInstance("f585d2f0-c148-460c-b7ac-d1d3923cf14c", "Ramesh", "Nair",  new Date(2010, 1, 1), true, male, 1);
+        let individual = Individual.newInstance("f585d2f0-c148-460c-b7ac-d1d3923cf14c", "Ramesh", "Nair", new Date(2010, 1, 1), true, male, 1);
+        individual.lowestAddressLevel = address;
+        programEncounter.programEnrolment.individual = individual;
         programEncounter.encounterDateTime = new Date();
         programEncounter.programEnrolment.enrolmentDateTime = new Date(2017, 0, 0, 5);
         programEncounter.programEnrolment.encounters.push(programEncounter);
         let conceptA1 = EntityFactory.createConcept('a1', Concept.dataType.Numeric);
         let conceptA2 = EntityFactory.createConcept('a2', Concept.dataType.Numeric);
         let conceptB1 = EntityFactory.createConcept('b1', Concept.dataType.Numeric);
-        codedConceptA1 = EntityFactory.createConcept("coded question a1", Concept.dataType.Coded, );
+        codedConceptA1 = EntityFactory.createConcept("coded question a1", Concept.dataType.Coded,);
         EntityFactory.addCodedAnswers(codedConceptA1, ["coded answer 1", "coded answer 2"]);
 
         programEncounter.observations.push(Observation.create(conceptA1, JSON.stringify(new PrimitiveValue('10', Concept.dataType.Numeric))));
@@ -83,7 +87,9 @@ describe('RuleConditions', () => {
     it("matchesFn checks currently inspected value to be truthy", () => {
         assert.isTrue(a1.when.valueInEntireEnrolment('a1').matchesFn(() => true).matches());
         assert.isFalse(a1.when.valueInEntireEnrolment('a1').matchesFn(() => false).matches());
-        assert.isFalse(a1.when.valueInEntireEnrolment('c1').matchesFn((value) => {return value;}).matches());
+        assert.isFalse(a1.when.valueInEntireEnrolment('c1').matchesFn((value) => {
+            return value;
+        }).matches());
     });
 
     it("valueInEncounter checks for the same or a different concept's value to be equal to something", () => {
@@ -99,7 +105,7 @@ describe('RuleConditions', () => {
     it("age checks for the age at the time of the program encounter", () => {
         assert.isTrue(a1.when.age.is.greaterThan(5, 'years').matches());
         assert.isTrue(a1.when.age.is.greaterThanOrEqualTo(5, 'years').matches());
-       assert.isFalse(a1.when.age.is.lessThan(5, 'years').matches());
+        assert.isFalse(a1.when.age.is.lessThan(5, 'years').matches());
     });
 
     it('whenItem checks for a constant value. to match', () => {
@@ -178,5 +184,12 @@ describe('RuleConditions', () => {
     it("and and or are evaluated right to left", () => {
         assert.isTrue(a1.when.whenItem(1).is.lessThan(5).and.greaterThan(5).or.lessThan(5).matches());
         assert.isFalse(a1.when.whenItem(1).is.greaterThan(5).and.lessThan(5).or.greaterThan(5).matches());
+    });
+
+    it("addressType matches given value", () => {
+        assert.isFalse(a1.when.addressType.equals("School").matches());
+        assert.isTrue(a1.when.addressType.equals("Boarding").matches());
+        assert.isTrue(a1.when.addressType.equals("Boarding").or.equals("School").matches());
+        assert.isTrue(a1.when.addressType.equals("School").or.equals("Boarding").matches());
     });
 });
