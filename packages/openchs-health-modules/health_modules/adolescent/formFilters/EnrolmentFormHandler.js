@@ -16,6 +16,10 @@ export default class EnrolmentFormHandler {
             && this._hasntBeenComingToSchool(programEnrolment, formElement);
     }
 
+    parents(programEnrolment, formElement) {
+        return this._hasBeenComingToSchool(programEnrolment, formElement);
+    }
+
     fathersOccupation(programEnrolment, formElement) {
         return this._fatherIsAlive(programEnrolment, formElement);
     }
@@ -31,6 +35,27 @@ export default class EnrolmentFormHandler {
     mothersAddiction(programEnrolment, formElement) {
         return this._motherIsAlive(programEnrolment, formElement);
     }
+
+    stayingWithWhom(programEnrolment, formElement) {
+        return this._hasBeenComingToSchool(programEnrolment, formElement);
+    }
+
+    numberOfFamilyMembers(programEnrolment, formElement) {
+        return this._hasBeenComingToSchool(programEnrolment, formElement);
+    }
+
+    numberOfBrothers(programEnrolment, formElement) {
+        return this._hasBeenComingToSchool(programEnrolment, formElement);
+    }
+
+    numberOfSisters(programEnrolment, formElement) {
+        return this._hasBeenComingToSchool(programEnrolment, formElement);
+    }
+
+    chronicSicknessInFamily(programEnrolment, formElement) {
+        return this._hasBeenComingToSchool(programEnrolment, formElement);
+    }
+
 
     causeOfDeath(programEncounter, formElement) {
         return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Adolescent exit reason', 'Death');
@@ -68,6 +93,10 @@ export default class EnrolmentFormHandler {
 
     _hasntBeenComingToSchool(programEnrolment, formElement) {
         return this._schoolAttendanceStatus(programEnrolment, formElement, "No");
+    }
+
+    _hasBeenComingToSchool(programEnrolment, formElement) {
+        return this._schoolAttendanceStatus(programEnrolment, formElement, "Yes");
     }
 
     _registeredAtSchoolOrBoarding(programEnrolment, formElement) {
