@@ -165,7 +165,7 @@ class IndividualService extends BaseService {
     }
 
     allHighRiskPatients(addressLevel) {
-        const HIGH_RISK_CONCEPTS = ["High Risk Conditions"];
+        const HIGH_RISK_CONCEPTS = ["High Risk Conditions", "Adolescent Vulnerabilities"];
         let allEnrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered("individual.lowestAddressLevel.uuid = $0 ",
                 addressLevel.uuid);
@@ -179,7 +179,7 @@ class IndividualService extends BaseService {
     }
 
     highRiskPatients(program, addressLevel) {
-        const HIGH_RISK_CONCEPTS = ["High Risk Conditions"];
+        const HIGH_RISK_CONCEPTS = ["High Risk Conditions", "Adolescent Vulnerabilities"];
         let allEnrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered("program.uuid = $0 " +
                 "AND individual.lowestAddressLevel.uuid = $1 ",
