@@ -20,26 +20,6 @@
         "abnormal": true
       },
       {
-        "uuid": "4bfce912-3480-4219-b3ce-098e7942bba5",
-        "name": "Malnutrition",
-        "abnormal": true
-      },
-      {
-        "uuid": "fe43444a-defe-497b-8d87-851e92e9ca81",
-        "name": "Poor Performance in School",
-        "abnormal": true
-      },
-      {
-        "uuid": "274a9f8f-bc2a-46a5-a740-0ef05ceb5ee3",
-        "name": "HIV",
-        "abnormal": true
-      },
-      {
-        "uuid": "9e126913-9ee6-49a6-ac40-13d2b00d26a9",
-        "name": "STD",
-        "abnormal": true
-      },
-      {
         "uuid": "4f1c4d88-8d87-4a53-8e3a-1bb163e13b66",
         "name": "Early Pregnancy & RTI",
         "abnormal": true
@@ -63,12 +43,27 @@
     "answers": [
       {
         "uuid": "e93a0585-f148-4ac6-a354-9cb34f4c9368",
-        "name": "Single or No Parents",
+        "name": "No Parents / Single Parent",
         "abnormal": true
       },
       {
-        "uuid": "20dafff7-569c-46fa-9d3c-788b2edae718",
-        "name": "Self Addiction",
+        "uuid": "40a0388a-64ec-46bc-bf7d-d20e15f4fd32",
+        "name": "Menstrual Disorder",
+        "abnormal": true
+      },
+      {
+        "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
+        "name": "Severe Anemia",
+        "abnormal": true
+      },
+      {
+        "uuid": "7348b656-6d8e-4fb7-9ff8-5e667cd31151",
+        "name": "Malnutrition",
+        "abnormal": true
+      },
+      {
+        "uuid": "2f5c7540-ef48-4f89-9fac-46e6a088e32f",
+        "name": "Sickle Cell Anemia",
         "abnormal": true
       },
       {
@@ -79,31 +74,6 @@
       {
         "uuid": "78fedb7d-fa30-4377-b136-b4367f9b04ff",
         "name": "Family Size > 6",
-        "abnormal": true
-      },
-      {
-        "uuid": "7348b656-6d8e-4fb7-9ff8-5e667cd31151",
-        "name": "Low BMI",
-        "abnormal": true
-      },
-      {
-        "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
-        "name": "Severe Anemia",
-        "abnormal": true
-      },
-      {
-        "uuid": "2f5c7540-ef48-4f89-9fac-46e6a088e32f",
-        "name": "Sickle Cell Anemia",
-        "abnormal": true
-      },
-      {
-        "uuid": "40a0388a-64ec-46bc-bf7d-d20e15f4fd32",
-        "name": "Menstrual Disorder",
-        "abnormal": true
-      },
-      {
-        "uuid": "29bed2cf-d1de-43be-b8fb-acc1c7ad0e2e",
-        "name": "Sickness",
         "abnormal": true
       }
     ]
@@ -139,11 +109,6 @@
         "uuid": "d46e7d44-c0bd-4dc9-adf8-1fb9a1a5e6e0",
         "name": "School dropped out",
         "abnormal": true
-      },
-      {
-        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
-        "name": "Sexual Activity",
-        "abnormal": true
       }
     ]
   },
@@ -153,77 +118,20 @@
     "dataType": "Coded",
     "answers": [
       {
-        "uuid": "d46e7d44-c0bd-4dc9-adf8-1fb9a1a5e6e0",
-        "name": "School dropped out",
-        "abnormal": true
-      },
-      {
-        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
-        "name": "Sexual Activity",
-        "abnormal": true
-      },
-      {
-        "uuid": "dc663538-b036-4211-ab61-e77f12b19872",
-        "name": "Reproductive Tract Infections",
-        "abnormal": true
-      }
-
-    ]
-  },
-  {
-    "name": "Reason for Poor Performance in School Vulnerability",
-    "uuid": "0e9b6e73-b46c-4b8b-a67d-d96679cad176",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "7348b656-6d8e-4fb7-9ff8-5e667cd31151",
-        "name": "Low BMI",
-        "abnormal": true
-      },
-      {
-        "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
-        "name": "Severe Anemia",
-        "abnormal": true
-      },
-      {
-        "uuid": "2f5c7540-ef48-4f89-9fac-46e6a088e32f",
-        "name": "Sickle Cell Anemia",
+        "uuid": "cd637ed2-5a97-4f36-970a-3af1f27dfe78",
+        "name": "Sexually Active",
         "abnormal": true
       }
     ]
   },
   {
-    "name": "Reason for Malnutrition Vulnerability",
-    "uuid": "e6df877f-4408-4065-8e21-57b15f1adb18",
+    "name": "Reason for Road Traffic Accident Vulnerability",
+    "uuid": "8835d96f-5c7c-4467-bf48-258fb5cd7a82",
     "dataType": "Coded",
     "answers": [
       {
-        "uuid": "78fedb7d-fa30-4377-b136-b4367f9b04ff",
-        "name": "Family Size > 6",
-        "abnormal": true
-      }
-    ]
-  },
-  {
-    "name": "Reason for HIV Vulnerability",
-    "uuid": "b63e2aad-d698-4310-8528-c1c2eb07aca9",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
-        "name": "Sexual Activity",
-        "abnormal": true
-      }
-    ]
-  },
-  {
-    "name": "Reason for STD Vulnerability",
-    "uuid": "3cbb068d-303e-49aa-879d-21e96e970c06",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "a66dffe0-cb03-4ea2-897f-87e9e7c4a8bc",
-        "name": "Sexual Activity",
+        "uuid": "74100a99-7252-47cc-a747-81952653cf48",
+        "name": "Driving Vehicle",
         "abnormal": true
       }
     ]

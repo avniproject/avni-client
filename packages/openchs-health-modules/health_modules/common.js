@@ -19,10 +19,8 @@ function C() {
         )
     };
 
-    this.calculateBMI = function (weight, height, age) {
-        if (age !== undefined) {
-            return Math.floor((weight / Math.pow(height, 2)) * 10000);
-        }
+    this.calculateBMI = function (weight, height) {
+        return Math.floor((weight / Math.pow(height, 2)) * 10000);
     };
 
     /* todo

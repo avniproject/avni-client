@@ -1,12 +1,12 @@
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import FormFilterHelper from "../rules/FormFilterHelper";
-import {getEnrolmentDecisions as vulnerabilityDecisionsFromEnrolment} from './vulnerabilityDecisions';
 import C from "../common";
+import vulnerabilityDecisions from './vulnerabilityDecisions';
 
 
 const getDecisions = (programEnrolment, today) => {
 
-    return {enrolmentDecisions: vulnerabilityDecisionsFromEnrolment(programEnrolment), encounterDecisions: [], registrationDecisions: []};
+    return vulnerabilityDecisions(programEnrolment);
 };
 
 const filterFormElements = (programEnrolment, formElementGroup) => {

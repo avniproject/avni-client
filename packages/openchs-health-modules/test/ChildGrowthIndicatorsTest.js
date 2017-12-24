@@ -34,7 +34,7 @@ xdescribe('Get growth indicators - z-score, grade, status for a child', function
         enrolment.individual.gender = {name: 'male'};
         var ageInMonths = C.getAgeInMonths(enrolment.individual.dateOfBirth, referenceDate);
         var lastEncounter = enrolment.encounters.pop();
-        var BMI = C.calculateBMI(3.5, 50.1, ageInMonths);
+        var BMI = C.calculateBMI(3.5, 50.1);
         assert.equal(13, BMI);
     });
 

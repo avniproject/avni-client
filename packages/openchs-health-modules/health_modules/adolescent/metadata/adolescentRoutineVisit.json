@@ -142,23 +142,15 @@
           "name": "Height",
           "uuid": "1491e41f-0b14-4b37-ac34-f841269b4cfa",
           "keyValues": [],
-          "concept": {
-            "name": "Height (cms)",
-            "uuid": "7c3c4f78-2054-4123-83c1-03804d7f51a1",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "d883d5fe-e17d-4136-b989-089fa0295e34",
           "displayOrder": 1,
           "mandatory": true
         },
         {
-          "name": "Weight (Kg)",
+          "name": "Weight",
           "uuid": "11927026-cb6b-4a00-9bb5-0e2ef4a58fcb",
           "keyValues": [],
-          "concept": {
-            "name": "Weight (Kgs)",
-            "uuid": "f5da985c-e5e8-44c5-93ac-f2346b4e0053",
-            "dataType": "Numeric"
-          },
+          "conceptUUID": "75b1656e-2777-4753-9612-ce03a766a5e1",
           "displayOrder": 2,
           "mandatory": true
         },
