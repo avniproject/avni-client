@@ -12,23 +12,17 @@
       "display": "Educational Details",
       "formElements": [
         {
-          "name": "Has been coming to school",
-          "uuid": "f0abcd61-8dfe-4462-8a09-5756af673181",
+          "name": "School going",
+          "uuid": "bb35645a-5b32-45a4-bab9-c0aa459b4865",
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Has been coming to school",
-            "uuid": "f23ca31f-c0b6-4521-af14-a66a40a69fd0",
+            "name": "School going",
+            "uuid": "575a29c3-a070-4c7d-ac96-fe58b6bddca3",
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Yes",
                 "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-                "abnormal": true
               },
               {
                 "name": "Dropped Out",
@@ -41,39 +35,17 @@
           "mandatory": true
         },
         {
-          "name": "How many months since last school attendance",
-          "uuid": "8886d3c7-5b1b-47f3-9755-89b8618c4cff",
+          "name": "Reason for dropping out",
+          "uuid": "594627be-54c4-4960-9bb6-10e03086bdaa",
           "keyValues": [],
           "type": "SingleSelect",
-          "concept": {
-            "name": "How many months since last school attendance",
-            "uuid": "a5f2d6da-bd7f-4eb1-ac0d-1febea04efd1",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Less than 1 Month",
-                "uuid": "6178d39e-2b9e-487c-97ed-d6b94a37a521"
-              },
-              {
-                "name": "1 to 2 Months",
-                "uuid": "6a55d594-27a1-4ab0-b13a-ed194c03e9c6"
-              },
-              {
-                "name": "2 to 3 Months",
-                "uuid": "62c6a78f-f1d7-4257-88b2-181166dced53"
-              },
-              {
-                "name": "More than 3 Months",
-                "uuid": "96432d25-3d11-4e4d-8716-1f880faf19c8"
-              }
-            ]
-          },
+          "conceptUUID": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
           "displayOrder": 2,
           "mandatory": true
         },
         {
           "name": "Dropped out of which standard",
-          "uuid": "7a1b7472-fd28-4c7a-95bd-356bc0cf88d7",
+          "uuid": "afebf488-96e8-48bc-a15d-75de5da97887",
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
@@ -115,17 +87,68 @@
           "mandatory": true
         },
         {
-          "name": "Name of school",
-          "uuid": "6ebaaad7-bcc7-4ba9-877a-507d6b70d558",
+          "name": "What he/she is doing now?",
+          "uuid": "5b83ce93-a239-4ef6-b3ef-86cbd560eef0",
           "keyValues": [],
           "type": "SingleSelect",
           "mandatory": true,
-          "displayOrder": 4,
+          "conceptUUID": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
+          "displayOrder": 4
+        },
+        {
+          "name": "Other activity (please specify)",
+          "uuid": "de00b3b6-d3e9-44a2-bc0d-f396a2ed30e9",
+          "concept": {
+            "name": "Other activity",
+            "uuid": "3a3f2078-ea0c-4dc0-ae4f-0777b95e8248",
+            "dataType": "Text"
+          },
+          "mandatory": true,
+          "displayOrder": 5
+        },
+        {
+          "name": "Name of school",
+          "uuid": "de04a189-b283-4e87-946b-3bc7043c64a3",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "mandatory": true,
+          "displayOrder": 6,
           "concept": {
             "name": "Name of school",
             "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
             "dataType": "Text"
           }
+        },
+        {
+          "name": "How many months since last school attendance",
+          "uuid": "d701e15b-9ce4-4c3f-8723-ca6bed63ff60",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "How many months since last school attendance",
+            "uuid": "a5f2d6da-bd7f-4eb1-ac0d-1febea04efd1",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Less than 1 Month",
+                "uuid": "6178d39e-2b9e-487c-97ed-d6b94a37a521"
+              },
+              {
+                "name": "1 to 2 Months",
+                "uuid": "6a55d594-27a1-4ab0-b13a-ed194c03e9c6"
+              },
+              {
+                "name": "2 to 3 Months",
+                "uuid": "62c6a78f-f1d7-4257-88b2-181166dced53"
+              },
+              {
+                "name": "More than 3 Months",
+                "uuid": "96432d25-3d11-4e4d-8716-1f880faf19c8"
+              }
+            ]
+          },
+          "displayOrder": 7,
+          "mandatory": true
         }
       ]
     },

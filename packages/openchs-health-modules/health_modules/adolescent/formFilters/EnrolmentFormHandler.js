@@ -2,22 +2,33 @@ import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 import FormFilterHelper from "../../rules/FormFilterHelper";
 
 export default class EnrolmentFormHandler {
-    schoolGoing(programEnrolment, formElement) {
-        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement);
+    reasonForDroppingOut(programEnrolment, formElement) {
+        return this._villageRegistrationAndDroppedOut(programEnrolment, formElement);
     }
 
     droppedOutOfWhichStandard(programEnrolment, formElement) {
-        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement)
-            && this._isDroppedOut(programEnrolment, formElement);
+        return this._isDroppedOut(programEnrolment, formElement);
+    }
+
+    whatHeSheIsDoingNow(programEnrolment, formElement) {
+        return this._villageRegistrationAndDroppedOut(programEnrolment, formElement);
+    }
+
+    otherActivityPleaseSpecify(programEnrolment, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment("What he/she is doing now?")
+            .containsAnswerConceptName("Other");
+        return this._villageRegistrationAndDroppedOut(programEnrolment, formElement)
+            .and(statusBuilder.build());
     }
 
     howManyMonthsSinceLastSchoolAttendance(programEnrolment, formElement) {
-        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement)
-            && this._hasntBeenComingToSchool(programEnrolment, formElement);
+        return this._schoolRegistrationAndDroppedOut(programEnrolment, formElement);
     }
 
     parents(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement);
+        return this._hasBeenComingToSchool(programEnrolment, formElement)
+            .or(this._registeredAtVillage(programEnrolment, formElement));
     }
 
     fathersOccupation(programEnrolment, formElement) {
@@ -37,23 +48,28 @@ export default class EnrolmentFormHandler {
     }
 
     stayingWithWhom(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement);
+        return this._hasBeenComingToSchool(programEnrolment, formElement)
+            .or(this._registeredAtVillage(programEnrolment, formElement));
     }
 
     numberOfFamilyMembers(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement);
+        return this._hasBeenComingToSchool(programEnrolment, formElement)
+            .or(this._registeredAtVillage(programEnrolment, formElement));
     }
 
     numberOfBrothers(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement);
+        return this._hasBeenComingToSchool(programEnrolment, formElement)
+            .or(this._registeredAtVillage(programEnrolment, formElement));
     }
 
     numberOfSisters(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement);
+        return this._hasBeenComingToSchool(programEnrolment, formElement)
+            .or(this._registeredAtVillage(programEnrolment, formElement));
     }
 
     chronicSicknessInFamily(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement);
+        return this._hasBeenComingToSchool(programEnrolment, formElement)
+            .or(this._registeredAtVillage(programEnrolment, formElement));
     }
 
 
@@ -83,7 +99,7 @@ export default class EnrolmentFormHandler {
 
     _schoolAttendanceStatus(programEnrolment, formElement, requiredAnswer) {
         const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
-        statusBuilder.show().when.valueInEnrolment("Has been coming to school").containsAnswerConceptName(requiredAnswer);
+        statusBuilder.show().when.valueInEnrolment("School going").containsAnswerConceptName(requiredAnswer);
         return statusBuilder.build();
     }
 
@@ -91,18 +107,34 @@ export default class EnrolmentFormHandler {
         return this._schoolAttendanceStatus(programEnrolment, formElement, "Dropped Out");
     }
 
-    _hasntBeenComingToSchool(programEnrolment, formElement) {
-        return this._schoolAttendanceStatus(programEnrolment, formElement, "No");
-    }
-
     _hasBeenComingToSchool(programEnrolment, formElement) {
         return this._schoolAttendanceStatus(programEnrolment, formElement, "Yes");
     }
 
-    _registeredAtSchoolOrBoarding(programEnrolment, formElement) {
+
+    _registeredAt(programEnrolment, formElement, placeOfRegistration) {
         const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
-        statusBuilder.show().when.addressType.equals("School").or.equals("Boarding");
+        statusBuilder.show().when.addressType.equals(placeOfRegistration);
         return statusBuilder.build();
+    }
+
+    _registeredAtSchoolOrBoarding(programEnrolment, formElement) {
+        return this._registeredAt(programEnrolment, formElement, "School")
+            .or(this._registeredAt(programEnrolment, formElement, "Boarding"));
+    }
+
+    _registeredAtVillage(programEnrolment, formElement) {
+        return this._registeredAt(programEnrolment, formElement, "Village");
+    }
+
+    _villageRegistrationAndDroppedOut(programEnrolment, formElement) {
+        return this._registeredAtVillage(programEnrolment, formElement)
+            .and(this._isDroppedOut(programEnrolment, formElement));
+    }
+
+    _schoolRegistrationAndDroppedOut(programEnrolment, formElement) {
+        return this._registeredAtSchoolOrBoarding(programEnrolment, formElement)
+            .and(this._isDroppedOut(programEnrolment, formElement));
     }
 
     _getStatusBuilder(programEnrolment, formElement) {
