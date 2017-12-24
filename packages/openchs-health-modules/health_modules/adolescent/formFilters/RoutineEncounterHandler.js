@@ -15,7 +15,7 @@ export default class RoutineEncounterHandler {
 
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type).equals("Village");
+        statusBuilder.show().whenItem(programEncounter.programEnrolment.encounters.length).greaterThan(1);
 
         return statusBuilder.build();
     }
@@ -52,7 +52,8 @@ export default class RoutineEncounterHandler {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when
             .valueInEncounter("School going").containsAnswerConceptName("Yes")
-            .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type).matchesFn((item) => _.some(["Boarding", "Village"], (ref) => ref === item))
+            .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type)
+            .matchesFn((item) => _.some(["Boarding", "Village"], (ref) => ref === item));
 
         return statusBuilder.build();
     }
@@ -231,8 +232,8 @@ export default class RoutineEncounterHandler {
     anyTreatmentTaken(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName(
-                "Lower Abdominal Pain", "Backache", "Leg Pain", "Nausea and Vomiting", "Headache",
-            "Abnormal Vaginal Discharge", "Heavy Bleeding","Irregular Menses");
+            "Lower Abdominal Pain", "Backache", "Leg Pain", "Nausea and Vomiting", "Headache",
+            "Abnormal Vaginal Discharge", "Heavy Bleeding", "Irregular Menses");
 
         return statusBuilder.build();
     }

@@ -26,6 +26,11 @@ export default class EnrolmentFormHandler {
         return this._schoolRegistrationAndDroppedOut(programEnrolment, formElement);
     }
 
+    nameOfSchool(programEnrolment, formElement) {
+        return this._registeredAtVillage(programEnrolment, formElement)
+            .or(this._registeredAt(programEnrolment, formElement, "Boarding"));
+    }
+
     parents(programEnrolment, formElement) {
         return this._hasBeenComingToSchool(programEnrolment, formElement)
             .or(this._registeredAtVillage(programEnrolment, formElement));
