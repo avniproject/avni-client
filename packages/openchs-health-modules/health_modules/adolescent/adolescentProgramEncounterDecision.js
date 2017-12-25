@@ -1,7 +1,7 @@
 import FormFilterHelper from "../rules/FormFilterHelper";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandler";
-import {getEncounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
+import {encounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
 
 const encounterTypeHandlerMap = new Map([
     ['Annual Visit', new RoutineEncounterHandler()],
@@ -12,11 +12,8 @@ const encounterTypeHandlerMap = new Map([
 ]);
 
 export function getDecisions(programEncounter, today) {
-    return {
-        enrolmentDecisions: [],
-        encounterDecisions: vulnerabilityDecisionsFromEncounter(programEncounter),
-        registrationDecisions: []
-    };
+    return vulnerabilityDecisionsFromEncounter(programEncounter);
+
 }
 
 export function filterFormElements(programEncounter, formElementGroup) {
