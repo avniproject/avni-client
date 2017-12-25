@@ -12,7 +12,7 @@ const encounterTypeHandlerMap = new Map([
 ]);
 
 export function getDecisions(programEncounter, today) {
-    return vulnerabilityDecisionsFromEncounter(programEncounter);
+    return vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter);
 
 }
 

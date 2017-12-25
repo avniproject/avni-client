@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {ProgramEnrolment, ProgramEncounter, Encounter, NullProgramEnrolment,Individual} from 'openchs-models';
+import {ProgramEnrolment, ProgramEncounter, Encounter, NullProgramEnrolment, Individual} from 'openchs-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";

@@ -101,7 +101,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
                     <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames}
                                         flowState={programEncounterTypeState.flowState}
-                                        entityTypes={programEncounterTypeState.entityTypes} labelKey='followupTypes'
+                                        entityTypes={programEncounterTypeState.entityTypes}
+                                        labelKey='followupTypes'
                                         selectedEntityType={programEncounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
 

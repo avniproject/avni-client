@@ -15,7 +15,9 @@ export default class RoutineEncounterHandler {
 
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().whenItem(programEncounter.programEnrolment.encounters.length).greaterThan(1);
+        statusBuilder.show().whenItem(programEncounter.programEnrolment.encounters.length).greaterThan(1)
+            .or.whenItem(programEncounter.programEnrolment.encounters.length).equals(1)
+            .and.whenItem(programEncounter.programEnrolment.encounters[0].uuid !== programEncounter.uuid).truthy;
 
         return statusBuilder.build();
     }
