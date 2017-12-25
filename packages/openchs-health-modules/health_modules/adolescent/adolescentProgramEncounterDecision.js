@@ -2,6 +2,7 @@ import FormFilterHelper from "../rules/FormFilterHelper";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandler";
 import {encounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
+import {getNextScheduledVisits} from './adolescentVisitSchedule';
 
 const encounterTypeHandlerMap = new Map([
     ['Annual Visit', new RoutineEncounterHandler()],
@@ -20,3 +21,5 @@ export function filterFormElements(programEncounter, formElementGroup) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
     return FormFilterHelper.filterFormElements(handler, programEncounter, formElementGroup);
 }
+
+export {getNextScheduledVisits};
