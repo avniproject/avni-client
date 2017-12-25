@@ -1,0 +1,239 @@
+{
+  "name": "Adolescent School Dropout",
+  "uuid": "54636d6b-33bf-4faf-9397-eb3b1d9b1792",
+  "formType": "ProgramEncounter",
+  "programName": "Adolescent",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "774323a1-4597-4de4-9e0d-e657537b5236",
+      "name": "Dropping Out Details",
+      "displayOrder": 1,
+      "display": "Dropping Out Details",
+      "formElements": [
+        {
+          "name": "When did you leave school",
+          "uuid": "7dda44bc-4700-4f0b-b51e-6b76617a6ac8",
+          "keyValues": [
+            {
+              "key": "durationOptions",
+              "value": [
+                "days",
+                "weeks",
+                "months"
+              ]
+            }
+          ],
+          "concept": {
+            "name": "When did you leave school",
+            "uuid": "c41ff8c3-1f33-4512-a5cd-e9b01d92913f",
+            "dataType": "Date"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Reason for dropping as per student / parent",
+          "uuid": "e99598f5-3797-4636-9cb1-18157ef03671",
+          "keyValues": [],
+          "type": "MultiSelect",
+          "concept": {
+            "uuid": "c9aceef5-fb03-49ed-a455-bfa603dddb28",
+            "name": "Reason for dropping as per student / parent",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "uuid": "384bdb12-0761-414e-8459-962aed124ead"
+              },
+              {
+                "uuid": "0e84adb9-f99a-408d-9a40-44a5d00866a1"
+              },
+              {
+                "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
+              },
+              {
+                "uuid": "104c7ffb-fb43-45a0-876b-77fba9ee7759"
+              },
+              {
+                "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c"
+              },
+              {
+                "uuid": "af10b937-e9f2-4b9b-8cfe-1d59bc0b21f6"
+              },
+              {
+                "uuid": "cd551661-1456-46bc-9855-7548e62c40f6"
+              },
+              {
+                "uuid": "b0b6ec77-c8fc-4cd8-8ad0-561cfb73b56b",
+                "name": "School study completed"
+              },
+              {
+                "uuid": "7b9d722b-32d2-4ffc-91c5-7d8b6ab84424",
+                "name": "Is afraid of teacher"
+              },
+              {
+                "uuid": "77418606-39c4-4f38-a6c7-0f8bd2d0a791",
+                "name": "Cannot read or write"
+              },
+              {
+                "uuid": "6bd0bedb-ef6e-4dc3-a053-a6c1b9478f05",
+                "name": "Name taken off from school"
+              },
+              {
+                "uuid": "0af52988-1f51-43f6-ad63-d6fb8b0ab36f",
+                "name": "Failed in exam"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+              }
+            ]
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Other reason according to student/parent",
+          "uuid": "711fb359-354d-4475-9e28-3a1c6d2fe0a9",
+          "concept": {
+            "name": "Other reason according to student/parent",
+            "uuid": "2a61f823-241b-4c09-be98-26cd1db49d7b",
+            "dataType": "Text"
+          },
+          "mandatory": true,
+          "displayOrder": 3
+        },
+        {
+          "name": "Reason for dropping as per teacher",
+          "uuid": "e05ad605-ed75-4f36-bd30-b10bcc5cd1d8",
+          "keyValues": [],
+          "type": "MultiSelect",
+          "concept": {
+            "uuid": "5972d90a-bc65-4801-8658-db746b146444",
+            "name": "Reason for dropping as per teacher",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Not interested in studies",
+                "uuid": "384bdb12-0761-414e-8459-962aed124ead"
+              },
+              {
+                "name": "Poor economic condition",
+                "uuid": "0e84adb9-f99a-408d-9a40-44a5d00866a1"
+              },
+              {
+                "name": "Domestic work",
+                "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
+              },
+              {
+                "uuid": "b0b6ec77-c8fc-4cd8-8ad0-561cfb73b56b",
+                "name": "School study completed"
+              },
+              {
+                "uuid": "7b9d722b-32d2-4ffc-91c5-7d8b6ab84424",
+                "name": "Is afraid of teacher"
+              },
+              {
+                "uuid": "77418606-39c4-4f38-a6c7-0f8bd2d0a791",
+                "name": "Cannot read or write"
+              },
+              {
+                "uuid": "6bd0bedb-ef6e-4dc3-a053-a6c1b9478f05",
+                "name": "Name taken off from school"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+              }
+            ]
+          },
+          "displayOrder": 4,
+          "mandatory": true
+        },
+        {
+          "name": "Other reason according to teacher",
+          "uuid": "db04ee46-86a2-4e8d-84af-f612eff15895",
+          "concept": {
+            "name": "Other reason according to teacher",
+            "uuid": "0cf89f36-ce0d-4b2e-b978-d6988375cc2b",
+            "dataType": "Text"
+          },
+          "mandatory": true,
+          "displayOrder": 5
+        },
+        {
+          "name": "What he/she is doing now?",
+          "uuid": "5c719e93-f361-4bce-a802-51befe82334c",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "mandatory": true,
+          "conceptUUID": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
+          "displayOrder": 6
+        },
+        {
+          "name": "Other activity (please specify)",
+          "uuid": "92f8be44-582a-4af8-8ba4-48327046ddf9",
+          "concept": {
+            "name": "Other activity",
+            "uuid": "3a3f2078-ea0c-4dc0-ae4f-0777b95e8248",
+            "dataType": "Text"
+          },
+          "mandatory": true,
+          "displayOrder": 7
+        },
+        {
+          "name": "How is the economic condition of family",
+          "uuid": "0af1bdd7-22e8-443a-81f2-550953090e57",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b76236df-a70a-4157-92ea-68c24ad21f4c",
+            "name": "How is the economic condition of family",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Good",
+                "uuid": "5361a2f5-f249-4a20-9da9-4f357e21db1e"
+              },
+              {
+                "name": "Average",
+                "uuid": "c8ab4338-17c4-49d0-ab9a-548594d6c74f"
+              },
+              {
+                "name": "Poor",
+                "uuid": "b0597438-4262-4fa7-9d43-12df90963559"
+              },
+              {
+                "uuid": "40d23e03-786e-4ff3-a380-e9005a8f0a62",
+                "name": "Very Poor"
+              }
+            ]
+          },
+          "displayOrder": 8,
+          "mandatory": true
+        },
+        {
+          "name": "Are you ready for re-admission to school",
+          "uuid": "f02fec91-d196-4a8b-819e-8b81ecb58778",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "4c7d5f3e-8284-4207-8d7f-9ef7727eb811",
+            "name": "Are you ready for re-admission to school",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              }
+            ]
+          },
+          "displayOrder": 9,
+          "mandatory": true
+        }
+      ]
+    }
+  ]
+}
