@@ -27,7 +27,7 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
             name: "Dropout Home Visit",
             encounterType: "Dropout Home Visit",
             earliestDate: programEnrolment.enrolmentDateTime,
-            maxDate: C.addDays(C.copyDate(programEnrolment.enrolmentDateTime), 10)
+            maxDate: C.addDays(C.copyDate(programEnrolment.enrolmentDateTime), 15)
         }
     ).when.valueInEnrolment("School going").containsAnswerConceptName("Dropped Out");
     let all = scheduleBuilder.getAll();
