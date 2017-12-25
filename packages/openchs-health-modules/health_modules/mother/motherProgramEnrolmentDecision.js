@@ -6,8 +6,11 @@ export function getNextScheduledVisits (enrolment, today) {
     return nextScheduledVisits(enrolment, today);
 }
 
-export function getDecisions (enrolment, today) {
-    var decisions = programDecision.getDecisions(enrolment, today);
+export function getDecisions (enrolment, context, today) {
+    if (context.usage === 'Exit')
+        return {enrolmentDecisions: [], encounterDecisions: []};
+
+    let decisions = programDecision.getDecisions(enrolment, today);
     const lmpDate = enrolment.getObservationValue('Last Menstrual Period');
     const edd = c.addDays(lmpDate, 280);
     decisions.push({name:"Estimated Date of Delivery", value:edd});

@@ -17,9 +17,9 @@ class EntityRule {
         }
     }
 
-    getDecisions(entity) {
+    getDecisions(entity, context) {
         const defaultValue = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
-        const decisions = this._safeInvokeRule(this.decisionFn, 'Decision', defaultValue, entity);
+        const decisions = this._safeInvokeRule(this.decisionFn, 'Decision', defaultValue, entity, context);
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('EntityRule', `Decisions made: ${JSON.stringify(decisions)}`);
         return decisions;

@@ -68,6 +68,14 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         });
     }
 
+    editExit() {
+        this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
+            enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
+                CHSNavigator.navigateToExitProgram(this, enrolment);
+            }
+        });
+    }
+
     exitProgram() {
         CHSNavigator.navigateToExitProgram(this, this.state.enrolment);
     }
@@ -81,9 +89,22 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
     }
 
+    getExitHeaderMessage(enrolment) {
+        return `${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")}`;
+    }
+
     getForm() {
         const formMappingService = this.context.getService(FormMappingService);
         return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program);
+    }
+
+    getContextActions(isExit){
+        const contextActions = [new ContextAction('edit', () => isExit? this.editExit() : this.editEnrolment())];
+        if (this.state.enrolment.isActive) {
+            contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
+        }
+        return contextActions;
+
     }
 
     render() {
@@ -91,11 +112,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
-        const contextActions = [new ContextAction('edit', () => this.editEnrolment())];
-        if (this.state.enrolment.isActive) {
-            contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
-        }
         const dashboardButtons = this.state.dashboardButtons || [];
+        const enrolmentStatus = this.state.enrolment.isActive;
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
@@ -148,8 +166,16 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             </View>
                             {enrolments.length === 0 ? <View/> :
                                 <View style={{marginHorizontal: 8}}>
+                                    {enrolmentStatus ? <View/> :
+                                        <View>
+                                            <ObservationsSectionTitle contextActions={this.getContextActions(true)}
+                                                                      title={this.getExitHeaderMessage(this.state.enrolment)}/>
+                                            <Observations form={this.getForm()}
+                                                          observations={this.state.enrolment.programExitObservations}
+                                                          style={{marginVertical: DGS.resizeHeight(8)}}/>
+                                        </View>}
                                     <View>
-                                        <ObservationsSectionTitle contextActions={contextActions}
+                                        <ObservationsSectionTitle contextActions={this.getContextActions()}
                                                                   title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
                                         <Observations form={this.getForm()}
                                                       observations={this.state.enrolment.observations}

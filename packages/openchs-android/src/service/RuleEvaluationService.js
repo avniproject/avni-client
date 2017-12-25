@@ -19,8 +19,8 @@ class RuleEvaluationService extends BaseService {
         });
     }
 
-    getDecisions(entity, entityName) {
-        return this.entityRulesMap.get(entityName).getDecisions(entity);
+    getDecisions(entity, entityName, context) {
+        return this.entityRulesMap.get(entityName).getDecisions(entity, context);
     }
 
     validateAgainstRule(entity, form, entityName) {

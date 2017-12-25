@@ -5,7 +5,9 @@ import {enrolmentDecisions as vulnerabilityEnrolmentDecisions} from './vulnerabi
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 
 
-const getDecisions = (programEnrolment, today) => {
+const getDecisions = (programEnrolment, context, today) => {
+    if (context.usage === 'Exit')
+    return {enrolmentDecisions: [], encounterDecisions: []};
 
     return vulnerabilityEnrolmentDecisions(programEnrolment);
 };

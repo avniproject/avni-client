@@ -14,8 +14,9 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         this.usage = usage;
         this.enrolment = enrolment;
         this.formElementsUserState = {};
-        if (!_.isNil(enrolment))
+        if (!_.isNil(enrolment)) {
             this.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? enrolment.observations : enrolment.programExitObservations);
+        }
     }
 
     getEntity() {
@@ -32,7 +33,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         newState.enrolment = this.enrolment.cloneForEdit();
         newState.newEnrolment = this.newEnrolment;
         newState.usage = this.usage;
-        newState.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);
+        newState.applicableObservationsHolder = new ObservationsHolder(this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);
         newState.formElementsUserState = this.formElementsUserState;
         return newState;
     }
@@ -62,7 +63,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name);
+        let decisions = ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name, {usage:this.usage});
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             context.get(ConceptService).addDecisions(this.enrolment.observations, decisions.enrolmentDecisions);
         } else {

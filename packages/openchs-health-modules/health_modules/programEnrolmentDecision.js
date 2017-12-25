@@ -5,8 +5,8 @@ import _ from "lodash";
 import {FormElementStatus} from "openchs-models";
 const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
 
-export function getDecisions (enrolment) {
-    return executeProgramEnrolmentFunc({parameter: [enrolment], fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}})
+export function getDecisions (enrolment, usage) {
+    return executeProgramEnrolmentFunc({parameter: [enrolment, usage], fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}})
 }
 
 export function getNextScheduledVisits(enrolment) {
