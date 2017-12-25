@@ -4,7 +4,9 @@
   "formType": "ProgramEncounter",
   "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
-  "encounterTypes": ["Dropout Home Visit"],
+  "encounterTypes": [
+    "Dropout Home Visit"
+  ],
   "formElementGroups": [
     {
       "uuid": "774323a1-4597-4de4-9e0d-e657537b5236",
@@ -15,16 +17,7 @@
         {
           "name": "When did you leave school",
           "uuid": "7dda44bc-4700-4f0b-b51e-6b76617a6ac8",
-          "keyValues": [
-            {
-              "key": "durationOptions",
-              "value": [
-                "days",
-                "weeks",
-                "months"
-              ]
-            }
-          ],
+          "keyValues": [],
           "concept": {
             "name": "When did you leave school",
             "uuid": "c41ff8c3-1f33-4512-a5cd-e9b01d92913f",
