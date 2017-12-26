@@ -25,7 +25,7 @@ test_env: ## Run unit tests
 
 token:=''
 poolId:=''
-clientid:=''
+clientId:=''
 username:=''
 password:=''
 
