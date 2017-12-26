@@ -49,18 +49,7 @@ export default class RoutineEncounterHandler {
 
         return statusBuilder.build();
     }
-
-    nameOfSchool(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().when
-            .valueInEncounter("School going").containsAnswerConceptName("Yes")
-            .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type)
-            .matchesFn((item) => _.some(["Boarding", "Village"], (ref) => ref === item));
-
-        return statusBuilder.build()
-            .and(this._registeredAtVillageOrBoarding(programEncounter, formElement, this.visits.ANNUAL));
-    }
-
+    
     inWhichStandardHeSheIsStudying(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Yes");
