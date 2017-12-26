@@ -26,17 +26,30 @@ const getNextScheduledVisits = function (programEncounter) {
             name: "School Dropout Followup",
             encounterType: "Dropout Followup Visit",
             earliestDate: C.addDays(new Date(), 7),
-            maxDate: C.addDays(C.copyDate(new Date()), 10)
+            maxDate: C.addDays(C.copyDate(new Date()), 17)
         }
-    ).when.valueInEncounter("Have you started going to school once again").containsAnswerConceptName("No")
+    ).whenItem(programEncounter.encounterType.name).equals("Dropout Home Visit")
         .and.whenItem(programEncounter.programEnrolment.encounters
         .filter((encounter) => encounter.encounterType.name === "Dropout Followup Visit").length).lessThanOrEqualTo(5);
 
     scheduleBuilder.add({
             name: "School Dropout Followup",
             encounterType: "Dropout Followup Visit",
-            earliestDate: moment().month(3).date(1).hour(0).minute(0).second(0).toDate(),
-            maxDate: C.addDays(C.copyDate(moment().month(3).date(1).hour(0).minute(0).second(0).toDate()), 10)
+            earliestDate: C.addDays(new Date(), 7),
+            maxDate: C.addDays(C.copyDate(new Date()), 17)
+        }
+    ).when.valueInEncounter("Have you started going to school once again").containsAnswerConceptName("No")
+        .and.whenItem(programEncounter.programEnrolment.encounters
+        .filter((encounter) => encounter.encounterType.name === "Dropout Followup Visit").length).lessThanOrEqualTo(5);
+
+    let schoolRestartDate = moment().month(5).date(1).hour(0).minute(0).second(0);
+    schoolRestartDate = schoolRestartDate < moment() ? schoolRestartDate.add(12, 'months').toDate()
+        : schoolRestartDate.toDate();
+    scheduleBuilder.add({
+            name: "School Dropout Followup",
+            encounterType: "Dropout Followup Visit",
+            earliestDate: schoolRestartDate,
+            maxDate: C.addDays(C.copyDate(schoolRestartDate), 15)
         }
     ).when.valueInEncounter("Have you started going to school once again")
         .containsAnswerConceptName("Yes, but could not attend");
