@@ -15,9 +15,9 @@ export default class RoutineEncounterHandler {
 
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
-        statusBuilder.show().whenItem(programEncounter.programEnrolment.encounters.length).greaterThan(1)
-            .or.whenItem(programEncounter.programEnrolment.encounters.length).equals(1)
-            .and.whenItem(programEncounter.programEnrolment.encounters[0].uuid !== programEncounter.uuid).truthy;
+        const numberOfNonCurrentEncounters = programEncounter.programEnrolment.encounters
+            .filter(encounter => !_.isNil(encounter.encounterDateTime)).length;
+        statusBuilder.show().whenItem(numberOfNonCurrentEncounters).greaterThanOrEqualTo(1);
 
         return statusBuilder.build();
     }
