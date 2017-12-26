@@ -36,8 +36,7 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
         }
     ).when.valueInEnrolment("School going").containsAnswerConceptName("Dropped Out")
         .and.whenItem(existingUnfinishedDropoutHomeVisit.length).equals(0);
-    let all = scheduleBuilder.getAll();
-    return all;
+    return scheduleBuilder.getAll();
 };
 
 export {getDecisions, getNextScheduledVisits, filterFormElements};
