@@ -49,7 +49,7 @@ export default class RoutineEncounterHandler {
 
         return statusBuilder.build();
     }
-    
+
     inWhichStandardHeSheIsStudying(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Yes");
