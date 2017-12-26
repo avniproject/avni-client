@@ -73,12 +73,24 @@ export default class EnrolmentFormHandler {
     }
 
 
-    causeOfDeath(programEncounter, formElement) {
-        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Adolescent exit reason', 'Death');
+    causeOfDeath(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInExit("Adolescent exit reason").containsAnyAnswerConceptName('Death');
+        return statusBuilder.build();
     }
 
-    causeOfDeathUnspecifiedAbove(programEncounter, formElement) {
-        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Cause of Death', 'Other');
+    causeOfDeathUnspecifiedAbove(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show()
+            .when.valueInExit("Adolescent exit reason").containsAnyAnswerConceptName('Death')
+            .and.valueInExit("Cause of Death").containsAnyAnswerConceptName('Other');
+        return statusBuilder.build();
+    }
+
+    ageAtMarriage(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInExit("Adolescent exit reason").containsAnyAnswerConceptName('Marriage');
+        return statusBuilder.build();
     }
 
 

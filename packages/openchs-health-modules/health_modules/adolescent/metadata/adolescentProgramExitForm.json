@@ -53,14 +53,26 @@
           "type": "SingleSelect",
           "conceptUUID": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Cause of Death (Unspecified above)",
           "uuid": "69c11cd8-4f2b-42a7-b189-c4338d4ea573",
           "conceptUUID": "43ab00db-b0d3-4e75-ab98-ebd7cfa414e5",
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
+        },
+        {
+          "name": "Age at Marriage",
+          "uuid": "b8388d09-a34a-4a81-a615-96b513d79c0b",
+          "keyValues": [],
+          "concept": {
+            "name": "Age at Marriage",
+            "uuid": "ce235c58-c84b-4cda-b600-305ebf7091e4",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 4,
+          "mandatory": true
         }
       ]
     }

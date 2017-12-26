@@ -467,10 +467,7 @@
     "Reason for Addiction Vulnerability":"Reason(s) for Risk Of Addiction",
     "Reason for Early Marriage Vulnerability": "Reason(s) for Risk Of Early Marriage",
     "Reason for Early Pregnancy & RTI Vulnerability": "Reason(s) for Risk Of Early Pregnancy",
-    "Reason for Poor Performance in School Vulnerability": "Reason(s) for Risk Of Poor Performance",
     "Reason for Malnutrition Vulnerability": "Reason(s) for Risk Of Malnutrition",
-    "Reason for HIV Vulnerability": "Reason(s) for Risk Of HIV",
-    "Reason for STD Vulnerability": "Reason(s) for Risk Of STD",
     "Reason for Road Traffic Accident Vulnerability": "Reason(s) for Risk Of Road Traffic Accident"
 
   },
@@ -682,6 +679,15 @@
     "Other activity (please specify)": "અન્ય પ્રવૃત્તિ (કૃપા કરીને સ્પષ્ટ કરો)",
     "Other reason (please specify)": "અન્ય કારણ (કૃપા કરી સ્પષ્ટ કરો)",
     "Other conditions (please specify)": "અન્ય શરતો (કૃપા કરીને સ્પષ્ટ કરો)",
-    "Other sickness (please specify)": "અન્ય બીમારી (કૃપા કરીને સ્પષ્ટ કરો)"
+    "Other sickness (please specify)": "અન્ય બીમારી (કૃપા કરીને સ્પષ્ટ કરો)",
+    "Adolescent Vulnerabilities": "જોખમ",
+    "Reason for School Dropout Vulnerability": "સ્કૂલના ડ્રોપઆઉટના જોખમ માટે કારણ (ઓ)",
+    "Reason for Addiction Vulnerability":"વ્યસનના જોખમ માટે કારણ (ઓ)",
+    "Reason for Early Marriage Vulnerability": "પ્રારંભિક લગ્નના જોખમ માટે કારણ (ઓ)",
+    "Reason for Early Pregnancy & RTI Vulnerability": "પ્રારંભિક ગર્ભાવસ્થાના જોખમ માટે કારણ (ઓ)",
+    "Reason for Malnutrition Vulnerability": "કુપોષણના જોખમ માટે કારણ (ઓ)",
+    "Reason for Road Traffic Accident Vulnerability": "રોડ ટ્રાફિક અકસ્માતના જોખમ માટે કારણ (ઓ)",
+    "Age at Marriage": "લગ્નની ઉંમર"
+
   }
 }

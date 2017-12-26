@@ -32,6 +32,10 @@ export default class RuleCondition {
         return enrolment.findObservation(concept);
     }
 
+    _obsFromExit(enrolment, concept) {
+        return enrolment.findExitObservation(concept);
+    }
+
     _getEnrolment(context) {
         return context.programEnrolment || context.programEncounter.programEnrolment;
     }
@@ -137,6 +141,15 @@ export default class RuleCondition {
     valueInEnrolment(conceptName) {
         return this._addToChain((next, context) => {
             const obs = this._obsFromEnrolment(this._getEnrolment(context), conceptName);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.getValue();
+            return next(context);
+        });
+    }
+
+    valueInExit(conceptName) {
+        return this._addToChain((next, context) => {
+            const obs = this._obsFromExit(this._getEnrolment(context), conceptName);
             context.obsToBeChecked = obs;
             context.valueToBeChecked = obs && obs.getValue();
             return next(context);
