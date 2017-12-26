@@ -13,6 +13,11 @@ export default class RoutineEncounterHandler {
         }
     }
 
+    nameOfSchool(programEncounter, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        return statusBuilder.build();
+    }
+
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
         const numberOfNonCurrentEncounters = programEncounter.programEnrolment.encounters
