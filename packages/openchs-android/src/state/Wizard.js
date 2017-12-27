@@ -1,13 +1,12 @@
 class Wizard {
-    constructor(numberOfPages, formStartsAt) {
+    constructor(numberOfPages, formStartsAt, currentPage) {
         this.numberOfPages = numberOfPages;
         this.formStartsAt = formStartsAt;
-        this.currentPage = 1;
+        this.currentPage = currentPage ? currentPage : 1;
     }
 
     clone() {
-        const wizard = new Wizard(this.numberOfPages, this.formStartsAt);
-        wizard.currentPage = this.currentPage;
+        const wizard = new Wizard(this.numberOfPages, this.formStartsAt, this.currentPage);
         return wizard;
     }
 

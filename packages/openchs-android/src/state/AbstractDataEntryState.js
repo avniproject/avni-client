@@ -83,7 +83,8 @@ class AbstractDataEntryState {
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
-            this.moveToLastPageWithFormElements();
+            //TODO let's discuss this once you are back from leave.
+            this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults);
@@ -98,6 +99,7 @@ class AbstractDataEntryState {
             this.moveNext();
             ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
             if (this.hasNoFormElements()) {
+                General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);
             }
             if (_.isFunction(action.movedNext)) action.movedNext(this);
@@ -105,9 +107,9 @@ class AbstractDataEntryState {
         return this;
     }
 
-    moveToLastPageWithFormElements() {
+    moveToLastPageWithFormElements(action, context) {
         while (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
-            this.movePrevious();
+            this.handlePrevious(action, context);
         }
     }
 
