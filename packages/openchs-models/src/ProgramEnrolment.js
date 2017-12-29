@@ -115,14 +115,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.individual = this.individual;
         programEnrolment.observations = ObservationsHolder.clone(this.observations);
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
-        programEnrolment.encounters = [];
-        this.encounters.forEach((enc) => {
-            const programEncounter = new ProgramEncounter();
-            programEncounter.uuid = enc.uuid;
-            programEncounter.name = enc.name;
-            programEncounter.encounterType = enc.encounterType.clone();
-            programEnrolment.encounters.push(programEncounter);
-        });
+        programEnrolment.encounters = this.encounters;
         programEnrolment.checklists = [];
         this.checklists.forEach((x) => {
             const checklist = new Checklist();
@@ -153,8 +146,9 @@ class ProgramEnrolment extends BaseEntity {
         return validationResults;
     }
 
-    get lastFulfilledEncounter() {
+    lastFulfilledEncounter(...encounterTypeNames) {
         return _.chain(this.encounters)
+            .filter((encounter) => _.isEmpty(encounterTypeNames)? encounter: _.some(encounterTypeNames, (name) => name === _.get(encounter, 'encounterType.name')))
             .filter((encounter) => encounter.encounterDateTime)
             .maxBy((encounter) => encounter.encounterDateTime).value();
     }

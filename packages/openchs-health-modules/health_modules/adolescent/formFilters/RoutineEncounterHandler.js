@@ -121,7 +121,7 @@ export default class RoutineEncounterHandler {
 
     albendazoleTabletsReceived(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
-        statusBuilder.show().whenItem(moment().month()).equals(8).or.equals(2);
+        statusBuilder.show().whenItem(moment(programEncounter.encounterDateTime).month()).equals(8).or.equals(2);
         return statusBuilder.build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.MONTHLY));
     }

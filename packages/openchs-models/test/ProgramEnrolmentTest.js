@@ -26,21 +26,21 @@ describe('ProgramEnrolmentTest', () => {
     describe("lastFulfilledEncounter", () => {
 
         it("returns null if no encounters are present in enrolment", () => {
-            assert.isUndefined(ProgramEnrolment.createEmptyInstance().lastFulfilledEncounter);
+            assert.isUndefined(ProgramEnrolment.createEmptyInstance().lastFulfilledEncounter());
         });
 
         it("returns null if none of the encounters have an encounterDatetime", () => {
             const enrolment = ProgramEnrolment.createEmptyInstance();
             enrolment.addEncounter(createEncounter(null));
 
-            assert.isUndefined(enrolment.lastFulfilledEncounter);
+            assert.isUndefined(enrolment.lastFulfilledEncounter());
 
             enrolment.addEncounter(createEncounter(null));
 
-            assert.isUndefined(enrolment.lastFulfilledEncounter);
+            assert.isUndefined(enrolment.lastFulfilledEncounter());
 
             enrolment.addEncounter(createEncounter(new Date()));
-            assert.isDefined(enrolment.lastFulfilledEncounter);
+            assert.isDefined(enrolment.lastFulfilledEncounter());
         });
 
         it("returns the encounter with the greatest encounterDateTime", () => {
@@ -48,22 +48,28 @@ describe('ProgramEnrolmentTest', () => {
             const todaysEncounter = createEncounter(new Date());
             enrolment.addEncounter(todaysEncounter);
 
-            assert.equal(enrolment.lastFulfilledEncounter, todaysEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter(), todaysEncounter);
 
             const yesterdaysEncounter = createEncounter(moment().subtract(1, 'days').toDate());
             enrolment.addEncounter(yesterdaysEncounter);
 
-            assert.equal(enrolment.lastFulfilledEncounter, todaysEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter(), todaysEncounter);
 
             const tomorrowsEncounter = createEncounter(moment().add(1, 'days').toDate());
             enrolment.addEncounter(tomorrowsEncounter);
 
-            assert.equal(enrolment.lastFulfilledEncounter, tomorrowsEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter(), tomorrowsEncounter);
 
             const encounterNotYetFilled = createEncounter(undefined);
             enrolment.addEncounter(encounterNotYetFilled);
 
-            assert.equal(enrolment.lastFulfilledEncounter, tomorrowsEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter(), tomorrowsEncounter);
+            yesterdaysEncounter.encounterType = {name: 'special'};
+            tomorrowsEncounter.encounterType = {name: 'notspecial'};
+            todaysEncounter.encounterType = {name: 'notspecial'};
+            assert.equal(enrolment.lastFulfilledEncounter('special'), yesterdaysEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter('notspecial'), tomorrowsEncounter);
+            assert.equal(enrolment.lastFulfilledEncounter('unavailable'), null);
         });
 
     });
