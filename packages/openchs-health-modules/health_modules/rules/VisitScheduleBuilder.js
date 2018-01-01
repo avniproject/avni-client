@@ -6,15 +6,10 @@ export default class VisitScheduleBuilder {
         this.scheduledVisits = [];
     }
 
-    add({name, encounterType, earliestDate, maxDate}) {
+    add(schedule) {
         const ruleCondition = new RuleCondition(this.context);
         this.scheduledVisits.push({
-            data: {
-                name: name,
-                encounterType: encounterType,
-                earliestDate: earliestDate,
-                maxDate: maxDate
-            },
+            data: schedule,
             condition: ruleCondition
         });
         return ruleCondition;

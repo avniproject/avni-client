@@ -2,11 +2,57 @@ import C from '../common';
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 import moment from 'moment';
 
-const encounterSchedule = {
-    "Monthly Visit": {earliest: 30, max: 40},
-    "Quarterly Visit": {earliest: 90, max: 100},
-    "Half Yearly Visit": {earliest: 180, max: 190},
-    "Annual Visit": {earliest: 360, max: 370}
+const routineEncounterTypeNames = ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Monthly Visit"];
+
+const isRoutineEncounter = (programEncounter) => {
+    return _.some(routineEncounterTypeNames, (encounterType) => encounterType === _.get(programEncounter, 'encounterType.name'));
+};
+
+const nextScheduledRoutineEncounter = (enrolment, currentEncounter) => {
+    const nextScheduledRoutineEncounter = _.chain(enrolment.scheduledEncounters())
+        .filter((enc) => enc.uuid !== currentEncounter.uuid)
+        .filter((enc) => isRoutineEncounter(enc))
+        .head()
+        .value();
+
+    return nextScheduledRoutineEncounter && nextScheduledRoutineEncounter.cloneForEdit() || {};
+};
+
+const findNextRoutineEncounterType = (forDate, enrolment) => {
+    const lastAnnualEncounter = enrolment.lastFulfilledEncounter("Annual Visit");
+    const monthsSinceLastAnnualEncounter = lastAnnualEncounter ? moment(forDate).diff(lastAnnualEncounter.encounterDateTime, 'months') : 0;
+
+    switch (monthsSinceLastAnnualEncounter) {
+        case 12:
+            return 'Annual Visit';
+        case 9:
+            return "Quarterly Visit";
+        case 6:
+            return "Half-Yearly Visit";
+        case 3:
+            return "Quarterly Visit";
+        default:
+            return "Monthly Visit";
+    }
+};
+
+const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
+    if (!isRoutineEncounter(programEncounter)) return;
+
+    const enrolment = programEncounter.programEnrolment;
+    const lastFulfilledRoutineEncounter = enrolment.lastFulfilledEncounter(routineEncounterTypeNames) || programEncounter;
+    const earliestDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(1, 'months').startOf('day');
+    const maxDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(1, 'months').add(10, 'days').startOf('day');
+    const nextEncounterType = findNextRoutineEncounterType(maxDate, enrolment);
+
+
+    const encounter = nextScheduledRoutineEncounter(enrolment, lastFulfilledRoutineEncounter);
+    encounter.name = nextEncounterType;
+    encounter.encounterType = nextEncounterType;
+    encounter.earliestDate = earliestDate.toDate();
+    encounter.maxDate = maxDate.toDate();
+
+    scheduleBuilder.add(encounter);
 };
 
 const getNextScheduledVisits = function (programEncounter) {
@@ -14,6 +60,9 @@ const getNextScheduledVisits = function (programEncounter) {
         programEnrolment: programEncounter.programEnrolment,
         programEncounter: programEncounter
     });
+
+    addRoutineEncounter(programEncounter, scheduleBuilder);
+
     scheduleBuilder.add({
             name: "Dropout Home Visit",
             encounterType: "Dropout Home Visit",
