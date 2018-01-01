@@ -298,7 +298,7 @@
             "name": "Iron tablets consumed in last month",
             "dataType": "Numeric",
             "lowAbsolute": 0,
-            "highAbsolute": 9
+            "highAbsolute": 99
           },
           "mandatory": true,
           "displayOrder": 10
