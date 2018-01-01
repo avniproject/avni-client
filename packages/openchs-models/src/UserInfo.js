@@ -29,6 +29,12 @@ class UserInfo {
         return userInfo;
     }
 
+    static createEmptyInstance() {
+        let userInfo = new UserInfo();
+        userInfo.catchmentType = "Villages";
+        return userInfo;
+    }
+
 }
 
 export default UserInfo;

@@ -13,7 +13,7 @@ class UserInfoService extends BaseService {
 
     getUserInfo() {
         const userInfo = this.db.objects(UserInfo.schema.name);
-        if (userInfo === undefined || userInfo.length === 0) return {catchmentType: "Villages"};
+        if (userInfo === undefined || userInfo.length === 0) return UserInfo.createEmptyInstance();
         return userInfo[0];
     }
 
