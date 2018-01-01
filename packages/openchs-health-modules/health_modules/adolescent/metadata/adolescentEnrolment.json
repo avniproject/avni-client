@@ -383,6 +383,7 @@
             "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
             "dataType": "Numeric",
             "lowAbsolute": 0,
+            "highNormal": 6,
             "highAbsolute": 99
           },
           "displayOrder": 7,
