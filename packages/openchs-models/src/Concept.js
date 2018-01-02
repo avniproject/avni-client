@@ -105,13 +105,12 @@ export default class Concept {
         return concept;
     }
 
+    _valuePresent(value) {
+        return !_.isNil(value) && !isNaN(value);
+    }
+
     violatesRange(value) {
-        if (_.isNil(value)) return false;
-        if (isNaN(value)) return false;
-
-        if (_.isNil(this.lowAbsolute) || _.isNil(this.lowAbsolute)) return false;
-
-        return (value < this.lowAbsolute || value > this.hiAbsolute);
+        return this.isAboveHiAbsolute(value) || this.isBelowLowAbsolute(value);
     }
 
     isAbnormal(value) {
@@ -138,6 +137,14 @@ export default class Concept {
 
     isAboveHiNormal(value) {
         return this._areValidNumbers(value, this.hiNormal) && value > this.hiNormal;
+    }
+
+    isBelowLowAbsolute(value) {
+        return this._areValidNumbers(value, this.lowAbsolute) && value < this.lowAbsolute;
+    }
+
+    isAboveHiAbsolute(value) {
+        return this._areValidNumbers(value, this.hiAbsolute) && value > this.hiAbsolute;
     }
 
     addAnswer(concept) {

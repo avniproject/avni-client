@@ -92,9 +92,15 @@ class FormElement {
         else if (this.concept.datatype === Concept.dataType.Numeric && isNaN(value)) {
             failure.messageKey = 'numericValueValidation';
         }
-        else if (this.concept.datatype === Concept.dataType.Numeric && this.concept.violatesRange(value)) {
-            failure.messageKey = 'numberOutOfRangeMessage';
-        } else if (!_.isEmpty(this.validFormat) && !_.isEmpty(_.toString(value)) && !this.validFormat.valid(value)) {
+        else if (this.concept.isBelowLowAbsolute(value)) {
+            failure.messageKey = 'numberBelowLowAbsolute';
+            failure.extra = {limit: this.concept.lowAbsolute}
+        }
+        else if (this.concept.isAboveHiAbsolute(value)) {
+            failure.messageKey = 'numberAboveHiAbsolute';
+            failure.extra = {limit: this.concept.hiAbsolute}
+        }
+        else if (!_.isEmpty(this.validFormat) && !_.isEmpty(_.toString(value)) && !this.validFormat.valid(value)) {
             failure.messageKey = this.validFormat.descriptionKey;
         }
         else {
