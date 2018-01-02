@@ -44,10 +44,10 @@ deploy:
 
 # <db>
 get_db:
-	adb pull /data/data/com.openchsclient/files/default.realm ../
+	mkdir -p ../db; adb pull /data/data/com.openchsclient/files/default.realm ../db
 
 open_db: get_db
-	open ../default.realm
+	open ../db/default.realm
 # </db>
 
 

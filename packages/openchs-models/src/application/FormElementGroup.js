@@ -28,11 +28,13 @@ class FormElementGroup {
     static merge = () => BaseEntity.mergeOn('formElements');
 
     static associateChild(child, childEntityClass, childResource, entityService) {
-        var formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formElementGroupUUID"), FormElementGroup.schema.name);
+        let formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formElementGroupUUID"), FormElementGroup.schema.name);
         formElementGroup = General.pick(formElementGroup, ["uuid"], ["formElements"]);
-
-        if (childEntityClass === FormElement)
-            BaseEntity.addNewChild(child, formElementGroup.formElements);
+        let newFormElements = [];
+        if (childEntityClass === FormElement) {
+            BaseEntity.addNewChild(child, newFormElements);
+            formElementGroup.formElements = newFormElements;
+        }
         else
             throw `${childEntityClass.name} not support by ${FormElementGroup.name}`;
         return formElementGroup;

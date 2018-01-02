@@ -75,11 +75,13 @@ export default class Concept {
     }
 
     static associateChild(child, childEntityClass, childResource, entityService) {
-        var concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "conceptUUID"), Concept.schema.name);
+        let concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "conceptUUID"), Concept.schema.name);
         concept = General.pick(concept, ["uuid"], ["answers"]);
-
-        if (childEntityClass === ConceptAnswer)
-            BaseEntity.addNewChild(child, concept.answers);
+        let newAnswers = [];
+        if (childEntityClass === ConceptAnswer){
+            BaseEntity.addNewChild(child, newAnswers);
+            concept.answers = newAnswers;
+        }
         else
             throw `${childEntityClass.name} not support by ${Concept.name}`;
         return concept;
@@ -115,7 +117,7 @@ export default class Concept {
 
     isAbnormal(value) {
         let valueWrapper = this.getValueWrapperFor(value);
-        switch(this.datatype){
+        switch (this.datatype) {
             case Concept.dataType.Numeric:
                 return this.isBelowLowNormal(valueWrapper.answer) || this.isAboveHiNormal(valueWrapper.answer);
             case Concept.dataType.Coded:
@@ -127,7 +129,9 @@ export default class Concept {
 
     abnormalAnswers() {
         let abnormalAnswers = _.filter(this.answers,
-            (conceptAnswer) => conceptAnswer.abnormal).map((conceptAnswer) => {return conceptAnswer.concept.uuid})
+            (conceptAnswer) => conceptAnswer.abnormal).map((conceptAnswer) => {
+            return conceptAnswer.concept.uuid
+        })
         return abnormalAnswers;
     }
 
