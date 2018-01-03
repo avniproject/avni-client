@@ -23,7 +23,9 @@ class ProgramEncounter extends AbstractEncounter {
             maxVisitDateTime: {type: 'date', optional: true},
             encounterDateTime: {type: 'date', optional: true},
             programEnrolment: 'ProgramEnrolment',
-            observations: {type: 'list', objectType: 'Observation'}
+            observations: {type: 'list', objectType: 'Observation'},
+            cancelDateTime: {type: 'date', optional: true},
+            cancelObservations: {type: 'list', objectType: 'Observation'}
         }
     };
 
