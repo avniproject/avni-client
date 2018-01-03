@@ -1,0 +1,48 @@
+{
+  "name": "Adolescent Program Encounter Cancellation Form",
+  "uuid": "c294aadf-94a6-4908-8d04-9cc4ce2b901c",
+  "formType": "ProgramEncounterCancellation",
+  "programName": "Adolescent",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "encounterTypes": [
+    "Annual Visit",
+    "Quarterly Visit",
+    "Half-Yearly Visit",
+    "Monthly Visit",
+    "Dropout Home Visit",
+    "Dropout Followup Visit"
+  ],
+  "formElementGroups": [
+    {
+      "uuid": "67c567c1-fbef-4343-a779-d9261d947489",
+      "name": "Cancel Details",
+      "displayOrder": 1,
+      "display": "Cancel Details",
+      "formElements": [
+        {
+          "name": "Reason for cancellation of visit",
+          "uuid": "19d4afc1-1a3c-4fba-8500-a8a5cf56b09f",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "afc5f9db-6c89-40b4-8122-02fb43c9348c",
+            "name": "Reason for cancellation of visit",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Followup visits for other vulnerability have been triggered",
+                "uuid": "9f0b0d40-caba-4f2e-bdf8-e1ca5c32c5d9"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+              }
+            ]
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        }
+      ]
+    }
+  ]
+}
