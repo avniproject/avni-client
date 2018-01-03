@@ -48,8 +48,15 @@ export default class EnrolmentFormHandler {
     }
 
     stayingWithWhom(programEnrolment, formElement) {
-        return this._hasBeenComingToSchool(programEnrolment, formElement)
-            .or(this._registeredAtVillage(programEnrolment, formElement));
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+
+        statusBuilder.skipAnswers("Parents").when
+            .valueInEnrolment("Parents' life status").containsAnswerConceptName("Both Expired");
+        statusBuilder.show()
+            .when.valueInEnrolment("School going").containsAnswerConceptName("Yes")
+            .or.when.addressType.equals("Village");
+
+        return statusBuilder.build();
     }
 
     numberOfFamilyMembers(programEnrolment, formElement) {
