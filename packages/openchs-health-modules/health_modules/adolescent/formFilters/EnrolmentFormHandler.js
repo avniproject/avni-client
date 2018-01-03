@@ -101,11 +101,11 @@ export default class EnrolmentFormHandler {
 
 
     _fatherIsAlive(programEnrolment, formElement) {
-        return this._parentStatusContains(["Both Alive", "Only Father Alive"], programEnrolment, formElement);
+        return this._parentStatusContains(["Both Alive", "Only Father Alive", "Separated"], programEnrolment, formElement);
     }
 
     _motherIsAlive(programEnrolment, formElement) {
-        return this._parentStatusContains(["Both Alive", "Only Mother Alive"], programEnrolment, formElement);
+        return this._parentStatusContains(["Both Alive", "Only Mother Alive", "Separated"], programEnrolment, formElement);
     }
 
     _parentStatusContains(statuses, programEnrolment, formElement) {
