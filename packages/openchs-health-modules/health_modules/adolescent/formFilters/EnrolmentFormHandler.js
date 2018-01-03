@@ -1,5 +1,4 @@
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
-import FormFilterHelper from "../../rules/FormFilterHelper";
 
 export default class EnrolmentFormHandler {
     reasonForDroppingOut(programEnrolment, formElement) {
