@@ -220,6 +220,27 @@ class ProgramEnrolment extends BaseEntity {
         return this._findObservationFromEntireEnrolment(conceptName, encounters, false);
     }
 
+    findLatestPreviousEncounterWithValueForConcept(currentEncounter, conceptName, valueConceptName) {
+        const encounters = _.chain(this.getEncounters())
+            .reverse()
+            .filter((enc) => enc.encounterDateTime)
+            .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
+            .value();
+
+        for (let i = 0; i < encounters.length; i++) {
+            let observation = encounters[i].findObservation(conceptName);
+            if (!_.isNil(observation) && this._containsAnswerConceptName(valueConceptName, observation)) return encounters[i];
+        }
+        return null;
+    }
+
+    _containsAnswerConceptName(conceptName, observation) {
+        const answerConcept = observation.concept.getPossibleAnswerConcept(conceptName);
+        const answerUuid = answerConcept && answerConcept.concept.uuid;
+        return observation.getValueWrapper().hasValue(answerUuid);
+    }
+
+
 
     _findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment = true) {
         var observation;

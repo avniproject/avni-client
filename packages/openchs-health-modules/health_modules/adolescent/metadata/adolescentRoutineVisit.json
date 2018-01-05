@@ -1413,6 +1413,37 @@
           "mandatory": true
         }
       ]
+    },
+    {
+      "uuid": "7a96f485-4311-4290-b17f-8ac2b982c74e",
+      "name": "Counselling",
+      "displayOrder": 8,
+      "display": "Counselling for Severe Anemia",
+      "formElements": [
+        {
+          "name": "Counselling for Severe Anemia Done",
+          "uuid": "38b126dc-da9a-4397-8cab-72d3b4eb987d",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "6c0ed446-b555-4bb7-90f8-6da6f9827ab9",
+            "name": "Counselling for Severe Anemia Done",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              }
+            ]
+          },
+          "mandatory": true,
+          "displayOrder": 1
+        }
+      ]
     }
   ]
 }

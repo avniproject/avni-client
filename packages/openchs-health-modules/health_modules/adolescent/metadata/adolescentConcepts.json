@@ -335,6 +335,18 @@
     ]
   },
   {
+    "name": "Adolescent Counselling Advice",
+    "uuid": "197ec849-f4f4-4336-9d0a-58ffea7ad12d",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "a97269d5-f9ef-49cf-aeff-9996c09eb16a",
+        "name": "Severe Anemia Counselling"
+      }
+    ]
+  },
+
+  {
     "name": "Labour",
     "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088",
     "dataType": "N/A"

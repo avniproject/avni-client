@@ -2,6 +2,7 @@ import FormFilterHelper from "../rules/FormFilterHelper";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandler";
 import {encounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
+import {encounterDecisions as counsellingEncounterDecisions} from './counsellingDecisions';
 import {getNextScheduledVisits} from './adolescentVisitSchedule';
 
 const encounterTypeHandlerMap = new Map([
@@ -13,7 +14,7 @@ const encounterTypeHandlerMap = new Map([
 ]);
 
 const getDecisions = (programEncounter) => {
-    return vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter);
+    return counsellingEncounterDecisions(vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter));
 };
 
 const filterFormElements = (programEncounter, formElementGroup) => {

@@ -385,6 +385,20 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    counsellingForSevereAnemiaDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForSevereAnemiaCounselling(programEncounter));
+    }
+
+    _applicableForSevereAnemiaCounselling(programEncounter) {
+        let previousEncounterWithSevereAnemiaVulnerability = programEncounter.programEnrolment
+            .findLatestPreviousEncounterWithValueForConcept(programEncounter, "Reason for School Dropout Vulnerability", "Severe Anemia");
+        if (_.isEmpty(previousEncounterWithSevereAnemiaVulnerability)) return false;
+        let previousEncounterWithCounsellingDone = programEncounter.programEnrolment
+            .findLatestPreviousEncounterWithValueForConcept(programEncounter, "Counselling for Severe Anemia Done", "Yes");
+        return (_.isEmpty(previousEncounterWithCounsellingDone) || previousEncounterWithSevereAnemiaVulnerability.encounterDateTime
+            > previousEncounterWithCounsellingDone.encounterDateTime);
+    }
+
     _schoolAttendanceStatus(programEncounter, formElement, requiredAnswer, encounterTypes) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
         statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName(requiredAnswer);
