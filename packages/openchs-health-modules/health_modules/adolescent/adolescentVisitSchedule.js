@@ -1,6 +1,7 @@
 import C from '../common';
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 import moment from 'moment';
+import _ from 'lodash';
 
 const routineEncounterTypeNames = ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Monthly Visit"];
 
@@ -55,14 +56,7 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
     scheduleBuilder.add(encounter);
 };
 
-const getNextScheduledVisits = function (programEncounter) {
-    const scheduleBuilder = new VisitScheduleBuilder({
-        programEnrolment: programEncounter.programEnrolment,
-        programEncounter: programEncounter
-    });
-
-    addRoutineEncounter(programEncounter, scheduleBuilder);
-
+const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
     scheduleBuilder.add({
             name: "Dropout Home Visit",
             encounterType: "Dropout Home Visit",
@@ -70,7 +64,9 @@ const getNextScheduledVisits = function (programEncounter) {
             maxDate: C.addDays(C.copyDate(new Date()), 15)
         }
     ).when.valueInEncounter("School going").containsAnswerConceptName("Dropped Out");
+};
 
+const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
     scheduleBuilder.add({
             name: "School Dropout Followup",
             encounterType: "Dropout Followup Visit",
@@ -103,7 +99,22 @@ const getNextScheduledVisits = function (programEncounter) {
     ).when.valueInEncounter("Have you started going to school once again")
         .containsAnswerConceptName("Yes, but could not attend");
 
-    return scheduleBuilder.getAll();
+};
+
+const getNextScheduledVisits = function (programEncounter) {
+    const scheduleBuilder = new VisitScheduleBuilder({
+        programEnrolment: programEncounter.programEnrolment,
+        programEncounter: programEncounter
+    });
+
+    addRoutineEncounter(programEncounter, scheduleBuilder);
+    addDropoutHomeVisits(programEncounter, scheduleBuilder);
+    addDropoutFollowUpVisits(programEncounter, scheduleBuilder);
+    const scheduledEncounterTypes = programEncounter.programEnrolment.encounters
+        .filter((e) => _.isNil(e.encounterDateTime) && e.uuid !== programEncounter.uuid)
+        .map((e) => e.encounterType.name);
+    scheduleBuilder.removeVisitsWith("encounterType", scheduledEncounterTypes);
+    return scheduleBuilder.getAllUnique("encounterType");
 };
 
 export {getNextScheduledVisits};
