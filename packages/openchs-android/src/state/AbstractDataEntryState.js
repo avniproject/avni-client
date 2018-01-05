@@ -80,6 +80,9 @@ class AbstractDataEntryState {
         const validationResults = this.validateEntity();
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements));
         this.handleValidationResults(allValidationResults);
+        console.log("is this last page", this.wizard.isLastPage())
+            console.log("validation errors",  !ValidationResult.hasNonRuleValidationError(this.validationResults))
+        console.log(this.validationResults)
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {

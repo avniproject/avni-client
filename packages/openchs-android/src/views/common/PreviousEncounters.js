@@ -8,7 +8,6 @@ import Observations from "../common/Observations";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ContextAction from "../viewmodel/ContextAction";
 import ObservationsSectionTitle from "../common/ObservationsSectionTitle";
-import {Encounter} from "openchs-models";
 import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
 import FormMappingService from "../../service/FormMappingService";
@@ -30,6 +29,18 @@ class PreviousEncounters extends AbstractComponent {
             CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter);
         else
             CHSNavigator.navigateToProgramEncounterView(this, encounter);
+    }
+
+    cancelEncounter(encounter) {
+        CHSNavigator.navigateToProgramEncounterCancelView(this, encounter);
+    }
+
+    cancelVisitAction(encounter) {
+        if (encounter.isCancellable()) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter));
+    }
+
+    encounterActions(encounter) {
+        return [new ContextAction('edit', () => this.editEncounter(encounter))];
     }
 
     getTitle(encounter) {
@@ -60,7 +71,8 @@ class PreviousEncounters extends AbstractComponent {
                         return (
                             <View key={`${index}-1`} style={this.props.style}>
                                 <ObservationsSectionTitle
-                                    contextActions={[new ContextAction('edit', () => this.editEncounter(encounter))]}
+                                    contextActions={this.encounterActions(encounter)}
+                                    primaryAction={this.cancelVisitAction(encounter)}
                                     title={title}/>
                                 <Observations form={form} observations={encounter.observations} key={`${index}-2`}/>
                             </View>

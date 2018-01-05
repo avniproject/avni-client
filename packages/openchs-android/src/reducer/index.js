@@ -32,6 +32,7 @@ import _ from 'lodash';
 import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
 import {StartProgramActions, StartProgramActionsMap} from "../action/program/StartProgramActions";
 import {LoginActions, LoginActionsMap} from "../action/LoginActions";
+import {ProgramEncounterCancelActions, ProgramEncounterCancelActionsMap} from "../action/program/ProgramEncounterCancelActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -43,6 +44,7 @@ export default class Reducers {
         programEnrolments: 'programEnrolments',
         programEnrolmentDashboard: 'programEnrolmentDashboard',
         programEncounter: 'programEncounter',
+        programEncounterCancel: 'programEncounterCancel',
         individualRegistrationDetails: 'individualRegistrationDetails',
         individualSearch: 'individualSearch',
         addressLevels: 'addressLevels',
@@ -71,6 +73,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.startProgramActions] = Reducers._add(StartProgramActionsMap, StartProgramActions, beanStore);
         reducerMap[Reducers.reducerKeys.loginActions] = Reducers._add(LoginActionsMap, LoginActions, beanStore);
         reducerMap[Reducers.reducerKeys.myDashboard] = Reducers._add(MyDashboardActionsMap, MyDashboardActions, beanStore, MyDashboardPrefix);
+        reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
 
         return reducerMap;
     };

@@ -16,7 +16,7 @@ class ContextActionButton extends AbstractComponent {
 
     render() {
         return (
-            <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor}} onPress={() => this.props.onPress()}>{`${this.I18n.t(this.props.labelKey)}`}</Button>
+            <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor, paddingHorizontal: 5}} onPress={() => this.props.onPress()}>{`${this.I18n.t(this.props.labelKey)}`}</Button>
         );
     }
 }

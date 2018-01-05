@@ -98,13 +98,15 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program);
     }
 
-    getContextActions(isExit){
+    getEnrolmentContextActions(isExit){
         const contextActions = [new ContextAction('edit', () => isExit? this.editExit() : this.editEnrolment())];
-        if (this.state.enrolment.isActive) {
-            contextActions.push(new ContextAction('exitProgram', () => this.exitProgram()));
-        }
         return contextActions;
+    }
 
+    getPrimaryEnrolmentContextAction() {
+        if (this.state.enrolment.isActive) {
+            return new ContextAction('exitProgram', () => this.exitProgram());
+        }
     }
 
     render() {
@@ -168,14 +170,15 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 <View style={{marginHorizontal: 8}}>
                                     {enrolmentStatus ? <View/> :
                                         <View>
-                                            <ObservationsSectionTitle contextActions={this.getContextActions(true)}
+                                            <ObservationsSectionTitle contextActions={this.getEnrolmentContextActions(true)}
                                                                       title={this.getExitHeaderMessage(this.state.enrolment)}/>
                                             <Observations form={this.getForm()}
                                                           observations={this.state.enrolment.programExitObservations}
                                                           style={{marginVertical: DGS.resizeHeight(8)}}/>
                                         </View>}
                                     <View>
-                                        <ObservationsSectionTitle contextActions={this.getContextActions()}
+                                        <ObservationsSectionTitle contextActions={this.getEnrolmentContextActions()}
+                                                                  primaryAction={this.getPrimaryEnrolmentContextAction()}
                                                                   title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
                                         <Observations form={this.getForm()}
                                                       observations={this.state.enrolment.observations}

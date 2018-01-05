@@ -42,6 +42,7 @@ class ProgramEncounterService extends BaseService {
     saveOrUpdate(programEncounter, nextScheduledVisits) {
         General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${programEncounter.uuid}`);
         ObservationsHolder.convertObsForSave(programEncounter.observations);
+        ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
 
         const db = this.db;
         this.db.write(() => {

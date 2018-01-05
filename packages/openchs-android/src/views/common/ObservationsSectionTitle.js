@@ -8,6 +8,7 @@ import Fonts from "../primitives/Fonts";
 class ObservationsSectionTitle extends AbstractComponent {
     static propTypes = {
         title: React.PropTypes.string.isRequired,
+        primaryAction: React.PropTypes.object,
         contextActions: React.PropTypes.array.isRequired,
         style: React.PropTypes.object
     };
@@ -22,11 +23,16 @@ class ObservationsSectionTitle extends AbstractComponent {
                                         onPress={() => contextAction.onPressFunc()}
                                         key={idx}/>
         });
+        let primaryAction = this.props.primaryAction;
+        let primaryActionButton = primaryAction && <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()}/>
         return (
             <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
                 <Text style={[Fonts.MediumBold, {marginRight: 10}]}>{this.props.title}</Text>
-                <View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row'}}>
+                <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'row'}}>
                     {contextActionButtons}
+                </View>
+                <View>
+                    {primaryActionButton}
                 </View>
             </View>
         );

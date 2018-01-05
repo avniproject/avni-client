@@ -54,6 +54,11 @@ class FormMappingService extends BaseService {
         const formMapping = this.findByKey('observationsTypeEntityUUID', encounterType.uuid);
         return formMapping.form;
     }
+
+    findFormForCancellingEncounterType(encounterType) {
+        const formMapping = this.findByCriteria(`observationsTypeEntityUUID="${encounterType.uuid}" AND form.formType="${Form.formTypes.ProgramEncounterCancellation}"`);
+        return _.isNil(formMapping) ? null : formMapping.form;
+    }
 }
 
 export default FormMappingService;

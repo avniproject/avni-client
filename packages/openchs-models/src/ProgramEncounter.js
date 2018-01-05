@@ -5,6 +5,7 @@ import AbstractEncounter from "./AbstractEncounter";
 import _ from 'lodash';
 import moment from "moment";
 import ValidationResult from "./application/ValidationResult";
+import ObservationsHolder from "./ObservationsHolder";
 
 class ProgramEncounter extends AbstractEncounter {
     static fieldKeys = {
@@ -55,6 +56,7 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = new ProgramEncounter();
         programEncounter.uuid = General.randomUUID();
         programEncounter.observations = [];
+        programEncounter.cancelObservations = [];
         programEncounter.encounterDateTime = new Date();
         return programEncounter;
     }
@@ -65,6 +67,9 @@ class ProgramEncounter extends AbstractEncounter {
         programEncounter.name = this.name;
         programEncounter.earliestVisitDateTime = this.earliestVisitDateTime;
         programEncounter.maxVisitDateTime = this.maxVisitDateTime;
+        programEncounter.cancelDateTime = this.cancelDateTime;
+        programEncounter.cancelObservations = ObservationsHolder.clone(this.cancelObservations);
+
         return programEncounter;
     }
 
@@ -76,11 +81,20 @@ class ProgramEncounter extends AbstractEncounter {
     }
 
     validate() {
+        console.log("encounterdatetime = ", this.encounterDateTime)
         const validationResults = super.validate();
         if (!_.isNil(this.encounterDateTime) &&
             (General.dateAIsBeforeB(this.encounterDateTime, this.programEnrolment.enrolmentDateTime) || General.dateAIsAfterB(this.encounterDateTime, this.programEnrolment.programExitDateTime)))
             validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateNotInBetweenEnrolmentAndExitDate'));
         return validationResults;
+    }
+
+    isCancelled() {
+        return this.cancelDateTime? true: false;
+    }
+
+    isCancellable() {
+        return !this.hasBeenEdited() && !this.isCancelled();
     }
 
     static createScheduledProgramEncounter(encounterType, programEnrolment) {

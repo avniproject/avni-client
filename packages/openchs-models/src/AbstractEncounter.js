@@ -55,6 +55,14 @@ class AbstractEncounter extends BaseEntity {
     addObservation(obs) {
         this.observations.push(obs);
     }
+
+    hasBeenEdited() {
+        return this.encounterDateTime? true: false;
+    }
+
+    isCancellable() {
+        return !this.hasBeenEdited();
+    }
 }
 
 export default AbstractEncounter;

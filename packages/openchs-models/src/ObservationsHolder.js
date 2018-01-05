@@ -3,7 +3,6 @@ import Observation from "./Observation";
 import PrimitiveValue from "./observation/PrimitiveValue";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import MultipleCodedValues from "./observation/MultipleCodedValues";
-import General from "./utility/General";
 
 class ObservationsHolder {
     constructor(observations) {

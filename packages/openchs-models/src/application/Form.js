@@ -93,7 +93,8 @@ class Form {
         Encounter: 'Encounter',
         ProgramEncounter: 'ProgramEncounter',
         ProgramEnrolment: 'ProgramEnrolment',
-        ProgramExit: 'ProgramExit'
+        ProgramExit: 'ProgramExit',
+        ProgramEncounterCancellation: 'ProgramEncounterCancellation'
     };
 }
 
