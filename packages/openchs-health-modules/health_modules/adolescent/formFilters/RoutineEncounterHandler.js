@@ -24,6 +24,19 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    nameOfSchool(programEncounter, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        const firstAnnualEncounter = programEncounter.programEnrolment.encounters
+            .find((encounter) => encounter.encounterType.name === "Annual Visit");
+        const isFirstAnnualVisit = _.isEmpty(firstAnnualEncounter) ||
+            firstAnnualEncounter.uuid === programEncounter.uuid;
+        statusBuilder.show().when.addressType.equals("Boarding School")
+            .or.when.addressType.equals("Village")
+            .and.when.valueInEncounter("School going").containsAnswerConceptName("Yes")
+            .or.whenItem(isFirstAnnualVisit).equals(true);
+        return statusBuilder.build();
+    }
+
     height(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));

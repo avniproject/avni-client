@@ -274,7 +274,6 @@
           "name": "Name of school",
           "uuid": "f0fc75aa-e602-4b4d-ab44-b4a87e577ac0",
           "keyValues": [],
-          "type": "SingleSelect",
           "mandatory": true,
           "displayOrder": 11,
           "concept": {

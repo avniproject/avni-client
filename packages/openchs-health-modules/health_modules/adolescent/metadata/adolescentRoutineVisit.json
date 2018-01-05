@@ -39,6 +39,18 @@
           },
           "displayOrder": 1,
           "mandatory": true
+        },
+        {
+          "name": "Name of school",
+          "uuid": "05c68bd5-2462-4d94-86a8-b3c17ae77522",
+          "keyValues": [],
+          "mandatory": true,
+          "displayOrder": 2,
+          "concept": {
+            "name": "Name of school",
+            "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
+            "dataType": "Text"
+          }
         }
       ]
     },
