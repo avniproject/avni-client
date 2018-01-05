@@ -2,25 +2,42 @@ import FormFilterHelper from "../../rules/FormFilterHelper";
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 
 export default class {
+    constructor() {
+        this._getStatusBuilder = this._getStatusBuilder.bind(this);
+    }
+
     reasonForDroppingAsPerTeacher(programEncounter, formElement) {
-        const statusBuilder = new FormElementStatusBuilder({
-            programEncounter: programEncounter,
-            formElement: formElement,
-        });
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement);
         statusBuilder.show().when.addressType.equals("School")
             .or.when.addressType.equals("Boarding");
         return statusBuilder.build();
     }
 
     otherReasonAccordingToStudentParent(programEncounter, formElement) {
-        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Reason for dropping as per student / parent', 'Other');
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
+            .when.valueInEncounter("Reason for dropping as per student / parent").containsAnswerConceptName("Other");
+        return statusBuilder.build();
     }
 
     otherReasonAccordingToTeacher(programEncounter, formElement) {
-        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Reason for dropping as per teacher', 'Other');
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
+            .when.valueInEncounter("Reason for dropping as per teacher").containsAnswerConceptName("Other");
+        return statusBuilder.build();
     }
 
     otherActivityPleaseSpecify(programEncounter, formElement) {
-        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'What he/she is doing now?', 'Other');
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
+            .when.valueInEncounter("What he/she is doing now?").containsAnswerConceptName("Other")
+        return statusBuilder.build();
+    }
+
+    _getStatusBuilder(programEncounter, formElement) {
+        return new FormElementStatusBuilder({
+            programEncounter: programEncounter,
+            formElement: formElement,
+        });
     }
 }

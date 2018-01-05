@@ -4,7 +4,12 @@
   "formType": "ProgramEncounter",
   "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
-  "encounterTypes": ["Annual Visit", "Quarterly Visit", "Half-Yearly Visit", "Monthly Visit"],
+  "encounterTypes": [
+    "Annual Visit",
+    "Quarterly Visit",
+    "Half-Yearly Visit",
+    "Monthly Visit"
+  ],
   "formElementGroups": [
     {
       "uuid": "62f9a0a5-8d88-4141-95ad-cabe62404478",
@@ -33,101 +38,6 @@
             ]
           },
           "displayOrder": 1,
-          "mandatory": true
-        },
-        {
-          "name": "Reason for dropping out",
-          "uuid": "5ef653fd-af10-4a34-b56f-c10cc6744399",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "conceptUUID": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
-          "displayOrder": 2,
-          "mandatory": true
-        },
-        {
-          "name": "Dropped out of which standard",
-          "uuid": "fa8f10a5-62f2-4e94-a5af-33aa7af826fa",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "concept": {
-            "name": "Dropped out of which standard",
-            "uuid": "32005c85-c1de-4fc3-9314-6d6a10f34b57",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "6",
-                "uuid": "e9ce8718-ef32-4870-b3cb-b5e733fc115a"
-              },
-              {
-                "name": "7",
-                "uuid": "aafae271-765c-4347-be3b-3fc1e00e63a1"
-              },
-              {
-                "name": "8",
-                "uuid": "d7443a73-80b7-4320-9c45-6558595be70a"
-              },
-              {
-                "name": "9",
-                "uuid": "29d29318-6b0c-4a2b-85e3-5392bd5a668f"
-              },
-              {
-                "name": "10",
-                "uuid": "7f0e1fbd-a1b9-4121-b630-dfec36a2dfd0"
-              },
-              {
-                "name": "11",
-                "uuid": "72165544-dcef-4322-a07d-242a6e7771e0"
-              },
-              {
-                "name": "12",
-                "uuid": "9b141130-a1c7-4e3b-bc95-5b9b157f7160"
-              }
-            ]
-          },
-          "displayOrder": 3,
-          "mandatory": true
-        },
-        {
-          "name": "What he/she is doing now?",
-          "uuid": "61d8ffa3-e2e5-46ed-ba05-883ca5685910",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "mandatory": true,
-          "conceptUUID": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
-          "displayOrder": 4
-        },
-        {
-          "name": "Other activity (please specify)",
-          "uuid": "43ef6c90-f6a3-4f70-ae54-55b4acb2d442",
-          "concept": {
-            "name": "Other activity",
-            "uuid": "3a3f2078-ea0c-4dc0-ae4f-0777b95e8248",
-            "dataType": "Text"
-          },
-          "mandatory": true,
-          "displayOrder": 5
-        },
-
-        {
-          "name": "Name of school",
-          "uuid": "052327f9-b314-43b9-adb3-90336b32a297",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "mandatory": true,
-          "displayOrder": 6,
-          "concept": {
-            "name": "Name of school",
-            "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
-            "dataType": "Text"
-          }
-        },
-        {
-          "name": "In which standard he/she is studying?",
-          "uuid": "04f0b663-f352-4466-9edb-d358c6545f29",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "conceptUUID": "fda18675-59dc-4a69-82f7-4e137c274073",
-          "displayOrder": 7,
           "mandatory": true
         }
       ]

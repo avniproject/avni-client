@@ -13,10 +13,6 @@ export default class RoutineEncounterHandler {
         }
     }
 
-    nameOfSchool(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        return statusBuilder.build();
-    }
 
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
@@ -25,42 +21,6 @@ export default class RoutineEncounterHandler {
         statusBuilder.show().whenItem(numberOfNonCurrentEncounters).greaterThanOrEqualTo(1);
 
         return statusBuilder.build();
-    }
-
-    reasonForDroppingOut(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Dropped Out");
-
-        return statusBuilder.build().and(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
-    }
-
-    droppedOutOfWhichStandard(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Dropped Out");
-
-        return statusBuilder.build();
-    }
-
-    whatHeSheIsDoingNow(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Dropped Out");
-
-        return statusBuilder.build().and(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
-    }
-
-    otherActivityPleaseSpecify(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().when.valueInEncounter("What he/she is doing now?").containsAnswerConceptName("Other");
-
-        return statusBuilder.build();
-    }
-
-    inWhichStandardHeSheIsStudying(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName("Yes");
-
-        return statusBuilder.build()
-            .and(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
     }
 
     height(programEncounter, formElement) {

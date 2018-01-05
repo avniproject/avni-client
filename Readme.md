@@ -10,19 +10,17 @@
 # Dev setup
  The following dependencies are required to run in local
  - android-sdk and android libs specified in setup/roles/android-build/files/install_android_libs.sh
- - node.js 
+ - node.js
  - react-native installed globally
  - An android device (either a phone or an emulator such as genymotion)
  - A running openchs-server (Optional. You can use the staging server - http://staging.openchs.org if you don't want to run this locally)
-
 
 # Running
  - Ensure that you have CRASHLYTICS_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key.
  - Ensure android device is on and is recognised by adb (adb devices)
  - To run the application `make run_app`
- - In the application set the server url of the config location by going to the settings view. 
+ - In the application set the server url of the config location by going to the settings view.
  You can either run openchs-server locally or point to an existing server such as http://staging.openchs.org
- 
 
 # Running Tests on Intellij
 - Open the openchs-client as one project

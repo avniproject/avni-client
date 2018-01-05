@@ -1,30 +1,6 @@
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 
 export default class EnrolmentFormHandler {
-    reasonForDroppingOut(programEnrolment, formElement) {
-        return this._villageRegistrationAndDroppedOut(programEnrolment, formElement);
-    }
-
-    droppedOutOfWhichStandard(programEnrolment, formElement) {
-        return this._isDroppedOut(programEnrolment, formElement);
-    }
-
-    whatHeSheIsDoingNow(programEnrolment, formElement) {
-        return this._villageRegistrationAndDroppedOut(programEnrolment, formElement);
-    }
-
-    otherActivityPleaseSpecify(programEnrolment, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
-        statusBuilder.show().when.valueInEnrolment("What he/she is doing now?")
-            .containsAnswerConceptName("Other");
-        return this._villageRegistrationAndDroppedOut(programEnrolment, formElement)
-            .and(statusBuilder.build());
-    }
-
-    howManyMonthsSinceLastSchoolAttendance(programEnrolment, formElement) {
-        return this._schoolRegistrationAndDroppedOut(programEnrolment, formElement);
-    }
-
     parents(programEnrolment, formElement) {
         return this._hasBeenComingToSchool(programEnrolment, formElement)
             .or(this._registeredAtVillage(programEnrolment, formElement));

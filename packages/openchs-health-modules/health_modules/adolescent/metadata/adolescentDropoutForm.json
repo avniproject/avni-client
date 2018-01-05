@@ -27,6 +27,49 @@
           "mandatory": true
         },
         {
+          "name": "Dropped out of which standard",
+          "uuid": "afebf488-96e8-48bc-a15d-75de5da97887",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Dropped out of which standard",
+            "uuid": "32005c85-c1de-4fc3-9314-6d6a10f34b57",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "6",
+                "uuid": "e9ce8718-ef32-4870-b3cb-b5e733fc115a"
+              },
+              {
+                "name": "7",
+                "uuid": "aafae271-765c-4347-be3b-3fc1e00e63a1"
+              },
+              {
+                "name": "8",
+                "uuid": "d7443a73-80b7-4320-9c45-6558595be70a"
+              },
+              {
+                "name": "9",
+                "uuid": "29d29318-6b0c-4a2b-85e3-5392bd5a668f"
+              },
+              {
+                "name": "10",
+                "uuid": "7f0e1fbd-a1b9-4121-b630-dfec36a2dfd0"
+              },
+              {
+                "name": "11",
+                "uuid": "72165544-dcef-4322-a07d-242a6e7771e0"
+              },
+              {
+                "name": "12",
+                "uuid": "9b141130-a1c7-4e3b-bc95-5b9b157f7160"
+              }
+            ]
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
           "name": "Reason for dropping as per student / parent",
           "uuid": "e99598f5-3797-4636-9cb1-18157ef03671",
           "keyValues": [],
@@ -83,7 +126,7 @@
               }
             ]
           },
-          "displayOrder": 2,
+          "displayOrder": 3,
           "mandatory": true
         },
         {
@@ -95,7 +138,7 @@
             "dataType": "Text"
           },
           "mandatory": true,
-          "displayOrder": 3
+          "displayOrder": 4
         },
         {
           "name": "Reason for dropping as per teacher",
@@ -141,7 +184,7 @@
               }
             ]
           },
-          "displayOrder": 4,
+          "displayOrder": 5,
           "mandatory": true
         },
         {
@@ -153,7 +196,7 @@
             "dataType": "Text"
           },
           "mandatory": true,
-          "displayOrder": 5
+          "displayOrder": 6
         },
         {
           "name": "What he/she is doing now?",
@@ -162,7 +205,7 @@
           "type": "SingleSelect",
           "mandatory": true,
           "conceptUUID": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
-          "displayOrder": 6
+          "displayOrder": 7
         },
         {
           "name": "Other activity (please specify)",
@@ -173,7 +216,7 @@
             "dataType": "Text"
           },
           "mandatory": true,
-          "displayOrder": 7
+          "displayOrder": 8
         },
         {
           "name": "How is the economic condition of family",
@@ -203,7 +246,7 @@
               }
             ]
           },
-          "displayOrder": 8,
+          "displayOrder": 9,
           "mandatory": true
         },
         {
@@ -224,8 +267,21 @@
               }
             ]
           },
-          "displayOrder": 9,
+          "displayOrder": 10,
           "mandatory": true
+        },
+        {
+          "name": "Name of school",
+          "uuid": "f0fc75aa-e602-4b4d-ab44-b4a87e577ac0",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "mandatory": true,
+          "displayOrder": 11,
+          "concept": {
+            "name": "Name of school",
+            "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
+            "dataType": "Text"
+          }
         }
       ]
     }
