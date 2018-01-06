@@ -1,4 +1,6 @@
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import _ from 'lodash';
+
 export default class EncounterTypeFilter extends FormElementStatusBuilder{
     constructor(context, encounterTypeNames) {
         super(context);

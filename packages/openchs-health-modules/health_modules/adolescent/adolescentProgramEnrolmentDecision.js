@@ -1,15 +1,11 @@
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import FormFilterHelper from "../rules/FormFilterHelper";
 import C from "../common";
-import {enrolmentDecisions as vulnerabilityEnrolmentDecisions} from './vulnerabilityDecisions';
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 
 
 const getDecisions = (programEnrolment, context, today) => {
-    if (context.usage === 'Exit')
-        return {enrolmentDecisions: [], encounterDecisions: []};
-
-    return vulnerabilityEnrolmentDecisions(programEnrolment);
+    return {enrolmentDecisions: [], encounterDecisions: []};
 };
 
 const filterFormElements = (programEnrolment, formElementGroup) => {

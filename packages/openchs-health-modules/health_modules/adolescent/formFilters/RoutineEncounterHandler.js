@@ -16,25 +16,71 @@ export default class RoutineEncounterHandler {
 
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
-        const firstAnnualEncounter = programEncounter.programEnrolment.encounters
-            .find((encounter) => encounter.encounterType.name === "Annual Visit");
-        const isFirstAnnualVisit = _.isEmpty(firstAnnualEncounter) ||
-            firstAnnualEncounter.uuid === programEncounter.uuid;
-        statusBuilder.show().whenItem(isFirstAnnualVisit).equals(false);
+        statusBuilder.show().whenItem(this._isFirstAnnualVisit(programEncounter)).equals(false);
         return statusBuilder.build();
     }
 
+
     nameOfSchool(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
-        const firstAnnualEncounter = programEncounter.programEnrolment.encounters
-            .find((encounter) => encounter.encounterType.name === "Annual Visit");
-        const isFirstAnnualVisit = _.isEmpty(firstAnnualEncounter) ||
-            firstAnnualEncounter.uuid === programEncounter.uuid;
         statusBuilder.show().when.addressType.equals("Boarding School")
             .or.when.addressType.equals("Village")
             .and.when.valueInEncounter("School going").containsAnswerConceptName("Yes")
-            .or.whenItem(isFirstAnnualVisit).equals(true);
+            .or.whenItem(this._isFirstAnnualVisit(programEncounter)).equals(true);
         return statusBuilder.build();
+    }
+
+    parents(programEncounter, formElement) {
+        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+    }
+
+    fathersOccupation(programEncounter, formElement) {
+        return this._fatherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+    }
+
+    fathersAddiction(programEncounter, formElement) {
+        return this._fatherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+    }
+
+    mothersOccupation(programEncounter, formElement) {
+        return this._motherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+    }
+
+    mothersAddiction(programEncounter, formElement) {
+        return this._motherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+    }
+
+    stayingWithWhom(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+
+        //TODO Discuss with Vinay and fix this
+        // statusBuilder.skipAnswers("Parents").when
+        //     .valueInEncounter("Parents' life status").containsAnswerConceptName("Both Expired");
+
+        return statusBuilder.build()
+            .and(this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
+                .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL)));
+    }
+
+    numberOfFamilyMembers(programEncounter, formElement) {
+        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+    }
+
+    numberOfBrothers(programEncounter, formElement) {
+        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+    }
+
+    numberOfSisters(programEncounter, formElement) {
+        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+    }
+
+    chronicSicknessInFamily(programEncounter, formElement) {
+        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
     }
 
     height(programEncounter, formElement) {
@@ -389,6 +435,22 @@ export default class RoutineEncounterHandler {
         return new FormElementStatus(formElement.uuid, this._applicableForSevereAnemiaCounselling(programEncounter));
     }
 
+    _fatherIsAlive(programEncounter, formElement, encounterTypes) {
+        return this._parentStatusContains(["Both Alive", "Only Father Alive", "Separated"], programEncounter, formElement, encounterTypes);
+    }
+
+    _motherIsAlive(programEnrolment, formElement, encounterTypes) {
+        return this._parentStatusContains(["Both Alive", "Only Mother Alive", "Separated"], programEnrolment, formElement, encounterTypes);
+    }
+
+    _parentStatusContains(statuses, programEncounter, formElement, encounterTypes) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
+        statusBuilder.show().when.valueInEncounter("Parents' life status").containsAnyAnswerConceptName(...statuses);
+
+        return statusBuilder.build();
+    }
+
+
     _applicableForSevereAnemiaCounselling(programEncounter) {
         let previousEncounterWithSevereAnemiaVulnerability = programEncounter.programEnrolment
             .findLatestPreviousEncounterWithValueForConcept(programEncounter, "Reason for School Dropout Vulnerability", "Severe Anemia");
@@ -401,7 +463,11 @@ export default class RoutineEncounterHandler {
 
     _schoolAttendanceStatus(programEncounter, formElement, requiredAnswer, encounterTypes) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
-        statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName(requiredAnswer);
+        if(this._isFirstAnnualVisit(programEncounter)){
+            statusBuilder.show().when.valueInEnrolment("School going").containsAnswerConceptName(requiredAnswer);
+        }else{
+            statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName(requiredAnswer);
+        }
         return statusBuilder.build();
     }
 
@@ -409,8 +475,8 @@ export default class RoutineEncounterHandler {
         return this._schoolAttendanceStatus(programEnrolment, formElement, "Dropped Out", encounterTypes);
     }
 
-    _hasBeenComingToSchool(programEnrolment, formElement, encounterTypes) {
-        return this._schoolAttendanceStatus(programEnrolment, formElement, "Yes", encounterTypes);
+    _hasBeenComingToSchool(programEncounter, formElement, encounterTypes) {
+        return this._schoolAttendanceStatus(programEncounter, formElement, "Yes", encounterTypes);
     }
 
     _registeredAt(programEncounter, formElement, placeOfRegistration, encounterTypes) {
@@ -446,6 +512,13 @@ export default class RoutineEncounterHandler {
     _schoolRegistrationAndDroppedOut(programEncounter, formElement, encounterTypes) {
         return this._registeredAtSchoolOrBoarding(programEncounter, formElement, encounterTypes)
             .and(this._isDroppedOut(programEncounter, formElement, encounterTypes));
+    }
+
+    _isFirstAnnualVisit(programEncounter){
+        const firstAnnualEncounter = programEncounter.programEnrolment.encounters
+            .find((encounter) => encounter.encounterType.name === "Annual Visit");
+        return _.isEmpty(firstAnnualEncounter) ||
+            firstAnnualEncounter.uuid === programEncounter.uuid
     }
 
 
