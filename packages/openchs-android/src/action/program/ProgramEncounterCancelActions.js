@@ -10,7 +10,7 @@ class ProgramEncounterCancelActions {
     }
 
     static onLoad(state, action, context) {
-        const form = context.get(FormMappingService).findFormForCancellingEncounterType(action.programEncounter.encounterType);
+        const form = context.get(FormMappingService).findFormForCancellingEncounterType(action.programEncounter.encounterType, true);
 
         if (_.isNil(form)) {
             return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
