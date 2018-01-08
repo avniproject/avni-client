@@ -51,7 +51,8 @@ describe('Child Program Config', function () {
                         encounterDatetime: moment().subtract(2, 'months'),
                         getObservationValue: weightAndHeight(5.1, 57)
                     }
-                }
+                },
+                getEncounters: () => {return this.encounters;}
             };
 
 

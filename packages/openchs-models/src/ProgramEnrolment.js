@@ -184,7 +184,7 @@ w
 
     _getEncounters(removeCancelledEncounters) {
         return _.chain(this.encounters)
-            .filter((encounter) => removeCancelledEncounters? encounter.cancelDateTime === null: true)
+            .filter((encounter) => removeCancelledEncounters? _.isNil(encounter.cancelDateTime): true)
             .sortBy((encounter) => moment().diff(encounter.encounterDateTime));
     }
 
