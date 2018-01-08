@@ -275,7 +275,7 @@ w
     }
 
     scheduledEncounters() {
-        return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime && encounter.cancelDateTime === null);
+        return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime && _.isNil(encounter.cancelDateTime));
     }
 
     addObservation(observation) {
