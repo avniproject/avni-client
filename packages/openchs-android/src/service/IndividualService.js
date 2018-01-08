@@ -53,13 +53,16 @@ class IndividualService extends BaseService {
     }
 
     allScheduledVisitsIn(addressLevel) {
+        const todayMidnight = moment(new Date()).endOf('day').toDate();
         const todayMorning = moment(new Date()).startOf('day').toDate();
         const encounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
                 'AND earliestVisitDateTime <= $1 ' +
-                'AND maxVisitDateTime >= $1 ' +
-                'AND encounterDateTime = null ',
+                'AND maxVisitDateTime >= $2 ' +
+                'AND encounterDateTime = null ' +
+                'AND cancelDateTime = null',
                 addressLevel.uuid,
+                todayMidnight,
                 todayMorning)
             .map(_.identity);
         return this._uniqIndividualsFrom(encounters);
@@ -70,16 +73,19 @@ class IndividualService extends BaseService {
     }
 
     withScheduledVisits(program, addressLevel, encounterType) {
+        const todayMidnight = moment(new Date()).endOf('day').toDate();
         const todayMorning = moment(new Date()).startOf('day').toDate();
         const encounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('programEnrolment.program.uuid = $0 ' +
                 'AND programEnrolment.individual.lowestAddressLevel.uuid = $1 ' +
                 'AND earliestVisitDateTime <= $2 ' +
-                'AND maxVisitDateTime >= $2 ' +
+                'AND maxVisitDateTime >= $3 ' +
                 'AND encounterDateTime = null ' +
-                'AND encounterType.uuid = $3 ',
+                'AND cancelDateTime = null ' +
+                'AND encounterType.uuid = $4 ',
                 program.uuid,
                 addressLevel.uuid,
+                todayMidnight,
                 todayMorning,
                 encounterType.uuid)
             .map(_.identity);
@@ -95,6 +101,7 @@ class IndividualService extends BaseService {
         const encounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
                 'AND maxVisitDateTime < $1 ' +
+                'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ',
                 addressLevel.uuid,
                 todayMorning)
@@ -112,6 +119,7 @@ class IndividualService extends BaseService {
             .filtered('programEnrolment.program.uuid = $0 ' +
                 'AND programEnrolment.individual.lowestAddressLevel.uuid = $1 ' +
                 'AND maxVisitDateTime < $2 ' +
+                'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
                 'AND encounterType.uuid = $3 ',
                 program.uuid,
