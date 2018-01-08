@@ -138,7 +138,7 @@ jobs:
 
   release_android:
     docker:
-      - image: openchs/react-native:latest
+      - image: openchs/react-native-image:latest
         environment:
           - TERM: dumb
           - ENVFILE: .env.staging
