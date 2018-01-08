@@ -24,6 +24,8 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     editEncounter(encounter) {
+        encounter = encounter.cloneForEdit();
+        encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
         if (encounter.getName() === 'Encounter')
             CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter);
         else
