@@ -2,6 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {FormMapping, Form, EncounterType} from "openchs-models";
 import _ from 'lodash';
+import FormQueryResult from "./FormQueryResult";
 
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
@@ -55,20 +56,17 @@ class FormMappingService extends BaseService {
         return formMapping.form;
     }
 
-    findFormForCancellingEncounterType(encounterType, getDefaultFormIfNotAvailable) {
-        const formTypeFilter = `form.formType="${Form.formTypes.ProgramEncounterCancellation}"`;
-        const encounterTypeFilter = `observationsTypeEntityUUID="${encounterType.uuid}"`;
-        const emptyEncounterTypeFilter = `observationsTypeEntityUUID = null`;
-        const formMappingWithEncounterType = this.db.objects(this.getSchema()).filtered(formTypeFilter).filtered(encounterTypeFilter);
+    allFormMappings() {
+        return new FormQueryResult(this.db.objects(this.getSchema()));
+    }
 
-        if (!_.isNil(formMappingWithEncounterType)) return formMappingWithEncounterType.form;
-
-        if (getDefaultFormIfNotAvailable) {
-            const formMappingWithoutEncounterType = this.db.objects(this.getSchema()).filtered(formTypeFilter).filtered(emptyEncounterTypeFilter);
-            if (!_.isNil(formMappingWithoutEncounterType)) return formMappingWithoutEncounterType.form;
-        }
-
-        return null;
+    findFormForCancellingEncounterType(encounterType, program) {
+        let matchingFormMapping = this.allFormMappings()
+            .forFormType(Form.formTypes.ProgramEncounterCancellation)
+            .forEncounterType(encounterType)
+            .forProgram(program)
+            .bestMatch();
+        return matchingFormMapping && matchingFormMapping.form;
     }
 }
 

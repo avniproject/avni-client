@@ -40,14 +40,16 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     encounterActions(encounter) {
-        return [new ContextAction('edit', () => this.editEncounter(encounter))];
+        return encounter.isCancelled() ? [] : [new ContextAction('edit', () => this.editEncounter(encounter))];
     }
 
     getTitle(encounter) {
-        if (_.isNil(encounter.encounterDateTime))
-            return `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}    ${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`;
-        else
-            return `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}   ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
+        const name = `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}`;
+        const time = _.isNil(encounter.encounterDateTime) ?
+            `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`
+            : `${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
+        const cancellationInformation = encounter.isCancelled? this.I18n.t('cancelled') : '';
+        return `${name}   ${time} ${cancellationInformation}`;
     }
 
     render() {

@@ -20,8 +20,8 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
         encounterType: "Annual Visit",
         earliestDate: programEnrolment.enrolmentDateTime,
         maxDate: C.addDays(C.copyDate(programEnrolment.enrolmentDateTime), 10)
-    }).whenItem(programEnrolment.getEncounters().length).equals(0);
-    const existingUnfinishedDropoutHomeVisit = programEnrolment.encounters
+    }).whenItem(programEnrolment.getEncounters(true).length).equals(0);
+    const existingUnfinishedDropoutHomeVisit = programEnrolment.getEncounters(true)
         .filter(encounter => encounter.encounterType.name === "Dropout Home Visit"
             && _.isNil(encounter.encounterDateTime));
     scheduleBuilder.add({

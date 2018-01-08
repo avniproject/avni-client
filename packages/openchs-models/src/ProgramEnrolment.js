@@ -152,7 +152,7 @@ class ProgramEnrolment extends BaseEntity {
             .filter((encounter) => encounter.encounterDateTime)
             .maxBy((encounter) => encounter.encounterDateTime).value();
     }
-
+w
     get isActive() {
         return _.isNil(this.programExitDateTime);
     }
@@ -182,8 +182,14 @@ class ProgramEnrolment extends BaseEntity {
         return _.find(this.checklists, (checklist) => checklist.name === name);
     }
 
-    getEncounters() {
-        return _.sortBy(this.encounters, (encounter) => moment().diff(encounter.encounterDateTime));
+    _getEncounters(removeCancelledEncounters) {
+        return _.chain(this.encounters)
+            .filter((encounter) => removeCancelledEncounters? encounter.cancelDateTime === null: true)
+            .sortBy((encounter) => moment().diff(encounter.encounterDateTime));
+    }
+
+    getEncounters(removeCancelledEncounters) {
+        return this._getEncounters(removeCancelledEncounters).value();
     }
 
     findObservationInEntireEnrolment(conceptName, currentEncounter) {
@@ -269,7 +275,7 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     scheduledEncounters() {
-        return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime);
+        return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime && encounter.cancelDateTime === null);
     }
 
     addObservation(observation) {

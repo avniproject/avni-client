@@ -10,10 +10,10 @@ class ProgramEncounterCancelActions {
     }
 
     static onLoad(state, action, context) {
-        const form = context.get(FormMappingService).findFormForCancellingEncounterType(action.programEncounter.encounterType, true);
+        const form = context.get(FormMappingService).findFormForCancellingEncounterType(action.programEncounter.encounterType, action.programEncounter.programEnrolment.program);
 
         if (_.isNil(form)) {
-            return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
+            throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType}`);
         }
         const programEncounter = action.programEncounter.cloneForEdit();
         programEncounter.cancelDateTime = new Date();

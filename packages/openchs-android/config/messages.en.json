@@ -103,6 +103,7 @@
   "newProgramVisit": "New Program Visit",
   "newGeneralVisit": "New General Visit",
   "edit": "(edit)",
+  "cancelled": "(CANCELLED)",
   "cancelVisit": "CANCEL VISIT",
   "exitProgram": "EXIT PROGRAM",
   "encounterDate": "Visit Date",

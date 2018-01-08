@@ -10,7 +10,7 @@ var visitSchedule = {
 
 var getNextScheduledVisits = function (programEnrolment) {
     var observations = programEnrolment.observations;
-    var encounters = programEnrolment.encounters;
+    var encounters = programEnrolment.getEncounters(true);
 
     let dateOfBirth = programEnrolment.individual.dateOfBirth;
 

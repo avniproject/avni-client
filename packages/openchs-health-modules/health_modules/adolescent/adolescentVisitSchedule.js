@@ -74,7 +74,7 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
             maxDate: C.addDays(C.copyDate(new Date()), 17)
         }
     ).whenItem(programEncounter.encounterType.name).equals("Dropout Home Visit")
-        .and.whenItem(programEncounter.programEnrolment.encounters
+        .and.whenItem(programEncounter.programEnrolment.getEncounters(true)
         .filter((encounter) => encounter.encounterType.name === "Dropout Followup Visit").length).lessThanOrEqualTo(5);
 
     scheduleBuilder.add({
@@ -84,7 +84,7 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
             maxDate: C.addDays(C.copyDate(new Date()), 17)
         }
     ).when.valueInEncounter("Have you started going to school once again").containsAnswerConceptName("No")
-        .and.whenItem(programEncounter.programEnrolment.encounters
+        .and.whenItem(programEncounter.programEnrolment.getEncounters(true)
         .filter((encounter) => encounter.encounterType.name === "Dropout Followup Visit").length).lessThanOrEqualTo(5);
 
     let schoolRestartDate = moment().month(5).date(1).hour(0).minute(0).second(0);
@@ -110,7 +110,7 @@ const getNextScheduledVisits = function (programEncounter) {
     addRoutineEncounter(programEncounter, scheduleBuilder);
     addDropoutHomeVisits(programEncounter, scheduleBuilder);
     addDropoutFollowUpVisits(programEncounter, scheduleBuilder);
-    const scheduledEncounterTypes = programEncounter.programEnrolment.encounters
+    const scheduledEncounterTypes = programEncounter.programEnrolment.getEncounters(true)
         .filter((e) => _.isNil(e.encounterDateTime) && e.uuid !== programEncounter.uuid)
         .map((e) => e.encounterType.name);
     scheduleBuilder.removeVisitsWith("encounterType", scheduledEncounterTypes);

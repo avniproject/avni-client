@@ -222,7 +222,7 @@ function findConfig(type, gender, age) {
 }
 
 function createChartFor(config, enrolment, minX, maxX) {
-    return _.chain(enrolment.encounters)
+    return _.chain(enrolment.getEncounters(true))
         .values()
         .map(createChart(enrolment.individual, config.xAxis, config.yAxis))
         .compact()

@@ -20,9 +20,16 @@ class ProgramEncounterActions {
     };
 
     static onLoad(state, action, context) {
-        const form = context.get(FormMappingService).findFormForEncounterType(action.programEncounter.encounterType);
+         const formMapping = context.get(FormMappingService)
+            .allFormMappings()
+            .forEncounterType(action.programEncounter.encounterType)
+            .forProgram(action.programEncounter.programEnrolment.program)
+            .bestMatch();
+
+        const form = formMapping && formMapping.form;
+
         if (_.isNil(form)) {
-            return {error: `No form setup for EncounterType: ${action.programEncounter.encounterType}`};
+            throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType}`);
         }
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(form.formElementGroups, (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);

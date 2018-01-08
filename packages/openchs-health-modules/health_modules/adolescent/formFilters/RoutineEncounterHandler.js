@@ -1,4 +1,3 @@
-import moment from "moment";
 import {FormElementStatus} from "openchs-models";
 import _ from "lodash";
 import EncounterTypeFilter from "./EncounterTypeFilter";
@@ -527,8 +526,9 @@ export default class RoutineEncounterHandler {
             .and(this._isDroppedOut(programEncounter, formElement, encounterTypes));
     }
 
-    _isFirstAnnualVisit(programEncounter) {
-        const firstAnnualEncounter = programEncounter.programEnrolment.encounters
+
+    _isFirstAnnualVisit(programEncounter){
+        const firstAnnualEncounter = programEncounter.programEnrolment.getEncounters(true)
             .find((encounter) => encounter.encounterType.name === "Annual Visit");
         return _.isEmpty(firstAnnualEncounter) ||
             firstAnnualEncounter.uuid === programEncounter.uuid

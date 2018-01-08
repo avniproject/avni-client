@@ -14,6 +14,15 @@ class FormMapping {
         }
     };
 
+    static create(uuid, form, entityUUID, observationsTypeEntityUUID) {
+        let formMapping = new FormMapping();
+        formMapping.uuid = uuid;
+        formMapping.form = form;
+        formMapping.entityUUID = entityUUID;
+        formMapping.observationsTypeEntityUUID = observationsTypeEntityUUID;
+        return formMapping;
+    }
+
     static fromResource(resource, entityService) {
         const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
 
