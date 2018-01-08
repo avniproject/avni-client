@@ -2,7 +2,6 @@
   "name": "Adolescent Program Encounter Cancellation Form",
   "uuid": "c294aadf-94a6-4908-8d04-9cc4ce2b901c",
   "formType": "ProgramEncounterCancellation",
-  "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "encounterTypes": [
     "Annual Visit",
