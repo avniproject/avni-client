@@ -197,7 +197,7 @@ class ProgramEnrolment extends BaseEntity {
     }
 
 
-    findLatestObservationFromEncounters(conceptName, currentEncounter) {
+    findLatestObservationFromEncounters(conceptName, currentEncounter, checkInEnrolment = false) {
         const encounters = _.chain(this.getEncounters())
             .concat(currentEncounter)
             .compact()
@@ -207,7 +207,7 @@ class ProgramEnrolment extends BaseEntity {
             .reverse()
             .value();
 
-        return this._findObservationFromEntireEnrolment(conceptName, encounters, false);
+        return this._findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment);
     }
 
     findLatestObservationFromPreviousEncounters(conceptName, currentEncounter) {

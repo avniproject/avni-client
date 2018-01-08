@@ -18,8 +18,9 @@ export default class RuleCondition {
         return this;
     }
 
-    _look(item) {
+    get look() {
         return this._addToChain((next, context) => {
+            console.log(context.valueToBeChecked);
             return next(context);
         });
     }
@@ -129,6 +130,16 @@ export default class RuleCondition {
         });
     }
 
+    latestValueInEntireEnrolment(conceptName) {
+        return this._addToChain((next, context) => {
+            const enrolment = this._getEnrolment(context);
+            const obs = enrolment.findLatestObservationFromEncounters(conceptName, context.programEncounter, true);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.getValue();
+            return next(context);
+        });
+    }
+
     latestValueInPreviousEncounters(conceptName) {
         return this._addToChain((next, context) => {
             const obs = this._getEnrolment(context).findLatestObservationFromPreviousEncounters(conceptName, context.programEncounter);
@@ -184,6 +195,13 @@ export default class RuleCondition {
         });
     }
 
+    get encounterMonth() {
+        return this._addToChain((next, context) => {
+            context.valueToBeChecked = moment(context.programEncounter.encounterDateTime).month() + 1;
+            return next(context);
+        });
+    }
+
     valueInEncounter(conceptName) {
         return this._addToChain((next, context) => {
             const obs = context.programEncounter.findObservation(conceptName);
@@ -220,6 +238,13 @@ export default class RuleCondition {
     equals(value) {
         return this._addToChain((next, context) => {
             context.matches = context.valueToBeChecked === value;
+            return next(context);
+        });
+    }
+
+    get notDefined() {
+        return this._addToChain((next, context) => {
+            context.matches = context.valueToBeChecked === undefined || context.valueToBeChecked === null;
             return next(context);
         });
     }

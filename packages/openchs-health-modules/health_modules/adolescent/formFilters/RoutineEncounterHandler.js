@@ -25,8 +25,16 @@ export default class RoutineEncounterHandler {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         statusBuilder.show().when.addressType.equals("Boarding School")
             .or.when.addressType.equals("Village")
-            .and.when.valueInEncounter("School going").containsAnswerConceptName("Yes")
+            .and.when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes")
             .or.whenItem(this._isFirstAnnualVisit(programEncounter)).equals(true);
+        return statusBuilder.build();
+    }
+
+    inWhichStandardHeSheIsStudying(programEncounter, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        statusBuilder.show().when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes")
+            .and.when.encounterMonth.equals(6)
+            .or.when.latestValueInPreviousEncounters("Standard").is.notDefined;
         return statusBuilder.build();
     }
 
@@ -141,7 +149,7 @@ export default class RoutineEncounterHandler {
 
     albendazoleTabletsReceived(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
-        statusBuilder.show().whenItem(moment(programEncounter.encounterDateTime).month()).equals(8).or.equals(2);
+        statusBuilder.show().when.encounterMonth.equals(9).or.equals(3);
         return statusBuilder.build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.MONTHLY));
     }
@@ -463,9 +471,9 @@ export default class RoutineEncounterHandler {
 
     _schoolAttendanceStatus(programEncounter, formElement, requiredAnswer, encounterTypes) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
-        if(this._isFirstAnnualVisit(programEncounter)){
+        if (this._isFirstAnnualVisit(programEncounter)) {
             statusBuilder.show().when.valueInEnrolment("School going").containsAnswerConceptName(requiredAnswer);
-        }else{
+        } else {
             statusBuilder.show().when.valueInEncounter("School going").containsAnswerConceptName(requiredAnswer);
         }
         return statusBuilder.build();
@@ -514,7 +522,7 @@ export default class RoutineEncounterHandler {
             .and(this._isDroppedOut(programEncounter, formElement, encounterTypes));
     }
 
-    _isFirstAnnualVisit(programEncounter){
+    _isFirstAnnualVisit(programEncounter) {
         const firstAnnualEncounter = programEncounter.programEnrolment.encounters
             .find((encounter) => encounter.encounterType.name === "Annual Visit");
         return _.isEmpty(firstAnnualEncounter) ||

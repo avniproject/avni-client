@@ -51,6 +51,15 @@
             "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
             "dataType": "Text"
           }
+        },
+        {
+          "name": "In which standard he/she is studying?",
+          "uuid": "04f0b663-f352-4466-9edb-d358c6545f29",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "conceptUUID": "fda18675-59dc-4a69-82f7-4e137c274073",
+          "displayOrder": 3,
+          "mandatory": true
         }
       ]
     },
