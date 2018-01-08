@@ -32,6 +32,13 @@ class PreviousEncounters extends AbstractComponent {
             CHSNavigator.navigateToProgramEncounterView(this, encounter);
     }
 
+    getTitle(encounter) {
+        if (_.isNil(encounter.encounterDateTime))
+            return `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}    ${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`;
+        else
+            return `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}   ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
+    }
+
     render() {
         const sortedEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
         const formMappingService = this.context.getService(FormMappingService);
@@ -60,13 +67,6 @@ class PreviousEncounters extends AbstractComponent {
                         );
                     })}</View>
         );
-    }
-
-    getTitle(encounter) {
-        if (_.isNil(encounter.encounterDateTime))
-            return `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}    ${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`;
-        else
-            return `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}   ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
     }
 }
 
