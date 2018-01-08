@@ -444,8 +444,56 @@ export default class RoutineEncounterHandler {
     }
 
     counsellingForSevereAnemiaDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForSevereAnemiaCounselling(programEncounter));
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Severe Anemia", "Counselling for Severe Anemia Done"));
     }
+
+
+    counsellingForNoParentsSingleParentInformationChecklist(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
+    }
+
+    counsellingForNoParentsSingleParentDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
+    }
+
+    counsellingForMenstrualDisorderDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Menstrual Disorder", "Counselling for Menstrual Disorder Done"));
+    }
+
+    counsellingForMalnutritionDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Malnutrition", "Counselling for Malnutrition Done"));
+    }
+
+    counsellingForSickleCellAnemiaDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+    }
+
+    counsellingForAddictionDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Adolescent Vulnerabilities", "Addiction", "Counselling for Addiction Done"));
+    }
+
+    counsellingForEarlyPregnancyRtiDone(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Adolescent Vulnerabilities", "Early Pregnancy & RTI", "Counselling for Early Pregnancy & RTI Done"));
+    }
+
+    counsellingForRoadTrafficAccident(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident"));
+    }
+
+    counsellingForRoadTrafficAccidentInformationChecklist(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident"));
+    }
+
 
     _fatherIsAlive(programEncounter, formElement, encounterTypes) {
         return this._parentStatusContains(["Both Alive", "Only Father Alive", "Separated"], programEncounter, formElement, encounterTypes);
@@ -463,13 +511,13 @@ export default class RoutineEncounterHandler {
     }
 
 
-    _applicableForSevereAnemiaCounselling(programEncounter) {
-        let previousEncounterWithSevereAnemiaVulnerability = programEncounter.programEnrolment
-            .findLatestPreviousEncounterWithValueForConcept(programEncounter, "Reason for School Dropout Vulnerability", "Severe Anemia");
-        if (_.isEmpty(previousEncounterWithSevereAnemiaVulnerability)) return false;
+    _applicableForCounselling(programEncounter, vulnerabilityConceptName, vulnerabilityAnswerConceptName, counsellingDoneConceptName) {
+        let previousEncounterWithVulnerability = programEncounter.programEnrolment
+            .findLatestPreviousEncounterWithValueForConcept(programEncounter, vulnerabilityConceptName, vulnerabilityAnswerConceptName);
+        if (_.isEmpty(previousEncounterWithVulnerability)) return false;
         let previousEncounterWithCounsellingDone = programEncounter.programEnrolment
-            .findLatestPreviousEncounterWithValueForConcept(programEncounter, "Counselling for Severe Anemia Done", "Yes");
-        return (_.isEmpty(previousEncounterWithCounsellingDone) || previousEncounterWithSevereAnemiaVulnerability.encounterDateTime
+            .findLatestPreviousEncounterWithValueForConcept(programEncounter, counsellingDoneConceptName, "Yes");
+        return (_.isEmpty(previousEncounterWithCounsellingDone) || previousEncounterWithVulnerability.encounterDateTime
             > previousEncounterWithCounsellingDone.encounterDateTime);
     }
 

@@ -18,7 +18,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements) {
-        let formElementGroupPageNumber = form.formElementGroups.indexOf(formElementGroup)+ 1;
+        const formElementGroupPageNumber = formElementGroup.displayOrder;
         return new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, programEncounter, filteredFormElements);
     }
 

@@ -32,7 +32,7 @@ class ProgramEncounterActions {
             throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType}`);
         }
 
-        let firstGroupWithAtLeastOneVisibleElement = _.find(form.formElementGroups, (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.formElementGroups, [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
 
         if(_.isNil(firstGroupWithAtLeastOneVisibleElement)){
             //TODO Came across this scenario. Vinay/Mihir let's discuss if it's a realistic one and if yes what should we do really.

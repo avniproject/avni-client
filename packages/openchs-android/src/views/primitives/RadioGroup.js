@@ -72,6 +72,7 @@ class RadioGroup extends AbstractComponent {
         return (
             <View style={this.appendedStyle({})}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
+                {this.props.labelValuePairs.length > 0 ?
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
@@ -80,7 +81,7 @@ class RadioGroup extends AbstractComponent {
                     paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
                     {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                </View>
+                </View> : <View/> }
             </View>
         );
     }
