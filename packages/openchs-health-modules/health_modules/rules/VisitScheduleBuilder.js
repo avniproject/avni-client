@@ -23,7 +23,6 @@ export default class VisitScheduleBuilder {
 
     removeVisitsWith(key, keyList) {
         this.scheduledVisits = this.scheduledVisits.filter((sv) => keyList.indexOf(_.get(sv, `data.${key}`)) < 0);
-
     }
 
     getAllUnique(keyPath) {

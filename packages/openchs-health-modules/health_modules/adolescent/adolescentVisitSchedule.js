@@ -48,6 +48,7 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 
 
     const encounter = nextScheduledRoutineEncounter(enrolment, lastFulfilledRoutineEncounter);
+    //TODO: (VINAY) THIS OVERRIDES THE ANNUAL SCHEDULED ENCOUNTER WITH NEXT ENCOUNTER TYPE
     encounter.name = nextEncounterType;
     encounter.encounterType = nextEncounterType;
     encounter.earliestDate = earliestDate.toDate();
@@ -110,10 +111,7 @@ const getNextScheduledVisits = function (programEncounter) {
     addRoutineEncounter(programEncounter, scheduleBuilder);
     addDropoutHomeVisits(programEncounter, scheduleBuilder);
     addDropoutFollowUpVisits(programEncounter, scheduleBuilder);
-    const scheduledEncounterTypes = programEncounter.programEnrolment.getEncounters(true)
-        .filter((e) => _.isNil(e.encounterDateTime) && e.uuid !== programEncounter.uuid)
-        .map((e) => e.encounterType.name);
-    scheduleBuilder.removeVisitsWith("encounterType", scheduledEncounterTypes);
+
     return scheduleBuilder.getAllUnique("encounterType");
 };
 
