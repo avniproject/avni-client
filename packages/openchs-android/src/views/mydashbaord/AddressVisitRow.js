@@ -37,7 +37,7 @@ class AddressVisitRow extends AbstractComponent {
             (<VisitBlock key={idx}
                          highlight={numberObj.abnormal}
                          onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count)}
-                         title={title}
+                         title={_.has(numberObj, "label") ? numberObj.label : title}
                          number={numberObj.count}/>));
         return (
             <View style={AddressVisitRow.styles.container}>

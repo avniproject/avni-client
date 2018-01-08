@@ -27,7 +27,7 @@ class MyDashboardActions {
                     scheduled: {count: 0, abnormal: false},
                     overdue: {count: 0, abnormal: false},
                     completed: {count: 0, abnormal: false},
-                    highRisk: {count: 0, abnormal: true}
+                    highRisk: {count: 0, abnormal: true, label: "At Risk"}
                 },
                 ...results[addressLevel.uuid],
             };
