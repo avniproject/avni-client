@@ -13,7 +13,6 @@ export default class RoutineEncounterHandler {
         }
     }
 
-
     schoolGoing(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
         statusBuilder.show().whenItem(this._isFirstAnnualVisit(programEncounter)).equals(false);
@@ -61,14 +60,20 @@ export default class RoutineEncounterHandler {
 
     stayingWithWhom(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        const showQuestion = statusBuilder.show();
 
-        //TODO Discuss with Vinay and fix this
-        // statusBuilder.skipAnswers("Parents").when
-        //     .valueInEncounter("Parents' life status").containsAnswerConceptName("Both Expired");
+        if(this._isFirstAnnualVisit(programEncounter)){
+            showQuestion.when.valueInEnrolment("School going").containsAnswerConceptName("Yes");
+        }else{
+            showQuestion.when.valueInEncounter("School going").containsAnswerConceptName("Yes");
+        }
 
-        return statusBuilder.build()
-            .and(this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
-                .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL)));
+        showQuestion.or.when.addressType.equals("Village");
+
+        statusBuilder.skipAnswers("Parents").when
+            .valueInEncounter("Parents' life status").containsAnswerConceptName("Both Expired");
+
+        return statusBuilder.build();
     }
 
     numberOfFamilyMembers(programEncounter, formElement) {

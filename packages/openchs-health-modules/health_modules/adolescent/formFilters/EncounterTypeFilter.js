@@ -1,5 +1,6 @@
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 import _ from 'lodash';
+import RuleCondition from "../../rules/RuleCondition";
 
 export default class EncounterTypeFilter extends FormElementStatusBuilder{
     constructor(context, encounterTypeNames) {
@@ -8,11 +9,13 @@ export default class EncounterTypeFilter extends FormElementStatusBuilder{
     }
 
     build() {
-        this.show().and.whenItem(this.context.programEncounter.encounterType.name).matchesFn(
-            (encounterTypeName) => {
-                return _.some(this.encounterTypeNames, (validName) => validName === encounterTypeName);
-            }
-        );
-        return super.build();
+        const formElementStatus = super.build();
+        const shouldShow = new RuleCondition(this.context).whenItem(this.context.programEncounter.encounterType.name).matchesFn(            (encounterTypeName) => {
+            return _.some(this.encounterTypeNames, (validName) => validName === encounterTypeName);
+        }).matches();
+
+        formElementStatus.visibility = formElementStatus.visibility && shouldShow;
+
+        return formElementStatus;
     }
 }
