@@ -48,7 +48,7 @@ class PreviousEncounters extends AbstractComponent {
         const time = _.isNil(encounter.encounterDateTime) ?
             `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`
             : `${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
-        const cancellationInformation = encounter.isCancelled? this.I18n.t('cancelled') : '';
+        const cancellationInformation = encounter.isCancelled()? this.I18n.t('cancelled') : '';
         return `${name}   ${time} ${cancellationInformation}`;
     }
 
