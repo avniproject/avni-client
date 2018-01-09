@@ -10,7 +10,7 @@ class StubbedRuleEvaluationService {
     }
 
     filterFormElements(entity, entityType, formElementGroup) {
-        if (formElementGroup) return formElementGroup.formElements.map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+        if (formElementGroup) return formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
         return [];
     }
 }

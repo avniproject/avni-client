@@ -3,7 +3,7 @@ import {ObservationsHolder} from "openchs-models";
 
 class StubbedDataEntryState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, observations) {
-        super(validationResults, formElementGroup, wizard, false, formElementGroup.formElements);
+        super(validationResults, formElementGroup, wizard, false, formElementGroup.getFormElements());
         this.observations = observations;
     }
 

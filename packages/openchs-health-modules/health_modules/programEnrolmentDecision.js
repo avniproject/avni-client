@@ -41,5 +41,5 @@ export function filterFormElements(programEnrolment, formElementGroup) {
     return executeProgramEnrolmentFunc({
         parameter: [programEnrolment, formElementGroup],
         fn: "filterFormElements",
-        defaultValue: formElementGroup.formElements.map((formElement) => new FormElementStatus(formElement.uuid, true, undefined))});
+        defaultValue: formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined))});
 }

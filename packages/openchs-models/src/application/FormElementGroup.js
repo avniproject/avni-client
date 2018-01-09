@@ -71,7 +71,7 @@ class FormElementGroup {
     }
 
     get formElementIds() {
-        return this.formElements.map((formElement) => {
+        return this.getFormElements().map((formElement) => {
             return formElement.uuid
         });
     }
@@ -89,12 +89,12 @@ class FormElementGroup {
     }
 
     removeFormElement(formElementName) {
-        this.formElements = _.reject(this.formElements, (formElement) => formElement.matches(formElementName));
+        this.formElements = _.reject(this.getFormElements(), (formElement) => formElement.matches(formElementName));
         return this;
     }
 
     filterElements(formElementStatuses) {
-        let filtered = _.filter(this.formElements,
+        let filtered = _.filter(this.getFormElements(),
             (formElement) => _.some(formElementStatuses, (formElementStatus) =>
                 formElementStatus.uuid === formElement.uuid
                 && formElementStatus.visibility

@@ -29,7 +29,7 @@ let createIntialState = function (dataType, firstFormElementMandatory, secondFor
     const formElement2 = createFormElement(dataType, secondFormElementMandatory, 'd1ab1bfd-aa13-4e86-ac67-9b46387ee446');
     formElementGroup2.addFormElement(formElement2);
 
-    const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1), false, Encounter.create(), formElementGroup.formElements);
+    const state = new EncounterActionState([], formElementGroup, new Wizard(2, 1), false, Encounter.create(), formElementGroup.getFormElements());
     state.encounter.individual = Individual.createEmptyInstance();
     state.encounter.encounterDateTime = new Date();
     return {state, formElement, formElement2};

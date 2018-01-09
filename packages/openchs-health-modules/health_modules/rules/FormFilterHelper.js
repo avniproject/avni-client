@@ -9,7 +9,7 @@ class FormFilterHelper {
         if (handler['preFilter'])
             handler['preFilter'](entity, formElementGroup, today);
 
-        return formElementGroup.formElements.map((formElement) => {
+        return formElementGroup.getFormElements().map((formElement) => {
             let nameWOSpecialChars = formElement.name.replace(FormFilterHelper.removeSpecialCharsRegex, '');
             let fnName = _.camelCase(nameWOSpecialChars);
             let fn = handler[fnName];

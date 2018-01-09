@@ -37,7 +37,7 @@ class RuleEvaluationService extends BaseService {
 
     filterFormElements(entity, entityName, formElementGroup) {
         let fn = this.entityRulesMap.get(entityName).filterFormElements;
-        return fn && fn(entity, formElementGroup) || formElementGroup.formElements.map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+        return fn && fn(entity, formElementGroup) || formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
     }
 }
 

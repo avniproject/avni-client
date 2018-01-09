@@ -45,11 +45,9 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     movePrevious() {
         this.wizard.movePrevious();
-        if (this.wizard.isNonFormPage()) {
-            this.formElementGroup = new StaticFormElementGroup(this.formElementGroup.form);
-        } else {
-            this.formElementGroup = this.formElementGroup.previous();
-        }
+        this.formElementGroup = this.wizard.isNonFormPage() ?
+            new StaticFormElementGroup(this.formElementGroup.form) :
+            this.formElementGroup.previous();
     }
 
     get staticFormElementIds() {

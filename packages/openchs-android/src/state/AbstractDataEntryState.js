@@ -65,11 +65,14 @@ class AbstractDataEntryState {
 
     handlePrevious(action, context) {
         this.movePrevious();
+
         ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
-        if (this.hasNoFormElements()) {
+
+        if (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
             General.logDebug("No form elements here. Moving to previous screen");
             return this.handlePrevious(action, context);
         }
+
         if (!(_.isNil(action) || _.isNil(action.cb)))
             action.cb(this);
         return this;

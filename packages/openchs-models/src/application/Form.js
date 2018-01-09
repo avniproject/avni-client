@@ -68,7 +68,7 @@ class Form {
     findFormElement(formElementName) {
         var formElement;
         _.forEach(this.formElementGroups, (formElementGroup) => {
-            const foundFormElement = _.find(formElementGroup.formElements, (formElement) => formElement.name === formElementName);
+            const foundFormElement = _.find(formElementGroup.getFormElements(), (formElement) => formElement.name === formElementName);
             if (!_.isNil(foundFormElement)) formElement = foundFormElement;
         });
         return formElement;
@@ -77,7 +77,7 @@ class Form {
     orderObservations(observations) {
         const orderedObservations = [];
         const conceptOrdering = _.sortBy(this.formElementGroups, (feg) => feg.displayOrder)
-            .map((feg) => _.sortBy(feg.formElements, (fe) => fe.displayOrder)
+            .map((feg) => _.sortBy(feg.getFormElements(), (fe) => fe.displayOrder)
                 .map((fe) => fe.concept));
         _.flatten(conceptOrdering).map((concept) => {
             const foundObs = observations.find((obs) => obs.concept.uuid === concept.uuid);

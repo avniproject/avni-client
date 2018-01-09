@@ -4,7 +4,7 @@ import {ObservationsHolder, ProgramEncounter} from "openchs-models";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter) {
-        super([], formElementGroup, wizard, false, formElementGroup.formElements);
+        super([], formElementGroup, wizard, false, formElementGroup.getFormElements());
         this.programEncounter = programEncounter;
     }
 
