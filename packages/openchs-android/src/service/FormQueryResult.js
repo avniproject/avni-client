@@ -38,8 +38,6 @@ class FormQueryResult {
     }
 
     bestMatch() {
-        console.log(this._sortedMappings().map((fm) => fm.form.uuid));
-
         return _.last(this._sortedMappings());
     }
 

@@ -11,6 +11,7 @@ import ObservationsSectionTitle from "../common/ObservationsSectionTitle";
 import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
 import FormMappingService from "../../service/FormMappingService";
+import {Form} from 'openchs-models';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -65,7 +66,8 @@ class PreviousEncounters extends AbstractComponent {
                     </View>)
                     : sortedEncounters.map((encounter, index) => {
                         const title = this.getTitle(encounter);
-                        const form = formMappingService.findFormForEncounterType(encounter.encounterType);
+                        const form = formMappingService.findFormForEncounterType(encounter.encounterType,
+                            Form.formTypes.ProgramEncounter);
                         return (
                             <View key={`${index}-1`} style={this.props.style}>
                                 <ObservationsSectionTitle
