@@ -1,6 +1,7 @@
 import RuleCondition from "./RuleCondition";
 import {FormElementStatus} from "openchs-models";
 import _ from "lodash";
+
 export default class FormElementStatusBuilder {
 
     constructor(context) {
@@ -17,7 +18,7 @@ export default class FormElementStatusBuilder {
     skipAnswers(...answers) {
         let answerSkipRule = {
             rule: new RuleCondition(this.context),
-            answers: _.map(answers, (answer) => _.isString(answer)? this.context.formElement.getAnswerWithConceptName(answer): answer)
+            answers: _.map(answers, (answer) => _.isString(answer) ? this.context.formElement.getAnswerWithConceptName(answer) : answer)
         };
         this.answerSkipRules.push(answerSkipRule);
         return answerSkipRule.rule;

@@ -61,9 +61,9 @@ export default class RoutineEncounterHandler {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
         const showQuestion = statusBuilder.show();
 
-        if(this._isFirstAnnualVisit(programEncounter)){
+        if (this._isFirstAnnualVisit(programEncounter)) {
             showQuestion.when.valueInEnrolment("School going").containsAnswerConceptName("Yes");
-        }else{
+        } else {
             showQuestion.when.valueInEncounter("School going").containsAnswerConceptName("Yes");
         }
 
@@ -499,6 +499,40 @@ export default class RoutineEncounterHandler {
             "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident"));
     }
 
+    whichOfTheFollowingAilmentsDidYouVisitTheHospitalFor(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const allAnswerConcepts = formElement.concept.answers.map((answer) => Object.assign({
+            name: answer.concept.name,
+            uuid: answer.concept.uuid
+        }));
+        allAnswerConcepts.map((answer) => {
+            statusBuilder.skipAnswers(answer.name)
+                .when.latestValueInPreviousEncounters("Refer to hospital for").not.containsAnswerConceptName(answer.name)
+                .and.latestValueInPreviousEncounters("Visited hospital for").not.containsAnswerConceptName(answer.name);
+        });
+
+        let builtStatus = statusBuilder.build();
+        return new FormElementStatus(builtStatus.uuid, builtStatus.answersToSkip.length < allAnswerConcepts.length,
+            undefined, builtStatus.answersToSkip);
+    }
+
+    ailmentsCuredPostTreatment(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const allAnswerConcepts = formElement.concept.answers.map((answer) => Object.assign({
+            name: answer.concept.name,
+            uuid: answer.concept.uuid
+        }));
+        allAnswerConcepts.map((answer) => {
+            statusBuilder.skipAnswers(answer.name)
+                .when.latestValueInPreviousEncounters("Refer to hospital for").not.containsAnswerConceptName(answer.name)
+                .and.latestValueInPreviousEncounters("Ailments cured post treatment").not.containsAnswerConceptName(answer.name);
+        });
+
+        let builtStatus = statusBuilder.build();
+        return new FormElementStatus(builtStatus.uuid, builtStatus.answersToSkip.length < allAnswerConcepts.length,
+            undefined, builtStatus.answersToSkip);
+    }
+
 
     _fatherIsAlive(programEncounter, formElement, encounterTypes) {
         return this._parentStatusContains(["Both Alive", "Only Father Alive", "Separated"], programEncounter, formElement, encounterTypes);
@@ -580,7 +614,7 @@ export default class RoutineEncounterHandler {
     }
 
 
-    _isFirstAnnualVisit(programEncounter){
+    _isFirstAnnualVisit(programEncounter) {
         const firstAnnualEncounter = programEncounter.programEnrolment.getEncounters(true)
             .find((encounter) => encounter.encounterType.name === "Annual Visit");
         return _.isEmpty(firstAnnualEncounter) ||

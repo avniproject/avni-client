@@ -4,6 +4,7 @@ import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandl
 import {encounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
 import {encounterDecisions as counsellingEncounterDecisions} from './counsellingDecisions';
 import {getNextScheduledVisits} from './adolescentVisitSchedule';
+import {referralDecisions} from "./referralDecision";
 
 const encounterTypeHandlerMap = new Map([
     ['Annual Visit', new RoutineEncounterHandler()],
@@ -14,7 +15,9 @@ const encounterTypeHandlerMap = new Map([
 ]);
 
 const getDecisions = (programEncounter) => {
-    return counsellingEncounterDecisions(vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter), programEncounter);
+    let vulnerabilityEncounterDecisions = vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter);
+    let counsellingDecisions = counsellingEncounterDecisions(vulnerabilityEncounterDecisions, programEncounter);
+    return referralDecisions(counsellingDecisions, programEncounter);
 };
 
 const filterFormElements = (programEncounter, formElementGroup) => {

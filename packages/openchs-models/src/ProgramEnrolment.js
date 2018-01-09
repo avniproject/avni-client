@@ -152,7 +152,7 @@ class ProgramEnrolment extends BaseEntity {
             .filter((encounter) => encounter.encounterDateTime)
             .maxBy((encounter) => encounter.encounterDateTime).value();
     }
-w
+
     get isActive() {
         return _.isNil(this.programExitDateTime);
     }
