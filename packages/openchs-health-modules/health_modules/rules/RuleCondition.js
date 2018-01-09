@@ -20,7 +20,6 @@ export default class RuleCondition {
 
     get look() {
         return this._addToChain((next, context) => {
-            console.log(context.valueToBeChecked);
             return next(context);
         });
     }

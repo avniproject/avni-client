@@ -81,7 +81,6 @@ class ProgramEncounter extends AbstractEncounter {
     }
 
     validate() {
-        console.log("encounterdatetime = ", this.encounterDateTime)
         const validationResults = super.validate();
         if (!_.isNil(this.encounterDateTime) &&
             (General.dateAIsBeforeB(this.encounterDateTime, this.programEnrolment.enrolmentDateTime) || General.dateAIsAfterB(this.encounterDateTime, this.programEnrolment.programExitDateTime)))

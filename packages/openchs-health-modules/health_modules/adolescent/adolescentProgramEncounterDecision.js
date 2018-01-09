@@ -14,7 +14,7 @@ const encounterTypeHandlerMap = new Map([
 ]);
 
 const getDecisions = (programEncounter) => {
-    return counsellingEncounterDecisions(vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter));
+    return counsellingEncounterDecisions(vulnerabilityDecisionsFromEncounter(programEncounter.programEnrolment, programEncounter), programEncounter);
 };
 
 const filterFormElements = (programEncounter, formElementGroup) => {

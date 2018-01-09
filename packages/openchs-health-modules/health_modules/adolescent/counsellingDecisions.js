@@ -1,6 +1,7 @@
 import ComplicationsBuilder from "../rules/complicationsBuilder";
 import C from '../common';
 import _ from 'lodash'
+import RuleCondition from "../rules/RuleCondition";
 
 const encounterDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {
     const complicationsBuilder = new ComplicationsBuilder({
@@ -14,38 +15,31 @@ const encounterDecisions = (vulnerabilityEncounterDecisions, programEncounter) =
 
     if (!_.isEmpty(vulnerabilities)) {
         if (vulnerabilities.includes("School dropout")) {
-            let reasonsForSchoolDropoutVulnerability = C.findValue(vulnerabilityEncounterDecisions.encounterDecisions,
-                "Reason for School Dropout Vulnerability");
+            complicationsBuilder.addComplication("No Parents / Single Parent")
+                .when.valueInEncounter("Reason for School Dropout Vulnerability").containsAnswerConceptName('No Parents / Single Parent');
 
-            if (reasonsForSchoolDropoutVulnerability.includes('No Parents / Single Parent')) {
-                complicationsBuilder.addComplication("No Parents / Single Parent");
-            }
-            if (reasonsForSchoolDropoutVulnerability.includes('Malnutrition')) {
-                complicationsBuilder.addComplication("Malnutrition");
-            }
-            if (reasonsForSchoolDropoutVulnerability.includes('Sickle Cell Anemia')) {
-                complicationsBuilder.addComplication("Sickle Cell Anemia");
-            }
-            if (reasonsForSchoolDropoutVulnerability.includes('Severe Anemia')) {
-                complicationsBuilder.addComplication("Severe Anemia");
-            }
-            if (reasonsForSchoolDropoutVulnerability.includes('Menstrual Disorder')) {
-                complicationsBuilder.addComplication("Menstrual Disorder");
-            }
+            complicationsBuilder.addComplication("Malnutrition")
+                .when.valueInEncounter("Reason for School Dropout Vulnerability").containsAnswerConceptName('Malnutrition');
 
+            complicationsBuilder.addComplication("Sickle Cell Anemia")
+                .when.valueInEncounter("Reason for School Dropout Vulnerability").containsAnswerConceptName('Sickle Cell Anemia');
+
+            complicationsBuilder.addComplication("Severe Anemia")
+                .when.valueInEncounter("Reason for School Dropout Vulnerability").containsAnswerConceptName('Severe Anemia');
+
+            complicationsBuilder.addComplication("Menstrual Disorder")
+                .when.valueInEncounter("Reason for School Dropout Vulnerability").containsAnswerConceptName('Menstrual Disorder')
+                .and.valueInEncounter("Counselling for Menstrual Disorder Done").containsAnswerConceptName("No");
         }
-        if(vulnerabilities.includes("Addiction")){
-            complicationsBuilder.addComplication("Addiction");
-        }
-        if(vulnerabilities.includes("Early Marriage")){
-            complicationsBuilder.addComplication("Early Marriage");
-        }
-        if(vulnerabilities.includes("Early Pregnancy & RTI")){
-            complicationsBuilder.addComplication("Early Pregnancy & RTI");
-        }
-        if(vulnerabilities.includes("Road Traffic Accident")){
-            complicationsBuilder.addComplication("Road Traffic Accident");
-        }
+
+        complicationsBuilder.addComplication("Addiction")
+            .when.valueInEncounter("Adolescent Vulnerabilities").containsAnswerConceptName("Addiction");
+        complicationsBuilder.addComplication("Early Marriage")
+            .when.valueInEncounter("Adolescent Vulnerabilities").containsAnswerConceptName("Early Marriage");
+        complicationsBuilder.addComplication("Early Pregnancy & RTI")
+            .when.valueInEncounter("Adolescent Vulnerabilities").containsAnswerConceptName("Early Pregnancy & RTI");
+        complicationsBuilder.addComplication("Road Traffic Accident")
+            .when.valueInEncounter("Adolescent Vulnerabilities").containsAnswerConceptName("Road Traffic Accident");
     }
 
 
