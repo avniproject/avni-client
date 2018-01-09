@@ -35,8 +35,7 @@ class ProgramEncounterActions {
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.formElementGroups, [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
 
         if(_.isNil(firstGroupWithAtLeastOneVisibleElement)){
-            //TODO Came across this scenario. Vinay/Mihir let's discuss if it's a realistic one and if yes what should we do really.
-            return {error: `No form element group with visible form element`};
+            throw new Error("No form element group with visible form element");
         }
         let filteredElements = ProgramEncounterActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.programEncounter);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
