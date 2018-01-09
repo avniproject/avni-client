@@ -21,9 +21,11 @@ const nextScheduledRoutineEncounter = (enrolment, currentEncounter) => {
 
 const findNextRoutineEncounterType = (forDate, enrolment) => {
     const lastAnnualEncounter = enrolment.lastFulfilledEncounter("Annual Visit");
-    const monthsSinceLastAnnualEncounter = lastAnnualEncounter ? moment(forDate).diff(lastAnnualEncounter.encounterDateTime, 'months') : 0;
+    const monthsSinceLastAnnualEncounter = lastAnnualEncounter ? moment(forDate).diff(lastAnnualEncounter.encounterDateTime, 'months') : NaN;
 
     switch (monthsSinceLastAnnualEncounter) {
+        case NaN:
+            return "Annual Visit";
         case 12:
             return 'Annual Visit';
         case 9:
@@ -48,7 +50,6 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 
 
     const encounter = nextScheduledRoutineEncounter(enrolment, lastFulfilledRoutineEncounter);
-    //TODO: (VINAY) THIS OVERRIDES THE ANNUAL SCHEDULED ENCOUNTER WITH NEXT ENCOUNTER TYPE
     encounter.name = nextEncounterType;
     encounter.encounterType = nextEncounterType;
     encounter.earliestDate = earliestDate.toDate();
