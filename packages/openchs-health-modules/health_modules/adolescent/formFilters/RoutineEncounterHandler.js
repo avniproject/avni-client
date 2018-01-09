@@ -460,8 +460,13 @@ export default class RoutineEncounterHandler {
     }
 
     counsellingForMenstrualDisorderDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Menstrual Disorder", "Counselling for Menstrual Disorder Done"));
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower Abdominal Pain",
+            "Backache", "Leg Pain", "Nausea and Vomiting", "Headache", "Abnormal Vaginal Discharge", "Heavy Bleeding", "Irregular Menses")
+            .or.whenItem(this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Menstrual Disorder", "Counselling for Menstrual Disorder Done"))
+            .equals(true);
+        return statusBuilder.build();
     }
 
     counsellingForMalnutritionDone(programEncounter, formElement) {
