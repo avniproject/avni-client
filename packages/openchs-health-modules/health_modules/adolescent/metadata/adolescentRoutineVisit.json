@@ -1101,7 +1101,7 @@
             "uuid": "e1687f36-b38d-4bf8-9dbf-59cdc6fa1b6d",
             "dataType": "Numeric",
             "lowAbsolute": 0,
-            "highAbsolute": 120,
+            "highAbsolute": 120
           },
           "displayOrder": 2,
           "mandatory": true
