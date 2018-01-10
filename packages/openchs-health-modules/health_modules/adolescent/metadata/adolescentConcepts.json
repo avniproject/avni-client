@@ -65,16 +65,6 @@
         "uuid": "2f5c7540-ef48-4f89-9fac-46e6a088e32f",
         "name": "Sickle Cell Anemia",
         "abnormal": true
-      },
-      {
-        "uuid": "dac41807-08af-43b9-a75b-7bbb77547321",
-        "name": "Chronic sickness in Family",
-        "abnormal": true
-      },
-      {
-        "uuid": "78fedb7d-fa30-4377-b136-b4367f9b04ff",
-        "name": "Family Size > 6",
-        "abnormal": true
       }
     ]
   },
