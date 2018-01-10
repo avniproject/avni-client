@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import ComplicationsBuilder from "../rules/complicationsBuilder";
+import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 
 
 const conceptReferralMap = new Map([
@@ -25,16 +27,37 @@ const conceptReferralMap = new Map([
     ["Yellowish discharge from Vagina / penis", "Yellowish discharge from penis/vagina"],
     ["Does she remain absent during menstruation?", "Menstrual Disorder"],
 ]);
+const REFERRAL_ADVICE_CONCEPT = 'Refer to hospital for';
+
+const existingReferralAdvice = (currentEncounter) => {
+    const lastEncounterWithReferralDecision =
+        currentEncounter.programEnrolment
+            .findLastEncounterOfTypeAndWithConcept(currentEncounter,
+                RoutineEncounterHandler.visits.MONTHLY,
+                REFERRAL_ADVICE_CONCEPT);
+    if (_.isNil(lastEncounterWithReferralDecision)) return [];
+    const referredAdviceObs = lastEncounterWithReferralDecision.findObservation(REFERRAL_ADVICE_CONCEPT);
+    const answerConcepts = referredAdviceObs.concept.getAnswers().map(a => a.concept);
+    const obsConcepts = referredAdviceObs.getValue()
+        .map((conceptUUID) => answerConcepts.find(ac => ac.uuid === conceptUUID));
+    return obsConcepts.filter((obsConcept) => {
+        const lastEncounterWithObs = currentEncounter.programEnrolment
+            .findLatestPreviousEncounterWithValueForConcept(currentEncounter, "Visited hospital for", obsConcept.name);
+        return _.isNil(lastEncounterWithObs) || lastEncounterWithObs.encounterDateTime <= lastEncounterWithReferralDecision.encounterDateTime;
+    });
+
+};
 
 const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {
+
     const complicationsBuilder = new ComplicationsBuilder({
-        complicationsConcept: 'Refer to hospital for',
+        complicationsConcept: REFERRAL_ADVICE_CONCEPT,
         programEncounter: programEncounter
     });
 
-    const existingReferralAdvice =
-        programEncounter.programEnrolment
-            .findLatestObservationFromPreviousEncounters("Refer to hospital for", programEncounter);
+
+    existingReferralAdvice(programEncounter)
+        .forEach(erac => complicationsBuilder.addComplication(erac.name).whenItem(true).is.truthy);
 
     Array.from(conceptReferralMap.entries())
         .map(([concept, complication]) => complicationsBuilder.addComplication(complication)

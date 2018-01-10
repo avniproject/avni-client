@@ -12,6 +12,7 @@ import ProgramEncounter from "../src/ProgramEncounter";
 import ProgramEnrolment from "../src/ProgramEnrolment";
 import Individual from "../src/Individual";
 import {ConceptAnswer} from "../src/Concept";
+import EncounterType from "../src/EncounterType";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -100,10 +101,12 @@ class EntityFactory {
         return decision;
     }
 
-    static createProgramEncounter({programEnrolment, encounterDateTime = new Date(), observations = []}) {
+    static createProgramEncounter({programEnrolment, encounterDateTime = new Date(), observations = [], encounterType = undefined}) {
         const programEncounter = ProgramEncounter.createEmptyInstance();
+        const encounterTypeObj = EncounterType.create(encounterType);
         programEncounter.encounterDateTime = encounterDateTime;
         programEncounter.observations = observations;
+        programEncounter.encounterType = encounterTypeObj;
         programEncounter.programEnrolment = programEnrolment;
         return programEncounter;
     }

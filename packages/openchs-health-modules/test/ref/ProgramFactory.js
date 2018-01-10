@@ -16,23 +16,30 @@ export default class ProgramBuilder {
         this._createEncounterType = this._createEncounterType.bind(this);
     }
 
+    _getConceptFrom(uuid) {
+        return this.concepts.find((concept) => concept.uuid === uuid);
+    }
 
     _createConcept(concept) {
+        if (this._getConceptFrom(concept.uuid)) return this._getConceptFrom(concept.uuid);
         const createdConcept = EntityFactory.createConcept(concept.name, concept.dataType, concept.uuid);
         if (!_.isNil(createdConcept.answers)) {
             concept.answers.map((cc, idx) => {
-                let answerConcept = EntityFactory.createConcept(cc.name, Concept.dataType.NA, cc.uuid);
-                this.concepts.push(answerConcept);
-                let conceptAnswer = EntityFactory.createAnswerConcept(answerConcept, idx + 1);
-                createdConcept.answers.push(conceptAnswer);
+                let conceptAnswer;
+                const existingAnswerConcept = this._getConceptFrom(cc.uuid);
+                if (!_.isNil(existingAnswerConcept)) {
+                    conceptAnswer = EntityFactory.createAnswerConcept(existingAnswerConcept, idx + 1);
+                    createdConcept.answers.push(conceptAnswer);
+                } else if (!_.isNil(cc.name)) {
+                    let answerConcept = EntityFactory.createConcept(cc.name, Concept.dataType.NA, cc.uuid);
+                    this.concepts.push(answerConcept);
+                    conceptAnswer = EntityFactory.createAnswerConcept(answerConcept, idx + 1);
+                    createdConcept.answers.push(conceptAnswer);
+                }
             });
         }
         this.concepts.push(createdConcept);
         return createdConcept;
-    }
-
-    _getConceptFrom(uuid) {
-        return this.concepts.find((concept) => concept.uuid === uuid);
     }
 
     _createFormElement(formElementGroup) {

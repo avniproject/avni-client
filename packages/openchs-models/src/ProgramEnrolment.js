@@ -148,7 +148,7 @@ class ProgramEnrolment extends BaseEntity {
 
     lastFulfilledEncounter(...encounterTypeNames) {
         return _.chain(this.encounters)
-            .filter((encounter) => _.isEmpty(encounterTypeNames)? encounter: _.some(encounterTypeNames, (name) => name === _.get(encounter, 'encounterType.name')))
+            .filter((encounter) => _.isEmpty(encounterTypeNames) ? encounter : _.some(encounterTypeNames, (name) => name === _.get(encounter, 'encounterType.name')))
             .filter((encounter) => encounter.encounterDateTime)
             .maxBy((encounter) => encounter.encounterDateTime).value();
     }
@@ -184,7 +184,7 @@ class ProgramEnrolment extends BaseEntity {
 
     _getEncounters(removeCancelledEncounters) {
         return _.chain(this.encounters)
-            .filter((encounter) => removeCancelledEncounters? _.isNil(encounter.cancelDateTime): true)
+            .filter((encounter) => removeCancelledEncounters ? _.isNil(encounter.cancelDateTime) : true)
             .sortBy((encounter) => moment().diff(encounter.encounterDateTime));
     }
 
@@ -209,7 +209,7 @@ class ProgramEnrolment extends BaseEntity {
             .compact()
             .filter((enc) => enc.encounterDateTime)
             .sortBy((enc) => enc.encounterDateTime)
-            .filter((enc) => currentEncounter? enc.encounterDateTime <= currentEncounter.encounterDateTime: false)
+            .filter((enc) => currentEncounter ? enc.encounterDateTime <= currentEncounter.encounterDateTime : false)
             .reverse()
             .value();
 
@@ -240,12 +240,22 @@ class ProgramEnrolment extends BaseEntity {
         return null;
     }
 
+    findLastEncounterOfTypeAndWithConcept(currentEncounter, encounterTypes = [], conceptName) {
+        return _.chain(this.getEncounters())
+            .reverse()
+            .filter((enc) => enc.encounterDateTime)
+            .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
+            .filter((enc) => encounterTypes.some(et => et.name === enc.encounterType.name))
+            .filter((enc) => !_.isNil(enc.findObservation(conceptName)))
+            .head()
+            .value();
+    }
+
     _containsAnswerConceptName(conceptName, observation) {
         const answerConcept = observation.concept.getPossibleAnswerConcept(conceptName);
         const answerUuid = answerConcept && answerConcept.concept.uuid;
         return observation.getValueWrapper().hasValue(answerUuid);
     }
-
 
 
     _findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment = true) {

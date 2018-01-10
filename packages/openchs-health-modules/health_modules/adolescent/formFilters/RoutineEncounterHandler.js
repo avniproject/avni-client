@@ -3,24 +3,24 @@ import _ from "lodash";
 import EncounterTypeFilter from "./EncounterTypeFilter";
 
 export default class RoutineEncounterHandler {
-    get visits() {
+    static get visits() {
         return {
             MONTHLY: ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Monthly Visit"],
             QUARTERLY: ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit"],
             HALF_YEARLY: ["Annual Visit", "Half-Yearly Visit"],
             ANNUAL: ["Annual Visit"]
-        }
+        };
     }
 
     schoolGoing(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().whenItem(this._isFirstAnnualVisit(programEncounter)).equals(false);
         return statusBuilder.build();
     }
 
 
     nameOfSchool(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         statusBuilder.show().when.addressType.equals("Boarding School")
             .or.when.addressType.equals("Village")
             .and.when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes")
@@ -29,7 +29,7 @@ export default class RoutineEncounterHandler {
     }
 
     inWhichStandardHeSheIsStudying(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes")
             .and.when.encounterMonth.equals(7)
             .or.when.latestValueInPreviousEncounters("Standard").is.notDefined;
@@ -37,28 +37,28 @@ export default class RoutineEncounterHandler {
     }
 
     parents(programEncounter, formElement) {
-        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
-            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     fathersOccupation(programEncounter, formElement) {
-        return this._fatherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+        return this._fatherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
     }
 
     fathersAddiction(programEncounter, formElement) {
-        return this._fatherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+        return this._fatherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
     }
 
     mothersOccupation(programEncounter, formElement) {
-        return this._motherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+        return this._motherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
     }
 
     mothersAddiction(programEncounter, formElement) {
-        return this._motherIsAlive(programEncounter, formElement, this.visits.ANNUAL);
+        return this._motherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
     }
 
     stayingWithWhom(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         const showQuestion = statusBuilder.show();
 
         if (this._isFirstAnnualVisit(programEncounter)) {
@@ -76,219 +76,219 @@ export default class RoutineEncounterHandler {
     }
 
     numberOfFamilyMembers(programEncounter, formElement) {
-        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
-            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     numberOfBrothers(programEncounter, formElement) {
-        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
-            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     numberOfSisters(programEncounter, formElement) {
-        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
-            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     chronicSicknessInFamily(programEncounter, formElement) {
-        return this._hasBeenComingToSchool(programEncounter, formElement, this.visits.ANNUAL)
-            .or(this._registeredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
+            .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     height(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     weight(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     bmi(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, false)
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     hemoglobinTestDone(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     hemoglobinTest(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("Hemoglobin Test Done").containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
 
     sicklingTestDone(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     sicklingTestResult(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("Sickling Test Done").containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
 
     ironTablets(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.MONTHLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY));
     }
 
     fromWhere(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Iron tablets received").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     ironTabletsConsumedInLastMonth(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Iron tablets received").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     albendazoleTabletsReceived(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.encounterMonth.equals(9).or.equals(3);
         return statusBuilder.build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.MONTHLY));
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY));
     }
 
     isThereAnyPhysicalDefect(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereASwellingAtLowerBack(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereCleftLipCleftPalate(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereLargeGapBetweenToeAndFinger(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isHerNailsTonguePale(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isSheHeSeverelyMalnourished(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, false)
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereAnyProblemInLegBone(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereASwellingOverThroat(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     doesSheHaveDifficultyInBreathingWhilePlaying(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     areThereDentalCarries(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereAWhitePatchInHerEyes(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     doesSheHaveImpairedVision(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isTherePusComingFromEar(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     doesSheHaveImpairedHearing(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     doesSheHaveSkinProblems(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     hasSheEverSufferedFromConvulsions(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereAnyNeurologicalMotorDefect(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isHerBehaviorDifferentFromOthers(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isSheSlowerThanOthersInLearningAndUnderstandingNewThings(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     isThereAnyDevelopmentalDelayOrDisabilitySeen(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     menstruationStarted(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.female.and.latestValueInPreviousEncounters("Menstruation started").not.containsAnswerConceptName("Yes");
 
         return statusBuilder.build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     ifMenstruationStartedThenAtWhatAge(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Menstruation started").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     absorbentMaterialUsed(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Menstruation started").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     menstrualDisorders(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.female.and.latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     anyTreatmentTaken(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName(
             "Lower Abdominal Pain", "Backache", "Leg Pain", "Nausea and Vomiting", "Headache",
             "Abnormal Vaginal Discharge", "Heavy Bleeding", "Irregular Menses");
@@ -297,7 +297,7 @@ export default class RoutineEncounterHandler {
     }
 
     doesSheRemainAbsentDuringMenstruation(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when
             .latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes")
             .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type).not.equals("Village");
@@ -306,7 +306,7 @@ export default class RoutineEncounterHandler {
     }
 
     reasonForRemainingAbsentDuringMenstruation(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when
             .valueInEncounter("Does she remain absent during menstruation?")
             .containsAnswerConceptName("Yes");
@@ -314,7 +314,7 @@ export default class RoutineEncounterHandler {
     }
 
     otherReasonPleaseSpecify(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when
             .valueInEncounter("Reason for remaining absent during menstruation")
             .containsAnswerConceptName("Other");
@@ -322,7 +322,7 @@ export default class RoutineEncounterHandler {
     }
 
     howManyDaysDoesSheTakeOffDuringMenstruation(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when
             .valueInEncounter("Does she remain absent during menstruation?")
             .containsAnswerConceptName("Yes");
@@ -331,12 +331,12 @@ export default class RoutineEncounterHandler {
     }
 
     isThereAnyOtherConditionYouWantToMentionAboutHimHer(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
     otherConditionsPleaseSpecify(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.ANNUAL);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         statusBuilder.show().when
             .valueInEncounter("Is there any other condition you want to mention about him/her?")
             .containsAnswerConceptName("Other");
@@ -345,12 +345,12 @@ export default class RoutineEncounterHandler {
     }
 
     sicknessInLast3Months(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.QUARTERLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     otherSicknessPleaseSpecify(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY);
         statusBuilder.show().when
             .valueInEncounter("Sickness in last 3 months")
             .containsAnswerConceptName("Other");
@@ -359,85 +359,85 @@ export default class RoutineEncounterHandler {
     }
 
     hospitalizedInLast3Months(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.QUARTERLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     doYouHaveAnyAddiction(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.QUARTERLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     areYourFriendsAddicted(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.QUARTERLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.QUARTERLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     sexuallyActive(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     unprotectedSex(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Sexually active").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     partners(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Sexually active").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     burningMicturition(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     ulcerOverGenitalia(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     yellowishDischargeFromVaginaPenis(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     doYouHaveVehicle2Wheeler(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     doYouDriveVehicle2Wheeler(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     doYouHaveLicenceForTheVehicle(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Drives 2 wheeler").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     doYouWearHelmetWhileDriving(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Drives 2 wheeler").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
     haveYouSufferedFromRoadTrafficAccidentInLast6Months(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, this.visits.HALF_YEARLY));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     howTheAccidentHasHappened(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.HALF_YEARLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Road accident in past 6 months").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
@@ -460,7 +460,7 @@ export default class RoutineEncounterHandler {
     }
 
     counsellingForMenstrualDisorderDone(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower Abdominal Pain",
             "Backache", "Leg Pain", "Nausea and Vomiting", "Headache", "Abnormal Vaginal Discharge", "Heavy Bleeding", "Irregular Menses")
             .or.whenItem(this._applicableForCounselling(programEncounter,
@@ -500,7 +500,7 @@ export default class RoutineEncounterHandler {
     }
 
     whichOfTheFollowingAilmentsDidYouVisitTheHospitalFor(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         const allAnswerConcepts = formElement.concept.answers.map((answer) => Object.assign({
             name: answer.concept.name,
             uuid: answer.concept.uuid
@@ -517,7 +517,7 @@ export default class RoutineEncounterHandler {
     }
 
     ailmentsCuredPostTreatment(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         const allAnswerConcepts = formElement.concept.answers.map((answer) => Object.assign({
             name: answer.concept.name,
             uuid: answer.concept.uuid
