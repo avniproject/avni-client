@@ -1,7 +1,6 @@
-import {Text, View} from "react-native";
+import {ListView, Text, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Col, Grid, Row} from "native-base";
 import ConceptService from "../../service/ConceptService";
 import {Observation} from "openchs-models";
 import Fonts from "../primitives/Fonts";
@@ -56,13 +55,10 @@ class Observations extends AbstractComponent {
                     borderLeftWidth: 1,
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     paddingLeft: 3,
-                    paddingBottom: 2
+                    paddingBottom: 2,
+                    flex: 1
                 }
             }
-    }
-
-    get allObservationNamesSmall() {
-        return !this.props.observations.some((obs) => obs.concept.name.length > 17);
     }
 
     renderTitle() {
@@ -78,35 +74,27 @@ class Observations extends AbstractComponent {
         if (this.props.observations.length === 0) return <View/>;
 
         const conceptService = this.context.getService(ConceptService);
-        const nameColSize = this.allObservationNamesSmall ? 1 : 2;
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.getOrderedObservation());
         return (
             <View style={{flexDirection: "column"}}>
                 {this.renderTitle()}
-                <Grid style={this.appendedStyle(this.styles.observationTable)}>
-                    {
-                        this.getOrderedObservation().map((observation, cellIndex) => {
-                            return <Row style={this.styles.observationRow} key={`${cellIndex}`}>
-                                <Col style={this.styles.observationColumn} key={`${cellIndex}col1`} size={nameColSize}>
-                                    <Text style={{
-                                        textAlign: 'left',
-                                        fontSize: Fonts.Normal,
-                                        color: Styles.greyText
-                                    }}>{this.I18n.t(observation.concept.name)}</Text>
-                                </Col>
-                                <Col style={this.styles.observationColumn} key={`${cellIndex}col2`} size={2}>
-                                    <Text style={{
-                                        textAlign: 'left',
-                                        fontSize: Fonts.Medium,
-                                        color: observation.isAbnormal() ? Styles.redColor : Styles.blackColor
-                                    }}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
-                                </Col>
-                            </Row>
-                        })
-                    }
-                </Grid>
+                <ListView enableEmptySections={true}
+                          dataSource={dataSource}
+                          style={this.appendedStyle(this.styles.observationTable)} renderRow={(observation) =>
+                    <View style={[{flexDirection: "row"}, this.styles.observationRow]}>
+                        <Text style={[{
+                            textAlign: 'left',
+                            fontSize: Fonts.Normal,
+                            color: Styles.greyText
+                        }, this.styles.observationColumn]}>{this.I18n.t(observation.concept.name)}</Text>
+                        <Text style={[{
+                            textAlign: 'left',
+                            fontSize: Fonts.Medium,
+                            color: observation.isAbnormal() ? Styles.redColor : Styles.blackColor
+                        }, this.styles.observationColumn]}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
+                    </View>
+                }/>
             </View>
-
-
         );
     }
 }

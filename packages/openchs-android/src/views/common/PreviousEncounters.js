@@ -1,6 +1,6 @@
 import {View} from "react-native";
 import React from "react";
-import {Grid, Row, Text} from "native-base";
+import {Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import moment from "moment";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -48,7 +48,7 @@ class PreviousEncounters extends AbstractComponent {
         const time = _.isNil(encounter.encounterDateTime) ?
             `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`
             : `${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
-        const cancellationInformation = encounter.isCancelled()? this.I18n.t('cancelled') : '';
+        const cancellationInformation = encounter.isCancelled() ? this.I18n.t('cancelled') : '';
         return `${name}   ${time} ${cancellationInformation}`;
     }
 
@@ -60,11 +60,7 @@ class PreviousEncounters extends AbstractComponent {
                 {sortedEncounters.length === 0 ?
                     (<View>
                         <View style={[DGS.common.content]}>
-                            <Grid>
-                                <Row style={{justifyContent: 'center'}}>
-                                    <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('noEncounters')}</Text>
-                                </Row>
-                            </Grid>
+                            <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('noEncounters')}</Text>
                         </View>
                     </View>)
                     : sortedEncounters.map((encounter, index) => {
