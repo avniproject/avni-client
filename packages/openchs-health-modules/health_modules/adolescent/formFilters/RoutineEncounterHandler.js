@@ -31,7 +31,7 @@ export default class RoutineEncounterHandler {
     inWhichStandardHeSheIsStudying(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, this.visits.MONTHLY);
         statusBuilder.show().when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes")
-            .and.when.encounterMonth.equals(6)
+            .and.when.encounterMonth.equals(7)
             .or.when.latestValueInPreviousEncounters("Standard").is.notDefined;
         return statusBuilder.build();
     }

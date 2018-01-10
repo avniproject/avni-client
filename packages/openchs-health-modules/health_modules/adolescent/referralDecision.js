@@ -23,6 +23,7 @@ const conceptReferralMap = new Map([
     ["Burning Micturition", "Burning micturition"],
     ["Ulcer over genitalia", "Ulcer over genitalia"],
     ["Yellowish discharge from Vagina / penis", "Yellowish discharge from penis/vagina"],
+    ["Does she remain absent during menstruation?", "Menstrual Disorder"],
 ]);
 
 const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {
@@ -31,9 +32,20 @@ const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) =>
         programEncounter: programEncounter
     });
 
+    const existingReferralAdvice =
+        programEncounter.programEnrolment
+            .findLatestObservationFromPreviousEncounters("Refer to hospital for", programEncounter);
+
     Array.from(conceptReferralMap.entries())
         .map(([concept, complication]) => complicationsBuilder.addComplication(complication)
             .when.valueInEncounter(concept).containsAnswerConceptName("Yes"));
+
+    complicationsBuilder.addComplication("Severe Anemia").when
+        .valueInEncounter("Hb").lessThan(7);
+    complicationsBuilder.addComplication("Severe malnourishment").when
+        .valueInEncounter("BMI").lessThanOrEqualTo(14.5);
+    complicationsBuilder.addComplication("Sickle Cell Anemia").when
+        .valueInEncounter("Sickling Test Result").containsAnyAnswerConceptName("Trait", "Disease");
 
     vulnerabilityEncounterDecisions.encounterDecisions.push(complicationsBuilder.getComplications());
     return vulnerabilityEncounterDecisions;
