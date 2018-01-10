@@ -2,6 +2,7 @@ import C from '../common';
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 import moment from 'moment';
 import _ from 'lodash';
+import RuleCondition from '../rules/RuleCondition';
 
 const routineEncounterTypeNames = ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Monthly Visit"];
 
@@ -44,8 +45,17 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 
     const enrolment = programEncounter.programEnrolment;
     const lastFulfilledRoutineEncounter = enrolment.lastFulfilledEncounter(routineEncounterTypeNames) || programEncounter;
-    const earliestDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(1, 'months').startOf('day');
-    const maxDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(1, 'months').add(10, 'days').startOf('day');
+
+    let increment = 1;
+
+    if(new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Standard").containsAnyAnswerConceptName("11", "12")
+            .and.addressType.equalsOneOf("School", "Boarding").matches()){
+        increment = 6;
+    }
+
+    const earliestDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(increment, 'months').startOf('day');
+    const maxDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(increment, 'months').add(10, 'days').startOf('day');
     const nextEncounterType = findNextRoutineEncounterType(maxDate, enrolment);
 
 

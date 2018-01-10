@@ -241,6 +241,13 @@ export default class RuleCondition {
         });
     }
 
+    equalsOneOf(...values) {
+        return this._addToChain((next, context) => {
+            context.matches = _.some(values, (value) => this.equals(value));
+            return next(context);
+        });
+    }
+
     get notDefined() {
         return this._addToChain((next, context) => {
             context.matches = context.valueToBeChecked === undefined || context.valueToBeChecked === null;
