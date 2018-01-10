@@ -57,7 +57,7 @@ class AbstractEncounter extends BaseEntity {
     }
 
     hasBeenEdited() {
-        return this.encounterDateTime? true: false;
+        return this.encounterDateTime ? true : false;
     }
 
     isCancellable() {

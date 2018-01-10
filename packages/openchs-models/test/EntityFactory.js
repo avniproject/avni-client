@@ -11,6 +11,7 @@ import PrimitiveValue from "../src/observation/PrimitiveValue";
 import ProgramEncounter from "../src/ProgramEncounter";
 import ProgramEnrolment from "../src/ProgramEnrolment";
 import Individual from "../src/Individual";
+import {ConceptAnswer} from "../src/Concept";
 
 class EntityFactory {
     static createSafeProgram(name) {
@@ -70,6 +71,14 @@ class EntityFactory {
         if (dataType === Concept.dataType.Coded)
             concept.answers = [];
         return concept;
+    }
+
+    static createAnswerConcept(concept, answerOrder) {
+        let conceptAnswer = new ConceptAnswer();
+        conceptAnswer.uuid = General.randomUUID();
+        conceptAnswer.concept = concept;
+        conceptAnswer.answerOrder = answerOrder;
+        return conceptAnswer;
     }
 
     static addChecklistItem(checklist, name, dueDate) {
