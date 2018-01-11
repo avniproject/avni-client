@@ -68,9 +68,11 @@ describe("Referral Decision Test", () => {
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");
         let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});
+
         let previousEncounter = new EncounterFiller(programData, enrolment)
-            .forMultiCoded("Refer to hospital for", ["Physical defect"])
+            .forMultiCoded("Refer to hospital for", ["Physical defect", "Yellowish discharge from penis/vagina"])
             .build();
+
         let currentEncounter = new EncounterFiller(programData, enrolment, RoutineEncounterHandler.visits.ANNUAL[0])
             .forSingleCoded("Is there any physical defect?", "No")
             .forSingleCoded("Is there a swelling at lower back?", "No")
@@ -102,7 +104,8 @@ describe("Referral Decision Test", () => {
             .build();
         let decisions = referralDecisions(encounterDecisions, currentEncounter).encounterDecisions;
         let decisionsToRefer = C.findValue(decisions, "Refer to hospital for");
-        assert.lengthOf(decisionsToRefer, 1);
+        assert.lengthOf(decisionsToRefer, 2);
         assert.include(decisionsToRefer, "Physical defect");
+        assert.include(decisionsToRefer, "Yellowish discharge from penis/vagina");
     });
 });
