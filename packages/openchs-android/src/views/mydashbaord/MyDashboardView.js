@@ -40,7 +40,7 @@ class MyDashboardView extends AbstractComponent {
     }
 
     render() {
-        const dataSource = this.ds.cloneWithRows(_.values(RoutineEncounterHandler.visits));
+        const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('dashboard')}/>
@@ -49,7 +49,7 @@ class MyDashboardView extends AbstractComponent {
                         <ListView dataSource={dataSource}
                                   renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}
                                   renderRow={(rowData) => <AddressVisitRow address={rowData.address}
-                                                                           visits={RoutineEncounterHandler.visits}/>}/>
+                                                                           visits={rowData.visits}/>}/>
                     </View>
                 </CHSContent>
             </CHSContainer>
