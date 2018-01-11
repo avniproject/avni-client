@@ -2,6 +2,7 @@ import IndividualService from "../../service/IndividualService";
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import _ from "lodash";
 import {ProgramEnrolment} from "openchs-models";
+import Individual from "../../../../openchs-models/src/Individual";
 
 export class IndividualProfileActions {
     static setProgram(entityType) {
@@ -14,7 +15,7 @@ export class IndividualProfileActions {
     }
 
     static getInitialState() {
-        return new EntityTypeChoiceState(null, IndividualProfileActions.setProgram, IndividualProfileActions.cloneEntity);
+        return new EntityTypeChoiceState(Individual.createEmptyInstance(), IndividualProfileActions.setProgram, IndividualProfileActions.cloneEntity);
     }
 
     static individualSelected(state, action, beans) {

@@ -44,9 +44,11 @@ class Individual extends BaseEntity {
         const individual = new Individual();
         individual.uuid = General.randomUUID();
         individual.registrationDate = new Date();
+        individual.gender = Gender.create("");
         individual.observations = [];
         individual.encounters = [];
         individual.enrolments = [];
+        individual.lowestAddressLevel = AddressLevel.create("", "", 0, undefined, "");
         return individual;
     }
 
@@ -121,7 +123,7 @@ class Individual extends BaseEntity {
 
     getDisplayAge(i18n) {
         const ageInYears = this.getAgeInYears();
-        if (ageInYears < 1){
+        if (ageInYears < 1) {
             let ageInWeeks = moment().diff(this.dateOfBirth, 'weeks');
             return ageInWeeks === 0 ? Duration.inDay(moment().diff(this.dateOfBirth, 'days')).toString(i18n) : Duration.inWeek(ageInWeeks).toString(i18n);
         } else if (ageInYears < 2) {

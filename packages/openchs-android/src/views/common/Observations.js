@@ -74,26 +74,32 @@ class Observations extends AbstractComponent {
         if (this.props.observations.length === 0) return <View/>;
 
         const conceptService = this.context.getService(ConceptService);
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.getOrderedObservation());
+        const orderedObservation = this.getOrderedObservation()
+            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal()]);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
             <View style={{flexDirection: "column"}}>
                 {this.renderTitle()}
-                <ListView enableEmptySections={true}
-                          dataSource={dataSource}
-                          style={this.appendedStyle(this.styles.observationTable)} renderRow={(observation) =>
-                    <View style={[{flexDirection: "row"}, this.styles.observationRow]}>
-                        <Text style={[{
-                            textAlign: 'left',
-                            fontSize: Fonts.Normal,
-                            color: Styles.greyText
-                        }, this.styles.observationColumn]}>{this.I18n.t(observation.concept.name)}</Text>
-                        <Text style={[{
-                            textAlign: 'left',
-                            fontSize: Fonts.Medium,
-                            color: observation.isAbnormal() ? Styles.redColor : Styles.blackColor
-                        }, this.styles.observationColumn]}>{Observation.valueAsString(observation, conceptService, this.I18n)}</Text>
-                    </View>
-                }/>
+                <ListView
+                    enableEmptySections={true}
+                    dataSource={dataSource}
+                    pageSize={20}
+                    initialListSize={10}
+                    removeClippedSubviews={true}
+                    renderRow={([name, obs, isAbnormal]) =>
+                        < View style={[{flexDirection: "row"}, this.styles.observationRow]}>
+                            <Text style={[{
+                                textAlign: 'left',
+                                fontSize: Fonts.Normal,
+                                color: Styles.greyText
+                            }, this.styles.observationColumn]}>{name}</Text>
+                            <Text style={[{
+                                textAlign: 'left',
+                                fontSize: Fonts.Medium,
+                                color: isAbnormal ? Styles.redColor : Styles.blackColor
+                            }, this.styles.observationColumn]}>{obs}</Text>
+                        </View>}
+                />
             </View>
         );
     }

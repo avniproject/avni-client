@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, ListView} from "react-native";
 import React from "react";
 import {Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -56,28 +56,31 @@ class PreviousEncounters extends AbstractComponent {
     render() {
         const sortedEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
         const formMappingService = this.context.getService(FormMappingService);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sortedEncounters);
+        const renderable = _.isEmpty(sortedEncounters) ? (
+            <View style={[DGS.common.content]}>
+                <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('noEncounters')}</Text>
+            </View>) : (
+            <ListView
+                enableEmptySections={true}
+                dataSource={dataSource}
+                pageSize={1}
+                initialListSize={1}
+                removeClippedSubviews={true}
+                renderRow={(encounter) => <View style={this.props.style}>
+                    <ObservationsSectionTitle
+                        contextActions={this.encounterActions(encounter)}
+                        primaryAction={this.cancelVisitAction(encounter)}
+                        title={this.getTitle(encounter)}/>
+                    <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
+                        Form.formTypes.ProgramEncounter)} observations={encounter.observations}/>
+                </View>}
+            />);
         return (
             <View>
-                {sortedEncounters.length === 0 ?
-                    (<View>
-                        <View style={[DGS.common.content]}>
-                            <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('noEncounters')}</Text>
-                        </View>
-                    </View>)
-                    : sortedEncounters.map((encounter, index) => {
-                        const title = this.getTitle(encounter);
-                        const form = formMappingService.findFormForEncounterType(encounter.encounterType,
-                            Form.formTypes.ProgramEncounter);
-                        return (
-                            <View key={`${index}-1`} style={this.props.style}>
-                                <ObservationsSectionTitle
-                                    contextActions={this.encounterActions(encounter)}
-                                    primaryAction={this.cancelVisitAction(encounter)}
-                                    title={title}/>
-                                <Observations form={form} observations={encounter.observations} key={`${index}-2`}/>
-                            </View>
-                        );
-                    })}</View>
+                {renderable}
+            </View>
+
         );
     }
 }

@@ -20,8 +20,9 @@ class ProgramEnrolmentDashboardActions {
 
     static getInitialState() {
         return {
-            programEncounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity),
-            encounterTypeState: new EntityTypeChoiceState(null, ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity)
+            programEncounterTypeState: new EntityTypeChoiceState(ProgramEncounter.createEmptyInstance(), ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity),
+            encounterTypeState: new EntityTypeChoiceState(Encounter.create(), ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity),
+            enrolment: ProgramEnrolment.createEmptyInstance()
         };
     }
 
@@ -151,7 +152,8 @@ class ProgramEnrolmentDashboardActions {
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
-    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE'
+    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE',
+    RESET: 'PEDA.RESET'
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -159,6 +161,7 @@ const EncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('ENCOUNTE
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
+    [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_CHANGE, ProgramEnrolmentDashboardActions.onProgramChange],
 

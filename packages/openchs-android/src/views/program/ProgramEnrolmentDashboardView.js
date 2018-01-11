@@ -46,12 +46,20 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchOnLoad();
         return super.componentWillMount();
     }
 
     dispatchOnLoad() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
+    }
+
+    componentDidMount() {
+        setTimeout(() => this.dispatchOnLoad(), 300);
+    }
+
+    componentWillUnmount() {
+        this.dispatchAction(Actions.RESET);
+        super.componentWillUnmount();
     }
 
     componentWillReceiveProps() {
@@ -98,8 +106,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program);
     }
 
-    getEnrolmentContextActions(isExit){
-        const contextActions = [new ContextAction('edit', () => isExit? this.editExit() : this.editEnrolment())];
+    getEnrolmentContextActions(isExit) {
+        const contextActions = [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
         return contextActions;
     }
 
@@ -170,8 +178,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 <View style={{marginHorizontal: 8}}>
                                     {enrolmentStatus ? <View/> :
                                         <View>
-                                            <ObservationsSectionTitle contextActions={this.getEnrolmentContextActions(true)}
-                                                                      title={this.getExitHeaderMessage(this.state.enrolment)}/>
+                                            <ObservationsSectionTitle
+                                                contextActions={this.getEnrolmentContextActions(true)}
+                                                title={this.getExitHeaderMessage(this.state.enrolment)}/>
                                             <Observations form={this.getForm()}
                                                           observations={this.state.enrolment.programExitObservations}
                                                           style={{marginVertical: DGS.resizeHeight(8)}}/>

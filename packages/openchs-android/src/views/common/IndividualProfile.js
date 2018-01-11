@@ -34,8 +34,11 @@ class IndividualProfile extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {value: this.props.individual});
         return super.componentWillMount();
+    }
+
+    componentDidMount() {
+        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {value: this.props.individual}), 300);
     }
 
     viewProfile() {

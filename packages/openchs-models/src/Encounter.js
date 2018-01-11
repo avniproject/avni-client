@@ -5,6 +5,7 @@ import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import G from "./utility/General";
 import moment from "moment";
+import EncounterType from "./EncounterType";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -24,6 +25,7 @@ class Encounter extends AbstractEncounter {
         encounter.observations = [];
         encounter.uuid = G.randomUUID();
         encounter.encounterDateTime = new Date();
+        encounter.encounterType = EncounterType.create();
         return encounter;
     }
 
