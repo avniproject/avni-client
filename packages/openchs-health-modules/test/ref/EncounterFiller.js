@@ -1,9 +1,13 @@
 import EntityFactory from "../../../openchs-models/test/EntityFactory";
 
 export default class EncounterFiller {
-    constructor(programData, enrolment, encounterType) {
+    constructor(programData, enrolment, encounterType, encounterDateTime = new Date()) {
         this.enrolment = enrolment;
-        this.programEncounter = EntityFactory.createProgramEncounter({programEnrolment: enrolment});
+        this.programEncounter = EntityFactory.createProgramEncounter({
+            programEnrolment: enrolment,
+            encounterType: encounterType,
+            encounterDateTime: encounterDateTime
+        });
         this.concepts = programData.concepts;
         this.observations = [];
         this._getConcept = this._getConcept.bind(this);

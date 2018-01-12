@@ -37,7 +37,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];
         programEnrolment.checklists = [];
-        programEnrolment.individual = Individual.createEmptyInstance();
+        // programEnrolment.individual = Individual.createEmptyInstance();
         return programEnrolment;
     }
 
@@ -246,7 +246,7 @@ class ProgramEnrolment extends BaseEntity {
             .reverse()
             .filter((enc) => enc.encounterDateTime)
             .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
-            .filter((enc) => encounterTypes.some(et => et.name === enc.encounterType.name))
+            .filter((enc) => encounterTypes.some(encounterType => encounterType === enc.encounterType.name))
             .filter((enc) => !_.isNil(enc.findObservation(conceptName)))
             .head()
             .value();

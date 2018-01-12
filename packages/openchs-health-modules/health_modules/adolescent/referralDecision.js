@@ -57,7 +57,8 @@ const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) =>
 
 
     existingReferralAdvice(programEncounter)
-        .forEach(erac => complicationsBuilder.addComplication(erac.name).whenItem(true).is.truthy);
+        .forEach(existingReferralComplication =>
+            complicationsBuilder.addComplication(existingReferralComplication.name));
 
     Array.from(conceptReferralMap.entries())
         .map(([concept, complication]) => complicationsBuilder.addComplication(complication)
