@@ -210,4 +210,53 @@ describe("Referral Decision Test", () => {
         assert.include(decisionsToRefer, "Yellowish discharge from penis/vagina");
         assert.include(decisionsToRefer, "Severe malnourishment");
     });
+
+    it("Generate referral advice if Hb is less than 7", () => {
+        const encounterDecisions = {encounterDecisions: []};
+        let individual = EntityFactory.createIndividual("Test Dude");
+        individual.gender = Gender.create("Male");
+        let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});
+
+        let previousEncounter = new EncounterFiller(programData, enrolment, "Annual Visit", moment("1995-12-25").toDate())
+            .forMultiCoded("Refer to hospital for", ["Physical defect", "Yellowish discharge from penis/vagina"])
+            .build();
+
+        let currentEncounter = new EncounterFiller(programData, enrolment, "Annual Visit", moment("1996-12-25").toDate())
+            .forSingleCoded("Is there any physical defect?", "No")
+            .forSingleCoded("Is there a swelling at lower back?", "No")
+            .forSingleCoded("Is there Cleft lip/Cleft palate?", "No")
+            .forSingleCoded("Is there large gap between toe and finger?", "No")
+            .forSingleCoded("Is her nails/tongue pale?", "No")
+            .forSingleCoded("Is there any physical defect?", "No")
+            .forSingleCoded("Is she/he severely malnourished?", "No")
+            .forSingleCoded("Is there any problem in leg bone?", "No")
+            .forSingleCoded("Is there a swelling over throat?", "No")
+            .forSingleCoded("Does she have difficulty in breathing while playing?", "No")
+            .forSingleCoded("Are there dental carries?", "No")
+            .forSingleCoded("Is there a white patch in her eyes?", "No")
+            .forSingleCoded("Does she have impaired vision?", "No")
+            .forSingleCoded("Is there pus coming from ear?", "No")
+            .forSingleCoded("Does she have impaired hearing?", "No")
+            .forSingleCoded("Does she have skin problems?", "No")
+            .forSingleCoded("Has she ever suffered from convulsions?", "No")
+            .forSingleCoded("Is there any neurological motor defect?", "No")
+            .forSingleCoded("Burning Micturition", "No")
+            .forSingleCoded("Ulcer over genitalia", "No")
+            .forSingleCoded("Yellowish discharge from Vagina / penis", "No")
+            .forSingleCoded("Does she remain absent during menstruation?", "No")
+            .forConcept("Hb", 6)
+            .forConcept("BMI", 14)
+            .forSingleCoded("Sickling Test Result", "Negative")
+            .forMultiCoded("Visited hospital for", ["Physical defect"])
+            .forMultiCoded("Ailments cured post treatment", [])
+            .build();
+
+        let decisions = referralDecisions(encounterDecisions, currentEncounter).encounterDecisions;
+        let decisionsToRefer = C.findValue(decisions, "Refer to hospital for");
+        assert.lengthOf(decisionsToRefer, 3);
+        assert.notInclude(decisionsToRefer, "Physical defect");
+        assert.include(decisionsToRefer, "Yellowish discharge from penis/vagina");
+        assert.include(decisionsToRefer, "Severe malnourishment");
+        assert.include(decisionsToRefer, "Severe Anemia");
+    });
 });
