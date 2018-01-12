@@ -59,7 +59,8 @@ const existingReferralAdvice = (currentEncounter) => {
     const secondLastReferredConcepts = getReferredAdviceConcepts(secondLastRoutineEncounter);
 
     const remainingConcepts = _.differenceBy(lastReferredConcepts, secondLastReferredConcepts, (c) => c.uuid);
-    return remainingConcepts.filter(unsuccessfulReferral(currentEncounter));
+    let menstrualDisorder = lastReferredConcepts.filter((c) => c.name === "Menstrual Disorder");
+    return menstrualDisorder.concat(remainingConcepts).filter(unsuccessfulReferral(currentEncounter));
 };
 
 const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {
