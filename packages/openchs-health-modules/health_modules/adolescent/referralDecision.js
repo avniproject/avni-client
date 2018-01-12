@@ -70,7 +70,7 @@ const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) =>
     complicationsBuilder.addComplication("Severe malnourishment").when
         .valueInEncounter("BMI").lessThanOrEqualTo(14.5);
     complicationsBuilder.addComplication("Sickle Cell Anemia").when
-        .valueInEncounter("Sickling Test Result").containsAnyAnswerConceptName("Trait", "Disease");
+        .valueInEncounter("Sickling Test Result").containsAnswerConceptName("Disease");
 
     vulnerabilityEncounterDecisions.encounterDecisions.push(complicationsBuilder.getComplications());
     return vulnerabilityEncounterDecisions;
