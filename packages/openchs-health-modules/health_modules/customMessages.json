@@ -464,13 +464,20 @@
     "Required10Digits": "Required 10 digits",
     "Adolescent Vulnerabilities": "Risk Of",
     "Reason for School Dropout Vulnerability": "Reason(s) for Risk Of School Dropout",
-    "Reason for Addiction Vulnerability":"Reason(s) for Risk Of Addiction",
+    "Reason for Addiction Vulnerability": "Reason(s) for Risk Of Addiction",
     "Reason for Early Marriage Vulnerability": "Reason(s) for Risk Of Early Marriage",
     "Reason for Early Pregnancy & RTI Vulnerability": "Reason(s) for Risk Of Early Pregnancy",
     "Reason for Malnutrition Vulnerability": "Reason(s) for Risk Of Malnutrition",
     "Reason for Road Traffic Accident Vulnerability": "Reason(s) for Risk Of Road Traffic Accident",
-    "Counselling for No Parents / Single Parent Information Checklist": "Checklist - Information to be given about\n 1. Government schemes - How to get benefits, which documents are required.\n 2. Scholarship\n 3. Importance of Education",
-    "Counselling for Road Traffic Accident Information Checklist": "Checklist - Information to be given about\n 1. Road Safety Precautions.\n 2. Act & Rules",
+    "Counselling checklist for No Parents / Single Parent": "Checklist - Information to be given about\n 1. Government schemes - How to get benefits, which documents are required.\n 2. Scholarship\n 3. Importance of Education",
+    "Counselling checklist for Menstrual Disorder": "Checklist - Information to be given about\n 1. 70% girls have some kind of discomfort worldwide.\n 2. Take tablet to subside menstrual cramps, it has no side effects.\n 3. Use home remedies like drinking tea or lamonade to feel better.\n 4. Drink plenty of fluids.\n 5. Consult a doctor whenever you require.\n 6. Maintain hyigiene while menstruating.",
+    "Counselling checklist for Severe Anemia": "Checklist - Information to be given about\n 1. You must eat green leafy vegetables.\n 2. You should consume iron rich foods like dates, eggplants, jaggery.\n 3. Take IFA tablets regularly for 3 months.",
+    "Counselling checklist for Malnutrition": "Checklist - Information to be given about\n 1. Eat balanced diet.\n 2. Eat all types of food.\n 3. Eat fruits and vegetables in a good amount.\n 4. Water is very important for digestion.",
+    "Counselling checklist for Sickle Cell Anemia(Trait)": "Checklist - Information to be given about\n 1. This is a genetic disorder of hemoglobin, commonly seen among tribals.\n 2. You must get all your femily members tested for Sickle cell.\n 3. You must marry to a Sickle cell negative /normal person to prevent the disease affect the future generations.\n 4. You can lead a normal life without any symptom of the disease.",
+    "Counselling checklist for Sickle Cell Anemia(Disease)": "Checklist - Information to be given about Sickle Cell Anemia(Disease)\n 1. Drink plenty of water.\n 2. Do not work heavily in sunlight.\n 3. Consult a doctor whenever you fall sick.\n 4. Always keep painkiller tablet with you and use it whenever there is a pain.",
+    "Counselling checklist for Addiction": "Checklist\n 1. Addiction is harmful for self, family and society.\n 2. Addiction causes cancer.\n 3. Laws and acts related to smoking / drinking.\n 4. Addiction can cause financial crisis.\n 5. Say NO to substances like bidi, gutka, cigarette, tobacco or alcohol.",
+    "Counselling checklist for RTI": "Checklist - Information to be given about RTI\n 1. Use contraceptives like condoms or pills.\n 2. Be faithful to your partner.\n 3. There will be risk of transmitting HIV or STDs.\n 4. HIV can lead to AIDS.\n 5. Say NO to unprotected sex.",
+    "Counselling checklist Road Traffic Accident": "Checklist - Information to be given about\n 1. Licence is mandatory for driving vehicle\n 2. You are eligible for getting driving licence after age of 16.\n 3. Always wear helmet while driving.\n 4. Do not overtake from wrong side.\n 5. Do not drink and drive.\n 6. Always indicate prior to turn left or right.",
     "Adolescent Counselling Advice": "Provide Counselling for"
   },
   "gu_IN": {
@@ -689,12 +696,11 @@
     "Other sickness (please specify)": "અન્ય બીમારી (કૃપા કરીને સ્પષ્ટ કરો)",
     "Adolescent Vulnerabilities": "જોખમ",
     "Reason for School Dropout Vulnerability": "સ્કૂલના ડ્રોપઆઉટના જોખમ માટે કારણ (ઓ)",
-    "Reason for Addiction Vulnerability":"વ્યસનના જોખમ માટે કારણ (ઓ)",
+    "Reason for Addiction Vulnerability": "વ્યસનના જોખમ માટે કારણ (ઓ)",
     "Reason for Early Marriage Vulnerability": "પ્રારંભિક લગ્નના જોખમ માટે કારણ (ઓ)",
     "Reason for Early Pregnancy & RTI Vulnerability": "પ્રારંભિક ગર્ભાવસ્થાના જોખમ માટે કારણ (ઓ)",
     "Reason for Malnutrition Vulnerability": "કુપોષણના જોખમ માટે કારણ (ઓ)",
     "Reason for Road Traffic Accident Vulnerability": "રોડ ટ્રાફિક અકસ્માતના જોખમ માટે કારણ (ઓ)",
     "Age at Marriage": "લગ્નની ઉંમર"
-
   }
 }

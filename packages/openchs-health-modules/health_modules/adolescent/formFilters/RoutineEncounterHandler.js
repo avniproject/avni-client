@@ -506,13 +506,17 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    counsellingChecklistForSevereAnemia(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Severe Anemia", "Counselling for Severe Anemia Done"));
+    }
+
     counsellingForSevereAnemiaDone(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
             "Reason for School Dropout Vulnerability", "Severe Anemia", "Counselling for Severe Anemia Done"));
     }
 
-
-    counsellingForNoParentsSingleParentInformationChecklist(programEncounter, formElement) {
+    counsellingChecklistForNoParentsSingleParent(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
             "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
     }
@@ -520,6 +524,16 @@ export default class RoutineEncounterHandler {
     counsellingForNoParentsSingleParentDone(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
             "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
+    }
+
+    counsellingChecklistForMenstrualDisorder(programEncounter, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
+        statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower Abdominal Pain",
+            "Backache", "Leg Pain", "Nausea and Vomiting", "Headache", "Abnormal Vaginal Discharge", "Heavy Bleeding", "Irregular Menses")
+            .or.whenItem(this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Menstrual Disorder", "Counselling for Menstrual Disorder Done"))
+            .equals(true);
+        return statusBuilder.build();
     }
 
     counsellingForMenstrualDisorderDone(programEncounter, formElement) {
@@ -532,14 +546,36 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    counsellingChecklistForMalnutrition(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Malnutrition", "Counselling for Malnutrition Done"));
+    }
+
+
     counsellingForMalnutritionDone(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
             "Reason for School Dropout Vulnerability", "Malnutrition", "Counselling for Malnutrition Done"));
     }
 
+    counsellingChecklistForSickleCellAnemiaTrait(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+    }
+
+    counsellingChecklistForSickleCellAnemiaDisease(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+    }
+
+
     counsellingForSickleCellAnemiaDone(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
             "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+    }
+
+    counsellingChecklistForAddiction(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Adolescent Vulnerabilities", "Addiction", "Counselling for Addiction Done"));
     }
 
     counsellingForAddictionDone(programEncounter, formElement) {
@@ -547,19 +583,24 @@ export default class RoutineEncounterHandler {
             "Adolescent Vulnerabilities", "Addiction", "Counselling for Addiction Done"));
     }
 
+    counsellingChecklistForRti(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Adolescent Vulnerabilities", "Early Pregnancy & RTI", "Counselling for Early Pregnancy & RTI Done"));
+    }
+
     counsellingForEarlyPregnancyRtiDone(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
             "Adolescent Vulnerabilities", "Early Pregnancy & RTI", "Counselling for Early Pregnancy & RTI Done"));
     }
 
-    counsellingForRoadTrafficAccident(programEncounter, formElement) {
+    counsellingChecklistForRoadTrafficAccident(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident"));
+            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident Done"));
     }
 
-    counsellingForRoadTrafficAccidentInformationChecklist(programEncounter, formElement) {
+    counsellingForRoadTrafficAccidentDone(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident"));
+            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident Done"));
     }
 
     whichOfTheFollowingAilmentsDidYouVisitTheHospitalFor(programEncounter, formElement) {
