@@ -241,14 +241,17 @@ class ProgramEnrolment extends BaseEntity {
         return null;
     }
 
-    findLastEncounterOfTypeAndWithConcept(currentEncounter, encounterTypes = [], conceptName) {
+    findLastEncounterOfType(currentEncounter, encounterTypes = []) {
+        return this.findNthLastEncounterOfType(currentEncounter, encounterTypes, 0);
+    }
+
+    findNthLastEncounterOfType(currentEncounter, encounterTypes = [], n = 0) {
         return _.chain(this.getEncounters())
             .reverse()
             .filter((enc) => enc.encounterDateTime)
             .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
             .filter((enc) => encounterTypes.some(encounterType => encounterType === enc.encounterType.name))
-            .filter((enc) => !_.isNil(enc.findObservation(conceptName)))
-            .head()
+            .nth(n)
             .value();
     }
 

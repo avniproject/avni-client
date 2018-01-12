@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import ComplicationsBuilder from "../rules/complicationsBuilder";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
+import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
 
 
 const conceptReferralMap = new Map([
@@ -29,26 +30,36 @@ const conceptReferralMap = new Map([
 ]);
 const REFERRAL_ADVICE_CONCEPT = 'Refer to hospital for';
 
+const getReferredAdviceConcepts = (encounter) => {
+    const referredAdviceObs = _.defaultTo(encounter.findObservation(REFERRAL_ADVICE_CONCEPT),
+        {concept: {getAnswers: () => []}, getValue: () => []});
+    const answerConcepts = referredAdviceObs.concept.getAnswers().map(a => a.concept);
+    return referredAdviceObs.getValue()
+        .map((conceptUUID) => answerConcepts.find(ac => ac.uuid === conceptUUID));
+};
+
 const unsuccessfulReferral = (encounter) => (concept) => {
-    const latestObs = encounter.programEnrolment
-        .findLatestObservationFromEncounters("Visited hospital for", encounter);
+    let latestObs = encounter.findObservation("Visited hospital for");
     if (_.isNil(latestObs)) return true;
     return !latestObs.getValue().some(answer => concept.uuid === answer);
 };
 
 const existingReferralAdvice = (currentEncounter) => {
-    const lastEncounterWithReferralDecision =
+    const lastRoutineEncounter =
         currentEncounter.programEnrolment
-            .findLastEncounterOfTypeAndWithConcept(currentEncounter,
-                RoutineEncounterHandler.visits.MONTHLY,
-                REFERRAL_ADVICE_CONCEPT);
-    if (_.isNil(lastEncounterWithReferralDecision)) return [];
-    const referredAdviceObs = lastEncounterWithReferralDecision.findObservation(REFERRAL_ADVICE_CONCEPT);
-    const answerConcepts = referredAdviceObs.concept.getAnswers().map(a => a.concept);
-    const obsConcepts = referredAdviceObs.getValue()
-        .map((conceptUUID) => answerConcepts.find(ac => ac.uuid === conceptUUID));
-    return obsConcepts.filter(unsuccessfulReferral(currentEncounter));
+            .findLastEncounterOfType(currentEncounter,
+                RoutineEncounterHandler.visits.MONTHLY);
+    const secondLastRoutineEncounter =
+        _.defaultTo(currentEncounter.programEnrolment.findNthLastEncounterOfType(currentEncounter,
+            RoutineEncounterHandler.visits.MONTHLY, 1), ProgramEncounter.createEmptyInstance());
 
+    if (_.isNil(lastRoutineEncounter)) return [];
+
+    const lastReferredConcepts = getReferredAdviceConcepts(lastRoutineEncounter);
+    const secondLastReferredConcepts = getReferredAdviceConcepts(secondLastRoutineEncounter);
+
+    const remainingConcepts = _.differenceBy(lastReferredConcepts, secondLastReferredConcepts, (c) => c.uuid);
+    return remainingConcepts.filter(unsuccessfulReferral(currentEncounter));
 };
 
 const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {

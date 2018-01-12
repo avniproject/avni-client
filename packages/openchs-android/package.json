@@ -37,7 +37,7 @@
     "color": "2.0.0",
     "immutable": "3.8.1",
     "invariant": "2.2.2",
-    "lodash": "4.12.0",
+    "lodash": "^4.14.0",
     "moment": "2.18.1",
     "native-base": "0.5.22",
     "openchs-health-modules": "0.0.1",
