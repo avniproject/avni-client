@@ -79,7 +79,7 @@ describe("Referral Decision Test", () => {
             .forMultiCoded("Refer to hospital for", ["Physical defect", "Yellowish discharge from penis/vagina"])
             .build();
 
-        let currentEncounter = new EncounterFiller(programData, enrolment, "Annual Visit",moment("1996-12-25").toDate())
+        let currentEncounter = new EncounterFiller(programData, enrolment, "Annual Visit", moment("1996-12-25").toDate())
             .forSingleCoded("Is there any physical defect?", "No")
             .forSingleCoded("Is there a swelling at lower back?", "No")
             .forSingleCoded("Is there Cleft lip/Cleft palate?", "No")
@@ -122,11 +122,11 @@ describe("Referral Decision Test", () => {
         individual.gender = Gender.create("Male");
         let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});
 
-        let previousEncounter = new EncounterFiller(programData, enrolment)
+        let previousEncounter = new EncounterFiller(programData, enrolment, "Annual Visit", moment("1995-12-25").toDate())
             .forMultiCoded("Refer to hospital for", ["Physical defect", "Yellowish discharge from penis/vagina"])
             .build();
 
-        let currentEncounter = new EncounterFiller(programData, enrolment, "Annual Visit")
+        let currentEncounter = new EncounterFiller(programData, enrolment, "Annual Visit", moment("1996-12-25").toDate())
             .forSingleCoded("Is there any physical defect?", "No")
             .forSingleCoded("Is there a swelling at lower back?", "No")
             .forSingleCoded("Is there Cleft lip/Cleft palate?", "No")
@@ -155,6 +155,7 @@ describe("Referral Decision Test", () => {
             .forMultiCoded("Visited hospital for", ["Physical defect"])
             .forMultiCoded("Ailments cured post treatment", [])
             .build();
+
         let decisions = referralDecisions(encounterDecisions, currentEncounter).encounterDecisions;
         let decisionsToRefer = C.findValue(decisions, "Refer to hospital for");
         assert.lengthOf(decisionsToRefer, 1);

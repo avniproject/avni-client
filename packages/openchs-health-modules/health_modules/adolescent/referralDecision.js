@@ -41,9 +41,10 @@ const existingReferralAdvice = (currentEncounter) => {
     const obsConcepts = referredAdviceObs.getValue()
         .map((conceptUUID) => answerConcepts.find(ac => ac.uuid === conceptUUID));
     return obsConcepts.filter((obsConcept) => {
-        const lastEncounterWithObs = currentEncounter.programEnrolment
-            .findLatestPreviousEncounterWithValueForConcept(currentEncounter, "Visited hospital for", obsConcept.name);
-        return _.isNil(lastEncounterWithObs) || lastEncounterWithObs.encounterDateTime <= lastEncounterWithReferralDecision.encounterDateTime;
+        const latestObs = currentEncounter.programEnrolment
+            .findLatestObservationFromEncounters("Visited hospital for", currentEncounter);
+        if (_.isNil(latestObs)) return true;
+        return !latestObs.getValue().some(answer => obsConcept.uuid === answer);
     });
 
 };
