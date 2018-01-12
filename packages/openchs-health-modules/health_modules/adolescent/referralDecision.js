@@ -29,6 +29,13 @@ const conceptReferralMap = new Map([
 ]);
 const REFERRAL_ADVICE_CONCEPT = 'Refer to hospital for';
 
+const unsuccessfulReferral = (encounter) => (concept) => {
+    const latestObs = encounter.programEnrolment
+        .findLatestObservationFromEncounters("Visited hospital for", encounter);
+    if (_.isNil(latestObs)) return true;
+    return !latestObs.getValue().some(answer => concept.uuid === answer);
+};
+
 const existingReferralAdvice = (currentEncounter) => {
     const lastEncounterWithReferralDecision =
         currentEncounter.programEnrolment
@@ -40,12 +47,7 @@ const existingReferralAdvice = (currentEncounter) => {
     const answerConcepts = referredAdviceObs.concept.getAnswers().map(a => a.concept);
     const obsConcepts = referredAdviceObs.getValue()
         .map((conceptUUID) => answerConcepts.find(ac => ac.uuid === conceptUUID));
-    return obsConcepts.filter((obsConcept) => {
-        const latestObs = currentEncounter.programEnrolment
-            .findLatestObservationFromEncounters("Visited hospital for", currentEncounter);
-        if (_.isNil(latestObs)) return true;
-        return !latestObs.getValue().some(answer => obsConcept.uuid === answer);
-    });
+    return obsConcepts.filter(unsuccessfulReferral(currentEncounter));
 
 };
 
