@@ -85,6 +85,8 @@ const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) =>
         .valueInEncounter("BMI").lessThanOrEqualTo(14.5);
     complicationsBuilder.addComplication("Sickle Cell Anemia").when
         .valueInEncounter("Sickling Test Result").containsAnswerConceptName("Disease");
+    complicationsBuilder.addComplication("Self Addiction").when
+        .valueInEncounter("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both");
 
     vulnerabilityEncounterDecisions.encounterDecisions.push(complicationsBuilder.getComplications());
     return vulnerabilityEncounterDecisions;

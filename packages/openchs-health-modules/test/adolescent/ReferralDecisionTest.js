@@ -396,6 +396,7 @@ describe("Referral Decision Test", () => {
             .forSingleCoded("Ulcer over genitalia", "No")
             .forSingleCoded("Yellowish discharge from Vagina / penis", "No")
             .forSingleCoded("Does she remain absent during menstruation?", "No")
+            .forSingleCoded("Addiction Details", "Both")
             .forConcept("Hb", 8)
             .forConcept("BMI", 15)
             .forSingleCoded("Sickling Test Result", "Negative")
@@ -403,9 +404,10 @@ describe("Referral Decision Test", () => {
 
         let decisions = referralDecisions(encounterDecisions, currentEncounter).encounterDecisions;
         let decisionsToRefer = C.findValue(decisions, "Refer to hospital for");
-        assert.lengthOf(decisionsToRefer, 1);
+        assert.lengthOf(decisionsToRefer, 2);
         assert.notInclude(decisionsToRefer, "Physical defect");
         assert.notInclude(decisionsToRefer, "Yellowish discharge from penis/vagina");
         assert.include(decisionsToRefer, "Menstrual Disorder");
+        assert.include(decisionsToRefer, "Self Addiction");
     });
 });
