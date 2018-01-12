@@ -65,17 +65,17 @@ export default class RoutineEncounterHandler {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         const showQuestion = statusBuilder.show();
 
+        showQuestion
+            .whenItem(this._isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter))
+            .equals(false);
+
         if (this._isFirstAnnualVisit(programEncounter)) {
-            showQuestion.when.valueInEnrolment("School going").containsAnswerConceptName("Yes");
+            showQuestion.and.when.valueInEnrolment("School going").containsAnswerConceptName("Yes");
         } else {
-            showQuestion.when.valueInEncounter("School going").containsAnswerConceptName("Yes");
+            showQuestion.and.when.valueInEncounter("School going").containsAnswerConceptName("Yes");
         }
 
         showQuestion.or.when.addressType.equals("Village");
-
-        showQuestion
-            .and.whenItem(this._isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter))
-            .equals(false);
 
         statusBuilder.skipAnswers("Parents").when
             .valueInEncounter("Parents' life status").containsAnswerConceptName("Both Expired");
@@ -146,6 +146,14 @@ export default class RoutineEncounterHandler {
     sicklingTestResult(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         statusBuilder.show().when.valueInEncounter("Sickling Test Done").containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
+
+    areYouTakingRegularTreatmentForSickleCellDisease(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
+        statusBuilder.show().when.latestValueInEntireEnrolment("Are you taking regular treatment for Sickle cell disease?")
+            .and.whenItem(this._isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter))
+            .equals(true);
         return statusBuilder.build();
     }
 
@@ -673,14 +681,14 @@ export default class RoutineEncounterHandler {
     _notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, encounterTypes) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
         statusBuilder.show()
-            .when.valueInEntireEnrolment("Standard").not.containsAnyAnswerConceptName("11", "12")
+            .when.latestValueInAllEncounters("Standard").not.containsAnyAnswerConceptName("11", "12")
             .or.addressType.not.equalsOneOf("School", "Boarding");
         return statusBuilder.build();
     }
 
     _isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter) {
         let isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding = new RuleCondition({programEncounter: programEncounter})
-            .when.latestValueInEntireEnrolment("Standard").containsAnyAnswerConceptName("11", "12")
+            .when.latestValueInAllEncounters("Standard").containsAnyAnswerConceptName("11", "12")
             .and.addressType.equalsOneOf("School", "Boarding").matches();
         return isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding;
     }

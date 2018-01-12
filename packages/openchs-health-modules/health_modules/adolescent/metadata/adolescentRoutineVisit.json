@@ -491,6 +491,29 @@
           "mandatory": true
         },
         {
+          "name": "Are you taking regular treatment for Sickle cell disease?",
+          "uuid": "dfb3b418-46dd-4141-9a5e-2ced6422c575",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "836809b0-45d0-49b4-a0a0-16b1bdb9628d",
+            "name": "Are you taking regular treatment for Sickle cell disease?",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              }
+            ]
+          },
+          "mandatory": true,
+          "displayOrder": 8
+        },
+        {
           "name": "Iron tablets",
           "uuid": "0349c477-870a-4b14-9062-91462129e78b",
           "keyValues": [],
@@ -511,7 +534,7 @@
             ]
           },
           "mandatory": true,
-          "displayOrder": 8
+          "displayOrder": 9
         },
         {
           "name": "From Where?",
@@ -534,7 +557,7 @@
             ]
           },
           "mandatory": true,
-          "displayOrder": 9
+          "displayOrder": 10
         },
         {
           "name": "Iron tablets consumed in last month",
@@ -548,7 +571,7 @@
             "highAbsolute": 99
           },
           "mandatory": true,
-          "displayOrder": 10
+          "displayOrder": 11
         },
         {
           "name": "Albendazole tablets received?",
@@ -570,7 +593,7 @@
               }
             ]
           },
-          "displayOrder": 11,
+          "displayOrder": 12,
           "mandatory": true
         }
       ]
