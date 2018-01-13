@@ -67,6 +67,7 @@ class AbstractDataEntryState {
         this.movePrevious();
 
         ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
+        this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
 
         if (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
             General.logDebug("No form elements here. Moving to previous screen");
@@ -100,6 +101,7 @@ class AbstractDataEntryState {
         } else {
             this.moveNext();
             ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
+            this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
             if (this.hasNoFormElements()) {
                 General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);
