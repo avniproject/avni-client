@@ -38,7 +38,8 @@ class Observations extends AbstractComponent {
                     borderLeftWidth: 1,
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     paddingLeft: 3,
-                    paddingBottom: 2
+                    paddingBottom: 2,
+                    flex: 1
                 }
             }
             :
@@ -83,6 +84,7 @@ class Observations extends AbstractComponent {
                 <ListView
                     enableEmptySections={true}
                     dataSource={dataSource}
+                    style={this.styles.observationTable}
                     pageSize={20}
                     initialListSize={10}
                     removeClippedSubviews={true}

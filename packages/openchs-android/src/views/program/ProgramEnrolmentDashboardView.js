@@ -46,20 +46,12 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
+        this.dispatchOnLoad();
         return super.componentWillMount();
     }
 
     dispatchOnLoad() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-    }
-
-    componentDidMount() {
-        setTimeout(() => this.dispatchOnLoad(), 300);
-    }
-
-    componentWillUnmount() {
-        this.dispatchAction(Actions.RESET);
-        super.componentWillUnmount();
     }
 
     componentWillReceiveProps() {
@@ -117,9 +109,13 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         }
     }
 
+    enrolments() {
+        return _.get(this.state, 'enrolment.individual.enrolments') || [];
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
-        var enrolments = _.reverse(_.sortBy(this.state.enrolment.individual.enrolments, (enrolment) => enrolment.enrolmentDateTime));
+        var enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
