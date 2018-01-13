@@ -1,7 +1,6 @@
 import ComplicationsBuilder from "../rules/complicationsBuilder";
 import C from '../common';
 import _ from 'lodash'
-import RuleCondition from "../rules/RuleCondition";
 
 const encounterDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {
     const complicationsBuilder = new ComplicationsBuilder({
