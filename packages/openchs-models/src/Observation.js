@@ -45,7 +45,8 @@ class Observation {
         } else if (observation.concept.datatype === Concept.dataType.Boolean) {
             return i18n.t(_.toString(valueWrapper.getValue()));
         } else {
-            return _.toString(valueWrapper.getValue());
+            const unit = _.defaultTo(observation.concept.unit, "");
+            return _.toString(`${valueWrapper.getValue()}${unit}`);
         }
     }
 
