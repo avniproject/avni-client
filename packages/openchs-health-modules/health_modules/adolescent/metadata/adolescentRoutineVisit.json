@@ -391,7 +391,11 @@
           "keyValues": [],
           "conceptUUID": "d883d5fe-e17d-4136-b989-089fa0295e34",
           "displayOrder": 1,
-          "mandatory": true
+          "mandatory": true,
+          "validFormat": {
+            "regex": "^[0-9]{2,3}$",
+            "descriptionKey": "Required2Or3Digits"
+          }
         },
         {
           "name": "Weight",
@@ -399,7 +403,11 @@
           "keyValues": [],
           "conceptUUID": "75b1656e-2777-4753-9612-ce03a766a5e1",
           "displayOrder": 2,
-          "mandatory": true
+          "mandatory": true,
+          "validFormat": {
+            "regex": "^[0-9]{2}$",
+            "descriptionKey": "Required2Digits"
+          }
         },
         {
           "name": "BMI",
@@ -430,7 +438,11 @@
             ]
           },
           "mandatory": true,
-          "displayOrder": 4
+          "displayOrder": 4,
+          "validFormat": {
+            "regex": "^[0-9]{1,2}$",
+            "descriptionKey": "Required1Or2Digits"
+          }
         },
         {
           "name": "Hemoglobin Test",
