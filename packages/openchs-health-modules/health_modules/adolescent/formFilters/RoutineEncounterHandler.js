@@ -102,9 +102,7 @@ export default class RoutineEncounterHandler {
     }
 
     chronicSicknessInFamily(programEncounter, formElement) {
-        return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
-            .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+        return new FormElementStatus(formElement.uuid, false);
     }
 
     height(programEncounter, formElement) {
