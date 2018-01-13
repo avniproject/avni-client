@@ -50,7 +50,7 @@ export default class RoutineEncounterHandler {
     }
 
     fathersAddiction(programEncounter, formElement) {
-        return this._fatherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
+        return this._fatherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY);
     }
 
     mothersOccupation(programEncounter, formElement) {
@@ -58,7 +58,7 @@ export default class RoutineEncounterHandler {
     }
 
     mothersAddiction(programEncounter, formElement) {
-        return this._motherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
+        return this._motherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY);
     }
 
     stayingWithWhom(programEncounter, formElement) {
