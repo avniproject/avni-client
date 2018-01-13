@@ -7,6 +7,7 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
+import Separator from "../primitives/Separator";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -27,13 +28,10 @@ class Observations extends AbstractComponent {
         this.styles = highlight ?
             {
                 observationTable: {
-                    borderRightWidth: 1,
-                    borderTopWidth: 1,
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
                     marginHorizontal: 3,
                     backgroundColor: Colors.HighlightBackgroundColor
                 },
-                observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                observationRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
                 observationColumn: {
                     borderLeftWidth: 1,
                     borderColor: 'rgba(0, 0, 0, 0.12)',
@@ -45,13 +43,10 @@ class Observations extends AbstractComponent {
             :
             {
                 observationTable: {
-                    borderRightWidth: 1,
-                    borderTopWidth: 1,
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
                     marginHorizontal: 3,
                     backgroundColor: Colors.GreyContentBackground
                 },
-                observationRow: {borderBottomWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                observationRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
                 observationColumn: {
                     borderLeftWidth: 1,
                     borderColor: 'rgba(0, 0, 0, 0.12)',
@@ -79,7 +74,7 @@ class Observations extends AbstractComponent {
             .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal()]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
-            <View style={{flexDirection: "column"}}>
+            <View style={{flexDirection: "column", paddingBottom: 10}}>
                 {this.renderTitle()}
                 <ListView
                     enableEmptySections={true}
@@ -88,6 +83,8 @@ class Observations extends AbstractComponent {
                     pageSize={20}
                     initialListSize={10}
                     removeClippedSubviews={true}
+                    renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
+                    renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
                     renderRow={([name, obs, isAbnormal]) =>
                         < View style={[{flexDirection: "row"}, this.styles.observationRow]}>
                             <Text style={[{
