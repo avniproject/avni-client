@@ -24,9 +24,11 @@ export default class RoutineEncounterHandler {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
         statusBuilder.show().when.addressType.equals("Boarding School")
             .or.when.addressType.equals("Village")
-            .and.when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes")
             .or.whenItem(this._isFirstAnnualVisit(programEncounter)).equals(true);
-        return statusBuilder.build();
+        const anotherStatusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
+        anotherStatusBuilder.show()
+            .when.latestValueInEntireEnrolment("School going").containsAnswerConceptName("Yes");
+        return statusBuilder.build().and(anotherStatusBuilder.build());
     }
 
     inWhichStandardHeSheIsStudying(programEncounter, formElement) {
