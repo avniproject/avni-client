@@ -1468,7 +1468,7 @@
       "display": "Sexual Details",
       "formElements": [
         {
-          "name": "Sexually active",
+          "name": "Are you Sexually active?",
           "uuid": "16158b6f-0f96-4b58-9127-61a8289be2a1",
           "keyValues": [],
           "type": "SingleSelect",
@@ -1491,7 +1491,7 @@
           "mandatory": true
         },
         {
-          "name": "Unprotected sex",
+          "name": "Do you perform unprotected sexual intercourse?",
           "uuid": "452453a7-11c4-46af-8ec8-95ecd1793221",
           "keyValues": [],
           "type": "SingleSelect",
@@ -1515,12 +1515,12 @@
           "mandatory": true
         },
         {
-          "name": "Partners",
+          "name": "Do you have multiple sexual partners?",
           "uuid": "b138ce2d-9689-42ed-a668-5419ebc7ffbf",
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Partners",
+            "name": "Multiple Sexual Partners",
             "uuid": "84e60852-0d0b-4e8e-a3b0-f22d079d42d9",
             "dataType": "Coded",
             "answers": [
@@ -1538,7 +1538,7 @@
           "mandatory": true
         },
         {
-          "name": "Burning Micturition",
+          "name": "Do you suffer from burning micturition?",
           "uuid": "874db147-95db-48fb-bd51-c9b3de823156",
           "keyValues": [],
           "type": "SingleSelect",
@@ -1562,7 +1562,7 @@
           "mandatory": true
         },
         {
-          "name": "Ulcer over genitalia",
+          "name": "Do you suffer from Ulcer over genitalia?",
           "uuid": "b83ef993-903a-4b56-a228-f8222dee9714",
           "keyValues": [],
           "type": "SingleSelect",
@@ -1586,7 +1586,7 @@
           "mandatory": true
         },
         {
-          "name": "Yellowish discharge from Vagina / penis",
+          "name": "Do you suffer from Yellowish discharge from Vagina / penis?",
           "uuid": "0cfaf695-8c32-4a5e-ad1c-879bff8f4c24",
           "keyValues": [],
           "type": "SingleSelect",

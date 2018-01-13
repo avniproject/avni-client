@@ -663,6 +663,19 @@
     "dataType": "N/A"
   },
   {
+    "name": "Sexual Activity",
+    "uuid": "05a77e09-0f27-421b-a897-f4baad5e418f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
+  },
+  {
     "name": "Don't know",
     "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45",
     "dataType": "N/A"

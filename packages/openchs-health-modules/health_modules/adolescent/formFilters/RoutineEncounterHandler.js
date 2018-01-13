@@ -428,42 +428,42 @@ export default class RoutineEncounterHandler {
             .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
     }
 
-    sexuallyActive(programEncounter, formElement) {
+    areYouSexuallyActive(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
-    unprotectedSex(programEncounter, formElement) {
+    doYouPerformUnprotectedSexualIntercourse(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Sexually active").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
-    partners(programEncounter, formElement) {
+    doYouHaveMultipleSexualPartners(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY);
         statusBuilder.show().when.valueInEncounter("Sexually active").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
 
-    burningMicturition(programEncounter, formElement) {
+    doYouSufferFromBurningMicturition(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
-    ulcerOverGenitalia(programEncounter, formElement) {
+    doYouSufferFromUlcerOverGenitalia(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
-    yellowishDischargeFromVaginaPenis(programEncounter, formElement) {
+    doYouSufferFromYellowishDischargeFromVaginaPenis(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     doYouHaveVehicle2Wheeler(programEncounter, formElement) {
