@@ -220,9 +220,7 @@ export default class RoutineEncounterHandler {
     }
 
     isSheHeSeverelyMalnourished(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, false)
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+        return new FormElementStatus(formElement.uuid, false);
     }
 
     isThereAnyProblemInLegBone(programEncounter, formElement) {
