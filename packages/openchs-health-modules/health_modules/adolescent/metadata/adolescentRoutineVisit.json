@@ -438,11 +438,7 @@
             ]
           },
           "mandatory": true,
-          "displayOrder": 4,
-          "validFormat": {
-            "regex": "^[0-9]{1,2}$",
-            "descriptionKey": "Required1Or2Digits"
-          }
+          "displayOrder": 4
         },
         {
           "name": "Hemoglobin Test",
@@ -450,7 +446,11 @@
           "keyValues": [],
           "conceptUUID": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
           "displayOrder": 5,
-          "mandatory": true
+          "mandatory": true,
+          "validFormat": {
+            "regex": "^[0-9]{1,2}$",
+            "descriptionKey": "Required1Or2Digits"
+          }
         },
         {
           "name": "Sickling Test Done",
