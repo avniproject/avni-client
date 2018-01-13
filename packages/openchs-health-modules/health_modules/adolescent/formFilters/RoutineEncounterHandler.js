@@ -570,10 +570,11 @@ export default class RoutineEncounterHandler {
             name: answer.concept.name,
             uuid: answer.concept.uuid
         }));
+
         allAnswerConcepts.map((answer) => {
             statusBuilder.skipAnswers(answer.name)
-                .when.latestValueInPreviousEncounters("Refer to hospital for").not.containsAnswerConceptName(answer.name)
-                .and.latestValueInPreviousEncounters("Visited hospital for").not.containsAnswerConceptName(answer.name);
+                .when.valueInLastEncounter("Refer to hospital for", RoutineEncounterHandler.visits.MONTHLY)
+                .not.containsAnswerConceptName(answer.name)
         });
 
         let builtStatus = statusBuilder.build();
@@ -587,10 +588,11 @@ export default class RoutineEncounterHandler {
             name: answer.concept.name,
             uuid: answer.concept.uuid
         }));
+
         allAnswerConcepts.map((answer) => {
             statusBuilder.skipAnswers(answer.name)
-                .when.latestValueInPreviousEncounters("Refer to hospital for").not.containsAnswerConceptName(answer.name)
-                .and.latestValueInPreviousEncounters("Ailments cured post treatment").not.containsAnswerConceptName(answer.name);
+                .when.valueInLastEncounter("Refer to hospital for", RoutineEncounterHandler.visits.MONTHLY)
+                .not.containsAnswerConceptName(answer.name)
         });
 
         let builtStatus = statusBuilder.build();

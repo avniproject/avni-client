@@ -148,6 +148,17 @@ export default class RuleCondition {
         });
     }
 
+    valueInLastEncounter(conceptName, encounterTypes) {
+        return this_.addToChain((next, context) => {
+            const lastEncounter = this._getEnrolment(context)
+                .findLastEncounterOfType(context.programEncounter, encounterTypes);
+            const obs = _.defaultTo(lastEncounter, {findObservation: _.noop}).findObservation(conceptName);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.getValue();
+            return next(context);
+        });
+    }
+
     valueInEnrolment(conceptName) {
         return this._addToChain((next, context) => {
             const obs = this._obsFromEnrolment(this._getEnrolment(context), conceptName);
