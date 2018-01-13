@@ -149,7 +149,7 @@ export default class RuleCondition {
     }
 
     valueInLastEncounter(conceptName, encounterTypes) {
-        return this_.addToChain((next, context) => {
+        return this._addToChain((next, context) => {
             const lastEncounter = this._getEnrolment(context)
                 .findLastEncounterOfType(context.programEncounter, encounterTypes);
             const obs = _.defaultTo(lastEncounter, {findObservation: _.noop}).findObservation(conceptName);
