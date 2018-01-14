@@ -64,6 +64,9 @@ reinstall: uninstall_apk run_app
 
 local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
+
+openlocation_apk:
+	open packages/openchs-android/android/app/build/outputs/apk
 # </apk>
 
 

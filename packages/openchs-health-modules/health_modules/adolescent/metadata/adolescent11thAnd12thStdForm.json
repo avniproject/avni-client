@@ -130,7 +130,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Regular treatment taken for Sickle Cell Disease",
+            "name": "Regular treatment taken for Sickle cell disease",
             "uuid": "2c1c084d-24d6-4363-8bbe-e145c19a1fb3",
             "dataType": "Coded",
             "answers": [

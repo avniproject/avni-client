@@ -286,21 +286,6 @@
           "mandatory": true
         },
         {
-          "name": "Number of family members",
-          "uuid": "e9807a5f-b37e-4888-a6a4-5e2a930dc2ea",
-          "keyValues": [],
-          "concept": {
-            "name": "Number of family members",
-            "uuid": "6185ea2f-e610-48ce-a2a8-155f0071fb7d",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highNormal": 6,
-            "highAbsolute": 99
-          },
-          "displayOrder": 7,
-          "mandatory": true
-        },
-        {
           "name": "Number of brothers",
           "uuid": "4446e4c0-2cd0-4257-a7f4-44a58c1a9179",
           "keyValues": [],
@@ -1153,11 +1138,11 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Old Cloth",
+                "name": "Old cloth",
                 "uuid": "968b26b8-a357-4960-8aa8-0db67a728481"
               },
               {
-                "name": "Sanitary Pad",
+                "name": "Sanitary pad",
                 "uuid": "fa118efa-116e-471e-a9cc-f39eabbc0a57"
               },
               {
@@ -1165,7 +1150,7 @@
                 "uuid": "6ebf2af2-38c6-4703-98c2-cba9f234b8f5"
               },
               {
-                "name": "Kit Pad",
+                "name": "Kit pad",
                 "uuid": "99414d2a-b7b1-434d-9354-c3da69619d83"
               }
             ]
@@ -1193,15 +1178,15 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Home Remedy",
+                "name": "Home remedy",
                 "uuid": "c215bcd4-6057-4544-b0bd-1339c8e75d5d"
               },
               {
-                "name": "Consult Doctor",
+                "name": "Consulted doctor",
                 "uuid": "905d4a48-7fe6-43ac-a64f-61b906596b34"
               },
               {
-                "name": "Tablet from shop",
+                "name": "Tablet from Shop",
                 "uuid": "19394a8e-bd38-46a2-a5e4-23f063125477"
               },
               {
@@ -1256,11 +1241,11 @@
                 "uuid": "9676fe70-082f-456c-88c0-28fb48171098"
               },
               {
-                "name": "Heavy Bleeding",
+                "name": "Heavy bleeding",
                 "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1"
               },
               {
-                "name": "No Toilet Facility in School",
+                "name": "No toilet facility in school",
                 "uuid": "f4f14fea-5a02-445d-be41-039670675525"
               },
               {
@@ -1314,17 +1299,17 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Heart Problem",
+                "name": "Heart problem",
                 "uuid": "3505bbe2-e276-4f1b-a0d9-5c22ce160fd4",
                 "abnormal": true
               },
               {
-                "name": "Kidney Problem",
+                "name": "Kidney problem",
                 "uuid": "4cb9f91e-c8f8-4e9f-8c4b-544d94b5afa5",
                 "abnormal": true
               },
               {
-                "name": "Sickle Cell Disease",
+                "name": "Sickle cell disease",
                 "uuid": "00ff88d0-d8bd-493b-98e2-fe60f6f9ce66",
                 "abnormal": true
               },
@@ -1334,7 +1319,7 @@
                 "abnormal": true
               },
               {
-                "name": "No Problem",
+                "name": "No problem",
                 "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
               },
               {
@@ -1378,7 +1363,7 @@
                 "abnormal": true
               },
               {
-                "name": "Abdominal Pain",
+                "name": "Abdominal pain",
                 "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c",
                 "abnormal": true
               },

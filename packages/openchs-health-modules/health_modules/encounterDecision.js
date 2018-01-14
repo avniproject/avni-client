@@ -936,7 +936,7 @@ const treatmentByComplaintAndCode = {
             ]
         }
     },
-    "Abdominal Pain": {
+    "Abdominal pain": {
         "X1": {
             "2": [
                 {

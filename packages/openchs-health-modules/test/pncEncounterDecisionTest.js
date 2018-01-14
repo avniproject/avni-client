@@ -48,7 +48,7 @@ describe("PNC encounter decisions", () => {
             EntityFactory.addCodedAnswers(vaginalProblemsConcept, ["Heavy bleeding per vaginum", "Bad-smelling lochia", "Infected perineum suture", "No problems"]);
 
             otherDifficultiesConcept = EntityFactory.createConcept("Post-Partum Haemorrhage symptoms", Concept.dataType.Coded);
-            EntityFactory.addCodedAnswers(otherDifficultiesConcept, ["Difficulty breathing", "Bad headache", "Blurred vision", "No Problem"]);
+            EntityFactory.addCodedAnswers(otherDifficultiesConcept, ["Difficulty breathing", "Bad headache", "Blurred vision", "No problem"]);
 
             systolicConcept = EntityFactory.createConcept("Systolic", Concept.dataType.Numeric);
             diastolicConcept = EntityFactory.createConcept("Diastolic", Concept.dataType.Numeric);
@@ -90,7 +90,7 @@ describe("PNC encounter decisions", () => {
             decisions = getDecisions(programEncounter);
             expect(pncComplications(decisions)).to.have.lengthOf(0);
 
-            otherDifficultiesObs.toggleMultiSelectAnswer(otherDifficultiesConcept.getPossibleAnswerConcept("No Problem").concept.uuid);
+            otherDifficultiesObs.toggleMultiSelectAnswer(otherDifficultiesConcept.getPossibleAnswerConcept("No problem").concept.uuid);
             decisions = getDecisions(programEncounter);
             expect(pncComplications(decisions)).to.have.lengthOf(0);
         });
@@ -198,7 +198,7 @@ describe("PNC encounter decisions", () => {
 
         beforeEach(() => {
             breastProblemsConcept = EntityFactory.createConcept("Any breast problems", Concept.dataType.Coded);
-            EntityFactory.addCodedAnswers(breastProblemsConcept, ["Breast hardness", "Nipple hardness", "Cracked Nipple", "No Problem"]);
+            EntityFactory.addCodedAnswers(breastProblemsConcept, ["Breast hardness", "Nipple hardness", "Cracked Nipple", "No problem"]);
         });
 
         it("is added when there is breast hardness, nipple hardness or cracked nipple", () => {

@@ -260,7 +260,7 @@ describe("Referral Decision Test", () => {
         assert.include(decisionsToRefer, "Severe Anemia");
     });
 
-    it("Generate referral advice if Sickle Cell Disease", () => {
+    it("Generate referral advice if Sickle cell disease", () => {
         const encounterDecisions = {encounterDecisions: []};
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");

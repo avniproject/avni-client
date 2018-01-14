@@ -10,7 +10,7 @@ export default class EleventhAndTwelfthStandardFormHandler {
     }
 
     areYouTakingRegularTreatmentForSickleCellDisease(programEncounter, formElement) {
-        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Is there any other condition you want to mention about him/her?', 'Sickle Cell Disease');
+        return FormFilterHelper.createStatusBasedOnCodedObservationMatch(programEncounter, formElement, 'Is there any other condition you want to mention about him/her?', 'Sickle cell disease');
     }
 
     isThereAnyProblemRegardingMenstruation(programEncounter, formElement) {

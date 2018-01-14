@@ -165,7 +165,7 @@ export function getDecisions (programEncounter, today) {
             var sickling = getObservationValueFromEntireEnrolment('Sickling Test');
             if (sickling === 'Positive') addComplication('Sickling Positive');
             var hbElectrophoresis = getObservationValueFromEntireEnrolment('Hb Electrophoresis');
-            if (hbElectrophoresis === 'SS') addComplication('Sickle Cell Disease SS');
+            if (hbElectrophoresis === 'SS') addComplication('Sickle cell disease SS');
         }
 
         function analyseHepatitisB() {

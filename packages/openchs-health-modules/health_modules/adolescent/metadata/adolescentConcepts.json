@@ -242,7 +242,7 @@
     "dataType": "Coded",
     "answers": [
       {
-        "name": "Lower Abdominal Pain",
+        "name": "Lower abdominal pain",
         "uuid": "92ad8878-b476-4291-aa76-3377fa7cf19c",
         "abnormal": true
       },
@@ -252,12 +252,12 @@
         "abnormal": true
       },
       {
-        "name": "Leg Pain",
+        "name": "Leg pain",
         "uuid": "1c478c50-4761-460c-b33c-a18d0c1500f7",
         "abnormal": true
       },
       {
-        "name": "Nausea and Vomiting",
+        "name": "Nausea and vomiting",
         "uuid": "761b7f7a-5db7-4115-aa84-32fcfce5ddfc",
         "abnormal": true
       },
@@ -267,22 +267,22 @@
         "abnormal": true
       },
       {
-        "name": "Abnormal Vaginal Discharge",
+        "name": "Abnormal vaginal discharge",
         "uuid": "aa30fb91-4b64-438b-b09e-4c7ff2701d71",
         "abnormal": true
       },
       {
-        "name": "Heavy Bleeding",
+        "name": "Heavy bleeding",
         "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1",
         "abnormal": true
       },
       {
-        "name": "Irregular Menses",
+        "name": "Irregular menses",
         "uuid": "ce47ae12-e61c-49cc-8ccd-715f9d5cb76d",
         "abnormal": true
       },
       {
-        "name": "No Problem",
+        "name": "No problem",
         "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
       }
     ]
