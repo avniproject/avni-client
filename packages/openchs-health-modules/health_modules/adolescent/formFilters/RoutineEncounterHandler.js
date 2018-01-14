@@ -110,13 +110,13 @@ export default class RoutineEncounterHandler {
     height(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     weight(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     bmi(programEncounter, formElement) {
@@ -312,7 +312,7 @@ export default class RoutineEncounterHandler {
         statusBuilder.show().when.female.and.latestValueInPreviousEncounters("Menstruation started").not.containsAnswerConceptName("Yes");
 
         return statusBuilder.build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY));
     }
 
     ifMenstruationStartedThenAtWhatAge(programEncounter, formElement) {
@@ -397,7 +397,7 @@ export default class RoutineEncounterHandler {
     sicknessInLast3Months(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     otherSicknessPleaseSpecify(programEncounter, formElement) {
@@ -412,7 +412,7 @@ export default class RoutineEncounterHandler {
     hospitalizedInLast3Months(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     doYouHaveAnyAddiction(programEncounter, formElement) {
@@ -423,7 +423,7 @@ export default class RoutineEncounterHandler {
     areYourFriendsAddicted(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY));
     }
 
     areYouSexuallyActive(programEncounter, formElement) {
@@ -467,7 +467,7 @@ export default class RoutineEncounterHandler {
     doYouHaveVehicle2Wheeler(programEncounter, formElement) {
         return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY).build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.HALF_YEARLY));
     }
 
     doYouDriveVehicle2Wheeler(programEncounter, formElement) {
