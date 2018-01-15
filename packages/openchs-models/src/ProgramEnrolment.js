@@ -37,7 +37,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];
         programEnrolment.checklists = [];
-        // programEnrolment.individual = Individual.createEmptyInstance();
+        programEnrolment.individual = Individual.createEmptyInstance();
         return programEnrolment;
     }
 
