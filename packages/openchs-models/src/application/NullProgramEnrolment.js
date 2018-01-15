@@ -5,7 +5,7 @@ class NullProgramEnrolment {
     }
 
     get isActive() {
-        return false;
+        return true;
     }
 
     get observations() {
