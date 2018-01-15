@@ -46,12 +46,20 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchOnLoad();
         return super.componentWillMount();
     }
 
+    componentDidMount() {
+        this.dispatchOnLoad();
+    }
+
     dispatchOnLoad() {
-        this.dispatchAction(Actions.ON_LOAD, this.props);
+        setTimeout(() => this.dispatchAction(Actions.ON_LOAD, this.props), 200);
+    }
+
+    componentWillUnmount() {
+        this.dispatchAction(Actions.RESET);
+        super.componentWillUnmount();
     }
 
     componentWillReceiveProps() {
@@ -113,13 +121,26 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return _.get(this.state, 'enrolment.individual.enrolments') || [];
     }
 
+    renderExitObservations() {
+        const enrolmentIsActive = this.state.enrolment.isActive;
+        return enrolmentIsActive ? (<View/>) :
+            (<View>
+                <ObservationsSectionTitle
+                    contextActions={this.getEnrolmentContextActions(true)}
+                    title={this.getExitHeaderMessage(this.state.enrolment)}/>
+                <Observations form={this.getForm()}
+                              observations={_.defaultTo(this.state.enrolment.programExitObservations, [])}
+                              style={{marginVertical: DGS.resizeHeight(8)}}/>
+            </View>);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         var enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
-        const enrolmentStatus = this.state.enrolment.isActive;
+
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
@@ -172,15 +193,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             </View>
                             {enrolments.length === 0 ? <View/> :
                                 <View style={{marginHorizontal: 8}}>
-                                    {enrolmentStatus ? <View/> :
-                                        <View>
-                                            <ObservationsSectionTitle
-                                                contextActions={this.getEnrolmentContextActions(true)}
-                                                title={this.getExitHeaderMessage(this.state.enrolment)}/>
-                                            <Observations form={this.getForm()}
-                                                          observations={this.state.enrolment.programExitObservations}
-                                                          style={{marginVertical: DGS.resizeHeight(8)}}/>
-                                        </View>}
+                                    {this.renderExitObservations()}
                                     <View>
                                         <ObservationsSectionTitle contextActions={this.getEnrolmentContextActions()}
                                                                   primaryAction={this.getPrimaryEnrolmentContextAction()}
