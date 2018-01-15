@@ -528,21 +528,15 @@ export default class RoutineEncounterHandler {
 
     counsellingChecklistForMenstrualDisorder(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower Abdominal Pain",
-            "Backache", "Leg Pain", "Nausea and Vomiting", "Headache", "Abnormal Vaginal Discharge", "Heavy Bleeding", "Irregular Menses")
-            .or.whenItem(this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Menstrual Disorder", "Counselling for Menstrual Disorder Done"))
-            .equals(true);
+        statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower abdominal pain",
+            "Backache", "Leg pain", "Nausea and vomiting", "Headache", "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses");
         return statusBuilder.build();
     }
 
     counsellingForMenstrualDisorderDone(programEncounter, formElement) {
         const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower abdominal pain",
-            "Backache", "Leg pain", "Nausea and vomiting", "Headache", "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses")
-            .or.whenItem(this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Menstrual Disorder", "Counselling for Menstrual Disorder Done"))
-            .equals(true);
+            "Backache", "Leg pain", "Nausea and vomiting", "Headache", "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses");
         return statusBuilder.build();
     }
 
