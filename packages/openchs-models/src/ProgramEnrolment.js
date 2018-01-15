@@ -219,7 +219,6 @@ class ProgramEnrolment extends BaseEntity {
 
     findLatestObservationFromPreviousEncounters(conceptName, currentEncounter) {
         const encounters = _.chain(this.getEncounters())
-            .reverse()
             .filter((enc) => enc.encounterDateTime)
             .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
             .value();
@@ -229,7 +228,6 @@ class ProgramEnrolment extends BaseEntity {
 
     findLatestPreviousEncounterWithValueForConcept(currentEncounter, conceptName, valueConceptName) {
         const encounters = _.chain(this.getEncounters())
-            .reverse()
             .filter((enc) => enc.encounterDateTime)
             .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
             .value();
