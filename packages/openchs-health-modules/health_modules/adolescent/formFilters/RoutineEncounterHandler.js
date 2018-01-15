@@ -617,8 +617,9 @@ export default class RoutineEncounterHandler {
         });
 
         let builtStatus = statusBuilder.build();
+        const answersToSkip = builtStatus.answersToSkip.filter((answer) => answer.name !== "None");
         return new FormElementStatus(builtStatus.uuid, builtStatus.answersToSkip.length < allAnswerConcepts.length,
-            undefined, builtStatus.answersToSkip);
+            undefined, answersToSkip);
     }
 
     ailmentsCuredPostTreatment(programEncounter, formElement) {
@@ -635,8 +636,9 @@ export default class RoutineEncounterHandler {
         });
 
         let builtStatus = statusBuilder.build();
+        const answersToSkip = builtStatus.answersToSkip.filter((answer) => answer.name !== "None");
         return new FormElementStatus(builtStatus.uuid, builtStatus.answersToSkip.length < allAnswerConcepts.length,
-            undefined, builtStatus.answersToSkip);
+            undefined, answersToSkip);
     }
 
 
