@@ -235,8 +235,7 @@ class ProgramEnrolment extends BaseEntity {
             .value();
 
         for (let i = 0; i < encounters.length; i++) {
-            let observation = encounters[i].findObservation(conceptName);
-            if (!_.isNil(observation) && this._containsAnswerConceptName(valueConceptName, observation)) return encounters[i];
+            if(this._encounterContainsAnswerConceptName(encounters[i], conceptName, valueConceptName)) return encounters[i];
         }
         return null;
     }
@@ -247,12 +246,16 @@ class ProgramEnrolment extends BaseEntity {
 
     findNthLastEncounterOfType(currentEncounter, encounterTypes = [], n = 0) {
         return _.chain(this.getEncounters())
-            .reverse()
             .filter((enc) => enc.encounterDateTime)
             .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
             .filter((enc) => encounterTypes.some(encounterType => encounterType === enc.encounterType.name))
             .nth(n)
             .value();
+    }
+
+    _encounterContainsAnswerConceptName(encounter, conceptName, valueConceptName) {
+        let observation = encounter.findObservation(conceptName);
+        return (!_.isNil(observation) && this._containsAnswerConceptName(valueConceptName, observation));
     }
 
     _containsAnswerConceptName(conceptName, observation) {

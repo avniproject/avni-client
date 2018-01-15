@@ -603,6 +603,26 @@ export default class RoutineEncounterHandler {
             "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident Done"));
     }
 
+    doYouHaveDeathCertificateOfDeceasedParent(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this.
+        _applicableForCounsellingFollowup(programEncounter, "Counselling for No Parents / Single Parent Done"));
+    }
+
+    haveYouReceivedAnyBenefitFromGovernmentScheme(programEncounter, formElement){
+        return new FormElementStatus(formElement.uuid, this.
+        _applicableForCounsellingFollowup(programEncounter, "Counselling for No Parents / Single Parent Done"));
+    }
+
+    doYouReceiveAnyScholarship(programEncounter, formElement){
+        return new FormElementStatus(formElement.uuid, this.
+        _applicableForCounsellingFollowup(programEncounter, "Counselling for No Parents / Single Parent Done"));
+    }
+
+    haveYouStoppedAddiction(programEncounter, formElement){
+        return new FormElementStatus(formElement.uuid, this.
+        _applicableForCounsellingFollowup(programEncounter, "Counselling for Addiction Done"));
+    }
+
     whichOfTheFollowingAilmentsDidYouVisitTheHospitalFor(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         const allAnswerConcepts = formElement.concept.answers.map((answer) => Object.assign({
@@ -666,6 +686,16 @@ export default class RoutineEncounterHandler {
             .findLatestPreviousEncounterWithValueForConcept(programEncounter, counsellingDoneConceptName, "Yes");
         return (_.isEmpty(previousEncounterWithCounsellingDone) || previousEncounterWithVulnerability.encounterDateTime
             > previousEncounterWithCounsellingDone.encounterDateTime);
+    }
+
+    _applicableForCounsellingFollowup(programEncounter, counsellingDoneConceptName) {
+        let minusTwoEncounter = programEncounter.programEnrolment.
+        findNthLastEncounterOfType(programEncounter, RoutineEncounterHandler.visits.MONTHLY, 1);
+        if(_.isEmpty(minusTwoEncounter)) return false;
+        console.log(minusTwoEncounter.encounterDateTime);
+        console.log(minusTwoEncounter.encounterType);
+        return new RuleCondition({programEncounter : minusTwoEncounter})
+            .when.valueInEncounter(counsellingDoneConceptName).containsAnswerConceptName("Yes").matches()
     }
 
     _schoolAttendanceStatus(programEncounter, formElement, requiredAnswer, encounterTypes) {

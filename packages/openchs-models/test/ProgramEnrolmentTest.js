@@ -3,12 +3,21 @@ import moment from "moment";
 import _ from "lodash";
 import ProgramEnrolment from "../src/ProgramEnrolment";
 import ProgramEncounter from "../src/ProgramEncounter";
+import RoutineEncounterHandler from "../../openchs-health-modules/health_modules/adolescent/formFilters/RoutineEncounterHandler";
+import EncounterType from "../src/EncounterType";
 
 describe('ProgramEnrolmentTest', () => {
     it('mergeChecklists', () => {
         const enrolment = ProgramEnrolment.createEmptyInstance();
-        const expectedChecklists = [{name: 'Vaccination', items: [{name: 'A1', dueDate: new Date(), maxDate: new Date()}]}];
-        const checklists = enrolment.createChecklists(expectedChecklists, {getConceptByName: () => {return {name: 'A1'}}});
+        const expectedChecklists = [{
+            name: 'Vaccination',
+            items: [{name: 'A1', dueDate: new Date(), maxDate: new Date()}]
+        }];
+        const checklists = enrolment.createChecklists(expectedChecklists, {
+            getConceptByName: () => {
+                return {name: 'A1'}
+            }
+        });
         assert.equal(checklists.length, 1);
     });
 
@@ -72,11 +81,33 @@ describe('ProgramEnrolmentTest', () => {
             assert.equal(enrolment.lastFulfilledEncounter('unavailable'), null);
         });
 
+        it("returns the last nth encounter", () => {
+            const enrolment = ProgramEnrolment.createEmptyInstance();
+            const thirdMonthlyVisit = createEncounter(new Date(2018, 4, 11), "Monthly Visit");
+            enrolment.addEncounter(thirdMonthlyVisit);
+
+            const quarterlyVisit = createEncounter(new Date(2018, 3, 11), "Quarterly Visit");
+            enrolment.addEncounter(quarterlyVisit);
+
+            const secondMonthlyVisit = createEncounter(new Date(2018, 2, 11), "Monthly Visit");
+            enrolment.addEncounter(secondMonthlyVisit);
+
+            const firstMonthlyVisit = createEncounter(new Date(2018, 1, 11), "Monthly Visit");
+            enrolment.addEncounter(firstMonthlyVisit);
+
+            const firstAnnualVisit = createEncounter(new Date(2018, 0, 11), "Annual Visit");
+            enrolment.addEncounter(firstAnnualVisit);
+
+            assert.equal(enrolment.findNthLastEncounterOfType(thirdMonthlyVisit,
+                RoutineEncounterHandler.visits.MONTHLY, 1), secondMonthlyVisit);
+        });
+
     });
 
-    function createEncounter(date) {
+    function createEncounter(date, name) {
         const encounter = ProgramEncounter.createEmptyInstance();
         encounter.encounterDateTime = date;
+        if (!_.isEmpty(name)) encounter.encounterType = EncounterType.create(name);
         return encounter;
     }
 });
