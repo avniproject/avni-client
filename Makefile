@@ -117,5 +117,7 @@ analyse_crash:
 # <metadata>
 deploy_metadata:
 	cd packages/openchs-health-modules && make deploy_metadata
+
+deploy_metadata_and_demo: deploy_metadata
 	cd packages/demo-organisation && make deploy_refdata
 # </metadata>
