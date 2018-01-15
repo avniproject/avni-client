@@ -1,9 +1,9 @@
-const expect = require('chai').expect;
+const assert = require('chai').assert;
 
 describe('IndividualRegistrationTest', () => {
     it('wiring', () => {
         const imports = require('../health_modules/individualRegistrationDecision');
-        expect(imports.validate).is.not.undefined;
-        expect(imports.numberOfFormElementGroups).is.not.undefined;
+        assert.isUndefined(imports.validate);
+        assert.isUndefined(imports.numberOfFormElementGroups);
     });
 });
