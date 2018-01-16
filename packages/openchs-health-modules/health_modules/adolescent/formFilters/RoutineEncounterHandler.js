@@ -2,6 +2,7 @@ import {FormElementStatus} from "openchs-models";
 import _ from "lodash";
 import EncounterTypeFilter from "./EncounterTypeFilter";
 import RuleCondition from "../../rules/RuleCondition"
+import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 
 export default class RoutineEncounterHandler {
     static get visits() {
@@ -39,12 +40,16 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    rollNumber(programEncounter, formElement) {
+        return this.inWhichStandardHeSheIsStudying(programEncounter, formElement)
+            .and(this._registeredAtSchoolOrBoarding(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY));
+    }
+
     parents(programEncounter, formElement) {
         return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
             .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL))
             .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement,
                 RoutineEncounterHandler.visits.ANNUAL));
-
     }
 
     fathersOccupation(programEncounter, formElement) {
@@ -375,7 +380,21 @@ export default class RoutineEncounterHandler {
         statusBuilder.show().when
             .valueInEncounter("Does she remain absent during menstruation?")
             .containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
 
+    mhmKitReceived(programEncounter, formElement) {
+        let statusBuilder = new FormElementStatusBuilder({programEncounter: programEncounter, formElement: formElement});
+        statusBuilder.show()
+            .whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit")
+            .or.whenItem(new RuleCondition({programEncounter: programEncounter}).when.latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy
+            .and.when.female;
+        return statusBuilder.build();
+    }
+
+    mhmKitUsed(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
+        statusBuilder.show().when.latestValueInAllEncounters("MHM Kit received").containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
 
@@ -686,8 +705,6 @@ export default class RoutineEncounterHandler {
         let minusTwoEncounter = programEncounter.programEnrolment.
         findNthLastEncounterOfType(programEncounter, RoutineEncounterHandler.visits.MONTHLY, 1);
         if(_.isEmpty(minusTwoEncounter)) return false;
-        console.log(minusTwoEncounter.encounterDateTime);
-        console.log(minusTwoEncounter.encounterType);
         return new RuleCondition({programEncounter : minusTwoEncounter})
             .when.valueInEncounter(counsellingDoneConceptName).containsAnswerConceptName("Yes").matches()
     }

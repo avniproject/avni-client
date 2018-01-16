@@ -4,6 +4,10 @@ import RuleCondition from "../../rules/RuleCondition";
 
 export default class EncounterTypeFilter extends FormElementStatusBuilder{
     constructor(context, encounterTypeNames) {
+        if (_.isEmpty(encounterTypeNames)) {
+            throw new Error("No encounter type names provided. This filter will always return false");
+        }
+
         super(context);
         this.encounterTypeNames = encounterTypeNames;
     }
