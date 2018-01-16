@@ -209,9 +209,7 @@ class ProgramEnrolment extends BaseEntity {
             .concat(currentEncounter)
             .compact()
             .filter((enc) => enc.encounterDateTime)
-            .sortBy((enc) => enc.encounterDateTime)
-            .filter((enc) => currentEncounter ? enc.encounterDateTime <= currentEncounter.encounterDateTime : false)
-            .reverse()
+            .filter((enc) => currentEncounter ? enc.encounterDateTime <= currentEncounter.encounterDateTime : true)
             .value();
 
         return this._findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment);

@@ -3,8 +3,12 @@ import moment from "moment";
 import _ from "lodash";
 import ProgramEnrolment from "../src/ProgramEnrolment";
 import ProgramEncounter from "../src/ProgramEncounter";
+import SingleCodedValue from "../src/observation/SingleCodedValue";
+import Observation from "../src/Observation";
+import Concept from "../src/Concept";
 import RoutineEncounterHandler from "../../openchs-health-modules/health_modules/adolescent/formFilters/RoutineEncounterHandler";
 import EncounterType from "../src/EncounterType";
+import EntityFactory from "./EntityFactory";
 
 describe('ProgramEnrolmentTest', () => {
     it('mergeChecklists', () => {
@@ -100,6 +104,44 @@ describe('ProgramEnrolmentTest', () => {
 
             assert.equal(enrolment.findNthLastEncounterOfType(thirdMonthlyVisit,
                 RoutineEncounterHandler.visits.MONTHLY, 1), secondMonthlyVisit);
+        });
+
+        it("returns the latest value of observation recorded", () => {
+            const enrolment = ProgramEnrolment.createEmptyInstance();
+
+            const firstAnnualVisit = createEncounter(new Date(2018, 0, 11), "Annual Visit");
+            enrolment.addEncounter(firstAnnualVisit);
+            let concept = EntityFactory.createConcept("height", Concept.dataType.Coded, "concept-2");
+
+            const obs1 = Observation.create(concept, new SingleCodedValue("answerUUID"));
+            firstAnnualVisit.observations.push(obs1);
+
+            const firstMonthlyVisit = createEncounter(new Date(2018, 1, 11), "Monthly Visit");
+            enrolment.addEncounter(firstMonthlyVisit);
+
+
+            const secondMonthlyVisit = createEncounter(new Date(2018, 2, 11), "Monthly Visit");
+            enrolment.addEncounter(secondMonthlyVisit);
+
+            const obs2 = Observation.create(concept, new SingleCodedValue("answerUUID"));
+            secondMonthlyVisit.observations.push(obs2);
+
+            const quarterlyVisit = createEncounter(new Date(2018, 3, 11), "Quarterly Visit");
+            enrolment.addEncounter(quarterlyVisit);
+
+            const thirdMonthlyVisit = createEncounter(new Date(2018, 4, 11), "Monthly Visit");
+            enrolment.addEncounter(thirdMonthlyVisit);
+
+
+
+            assert.equal(enrolment.findLatestObservationFromEncounters("height",
+                firstMonthlyVisit, false), obs1);
+            assert.equal(enrolment.findLatestObservationFromEncounters("height",
+                secondMonthlyVisit, false), obs2);
+            assert.equal(enrolment.findLatestObservationFromEncounters("height",
+                thirdMonthlyVisit, false), obs2);
+            assert.equal(enrolment.findLatestObservationFromEncounters("height",
+                null, false), obs2);
         });
 
     });
