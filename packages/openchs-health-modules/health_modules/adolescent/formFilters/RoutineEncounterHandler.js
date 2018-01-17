@@ -611,18 +611,18 @@ export default class RoutineEncounterHandler {
     }
 
     doYouHaveDeathCertificateOfDeceasedParent(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this.
-        _applicableForCounsellingFollowup(programEncounter, "Counselling for No Parents / Single Parent Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
     }
 
     haveYouReceivedAnyBenefitFromGovernmentScheme(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this.
-        _applicableForCounsellingFollowup(programEncounter, "Counselling for No Parents / Single Parent Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
     }
 
     doYouReceiveAnyScholarship(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this.
-        _applicableForCounsellingFollowup(programEncounter, "Counselling for No Parents / Single Parent Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
+            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
     }
 
     haveYouStoppedAddiction(programEncounter, formElement){
