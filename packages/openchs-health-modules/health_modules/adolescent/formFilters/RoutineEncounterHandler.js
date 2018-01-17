@@ -89,7 +89,7 @@ export default class RoutineEncounterHandler {
 
         return statusBuilder.build();
     }
-    
+
     numberOfBrothers(programEncounter, formElement) {
         return this._hasBeenComingToSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
             .or(this._registeredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL))
@@ -679,7 +679,7 @@ export default class RoutineEncounterHandler {
 
     _parentStatusContains(statuses, programEncounter, formElement, encounterTypes) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
-        statusBuilder.show().when.valueInEncounter("Parents' life status").containsAnyAnswerConceptName(...statuses);
+        statusBuilder.show().when.latestValueInAllEncounters("Parents' life status").containsAnyAnswerConceptName(...statuses);
 
         return statusBuilder.build();
     }
