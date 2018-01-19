@@ -445,8 +445,8 @@
           "displayOrder": 5,
           "mandatory": true,
           "validFormat": {
-            "regex": "^[0-9]{1,2}$",
-            "descriptionKey": "Required1Or2Digits"
+            "regex": "^[0-9]{1,2}(\\.[0-9])??$",
+            "descriptionKey": "requiredFormatxx.x"
           }
         },
         {
