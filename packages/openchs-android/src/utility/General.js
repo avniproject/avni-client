@@ -77,13 +77,6 @@ class General {
         return value;
     }
 
-    static toExportable(str) {
-        var result = str.replace(/"/g, '""');
-        if (result.search(/("|,|\n)/g) >= 0)
-            result = '"' + result + '"';
-        return result;
-    }
-
     static replaceAndroidIncompatibleChars(str) {
         const illegalCharacters = "|\\?*<\":>+[]/'";
         const array = illegalCharacters.split('');

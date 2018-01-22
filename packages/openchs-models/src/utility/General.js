@@ -79,13 +79,6 @@ class General {
         return value;
     }
 
-    static toExportable(str) {
-        var result = str.replace(/"/g, '""');
-        if (result.search(/("|,|\n)/g) >= 0)
-            result = '"' + result + '"';
-        return result;
-    }
-
     static replaceAndroidIncompatibleChars(str) {
         const illegalCharacters = "|\\?*<\":>+[]/'";
         const array = illegalCharacters.split('');
@@ -183,29 +176,34 @@ class General {
     }
 
     static logDebug(source, message) {
-        General.log(source, message, General.LogLevel.Debug);
-    }
-
-    static logDebugObject(source, object) {
-        if (General.canLog(General.LogLevel.Debug))
-            General.log(source, JSON.stringify(object), General.LogLevel.Debug);
+        General.log(source, message, Logger.LogLevel.Debug);
     }
 
     static logInfo(source, message) {
-        General.log(source, message, General.LogLevel.Info);
+        General.log(source, message, Logger.LogLevel.Info);
     }
 
     static logWarn(source, message) {
-        General.log(source, message, General.LogLevel.Warn);
+        General.log(source, message, Logger.LogLevel.Warn);
     }
 
     static logError(source, message) {
-        General.log(source, message, General.LogLevel.Error);
+        General.log(source, message, Logger.LogLevel.Error);
     }
 
     static log(source, message, level) {
-        if (level >= General.getCurrentLogLevel())
-            console.log(`[${source}] ${message}`);
+        if (level >= Logger.getCurrentLogLevel()) {
+            console.log(`[${source}][${_.findKey(Logger.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
+        }
+    }
+
+    static getDisplayableMessage(obj) {
+        if (typeof obj === 'object') {
+            let s = JSON.stringify(obj);
+            if (s === '{}') return obj;
+            return s;
+        }
+        return obj;
     }
 
     static isoFormat(date) {
