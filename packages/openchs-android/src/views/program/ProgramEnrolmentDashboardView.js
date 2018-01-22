@@ -108,8 +108,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     getEnrolmentContextActions(isExit) {
-        const contextActions = [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
-        return contextActions;
+        return [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
     }
 
     getPrimaryEnrolmentContextAction() {

@@ -36,16 +36,15 @@ class CHSNavigator {
         }).to(ProgramEnrolmentView, true);
     }
 
-    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, usage) {
+    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard) {
         const from = TypedTransition.from(source);
-        if (_.isNil(usage)) {
-            from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView, true);
-        } else {
-            const wizardViewClass = usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolmentView : ProgramExitView;
-            from.wizardCompleted([wizardViewClass, SystemRecommendationView], ProgramEnrolmentDashboardView, {
+        if (isFromWizard) {
+            from.wizardCompleted([SystemRecommendationView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
                 individualUUID: individualUUID,
                 enrolmentUUID: selectedEnrolmentUUID
             }, true);
+        } else {
+            from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView, true);
         }
     }
 

@@ -200,6 +200,7 @@ class General {
     static getDisplayableMessage(obj) {
         if (typeof obj === 'object') {
             let s = JSON.stringify(obj);
+            if (obj.toString() === '[object Object]') return s;
             if (s === '{}') return obj;
             return s;
         }

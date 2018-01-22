@@ -6,6 +6,7 @@ import General from "../utility/General";
 import {Settings, LocaleMapping} from "openchs-models";
 import Config from 'react-native-config'
 import _ from 'lodash';
+import ModelGeneral from "../../../openchs-models/src/utility/General";
 
 @Service("settingsService")
 class SettingsService extends BaseService {
@@ -38,7 +39,9 @@ class SettingsService extends BaseService {
                 dbInScope.create('Settings', settings, true);
             }
         });
-        General.setCurrentLogLevel(this.getSettings().logLevel);
+        let level = this.getSettings().logLevel;
+        General.setCurrentLogLevel(level);
+        ModelGeneral.setCurrentLogLevel(level);
     }
 
     getSettings() {
@@ -49,7 +52,9 @@ class SettingsService extends BaseService {
 
     saveOrUpdate(entity) {
         const output = super.saveOrUpdate(entity, Settings.schema.name);
-        General.setCurrentLogLevel(this.getSettings().logLevel);
+        let level = this.getSettings().logLevel;
+        General.setCurrentLogLevel(level);
+        ModelGeneral.setCurrentLogLevel(level);
         return output;
     }
 }

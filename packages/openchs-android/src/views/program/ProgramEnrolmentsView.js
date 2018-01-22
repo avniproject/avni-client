@@ -49,7 +49,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
                         <TabularListView data={this.state.enrolments}
                                          tableTitle={''}
                                          getRow={ProgramEnrolmentsView.displayItemsForProgramEnrolment}
-                                         handleClick={(enrolment) => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, enrolment.individual.uuid, enrolment.uuid)}
+                                         handleClick={(enrolment) => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, enrolment.individual.uuid, enrolment.uuid, false)}
                                          headerTitleKeys={['enrolledOn', 'name', 'lowestAddressLevel']}
                                          emptyTableMessage={this.I18n.t('noEnrolments')}
                         />
