@@ -1,5 +1,3 @@
-import ReferenceEntity from "./ReferenceEntity";
-
 class UserInfo {
     static UUID = 'ce9ad8ee-193e-49ee-8626-49802c8b4bd7';
 

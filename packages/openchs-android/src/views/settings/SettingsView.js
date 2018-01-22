@@ -1,4 +1,4 @@
-import {View, Text} from "react-native";
+import {Text, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -6,13 +6,10 @@ import _ from "lodash";
 import General from "../../utility/General";
 import {SettingsActionsNames as Actions} from "../../action/SettingsActions";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
-import StaticFormElement from "../viewmodel/StaticFormElement";
 import Reducers from "../../reducer";
-import TextFormElement from "../form/formElement/TextFormElement";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import Distances from '../primitives/Distances';
-import {PrimitiveValue} from "openchs-models";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
@@ -36,7 +33,7 @@ class SettingsView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <Text style={Styles.settingsTitle}>
-                            {`${this.state.userInfo.organisationName} - Catchment ${this.state.settings.catchment}`}
+                            {this.state.userInfo.organisationName ? `${this.state.userInfo.organisationName} - Catchment ${this.state.settings.catchment}` : 'SYNC REQUIRED'}
                         </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'
