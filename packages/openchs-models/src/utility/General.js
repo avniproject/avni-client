@@ -176,19 +176,19 @@ class General {
     }
 
     static logDebug(source, message) {
-        General.log(source, message, Logger.LogLevel.Debug);
+        General.log(source, message, General.LogLevel.Debug);
     }
 
     static logInfo(source, message) {
-        General.log(source, message, Logger.LogLevel.Info);
+        General.log(source, message, General.LogLevel.Info);
     }
 
     static logWarn(source, message) {
-        General.log(source, message, Logger.LogLevel.Warn);
+        General.log(source, message, General.LogLevel.Warn);
     }
 
     static logError(source, message) {
-        General.log(source, message, Logger.LogLevel.Error);
+        General.log(source, message, General.LogLevel.Error);
     }
 
     static log(source, message, level) {

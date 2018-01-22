@@ -14,6 +14,7 @@ export default class TypedTransition {
     }
 
     to(viewClass, isTyped, replace) {
+        General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}`);
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const route = this.createRoute(viewClass, this.queryParams, isTyped);
