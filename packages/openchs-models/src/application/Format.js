@@ -1,4 +1,8 @@
+import _ from 'lodash';
+
 class Format {
+    static map = new Map();
+
     static schema = {
         name: 'Format',
         properties: {
@@ -14,8 +18,13 @@ class Format {
         return format;
     }
 
-    valid(value){
-        return new RegExp(this.regex).test(value)
+    valid(value) {
+        let regexp = Format.map.get(this.regex);
+        if (_.isNil(regexp)) {
+            regexp = new RegExp(this.regex);
+            Format.map.set(this.regex, regexp);
+        }
+        return regexp.test(value);
     }
 }
 
