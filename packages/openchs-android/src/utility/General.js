@@ -178,11 +178,6 @@ class General {
         General.log(source, message, General.LogLevel.Debug);
     }
 
-    static logDebugObject(source, object) {
-        if (General.canLog(General.LogLevel.Debug))
-            General.log(source, JSON.stringify(object), General.LogLevel.Debug);
-    }
-
     static logInfo(source, message) {
         General.log(source, message, General.LogLevel.Info);
     }
@@ -195,14 +190,19 @@ class General {
         General.log(source, message, General.LogLevel.Error);
     }
 
-    static logErrorObject(source, message) {
-        General.log(source, JSON.stringify(message), General.LogLevel.Error);
-    }
-
     static log(source, message, level) {
         if (level >= General.getCurrentLogLevel()) {
-            console.log(`[${source}][${_.findKey(General.LogLevel, (l) => l === level)}] ${message}`);
+            console.log(`[${source}][${_.findKey(General.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
         }
+    }
+
+    static getDisplayableMessage(obj) {
+        if (typeof obj === 'object') {
+            let s = JSON.stringify(obj);
+            if (s === '{}') return obj;
+            return s;
+        }
+        return obj;
     }
 
     static isoFormat(date) {

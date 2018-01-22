@@ -37,7 +37,6 @@ class LoginActions {
                 },
                 (error) => {
                     General.logError("LoginActions", error);
-                    General.logErrorObject("LoginActions", error);
                     action.failure(error.message);
                     return;
                 },

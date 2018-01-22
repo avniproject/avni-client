@@ -192,8 +192,8 @@ class General {
     }
 
     static log(source, message, level) {
-        if (level >= Logger.getCurrentLogLevel()) {
-            console.log(`[${source}][${_.findKey(Logger.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
+        if (level >= General.getCurrentLogLevel()) {
+            console.log(`[${source}][${_.findKey(General.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
         }
     }
 
