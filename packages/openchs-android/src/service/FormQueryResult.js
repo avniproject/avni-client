@@ -23,6 +23,14 @@ class FormQueryResult {
         return this;
     }
 
+    bestMatch() {
+        return _.last(this._sortedMappings());
+    }
+
+    all() {
+        return this._sortedMappings();
+    }
+
     _weight(filter, item) {
         return this.programFilter && !_.isNil(item) ? 1 : 0;
     }
@@ -35,14 +43,6 @@ class FormQueryResult {
 
     _sortedMappings() {
         return _.sortBy(this.formMappings, (formMapping) => this._totalWeight(formMapping));
-    }
-
-    bestMatch() {
-        return _.last(this._sortedMappings());
-    }
-
-    all() {
-        return this._sortedMappings();
     }
 }
 
