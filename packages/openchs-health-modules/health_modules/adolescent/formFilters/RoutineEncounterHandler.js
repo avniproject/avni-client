@@ -627,7 +627,7 @@ export default class RoutineEncounterHandler {
 
     haveYouStoppedAddiction(programEncounter, formElement){
         return new FormElementStatus(formElement.uuid, this.
-        _applicableForCounsellingFollowup(programEncounter, "Counselling for Addiction Done"));
+        _applicableForAddictionFollowup(programEncounter));
     }
 
     whichOfTheFollowingAilmentsDidYouVisitTheHospitalFor(programEncounter, formElement) {
@@ -695,12 +695,21 @@ export default class RoutineEncounterHandler {
             > previousEncounterWithCounsellingDone.encounterDateTime);
     }
 
-    _applicableForCounsellingFollowup(programEncounter, counsellingDoneConceptName) {
-        let minusTwoEncounter = programEncounter.programEnrolment.
-        findNthLastEncounterOfType(programEncounter, RoutineEncounterHandler.visits.MONTHLY, 1);
-        if(_.isEmpty(minusTwoEncounter)) return false;
-        return new RuleCondition({programEncounter : minusTwoEncounter})
-            .when.valueInEncounter(counsellingDoneConceptName).containsAnswerConceptName("Yes").matches()
+    _applicableForAddictionFollowup(programEncounter) {
+        return this._counsellingForSelfAddictionDoneInPastNVisit(2, programEncounter)
+            || this._counsellingForSelfAddictionDoneInPastNVisit(3, programEncounter)
+        || this._counsellingForSelfAddictionDoneInPastNVisit(4, programEncounter);
+
+    }
+
+    _counsellingForSelfAddictionDoneInPastNVisit(n, programEncounter){
+        let lastNthEncounter = programEncounter.programEnrolment.
+        findNthLastEncounterOfType(programEncounter, RoutineEncounterHandler.visits.MONTHLY, n-1);
+        if(_.isEmpty(lastNthEncounter)) return false;
+        return new RuleCondition({programEncounter : lastNthEncounter})
+                .when.valueInEncounter("Counselling for Addiction Done").containsAnswerConceptName("Yes").matches()
+            && new RuleCondition({programEncounter: programEncounter})
+                .when.latestValueInPreviousEncounters("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both").matches();
     }
 
     _schoolAttendanceStatus(programEncounter, formElement, requiredAnswer, encounterTypes) {
