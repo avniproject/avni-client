@@ -4,7 +4,7 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {ProgramEncounter} from "openchs-models";
+import {ProgramEncounter, Form} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
@@ -20,10 +20,11 @@ class ProgramEncounterActions {
     };
 
     static onLoad(state, action, context) {
-         const formMapping = context.get(FormMappingService)
+        const formMapping = context.get(FormMappingService)
             .allFormMappings()
             .forEncounterType(action.programEncounter.encounterType)
             .forProgram(action.programEncounter.programEnrolment.program)
+            .forFormType(Form.formTypes.ProgramEncounter)
             .bestMatch();
 
         const form = formMapping && formMapping.form;
@@ -34,7 +35,7 @@ class ProgramEncounterActions {
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.formElementGroups, [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
 
-        if(_.isNil(firstGroupWithAtLeastOneVisibleElement)){
+        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             throw new Error("No form element group with visible form element");
         }
         let filteredElements = ProgramEncounterActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.programEncounter);
@@ -42,8 +43,6 @@ class ProgramEncounterActions {
 
         return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements);
     }
-
-
 
     static onNext(state, action, context) {
         return state.clone().handleNext(action, context);
