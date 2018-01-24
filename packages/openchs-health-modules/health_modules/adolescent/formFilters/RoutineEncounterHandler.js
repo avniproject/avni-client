@@ -3,6 +3,7 @@ import _ from "lodash";
 import EncounterTypeFilter from "./EncounterTypeFilter";
 import RuleCondition from "../../rules/RuleCondition"
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import C from '../../common';
 
 export default class RoutineEncounterHandler {
     static get visits() {
@@ -520,109 +521,85 @@ export default class RoutineEncounterHandler {
     }
 
     counsellingChecklistForSevereAnemia(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Severe Anemia", "Counselling for Severe Anemia Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForSevereAnemiaCounselling(programEncounter));
     }
 
     counsellingForSevereAnemiaDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Severe Anemia", "Counselling for Severe Anemia Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForSevereAnemiaCounselling(programEncounter));
     }
 
     counsellingChecklistForNoParentsSingleParent(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
     }
 
     counsellingForNoParentsSingleParentDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
+    }
+
+    doYouHaveDeathCertificateOfDeceasedParent(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
+    }
+
+    haveYouReceivedAnyBenefitFromGovernmentScheme(programEncounter, formElement){
+        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
+    }
+
+    doYouReceiveAnyScholarship(programEncounter, formElement){
+        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
     }
 
     counsellingChecklistForMenstrualDisorder(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower abdominal pain",
-            "Backache", "Leg pain", "Nausea and vomiting", "Headache", "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses");
-        return statusBuilder.build();
+        return new FormElementStatus(formElement.uuid, this._applicableForMenstrualDisorderCounselling(programEncounter));
     }
 
     counsellingForMenstrualDisorderDone(programEncounter, formElement) {
-        const statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower abdominal pain",
-            "Backache", "Leg pain", "Nausea and vomiting", "Headache", "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses");
-        return statusBuilder.build();
+        return new FormElementStatus(formElement.uuid, this._applicableForMenstrualDisorderCounselling(programEncounter));
     }
 
     counsellingChecklistForMalnutrition(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Malnutrition", "Counselling for Malnutrition Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForMalnutritionCounselling(programEncounter));
     }
 
 
     counsellingForMalnutritionDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Malnutrition", "Counselling for Malnutrition Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForMalnutritionCounselling(programEncounter));
     }
 
     counsellingChecklistForSickleCellAnemiaTrait(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForSickleCellAnemiaCounselling(programEncounter));
     }
 
     counsellingChecklistForSickleCellAnemiaDisease(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForSickleCellAnemiaCounselling(programEncounter));
     }
 
 
     counsellingForSickleCellAnemiaDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "Sickle Cell Anemia", "Counselling for Sickle Cell Anemia Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForSickleCellAnemiaCounselling(programEncounter));
     }
 
     counsellingChecklistForAddiction(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Addiction", "Counselling for Addiction Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForAddictionCounselling(programEncounter));
     }
 
     counsellingForAddictionDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Addiction", "Counselling for Addiction Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForAddictionCounselling(programEncounter));
     }
 
     counsellingChecklistForRti(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Early Pregnancy & RTI", "Counselling for Early Pregnancy & RTI Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForRTICounselling(programEncounter));
     }
 
     counsellingForEarlyPregnancyRtiDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Early Pregnancy & RTI", "Counselling for Early Pregnancy & RTI Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForRTICounselling(programEncounter));
     }
 
     counsellingChecklistForRoadTrafficAccident(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForRTACounselling(programEncounter));
     }
 
     counsellingForRoadTrafficAccidentDone(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Adolescent Vulnerabilities", "Road Traffic Accident", "Counselling for Road Traffic Accident Done"));
-    }
-
-    doYouHaveDeathCertificateOfDeceasedParent(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
-    }
-
-    haveYouReceivedAnyBenefitFromGovernmentScheme(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
-    }
-
-    doYouReceiveAnyScholarship(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this._applicableForCounselling(programEncounter,
-            "Reason for School Dropout Vulnerability", "No Parents / Single Parent", "Counselling for No Parents / Single Parent Done"));
+        return new FormElementStatus(formElement.uuid, this._applicableForRTACounselling(programEncounter));
     }
 
     haveYouStoppedAddiction(programEncounter, formElement){
@@ -685,15 +662,78 @@ export default class RoutineEncounterHandler {
     }
 
 
-    _applicableForCounselling(programEncounter, vulnerabilityConceptName, vulnerabilityAnswerConceptName, counsellingDoneConceptName) {
-        let previousEncounterWithVulnerability = programEncounter.programEnrolment
-            .findLatestPreviousEncounterWithValueForConcept(programEncounter, vulnerabilityConceptName, vulnerabilityAnswerConceptName);
-        if (_.isEmpty(previousEncounterWithVulnerability)) return false;
-        let previousEncounterWithCounsellingDone = programEncounter.programEnrolment
-            .findLatestPreviousEncounterWithValueForConcept(programEncounter, counsellingDoneConceptName, "Yes");
-        return (_.isEmpty(previousEncounterWithCounsellingDone) || previousEncounterWithVulnerability.encounterDateTime
-            > previousEncounterWithCounsellingDone.encounterDateTime);
+    _applicableForSevereAnemiaCounselling(programEncounter) {
+        return new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Hb").lessThanOrEqualTo(10)
+            .or.when.valueInLastEncounter("Counselling for Severe Anemia Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
     }
+
+    _applicableForMalnutritionCounselling(programEncounter) {
+        let bmi = C.calculateBMI(programEncounter.getObservationValue("Weight"), programEncounter.getObservationValue("Height"));
+        return new RuleCondition({programEncounter: programEncounter})
+            .whenItem(bmi).lessThan(18.5)
+            .or.when.valueInLastEncounter("Counselling for Malnutrition Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
+    }
+
+    _applicableForMenstrualDisorderCounselling(programEncounter) {
+        return new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName("Lower abdominal pain", "Backache",
+                "Leg pain", "Nausea and vomiting", "Headache", "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses")
+            .matches();
+    }
+
+    _applicableForAddictionCounselling(programEncounter) {
+        let bothParentsAddicted = new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Father's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco")
+            .and.valueInEncounter("Mother's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco")
+            .matches();
+
+        return new RuleCondition({programEncounter: programEncounter})
+            .whenItem(bothParentsAddicted).is.truthy
+            .or.when.valueInEncounter("Are friends addicted?").containsAnyAnswerConceptName("Yes")
+            .or.when.valueInEncounter("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both")
+            .or.when.valueInLastEncounter("Counselling for Addiction Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
+    }
+
+    _applicableForRTICounselling(programEncounter) {
+        return new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Sexually active").containsAnyAnswerConceptName("Yes")
+            .or.when.valueInLastEncounter("Counselling for Early Pregnancy & RTI Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
+    }
+
+    _applicableForRTACounselling(programEncounter) {
+        return new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Drives 2 wheeler").containsAnyAnswerConceptName("Yes")
+            .or.when.valueInLastEncounter("Counselling for Road Traffic Accident Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
+    }
+
+    _applicableForSickleCellAnemiaCounselling(programEncounter) {
+        return new RuleCondition({programEncounter: programEncounter})
+            .when.valueInLastEncounter("Sickling Test Result").containsAnyAnswerConceptName("Trait", "Disease")
+            .or.when.valueInLastEncounter("Counselling for Sickle Cell Anemia Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
+    }
+
+    _applicableForDeceasedParentCounselling(programEncounter) {
+        return new RuleCondition({programEncounter: programEncounter})
+            .when.valueInLastEncounter("Parents' life status", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnyAnswerConceptName("Only Father Alive", "Only Mother Alive", "Both Expired", "Separated")
+            .or.when.valueInLastEncounter("Counselling for No Parents / Single Parent Done", RoutineEncounterHandler.visits.MONTHLY)
+            .containsAnswerConceptName("No")
+            .matches();
+    }
+
 
     _applicableForAddictionFollowup(programEncounter) {
         return this._counsellingForSelfAddictionDoneInPastNVisit(2, programEncounter)
