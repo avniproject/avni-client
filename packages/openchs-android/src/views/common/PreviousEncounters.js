@@ -45,7 +45,7 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     getTitle(encounter) {
-        const name = `${_.isNil(encounter.name) ? encounter.encounterType.name : encounter.name}`;
+        const name = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.name) : this.I18n.t(encounter.name)}`;
         const time = _.isNil(encounter.encounterDateTime) ?
             `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`
             : `${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
