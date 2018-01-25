@@ -80,7 +80,7 @@ const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
 
 const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
     scheduleBuilder.add({
-            name: "School Dropout Followup",
+            name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
             earliestDate: C.addDays(new Date(), 7),
             maxDate: C.addDays(C.copyDate(new Date()), 17)
@@ -90,7 +90,7 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
         .filter((encounter) => encounter.encounterType.name === "Dropout Followup Visit").length).lessThanOrEqualTo(5);
 
     scheduleBuilder.add({
-            name: "School Dropout Followup",
+            name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
             earliestDate: C.addDays(new Date(), 7),
             maxDate: C.addDays(C.copyDate(new Date()), 17)
@@ -103,7 +103,7 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
     schoolRestartDate = schoolRestartDate < moment() ? schoolRestartDate.add(12, 'months').toDate()
         : schoolRestartDate.toDate();
     scheduleBuilder.add({
-            name: "School Dropout Followup",
+            name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
             earliestDate: schoolRestartDate,
             maxDate: C.addDays(C.copyDate(schoolRestartDate), 15)
