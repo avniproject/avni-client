@@ -1,6 +1,7 @@
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
+import MessageService from "../../service/MessageService";
 import moment from "moment";
 import {ProgramEncounter} from "openchs-models";
 import General from "../../utility/General";
@@ -8,11 +9,12 @@ import General from "../../utility/General";
 class StartProgramActions {
     static clone(state) {
         return {
+            I18n: state.I18n,
             enrolment: state.enrolment,
             encounters: _.map(state.encounters, (encounter) => {
                 return {
                     key: encounter.key,
-                    label: StartProgramActions.displayLabel(encounter),
+                    label: StartProgramActions.displayLabel(encounter.data, state.I18n),
                     data: encounter.data,
                     selected: encounter.selected
                 };
@@ -20,7 +22,7 @@ class StartProgramActions {
             encounterTypes: _.map(state.encounterTypes, (encounterType) => {
                 return {
                     key: encounterType.key,
-                    label: encounterType.name,
+                    label: state.I18n.t(encounterType.data.name),
                     data: encounterType.data,
                     selected: encounterType.selected
                 }
@@ -30,8 +32,8 @@ class StartProgramActions {
         }
     }
 
-    static displayLabel(encounter) {
-        const encounterName = encounter.name || '';
+    static displayLabel(encounter, I18n) {
+        const encounterName = I18n.t(encounter.name) || '';
         const displayDate = encounter.earliestVisitDateTime && `(${General.toDisplayDate(encounter.earliestVisitDateTime)})` || '';
         return `${encounterName} ${displayDate}`;
     }
@@ -66,18 +68,19 @@ class StartProgramActions {
         if (!enrolment) {
             return state;
         }
+        newState.I18n = context.get(MessageService).getI18n();
         newState.enrolment = enrolment;
         newState.encounters = _.chain(enrolment.scheduledEncounters())
                 .sortBy('earliestVisitDateTime')
-                .map((encounter, index) => {return {key: encounter.uuid, label: StartProgramActions.displayLabel(encounter),
+                .map((encounter, index) => {return {key: encounter.uuid, label: StartProgramActions.displayLabel(encounter, newState.I18n),
                     data: encounter, selected: index === 0}})
             .value();
 
         let encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(enrolment.program);
         newState.encounterTypes = _.map(encounterTypes, (encounterType) => {
-            return {key: encounterType.uuid, label: encounterType.name, data: encounterType, selected: false}});
+            return {key: encounterType.uuid, label: newState.I18n.t(encounterType.name), data: encounterType, selected: false}});
 
-        StartProgramActions.preselectEncounterTypeIfRequired(newState)
+        StartProgramActions.preselectEncounterTypeIfRequired(newState);
 
         newState.selectedEncounter = StartProgramActions.selectedEncounter(newState);
 

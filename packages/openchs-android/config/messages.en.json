@@ -148,5 +148,10 @@
   "deleteSchemaConfirmationMessage": "You will lose information that is not synced",
   "deleteSchemaNoticeTitle": "Delete Data?",
   "userId": "User ID",
-  "password": "Password"
+  "password": "Password",
+  "chooseVisit": "Choose Visit",
+  "plannedVisits": "Planned Visits",
+  "unplannedVisits": "Unplanned Visits",
+  "or": "OR",
+  "pleaseChooseAOption": "Please choose an option"
 }

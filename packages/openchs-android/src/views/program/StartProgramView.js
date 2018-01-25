@@ -72,7 +72,7 @@ class StartProgramView extends AbstractComponent {
 
     proceed() {
         if (!this.state.selectedEncounter) {
-            ToastAndroid.showWithGravity("Please choose an option", ToastAndroid.SHORT, ToastAndroid.TOP);
+            ToastAndroid.showWithGravity(this.I18n.t("pleaseChooseAOption"), ToastAndroid.SHORT, ToastAndroid.TOP);
             return;
         };
 
@@ -83,7 +83,7 @@ class StartProgramView extends AbstractComponent {
 
     renderConjunction(previousList) {
         if (_.isEmpty(previousList)) return;
-        return <Text style={[{alignSelf: 'center'}, Styles.formGroupLabel]}>OR</Text>
+        return <Text style={[{alignSelf: 'center'}, Styles.formGroupLabel]}>{this.I18n.t("or")}</Text>
     }
 
     render() {
@@ -92,29 +92,29 @@ class StartProgramView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
-                    <AppHeader title="Choose Visit"/>
+                    <AppHeader title={this.I18n.t("chooseVisit")}/>
 
                     <View style={{paddingHorizontal: Styles.ContentDistanceFromEdge,
                         paddingVertical: Styles.VerticalSpacingBetweenFormElements}}>
 
-                        {this.renderRadioGroup("Planned Visits", this.state.encounters)}
+                        {this.renderRadioGroup(this.I18n.t("plannedVisits"), this.state.encounters)}
 
                         {this.renderConjunction(this.state.encounters)}
 
-                        {this.renderRadioGroup("Unplanned Visit", this.state.encounterTypes)}
+                        {this.renderRadioGroup(this.I18n.t("unplannedVisits"), this.state.encounterTypes)}
 
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                             <TouchableNativeFeedback onPress={() => { CHSNavigator.goBack(this) }}
                                                      background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={Styles.basicSecondaryButtonView}>
-                                    <Text style={{color: Styles.blackColor, fontSize: 16}}>CANCEL</Text>
+                                    <Text style={{color: Styles.blackColor, fontSize: 16}}>{this.I18n.t("cancel")}</Text>
                                 </View>
                             </TouchableNativeFeedback>
 
                             <TouchableNativeFeedback onPress={() => { this.proceed() }}
                                                      background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginHorizontal: 16, }]}>
-                                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>PROCEED</Text>
+                                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t("proceed")}</Text>
                                 </View>
                             </TouchableNativeFeedback>
                         </View>

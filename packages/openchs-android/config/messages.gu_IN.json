@@ -171,5 +171,10 @@
   "OBC": "OBC",
   "General": "જનરલ",
   "Caste": "જાતિ",
-  "cancelVisit" : "મુલાકાત રદ કરો"
+  "cancelVisit" : "મુલાકાત રદ કરો",
+  "plannedVisits": "આયોજનની મુલાકાત",
+  "unplannedVisits": "બિનઆયોજિત મુલાકાત",
+  "or": "અથવા",
+  "chooseVisit": "મુલાકાત પસંદ કરો",
+  "pleaseChooseAOption": "એક વિકલ્પ પસંદ કરો"
 }
