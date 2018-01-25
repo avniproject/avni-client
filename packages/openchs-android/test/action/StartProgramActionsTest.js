@@ -134,7 +134,12 @@ describe("ProgramActions", () => {
            const encounter =  ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment);
            encounter.name = "ANC 1";
            encounter.earliestVisitDateTime = moment("1995-12-25");
-           expect(Actions.displayLabel(encounter)).to.equal("ANC 1 (25-Dec-1995)");
+           let i18n = {
+               t: function (abc) {
+                   return abc;
+               }
+           };
+           expect(Actions.displayLabel(encounter, i18n)).to.equal("ANC 1 (25-Dec-1995)");
        });
     });
 });
