@@ -10,6 +10,8 @@ class ConceptService extends BaseService {
         super(db, beanStore);
         this.saveConcept = this.saveConcept.bind(this);
         this.getConceptByUUID = this.getConceptByUUID.bind(this);
+        this.addDecisions = this.addDecisions.bind(this);
+        this.addUpdateOrRemoveObs = this.addUpdateOrRemoveObs.bind(this);
     }
 
     getSchema() {
@@ -70,14 +72,15 @@ class ConceptService extends BaseService {
     }
 
     obsValue(concept, decision) {
-        switch(concept.datatype){
+        switch (concept.datatype) {
             case Concept.dataType.Coded:
                 let value = [];
                 decision.value.forEach((codedAnswerConceptName) => {
-                const answerConcept = this.conceptFor(codedAnswerConceptName);
-                if (!_.isNil(answerConcept)) {
-                    value.push(answerConcept.uuid);
-                }});
+                    const answerConcept = this.conceptFor(codedAnswerConceptName);
+                    if (!_.isNil(answerConcept)) {
+                        value.push(answerConcept.uuid);
+                    }
+                });
                 return value;
             default:
                 return decision.value;

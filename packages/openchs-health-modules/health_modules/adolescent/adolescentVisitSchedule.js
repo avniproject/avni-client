@@ -48,14 +48,14 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 
     let increment = 1;
 
-    if(new RuleCondition({programEncounter: programEncounter})
+    if (new RuleCondition({programEncounter: programEncounter})
             .when.valueInEncounter("Standard").containsAnyAnswerConceptName("11", "12")
-            .and.addressType.equalsOneOf("School", "Boarding").matches()){
+            .and.addressType.equalsOneOf("School", "Boarding").matches()) {
         increment = 6;
     }
-
-    const earliestDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(increment, 'months').startOf('day');
-    const maxDate = moment(lastFulfilledRoutineEncounter.earliestVisitDateTime).add(increment, 'months').add(10, 'days').startOf('day');
+    const dateTimeToUse = lastFulfilledRoutineEncounter.earliestVisitDateTime || lastFulfilledRoutineEncounter.encounterDateTime;
+    const earliestDate = moment(dateTimeToUse).add(increment, 'months').startOf('day');
+    const maxDate = moment(dateTimeToUse).add(increment, 'months').add(10, 'days').startOf('day');
     const nextEncounterType = findNextRoutineEncounterType(maxDate, enrolment);
 
 

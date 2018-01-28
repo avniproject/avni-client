@@ -137,6 +137,10 @@
     "dataType": "Coded",
     "answers": [
       {
+        "name": "5",
+        "uuid": "98408506-1159-4245-ba94-5834be1ccd2e"
+      },
+      {
         "name": "6",
         "uuid": "e9ce8718-ef32-4870-b3cb-b5e733fc115a"
       },

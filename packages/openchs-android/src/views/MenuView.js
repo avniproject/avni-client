@@ -88,7 +88,10 @@ class MenuView extends AbstractComponent {
         if (error instanceof AuthenticationError) {
             General.logWarn(this.viewName(), "Could not authenticate. Redirecting to login view");
             General.logWarn(this.viewName(), error);
-            CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToLandingView(source, true, {tabIndex: 1, menuProps: {startSync: true}}));
+            CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToLandingView(source, true, {
+                tabIndex: 1,
+                menuProps: {startSync: true}
+            }));
         } else {
             Alert.alert("Sync Failed", error.message, [{
                     text: 'Try Again',
@@ -130,6 +133,10 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(MyDashboardView);
     }
 
+    runRules() {
+        this.context.getService(RuleEvaluationService).runOnAll();
+    }
+
 
     onDelete() {
         const service = this.context.getService(EntityService);
@@ -141,15 +148,15 @@ class MenuView extends AbstractComponent {
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                    authService.logout().then(() => {
-                        service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-                        entitySyncStatusService.setup(EntityMetaData.model());
-                    });
-                }
+                        authService.logout().then(() => {
+                            service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+                            entitySyncStatusService.setup(EntityMetaData.model());
+                        });
+                    }
                 },
                 {
                     text: this.I18n.t('no'), onPress: () => {
-                },
+                    },
                     style: 'cancel'
                 }
             ]
@@ -173,7 +180,8 @@ class MenuView extends AbstractComponent {
             ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
             ["account-plus", "Register", this.registrationView.bind(this)],
             ["account-key", "Change Password", this.changePasswordView.bind(this)],
-            ["view-list", "My Dashboard", this.myDashboard.bind(this)]
+            ["view-list", "My Dashboard", this.myDashboard.bind(this)],
+            ["face", "Run Rules", this.runRules.bind(this), ()=>__DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData

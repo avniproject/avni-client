@@ -1,7 +1,18 @@
 import Service from "../framework/bean/Service";
+import _ from 'lodash';
 import BaseService from "./BaseService";
 import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule, FormElementStatus} from "openchs-models";
-import {encounterDecision, programEncounterDecision, programEnrolmentDecision, individualRegistrationDecision} from "openchs-health-modules";
+import {
+    encounterDecision,
+    programEncounterDecision,
+    programEnrolmentDecision,
+    individualRegistrationDecision
+} from "openchs-health-modules";
+import ConceptService from "./ConceptService";
+import IndividualService from "./IndividualService";
+import IndividualEncounterService from "./IndividualEncounterService";
+import ProgramEncounterService from "./program/ProgramEncounterService";
+import ProgramEnrolmentService from "./ProgramEnrolmentService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -12,8 +23,8 @@ class RuleEvaluationService extends BaseService {
     init() {
         this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
             ['Encounter', new EntityRule(encounterDecision)],
-            ['ProgramEncounter', new EntityRule(programEncounterDecision)],
-            ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)]]);
+            ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)],
+            ['ProgramEncounter', new EntityRule(programEncounterDecision)]]);
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);
         });
@@ -38,6 +49,37 @@ class RuleEvaluationService extends BaseService {
     filterFormElements(entity, entityName, formElementGroup) {
         let fn = this.entityRulesMap.get(entityName).filterFormElements;
         return fn && fn(entity, formElementGroup) || formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+    }
+
+    runOnAll() {
+        const conceptService = this.getService(ConceptService);
+        const programEnrolmentService = this.getService(ProgramEnrolmentService);
+        const programEncounterService = this.getService(ProgramEncounterService);
+        ["ProgramEnrolment", "ProgramEncounter"].map((schema) => {
+            let allEntities = this.getAll(schema).map((entity) => entity.cloneForEdit());
+            allEntities.forEach((entity) => {
+                const decisions = this.getDecisions(entity, schema);
+                const nextScheduledVisits = this.getNextScheduledVisits(entity, schema);
+                switch (schema) {
+                    case "ProgramEnrolment": {
+                        conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
+                        conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
+                        const checklists = this.getChecklists(entity);
+                        programEnrolmentService.enrol(entity, checklists, nextScheduledVisits);
+                        break;
+                    }
+                    case "ProgramEncounter": {
+                        conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
+                        conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
+                        programEncounterService.saveOrUpdate(entity, nextScheduledVisits);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            });
+
+        });
     }
 }
 
