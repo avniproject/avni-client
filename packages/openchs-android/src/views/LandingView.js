@@ -39,8 +39,8 @@ class LandingView extends AbstractComponent {
                 <CHSContent>
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
                     <Tabs ref={ t => this._tabs = t }>
-                        <IndividualSearchView tabLabel='Home' tabStyle={{backgroundColor: 'red'}}/>
-                        <MenuView tabLabel='Menu' {...this.props.menuProps}/>
+                        <IndividualSearchView tabLabel={this.I18n.t('home')} tabStyle={{backgroundColor: 'red'}}/>
+                        <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
                     </Tabs>
                 </CHSContent>
             </CHSContainer>

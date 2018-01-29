@@ -176,11 +176,11 @@ class MenuView extends AbstractComponent {
 
     render() {
         let menuItemsData = [
-            ["settings", "Settings", this.settingsView.bind(this)],
+            ["settings", this.I18n.t("settings"), this.settingsView.bind(this)],
             ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
-            ["account-plus", "Register", this.registrationView.bind(this)],
-            ["account-key", "Change Password", this.changePasswordView.bind(this)],
-            ["view-list", "My Dashboard", this.myDashboard.bind(this)],
+            ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
+            ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
+            ["view-list", his.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["face", "Run Rules", this.runRules.bind(this), ()=>__DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
@@ -197,7 +197,7 @@ class MenuView extends AbstractComponent {
                         <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
                             {this.renderSyncButton()}
                         </Button>
-                        <Text style={Styles.menuTitle}>Sync Data</Text>
+                        <Text style={Styles.menuTitle}>{this.I18n.t("syncData")}</Text>
                     </View>
                     {MenuItems}
                 </View>

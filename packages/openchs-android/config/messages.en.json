@@ -25,6 +25,8 @@
   "syncError": "Sync Failed",
   "exportError": "Export Failed",
   "settings": "Settings",
+  "syncData": "Sync Data",
+  "changePassword": "Change Password",
   "close": "X",
   "serverURL": "Server URL",
   "catchmentId": "Catchment Id",
@@ -54,7 +56,7 @@
   "lowestAddressLevel": "Village",
   "Villages": "Villages",
   "search": "SEARCH",
-  "register": "REGISTER",
+  "register": "Register",
   "searchResults": "Search Results",
   "zeroNumberOfResults": "No individuals found",
   "dateOfBirth": "Date of Birth",
@@ -82,7 +84,7 @@
   "mandatory": "MANDATORY",
   "enrolmentDate": "Enrolment Date",
   "exitDate": "Exit Date",
-  "dashboard": "My Dashboard",
+  "myDashboard": "My Dashboard",
   "upcomingVisits": "Upcoming Visits",
   "scheduledDate": "Scheduled",
   "lastVisitDate": "Last Visited",
@@ -153,5 +155,8 @@
   "plannedVisits": "Planned Visits",
   "unplannedVisits": "Unplanned Visits",
   "or": "OR",
-  "pleaseChooseAOption": "Please choose an option"
+  "pleaseChooseAOption": "Please choose an option",
+  "home": "Home",
+  "menu": "Menu"
+
 }

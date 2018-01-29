@@ -47,6 +47,7 @@
   "dateOfBirthCannotBeInFuture": "જન્મ તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
 
   "syncError": "સમન્વયન નિષ્ફળ થયું",
+  "syncData": "સમન્વય ડેટા",
   "exportError": "નિકાસ નિષ્ફળ થયું",
   "settings": "સેટિંગ્સ",
   "serverURL": "સર્વર URL",
@@ -88,7 +89,7 @@
   "registration": "નોંધણી",
   "mandatory": "ફરજિયાત",
   "enrolmentDate": "નોંધણી તારીખ",
-  "dashboard": "મારા ડેશબોર્ડ",
+  "myDashboard": "મારા ડેશબોર્ડ",
   "upcomingVisits": "આગામી મુલાકાતો",
   "scheduledDate": "અનુસૂચિત",
   "lastVisitDate": "છેલ્લે મુલાકાત લીધી",
@@ -159,6 +160,7 @@
   "deleteSchemaNoticeTitle": "ડેટા કાઢી નાખો?",
   "userId": "વપરાશકર્તા ID",
   "password": "પાસવર્ડ",
+  "changePassword": "પાસવર્ડ બદલો",
 
   "Religion": "ધર્મ",
   "Hindu": "હિંદુ",
@@ -176,5 +178,7 @@
   "unplannedVisits": "બિનઆયોજિત મુલાકાત",
   "or": "અથવા",
   "chooseVisit": "મુલાકાત પસંદ કરો",
-  "pleaseChooseAOption": "એક વિકલ્પ પસંદ કરો"
+  "pleaseChooseAOption": "એક વિકલ્પ પસંદ કરો",
+  "home": "હોમ",
+  "menu": "મેનુ"
 }
