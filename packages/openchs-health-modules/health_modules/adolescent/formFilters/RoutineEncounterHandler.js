@@ -379,6 +379,7 @@ export default class RoutineEncounterHandler {
         let statusBuilder = new FormElementStatusBuilder({programEncounter: programEncounter, formElement: formElement});
         statusBuilder.show()
             .whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit")
+            .and.when.female
             .or.whenItem(new RuleCondition({programEncounter: programEncounter}).when.latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy
             .and.when.female;
         return statusBuilder.build();
