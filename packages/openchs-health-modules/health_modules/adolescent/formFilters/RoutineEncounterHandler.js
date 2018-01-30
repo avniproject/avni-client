@@ -346,6 +346,9 @@ export default class RoutineEncounterHandler {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when
             .latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes")
+            .and.when.valueInEncounter("Menstrual disorders").containsAnyAnswerConceptName(
+            "Lower abdominal pain", "Backache", "Leg pain", "Nausea and vomiting", "Headache",
+            "Abnormal vaginal discharge", "Heavy bleeding", "Irregular menses")
             .and.whenItem(programEncounter.programEnrolment.individual.lowestAddressLevel.type).not.equals("Village");
 
         return statusBuilder.build();
