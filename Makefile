@@ -29,6 +29,12 @@ test: test-models test-health-modules test-android
 release:
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
 
+release-demo:
+	ENVFILE=.env.demo make release
+
+release-staging:
+	ENVFILE=.env.staging make release
+
 release-offline:
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
 
