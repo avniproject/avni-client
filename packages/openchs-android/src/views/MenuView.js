@@ -180,7 +180,7 @@ class MenuView extends AbstractComponent {
             ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
             ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
-            ["view-list", his.I18n.t("myDashboard"), this.myDashboard.bind(this)],
+            ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["face", "Run Rules", this.runRules.bind(this), ()=>__DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
