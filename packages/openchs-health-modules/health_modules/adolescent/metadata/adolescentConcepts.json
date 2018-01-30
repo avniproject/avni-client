@@ -5,6 +5,11 @@
     "dataType": "N/A"
   },
   {
+    "name": "None",
+    "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+    "dataType": "N/A"
+  },
+  {
     "name": "Adolescent Vulnerabilities",
     "uuid": "2eb87840-160d-4ee0-bb4c-55dc00c8998a",
     "dataType": "Coded",
