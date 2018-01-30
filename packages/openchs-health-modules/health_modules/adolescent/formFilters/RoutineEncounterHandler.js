@@ -328,7 +328,7 @@ export default class RoutineEncounterHandler {
 
     menstrualDisorders(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.female.and.latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes");
+        statusBuilder.show().when.female.and.valueInEncounter("Menstruation started").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
