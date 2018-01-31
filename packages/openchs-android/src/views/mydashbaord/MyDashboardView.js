@@ -43,7 +43,7 @@ class MyDashboardView extends AbstractComponent {
         const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('dashboard')}/>
+                <AppHeader title={this.I18n.t('myDashboard')}/>
                 <CHSContent>
                     <View style={MyDashboardView.styles.container}>
                         <ListView dataSource={dataSource}
