@@ -1841,76 +1841,6 @@
       "display": "Counselling for No Parents / Single Parent",
       "formElements": [
         {
-          "name": "Do you have death certificate of deceased parent?",
-          "uuid": "6ee13a4e-f70d-47eb-85f5-5a1add87b10b",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "concept": {
-            "uuid": "a22a705c-75b6-43f3-a91d-f9d712af2877",
-            "name": "Do you have death certificate of deceased parent?",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
-          },
-          "mandatory": true,
-          "displayOrder": 1
-        },
-        {
-          "name": "Have you received any benefit from Government scheme?",
-          "uuid": "fd9c760c-a950-4b9c-a9fe-70bff1ca24d4",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "concept": {
-            "uuid": "ff93087b-0bed-48fd-8238-2d87363d438c",
-            "name": "Have you received any benefit from Government scheme?",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
-          },
-          "mandatory": true,
-          "displayOrder": 2
-        },
-        {
-          "name": "Do you receive any scholarship?",
-          "uuid": "360ff5b9-2d81-4652-899a-3f4d6fc42682",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "concept": {
-            "uuid": "8b8ad4f9-8970-46ec-981f-2fdd59e48df3",
-            "name": "Do you receive any scholarship?",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
-          },
-          "mandatory": true,
-          "displayOrder": 3
-        },
-
-        {
           "name": "Counselling checklist for No Parents / Single Parent",
           "uuid": "3126002a-eece-491c-8e4a-7927f6069b2c",
           "keyValues": [],
@@ -1922,7 +1852,7 @@
             "answers": []
           },
           "mandatory": false,
-          "displayOrder": 4
+          "displayOrder": 1
         },
         {
           "name": "Counselling for No Parents / Single Parent Done",
@@ -1945,7 +1875,7 @@
             ]
           },
           "mandatory": true,
-          "displayOrder": 5
+          "displayOrder": 2
         }
       ]
     },

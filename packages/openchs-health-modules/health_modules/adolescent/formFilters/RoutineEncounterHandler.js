@@ -537,18 +537,6 @@ export default class RoutineEncounterHandler {
         return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
     }
 
-    doYouHaveDeathCertificateOfDeceasedParent(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
-    }
-
-    haveYouReceivedAnyBenefitFromGovernmentScheme(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
-    }
-
-    doYouReceiveAnyScholarship(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this._applicableForDeceasedParentCounselling(programEncounter));
-    }
-
     counsellingChecklistForMenstrualDisorder(programEncounter, formElement) {
         return new FormElementStatus(formElement.uuid, this._applicableForMenstrualDisorderCounselling(programEncounter));
     }
