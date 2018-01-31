@@ -3,11 +3,19 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {ProgramEncounter} from "openchs-models";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
         return {};
     }
+
+    static filterFormElements(formElementGroup, context, programEncounter) {
+        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(programEncounter, ProgramEncounter.schema.name, formElementGroup);
+        let filteredElements = formElementGroup.filterElements(formElementStatuses);
+        return filteredElements;
+    };
 
     static onLoad(state, action, context) {
         const form = context.get(FormMappingService).findFormForCancellingEncounterType(action.programEncounter.encounterType, action.programEncounter.programEnrolment.program);
@@ -17,7 +25,15 @@ class ProgramEncounterCancelActions {
         }
         const programEncounter = action.programEncounter.cloneForEdit();
         programEncounter.cancelDateTime = new Date();
-        return ProgramEncounterCancelState.createOnLoad(programEncounter, form, form.firstFormElementGroup);
+
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.formElementGroups, [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
+
+        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
+            throw new Error("No form element group with visible form element");
+        }
+        let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.programEncounter);
+
+        return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements);
     }
 
     static onNext(state, action, context) {

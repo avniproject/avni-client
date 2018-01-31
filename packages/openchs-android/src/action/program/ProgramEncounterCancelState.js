@@ -3,8 +3,8 @@ import Wizard from "../../state/Wizard";
 import {ObservationsHolder, ProgramEncounter} from "openchs-models";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, programEncounter) {
-        super([], formElementGroup, wizard, false, formElementGroup.getFormElements());
+    constructor(formElementGroup, wizard, programEncounter, filteredFormElements) {
+        super([], formElementGroup, wizard, false, filteredFormElements);
         this.programEncounter = programEncounter;
     }
 
@@ -16,13 +16,13 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
         return ProgramEncounter.schema.name;
     }
 
-    static createOnLoad(programEncounter, form, formElementGroup) {
-        let formElementGroupPageNumber = form.formElementGroups.indexOf(formElementGroup)+ 1;
-        return new ProgramEncounterCancelState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), programEncounter);
+    static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements) {
+        let formElementGroupPageNumber = formElementGroup.displayOrder;
+        return new ProgramEncounterCancelState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), programEncounter, filteredFormElements);
     }
 
     clone() {
-        let programEncounterCancelState = new ProgramEncounterCancelState(this.formElementGroup, this.wizard.clone(), this.programEncounter.cloneForEdit());
+        let programEncounterCancelState = new ProgramEncounterCancelState(this.formElementGroup, this.wizard.clone(), this.programEncounter.cloneForEdit(), this.filteredFormElements);
         return programEncounterCancelState;
     }
 

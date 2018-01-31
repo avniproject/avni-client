@@ -221,6 +221,15 @@ export default class RuleCondition {
         });
     }
 
+    valueInCancelEncounter(conceptName) {
+        return this._addToChain((next, context) => {
+            const obs = context.programEncounter.findCancelEncounterObservation(conceptName);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.getValue();
+            return next(context);
+        });
+    }
+
     containsAnswerConceptName(conceptName) {
         return this._addToChain((next, context) => {
             if (!this._hasCodedObs(context)) {

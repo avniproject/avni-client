@@ -52,6 +52,12 @@ class AbstractEncounter extends BaseEntity {
         });
     }
 
+    findCancelEncounterObservation(conceptName) {
+        return _.find(this.cancelObservations, (observation) => {
+            return observation.concept.name === conceptName
+        });
+    }
+
     addObservation(obs) {
         this.observations.push(obs);
     }

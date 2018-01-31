@@ -634,6 +634,12 @@ export default class RoutineEncounterHandler {
             undefined, answersToSkip);
     }
 
+    reasonForCancellationOfVisitUnspecifiedAbove(programEncounter, formElement){
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
+        statusBuilder.show().when.valueInCancelEncounter("Reason for cancellation of visit").containsAnswerConceptName('Other');
+        return statusBuilder.build();
+    }
+
 
     _fatherIsAlive(programEncounter, formElement, encounterTypes) {
         return this._parentStatusContains(["Both Alive", "Only Father Alive", "Separated"], programEncounter, formElement, encounterTypes);
