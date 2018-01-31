@@ -814,6 +814,10 @@
     "Ailments cured post treatment": "બિમારીઓ સારવાર બાદ સારવાર",
     "Cancel Details": "વિગતો રદ કરો",
     "Reason for cancellation of visit": "મુલાકાત રદ્દ કરવાના કારણ",
-    "Followup visits for other vulnerability have been triggered": "અન્ય નબળાઈ માટે ફોલોઅપની મુલાકાતો શરૂ થઈ છે"
+    "Followup visits for other vulnerability have been triggered": "અન્ય નબળાઈ માટે ફોલોઅપની મુલાકાતો શરૂ થઈ છે",
+    "Adolescent was not available on the day of visit": "કિશોર મુલાકાતના દિવસે ઉપલબ્ધ ન હતા",
+    "AHS was on leave": "એએચએસ રજા પર હતી",
+    "Visit was not possible due to holidays/ exams": "રજાઓ / પરીક્ષાઓ કારણે મુલાકાત શક્ય ન હતી",
+    "Reason for cancellation of visit (Unspecified above)" : "મુલાકાત રદ્દ કરવાના અન્ય કારણ (સ્પષ્ટ કરો)"
   }
 }
