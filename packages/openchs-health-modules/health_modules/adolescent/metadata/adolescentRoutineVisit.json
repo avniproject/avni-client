@@ -410,8 +410,8 @@
           "displayOrder": 2,
           "mandatory": true,
           "validFormat": {
-            "regex": "^[0-9]{2}$",
-            "descriptionKey": "Required2Digits"
+            "regex": "^[0-9]{2}(\\.[0-9])??$",
+            "descriptionKey": "requiredFormatxx.x"
           }
         },
         {
