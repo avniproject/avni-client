@@ -479,6 +479,7 @@
     "Counselling checklist for Addiction": "Checklist\n 1. Addiction is harmful for self, family and society.\n 2. Addiction causes cancer.\n 3. Laws and acts related to smoking / drinking.\n 4. Addiction can cause financial crisis.\n 5. Say NO to substances like bidi, gutka, cigarette, tobacco or alcohol.",
     "Counselling checklist for RTI": "Checklist - Information to be given about RTI\n 1. Use contraceptives like condoms or pills.\n 2. Be faithful to your partner.\n 3. There will be risk of transmitting HIV or STDs.\n 4. HIV can lead to AIDS.\n 5. Say NO to unprotected sex.",
     "Counselling checklist for Road Traffic Accident": "Checklist - Information to be given about\n 1. Licence is mandatory for driving vehicle\n 2. You are eligible for getting driving licence after age of 16.\n 3. Always wear helmet while driving.\n 4. Do not overtake from wrong side.\n 5. Do not drink and drive.\n 6. Always indicate prior to turn left or right.",
+    "Counselling checklist for dropout": "Checklist - \n1. It is very important to complete the secondary education.\n2. Education will empower you financially and socially.\n3. Information about scholarships.",
     "Adolescent Counselling Advice": "Provide Counselling for"
   },
   "gu_IN": {
@@ -691,7 +692,7 @@
     "Nothing at home": "કશુ નહી, ઘરે જ છે",
     "Domestic work": "ઘરેલુ કામ",
     "Joined other course": "બીજા કોર્સ મા જોડાયા",
-    "Joined other business": "Joined other business",
+    "Joined other business": "અન્ય વ્યવસાયમાં જોડાયા",
     "School study completed": "શાળા અભ્યાસ પૂર્ણ",
     "Is afraid of teacher": "શિક્ષકથી ભયભીત છે",
     "Cannot read or write": "વાંચી અને / અથવા લખી શકતા નથી",
@@ -818,7 +819,13 @@
     "Adolescent was not available on the day of visit": "કિશોર મુલાકાતના દિવસે ઉપલબ્ધ ન હતા",
     "AHS was on leave": "એએચએસ રજા પર હતી",
     "Visit was not possible due to holidays/ exams": "રજાઓ / પરીક્ષાઓ કારણે મુલાકાત શક્ય ન હતી",
-    "Reason for cancellation of visit (Unspecified above)" : "મુલાકાત રદ્દ કરવાના અન્ય કારણ (સ્પષ્ટ કરો)"
-    
+    "Reason for cancellation of visit (Unspecified above)" : "મુલાકાત રદ્દ કરવાના અન્ય કારણ (સ્પષ્ટ કરો)",
+    "Counselling checklist for dropout": "ચેકલિસ્ટ - \n1. માધ્યમિક શિક્ષણ પૂર્ણ કરવાનું ખૂબ મહત્વનું છે\n2. શિક્ષણ તમને આર્થિક અને સામાજિક રીતે સશક્ત બનાવશે\n3. શિષ્યવૃત્તિ વિશેની માહિતી",
+    "Counselling for Dropout": "શાળા છોડી દીધેલ કિશોર/કિશોરીની પરામર્શ",
+    "Counselling for dropout Done": "શાળા છોડી દીધેલ કિશોર/કિશોરીની પરામર્શ પૂર્ણ",
+    "Yes, started": "હા, શરૂ કર્યું",
+    "Yes, but could not attend": "હા, પરંતુ હાજરી આપી શક્યું નથી",
+    "Have you started going to school once again": "શું તમે ફરી સ્કૂલમાં જવાનું શરૂ કર્યું છે?",
+    "School Going Details": "શાળા જવાની વિગતો"
   }
 }

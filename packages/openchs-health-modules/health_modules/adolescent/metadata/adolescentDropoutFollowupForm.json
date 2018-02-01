@@ -41,6 +41,51 @@
           "mandatory": true
         }
       ]
+    },
+    {
+      "uuid": "40a28d3b-dcae-43bf-85e3-fb5b88bfd25e",
+      "name": "Counselling for Dropout",
+      "displayOrder": 2,
+      "display": "Counselling for Dropout",
+      "formElements": [
+        {
+          "name": "Counselling checklist for dropout",
+          "uuid": "81330aaa-809f-434a-8a7b-635a8766c44d",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "efaa640c-f320-496f-b407-8351148da734",
+            "name": "Counselling checklist for dropout",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "mandatory": false,
+          "displayOrder": 1
+        },
+        {
+          "name": "Counselling for dropout Done",
+          "uuid": "e077c7c7-7c43-452a-a0ac-5f3bc7d3e4f8",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "17628553-31d6-46ff-b702-315c9d32a30f",
+            "name": "Counselling for dropout Done",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              }
+            ]
+          },
+          "mandatory": true,
+          "displayOrder": 2
+        }
+      ]
     }
   ]
 }
