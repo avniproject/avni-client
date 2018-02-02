@@ -26,6 +26,7 @@
   "exportError": "Export Failed",
   "settings": "Settings",
   "syncData": "Sync Data",
+  "syncingData": "Syncing Data",
   "changePassword": "Change Password",
   "close": "X",
   "serverURL": "Server URL",

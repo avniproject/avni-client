@@ -41,6 +41,7 @@ class MenuView extends AbstractComponent {
         super(props, context);
         this.state = {syncing: false, error: false};
         this.createStyles();
+        this.renderSyncModal = this.renderSyncModal.bind(this);
     }
 
     viewName() {
@@ -207,7 +208,7 @@ class MenuView extends AbstractComponent {
                         />
                         <View style={{flex: .7}}>
                             <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                Syncing Data
+                                {this.I18n.t("syncingData")}
                             </Text>
                         </View>
                     </View>

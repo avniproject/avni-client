@@ -48,6 +48,7 @@
 
   "syncError": "સમન્વયન નિષ્ફળ થયું",
   "syncData": "સમન્વય ડેટા",
+  "syncingData": "સમન્વય ડેટા",
   "exportError": "નિકાસ નિષ્ફળ થયું",
   "settings": "સેટિંગ્સ",
   "serverURL": "સર્વર URL",
