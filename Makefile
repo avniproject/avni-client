@@ -32,6 +32,9 @@ release:
 release-demo:
 	ENVFILE=.env.demo make release
 
+release-live:
+	ENVFILE=.env.live make release
+
 release-staging:
 	ENVFILE=.env.staging make release
 
