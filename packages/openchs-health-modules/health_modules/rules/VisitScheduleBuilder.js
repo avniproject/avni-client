@@ -26,6 +26,10 @@ export default class VisitScheduleBuilder {
     }
 
     getAllUnique(keyPath) {
-        return _.uniqBy(this.getAll(), (visit) => _.get(visit, `data.${keyPath}`));
+        let allScheduledVisits = this.getAll();
+        console.log(allScheduledVisits);
+        let uniqueVisits = _.uniqWith(allScheduledVisits, (visitA, visitB) => visitA[keyPath] === visitB[keyPath]);
+        console.log(uniqueVisits);
+        return uniqueVisits;
     }
 }
