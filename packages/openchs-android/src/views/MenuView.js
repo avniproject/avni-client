@@ -1,4 +1,4 @@
-import {Alert, Animated, Text, View, Dimensions} from "react-native";
+import {Alert, Animated, Text, View, Dimensions, Modal, ActivityIndicator} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
@@ -13,17 +13,19 @@ import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
-import Colors from "./primitives/Colors";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
 import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
-import * as Animatable from 'react-native-animatable';
+import Fonts from "./primitives/Fonts";
+import Colors from "./primitives/Colors";
 import MessageService from "../service/MessageService";
 import AuthenticationError from "../service/AuthenticationError";
 import AuthService from "../service/AuthService";
+
+const {width, height} = Dimensions.get('window');
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -55,6 +57,27 @@ class MenuView extends AbstractComponent {
             marginTop: DynamicGlobalStyles.resizeWidth(71),
             flexDirection: 'column'
         };
+        this.syncContainerStyle = {
+            flex: 1,
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+        };
+
+        this.syncBackground = {
+            width: width * .7,
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            padding: 20,
+            alignSelf: 'center',
+            backgroundColor: Colors.getCode("paperGrey900").color,
+        };
+        this.syncTextContent = {
+            color: Colors.TextOnPrimaryColor
+        };
+
     }
 
     settingsView() {
@@ -121,14 +144,6 @@ class MenuView extends AbstractComponent {
         }
     }
 
-    renderSyncButton() {
-        return this.state.syncing ?
-            (<Animatable.View iterationCount="infinite" duration={2000} animation="rotate">
-                <Icon name="sync" style={MenuView.iconStyle}/>
-            </Animatable.View>) : (<Icon name="sync" style={MenuView.iconStyle}/>);
-
-    }
-
     myDashboard() {
         TypedTransition.from(this).to(MyDashboardView);
     }
@@ -173,15 +188,43 @@ class MenuView extends AbstractComponent {
         </View>);
     };
 
+    renderSyncModal() {
+        return (
+            <Modal animationType={'fade'}
+                   transparent={true}
+                   onRequestClose={() => {
+                       alert('Modal has been closed.');
+                   }}
+                   visible={this.state.syncing}>
+                <View style={[this.syncContainerStyle, {backgroundColor: 'rgba(0, 0, 0, 0.25)'}]}
+                      key={`spinner_${Date.now()}`}>
+                    <View style={{flex: .4}}/>
+                    <View style={this.syncBackground}>
+                        <ActivityIndicator
+                            color={Colors.DarkPrimaryColor}
+                            size={'large'}
+                            style={{flex: .3}}
+                        />
+                        <View style={{flex: .7}}>
+                            <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
+                                Syncing Data
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={{flex: 1}}/>
+                </View>
+            </Modal>);
+    }
 
     render() {
         let menuItemsData = [
+            ["sync", this.I18n.t("syncData"), this.sync.bind(this)],
             ["settings", this.I18n.t("settings"), this.settingsView.bind(this)],
             ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
             ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
-            ["face", "Run Rules", this.runRules.bind(this), ()=>__DEV__]
+            ["face", "Run Rules", this.runRules.bind(this), () => __DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData
@@ -193,12 +236,7 @@ class MenuView extends AbstractComponent {
                     flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
                     height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground
                 }}>
-                    <View style={this.columnStyle}>
-                        <Button transparent large onPress={this.sync.bind(this)} style={{justifyContent: 'center'}}>
-                            {this.renderSyncButton()}
-                        </Button>
-                        <Text style={Styles.menuTitle}>{this.I18n.t("syncData")}</Text>
-                    </View>
+                    {this.renderSyncModal()}
                     {MenuItems}
                 </View>
             </CHSContent>

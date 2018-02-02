@@ -44,7 +44,6 @@
     "openchs-models": "0.0.1",
     "react": "15.4.2",
     "react-native": "0.42.3",
-    "react-native-animatable": "1.2.3",
     "react-native-aws-cognito-js": "0.0.7",
     "react-native-config": "0.10.0",
     "react-native-fabric": "0.5.1",
