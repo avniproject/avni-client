@@ -132,9 +132,6 @@
   "Present": "उपस्थित",
   "Absent": "अनुपस्थित",
   "logLevel": "लॉग स्तर",
-  "English": "इंग्रजी",
-  "Marathi": "मराठी",
-  "Hindi": "हिंदी",
   "Error": "त्रुटी",
   "Warn": "चेतावणी",
   "Info": "माहिती",
@@ -152,6 +149,7 @@
   "Gender": "लिंग",
 
   "userId": "वापरकर्ता ID",
-  "password": "पासवर्ड"
+  "password": "पासवर्ड",
+  "syncRequired": "समक्रमण आवश्यक"
 }
 

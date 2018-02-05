@@ -13,6 +13,7 @@ import Distances from '../primitives/Distances';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
+import I18n from 'react-native-i18n';
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -33,7 +34,7 @@ class SettingsView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <Text style={Styles.settingsTitle}>
-                            {this.state.userInfo.organisationName ? `${this.state.userInfo.organisationName} - Catchment ${this.state.settings.catchment}` : 'SYNC REQUIRED'}
+                            {this.state.userInfo.organisationName ? `${this.state.userInfo.organisationName} - ${this.state.settings.catchment}` : I18n.t('syncRequired')}
                         </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'

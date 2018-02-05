@@ -138,10 +138,6 @@
   "Present": "હાજર",
   "Absent": "ગેરહાજર",
   "logLevel": "લોગ સ્તર",
-  "English": "અંગ્રેજી",
-  "Marathi": "મરાઠી",
-  "Hindi": "હિન્દી",
-  "Gujarati": "ગુજરાતી",
   "Error": "Error",
   "Warn": "Warn",
   "Info": "Info",
@@ -181,5 +177,6 @@
   "chooseVisit": "મુલાકાત પસંદ કરો",
   "pleaseChooseAOption": "એક વિકલ્પ પસંદ કરો",
   "home": "હોમ",
-  "menu": "મેનુ"
+  "menu": "મેનુ",
+  "syncRequired": "સમન્વયન આવશ્યક"
 }

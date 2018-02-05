@@ -7,5 +7,6 @@
   "answersConfirmationTitle": "",
 
   "userId": "यूज़र आईडी",
-  "password": "पासवर्ड"
+  "password": "पासवर्ड",
+  "syncRequired": "समन्वयन आवश्यक है"
 }
