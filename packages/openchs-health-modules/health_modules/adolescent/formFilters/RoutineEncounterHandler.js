@@ -328,7 +328,7 @@ export default class RoutineEncounterHandler {
 
     menstrualDisorders(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.female.and.valueInEncounter("Menstruation started").containsAnswerConceptName("Yes");
+        statusBuilder.show().when.female.and.latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
@@ -379,12 +379,16 @@ export default class RoutineEncounterHandler {
     }
 
     mhmKitReceived(programEncounter, formElement) {
-        let statusBuilder = new FormElementStatusBuilder({programEncounter: programEncounter, formElement: formElement});
+        let statusBuilder = new FormElementStatusBuilder({
+            programEncounter: programEncounter,
+            formElement: formElement
+        });
         statusBuilder.show()
-            .whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit")
-            .and.when.female
-            .or.whenItem(new RuleCondition({programEncounter: programEncounter}).when.latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy
-            .and.when.female;
+            .whenItem(new RuleCondition({programEncounter: programEncounter})
+                .female.and.whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit").matches()).is.truthy
+            .or
+            .whenItem(new RuleCondition({programEncounter: programEncounter})
+                .female.and.latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy;
         return statusBuilder.build();
     }
 
@@ -591,9 +595,8 @@ export default class RoutineEncounterHandler {
         return new FormElementStatus(formElement.uuid, this._applicableForRTACounselling(programEncounter));
     }
 
-    haveYouStoppedAddiction(programEncounter, formElement){
-        return new FormElementStatus(formElement.uuid, this.
-        _applicableForAddictionFollowup(programEncounter));
+    haveYouStoppedAddiction(programEncounter, formElement) {
+        return new FormElementStatus(formElement.uuid, this._applicableForAddictionFollowup(programEncounter));
     }
 
     whichOfTheFollowingAilmentsDidYouVisitTheHospitalFor(programEncounter, formElement) {
@@ -634,7 +637,7 @@ export default class RoutineEncounterHandler {
             undefined, answersToSkip);
     }
 
-    reasonForCancellationOfVisitUnspecifiedAbove(programEncounter, formElement){
+    reasonForCancellationOfVisitUnspecifiedAbove(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
         statusBuilder.show().when.valueInCancelEncounter("Reason for cancellation of visit").containsAnswerConceptName('Other');
         return statusBuilder.build();
@@ -733,15 +736,14 @@ export default class RoutineEncounterHandler {
     _applicableForAddictionFollowup(programEncounter) {
         return this._counsellingForSelfAddictionDoneInPastNVisit(2, programEncounter)
             || this._counsellingForSelfAddictionDoneInPastNVisit(3, programEncounter)
-        || this._counsellingForSelfAddictionDoneInPastNVisit(4, programEncounter);
+            || this._counsellingForSelfAddictionDoneInPastNVisit(4, programEncounter);
 
     }
 
-    _counsellingForSelfAddictionDoneInPastNVisit(n, programEncounter){
-        let lastNthEncounter = programEncounter.programEnrolment.
-        findNthLastEncounterOfType(programEncounter, RoutineEncounterHandler.visits.MONTHLY, n-1);
-        if(_.isEmpty(lastNthEncounter)) return false;
-        return new RuleCondition({programEncounter : lastNthEncounter})
+    _counsellingForSelfAddictionDoneInPastNVisit(n, programEncounter) {
+        let lastNthEncounter = programEncounter.programEnrolment.findNthLastEncounterOfType(programEncounter, RoutineEncounterHandler.visits.MONTHLY, n - 1);
+        if (_.isEmpty(lastNthEncounter)) return false;
+        return new RuleCondition({programEncounter: lastNthEncounter})
                 .when.valueInEncounter("Counselling for Addiction Done").containsAnswerConceptName("Yes").matches()
             && new RuleCondition({programEncounter: programEncounter})
                 .when.latestValueInPreviousEncounters("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both").matches();

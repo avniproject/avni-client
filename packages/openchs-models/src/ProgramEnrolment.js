@@ -195,6 +195,7 @@ class ProgramEnrolment extends BaseEntity {
 
     findObservationInEntireEnrolment(conceptName, currentEncounter) {
         const encounters = _.chain(this.getEncounters())
+            .filter((enc) => enc.uuid !== currentEncounter.uuid)
             .concat(currentEncounter)
             .compact()
             .sortBy((enc) => enc.encounterDateTime)
@@ -203,13 +204,15 @@ class ProgramEnrolment extends BaseEntity {
         return this._findObservationFromEntireEnrolment(conceptName, encounters, true);
     }
 
-
     findLatestObservationFromEncounters(conceptName, currentEncounter, checkInEnrolment = false) {
-        const encounters = _.chain(this.getEncounters())
-            .concat(currentEncounter)
-            .compact()
+        const encountersFromEnrolment = _.chain(this.getEncounters())
             .filter((enc) => enc.encounterDateTime)
-            .filter((enc) => currentEncounter ? enc.encounterDateTime <= currentEncounter.encounterDateTime : true)
+            .filter((enc) => currentEncounter ? enc.encounterDateTime < currentEncounter.encounterDateTime : true)
+            .value();
+
+        const encounters = _.chain(currentEncounter)
+            .concat(encountersFromEnrolment)
+            .compact()
             .value();
 
         return this._findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment);
