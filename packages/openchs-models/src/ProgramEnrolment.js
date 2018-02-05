@@ -195,7 +195,7 @@ class ProgramEnrolment extends BaseEntity {
 
     findObservationInEntireEnrolment(conceptName, currentEncounter) {
         const encounters = _.chain(this.getEncounters())
-            .filter((enc) => enc.uuid !== currentEncounter.uuid)
+            .filter((enc) => currentEncounter? enc.uuid !== currentEncounter.uuid: true)
             .concat(currentEncounter)
             .compact()
             .sortBy((enc) => enc.encounterDateTime)
