@@ -164,7 +164,7 @@ describe("Referral Decision Test", () => {
     });
 
     it("Generate referral advice if BMI is less than or equal to 14.5", () => {
-        const encounterDecisions = {encounterDecisions: []};
+        const encounterDecisions = {encounterDecisions: [], enrolmentDecisions: [{name: "BMI", value: 14}]};
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");
         let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});
@@ -212,7 +212,7 @@ describe("Referral Decision Test", () => {
     });
 
     it("Generate referral advice if Hb is less than 7", () => {
-        const encounterDecisions = {encounterDecisions: []};
+        const encounterDecisions = {encounterDecisions: [{name: "BMI", value: 14}]};
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");
         let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});
@@ -261,7 +261,7 @@ describe("Referral Decision Test", () => {
     });
 
     it("Generate referral advice if Sickle cell disease", () => {
-        const encounterDecisions = {encounterDecisions: []};
+        const encounterDecisions = {encounterDecisions: [{name: "BMI", value: 14}]};
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");
         let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});

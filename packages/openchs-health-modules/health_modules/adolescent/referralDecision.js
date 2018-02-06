@@ -63,11 +63,12 @@ const existingReferralAdvice = (currentEncounter) => {
     return menstrualDisorder.concat(remainingConcepts).filter(unsuccessfulReferral(currentEncounter));
 };
 
-const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) => {
-
+const referralDecisions = (existingDecisions, programEncounter) => {
+    const allDecisions = _.toPairs(existingDecisions).reduce((acc, [type, decisions]) => acc.concat(decisions), []);
     const complicationsBuilder = new ComplicationsBuilder({
         complicationsConcept: REFERRAL_ADVICE_CONCEPT,
-        programEncounter: programEncounter
+        programEncounter: programEncounter,
+        existingDecisions: allDecisions
     });
 
 
@@ -82,14 +83,14 @@ const referralDecisions = (vulnerabilityEncounterDecisions, programEncounter) =>
     complicationsBuilder.addComplication("Severe Anemia").when
         .valueInEncounter("Hb").lessThan(7);
     complicationsBuilder.addComplication("Severe malnourishment").when
-        .valueInEncounter("BMI").lessThanOrEqualTo(14.5);
+        .valueInDecisions("BMI").lessThanOrEqualTo(14.5);
     complicationsBuilder.addComplication("Sickle Cell Anemia").when
         .valueInEncounter("Sickling Test Result").containsAnswerConceptName("Disease");
     complicationsBuilder.addComplication("Self Addiction").when
         .valueInEncounter("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both");
 
-    vulnerabilityEncounterDecisions.encounterDecisions.push(complicationsBuilder.getComplications());
-    return vulnerabilityEncounterDecisions;
+    existingDecisions.encounterDecisions.push(complicationsBuilder.getComplications());
+    return existingDecisions;
 };
 
 export {referralDecisions}
