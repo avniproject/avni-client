@@ -223,7 +223,6 @@ export default class RuleCondition {
 
     valueInDecisions(conceptName) {
         return this._addToChain((next, context) => {
-            console.log(context);
             const obs = context.existingDecisions.find((decision) => decision.name === conceptName);
             context.obsToBeChecked = obs;
             context.valueToBeChecked = obs && obs.value;
