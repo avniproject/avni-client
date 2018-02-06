@@ -20,7 +20,7 @@ function C() {
     };
 
     this.calculateBMI = function (weight, height) {
-        return Math.floor((weight / Math.pow(height, 2)) * 10000);
+        return _.ceil((weight / Math.pow(height, 2)) * 10000, 1);
     };
 
     /* todo
