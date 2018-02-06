@@ -70,6 +70,9 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 
 const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
     const dateTimeToUse = programEncounter.encounterDateTime || new Date();
+    const enrolment = programEncounter.programEnrolment;
+    const scheduledDropoutVisit = enrolment.scheduledEncountersOfType("Dropout Home Visit");
+    if (!_.isNil(scheduledDropoutVisit)) return;
     scheduleBuilder.add({
             name: "Dropout Home Visit",
             encounterType: "Dropout Home Visit",
