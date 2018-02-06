@@ -138,10 +138,10 @@
   "Present": "હાજર",
   "Absent": "ગેરહાજર",
   "logLevel": "લોગ સ્તર",
-  "Error": "Error",
-  "Warn": "Warn",
-  "Info": "Info",
-  "Debug": "Debug",
+  "Error": "એરોર",
+  "Warn": "વાર્ન",
+  "Info": "ઇન્ફો",
+  "Debug": "ડીઇબગ",
   "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}",
 
   "lessThan13Weeks": "< 13 અઠવાડિયા",
@@ -178,5 +178,6 @@
   "pleaseChooseAOption": "એક વિકલ્પ પસંદ કરો",
   "home": "હોમ",
   "menu": "મેનુ",
-  "syncRequired": "સમન્વયન આવશ્યક"
+  "syncRequired": "સમન્વયન આવશ્યક",
+  "tryAgain": "ફરીથી પ્રયત્ન કરો"
 }

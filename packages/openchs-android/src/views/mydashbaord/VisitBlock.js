@@ -4,7 +4,6 @@ import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
 import DGS from '../primitives/DynamicGlobalStyles';
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Colors from "../primitives/Colors";
 
 
 class VisitBlock extends AbstractComponent {
@@ -38,13 +37,12 @@ class VisitBlock extends AbstractComponent {
     });
 
     render() {
-        const title = _.startCase(this.props.title);
         const textColor = this.props.highlight ? VisitBlock.styles.highlight : VisitBlock.styles.title;
         return (
             <TouchableNativeFeedback onPress={this.props.onPress}>
                 <View style={VisitBlock.styles.container}>
                     <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400"}]}>
-                        {title}
+                        {this.I18n.t(this.props.title)}
                     </Text>
                     <Text style={[Fonts.typography("paperFontTitle"), textColor]}>
                         {this.props.number}

@@ -117,11 +117,11 @@ class MenuView extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            Alert.alert("Sync Failed", error.message, [{
-                    text: 'Try Again',
+            Alert.alert(this.I18n.t("syncError"), error.message, [{
+                    text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
                 },
-                    {text: 'Cancel', onPress: _.noop, style: 'cancel'},
+                    {text: this.I18n.t('cancel'), onPress: _.noop, style: 'cancel'},
                 ]
             );
         }

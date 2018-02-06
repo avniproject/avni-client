@@ -645,10 +645,11 @@
     "Menstrual disorders": "માસિક દરમિયાન ની તકલીફો",
     "Any treatment taken": "જો કોઈ સારવાર લીધી હોય તો જણાવો",
     "Does she remain absent during menstruation?": "તે માસિક સ્રાવ દરમિયાન શાળામા ગેરહાજર રહે છે?",
-    "Reason for remaining absent during mensturation": "જો હા તો, કારણ જણાવો",
+    "Reason for remaining absent during menstruation": "જો હા તો, કારણ જણાવો",
     "If yes, how many days?": "જો હા તો, કેટલા દિવસ ?",
     "Is there any other condition you want to mention about him/her?": "શું તમે તેની / તેણીનો ઉલ્લેખ કરવા માગો છો તેવી કોઈ અન્ય સ્થિતિ છે?",
     "MHM Kit received?": "MHM કીટ મળી છે?",
+    "MHM Kit used?": "MHM કીટ વાપરો છો?",
     "Additional Medical History": "વધારાના તબીબી ઇતિહાસ",
     "Sickness in last 3 months": "છેલ્લા 3 મહિનામાં કોઈ બીમારી થઈ છે?",
     "Hospitalized in last 3 months": "છેલ્લા 3 મહિનામાં હોસ્પિટલમાં દાખલ થવુ પડ્યુ છે?",
@@ -842,6 +843,7 @@
     "Neurological motor defect": "ન્યુરોલોજિકલ મોટર ખામી",
     "Developmental delay": "વિકાસલક્ષી વિલમ્બ",
     "Difficulty in breathing": "श्वास घेण्यास त्रास",
-    "Yellowish discharge from penis/vagina": "શિશ્ન/યોનિમાર્ગમાથી પીળાશ પડતો સ્ત્રાવ"
+    "Yellowish discharge from penis/vagina": "શિશ્ન/યોનિમાર્ગમાથી પીળાશ પડતો સ્ત્રાવ",
+    "Roll Number": "રોલ નંબર"
   }
 }
