@@ -69,21 +69,26 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 };
 
 const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
+    const dateTimeToUse = programEncounter.encounterDateTime || new Date();
     scheduleBuilder.add({
             name: "Dropout Home Visit",
             encounterType: "Dropout Home Visit",
-            earliestDate: new Date(),
-            maxDate: C.addDays(C.copyDate(new Date()), 15)
+            earliestDate: dateTimeToUse,
+            maxDate: C.addDays(dateTimeToUse, 15)
         }
     ).when.valueInEncounter("School going").containsAnswerConceptName("Dropped Out");
 };
 
 const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
+    const dateTimeToUse = programEncounter.encounterDateTime || new Date();
+    const enrolment = programEncounter.programEnrolment;
+    const scheduledDropoutVisit = enrolment.scheduledEncountersOfType("Dropout Followup Visit");
+    if (!_.isNil(scheduledDropoutVisit)) return;
     scheduleBuilder.add({
             name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
-            earliestDate: C.addDays(new Date(), 7),
-            maxDate: C.addDays(C.copyDate(new Date()), 17)
+            earliestDate: C.addDays(dateTimeToUse, 7),
+            maxDate: C.addDays(dateTimeToUse, 17)
         }
     ).whenItem(programEncounter.encounterType.name).equals("Dropout Home Visit")
         .and.whenItem(programEncounter.programEnrolment.getEncounters(true)
@@ -92,8 +97,8 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
     scheduleBuilder.add({
             name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
-            earliestDate: C.addDays(new Date(), 7),
-            maxDate: C.addDays(C.copyDate(new Date()), 17)
+            earliestDate: C.addDays(dateTimeToUse, 7),
+            maxDate: C.addDays(dateTimeToUse, 17)
         }
     ).when.valueInEncounter("Have you started going to school once again").containsAnswerConceptName("No")
         .and.whenItem(programEncounter.programEnrolment.getEncounters(true)
@@ -106,7 +111,7 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
             name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
             earliestDate: schoolRestartDate,
-            maxDate: C.addDays(C.copyDate(schoolRestartDate), 15)
+            maxDate: C.addDays(schoolRestartDate, 15)
         }
     ).when.valueInEncounter("Have you started going to school once again")
         .containsAnswerConceptName("Yes, but could not attend");
