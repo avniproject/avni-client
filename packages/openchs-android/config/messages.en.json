@@ -163,5 +163,6 @@
   "home": "Home",
   "menu": "Menu",
   "overdue": "Overdue",
-  "highRisk": "At Risk"
+  "highRisk": "At Risk",
+  "patientCountForVisitType": "Patients with {{visitType}} Visits: {{count}}"
 }

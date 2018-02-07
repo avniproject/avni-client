@@ -57,7 +57,7 @@ class IndividualList extends AbstractComponent {
 
     render() {
         const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
-        const visitType = _.startCase(this.props.params.listType);
+        const visitType = this.I18n.t(this.props.params.listType);
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
@@ -69,7 +69,7 @@ class IndividualList extends AbstractComponent {
                         enableEmptySections={true}
                         renderHeader={() => (
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
-                                {`Patients with ${visitType} Visits - ${this.props.params.total}`}
+                                {`${this.I18n.t("patientCountForVisitType", {visitType: visitType, count: this.props.params.total})}`}
                             </Text>)}
                         removeClippedSubviews={true}
                         dataSource={dataSource}

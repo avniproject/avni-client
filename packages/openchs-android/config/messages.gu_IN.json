@@ -182,5 +182,6 @@
   "scheduled": "અનુસૂચિત",
   "overdue": "મુદતવીતી",
   "completedVisits": "પૂર્ણ",
-  "highRisk": "જોખમ"
+  "highRisk": "જોખમ",
+  "patientCountForVisitType": "{{visitType}} મુલાકાતોવાળા દર્દીઓ: {{count}}"
 }
