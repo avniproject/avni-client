@@ -462,7 +462,7 @@
     "false": "false",
     "Required12Digits": "Required 12 digits",
     "Required10Digits": "Required 10 digits",
-    "requiredFormatxx.x": "Required format XX.X",
+    "requiredFormatxxDotx": "Required format XX.X",
     "Adolescent Vulnerabilities": "Risk Of",
     "Reason for School Dropout Vulnerability": "Reason(s) for Risk Of School Dropout",
     "Reason for Addiction Vulnerability": "Reason(s) for Risk Of Addiction",
@@ -849,6 +849,7 @@
     "Developmental delay": "વિકાસલક્ષી વિલમ્બ",
     "Difficulty in breathing": "श्वास घेण्यास त्रास",
     "Yellowish discharge from penis/vagina": "શિશ્ન/યોનિમાર્ગમાથી પીળાશ પડતો સ્ત્રાવ",
-    "Roll Number": "રોલ નંબર"
+    "Roll Number": "રોલ નંબર",
+    "requiredFormatxxDotx": "આવશ્યક ફોર્મેટ XX.X"
   }
 }
