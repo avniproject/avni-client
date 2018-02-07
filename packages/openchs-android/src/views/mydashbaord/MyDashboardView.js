@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, View, StyleSheet, ListView} from 'react-native';
+import {View, StyleSheet, ListView} from 'react-native';
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
