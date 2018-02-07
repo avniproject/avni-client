@@ -26,14 +26,14 @@ class MyDashboardActions {
                 visits: {
                     scheduled: {count: 0, abnormal: false},
                     overdue: {count: 0, abnormal: false},
-                    completed: {count: 0, abnormal: false},
-                    highRisk: {count: 0, abnormal: true, label: "At Risk"}
+                    completedVisits: {count: 0, abnormal: false},
+                    highRisk: {count: 0, abnormal: true}
                 },
                 ...results[addressLevel.uuid],
             };
             existingResultForAddress.visits.scheduled.count += individualService.allScheduledVisitsCount(addressLevel);
             existingResultForAddress.visits.overdue.count += individualService.allOverdueVisitsCount(addressLevel);
-            existingResultForAddress.visits.completed.count += individualService.allCompletedVisitsCount(addressLevel, new Date(), new Date());
+            existingResultForAddress.visits.completedVisits.count += individualService.allCompletedVisitsCount(addressLevel, new Date(), new Date());
             existingResultForAddress.visits.highRisk.count += individualService.allHighRiskPatientCount(addressLevel);
             results[addressLevel.uuid] = existingResultForAddress;
         });
@@ -46,7 +46,7 @@ class MyDashboardActions {
         const methodMap = new Map([
             ["scheduled", individualService.allScheduledVisitsIn],
             ["overdue", individualService.allOverdueVisitsIn],
-            ["completed", individualService.allCompletedVisitsIn],
+            ["completedVisits", individualService.allCompletedVisitsIn],
             ["highRisk", individualService.allHighRiskPatients]
         ]);
         const individuals = [...state.individuals.data,

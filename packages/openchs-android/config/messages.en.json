@@ -120,6 +120,7 @@
   "openChecklist": "Open Checklist",
   "checklists": "Checklists",
   "completed": "Completed on  {{completedOn}}",
+  "completedVisits": "Completed",
   "dueOn": "Due on {{dueOn}}",
   "expired": "EXPIRED",
   "missedDueDate": "Was due on {{dueOn}}",
@@ -160,6 +161,7 @@
   "or": "OR",
   "pleaseChooseAOption": "Please choose an option",
   "home": "Home",
-  "menu": "Menu"
-
+  "menu": "Menu",
+  "overdue": "Overdue",
+  "highRisk": "At Risk"
 }

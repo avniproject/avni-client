@@ -148,7 +148,6 @@
   "lessThan2Years": "<2 વર્ષો",
   "2To5Years": "2 to 5 વર્ષો",
   "individualDashboard": "ડેશબોર્ડ",
-  "scheduled": "ડેશબોર્ડ",
 
   "systemRecommendations": "સિસ્ટમ ભલામણો",
   "observations": "અવલોકનો",
@@ -179,5 +178,9 @@
   "home": "હોમ",
   "menu": "મેનુ",
   "syncRequired": "સમન્વયન આવશ્યક",
-  "tryAgain": "ફરીથી પ્રયત્ન કરો"
+  "tryAgain": "ફરીથી પ્રયત્ન કરો",
+  "scheduled": "અનુસૂચિત",
+  "overdue": "મુદતવીતી",
+  "completedVisits": "પૂર્ણ",
+  "highRisk": "જોખમ"
 }
