@@ -1,6 +1,6 @@
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 
-export default class EnrolmentFormHandler {
+export default class ExitFormHandler {
 
     causeOfDeath(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
@@ -19,6 +19,12 @@ export default class EnrolmentFormHandler {
     ageAtMarriage(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
         statusBuilder.show().when.valueInExit("Adolescent exit reason").containsAnyAnswerConceptName('Marriage');
+        return statusBuilder.build();
+    }
+
+    ageAtPregnancy(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInExit("Adolescent exit reason").containsAnyAnswerConceptName('Pregnancy');
         return statusBuilder.build();
     }
 

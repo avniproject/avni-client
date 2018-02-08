@@ -40,6 +40,10 @@
               {
                 "name": "Pregnancy",
                 "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8"
+              },
+              {
+                "name": "Lost to follow-up",
+                "uuid": "d55d0635-c101-466f-a624-e72d7223eeb2"
               }
             ]
           },
@@ -72,6 +76,18 @@
             "dataType": "Numeric"
           },
           "displayOrder": 4,
+          "mandatory": true
+        },
+        {
+          "name": "Age at Pregnancy",
+          "uuid": "63faced0-b889-448b-aee5-b1a998876c1b",
+          "keyValues": [],
+          "concept": {
+            "name": "Age at Pregnancy",
+            "uuid": "01a1588f-b13d-4dd0-8330-1243b4def25c",
+            "dataType": "Numeric"
+          },
+          "displayOrder": 5,
           "mandatory": true
         }
       ]

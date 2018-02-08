@@ -1,4 +1,4 @@
-import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
+import EnrolmentFormHandler from "./formFilters/ExitFormHandler";
 import FormFilterHelper from "../rules/FormFilterHelper";
 import C from "../common";
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
@@ -13,6 +13,16 @@ const filterFormElements = (programEnrolment, formElementGroup) => {
     return FormFilterHelper.filterFormElements(handler, programEnrolment, formElementGroup);
 };
 
+const newScheduledEncounter = (enrolment) => {
+    const nextScheduledRoutineEncounter = _.chain(enrolment.scheduledEncounters())
+        .filter((enc) => !enc.encounterDateTime)
+        .filter((enc) => isRoutineEncounter(enc))
+        .head()
+        .value();
+
+    return nextScheduledRoutineEncounter && nextScheduledRoutineEncounter.cloneForEdit() || {};
+};
+
 const getNextScheduledVisits = function (programEnrolment, today, currentEncounter) {
     const scheduleBuilder = new VisitScheduleBuilder({programEnrolment: programEnrolment});
     scheduleBuilder.add({
@@ -21,6 +31,8 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
         earliestDate: programEnrolment.enrolmentDateTime,
         maxDate: C.addDays(C.copyDate(programEnrolment.enrolmentDateTime), 10)
     }).whenItem(programEnrolment.getEncounters(true).length).equals(0);
+
+
     const existingUnfinishedDropoutHomeVisit = programEnrolment.getEncounters(true)
         .filter(encounter => encounter.encounterType.name === "Dropout Home Visit"
             && _.isNil(encounter.encounterDateTime));
