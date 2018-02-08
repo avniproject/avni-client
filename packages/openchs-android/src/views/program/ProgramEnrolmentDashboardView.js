@@ -86,7 +86,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     exitProgram() {
-        CHSNavigator.navigateToExitProgram(this, this.state.enrolment);
+        const enrolmentToBeEdited = this.state.enrolment.cloneForEdit();
+        enrolmentToBeEdited.programExitDateTime = new Date();
+        CHSNavigator.navigateToExitProgram(this, enrolmentToBeEdited);
     }
 
     programSelect(program) {
