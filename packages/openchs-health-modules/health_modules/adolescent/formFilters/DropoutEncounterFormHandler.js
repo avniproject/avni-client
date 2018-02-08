@@ -34,6 +34,13 @@ export default class {
         return statusBuilder.build();
     }
 
+    reasonForCancellationOfVisitUnspecifiedAbove(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInCancelEncounter("Reason for cancellation of visit").containsAnswerConceptName('Other');
+        return statusBuilder.build();
+    }
+
+
     _getStatusBuilder(programEncounter, formElement) {
         return new FormElementStatusBuilder({
             programEncounter: programEncounter,
