@@ -73,3 +73,5 @@ gradlew.bat
 
 # Visual Studio Code
 .vscode
+.project
+.settings/
