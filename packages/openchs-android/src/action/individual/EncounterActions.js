@@ -5,7 +5,7 @@ import _ from "lodash";
 import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter} from "openchs-models";
+import {Encounter, Form} from "openchs-models";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -23,7 +23,8 @@ export class EncounterActions {
             encounter.individual = context.get(IndividualService).findByUUID(action.individualUUID);
         }
 
-        const form = context.get(FormMappingService).findFormForEncounterType(encounter.encounterType);
+        const form = context.get(FormMappingService)
+                            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
         let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
