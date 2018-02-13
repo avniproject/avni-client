@@ -179,9 +179,9 @@ export default class RoutineEncounterHandler {
 
     albendazoleTabletsReceived(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.encounterMonth.equals(9).or.equals(3)
-            .or.whenItem(this._isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter))
-            .equals(true);
+        statusBuilder.show()
+            .whenItem(new RuleCondition({programEncounter: programEncounter}).when.encounterMonth.equals(9).or.equals(3).matches()).is.truthy
+            .and.whenItem(new RuleCondition({programEncounter: programEncounter}).when.latestValueInAllEncounters("Standard").not.containsAnyAnswerConceptName("11", "12").matches()).is.truthy;
         return statusBuilder.build()
             .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY));
     }
