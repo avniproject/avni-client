@@ -213,6 +213,83 @@ jobs:
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
+  release_android_live:
+      docker:
+        - image: openchs/react-native-image:latest
+          environment:
+            - TERM: dumb
+            - ENVFILE: .env.live
+            - GRADLE_OPTS: "-Xmx250m -Xms250m"
+
+
+      working_directory: ~/openchs-client
+
+      steps:
+        - checkout
+
+        - restore_cache:
+            keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
+            - v1-dependencies-
+
+        - restore_cache:
+            keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/package-lock.json" }}
+
+        - restore_cache:
+            keys:
+            - v1-dependencies-{{ checksum "packages/openchs-health-modules/package-lock.json" }}
+
+        - restore_cache:
+            keys:
+            - v1-dependencies-{{ checksum "packages/openchs-models/package-lock.json" }}
+
+        - restore_cache:
+            keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+
+        - run: sudo chmod a+x packages/openchs-android/android/gradlew
+
+        - run: make deps;
+
+        - save_cache:
+            key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package-lock.json" }}
+            paths:
+              - packages/openchs-health-modules/node_modules
+
+        - save_cache:
+            key: v1-dependencies-{{ checksum "packages/openchs-models/package-lock.json" }}
+            paths:
+              - packages/openchs-models/node_modules
+
+        - save_cache:
+            key: v1-dependencies-{{ checksum "packages/openchs-android/package-lock.json" }}
+            paths:
+             - packages/openchs-android/node_modules
+
+
+        - save_cache:
+            key: v1-dependencies-{{ checksum "package-lock.json" }}
+            paths:
+             - node_modules
+
+        - run: make release
+
+        - save_cache:
+            key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
+            paths:
+             - ~/.gradle
+             - ~/.m2
+             - ~/openchs-client/packages/openchs-android/android/app/.gradle
+             - ~/openchs-client/packages/openchs-android/android/.gradle
+
+        - store_artifacts:
+            path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+            destination: openchs.apk
+
+        - store_artifacts:
+            path: packages/openchs-android/android/app/build/generated/sourcemap.js
+            destination: sourcemap.js
 
 workflows:
   version: 2
@@ -230,9 +307,18 @@ workflows:
             - test_android
             - test_health_modules
             - test_models
+      - hold_live:
+          type: approval
+          requires:
+            - test_android
+            - test_health_modules
+            - test_models
       - release_android:
           requires: 
             - hold
+      - release_android_live:
+          requires: 
+            - hold_live
 
 notify:
   webhooks:
