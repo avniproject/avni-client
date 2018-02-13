@@ -294,9 +294,9 @@ class ProgramEnrolment extends BaseEntity {
         return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime && _.isNil(encounter.cancelDateTime));
     }
 
-    scheduledEncountersOfType(encounterType) {
+    scheduledEncountersOfType(encounterTypeName) {
         return this.scheduledEncounters()
-            .filter((scheduledEncounter) => scheduledEncounter.encounterType.name === encounterType);
+            .filter((scheduledEncounter) => scheduledEncounter.encounterType.name === encounterTypeName);
     }
 
     addObservation(observation) {
