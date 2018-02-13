@@ -321,7 +321,7 @@ export default class RoutineEncounterHandler {
 
     absorbentMaterialUsed(programEncounter, formElement) {
         let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
-        statusBuilder.show().when.valueInEncounter("Menstruation started").containsAnswerConceptName("Yes");
+        statusBuilder.show().when.latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes");
 
         return statusBuilder.build();
     }
@@ -384,11 +384,13 @@ export default class RoutineEncounterHandler {
             formElement: formElement
         });
         statusBuilder.show()
+            .latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes")
+            .and
             .whenItem(new RuleCondition({programEncounter: programEncounter})
-                .female.and.whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit").matches()).is.truthy
+                .whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit").matches()).is.truthy
             .or
             .whenItem(new RuleCondition({programEncounter: programEncounter})
-                .female.and.latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy;
+                .latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy;
         return statusBuilder.build();
     }
 
