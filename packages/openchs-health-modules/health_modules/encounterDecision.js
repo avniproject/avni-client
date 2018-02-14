@@ -1956,7 +1956,7 @@ const getDecisions = function (encounter) {
 
 function getParameters(encounter) {
     const params = {};
-    params.complaints = encounter.getObservationValue('Complaint');
+    params.complaints = encounter.findObservation('Complaint').getReadableValue();
     params.age = encounter.individual.getAgeInYears();
     params.sex = encounter.individual.gender.name;
     params.weight = encounter.getObservationValue('Weight');

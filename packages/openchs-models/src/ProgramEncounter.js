@@ -88,10 +88,6 @@ class ProgramEncounter extends AbstractEncounter {
         return validationResults;
     }
 
-    isCancelled() {
-        return this.cancelDateTime? true: false;
-    }
-
     isCancellable() {
         return !this.hasBeenEdited() && !this.isCancelled();
     }
@@ -120,11 +116,6 @@ class ProgramEncounter extends AbstractEncounter {
 
     observationExistsInEntireEnrolment(conceptName) {
         return !_.isNil(this.programEnrolment.findObservationInEntireEnrolment(conceptName));
-    }
-
-    getObservationValue(conceptName) {
-        const observationForConcept = this.findObservation(conceptName);
-        return _.isEmpty(observationForConcept) ? observationForConcept : observationForConcept.getValue();
     }
 
     toJSON() {

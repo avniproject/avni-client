@@ -9,7 +9,7 @@ import {IndividualEncounterViewActions as Actions} from "../../action/individual
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder} from "openchs-models";
+import {ObservationsHolder, Form} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
@@ -42,7 +42,7 @@ class IndividualEncounterView extends AbstractComponent {
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType);
+                const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter);
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage, form);
             },
             movedNext: this.scrollToTop,
