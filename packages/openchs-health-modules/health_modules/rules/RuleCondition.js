@@ -272,7 +272,7 @@ export default class RuleCondition {
 
     equalsOneOf(...values) {
         return this._addToChain((next, context) => {
-            context.matches = _.some(values, (value) => this.equals(value));
+            context.matches = _.some(values, (value) => context.valueToBeChecked === value);
             return next(context);
         });
     }
