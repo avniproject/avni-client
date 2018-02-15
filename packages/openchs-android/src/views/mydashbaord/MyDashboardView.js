@@ -47,6 +47,8 @@ class MyDashboardView extends AbstractComponent {
                 <CHSContent>
                     <View style={MyDashboardView.styles.container}>
                         <ListView dataSource={dataSource}
+                                  initialListSize={1}
+                                  removeClippedSubviews={true}
                                   renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}
                                   renderRow={(rowData) => <AddressVisitRow address={rowData.address}
                                                                            visits={rowData.visits}/>}/>

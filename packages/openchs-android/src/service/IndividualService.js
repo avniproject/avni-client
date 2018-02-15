@@ -44,32 +44,32 @@ class IndividualService extends BaseService {
         return individual.eligiblePrograms(programs);
     }
 
-    _uniqIndividualsFrom(encounters) {
-        const encountersPerIndividual = _.groupBy(encounters, (encounter) => encounter.programEnrolment.individual.uuid);
-        return _.values(encountersPerIndividual)
-            .map(_.first)
-            .filter((encounter) => !_.isEmpty(encounter))
-            .map((encounter) => encounter.programEnrolment.individual);
+    _uniqIndividualsFrom(individuals, individual) {
+        individuals.has(individual.uuid) || individuals.set(individual.uuid, individual);
+        return individuals;
     }
 
-    allScheduledVisitsIn(addressLevel) {
+    allScheduledVisitsIn() {
         const todayMidnight = moment(new Date()).endOf('day').toDate();
         const todayMorning = moment(new Date()).startOf('day').toDate();
-        const encounters = this.db.objects(ProgramEncounter.schema.name)
-            .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
-                'AND earliestVisitDateTime <= $1 ' +
-                'AND maxVisitDateTime >= $2 ' +
+        return [...this.db.objects(ProgramEncounter.schema.name)
+            .filtered('earliestVisitDateTime <= $0 ' +
+                'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
                 'AND cancelDateTime = null',
-                addressLevel.uuid,
                 todayMidnight,
                 todayMorning)
+            .map((enc) => {
+                const individual = enc.programEnrolment.individual;
+                return {uuid: individual.uuid, addressUUID: individual.lowestAddressLevel.uuid};
+            })
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
             .map(_.identity);
-        return this._uniqIndividualsFrom(encounters);
     }
 
-    allScheduledVisitsCount(addressLevel) {
-        return this.allScheduledVisitsIn(addressLevel).length;
+    allScheduledVisitsCount() {
+        return this.allScheduledVisitsIn().length;
     }
 
     withScheduledVisits(program, addressLevel, encounterType) {
@@ -96,21 +96,24 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(addressLevel) {
+    allOverdueVisitsIn() {
         const todayMorning = moment(new Date()).startOf('day').toDate();
-        const encounters = this.db.objects(ProgramEncounter.schema.name)
-            .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
-                'AND maxVisitDateTime < $1 ' +
+        return [...this.db.objects(ProgramEncounter.schema.name)
+            .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ',
-                addressLevel.uuid,
                 todayMorning)
+            .map((enc) => {
+                const individual = enc.programEnrolment.individual;
+                return {uuid: individual.uuid, addressUUID: individual.lowestAddressLevel.uuid};
+            })
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
             .map(_.identity);
-        return this._uniqIndividualsFrom(encounters);
     }
 
-    allOverdueVisitsCount(addressLevel) {
-        return this.allOverdueVisitsIn(addressLevel).length;
+    allOverdueVisitsCount() {
+        return this.allOverdueVisitsIn().length;
     }
 
     overdueVisits(program, addressLevel, encounterType) {
@@ -134,21 +137,25 @@ class IndividualService extends BaseService {
         return this.overdueVisits(program, addressLevel, encounterType).length;
     }
 
-    allCompletedVisitsIn(addressLevel, fromDate = new Date(), tillDate = new Date()) {
+    allCompletedVisitsIn(fromDate = new Date(), tillDate = new Date()) {
         fromDate = moment(fromDate).startOf('day').toDate();
         tillDate = moment(tillDate).endOf('day').toDate();
-        const encounters = this.db.objects(ProgramEncounter.schema.name)
-            .filtered('programEnrolment.individual.lowestAddressLevel.uuid = $0 ' +
-                'AND encounterDateTime <= $1 ' +
-                'AND encounterDateTime >= $2 ',
-                addressLevel.uuid,
+        return [...this.db.objects(ProgramEncounter.schema.name)
+            .filtered('encounterDateTime <= $0 ' +
+                'AND encounterDateTime >= $1 ',
                 tillDate,
-                fromDate).map(_.identity);
-        return this._uniqIndividualsFrom(encounters);
+                fromDate)
+            .map((enc) => {
+                const individual = enc.programEnrolment.individual;
+                return {uuid: individual.uuid, addressUUID: individual.lowestAddressLevel.uuid};
+            })
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
+            .map(_.identity);
     }
 
-    allCompletedVisitsCount(addressLevel, fromDate = new Date(), tillDate = new Date()) {
-        return this.allCompletedVisitsIn(addressLevel, fromDate, tillDate).length;
+    allCompletedVisitsCount(fromDate = new Date(), tillDate = new Date()) {
+        return this.allCompletedVisitsIn(fromDate, tillDate).length;
     }
 
     completedVisits(program, addressLevel, encounterType, fromDate = new Date(), tillDate = new Date()) {
@@ -172,18 +179,18 @@ class IndividualService extends BaseService {
         return this.completedVisits(program, addressLevel, encounterType, tillDate).length;
     }
 
-    allHighRiskPatients(addressLevel) {
+    allHighRiskPatients() {
         const HIGH_RISK_CONCEPTS = ["High Risk Conditions", "Adolescent Vulnerabilities"];
-        let allEnrolments = this.db.objects(ProgramEnrolment.schema.name)
-            .filtered("individual.lowestAddressLevel.uuid = $0 ",
-                addressLevel.uuid);
+        let allEnrolments = this.db.objects(ProgramEnrolment.schema.name);
         return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
-            .some((concept) => !_.isEmpty(enrolment.findObservationInEntireEnrolment(concept))))
-            .map((enrolment) => enrolment.individual);
+            .some((concept) => !_.isEmpty(enrolment.findObservation(concept))))
+            .map((enrolment) => {
+                return {uuid: enrolment.individual.uuid, addressUUID: enrolment.individual.lowestAddressLevel.uuid};
+            });
     }
 
-    allHighRiskPatientCount(addressLevel) {
-        return this.allHighRiskPatients(addressLevel).length;
+    allHighRiskPatientCount() {
+        return this.allHighRiskPatients().length;
     }
 
     highRiskPatients(program, addressLevel) {
