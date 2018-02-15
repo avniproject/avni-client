@@ -16,27 +16,21 @@ const observationExists = function (conceptName) {
 };
 
 function EncounterFn(encounterTypeName) {
-    this.encounter = Encounter.create();
-    this.encounter.encounterType = EncounterType.create(encounterTypeName);
-    this.encounter.individual = Individual.createEmptyInstance();
+    let encounter = Encounter.create();
+    encounter.encounterType = EncounterType.create(encounterTypeName);
+    encounter.individual = Individual.createEmptyInstance();
 
-    this.individual = this.encounter.individual;
-
-    this.setAge = function (years) {
-        this.encounter.individual.setAge(years, true);
-        return this;
+    encounter.setAge = function (years) {
+        encounter.individual.setAge(years, true);
+        return encounter;
     };
 
-    this.setGender = function (genderName) {
-        this.encounter.individual.gender = Gender.create(genderName);
-        return this;
+    encounter.setGender = function (genderName) {
+        encounter.individual.gender = Gender.create(genderName);
+        return encounter;
     };
 
-    this.observations = this.encounter.observations;
-
-    this.encounterType = this.encounter.encounterType;
-
-    return this;
+    return encounter;
 }
 
 function Form() {
@@ -77,7 +71,7 @@ function SingleValueCodedDecision(name, value) {
     else this.value = [value];
 }
 
-const prototypes = [ProgramEncounter.prototype, ProgramEnrolment.prototype, EncounterFn.prototype];
+const prototypes = [ProgramEncounter.prototype, ProgramEnrolment.prototype, Encounter.prototype];
 prototypes.forEach(function (currentPrototype) {
     currentPrototype.getObservationValue = getObservationValue;
     currentPrototype.setObservation = setObservation;
