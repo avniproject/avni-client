@@ -111,11 +111,6 @@ run_app_debug: setup_hosts
 # </app>
 
 
-# <deploy_rules>
-deploy_rules:
-	cd packages/openchs-health-modules; make deploy_package
-# </deploy_rules>
-
 
 # <crash>
 analyse_crash:

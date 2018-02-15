@@ -78,17 +78,6 @@ dev_deploy_metadata: ## Upload metadata to server
 	date
 
 
-# <package>
-build_package: ## Builds a deployable package
-	rm -rf output/
-	mkdir -p output/
-	make build_rules
-	tar zcvf openchs_rules.tar.gz -C output .
-# </package>
-
-deploy_package: build_package
-	aws s3 cp openchs_rules.tar.gz s3://openchs/rules/openchs_rules.tar.gz --region ap-south-1
-
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata
 test: test_env
