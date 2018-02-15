@@ -65,45 +65,6 @@ jobs:
       - run: make test-health-modules
 
 
-  deploy_rules:
-      docker:
-        - image: circleci/node:8.5.0
-
-      working_directory: ~/openchs-client
-
-      steps:
-        - checkout
-
-        - restore_cache:
-            keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
-            - v1-dependencies-
-
-
-        - run:
-            name: Install dependencies
-            command: |
-              sudo apt-get -y -qq update
-              sudo apt-get -y -qq install python3.4-dev make
-              curl -O https://bootstrap.pypa.io/get-pip.py
-              sudo python3.4 get-pip.py
-              sudo pip install awscli --upgrade
-
-        - run: make deps
-
-        - save_cache:
-            paths:
-              - node_modules
-            key: v1-dependencies-{{ checksum "package.json" }}
-
-        - save_cache:
-            paths:
-             - packages/openchs-health-modules/node_modules
-            key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
-
-        - run: cd packages/openchs-health-modules/; make deploy_package
-
   test_models:
     docker:
       - image: circleci/node:8.5.0
@@ -298,9 +259,6 @@ workflows:
       - test_models
       - test_android
       - test_health_modules
-      - deploy_rules:
-          requires:
-            - test_health_modules
       - hold:
           type: approval
           requires:
