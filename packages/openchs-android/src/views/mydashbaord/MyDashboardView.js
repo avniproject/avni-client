@@ -1,5 +1,5 @@
 import React from "react";
-import {View, StyleSheet, ListView} from 'react-native';
+import {View, StyleSheet, ListView, Text} from 'react-native';
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -24,7 +24,7 @@ class MyDashboardView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
-        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.ds = new ListView.DataSource({rowHasChanged: () => false});
     }
 
     static styles = StyleSheet.create({
