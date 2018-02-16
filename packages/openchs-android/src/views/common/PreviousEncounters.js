@@ -16,6 +16,7 @@ import {Form} from 'openchs-models';
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
         encounters: React.PropTypes.any.isRequired,
+        formType: React.PropTypes.string.isRequired,
         style: React.PropTypes.object
     };
 
@@ -73,7 +74,7 @@ class PreviousEncounters extends AbstractComponent {
                         primaryAction={this.cancelVisitAction(encounter)}
                         title={this.getTitle(encounter)}/>
                     <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
-                        Form.formTypes.ProgramEncounter)} observations={encounter.observations}/>
+                        this.props.formType)} observations={encounter.observations}/>
                 </View>}
             />);
         return (

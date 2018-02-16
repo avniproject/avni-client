@@ -10,6 +10,8 @@ import PreviousEncounters from "../common/PreviousEncounters";
 import Separator from "../primitives/Separator";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import Styles from "../primitives/Styles";
+import General from "../../utility/General";
+import {Form} from 'openchs-models';
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {
@@ -22,6 +24,10 @@ class PreviousEncounterPullDownView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.toggleExpandCollapse = this.toggleExpandCollapse.bind(this);
+    }
+
+    viewName() {
+        return 'PreviousEncounterPullDownView';
     }
 
     toggleExpandCollapse() {
@@ -72,6 +78,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                     <Separator style={{marginTop: DynamicGlobalStyles.resizeHeight(16)}}/>
                 </View>
                 <PreviousEncounters encounters={this.props.encounters}
+                                    formType={Form.formTypes.Encounter}
                                     style={{
                                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                                         backgroundColor: Colors.GreyContentBackground,
@@ -101,6 +108,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug(this.viewName(), 'render');
         return this.props.showExpanded ? this.getExpandedView() : this.getCollapsedView();
     }
 }

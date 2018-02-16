@@ -14,6 +14,7 @@ import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import {Form} from 'openchs-models';
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -50,7 +51,9 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                         borderRadius: 5,
                         paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
                     }}>
-                        <PreviousEncounters encounters={this.state.individual.encounters} style={{marginBottom: 21}}/>
+                        <PreviousEncounters encounters={this.state.individual.encounters} 
+                                            formType={Form.formTypes.Encounter} 
+                                            style={{marginBottom: 21}}/>
                     </Card>
                 </CHSContent>
             </CHSContainer>
