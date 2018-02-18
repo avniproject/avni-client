@@ -85,6 +85,12 @@ clean_env:
 	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-models/node_modules
 
+reset_cache: clean
+	watchman watch-del-all
+	make deps
+	rm -rf $TMPDIR/react-*
+	rm -rf $TMPDIR/haste-map-react-native-packager-*
+
 setup_env:
 	npm install -g jest@20.0.1
 	npm install -g jest-cli@20.0.1
