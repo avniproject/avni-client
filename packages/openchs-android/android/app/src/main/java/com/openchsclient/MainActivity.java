@@ -1,3 +1,4 @@
+
 package com.openchsclient;
 
 import com.facebook.react.ReactActivity;

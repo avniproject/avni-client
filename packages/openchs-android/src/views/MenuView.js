@@ -4,7 +4,7 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
 import {Button} from "native-base";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
