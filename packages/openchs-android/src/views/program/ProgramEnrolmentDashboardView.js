@@ -28,7 +28,6 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
-import {Form} from 'openchs-models';
 import _ from "lodash";
 
 @Path('/ProgramEnrolmentDashboardView')
@@ -205,8 +204,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                       observations={this.state.enrolment.observations}
                                                       style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
-                                    <PreviousEncounters encounters={this.state.enrolment.encounters}
-                                                        formType={Form.formTypes.ProgramEncounter}/>
+                                    <PreviousEncounters encounters={this.state.enrolment.encounters}/>
                                 </View>}
                         </Card>
                     </View>

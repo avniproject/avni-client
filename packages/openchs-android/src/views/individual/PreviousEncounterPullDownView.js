@@ -11,7 +11,6 @@ import Separator from "../primitives/Separator";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import Styles from "../primitives/Styles";
 import General from "../../utility/General";
-import {Form} from 'openchs-models';
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {
@@ -78,7 +77,6 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                     <Separator style={{marginTop: DynamicGlobalStyles.resizeHeight(16)}}/>
                 </View>
                 <PreviousEncounters encounters={this.props.encounters}
-                                    formType={Form.formTypes.Encounter}
                                     style={{
                                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                                         backgroundColor: Colors.GreyContentBackground,
