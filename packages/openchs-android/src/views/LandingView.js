@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path, {PathRoot} from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
@@ -13,8 +13,8 @@ import Styles from "./primitives/Styles";
 @Path('/landingView')
 class LandingView extends AbstractComponent {
     static propTypes = {
-        tabIndex: React.PropTypes.number,
-        menuProps: React.PropTypes.object
+        tabIndex: PropTypes.number,
+        menuProps: PropTypes.object
     };
 
     static defaultProps = {

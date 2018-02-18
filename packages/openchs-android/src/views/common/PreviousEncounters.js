@@ -1,5 +1,5 @@
 import {View, ListView} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import {Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import moment from "moment";
@@ -15,9 +15,9 @@ import {Form} from 'openchs-models';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
-        encounters: React.PropTypes.any.isRequired,
-        formType: React.PropTypes.string.isRequired,
-        style: React.PropTypes.object
+        encounters: PropTypes.any.isRequired,
+        formType: PropTypes.string.isRequired,
+        style: PropTypes.object
     };
 
     constructor(props, context) {

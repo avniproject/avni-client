@@ -1,5 +1,5 @@
 import {View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
@@ -24,7 +24,7 @@ import GenderFormElement from "../form/formElement/GenderFormElement";
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

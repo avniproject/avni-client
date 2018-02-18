@@ -1,5 +1,5 @@
 import {Alert, Animated, Text, View, Dimensions, Modal, ActivityIndicator} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
@@ -30,7 +30,7 @@ const {width, height} = Dimensions.get('window');
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     static propType = {
-        startSync: React.PropTypes.bool
+        startSync: PropTypes.bool
     };
 
     static defaultProps = {

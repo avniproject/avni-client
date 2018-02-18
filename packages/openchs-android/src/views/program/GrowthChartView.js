@@ -1,5 +1,6 @@
 import {View} from "native-base";
 import Path from "../../framework/routing/Path";
+import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
 import * as React from "react";
@@ -19,7 +20,7 @@ import Styles from "../primitives/Styles";
 @Path('/GrowthChartView')
 class GrowthChartView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

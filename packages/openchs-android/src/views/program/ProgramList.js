@@ -1,5 +1,5 @@
 import {Text, View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -7,9 +7,9 @@ import Styles from "../primitives/Styles";
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
-        enrolments: React.PropTypes.array.isRequired,
-        selectedEnrolment: React.PropTypes.object.isRequired,
-        onProgramSelect: React.PropTypes.func.isRequired
+        enrolments: PropTypes.array.isRequired,
+        selectedEnrolment: PropTypes.object.isRequired,
+        onProgramSelect: PropTypes.func.isRequired
     };
 
     constructor(props, context) {

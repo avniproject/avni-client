@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
 import Colors from "../primitives/Colors";
@@ -6,8 +6,8 @@ import Fonts from "../primitives/Fonts";
 
 class ContextActionButton extends AbstractComponent {
     static propTypes = {
-        labelKey: React.PropTypes.string.isRequired,
-        onPress: React.PropTypes.func.isRequired
+        labelKey: PropTypes.string.isRequired,
+        onPress: PropTypes.func.isRequired
     };
 
     constructor(props, context) {

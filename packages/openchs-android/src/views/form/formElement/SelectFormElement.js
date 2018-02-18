@@ -1,5 +1,5 @@
 import {Text, View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
@@ -10,10 +10,10 @@ import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 
 class SelectFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        isSelected: React.PropTypes.func.isRequired,
-        validationResult: React.PropTypes.object,
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        isSelected: PropTypes.func.isRequired,
+        validationResult: PropTypes.object,
     };
 
     constructor(props, context) {

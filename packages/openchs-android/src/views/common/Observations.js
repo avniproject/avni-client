@@ -1,5 +1,5 @@
 import {ListView, Text, View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
 import {Observation} from "openchs-models";
@@ -11,11 +11,11 @@ import Separator from "../primitives/Separator";
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.any.isRequired,
-        style: React.PropTypes.object,
-        title: React.PropTypes.string,
-        highlight: React.PropTypes.bool,
-        form: React.PropTypes.object
+        observations: PropTypes.any.isRequired,
+        style: PropTypes.object,
+        title: PropTypes.string,
+        highlight: PropTypes.bool,
+        form: PropTypes.object
     };
 
     constructor(props, context) {

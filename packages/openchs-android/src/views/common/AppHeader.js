@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Icon} from "native-base";
@@ -9,8 +9,8 @@ import CHSNavigator from "../../utility/CHSNavigator";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
-        title: React.PropTypes.string.isRequired,
-        func: React.PropTypes.func
+        title: PropTypes.string.isRequired,
+        func: PropTypes.func
     };
 
     constructor(props, context) {

@@ -1,5 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
@@ -21,16 +21,16 @@ import CHSContent from "../common/CHSContent";
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
     static propTypes = {
-        individual: React.PropTypes.object.isRequired,
-        saveActionName: React.PropTypes.string.isRequired,
-        onSaveCallback: React.PropTypes.func.isRequired,
-        decisions: React.PropTypes.object,
-        observations: React.PropTypes.array.isRequired,
-        validationErrors: React.PropTypes.array.isRequired,
-        headerMessage: React.PropTypes.string,
-        checklists: React.PropTypes.array,
-        nextScheduledVisits: React.PropTypes.array,
-        form: React.PropTypes.object
+        individual: PropTypes.object.isRequired,
+        saveActionName: PropTypes.string.isRequired,
+        onSaveCallback: PropTypes.func.isRequired,
+        decisions: PropTypes.object,
+        observations: PropTypes.array.isRequired,
+        validationErrors: PropTypes.array.isRequired,
+        headerMessage: PropTypes.string,
+        checklists: PropTypes.array,
+        nextScheduledVisits: PropTypes.array,
+        form: PropTypes.object
     };
 
     static styles = {

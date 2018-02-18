@@ -42,10 +42,12 @@
     "native-base": "^2.3.9",
     "openchs-health-modules": "0.0.1",
     "openchs-models": "0.0.1",
+    "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-native": "^0.53.0",
     "react-native-aws-cognito-js": "0.0.7",
     "react-native-config": "0.10.0",
+    "react-native-deprecated-custom-components": "^0.1.1",
     "react-native-fabric": "0.5.1",
     "react-native-i18n": "0.1.1",
     "react-native-svg": "^6.2.0",
@@ -54,7 +56,7 @@
     "redux": "3.6.0",
     "stacktrace-js": "2.0.0",
     "transducers-js": "0.4.174",
-    "victory-native": "0.8.1"
+    "victory-native": "^0.17.1"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",

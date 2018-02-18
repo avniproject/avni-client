@@ -1,5 +1,5 @@
 import {View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import IndividualProfile from "../common/IndividualProfile";
 import Colors from "../primitives/Colors";
@@ -15,10 +15,10 @@ import {Form} from 'openchs-models';
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {
-        individual: React.PropTypes.object.isRequired,
-        encounters: React.PropTypes.any,
-        showExpanded: React.PropTypes.bool.isRequired,
-        actionName: React.PropTypes.string.isRequired
+        individual: PropTypes.object.isRequired,
+        encounters: PropTypes.any,
+        showExpanded: PropTypes.bool.isRequired,
+        actionName: PropTypes.string.isRequired
     };
 
     constructor(props, context) {

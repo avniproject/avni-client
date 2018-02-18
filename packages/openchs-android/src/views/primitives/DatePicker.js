@@ -1,5 +1,5 @@
 import {DatePickerAndroid, View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
@@ -10,11 +10,11 @@ import {Button, Icon, Text} from "native-base";
 
 class DatePicker extends AbstractComponent {
     static propTypes = {
-        dateValue: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        actionName: React.PropTypes.string.isRequired,
-        actionObject: React.PropTypes.object.isRequired,
-        noDateMessageKey: React.PropTypes.string
+        dateValue: PropTypes.object,
+        validationResult: PropTypes.object,
+        actionName: PropTypes.string.isRequired,
+        actionObject: PropTypes.object.isRequired,
+        noDateMessageKey: PropTypes.string
     };
 
     constructor(props, context) {

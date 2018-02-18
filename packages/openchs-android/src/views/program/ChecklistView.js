@@ -1,5 +1,5 @@
 import {View, ToastAndroid, Alert, BackAndroid} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
@@ -22,7 +22,7 @@ import Styles from "../primitives/Styles";
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
     static propTypes = {
-        enrolmentUUID: React.PropTypes.string.isRequired
+        enrolmentUUID: PropTypes.string.isRequired
     };
 
     viewName() {

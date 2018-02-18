@@ -1,4 +1,5 @@
 import {View, Text, StyleSheet, TouchableNativeFeedback} from "react-native";
+import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
@@ -14,12 +15,12 @@ class TabularListView extends AbstractComponent {
     }
 
     static propTypes = {
-        data: React.PropTypes.object.isRequired,
-        tableTitle: React.PropTypes.string.isRequired,
-        handleClick: React.PropTypes.func,
-        getRow: React.PropTypes.func.isRequired,
-        headerTitleKeys: React.PropTypes.array.isRequired,
-        emptyTableMessage: React.PropTypes.string.isRequired
+        data: PropTypes.object.isRequired,
+        tableTitle: PropTypes.string.isRequired,
+        handleClick: PropTypes.func,
+        getRow: PropTypes.func.isRequired,
+        headerTitleKeys: PropTypes.array.isRequired,
+        emptyTableMessage: PropTypes.string.isRequired
     };
 
     renderRow(rowEntity, tableTitle) {

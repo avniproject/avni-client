@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import {View, StyleSheet, ListView, Text} from 'react-native';
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";

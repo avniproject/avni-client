@@ -1,5 +1,6 @@
 import {TextInput, View} from "react-native";
 import React from "react";
+import PropTypes from 'prop-types';
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
@@ -7,10 +8,10 @@ import Styles from "../../primitives/Styles";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object,
-        validationResult: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object
     };
 
     constructor(props, context) {
@@ -21,8 +22,10 @@ class TextFormElement extends AbstractFormElement {
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
-                <TextInput {...this.props} style={Styles.formBodyText} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
-                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
+                <TextInput {...this.props} style={Styles.formBodyText} underlineColorAndroid={this.borderColor}
+                           secureTextEntry={this.props.secureTextEntry}
+                           value={_.isNil(this.props.value) ? "" : this.props.value.answer}
+                           onChangeText={(text) => this.onInputChange(text)}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);
     }

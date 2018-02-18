@@ -1,5 +1,5 @@
 import {View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
 import Fonts from "../primitives/Fonts";
@@ -8,9 +8,9 @@ import General from "../../utility/General";
 
 class ChecklistDisplay extends AbstractComponent {
     static propTypes = {
-        checklists: React.PropTypes.array.isRequired,
-        editable: React.PropTypes.bool,
-        style: React.PropTypes.object
+        checklists: PropTypes.array.isRequired,
+        editable: PropTypes.bool,
+        style: PropTypes.object
     };
 
     constructor(props, context) {

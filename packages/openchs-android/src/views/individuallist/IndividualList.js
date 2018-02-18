@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import {Text, View, StyleSheet, ListView} from 'react-native';
 import _ from 'lodash';
 import {Header} from 'native-base';

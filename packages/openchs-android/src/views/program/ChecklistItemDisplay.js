@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
@@ -10,12 +10,12 @@ import _ from "lodash";
 
 class ChecklistItemDisplay extends AbstractComponent {
     static propTypes = {
-        checklistItem: React.PropTypes.object.isRequired,
-        completionDateAction: React.PropTypes.string,
-        style: React.PropTypes.object,
-        editable: React.PropTypes.bool,
-        validationResult: React.PropTypes.object,
-        actionObject: React.PropTypes.object
+        checklistItem: PropTypes.object.isRequired,
+        completionDateAction: PropTypes.string,
+        style: PropTypes.object,
+        editable: PropTypes.bool,
+        validationResult: PropTypes.object,
+        actionObject: PropTypes.object
     };
 
     constructor(props, context) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ProgramFormComponent from "./ProgramFormComponent";
@@ -11,7 +11,7 @@ import General from "../../utility/General";
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
     static propTypes = {
-        enrolment: React.PropTypes.object.isRequired
+        enrolment: PropTypes.object.isRequired
     };
 
     static usageContext = {

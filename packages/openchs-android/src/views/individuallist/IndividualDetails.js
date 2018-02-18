@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
 import {Badge} from 'native-base';
@@ -11,7 +12,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
-        address: React.PropTypes.object,
+        address: PropTypes.object,
     };
 
     static styles = StyleSheet.create({

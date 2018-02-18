@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import {Text, View, TextInput, TouchableNativeFeedback} from "react-native";
@@ -14,7 +14,7 @@ import Colors from "./primitives/Colors";
 @Path('/resetForgottenPasswordView')
 class ResetForgottenPasswordView extends AbstractComponent {
     static propTypes = {
-        user: React.PropTypes.object
+        user: PropTypes.object
     };
 
     constructor(props, context) {

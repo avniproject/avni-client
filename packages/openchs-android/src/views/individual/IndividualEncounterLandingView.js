@@ -1,5 +1,5 @@
 import {View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
@@ -25,8 +25,8 @@ import FormMappingService from "../../service/FormMappingService";
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
     static propTypes = {
-        encounter: React.PropTypes.object,
-        individualUUID: React.PropTypes.string
+        encounter: PropTypes.object,
+        individualUUID: PropTypes.string
     };
 
     viewName() {

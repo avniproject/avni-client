@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
 import Distances from "../../primitives/Distances";
@@ -8,7 +8,7 @@ import {Actions} from "../../../action/individual/IndividualRegisterActions";
 
 class GenderFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

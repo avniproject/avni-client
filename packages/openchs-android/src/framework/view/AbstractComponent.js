@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component, Text, View} from "react";
 import {Alert, StyleSheet} from "react-native";
 import _ from "lodash";
@@ -8,9 +9,9 @@ import TypedTransition from "../routing/TypedTransition";
 
 class AbstractComponent extends Component {
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func
+        navigator: PropTypes.func.isRequired,
+        getService: PropTypes.func.isRequired,
+        getStore: PropTypes.func
     };
 
     constructor(props, context, topLevelStateVariable) {

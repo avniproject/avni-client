@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Reducers from "../../reducer";
@@ -7,12 +7,12 @@ import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
-        multiSelect: React.PropTypes.bool.isRequired,
-        selectedAddressLevels: React.PropTypes.array.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        validationError: React.PropTypes.object,
-        style: React.PropTypes.object,
-        mandatory: React.PropTypes.bool
+        multiSelect: PropTypes.bool.isRequired,
+        selectedAddressLevels: PropTypes.array.isRequired,
+        actionName: PropTypes.string.isRequired,
+        validationError: PropTypes.object,
+        style: PropTypes.object,
+        mandatory: PropTypes.bool
     };
 
     viewName() {

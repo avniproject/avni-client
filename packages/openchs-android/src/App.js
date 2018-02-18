@@ -1,4 +1,5 @@
 import {Dimensions} from "react-native";
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
@@ -27,9 +28,9 @@ export default class App extends Component {
     }
 
     static childContextTypes = {
-        getService: React.PropTypes.func.isRequired,
-        getDB: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func.isRequired
+        getService: PropTypes.func.isRequired,
+        getDB: PropTypes.func.isRequired,
+        getStore: PropTypes.func.isRequired
     };
 
     getChildContext = () => ({

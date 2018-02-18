@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {TouchableNativeFeedback, View, ListView, Dimensions, Text} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
 import {Icon} from "native-base";
@@ -16,7 +16,7 @@ import Styles from "../primitives/Styles";
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
-        searchResults: React.PropTypes.array.isRequired
+        searchResults: PropTypes.array.isRequired
     };
 
     viewName() {

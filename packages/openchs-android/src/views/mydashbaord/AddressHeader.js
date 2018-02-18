@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import Fonts from '../primitives/Fonts';
@@ -7,7 +8,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 
 class AddressHeader extends AbstractComponent {
     static propTypes = {
-        address: React.PropTypes.object,
+        address: PropTypes.object,
     };
 
     static styles = StyleSheet.create({

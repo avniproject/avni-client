@@ -1,4 +1,5 @@
 import {StyleSheet, View} from "react-native";
+import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppHeader from "../common/AppHeader";
@@ -19,9 +20,9 @@ import CHSContent from "../common/CHSContent";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
-        context: React.PropTypes.object.isRequired,
-        state: React.PropTypes.object.isRequired,
-        backFunction: React.PropTypes.func.isRequired
+        context: PropTypes.object.isRequired,
+        state: PropTypes.object.isRequired,
+        backFunction: PropTypes.func.isRequired
     };
 
     next() {

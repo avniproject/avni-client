@@ -1,4 +1,5 @@
 import {View, StyleSheet, Text} from 'react-native';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
 import TextFormElement from "./TextFormElement";
@@ -11,7 +12,7 @@ import Distances from "../../primitives/Distances";
 
 class IndividualNameFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

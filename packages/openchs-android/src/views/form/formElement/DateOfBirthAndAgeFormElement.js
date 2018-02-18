@@ -1,4 +1,5 @@
 import {View, StyleSheet, Text, TextInput, DatePickerAndroid} from 'react-native';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
 import ValidationErrorMessage from "../ValidationErrorMessage";
@@ -14,7 +15,7 @@ import {Actions} from "../../../action/individual/IndividualRegisterActions";
 
 class DateOfBirthAndAgeFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

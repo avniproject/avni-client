@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import {
     Button
@@ -14,9 +15,9 @@ class WizardButtons extends AbstractComponent {
     }
 
     static propTypes = {
-        previous: React.PropTypes.object,
-        next: React.PropTypes.object,
-        style: React.PropTypes.object
+        previous: PropTypes.object,
+        next: PropTypes.object,
+        style: PropTypes.object
     };
 
     getButtonProps(buttonProps) {

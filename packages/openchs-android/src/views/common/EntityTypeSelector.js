@@ -1,5 +1,5 @@
 import {View, Modal, Button, Dimensions, TouchableOpacity, TouchableNativeFeedback, Text} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import EntityTypeChoiceState from "../../action/common/EntityTypeChoiceState";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
@@ -8,12 +8,12 @@ import Styles from "../primitives/Styles";
 
 class EntityTypeSelector extends AbstractComponent {
     static propTypes = {
-        flowState: React.PropTypes.number.isRequired,
-        entityTypes: React.PropTypes.array.isRequired,
-        selectedEntityType: React.PropTypes.object,
-        actions: React.PropTypes.object.isRequired,
-        labelKey: React.PropTypes.string.isRequired,
-        onEntityTypeSelectionConfirmed: React.PropTypes.func.isRequired
+        flowState: PropTypes.number.isRequired,
+        entityTypes: PropTypes.array.isRequired,
+        selectedEntityType: PropTypes.object,
+        actions: PropTypes.object.isRequired,
+        labelKey: PropTypes.string.isRequired,
+        onEntityTypeSelectionConfirmed: PropTypes.func.isRequired
     };
 
     constructor(props, context) {

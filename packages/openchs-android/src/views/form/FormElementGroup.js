@@ -1,5 +1,5 @@
 import {View, Text} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MultiSelectFormElement from './formElement/MultiSelectFormElement';
 import SingleSelectFormElement from './formElement/SingleSelectFormElement';
@@ -22,12 +22,12 @@ import General from "../../utility/General";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
-        group: React.PropTypes.object.isRequired,
-        filteredFormElements: React.PropTypes.any,
-        observationHolder: React.PropTypes.object.isRequired,
-        actions: React.PropTypes.object.isRequired,
-        validationResults: React.PropTypes.array.isRequired,
-        formElementsUserState: React.PropTypes.object
+        group: PropTypes.object.isRequired,
+        filteredFormElements: PropTypes.any,
+        observationHolder: PropTypes.object.isRequired,
+        actions: PropTypes.object.isRequired,
+        validationResults: PropTypes.array.isRequired,
+        formElementsUserState: PropTypes.object
     };
 
     constructor(props, context) {

@@ -1,5 +1,5 @@
 import {View, TouchableNativeFeedback} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -17,9 +17,9 @@ import EntityTypeSelector from "./EntityTypeSelector";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
-        individual: React.PropTypes.object.isRequired,
-        viewContext: React.PropTypes.string.isRequired,
-        style: React.PropTypes.object
+        individual: PropTypes.object.isRequired,
+        viewContext: PropTypes.string.isRequired,
+        style: PropTypes.object
     };
 
     static viewContext = {

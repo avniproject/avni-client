@@ -1,4 +1,5 @@
 import {View} from 'react-native';
+import PropTypes from 'prop-types';
 import React from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import {Text} from "native-base";
@@ -7,7 +8,7 @@ import Colors from '../primitives/Colors';
 
 class ValidationErrorMessage extends AbstractComponent {
     static propTypes = {
-        validationResult: React.PropTypes.object
+        validationResult: PropTypes.object
     };
 
     constructor(props, context) {

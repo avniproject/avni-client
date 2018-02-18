@@ -1,5 +1,5 @@
 import {TextInput, View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import {Text} from "native-base";
 import DynamicGlobalStyles from "../../primitives/DynamicGlobalStyles";
 import _ from "lodash";
@@ -9,11 +9,11 @@ import Styles from "../../primitives/Styles";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        inputChangeActionName: React.PropTypes.string.isRequired,
-        endEditingActionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object,
-        validationResult: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        inputChangeActionName: PropTypes.string.isRequired,
+        endEditingActionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object
     };
 
     constructor(props, context) {

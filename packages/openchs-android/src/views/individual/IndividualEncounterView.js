@@ -1,5 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";

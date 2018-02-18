@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import StaticFormElement from "../../viewmodel/StaticFormElement";
 import PrimitiveValue from "../../../../../openchs-models/src/observation/PrimitiveValue";
@@ -9,7 +9,7 @@ import DateFormElement from "./DateFormElement";
 
 class RegistrationDateFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

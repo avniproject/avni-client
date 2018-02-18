@@ -1,5 +1,5 @@
 import {View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -34,8 +34,8 @@ import _ from "lodash";
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
     static propTypes = {
-        enrolmentUUID: React.PropTypes.string,
-        individualUUID: React.PropTypes.string.isRequired
+        enrolmentUUID: PropTypes.string,
+        individualUUID: PropTypes.string.isRequired
     };
 
     viewName() {

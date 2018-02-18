@@ -1,16 +1,16 @@
 import {View} from "react-native";
-import React from "react";
+import React from "react"; import PropTypes from 'prop-types';
 import AbstractFormElement from "./AbstractFormElement";
 import DatePicker from "../../primitives/DatePicker";
 import Distances from "../../primitives/Distances";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        dateValue: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        style: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        dateValue: PropTypes.object,
+        validationResult: PropTypes.object,
+        style: PropTypes.object
     };
 
     constructor(props, context) {

@@ -5,11 +5,11 @@ import React, {Component} from 'react';
 @Path('/errorView')
 class ErrorView extends Component {
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired
+        navigator: PropTypes.func.isRequired
     };
 
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     render() {

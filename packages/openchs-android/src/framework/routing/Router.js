@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, BackAndroid, Navigator} from 'react-native';
 // import {Navigator} from 'react-native-deprecated-custom-components';
@@ -5,11 +6,11 @@ import {View, BackAndroid, Navigator} from 'react-native';
 export default class Router extends Component {
 
     static propTypes = {
-        initialRoute: React.PropTypes.object.isRequired,
+        initialRoute: PropTypes.object.isRequired,
     };
 
     static childContextTypes = {
-        navigator: React.PropTypes.func.isRequired,
+        navigator: PropTypes.func.isRequired,
     };
 
     onInitialScreen = true;

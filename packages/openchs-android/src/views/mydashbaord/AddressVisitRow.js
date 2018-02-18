@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import _ from 'lodash';
@@ -10,8 +11,8 @@ import IndividualList from "../individuallist/IndividualList";
 
 class AddressVisitRow extends AbstractComponent {
     static propTypes = {
-        address: React.PropTypes.object,
-        visits: React.PropTypes.object,
+        address: PropTypes.object,
+        visits: PropTypes.object,
     };
 
     static styles = StyleSheet.create({

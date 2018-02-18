@@ -1,4 +1,5 @@
 import {View, StyleSheet} from "react-native";
+import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "./DynamicGlobalStyles";
@@ -25,15 +26,15 @@ class RadioGroup extends AbstractComponent {
     };
 
     static propTypes = {
-        onPress: React.PropTypes.func.isRequired,
-        labelKey: React.PropTypes.string.isRequired,
-        labelValuePairs: React.PropTypes.array.isRequired,
-        selectionFn: React.PropTypes.func.isRequired,
-        validationError: React.PropTypes.object,
-        style: React.PropTypes.object,
-        mandatory: React.PropTypes.bool,
-        inPairs: React.PropTypes.bool,
-        multiSelect: React.PropTypes.bool,
+        onPress: PropTypes.func.isRequired,
+        labelKey: PropTypes.string.isRequired,
+        labelValuePairs: PropTypes.array.isRequired,
+        selectionFn: PropTypes.func.isRequired,
+        validationError: PropTypes.object,
+        style: PropTypes.object,
+        mandatory: PropTypes.bool,
+        inPairs: PropTypes.bool,
+        multiSelect: PropTypes.bool,
     };
 
     constructor(props, context) {
