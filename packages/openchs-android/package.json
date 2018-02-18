@@ -39,7 +39,7 @@
     "invariant": "2.2.2",
     "lodash": "^4.14.0",
     "moment": "2.18.1",
-    "native-base": "0.5.22",
+    "native-base": "^2.3.9",
     "openchs-health-modules": "0.0.1",
     "openchs-models": "0.0.1",
     "react": "^16.2.0",
