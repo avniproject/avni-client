@@ -16,6 +16,7 @@ import {Form} from 'openchs-models';
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
         encounters: React.PropTypes.any.isRequired,
+        formType: React.PropTypes.string.isRequired,
         style: React.PropTypes.object
     };
 
@@ -44,13 +45,6 @@ class PreviousEncounters extends AbstractComponent {
         return encounter.isCancelled() ? [] : [new ContextAction('edit', () => this.editEncounter(encounter))];
     }
 
-    getForm(encounter) {
-        let formType = encounter.encounterType.name == 'Outpatient' ? 
-                        Form.formTypes.Encounter : undefined;
-        return this.context.getService(FormMappingService)
-                            .findFormForEncounterType(encounter.encounterType, formType);
-    }
-
     getTitle(encounter) {
         const name = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.name) : this.I18n.t(encounter.name)}`;
         const time = _.isNil(encounter.encounterDateTime) ?
@@ -62,6 +56,7 @@ class PreviousEncounters extends AbstractComponent {
 
     render() {
         const sortedEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
+        const formMappingService = this.context.getService(FormMappingService);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sortedEncounters);
         const renderable = _.isEmpty(sortedEncounters) ? (
             <View style={[DGS.common.content]}>
@@ -78,7 +73,8 @@ class PreviousEncounters extends AbstractComponent {
                         contextActions={this.encounterActions(encounter)}
                         primaryAction={this.cancelVisitAction(encounter)}
                         title={this.getTitle(encounter)}/>
-                    <Observations form={this.getForm(encounter)} observations={encounter.observations}/>
+                    <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
+                        this.props.formType)} observations={encounter.observations}/>
                 </View>}
             />);
         return (
