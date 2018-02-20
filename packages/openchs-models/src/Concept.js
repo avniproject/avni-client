@@ -86,13 +86,9 @@ export default class Concept {
             throw `${childEntityClass.name} not support by ${Concept.name}`;
         }
 
-        console.log(child.uuid)
-        console.log(child.voided)
         if (child.voided) {
-            console.log("child is voided")
             BaseEntity.removeFromCollection(newAnswers, child);
         } else {
-            console.log("child is not voided")
             BaseEntity.addNewChild(child, newAnswers);
         }
 
