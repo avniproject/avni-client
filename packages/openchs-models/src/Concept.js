@@ -14,7 +14,8 @@ export class ConceptAnswer {
             uuid: 'string',
             concept: 'Concept',
             answerOrder: 'int',
-            abnormal: 'bool'
+            abnormal: 'bool',
+            voided: {"type": 'bool', optional: false}
         }
     };
 
@@ -28,6 +29,7 @@ export class ConceptAnswer {
         conceptAnswer.uuid = resource.uuid;
         conceptAnswer.answerOrder = resource.order;
         conceptAnswer.abnormal = resource.abnormal;
+        conceptAnswer.voided = resource.voided || false;//This change should be independently deployable irrespective of server
         return conceptAnswer;
     }
 }
@@ -45,7 +47,8 @@ export default class Concept {
             hiAbsolute: {"type": 'int', optional: true},
             lowNormal: {"type": 'int', optional: true},
             hiNormal: {"type": 'int', optional: true},
-            unit: {"type": 'string', optional: true}
+            unit: {"type": 'string', optional: true},
+            voided: {"type": 'bool', optional: false}
         }
     };
 
@@ -71,19 +74,29 @@ export default class Concept {
         concept.lowNormal = conceptResource.lowNormal;
         concept.hiNormal = conceptResource.highNormal;
         concept.unit = conceptResource.unit;
+        concept.voided = conceptResource.voided || false; //This change should be independently deployable irrespective of server
         return concept;
     }
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         let concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "conceptUUID"), Concept.schema.name);
         concept = General.pick(concept, ["uuid"], ["answers"]);
-        let newAnswers = [];
-        if (childEntityClass === ConceptAnswer){
-            BaseEntity.addNewChild(child, newAnswers);
-            concept.answers = newAnswers;
-        }
-        else
+        let newAnswers = concept.answers;
+        if (childEntityClass !== ConceptAnswer) {
             throw `${childEntityClass.name} not support by ${Concept.name}`;
+        }
+
+        console.log(child.uuid)
+        console.log(child.voided)
+        if (child.voided) {
+            console.log("child is voided")
+            BaseEntity.removeFromCollection(newAnswers, child);
+        } else {
+            console.log("child is not voided")
+            BaseEntity.addNewChild(child, newAnswers);
+        }
+
+        concept.answers = newAnswers;
         return concept;
     }
 
