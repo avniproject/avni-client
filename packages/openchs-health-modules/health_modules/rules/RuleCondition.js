@@ -20,6 +20,7 @@ export default class RuleCondition {
 
     get look() {
         return this._addToChain((next, context) => {
+            console.log(context.matches);
             return next(context);
         });
     }
@@ -41,7 +42,7 @@ export default class RuleCondition {
     }
 
     _getIndividual(context) {
-        return context.individual || this._getEnrolment(context).individual;
+        return context.individual || _.get(context, 'programEncounter.individual') || this._getEnrolment(context).individual;
     }
 
     _containsAnswerConceptName(conceptName, context) {
@@ -302,6 +303,7 @@ export default class RuleCondition {
         return this._addToChain((next, context) => {
             if (unitIfDate) {
                 context.matches = moment.duration(context.valueToBeChecked) < moment.duration(value, unitIfDate);
+                return next(context);
             }
 
             context.matches = context.valueToBeChecked < value;
@@ -313,6 +315,7 @@ export default class RuleCondition {
         return this._addToChain((next, context) => {
             if (unitIfDate) {
                 context.matches = moment.duration(context.valueToBeChecked) <= moment.duration(value, unitIfDate);
+                return next(context);
             }
 
             context.matches = context.valueToBeChecked <= value;
@@ -324,6 +327,7 @@ export default class RuleCondition {
         return this._addToChain((next, context) => {
             if (unitIfDate) {
                 context.matches = moment.duration(context.valueToBeChecked) > moment.duration(value, unitIfDate);
+                return next(context);
             }
 
             context.matches = context.valueToBeChecked > value;
@@ -335,6 +339,7 @@ export default class RuleCondition {
         return this._addToChain((next, context) => {
             if (unitIfDate) {
                 context.matches = moment.duration(context.valueToBeChecked) >= moment.duration(value, unitIfDate);
+                return next(context);
             }
 
             context.matches = context.valueToBeChecked >= value;

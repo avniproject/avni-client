@@ -44,21 +44,13 @@ describe('Make Decision', function () {
     it('Complaint which allows for prescription', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         assert.isDefined(decisions[0].value);
-        assert.isNotOk(decisions[0].abnormal);
+        assert.isOk(decisions[0].abnormal);
     });
 
     it('Do not give any medicine for chloroquin resistant malaria to women between 16-40', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Chloroquine Resistant Malaria"]).setGender("Female").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         assert.equal(decisions[0].value, "");
         assert.isTrue(decisions[0].abnormal);
-    });
-
-    it('Provide day wise instructions when specified for days separately', function () {
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Fever"]).setObservation("Paracheck", ["Positive for PF"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        var chloroquinCount = (decisions[0].value.match(/क्लोरोक्विन/g) || []).length;
-        expect(chloroquinCount, 3, decisions[0].value);
-        var pcmCount = (decisions[0].value.match(/पॅरासिटामॉल/g) || []).length;
-        assert.equal(pcmCount, 3, decisions[0].value);
     });
 
     it('Do not provide day wise instructions when not specified for days separately', function () {
@@ -107,24 +99,24 @@ describe('Make Decision', function () {
 
     it('Multiple complaints without same medicines', function () {
         const decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        const completeValue = decisions[0].value + decisions[1].value;
+        const completeValue = decisions[0].value;
         assert.equal((completeValue.match(/सेट्रीझीन/g) || []).length, 1, completeValue);
         assert.equal((completeValue.match(/पॅरासिटामॉल/g) || []).length, 1, completeValue);
     });
 
     it('Multiple complaints with overlapping medicines', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Fever", "Body Ache"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        var completeValue = decisions[0].value + decisions[1].value + decisions[2].value;
+        var completeValue = decisions[0].value;
         assert.equal((completeValue.match(/सेट्रीझीन/g) || []).length, 1, completeValue);
         assert.equal((completeValue.match(/पॅरासिटामॉल/g) || []).length, 1, completeValue);
     });
 
     it('Multiple complaints with overlapping medicines and different order of medicines', function () {
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache", "Fever"]).setObservation("Paracheck", ["Positive for PF and PV"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
+        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache", "Fever"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         var message = completeValue(decisions);
-        assert.equal((message.match(/क्लोरोक्विन/g) || []).length, 3, message);
+        console.log(message)
         assert.equal((message.match(/सेट्रीझीन/g) || []).length, 1, message);
-        assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 3, message);
+        assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 1, message);
     });
 
     it('Pick validation errors corresponding to all complaints', function () {
@@ -139,32 +131,12 @@ describe('Make Decision', function () {
         assert.equal(validationResults.length, 0, validationResults.message);
     });
 
-    it('Alert should be only for the decision for the complaint', () => {
-        var complaintConceptName = "Complaint";
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Cold", "Vomiting"]).setGender("Male").setAge(10).setObservation("Weight", 22)).encounterDecisions;
-        assert.isNotOk(decisions[0].abnormal);
-        assert.equal((decisions[1].value.match(/उलटी असल्यास/g) || []).length, 1);
-        assert.isOk(decisions[1].abnormal);
-    });
-
     it('Boundary condition of weight', () => {
         var complaintConceptName = "Complaint";
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Fever"]).setGender("Male").setAge(10).setObservation("Weight", 5.5).setObservation("Paracheck", ["Positive PV"])).encounterDecisions;
         assert.equal(decisions.length, 1);
     });
 
-    it('Give malaria medicine based on paracheck being positive', () => {
-        var complaintConceptName = "Complaint";
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Cold"]).setGender("Male").setAge(10).setObservation("Weight", 5.5).setObservation("Paracheck", ["Positive PV"])).encounterDecisions;
-        assert.equal((decisions[0].value.match(/क्लोरोक्विन/g) || []).length, 3, decisions[0].value);
-    });
-
-    it('Give malaria medicine based on paracheck being positive - when fever is also specified', () => {
-        var complaintConceptName = "Complaint";
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Cold", "Fever"]).setGender("Male").setAge(10).setObservation("Weight", 8).setObservation("Paracheck", ["Positive PV"])).encounterDecisions;
-        assert.equal((decisions[0].value.match(/क्लोरोक्विन/g) || []).length, 3, decisions[0].value);
-    });
-    
     it('Fever, Body Ache & Vomiting', () => {
         var complaintConceptName = "Complaint";
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Fever", "Body Ache", "Vomiting"]).setGender("Male").setAge(20).setObservation("Weight", 18)).encounterDecisions;

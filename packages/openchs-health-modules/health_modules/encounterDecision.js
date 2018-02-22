@@ -1,294 +1,8 @@
+import {malariaPrescriptionMessage} from "./outpatient/malariaMedication";
+import RuleCondition from "./rules/RuleCondition";
 const _ = require("lodash");
+
 const treatmentByComplaintAndCode = {
-    "Malaria": {
-        "X1": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }]
-        },
-        "X2": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 1,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Dose Unit": "Spoon",
-                    "Amount": 1,
-                    "Times": 3
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Dose Unit": "Spoon",
-                    "Amount": 1,
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 1,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 1,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }]
-        },
-        "X3": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 2,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 1.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 2,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 1.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin Syrup",
-                    "Amount": 1,
-                    "Dose Unit": "Spoon",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 1.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }]
-        },
-        "X4": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }]
-        },
-        "X5": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 2,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 2,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }]
-        },
-        "X6": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 3,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 3,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 1.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }]
-        },
-        "X7": {
-            "1": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 4,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }],
-            "2": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 4,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }],
-            "3": [
-                {
-                    "Medicine": "Chloroquin",
-                    "Amount": 2,
-                    "Dose Unit": "Tablet",
-                    "Times": 1
-                },
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }]
-        }
-    },
     "Fever": {
         "X1": {
             "3": [
@@ -1842,114 +1556,119 @@ const getWeightRangeToCode = function (complaint, weight) {
     });
 };
 
-const hasMalaria = function (paracheckResult) {
-    return !_.isNil(paracheckResult) && paracheckResult.length === 1 &&
-        paracheckResult[0].includes("Positive");
+const hasMalaria = function (encounter) {
+    return new RuleCondition({programEncounter: encounter})
+        .valueInEncounter("Paracheck")
+        .containsAnyAnswerConceptName("Positive for PF", "Positive for PF and PV", "Positive for PV")
+        .matches();
 };
 
 const getDecisions = function (encounter) {
     if (encounter.encounterType.name !== "Outpatient") return {};
 
-    var params = getParameters(encounter);
+    var {complaints, sex, age, weight} = getParameters(encounter);
 
-    if (params.complaints.indexOf("Fever") === -1 && hasMalaria(params.paracheckResult)) {
-        params.complaints.push("Fever");
+    if (complaints.indexOf("Fever") === -1 && hasMalaria(encounter)) {
+        complaints.push("Fever");
     }
-    params.complaints = params.complaints.filter(function (item) {
+    complaints = complaints.filter(function (item) {
         return item === 'Fever';
-    }).concat(params.complaints.filter(function (item) {
+    }).concat(complaints.filter(function (item) {
         return item !== 'Fever'
     }));
 
-    var potentiallyPregnant = (params.sex === "Female" && (params.age >= 16 && params.age <= 40));
+    var potentiallyPregnant = (sex === "Female" && (age >= 16 && age <= 40));
     var decisions = [];
     var prescribedMedicines = [];
 
-    for (var complaintIndex = 0; complaintIndex < params.complaints.length; complaintIndex++) {
-        var weightRangeToCode = getWeightRangeToCode(params.complaints[complaintIndex], params.weight);
-        var decision = {};
-        decision.name = "Treatment Advice";
+    var decision = {name: "Treatment Advice", value: '', abnormal: true};
+
+    for (var complaintIndex = 0; complaintIndex < complaints.length; complaintIndex++) {
+        var weightRangeToCode = getWeightRangeToCode(complaints[complaintIndex], weight);
         decision.code = weightRangeToCode.code;
 
         var prescriptionSet;
-        if (potentiallyPregnant && ["Cough", "Boils", "Wound"].indexOf(params.complaints[complaintIndex]) !== -1) {
+        if (potentiallyPregnant && ["Cough", "Boils", "Wound"].indexOf(complaints[complaintIndex]) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
-        } else if (params.complaints[complaintIndex] === "Fever" && hasMalaria(params.paracheckResult)) {
-            prescriptionSet = treatmentByComplaintAndCode["Malaria"];
-        } else {
-            prescriptionSet = treatmentByComplaintAndCode[params.complaints[complaintIndex]];
-        }
-
-        var prescription = prescriptionSet[weightRangeToCode.code];
-        if (prescription === null || prescription === undefined) {
-            throw "No prescription defined for " + params.complaints[complaintIndex] + " for weight: " + params.weight + ", calculated code: " + weightRangeToCode.code;
+        } else if (!hasMalaria(encounter)){
+            prescriptionSet = treatmentByComplaintAndCode[complaints[complaintIndex]];
         }
 
         var message = "";
-        var dayTokens = getKeys(prescription);
-        for (var token = 0; token < dayTokens.length; token++) {
-            var firstToken = dayTokens[0];
-
-            var daywisePrescription = dayTokens.length !== 1 && firstToken === "1";
-            if (daywisePrescription) {
-                message += dayInMarathi[dayTokens[token]];
-                message += "\n";
+        if (prescriptionSet) {
+            var prescription = prescriptionSet[weightRangeToCode.code];
+            if (prescription === null || prescription === undefined) {
+                throw "No prescription defined for " + complaints[complaintIndex] + " for weight: " + weight + ", calculated code: " + weightRangeToCode.code;
             }
 
-            for (var medicineIndex = 0; medicineIndex < prescription[dayTokens[token]].length; medicineIndex++) {
-                var daysPrescription = prescription[dayTokens[token]][medicineIndex];
-                if (prescribedMedicines.indexOf(daysPrescription.Medicine) === -1) {
-                    prescribedMedicines.push(daysPrescription.Medicine);
-                } else if (prescribedMedicines.indexOf(daysPrescription.Medicine) !== -1 && !daywisePrescription) {
-                    continue;
-                }
+            var dayTokens = getKeys(prescription);
+            for (var token = 0; token < dayTokens.length; token++) {
+                var firstToken = dayTokens[0];
 
-                if (dayTokens.length === 1 && firstToken !== "1") {
-                    if (firstToken === "3-5")
-                        message += "३ किंवा ५ दिवसांसाठी";
-                    else if (firstToken === "1-5")
-                        message += "१ ते ५ दिवस";
-                    else if (firstToken === "3")
-                        message += "३ दिवस";
-                    else if (firstToken === "2")
-                        message += "२ दिवस";
-
+                var daywisePrescription = dayTokens.length !== 1 && firstToken === "1";
+                if (daywisePrescription) {
+                    message += dayInMarathi[dayTokens[token]];
                     message += "\n";
                 }
 
-                message += englishWordsToMarathi["" + daysPrescription.Medicine];
-                message += " ";
-                if (daysPrescription.Times !== "Special Instruction") {
-                    message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
+                for (var medicineIndex = 0; medicineIndex < prescription[dayTokens[token]].length; medicineIndex++) {
+                    var daysPrescription = prescription[dayTokens[token]][medicineIndex];
+                    if (prescribedMedicines.indexOf(daysPrescription.Medicine) === -1) {
+                        prescribedMedicines.push(daysPrescription.Medicine);
+                    } else if (prescribedMedicines.indexOf(daysPrescription.Medicine) !== -1 && !daywisePrescription) {
+                        continue;
+                    }
+
+                    if (dayTokens.length === 1 && firstToken !== "1") {
+                        if (firstToken === "3-5")
+                            message += "३ किंवा ५ दिवसांसाठी";
+                        else if (firstToken === "1-5")
+                            message += "१ ते ५ दिवस";
+                        else if (firstToken === "3")
+                            message += "३ दिवस";
+                        else if (firstToken === "2")
+                            message += "२ दिवस";
+
+                        message += "\n";
+                    }
+
+                    message += englishWordsToMarathi["" + daysPrescription.Medicine];
                     message += " ";
-                    message += getDoseUnitMessage(daysPrescription);
+                    if (daysPrescription.Times !== "Special Instruction") {
+                        message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
+                        message += " ";
+                        message += getDoseUnitMessage(daysPrescription);
+                        message += " ";
+                    }
+                    message += dosageTimingToMarathi(complaints[complaintIndex], daysPrescription.Times);
                     message += " ";
+                    message += englishWordsToMarathi[medicines[daysPrescription.Medicine].take];
+                    message += "\n";
                 }
-                message += dosageTimingToMarathi(params.complaints[complaintIndex], daysPrescription.Times);
-                message += " ";
-                message += englishWordsToMarathi[medicines[daysPrescription.Medicine].take];
-                message += "\n";
             }
         }
-        decision.value = message;
 
-        if (params.weight >= 13 && params.complaints[complaintIndex] === 'Malaria') {
+        decision.value = decision.value === ''? message: `${decision.value}\n${message}`;
+
+        if (complaints[complaintIndex] === "Fever" && hasMalaria(encounter)) {
+            decision.value = `${decision.value}\n${malariaPrescriptionMessage(encounter)}`;
+        }
+
+        if (weight >= 13 && hasMalaria(encounter)) {
             decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
-            decision.abnormal = true;
         }
-        else if (params.complaints[complaintIndex] === 'Vomiting') {
+        else if (complaints[complaintIndex] === 'Vomiting') {
             decision.value = `${decision.value}\nउलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत`;
-            decision.abnormal = true;
         }
-        else if (params.complaints[complaintIndex] === 'Chloroquine Resistant Malaria' && (params.age >= 16 || params.age <= 40) && params.sex === "Female") {
-            decision.value = ``;
-            decision.abnormal = true;
-        } else if (params.complaints[complaintIndex] === 'Wound') {
+        else if (complaints[complaintIndex] === 'Chloroquine Resistant Malaria' && (age >= 16 || age <= 40) && sex === "Female") {
+            decision.value = decision.value.replace(message, '');
+        } else if (complaints[complaintIndex] === 'Wound') {
             decision.value = `${decision.value}\nड्रेसिंग`;
-            decision.abnormal = true;
         }
-        decisions.push(decision);
     }
+
+    decisions.push(decision);
+
 
     return {encounterDecisions: decisions};
 };
@@ -1960,7 +1679,6 @@ function getParameters(encounter) {
     params.age = encounter.individual.getAgeInYears();
     params.sex = encounter.individual.gender.name;
     params.weight = encounter.getObservationValue('Weight');
-    params.paracheckResult = encounter.getObservationValue('Paracheck');
     return params;
 }
 
