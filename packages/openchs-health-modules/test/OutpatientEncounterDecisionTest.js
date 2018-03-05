@@ -114,7 +114,6 @@ describe('Make Decision', function () {
     it('Multiple complaints with overlapping medicines and different order of medicines', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache", "Fever"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         var message = completeValue(decisions);
-        console.log(message)
         assert.equal((message.match(/सेट्रीझीन/g) || []).length, 1, message);
         assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 1, message);
     });
