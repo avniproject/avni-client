@@ -132,7 +132,6 @@
     "name": "Cause of Death",
     "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
     "dataType": "Coded",
-    "type": "SingleSelect",
     "answers": [
       {
         "uuid": "6fe263cf-581a-4c5b-aa5a-026ca8fc44e4",
@@ -215,5 +214,79 @@
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
       }
     ]
+  },
+  {
+    "name": "Blood group",
+    "uuid": "3493c80a-8af5-40e6-b598-8385c4db2bd7",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "B+",
+        "uuid": "be517796-a3ea-4feb-ae1f-bdf6ef06f22b"
+      },
+      {
+        "name": "AB-",
+        "uuid": "a68bc952-8abc-44d6-a12b-76e8fdbc3ed3"
+      },
+      {
+        "name": "A+",
+        "uuid": "da859a32-2850-4376-8f14-f49392f8e8cb"
+      },
+      {
+        "name": "O-",
+        "uuid": "2870bad6-c36a-4054-84f4-5c2314fe8c23"
+      },
+      {
+        "name": "AB+",
+        "uuid": "3293d4f4-15e9-4fbe-8cad-d966a9a90385"
+      },
+      {
+        "name": "A-",
+        "uuid": "69e4b4dc-be2d-476b-8ea5-567c71f57526"
+      },
+      {
+        "name": "O+",
+        "uuid": "23629c90-8071-47b8-86c8-f060e03b8722"
+      },
+      {
+        "name": "B-",
+        "uuid": "345712f0-1437-490e-a0d0-6ab6f795f2c6"
+      }
+    ]
+  },
+  {
+    "name": "Diabetes",
+    "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
+    "dataType": "N/A"
+  },
+  {
+    "name": "TB",
+    "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Heart-related Diseases",
+    "uuid": "712e683a-337d-49bd-a3d7-f7b0e1b8e22e",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Hypertension",
+    "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Nephrotic syndrome",
+    "uuid": "5a798bac-6417-4b36-98c8-13d4380aa69e",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Sickle Cell",
+    "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
+    "dataType": "N/A"
+  },
+  {
+    "name": "Epilepsy",
+    "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
+    "dataType": "N/A"
   }
 ]
