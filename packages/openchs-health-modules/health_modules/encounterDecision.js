@@ -1654,7 +1654,7 @@ const getDecisions = function (encounter) {
             decision.value = `${decision.value}\n${malariaPrescriptionMessage(encounter)}`;
         }
 
-        if (weight >= 13 && hasMalaria(encounter)) {
+        if (weight >= 13 && complaints[complaintIndex] === "Fever" && hasMalaria(encounter)) {
             decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
         }
         else if (complaints[complaintIndex] === 'Vomiting') {
