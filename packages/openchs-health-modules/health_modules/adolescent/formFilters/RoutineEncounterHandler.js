@@ -645,6 +645,15 @@ export default class RoutineEncounterHandler {
         return statusBuilder.build();
     }
 
+    haveYouUsedMitraHelplineInLast3Months(programEncounter, formElement) {
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.QUARTERLY).build();
+    }
+
+    areYouSatisfiedWithTheCounselingServiceProvidedThroughHelpline(programEncounter, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.MONTHLY);
+        statusBuilder.show().when.valueInEncounter("Used Mitra Helpline").containsAnswerConceptName('Yes');
+        return statusBuilder.build();
+    }
 
     _fatherIsAlive(programEncounter, formElement, encounterTypes) {
         return this._parentStatusContains(["Both Alive", "Only Father Alive", "Separated"], programEncounter, formElement, encounterTypes);
