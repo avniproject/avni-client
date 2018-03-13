@@ -3,71 +3,6 @@ import RuleCondition from "./rules/RuleCondition";
 const _ = require("lodash");
 
 const treatmentByComplaintAndCode = {
-    "Fever": {
-        "X1": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 0.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }]
-        },
-        "X2": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Dose Unit": "Spoon",
-                    "Amount": 1,
-                    "Times": 3
-                }]
-        },
-        "X3": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol Syrup",
-                    "Amount": 1.5,
-                    "Dose Unit": "Spoon",
-                    "Times": 3
-                }]
-        },
-        "X4": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }]
-        },
-        "X5": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 0.5,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }]
-        },
-        "X6": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 2
-                }]
-        },
-        "X7": {
-            "3": [
-                {
-                    "Medicine": "Paracetamol",
-                    "Amount": 1,
-                    "Dose Unit": "Tablet",
-                    "Times": 3
-                }]
-        }
-    },
     "Headache": {
         "X1": {
             "3": [
@@ -1590,7 +1525,7 @@ const getDecisions = function (encounter) {
         var prescriptionSet;
         if (potentiallyPregnant && ["Cough", "Boils", "Wound"].indexOf(complaints[complaintIndex]) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
-        } else if (!hasMalaria(encounter)){
+        } else if (complaints.indexOf("Fever") === -1){
             prescriptionSet = treatmentByComplaintAndCode[complaints[complaintIndex]];
         }
 
@@ -1650,11 +1585,11 @@ const getDecisions = function (encounter) {
 
         decision.value = decision.value === ''? message: `${decision.value}\n${message}`;
 
-        if (complaints[complaintIndex] === "Fever" && hasMalaria(encounter)) {
+        if (complaints[complaintIndex] === "Fever") {
             decision.value = `${decision.value}\n${malariaPrescriptionMessage(encounter)}`;
         }
 
-        if (weight >= 13 && complaints[complaintIndex] === "Fever" && hasMalaria(encounter)) {
+        if (weight >= 13 && complaints[complaintIndex] === "Fever") {
             if (decision.value.indexOf("क्लोरोक्विन") !== -1 && decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
                 decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
             } else if (decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {

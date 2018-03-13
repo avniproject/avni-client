@@ -91,7 +91,7 @@ const hasFever = (encounter) => {
 };
 
 const pcmRequired = (encounter) => hasFever(encounter);
-const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV") && hasFever(encounter);
+const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV", "Negative");
 
 const malariaTreatment = [
     {
