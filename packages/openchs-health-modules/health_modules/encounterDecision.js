@@ -1460,7 +1460,7 @@ const englishWordsToMarathi = {
     "Famotidine": "फॅमोटिडीन",
     "Septran Syrup": "सायरप सेप्ट्रान",
     "Septran": "सेप्ट्रान",
-    "Scabizol": "खरजेचे औषध",
+    "Scabizol": "खरुजेचे औषध",
     "Salicylic Acid": "सॅलिसिलिक ऍसिड",
     "Iron Folic Acid": "आयरन",
     "Calcium": "कॅल्शियम",
@@ -1501,8 +1501,8 @@ const medicines = {
     "Paracetamol Syrup": {take: "After"},
     "Perinorm": {take: "Before"},
     "Lonart Forte": {take: "After"},
-    "Salicylic Acid": {take: "After"},
-    "Scabizol": {take: "After"},
+    "Salicylic Acid": {take: ""},
+    "Scabizol": {take: ""},
     "Septran": {take: "After"},
     "Septran Syrup": {take: "After"}
 };
@@ -1524,7 +1524,7 @@ const dosageTimingToMarathi = function (complaint, times) {
     if (times === 2 || times === "2") return "दिवसातून दोन वेळा";
     if (times === 3 || times === "3") return "दिवसातून तीन वेळा";
     if (times === "Once Evening") return "रोज संध्याकाळी एकदा";
-    if (times === "Special Instruction" && complaint === "Scabies") return "औषध मानेपासून संपूर्ण अंगास आंघोळीनंतर लावणे आणि कपडे १ तास गरम पाण्यात उकाडविणे";
+    if (times === "Special Instruction" && complaint === "Scabies") return "मानेपासून संपूर्ण अंगास अंघोळीनंतर लावणे व कपडे १ तास गरम पाण्यात उकळवीणे";
     if (times === "Special Instruction" && complaint === "Ring Worm") return "गजकर्णाच्या जागेवर लावण्यास सांगावे";
     if (times === "Special Instruction" && (complaint === "Vomiting" || complaint === "Diarrhoea" || complaint === "Giddiness")) return " पिण्यास सांगावे";
     console.error("Number of times " + times + " not supported yet");

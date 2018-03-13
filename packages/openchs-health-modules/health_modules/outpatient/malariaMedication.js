@@ -86,10 +86,12 @@ const actRequired = (encounter) => {
     return isPfPositive(encounter);
 };
 
-const pcmRequired = (encounter) => {
+const hasFever = (encounter) => {
     return new RuleCondition({programEncounter: encounter}).valueInEncounter("Complaint").containsAnswerConceptName("Fever").matches();
 };
 
+const pcmRequired = (encounter) => hasFever(encounter);
+const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV") && hasFever(encounter);
 
 const malariaTreatment = [
     {
@@ -120,7 +122,7 @@ const malariaTreatment = [
         }]
     },
     {
-        check: pcmRequired,
+        check: chloroquineRequired,
         medication: [{
             medicine: "Chloroquine Syrup",
             dosageType: "uniform",
@@ -133,11 +135,11 @@ const malariaTreatment = [
         }]
     },
     {
-        check: pcmRequired,
+        check: chloroquineRequired,
         medication: [{
             medicine: "Chloroquine Tablets",
             dosageType: "daywise",
-            form: "spoon",
+            form: "Tablets",
             dosageFn: matchByWeight(weightRangesForPcmOrChloroquineTablets, [
                 {day: 1, code: "A1", itemsPerServing: 1, timesPerDay: 1},
                 {day: 2, code: "A1", itemsPerServing: 1, timesPerDay: 1},
@@ -252,7 +254,7 @@ const lookup = {
     "Tablets": "गोळ्या"
 };
 const numberToText = (number) => {
-    return {0.5: "अर्धी", 1: "एक", 1.5: "दीड", 2: "दोन", 3: "तीन"}[number] || number;
+    return {0.5: "अर्धी", 1: "एक", 1.5: "दीड", 2: "दोन", 3: "तीन", 4: "चार"}[number] || number;
 };
 
 const numberTranslator = (numberStr) => {
