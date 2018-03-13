@@ -1655,7 +1655,11 @@ const getDecisions = function (encounter) {
         }
 
         if (weight >= 13 && complaints[complaintIndex] === "Fever" && hasMalaria(encounter)) {
-            decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
+            if (decision.value.indexOf("क्लोरोक्विन") !== -1 && decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
+                decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
+            } else if (decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
+                decision.value = `${decision.value}\n"पॅरासिटामॉल ही औषध जेवल्यावर खायला सांगावी`;
+            }
         }
         else if (complaints[complaintIndex] === 'Vomiting') {
             decision.value = `${decision.value}\nउलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत`;
