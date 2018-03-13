@@ -28,11 +28,19 @@
           "mandatory": true
         },
         {
+          "name": "Height",
+          "uuid": "d2a80e21-81b9-44e0-b5dd-a6fb7cdcf7ac",
+          "keyValues": [],
+          "conceptUUID": "d883d5fe-e17d-4136-b989-089fa0295e34",
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
           "name": "Temperature",
           "uuid": "294c23fb-aef2-499c-b91f-3294df5a28c0",
           "keyValues": [],
           "conceptUUID": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
-          "displayOrder": 2,
+          "displayOrder": 3,
           "mandatory": false
         },
         {
@@ -40,7 +48,7 @@
           "uuid": "1840d8b3-93a8-4a17-8ef9-40767e21a0a7",
           "keyValues": [],
           "conceptUUID": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
-          "displayOrder": 3,
+          "displayOrder": 4,
           "mandatory": false
         },
         {
@@ -48,7 +56,7 @@
           "uuid": "d24edbd7-1ee5-4065-9f77-18aacd9bb88d",
           "keyValues": [],
           "conceptUUID": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
-          "displayOrder": 4,
+          "displayOrder": 5,
           "mandatory": false
         },
         {
@@ -65,7 +73,7 @@
             "highNormal": 140.0,
             "unit": "mm Hg"
           },
-          "displayOrder": 5,
+          "displayOrder": 6,
           "mandatory": false
         },
         {
@@ -82,7 +90,7 @@
             "highNormal": 90.0,
             "unit": "mm Hg"
           },
-          "displayOrder": 6,
+          "displayOrder": 7,
           "mandatory": false
         }
       ]
