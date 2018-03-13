@@ -86,11 +86,7 @@ const actRequired = (encounter) => {
     return isPfPositive(encounter);
 };
 
-const hasFever = (encounter) => {
-    return new RuleCondition({programEncounter: encounter}).valueInEncounter("Complaint").containsAnswerConceptName("Fever").matches();
-};
-
-const pcmRequired = (encounter) => hasFever(encounter);
+const pcmRequired = () => true; //you come here only if you have fever.
 const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV", "Negative");
 
 const malariaTreatment = [

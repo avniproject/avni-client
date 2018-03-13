@@ -105,17 +105,16 @@ describe('Make Decision', function () {
     });
 
     it('Multiple complaints with overlapping medicines', function () {
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Fever", "Body Ache"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
+        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         var completeValue = decisions[0].value;
         assert.equal((completeValue.match(/सेट्रीझीन/g) || []).length, 1, completeValue);
-        assert.equal((completeValue.match(/पॅरासिटामॉल/g) || []).length, 1, completeValue);
     });
 
     it('Multiple complaints with overlapping medicines and different order of medicines', function () {
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache", "Fever"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
+        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold", "Body Ache", "Ring Worm"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         var message = completeValue(decisions);
         assert.equal((message.match(/सेट्रीझीन/g) || []).length, 1, message);
-        assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 1, message);
+        assert.equal((message.match(/सॅलिसिलिक ऍसिड/g) || []).length, 1, message);
     });
 
     it('Pick validation errors corresponding to all complaints', function () {
@@ -140,8 +139,8 @@ describe('Make Decision', function () {
         var complaintConceptName = "Complaint";
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Fever", "Body Ache", "Vomiting"]).setGender("Male").setAge(20).setObservation("Weight", 18)).encounterDecisions;
         var message = completeValue(decisions);
-        assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 1, message);
-        assert.equal((message.match(/३ दिवस/g) || []).length, 3, message);
+        assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 2, message);
+        assert.equal((message.match(/३ दिवस/g) || []).length, 1, message);
     });
 
     var completeValue = function (decisions) {

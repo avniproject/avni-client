@@ -1593,7 +1593,7 @@ const getDecisions = function (encounter) {
             if (decision.value.indexOf("क्लोरोक्विन") !== -1 && decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
                 decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
             } else if (decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
-                decision.value = `${decision.value}\n"पॅरासिटामॉल ही औषध जेवल्यावर खायला सांगावी`;
+                decision.value = `${decision.value}\nपॅरासिटामॉल ही औषध जेवल्यावर खायला सांगावी`;
             }
         }
         else if (complaints[complaintIndex] === 'Vomiting') {
