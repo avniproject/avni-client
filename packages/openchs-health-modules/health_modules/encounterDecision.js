@@ -1,5 +1,6 @@
 import {malariaPrescriptionMessage} from "./outpatient/malariaMedication";
 import RuleCondition from "./rules/RuleCondition";
+import C from './common';
 const _ = require("lodash");
 
 const treatmentByComplaintAndCode = {
@@ -1501,7 +1502,7 @@ const hasMalaria = function (encounter) {
 const getDecisions = function (encounter) {
     if (encounter.encounterType.name !== "Outpatient") return {};
 
-    var {complaints, sex, age, weight} = getParameters(encounter);
+    var {complaints, sex, age, weight, height} = getParameters(encounter);
 
     if (complaints.indexOf("Fever") === -1 && hasMalaria(encounter)) {
         complaints.push("Fever");
@@ -1608,6 +1609,8 @@ const getDecisions = function (encounter) {
 
     decisions.push(decision);
 
+    if (_.isNumber(height) && _.isNumber(weight))
+        decisions.push({name: "BMI", value: C.calculateBMI(weight, height)});
 
     return {encounterDecisions: decisions};
 };
@@ -1618,6 +1621,7 @@ function getParameters(encounter) {
     params.age = encounter.individual.getAgeInYears();
     params.sex = encounter.individual.gender.name;
     params.weight = encounter.getObservationValue('Weight');
+    params.height = encounter.getObservationValue('Height');
     return params;
 }
 
