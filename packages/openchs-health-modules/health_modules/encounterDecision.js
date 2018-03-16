@@ -1,4 +1,6 @@
 import {malariaPrescriptionMessage} from "./outpatient/malariaMedication";
+import FormFilterHelper from "./rules/FormFilterHelper";
+import OPDFormHandler from "./outpatient/OPDFormHandler";
 import RuleCondition from "./rules/RuleCondition";
 import C from './common';
 const _ = require("lodash");
@@ -1653,9 +1655,15 @@ const validate = function (encounter, form) {
     return validationResults;
 };
 
+const filterFormElements = (encounter, formElementGroup) => {
+    let handler = new OPDFormHandler();
+    return FormFilterHelper.filterFormElements(handler, encounter, formElementGroup);
+};
+
 export {
     getDecisions,
     treatmentByComplaintAndCode,
     weightRangesToCode,
+    filterFormElements,
     validate
 };

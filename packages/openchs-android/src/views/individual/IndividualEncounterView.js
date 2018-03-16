@@ -76,7 +76,8 @@ class IndividualEncounterView extends AbstractComponent {
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions}
-                                          validationResults={this.state.validationResults}/>
+                                          validationResults={this.state.validationResults}
+                                          filteredFormElements={this.state.filteredFormElements}/>
                         <WizardButtons previous={{
                             func: () => this.previous(),
                             visible: !this.state.wizard.isFirstPage(),

@@ -85,7 +85,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
                         <FormElementGroup group={this.state.formElementGroup}
                                           observationHolder={new ObservationsHolder(this.state.encounter.observations)}
                                           actions={Actions}
-                                          validationResults={this.state.validationResults}/>
+                                          validationResults={this.state.validationResults}
+                                          filteredFormElements={this.state.filteredFormElements}/>
                         <WizardButtons next={{
                             func: () => this.next(),
                             visible: true,

@@ -295,11 +295,23 @@
               {
                 "name": "Vomiting",
                 "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]
           },
           "displayOrder": 1,
           "mandatory": true
+        },
+        {
+          "name": "Other Complaint",
+          "uuid": "ce14e8e6-56c9-40e2-a1c0-9a1f235eeeea",
+          "keyValues": [],
+          "conceptUUID": "a5cabe2e-f2e9-4f15-ad0b-be1434133649",
+          "displayOrder": 2,
+          "mandatory": true 
         }
       ]
     }
