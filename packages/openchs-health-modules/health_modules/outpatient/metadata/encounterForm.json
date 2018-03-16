@@ -312,6 +312,52 @@
           "conceptUUID": "a5cabe2e-f2e9-4f15-ad0b-be1434133649",
           "displayOrder": 2,
           "mandatory": true 
+        },
+        {
+          "name": "Is patient being referred to the higher health center?",
+          "uuid": "ccd84a61-51c5-441f-a016-96da1462331e",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Is outpatient referred to higher health center?",
+            "uuid": "2bf14bb0-faa1-4d71-933e-c98e4e0fd458",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              }
+            ]
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "Reason for referral",
+          "uuid": "abf3853a-1dc5-4658-a992-42dd944da94d",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Reason for referral",
+            "uuid": "222054fc-2cf0-4bb5-a66d-7c0888277548",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Can’t be treated at health centre level",
+                "uuid": "02282c77-4aed-4545-b855-a6478b457e1e"
+              },
+              {
+                "name": "Not getting cured after receiving complete treatment at health center",
+                "uuid": "1224317d-0e64-41eb-a73b-09644c63582f"
+              }
+            ]
+          },
+          "displayOrder": 4,
+          "mandatory": true
         }
       ]
     }
