@@ -204,7 +204,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "mandatory": true,
-          "conceptUUID": "fedc7739-ddd8-4627-86b0-4ecdc066601e",
+          "concept": {"uuid": "fedc7739-ddd8-4627-86b0-4ecdc066601e"},
           "displayOrder": 7
         },
         {

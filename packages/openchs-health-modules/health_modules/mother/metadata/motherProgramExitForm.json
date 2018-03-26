@@ -48,7 +48,9 @@
           "name": "Cause of Death",
           "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
           "keyValues": [],
-          "conceptUUID": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
+          "concept": {
+            "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2"
+          },
           "displayOrder": 2,
           "mandatory": false
         },

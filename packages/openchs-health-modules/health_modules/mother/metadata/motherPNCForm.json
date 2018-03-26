@@ -49,7 +49,9 @@
           "name": "Temperature",
           "uuid": "a60089b0-71d7-487d-9102-1e8b52789bf7",
           "keyValues": [],
-          "conceptUUID": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
+          "concept": {
+            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -57,7 +59,9 @@
           "name": "Respiratory Rate",
           "uuid": "f483e292-24b6-4d76-af72-8b13c9a5c596",
           "keyValues": [],
-          "conceptUUID": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
+          "concept": {
+            "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37"
+          },
           "displayOrder": 4,
           "mandatory": false
         },
@@ -65,7 +69,9 @@
           "name": "Pulse",
           "uuid": "62c01607-c063-49cd-ac39-ea1541243c44",
           "keyValues": [],
-          "conceptUUID": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
+          "concept": {
+            "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8"
+          },
           "displayOrder": 5,
           "mandatory": false
         },
@@ -144,8 +150,8 @@
                 "abnormal": true
               },
               {
-                "name": "No problems",
-                "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1"
+                "name": "No problem",
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
               }
             ]
           },
@@ -178,8 +184,8 @@
                 "abnormal": true
               },
               {
-                "name": "No problems",
-                "uuid": "55c81def-8229-4531-a998-0438bdd5a8f1"
+                "name": "No problem",
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
               }
             ]
           },
@@ -312,7 +318,9 @@
           "uuid": "19e880a8-b886-436c-885e-cc5ce11cb284",
           "keyValues": [],
           "type": "SingleSelect",
-          "conceptUUID": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+          "concept": {
+            "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8"
+          },
           "displayOrder": 8,
           "mandatory": false
         },
@@ -327,13 +335,13 @@
             "dataType": "Coded",
             "answers": [
               {
+                "name": "No problem",
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+              },
+              {
                 "name": "Insomnia",
                 "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
                 "abnormal": true
-              },
-              {
-                "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
               },
               {
                 "name": "Irritability",

@@ -76,41 +76,40 @@
     "highNormal": 98.6,
     "unit": "°F"
   },
-
   {
     "name": "Underweight",
     "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Yes",
     "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "No",
     "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Present",
     "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Absent",
     "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Positive",
     "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Negative",
     "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Convulsions",
@@ -127,6 +126,26 @@
         "name": "Absent"
       }
     ]
+  },
+  {
+    "uuid": "6fe263cf-581a-4c5b-aa5a-026ca8fc44e4",
+    "name": "Suicide",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "80824328-aaf2-41f3-b389-0205a58d76d2",
+    "name": "Accident",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "49c44725-b3f1-4004-a150-0c7f7377f5c2",
+    "name": "Illness",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+    "name": "Other",
+    "dataType": "NA"
   },
   {
     "name": "Cause of Death",
@@ -159,7 +178,27 @@
   {
     "name": "No problem",
     "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
-    "dataType": "N/A"
+    "datatype": "NA"
+  },
+  {
+    "uuid": "dd076e03-68ae-4b53-adf6-641c69b9a518",
+    "name": "ST",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "a3519a96-350e-4da4-90d9-827c0ff15538",
+    "name": "SC",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "e92925ed-4a15-40c0-a0a7-a21c965dad48",
+    "name": "OBC",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "cae99772-b389-4baf-849b-9c7c2b06c951",
+    "name": "General",
+    "dataType": "NA"
   },
   {
     "name": "Caste Category",
@@ -183,6 +222,36 @@
         "uuid": "cae99772-b389-4baf-849b-9c7c2b06c951"
       }
     ]
+  },
+  {
+    "name": "Hindu",
+    "uuid": "5f1f8a86-478b-4e7b-ae5e-ac7b207e65b8",
+    "dataType": "NA"
+  },
+  {
+    "name": "Muslim",
+    "uuid": "2e41ff7c-13ad-4bb3-964a-29f098691a7d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Christian",
+    "uuid": "48daa405-dcdb-4706-9dbd-a54562012331",
+    "dataType": "NA"
+  },
+  {
+    "name": "Sikh",
+    "uuid": "9e791139-2d68-45b3-81b6-78e8c3ba9662",
+    "dataType": "NA"
+  },
+  {
+    "name": "Jain",
+    "uuid": "1819bf5a-775c-4f28-af9e-650dbc5e0570",
+    "dataType": "NA"
+  },
+  {
+    "name": "Other",
+    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+    "dataType": "NA"
   },
   {
     "name": "Religion",
@@ -214,6 +283,46 @@
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
       }
     ]
+  },
+  {
+    "name": "B+",
+    "uuid": "be517796-a3ea-4feb-ae1f-bdf6ef06f22b",
+    "dataType": "NA"
+  },
+  {
+    "name": "AB-",
+    "uuid": "a68bc952-8abc-44d6-a12b-76e8fdbc3ed3",
+    "dataType": "NA"
+  },
+  {
+    "name": "A+",
+    "uuid": "da859a32-2850-4376-8f14-f49392f8e8cb",
+    "dataType": "NA"
+  },
+  {
+    "name": "O-",
+    "uuid": "2870bad6-c36a-4054-84f4-5c2314fe8c23",
+    "dataType": "NA"
+  },
+  {
+    "name": "AB+",
+    "uuid": "3293d4f4-15e9-4fbe-8cad-d966a9a90385",
+    "dataType": "NA"
+  },
+  {
+    "name": "A-",
+    "uuid": "69e4b4dc-be2d-476b-8ea5-567c71f57526",
+    "dataType": "NA"
+  },
+  {
+    "name": "O+",
+    "uuid": "23629c90-8071-47b8-86c8-f060e03b8722",
+    "dataType": "NA"
+  },
+  {
+    "name": "B-",
+    "uuid": "345712f0-1437-490e-a0d0-6ab6f795f2c6",
+    "dataType": "NA"
   },
   {
     "name": "Blood group",
@@ -257,36 +366,36 @@
   {
     "name": "Diabetes",
     "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "TB",
     "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Heart-related Diseases",
     "uuid": "712e683a-337d-49bd-a3d7-f7b0e1b8e22e",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Hypertension",
     "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Nephrotic syndrome",
     "uuid": "5a798bac-6417-4b36-98c8-13d4380aa69e",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Sickle Cell",
     "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
-    "dataType": "N/A"
+    "datatype": "NA"
   },
   {
     "name": "Epilepsy",
     "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
-    "dataType": "N/A"
+    "datatype": "NA"
   }
 ]

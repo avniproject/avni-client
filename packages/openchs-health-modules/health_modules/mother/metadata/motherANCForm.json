@@ -64,7 +64,9 @@
           "uuid": "e4511f13-5b2a-4df2-9e7b-72729c1f6923",
           "keyValues": [],
           "type": "SingleSelect",
-          "conceptUUID": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+          "concept": {
+            "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -184,7 +186,9 @@
           "name": "Pulse",
           "uuid": "099dd8f5-ed61-4195-ba8c-2a9f26317642",
           "keyValues": [],
-          "conceptUUID": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8",
+          "concept": {
+            "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8"
+          },
           "displayOrder": 3,
           "mandatory": false
         },
@@ -192,7 +196,9 @@
           "name": "Respiratory Rate",
           "uuid": "407b2857-e5cd-4805-9b2c-c43c2e819b04",
           "keyValues": [],
-          "conceptUUID": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
+          "concept": {
+            "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37"
+          },
           "displayOrder": 4,
           "mandatory": false
         },
@@ -200,7 +206,9 @@
           "name": "Temperature",
           "uuid": "86d906d2-f44f-4743-9044-f7b23df6d5d8",
           "keyValues": [],
-          "conceptUUID": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
+          "concept": {
+            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9"
+          },
           "displayOrder": 5,
           "mandatory": false
         }
@@ -466,7 +474,9 @@
           "name": "Hb",
           "uuid": "549367fb-a795-472d-9ad2-06e281dfc17e",
           "keyValues": [],
-          "conceptUUID": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b",
+          "concept": {
+            "uuid": "f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b"
+          },
           "displayOrder": 3,
           "mandatory": false
         },

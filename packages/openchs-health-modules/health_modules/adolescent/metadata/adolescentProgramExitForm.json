@@ -55,14 +55,14 @@
           "uuid": "82a98940-8e63-423e-9bee-e137d9ce12bb",
           "keyValues": [],
           "type": "SingleSelect",
-          "conceptUUID": "4876f1ce-28f0-4788-8d22-d8a3db617fd2",
+          "concept": {"uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2"},
           "displayOrder": 2,
           "mandatory": true
         },
         {
           "name": "Cause of Death (Unspecified above)",
           "uuid": "69c11cd8-4f2b-42a7-b189-c4338d4ea573",
-          "conceptUUID": "43ab00db-b0d3-4e75-ab98-ebd7cfa414e5",
+          "concept": {"uuid": "43ab00db-b0d3-4e75-ab98-ebd7cfa414e5"},
           "displayOrder": 3,
           "mandatory": true
         },

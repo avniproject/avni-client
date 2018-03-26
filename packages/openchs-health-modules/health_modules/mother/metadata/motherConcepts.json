@@ -1,5 +1,256 @@
 [
   {
+    "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
+    "name": "Essential Hypertension",
+    "abnormal": true
+  },
+  {
+    "uuid": "f2e5ac5b-b0f8-4088-bc42-397a3885308f",
+    "name": "Superimposed Pre-Eclampsia",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
+    "name": "Pregnancy Induced Hypertension",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "0eb43d96-dfff-4e45-91e8-1a273b419763",
+    "name": "Mild Pre-Eclampsia",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "e6b24a5c-00f2-46c7-aa67-5b460df5cc81",
+    "name": "Severe Pre-Eclampsia",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
+    "name": "Severe Anemia",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "c67d2c3a-c1c8-4cb7-b76e-b77e02541577",
+    "name": "Moderate Anemia",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "338d5fb1-0493-4270-8d35-81105c239bbb",
+    "name": "Grand Multipara",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "8021adee-ad70-4644-97c6-d0804851f8d3",
+    "name": "Old age pregnancy",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
+    "name": "Underweight",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "9af1e8e9-f16c-46de-8794-ac302444c63d",
+    "name": "Short Stature",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "edb0ec5e-56dc-4826-b922-52ed2e182fd8",
+    "name": "Under age pregnancy",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "73ece93d-2065-4ff2-8f87-669142d186e6",
+    "name": "Weight Gain Per Month less than 1kg",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "4d95ca6e-f2a1-42bd-b52b-44fd8e853d63",
+    "name": "Weight Gain Per Month more than 1.5kg",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "45350576-a60b-4431-90da-65604933d97c",
+    "name": "HIV/AIDS Positive",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "06c6b0ea-8ddc-4ed0-ab58-59ed67659571",
+    "name": "VDRL Positive",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "4d2733ec-098a-407b-bfd2-1fd123dbe96d",
+    "name": "Sickling Positive",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "705b3ef7-e41a-4954-bc3f-9556eb002f3d",
+    "name": "Sickle cell disease SS",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c",
+    "name": "Hepatitis B Positive",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "0dee2973-eebe-4699-b676-b770fdd1c411",
+    "name": "Malaria",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "96ec37c6-9572-4288-9220-2fe806093bde",
+    "name": "Malpresentation",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "af7ae32a-dc5f-4ac2-a372-1baa6edf0b53",
+    "name": "Previous Abortion(s)",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "9b9b1c0e-8dd3-4520-8c46-4488fd030fa9",
+    "name": "Previous Retained Placenta",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "937a4d2a-7e38-4ca5-8309-113199d4a27e",
+    "name": "Previous Still Birth",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "217d0b53-0314-4a64-b710-82fc8fe1bf9c",
+    "name": "Previous Intrauterine Death",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "6b641e43-b981-4c10-a83c-fafac4654372",
+    "name": "Previous Intrauterine Growth Retardation",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "e6759d31-2529-4919-b38b-34cb09188767",
+    "name": "Previous Post Partum Haemorrhage",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "43524d76-5f86-485f-b101-3b669ca3431e",
+    "name": "Previous Threatened Abortion",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "de5d06c1-df58-4e0f-949c-52100f769932",
+    "name": "Previous LSCS/C-section",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "79a37abe-1a1d-41fc-9732-c95b7108553e",
+    "name": "Previous Pre-term labour",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "4f40dbfb-008f-4b34-856e-d668207cdb7e",
+    "name": "Previous Instrumental Delivery",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "24bd28bc-9301-446f-94c0-9264bf3e4cd8",
+    "name": "Previous Prolonged labour",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "5d0ba446-65b7-4704-b435-6071bf49bcd0",
+    "name": "Previous Pre Eclampsia/ Eclampsia",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "d8637e17-faef-42fe-b2da-a16cfd7de33f",
+    "name": "Previous Pregnancy Induced Hypertension",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "1b4f8d76-8272-4afe-ba1a-c277421d74d4",
+    "name": "Previous Neonatal death within first 28 days",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "9133804d-26a0-4546-a459-15b2c9ade793",
+    "name": "Previous Intrapartum Death",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "36824575-042b-4137-ba3c-ce1145ce81e8",
+    "name": "Previous Ante Partum Haemorrhage",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "6f969c17-cc0d-48cf-8ca4-835c02de4e1c",
+    "name": "Previous Multiple Births",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",
+    "name": "Ante Partum hemorrhage (APH)",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "902df2a5-6403-4cb8-8732-e1e62bfa2364",
+    "name": "Foetal Movements Absent",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "2facaa69-1164-4847-82bd-a0216e9c1a50",
+    "name": "Jaundice Present",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "b694eefb-6b9d-4123-98a4-1bfc39a7dcb4",
+    "name": "Convulsions Present",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
     "name": "High Risk Conditions",
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
@@ -222,6 +473,42 @@
     "dataType": "Date"
   },
   {
+    "uuid": "154aeecb-2c8f-43f4-b86c-e070b83a516d",
+    "name": "Post-Partum Haemorrhage",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "69072b54-1258-4851-917f-0657667f3bcd",
+    "name": "Urinary Tract Infection",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "40325a6e-bbf7-4a85-96d5-f79d0e447543",
+    "name": "Genital Tract Infection",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "948e4a90-66ad-47ee-8d7a-e003e03fb434",
+    "name": "Mastitis",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "681007b0-13a2-4910-aae8-47f1edae0a4b",
+    "name": "Post Operative Infection",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "ac1e984c-28be-4ce2-887c-262749151350",
+    "name": "Post-Partum Depression",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
     "name": "PNC Complications",
     "uuid": "5e204b7a-c5df-4cc4-af45-99647b61e047",
     "dataType": "Coded",
@@ -257,5 +544,506 @@
         "abnormal": true
       }
     ]
+  },
+  {
+    "name": "Absent",
+    "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+    "dataType": "NA"
+  },
+  {
+    "name": "Trace",
+    "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "+1",
+    "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "+2",
+    "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "+3",
+    "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "+4",
+    "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Blurred vision",
+    "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Difficulty breathing",
+    "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Bad headache",
+    "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Uterus is soft or tender",
+    "uuid": "6c670fde-e4c1-4885-b672-452de7a023e0",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Heavy bleeding per vaginum",
+    "uuid": "396d9f7d-2dc7-4517-9543-85f1a8cbf00c",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Bad-smelling lochia",
+    "uuid": "abbd780c-e5a4-4558-b576-86394b359822",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Infected perineum suture",
+    "uuid": "f67e74ea-f048-40b1-abaa-19ff8ac20b10",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Difficulty passing urine",
+    "uuid": "34ac55d2-84e1-44a5-981d-d3cf1fedd0cf",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Burning Urination",
+    "uuid": "8a07fe4d-1814-4f80-90fe-5fbedf2a0518",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "No difficulties",
+    "uuid": "a440c668-a9d8-4ac4-8652-0660e0ca6364",
+    "dataType": "NA"
+  },
+  {
+    "name": "Cracked Nipple",
+    "uuid": "804a3c4c-e42e-47b0-923b-43c808c631bc",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Nipple hardness",
+    "uuid": "e109964e-1f6f-49dd-9cdf-b862f91f3b65",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Breast hardness",
+    "uuid": "9d5b4823-959b-4650-bec2-ed7a1db7c057",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Normal",
+    "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+    "dataType": "NA"
+  },
+  {
+    "name": "Indurated",
+    "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Looks red",
+    "uuid": "6323bb46-3510-4a7f-9531-4ebd32278911",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Filled with pus",
+    "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Insomnia",
+    "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Irritability",
+    "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Loss of appetite",
+    "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Weakness",
+    "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Threatened Abortion",
+    "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "3 or more than 3 spontaneous abortions",
+    "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Intrauterine Death",
+    "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Ante Partum Haemorrhage",
+    "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Intrauterine Growth Retardation",
+    "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Pre-term labour",
+    "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Prolonged labour",
+    "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Instrumental Delivery",
+    "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "LSCS/C-section",
+    "uuid": "eb68c395-17dc-4679-828c-487753228e9f",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Still Birth",
+    "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Multiple Births",
+    "uuid": "b5719e3e-db9c-49c1-af0c-3047b1b9c57a",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Retained Placenta",
+    "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Post Partum Haemorrhage",
+    "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Intrapartum Death",
+    "uuid": "92ba84ab-b395-48c4-b867-932524f60d15",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Neonatal death within first 28 days",
+    "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Retracted",
+    "uuid": "3273b055-0222-44b6-b0a6-7d45fb4e1b33",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Flat",
+    "uuid": "040e37d2-12ff-465c-8bf2-990358805f11",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Cephalic",
+    "uuid": "ab96f92f-6412-43e2-bb20-aabecd3aefad",
+    "dataType": "NA"
+  },
+  {
+    "name": "Breech",
+    "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Transverse",
+    "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Reduced",
+    "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Difficulty in breathing",
+    "uuid": "8e1ef29f-c2d6-4586-97a1-5c791251c4f0",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Morning Sickness",
+    "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Blurring of vision",
+    "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "White Discharge",
+    "uuid": "1ff880ff-477d-4519-a664-a612a393dd60",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "PV leaking",
+    "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "PV bleeding",
+    "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Severe Abdominal Pain",
+    "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Decreased Foetal movements",
+    "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "SS",
+    "uuid": "3648a650-2f3e-4c2c-a899-c0a8212aace1",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "AS",
+    "uuid": "77ee8a6a-2a01-421f-85ca-fc0ab39abcdb",
+    "dataType": "NA"
+  },
+  {
+    "name": "AA",
+    "uuid": "daa7c62f-c663-4981-a134-1f662b3036d0",
+    "dataType": "NA"
+  },
+  {
+    "name": "Spontaneous",
+    "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5",
+    "dataType": "NA"
+  },
+  {
+    "name": "Induced",
+    "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
+    "dataType": "NA"
+  },
+  {
+    "name": "Institutional",
+    "uuid": "071291ce-e644-4d66-89b9-94d14364effc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Home",
+    "uuid": "bb75a86c-05af-4b05-b699-860737d19e57",
+    "dataType": "NA"
+  },
+  {
+    "name": "Regional Hospital",
+    "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda",
+    "dataType": "NA"
+  },
+  {
+    "name": "Sub Center",
+    "uuid": "fe24e909-6346-4e84-bacc-2ec5ae85bed8",
+    "dataType": "NA"
+  },
+  {
+    "name": "NGO Hospital",
+    "uuid": "cdb94629-a710-43f0-b5ce-3921905f24f2",
+    "dataType": "NA"
+  },
+  {
+    "name": "During Transportation like in Ambulance etc",
+    "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Primary Health Center",
+    "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43",
+    "dataType": "NA"
+  },
+  {
+    "name": "Non-Skilled Birth Attendant (NSBA)",
+    "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Medical Officer/ Doctor",
+    "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27",
+    "dataType": "NA"
+  },
+  {
+    "name": "TBA (Trained Birth Attendant)",
+    "uuid": "f6947afd-9592-4ac8-808a-4cd5bdc1443e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Auxillary Nurse Midwife",
+    "uuid": "d3f764e5-938a-42dd-bdef-02614d424f8d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Caesarean",
+    "uuid": "f5192c76-f772-4e84-8fea-16d980de15bc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Instrumental",
+    "uuid": "eeaf9b42-71f7-49d4-80c6-a498619d1645",
+    "dataType": "NA"
+  },
+  {
+    "name": "Early Neonatal death within first 24 Hours of birth",
+    "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Live Birth",
+    "uuid": "e3999b21-821c-4c6e-9953-156e70b9217c",
+    "dataType": "NA"
+  },
+  {
+    "name": "Triplet",
+    "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab",
+    "dataType": "NA"
+  },
+  {
+    "name": "Twins",
+    "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0",
+    "dataType": "NA"
+  },
+  {
+    "name": "1",
+    "uuid": "9139d435-2178-46d9-aea9-429597e533b2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Uterine Rupture",
+    "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Vaginal Rupture",
+    "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Obstructed Labour",
+    "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "PPH",
+    "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Maternal Death",
+    "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Completion",
+    "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abortion",
+    "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Death",
+    "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Shifted to other geographical area",
+    "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
+    "dataType": "NA"
   }
 ]
