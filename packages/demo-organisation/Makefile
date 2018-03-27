@@ -17,9 +17,11 @@ help:
 port=8021
 server=localhost
 
+create_org:
+	psql -U$(su) openchs < create_org.sql
 
 ## <refdata>
-deploy_refdata: ## Creates reference data by POSTing it to the server
+deploy_refdata: create_org## Creates reference data by POSTing it to the server
 	curl -X POST http://$(server):$(port)/catchments -d @catchments.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo"
 	curl -X POST http://$(server):$(port)/concepts -d @concepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo"
 	curl -X POST http://$(server):$(port)/forms -d @registrationForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo"
