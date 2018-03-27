@@ -59,7 +59,7 @@ export default class Concept {
         Numeric: 'Numeric',
         Boolean: 'Boolean',
         Text: 'Text',
-        NA: 'N/A'
+        NA: 'NA'
     };
 
     // static primitiveDataTypes = [Concept.dataType.Boolean, Concept.dataType.Coded, Concept.dataType.Numeric, Concept.dataType.Date, Concept.dataType.Text];
