@@ -27,7 +27,7 @@ class ValidationResult {
 
     //static because validation result could be created by the rules which would not be using this class
     static clone(validationResult) {
-        return new ValidationResult(validationResult.success, validationResult.formIdentifier, validationResult.messageKey);
+        return new ValidationResult(validationResult.success, validationResult.formIdentifier, validationResult.messageKey, validationResult.extra);
     }
 
     static findByFormIdentifier(validationResults, formIdentifier) {
