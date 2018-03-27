@@ -10,7 +10,7 @@ class AbstractDataEntryState {
     }
 
     clone(newState) {
-        newState.validationResults = [];
+        newState.validationResults = _.isEmpty(this.validationResults) ? [] : this.validationResults;
         this.validationResults.forEach((validationResult) => {
             newState.validationResults.push(ValidationResult.clone(validationResult));
         });
