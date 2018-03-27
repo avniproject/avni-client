@@ -60,10 +60,11 @@ class FormElementGroup extends AbstractComponent {
 
     render() {
         const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
-        // this.props.group.getFormElements().map((formElement) => FormElementFactory.get(this.props));
         return (<View>
-                {formElements.length < 1 ? <View/> :
-                    <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>}
+                {   
+                    formElements.length < 1 ? <View/> :
+                    <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>
+                }
                 {
                     formElements.map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);

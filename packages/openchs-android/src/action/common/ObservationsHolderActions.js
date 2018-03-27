@@ -18,6 +18,8 @@ class ObservationsHolderActions {
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
         ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        const validationResult = action.formElement.validate(action.value);
+        newState.handleValidationResult(validationResult);
         return newState;
     }
 
