@@ -1,26 +1,32 @@
 [
   {
     "name": "Literate",
-    "uuid": "13ca5a58-9aa3-4c84-a0f5-1cae268fa4bd"
+    "uuid": "13ca5a58-9aa3-4c84-a0f5-1cae268fa4bd",
+    "dataType": "NA"
   },
   {
     "name": "Secondary",
-    "uuid": "e117bee2-f823-4e46-803f-1667c4c3e7cf"
+    "uuid": "e117bee2-f823-4e46-803f-1667c4c3e7cf",
+    "dataType": "NA"
   },
   {
     "name": "Graduate",
-    "uuid": "ca03f17e-07bb-440b-a9e3-f8fdfe0b9389"
+    "uuid": "ca03f17e-07bb-440b-a9e3-f8fdfe0b9389",
+    "dataType": "NA"
   },
   {
     "name": "Post Graduate",
-    "uuid": "b54ddb89-e686-4576-a5e2-5ac2999cd2c7"
+    "uuid": "b54ddb89-e686-4576-a5e2-5ac2999cd2c7",
+    "dataType": "NA"
   },
   {
     "name": "Uneducated",
-    "uuid": "516640f1-df7f-4746-b71a-0698e8ac29e3"
+    "uuid": "516640f1-df7f-4746-b71a-0698e8ac29e3",
+    "dataType": "NA"
   },
   {
     "name": "Primary",
-    "uuid": "8fd06d73-aba5-40fe-a92d-32b6bba2e1bd"
+    "uuid": "8fd06d73-aba5-40fe-a92d-32b6bba2e1bd",
+    "dataType": "NA"
   }
 ]
