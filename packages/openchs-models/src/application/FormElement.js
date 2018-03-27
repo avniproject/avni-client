@@ -18,9 +18,7 @@ class FormElement {
             mandatory: 'bool',
             keyValues: {type: 'list', objectType: 'KeyValue'},
             concept: 'Concept',
-            usedInSummary: 'bool',
             type: {type: 'string', optional: true},
-            generated: 'bool',
             formElementGroup: 'FormElementGroup',
             validFormat: {type: 'Format', optional: true}
         }
@@ -30,7 +28,7 @@ class FormElement {
         const formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formElementGroupUUID"), FormElementGroup.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "conceptUUID"), Concept.schema.name);
 
-        const formElement = General.assignFields(resource, new FormElement(), ["uuid", "name", "displayOrder", "mandatory", "usedInSummary", "generated", "type"], []);
+        const formElement = General.assignFields(resource, new FormElement(), ["uuid", "name", "displayOrder", "mandatory", "type"], []);
         formElement.formElementGroup = formElementGroup;
         formElement.concept = concept;
 
@@ -157,8 +155,6 @@ class FormElement {
             mandatory: this.mandatory,
             keyValues: this.keyValues,
             concept: this.concept,
-            usedInSummary: this.usedInSummary,
-            generated: this.generated,
             formElementGroupUUID: this.formElementGroup.uuid
         };
     }

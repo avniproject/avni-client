@@ -12,7 +12,7 @@ class FormElementGroup {
         properties: {
             uuid: 'string',
             name: 'string',
-            displayOrder: 'int',
+            displayOrder: 'double',
             display: {type: 'string', optional: true},
             formElements: {type: 'list', objectType: 'FormElement'},
             form: 'Form'
