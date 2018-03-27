@@ -9,11 +9,8 @@ describe('FormElementGroupTest', () => {
     it('previous and next', () => {
         const form = EntityFactory.createForm('form1');
         const first = EntityFactory.createFormElementGroup('foo', 1, form);
-        form.addFormElementGroup(first);
         const second = EntityFactory.createFormElementGroup('bar', 2, form);
-        form.addFormElementGroup(second);
         const third = EntityFactory.createFormElementGroup('baz', 3, form);
-        form.addFormElementGroup(third);
 
         assert.notEqual(first.next(), undefined);
         assert.notEqual(second.next(), undefined);
