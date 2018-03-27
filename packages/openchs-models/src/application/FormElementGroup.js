@@ -45,15 +45,15 @@ class FormElementGroup {
     }
 
     next() {
-        return this.form.formElementGroupAt(this.displayOrder + 1);
+        return this.form.getNextFormElement(this.displayOrder);
     }
 
     previous() {
-        return this.form.formElementGroupAt(this.displayOrder - 1);
+        return this.form.getPrevFormElement(this.displayOrder);
     }
 
     get isLast() {
-        return this.form.formElementGroups.length === this.displayOrder;
+        return this.form.getLastFormElementElementGroup().displayOrder > this.displayOrder;
     }
 
     get isFirst() {

@@ -79,37 +79,37 @@
   {
     "name": "Underweight",
     "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Yes",
     "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "No",
     "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Present",
     "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Absent",
     "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Positive",
     "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Negative",
     "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Convulsions",
@@ -178,7 +178,7 @@
   {
     "name": "No problem",
     "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "uuid": "dd076e03-68ae-4b53-adf6-641c69b9a518",
@@ -366,36 +366,36 @@
   {
     "name": "Diabetes",
     "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "TB",
     "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Heart-related Diseases",
     "uuid": "712e683a-337d-49bd-a3d7-f7b0e1b8e22e",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Hypertension",
     "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Nephrotic syndrome",
     "uuid": "5a798bac-6417-4b36-98c8-13d4380aa69e",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Sickle Cell",
     "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
-    "datatype": "NA"
+    "dataType": "NA"
   },
   {
     "name": "Epilepsy",
     "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
-    "datatype": "NA"
+    "dataType": "NA"
   }
 ]

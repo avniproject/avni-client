@@ -14,7 +14,7 @@ class FormElement {
         properties: {
             uuid: 'string',
             name: 'string',
-            displayOrder: 'int',
+            displayOrder: 'double',
             mandatory: 'bool',
             keyValues: {type: 'list', objectType: 'KeyValue'},
             concept: 'Concept',

@@ -57,12 +57,30 @@ class Form {
         return _.find(this.formElementGroups, (formElementGroup) => formElementGroup.displayOrder === displayOrder);
     }
 
+    getNextFormElement(displayOrder) {
+        const currentIndex = _.findIndex(this.getFormElementGroups(), (feg) => feg.displayOrder === displayOrder);
+        return this.getFormElementGroups()[currentIndex + 1];
+    }
+
+    getPrevFormElement(displayOrder) {
+        const currentIndex = _.findIndex(this.getFormElementGroups(), (feg) => feg.displayOrder === displayOrder);
+        return this.getFormElementGroups()[currentIndex - 1];
+    }
+
+    getFormElementGroups() {
+        return _.sortBy(this.formElementGroups, (feg) => feg.displayOrder);
+    }
+
+    getLastFormElementElementGroup() {
+        return _.last(this.getFormElementGroups());
+    }
+
     get numberOfPages() {
         return this.formElementGroups.length;
     }
 
     get firstFormElementGroup() {
-        return this.formElementGroups.length === 0 ? null : this.formElementGroups[0];
+        return _.first(this.getFormElementGroups());
     }
 
     findFormElement(formElementName) {

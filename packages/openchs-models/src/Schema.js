@@ -29,7 +29,7 @@ import UserInfo from "./UserInfo";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo],
-    schemaVersion: 48,
+    schemaVersion: 49,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -112,6 +112,16 @@ export default {
             const conceptAnswers = newDB.objects('ConceptAnswer');
             _.forEach(conceptAnswers, (conceptAnswer) => {
                 conceptAnswer.voided = false;
+            });
+        }
+        if (oldDB.schemaVersion < 49) {
+            const formElements = newDB.objects('FormElement');
+            _.forEach(formElements, (formElement) => {
+                formElement.displayOrder = formElement.displayOrder;
+            });
+            const formElementGroups = newDB.objects('FormElementGroup');
+            _.forEach(formElementGroups, (formElementGroup) => {
+                formElementGroup.displayOrder = formElementGroup.displayOrder;
             });
         }
     }
