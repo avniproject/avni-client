@@ -4,7 +4,7 @@ class StaticFormElementGroup {
     }
 
     next() {
-        return this.form.formElementGroups[0];
+        return this.form.firstFormElementGroup;
     }
 
     previous() {
