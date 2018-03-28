@@ -257,13 +257,18 @@ const lookup = {
     "Tablet": "गोळी",
     "Tablets": "गोळ्या"
 };
+
 const numberToText = (number) => {
     return {0.5: "अर्धी", 1: "एक", 1.5: "दीड", 2: "दोन", 3: "तीन", 4: "चार"}[number] || number;
 };
 
-const numberTranslator = (numberStr) => {
+const numberToTextMale = (number) => {
+    return {0.5: "अर्धा", 1: "एक", 1.5: "दीड", 2: "दोन", 3: "तीन", 4: "चार"}[number] || number;
+};
+
+const numberTranslator = (number) => {
     const numbers = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
-    return _.reduce(_.split(numberStr, ''), (marathiNumber, token) => {
+    return _.reduce(_.split(number, ''), (marathiNumber, token) => {
         return marathiNumber + (numbers[_.toNumber(token)] || token);
     }, "")
 };
@@ -281,9 +286,9 @@ const translateForRegularDosage = (prescription) => {
     if (dosage.dosage === 10 && prescription.medicine === "Primaquine Tablets") {
         translation = translation + "(७.५ mg+२.५ mg) ";
     }
-    translation = translation + numberToText(dosage.itemsPerServing) + " ";
+    translation = translation + (prescription.form === 'Tablets'? numberToText(dosage.itemsPerServing): numberToTextMale(dosage.itemsPerServing)) + " ";
     translation = translation + translateForm(prescription.form, dosage) + " ";
-    translation = translation + (dosage.timesPerDay ? "दिवसातून " + numberToText(dosage.timesPerDay) + " वेळा " : "");
+    translation = translation + (dosage.timesPerDay ? "दिवसातून " + numberTranslator(dosage.timesPerDay) + " वेळा " : "");
     translation = translation + "१ ते " + numberTranslator(dosage.days) + " दिवसांसाठी";
     return translation;
 };
@@ -292,7 +297,7 @@ const translateFordaywiseDose = (prescription) => {
     let translation = "", dosage = prescription.dosage;
     translation = translation + lookup[prescription.medicine] + " ";
     translation = translation + (dosage.row ? dayth(dosage.row) + " रांगेतील " : "");
-    translation = translation + numberToText(dosage.itemsPerServing) + " ";
+    translation = translation + (prescription.form === 'Tablets'? numberToText(dosage.itemsPerServing): numberToTextMale(dosage.itemsPerServing)) + " ";
     translation = translation + translateForm(prescription.form, dosage) + " ";
     translation = translation + (dosage.timesPerDay ? "दिवसातून " + numberTranslator(dosage.timesPerDay) + " वेळा " : "");
     return translation;
