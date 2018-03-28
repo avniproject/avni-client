@@ -81,7 +81,6 @@ class FormElementGroup {
     }
 
     static _sortedFormElements(list) {
-        console.log(list);
         return _.sortBy(list, (formElement) => formElement.displayOrder);
     }
 
