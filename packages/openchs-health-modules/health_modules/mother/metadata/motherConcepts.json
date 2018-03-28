@@ -1045,5 +1045,10 @@
     "name": "Shifted to other geographical area",
     "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
     "dataType": "NA"
+  },
+  {
+    "name": "Pre Eclampsia/ Eclampsia",
+    "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
+    "dataType": "NA"
   }
 ]
