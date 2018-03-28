@@ -115,15 +115,15 @@ export default {
             });
         }
         if (oldDB.schemaVersion < 49) {
-            const oldFormElements = oldDB.objects('FormElement').sorted('name');
-            const formElements = newDB.objects('FormElement').sorted('name');
+            const oldFormElements = oldDB.objects('FormElement');
+            const formElements = newDB.objects('FormElement');
             for (let i = 0; i < oldFormElements.length; i++) {
                 formElements[i].displayOrder = oldFormElements[i].displayOrder;
             }
-            const oldFormElementGroups = oldDB.objects('FormElementGroup').sorted('name');
-            const formElementGroups = newDB.objects('FormElementGroup').sorted('name');
-            for (let j = 0; j < oldFormElements.length; j++) {
-                formElementGroups[i].displayOrder = oldFormElementGroups[i].displayOrder;
+            const oldFormElementGroups = oldDB.objects('FormElementGroup');
+            const formElementGroups = newDB.objects('FormElementGroup');
+            for (let j = 0; j < oldFormElementGroups.length; j++) {
+                formElementGroups[j].displayOrder = oldFormElementGroups[j].displayOrder;
             }
         }
         if (oldDB.schemaVersion < 50) {
