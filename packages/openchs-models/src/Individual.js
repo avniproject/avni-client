@@ -219,11 +219,13 @@ class Individual extends BaseEntity {
     }
 
     validateAddress() {
-        return this.validateFieldForEmpty(this.lowestAddressLevel, Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
+        return this.validateFieldForEmpty(_.isEmpty(this.lowestAddressLevel) ? undefined : this.lowestAddressLevel.name,
+            Individual.validationKeys.LOWEST_ADDRESS_LEVEL);
     }
 
     validateGender() {
-        return this.validateFieldForEmpty(this.gender, Individual.validationKeys.GENDER);
+        return this.validateFieldForEmpty(_.isEmpty(this.gender) ? undefined : this.gender.name,
+            Individual.validationKeys.GENDER);
     }
 
     isGender(gender) {

@@ -41,9 +41,9 @@ class BaseEntity {
 
     validateFieldForEmpty(value, key) {
         if (value instanceof Date) {
-            return _.isNil(value) ? new ValidationResult(false, key, 'emptyValidationMessage') : ValidationResult.successful(key);
+            return _.isNil(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
         }
-        return _.isEmpty(value) ? new ValidationResult(false, key, 'emptyValidationMessage') : ValidationResult.successful(key);
+        return _.isEmpty(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
     }
 }
 
