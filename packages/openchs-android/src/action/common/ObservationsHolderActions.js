@@ -2,12 +2,13 @@ import _ from "lodash";
 import {Concept, Duration} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
+import {FormElementGroup} from "openchs-models";
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
         let formElementStatuses = ruleService.filterFormElements(state.getEntity(), state.getEntityType(), formElementGroup);
-        state.filteredFormElements = formElementGroup.filterElements(formElementStatuses);
+        state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
     }
 
     static onPrimitiveObsUpdateValue(state, action, context) {

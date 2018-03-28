@@ -115,14 +115,16 @@ export default {
             });
         }
         if (oldDB.schemaVersion < 49) {
-            const formElements = newDB.objects('FormElement');
-            _.forEach(formElements, (formElement) => {
-                formElement.displayOrder = formElement.displayOrder;
-            });
-            const formElementGroups = newDB.objects('FormElementGroup');
-            _.forEach(formElementGroups, (formElementGroup) => {
-                formElementGroup.displayOrder = formElementGroup.displayOrder;
-            });
+            const oldFormElements = oldDB.objects('FormElement').sorted('name');
+            const formElements = newDB.objects('FormElement').sorted('name');
+            for (let i = 0; i < oldFormElements.length; i++) {
+                formElements[i].displayOrder = oldFormElements[i].displayOrder;
+            }
+            const oldFormElementGroups = oldDB.objects('FormElementGroup').sorted('name');
+            const formElementGroups = newDB.objects('FormElementGroup').sorted('name');
+            for (let j = 0; j < oldFormElements.length; j++) {
+                formElementGroups[i].displayOrder = oldFormElementGroups[i].displayOrder;
+            }
         }
         if (oldDB.schemaVersion < 50) {
             const concepts = newDB.objects('Concept');
