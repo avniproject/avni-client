@@ -18,7 +18,7 @@ const ageRangesForAct = [
 ];
 
 const weightRangesForPrimaquine = [
-    {code: "A1", min: 10, max: 12.9},
+    {code: "A1", min: 9.9, max: 12.9},
     {code: "A2", min: 12.9, max: 15.9},
     {code: "A3", min: 15.9, max: 25.5},
     {code: "A4", min: 25.5, max: 32.5},
@@ -27,13 +27,13 @@ const weightRangesForPrimaquine = [
 ];
 
 const weightRangesForPcmOrChloroquineSyrup = [
-    {code: "A1", min: 3, max: 5.5},
+    {code: "A1", min: 2.9, max: 5.5},
     {code: "A2", min: 5.5, max: 7.9},
     {code: "A3", min: 7.9, max: 13}
 ];
 
 const weightRangesForPcmOrChloroquineTablets = [
-    {code: "A1", min: 13, max: 15.9},
+    {code: "A1", min: 12.9, max: 15.9},
     {code: "A2", min: 15.9, max: 25.5},
     {code: "A3", min: 25.5, max: 32.5},
     {code: "A4", min: 32.5, max: 1000}
@@ -78,8 +78,16 @@ const childBelow1Year = (encounter) => {
         .matches();
 };
 
+const pregnant = (encounter) => {
+    let matches = new RuleCondition({programEncounter: encounter})
+        .valueInEncounter("Complaint")
+        .containsAnswerConceptName("Pregnancy")
+        .matches();
+    return matches;
+};
+
 const primaquineRequired = (encounter) => {
-    return !childBelow1Year(encounter) && !womanBetween16And40Years(encounter) && isPvPositive(encounter);
+    return !childBelow1Year(encounter) && !womanBetween16And40Years(encounter) && isPvPositive(encounter) && !pregnant(encounter);
 };
 
 const actRequired = (encounter) => {
@@ -273,8 +281,7 @@ const translateForRegularDosage = (prescription) => {
     if (dosage.dosage === 10 && prescription.medicine === "Primaquine Tablets") {
         translation = translation + "(७.५ mg+२.५ mg) ";
     }
-    translation = translation + (dosage.itemsPerServing <= 1 ? "ची " : "च्या ");
-    translation = translation + (dosage.itemsPerServing !== 1 ? numberToText(dosage.itemsPerServing) + " " : "");
+    translation = translation + numberToText(dosage.itemsPerServing) + " ";
     translation = translation + translateForm(prescription.form, dosage) + " ";
     translation = translation + (dosage.timesPerDay ? "दिवसातून " + numberToText(dosage.timesPerDay) + " वेळा " : "");
     translation = translation + "१ ते " + numberTranslator(dosage.days) + " दिवसांसाठी";

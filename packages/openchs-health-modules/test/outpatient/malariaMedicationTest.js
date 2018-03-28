@@ -15,7 +15,7 @@ import EntityFactory from "../../../openchs-models/test/EntityFactory";
 import moment from "moment";
 
 describe("Malaria medications", () => {
-    let encounter, weightConcept, paracheckConcept, complaintsConcept;
+    let encounter, weightConcept, paracheckConcept, complaintsConcept, complaintsObs;
 
     beforeEach(() => {
         complaintsConcept = EntityFactory.createConcept("Complaint", Concept.dataType.Coded);
@@ -26,7 +26,7 @@ describe("Malaria medications", () => {
         encounter = Encounter.create();
         encounter.individual = Individual.newInstance("0bdf1d2c-b918-47b8-ac59-343060c3de4b", "first", "last", moment().subtract(2, 'years').toDate(), true, Gender.create("Female"), 1);
 
-        const complaintsObs = Observation.create(complaintsConcept, new MultipleCodedValues());
+        complaintsObs = Observation.create(complaintsConcept, new MultipleCodedValues());
         complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Fever").concept.uuid);
         encounter.observations.push(complaintsObs);
     });
@@ -94,6 +94,21 @@ describe("Malaria medications", () => {
             encounter.observations.push(paracheckObs);
 
             encounter.individual.dateOfBirth = moment().subtract(16, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let primaquine = _.find(prescriptions, (pres) => pres.medicine === 'Primaquine Tablets');
+            expect(primaquine).to.be.undefined;
+        });
+
+        it("is not given to pregnant women", () => {
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
+            complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Pregnancy").concept.uuid);
+            encounter.observations.push(weightObs);
+            encounter.observations.push(paracheckObs);
+
+            encounter.individual.dateOfBirth = moment().subtract(13, 'years').toDate();
 
             let prescriptions = prescription(encounter);
             let primaquine = _.find(prescriptions, (pres) => pres.medicine === 'Primaquine Tablets');
@@ -186,7 +201,7 @@ describe("Malaria medications", () => {
             // पॅरासिटामॉल ची अर्धी गोळी दिवसातून तीन वेळा १ ते ३ दिवसांसाठी
             // प्रायामाक्वीन २.५ mg च्या दोन गोळ्या दिवसातून एक वेळा १ ते १४ दिवसांसाठी
             console.log(malariaPrescriptionMessage(encounter))
-            expect(malariaPrescriptionMessage(encounter)).to.equal('पहिल्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी पहिल्या रांगेतील तीन गोळ्या \nदुसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी दुसऱ्या रांगेतील एक गोळी \nतिसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी तिसऱ्या रांगेतील एक गोळी \n\nपॅरासिटामॉल ची अर्धी गोळी दिवसातून तीन वेळा १ ते ३ दिवसांसाठी\nप्रायामाक्वीन २.५ mg च्या दोन गोळ्या दिवसातून एक वेळा १ ते १४ दिवसांसाठी');
+            expect(malariaPrescriptionMessage(encounter)).to.equal('पहिल्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी पहिल्या रांगेतील तीन गोळ्या \nदुसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी दुसऱ्या रांगेतील एक गोळी \nतिसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी तिसऱ्या रांगेतील एक गोळी \n\nपॅरासिटामॉल अर्धी गोळी दिवसातून तीन वेळा १ ते ३ दिवसांसाठी\nप्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून एक वेळा १ ते १४ दिवसांसाठी');
         });
 
     })
