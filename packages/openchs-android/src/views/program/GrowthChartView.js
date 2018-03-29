@@ -1,20 +1,16 @@
-import {View} from "native-base";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import General from "../../utility/General";
 import * as React from "react";
-import themes from "../primitives/themes";
-import {VictoryChart, VictoryLine, VictoryAxis, VictoryScatter} from "victory-native";
-import {Button, Text} from "native-base";
-import DGS from "../primitives/DynamicGlobalStyles";
-import * as _ from "lodash";
-import Fonts from '../primitives/Fonts';
-import Colors from "../primitives/Colors";
-import AppHeader from "../common/AppHeader"
-import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
-import Styles from "../primitives/Styles";
+import {LineChart} from 'react-native-charts-wrapper';
+import {
+    Text,
+    View,
+    processColor, StyleSheet, TouchableNativeFeedback
+} from 'react-native';
+import moment from "moment";
 
+import _ from 'lodash';
+import Styles from "../primitives/Styles";
 
 @Path('/GrowthChartView')
 class GrowthChartView extends AbstractComponent {
@@ -22,140 +18,234 @@ class GrowthChartView extends AbstractComponent {
         params: React.PropTypes.object.isRequired
     };
 
-    viewName() {
-        return 'GrowthChartView';
-    }
-
-    buttons = {
-        LESS_THAN_13_WEEKS: {data: "graphsBelow13Weeks", label: this.I18n.t('lessThan13Weeks'), minAge: 0},
-        LESS_THAN_2_YEARS: {data: "graphsBelow2Years", label: this.I18n.t('lessThan2Years'), minAge: 3},
-        LESS_THAN_5_YEARS: {data: "graphsBelow5Years", label: this.I18n.t('2To5Years'), minAge: 24},
+    states = {
+        weightForAge: "Weight For Age",
+        heightForAge: "Height For Age"
     };
 
-    shouldBeDisabled(button) {
-        return this.props.params.enrolment.individual.getAgeInMonths() < button.minAge;
-    }
+    settings = {
+        SD3neg: {
+            label: "Grade 3",
+            config: {
+                color: processColor("red"),
+                fillColor: processColor("red"),
+                fillAlpha: 150
+            }
+        },
+        SD2neg: {
+            label: "Grade 2",
+            config: {
+                color: processColor("orange"),
+                fillColor: processColor("orange"),
+                fillAlpha: 150
+            }
+        },
+        SD0: {
+            label: "Grade 1",
+            config: {
+                color: processColor("green"),
+                fillColor: processColor("green"),
+                fillAlpha: 30
+            }
+        },
+        SD2: {
+            label: "Grade 1",
+            config: {
+                color: processColor("green"),
+                fillColor: processColor("green"),
+            }
+        },
+        SD3: {
+            label: "Grade 1",
+            config: {
+                color: processColor("green"),
+                fillColor: processColor("green"),
+                fillAlpha: 30
+            }
+        },
+        data: {
+            label: "",
+            config: {
+                lineWidth: 3,
+                color: processColor("black"),
+                drawFilled: false,
+                drawCircles: true,
+                drawCircleHole: false,
+                highlightEnabled: true,
+                drawValues: true,
+                circleRadius: 2,
+            }
+        }
+    };
 
-    changeCharts(chart) {
-        this.setState(() => chart);
-    }
-
-    defaultCharts() {
-        const graphs = this.props.params.data;
-        const ageInMonths = this.props.params.enrolment.individual.getAgeInMonths();
-
-        if (ageInMonths < 3) return {
-            title: this.I18n.t('lessThan13Weeks'),
-            graphsToBeShown: graphs.graphsBelow13Weeks
-        };
-
-        if (ageInMonths < 25) return {
-            title: this.I18n.t('lessThan2Years'),
-            graphsToBeShown: graphs.graphsBelow2Years
-        };
-
-        return {
-            title: this.I18n.t('2To5Years'),
-            graphsToBeShown: graphs.graphsBelow5Years
-        };
+    viewName() {
+        return 'GrowthChartView';
     }
 
     constructor(props, context) {
         super(props, context);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
-        this.changeCharts(this.defaultCharts());
-    }
-
-    renderObservations(observations, dataIndex) {
-        if (observations.length > 0) {
-            return (<VictoryScatter data={observations} key={dataIndex} labels={(datum) => datum.y}/>);
+    graphForSelection(prevState, selectedGraph) {
+        return {
+            data: selectedGraph === this.states.weightForAge? prevState.weightForAge: prevState.heightForAge,
+            title: selectedGraph,
+            selectedGraph: selectedGraph
         }
     }
 
-    renderLegendItem(percentile, color, index) {
-        return (
-            <View style={{flexDirection: 'row', justifyContent: "center", marginBottom: 20}} key={index} >
-                <View style={{backgroundColor: color, height: 20, width: 20}}/>
-                <Text style={{minWidth: 40, fontSize: Fonts.Medium, marginLeft: DGS.resizeWidth(10)}}>{percentile} %</Text>
-            </View>
-        );
+    onGraphSelected(selectedGraph) {
+        this.setState((prevState) => this.graphForSelection(prevState, selectedGraph));
     }
 
-    renderChart(chart, index) {
-        const data = chart.data(this.props.params.enrolment);
-        const referenceLines = _.dropRight(data);
-        const observations = _.filter(_.last(data), (coord) => {return _.isNumber(coord.x) && _.isNumber(coord.y)});
-        const dataIndex = data.length - 1;
-        const colors = ["red", "orange", "green", "orange", "red"];
-        const percentiles = [10, 25, 50, 75, 90];
-        const lightGreyLine = {stroke: "grey", opacity: 0.2};
-        return (
-            <View style={{flexDirection: 'column', flex: 1, alignItems: 'center', marginBottom: 20}} key={index}>
-                <Text style={{fontSize: Fonts.Large, fontWeight: 'bold', color: Colors.InputNormal}}> {chart.title} </Text>
-                <VictoryChart padding={40}>
-                    <VictoryAxis orientation="bottom" label={chart.xAxisLabel} tickCount={10}
-                                 style={{grid: lightGreyLine}}/>
-                    <VictoryAxis dependentAxis={true} orientation="left" tickCount={10} style={{grid: lightGreyLine}}/>
-                    {_.map(referenceLines, (data, idx) => (
-                        <VictoryLine data={data} key={idx} name="a" style={{data: {stroke: colors[idx], opacity: 0.2}}}/>))}
-                    {this.renderObservations(observations, dataIndex)}
-                </VictoryChart>
-                <View style={{flexDirection: 'row', justifyContent: "center", flexWrap: "nowrap"}}>
-                    {_.map(percentiles, (percentile, index) => this.renderLegendItem(percentile, colors[index], index))}
-                </View>
-            </View>
-        );
+    componentWillMount() {
+        this.setState(() => {
+            const newState = {
+                weightForAge: {dataSets: this.getDataSets(this.props.params.data.weightForAge, 'Weight', 'kg')},
+                heightForAge: {dataSets: this.getDataSets(this.props.params.data.heightForAge, 'Height', 'cm')}
+            };
+
+            return _.merge(newState, this.graphForSelection(newState, this.states.weightForAge));
+        });
     }
 
-    renderOverlayForSmoothScrolling() {
-        return <View style={{flex: 1, position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, opacity: 1}}/>;
+    addConfig(array, line) {
+        return _.merge({
+            values: array,
+            label: "",
+            config: {
+                lineWidth: 1,
+                drawValues: false,
+                circleRadius: 0,
+                highlightEnabled: false,
+                drawHighlightIndicators: true,
+                color: processColor("red"),
+                drawFilled: true,
+                valueTextSize: 10,
+                drawCircleHole: false,
+                drawCircles: false,
+                dashedLineEnabled: true,
+                fillColor: processColor("red"),
+                fillAlpha: processColor("red"),
+            }
+        }, this.settings[line])
+    }
+
+    getGridLine(array, line) {
+        return _.merge({
+            values: _.map(array, (item) => {
+                return {x: item.Month, y: item[line]}
+            })
+        }, this.addConfig(array, line));
+    }
+
+    getDataFor(concept, suffix) {
+        const enrolment = this.props.params.enrolment;
+        let observations = _.map(enrolment.getObservationsForConceptName(concept),
+            (observation) => {
+                return {
+                    x: moment(observation.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months'),
+                    y: observation.obs,
+                    marker: `${observation.obs} ${suffix}`
+                }
+            });
+        return this.addConfig(_.sortBy(observations, 'x'), "data");
+    }
+
+    getDataSets(array, concept, suffix) {
+        return [this.getDataFor(concept, suffix), ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line))];
     }
 
 
     render() {
-        General.logDebug("GrowthChartView", 'render');
-        const individualName = this.props.params.enrolment.individual.nameString;
-        const titleStyle = _.merge(Fonts.Title, {
-            alignSelf: 'center',
-            marginTop: DGS.resizeHeight(10),
-            marginBottom: DGS.resizeTextInputHeight(10)
+        const legend = {
+            enabled: true,
+            textColor: processColor('red'),
+            textSize: 12,
+            position: 'BELOW_CHART_RIGHT',
+            form: 'SQUARE',
+            formSize: 14,
+            xEntrySpace: 10,
+            yEntrySpace: 5,
+            formToTextSpace: 5,
+            wordWrapEnabled: true,
+            maxSizePercent: 0.5
+        };
+        const marker = {
+            enabled: true,
+            markerColor: processColor('#F0C0FF8C'),
+            textColor: processColor('white'),
+            markerFontSize: 14,
+        };
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                backgroundColor: '#F5FCFF'
+            },
+            chart: {
+                flex: 1
+            }
         });
+        let borderColor = processColor("red");
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Styles.whiteColor}}>
-                <CHSContent>
-                    <AppHeader title={`${individualName} - Growth Chart`}/>
-                    <View>
-                        <View style={{flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around'}}>
-                            {_.map(this.buttons, (button, index) => {
-                                return (
-                                    <Button
-                                        textStyle={{color: Styles.whiteColor}}
-                                        style={{marginTop: DGS.resizeHeight(10)}}
-                                        disabled={this.shouldBeDisabled(button)}
-                                        key={index}
-                                        onPress={() => this.changeCharts( {
-                                            title: button.label,
-                                            graphsToBeShown: this.props.params.data[button.data]
-                                        })}>
-                                        {button.label}
-                                    </Button>
-                                )
-                            })}
+            <View style={{flex: 1, paddingHorizontal: 8}}>
+                <View style={{flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between'}}>
+                    <TouchableNativeFeedback onPress={() => {this.onGraphSelected(this.states.weightForAge)}}
+                                             background={TouchableNativeFeedback.SelectableBackground()}>
+                        <View style={[Styles.basicPrimaryButtonView, {flex: 1, height: 36, margin: 4}]}>
+                            <Text style={[{color: Styles.whiteColor, fontSize: 16}]}>{this.states.weightForAge}</Text>
                         </View>
-                        <View>
-                            <Text style={titleStyle}>{this.state.title}</Text>
-                            <View style={{flexDirection: 'column', flex: 1}}>
-                                {_.map(this.state.graphsToBeShown, (graph, index) => this.renderChart(graph, index))}
-                            </View>
-                            {this.renderOverlayForSmoothScrolling()}
+                    </TouchableNativeFeedback>
+
+                    <TouchableNativeFeedback onPress={() => {this.onGraphSelected(this.states.heightForAge)}}
+                                             background={TouchableNativeFeedback.SelectableBackground()}>
+                        <View style={[Styles.basicPrimaryButtonView, {flex: 1, height: 36, margin: 4}]}>
+                            <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.states.heightForAge}</Text>
                         </View>
-                    </View>
-                </CHSContent>
-            </CHSContainer>
+                    </TouchableNativeFeedback>
+                </View>
+
+                <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.state.title}</Text>
+
+                <View style={styles.container}>
+                    <LineChart
+                        style={styles.chart}
+                        data={this.state.data}
+                        chartDescription={{text: ''}}
+                        legend={legend}
+                        marker={marker}
+
+                        drawGridBackground={true}
+
+                        borderColor={borderColor}
+                        borderWidth={0}
+                        drawBorders={false}
+
+                        touchEnabled={true}
+                        dragEnabled={true}
+                        scaleEnabled={true}
+                        scaleXEnabled={true}
+                        scaleYEnabled={true}
+                        pinchZoom={true}
+                        doubleTapToZoomEnabled={false}
+
+                        dragDecelerationEnabled={true}
+                        dragDecelerationFrictionCoef={0.99}
+                        // yAxis={{left: {axisMaximum: 12000}}}
+
+                        keepPositionOnRotation={false}
+
+                        xAxis={{position: 'BOTTOM', labelCount: 5}}
+
+                        // onSelect={this.handleSelect.bind(this)}
+                        // onChange={(event) => console.log(event.nativeEvent)}
+
+                        ref="chart"
+                    />
+                </View>
+            </View>
         );
     }
 }
+
 export default GrowthChartView;

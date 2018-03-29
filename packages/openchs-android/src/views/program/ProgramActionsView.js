@@ -40,7 +40,7 @@ class ProgramActionsView extends AbstractComponent {
 
     goToView(button) {
         TypedTransition.from(this).bookmark().with({
-            data: _.get(button, ['openOnClick', 'data']),
+            data: _.get(button, ['openOnClick', 'data'])(this.props.enrolment),
             enrolment: this.props.enrolment
         }).to(GrowthChartView);
     }

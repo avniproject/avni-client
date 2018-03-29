@@ -1,4 +1,4 @@
-import {assert} from "chai";
+import {assert, expect} from "chai";
 import moment from "moment";
 import _ from "lodash";
 import ProgramEnrolment from "../src/ProgramEnrolment";
@@ -9,6 +9,7 @@ import Concept from "../src/Concept";
 import RoutineEncounterHandler from "../../openchs-health-modules/health_modules/adolescent/formFilters/RoutineEncounterHandler";
 import EncounterType from "../src/EncounterType";
 import EntityFactory from "./EntityFactory";
+import PrimitiveValue from "../src/observation/PrimitiveValue";
 
 describe('ProgramEnrolmentTest', () => {
     it('mergeChecklists', () => {
@@ -34,6 +35,26 @@ describe('ProgramEnrolmentTest', () => {
         enrolment.addEncounter(createEncounter(new Date(2017, 2, 1)));
 
         assert.equal(enrolment.getEncounters()[0].uuid, newest.uuid);
+    });
+
+    describe("getObservationsForConceptName", () => {
+        it("returns all observations for a given concept", () => {
+            const heightConcept = EntityFactory.createConcept("Height", Concept.dataType.Numeric, "766472d4-30ce-480d-b46c-13ab9226842e"),
+                enrolment = ProgramEnrolment.createEmptyInstance(),
+                encounter1 = createEncounter(new Date(2017, 3, 1)),
+                encounter2 = createEncounter(new Date(2017, 4, 1)),
+                emptyEncounter = createEncounter(new Date(2017, 4, 1));
+
+            encounter1.addObservation(Observation.create(heightConcept, new PrimitiveValue(100)));
+            encounter2.addObservation(Observation.create(heightConcept, new PrimitiveValue(101)));
+            enrolment.addEncounters(encounter1, encounter2, emptyEncounter);
+
+            const heights = enrolment.getObservationsForConceptName("Height");
+
+            expect(heights).to.be.an('array').with.lengthOf(2);
+            expect(heights).to.deep.include({encounterDateTime: encounter1.encounterDateTime, obs: 100})
+            expect(heights).to.deep.include({encounterDateTime: encounter2.encounterDateTime, obs: 101})
+        });
     });
 
     describe("lastFulfilledEncounter", () => {
@@ -131,7 +152,6 @@ describe('ProgramEnrolmentTest', () => {
 
             const thirdMonthlyVisit = createEncounter(new Date(2018, 4, 11), "Monthly Visit");
             enrolment.addEncounter(thirdMonthlyVisit);
-
 
 
             assert.equal(enrolment.findLatestObservationFromEncounters("height",
