@@ -72,8 +72,8 @@
     "name": "Temperature",
     "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9",
     "dataType": "Numeric",
-    "lowNormal": 98.0,
-    "highNormal": 98.6,
+    "lowNormal": 97.0,
+    "highNormal": 99.0,
     "unit": "°F"
   },
   {
