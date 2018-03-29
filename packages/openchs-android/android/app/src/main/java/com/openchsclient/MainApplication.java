@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.airlabsinc.RNAWSCognitoPackage;
 import com.horcrux.svg.SvgPackage;
@@ -36,6 +37,7 @@ public class MainApplication extends Application implements ReactApplication {
             return Arrays.<ReactPackage>asList(
                     new FabricPackage(),
                     new MainReactPackage(),
+            new MPAndroidChartPackage(),
             new ReactNativeConfigPackage(),
             new RNAWSCognitoPackage(),
                     new SvgPackage(),
