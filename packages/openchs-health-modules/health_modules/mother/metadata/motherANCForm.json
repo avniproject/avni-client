@@ -441,7 +441,9 @@
           "uuid": "f09992f0-ef48-4fb8-ad08-0f9a718aee54",
           "keyValues": [],
           "type": "SingleSelect",
-          "conceptUUID": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8",
+          "concept": {
+            "uuid": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8"
+          },
           "displayOrder": 2,
           "mandatory": false
         },

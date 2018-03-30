@@ -35,21 +35,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Positive for PF",
-    "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
-    "dataType": "NA"
-  },
-  {
-    "name": "Positive for PF and PV",
-    "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
-    "dataType": "NA"
-  },
-  {
-    "name": "Positive for PV",
-    "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
-    "dataType": "NA"
-  },
-  {
     "name": "Giddiness",
     "uuid": "4b569ac1-3965-47a0-9ca7-2317f40fdd61",
     "dataType": "NA"
