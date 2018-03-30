@@ -437,36 +437,11 @@
           "mandatory": false
         },
         {
-          "name": "Paracheck",
+          "name": "Paracheck/Blood Smear (B.S)",
           "uuid": "f09992f0-ef48-4fb8-ad08-0f9a718aee54",
           "keyValues": [],
           "type": "SingleSelect",
-          "concept": {
-            "name": "Paracheck",
-            "uuid": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive for PF",
-                "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
-                "abnormal": true
-              },
-              {
-                "name": "Positive for PF and PV",
-                "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
-                "abnormal": true
-              },
-              {
-                "name": "Positive for PV",
-                "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
-                "abnormal": true
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              }
-            ]
-          },
+          "conceptUUID": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8",
           "displayOrder": 2,
           "mandatory": false
         },

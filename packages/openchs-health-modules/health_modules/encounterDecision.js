@@ -1496,7 +1496,7 @@ const getWeightRangeToCode = function (complaint, weight) {
 
 const hasMalaria = function (encounter) {
     return new RuleCondition({programEncounter: encounter})
-        .valueInEncounter("Paracheck")
+        .valueInEncounter("Paracheck/Blood Smear (B.S)")
         .containsAnyAnswerConceptName("Positive for PF", "Positive for PF and PV", "Positive for PV")
         .matches();
 };

@@ -31,7 +31,7 @@ describe('High Risk Pregnancy Determination', () => {
         sicklingTest = concepts["Sickling Test"];
         hbE = concepts["Hb Electrophoresis"];
         hbsAg = concepts["HbsAg"];
-        paracheck = concepts["Paracheck"];
+        paracheck = concepts["Paracheck/Blood Smear (B.S)"];
         obstetricsHistory = concepts["Obstetrics History"];
         enrolment.setObservation('Last Menstrual Period', moment(referenceDate).subtract(20, "weeks").toDate());
     });

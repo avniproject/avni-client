@@ -3,13 +3,13 @@ import _ from "lodash";
 
 const paracheckResultContains = (encounter, ...values) => {
     return new RuleCondition({programEncounter: encounter})
-        .valueInEncounter("Paracheck")
+        .valueInEncounter("Paracheck/Blood Smear (B.S)")
         .containsAnyAnswerConceptName(...values)
         .matches();
 };
 const paracheckNotDone = (encounter) => {
     return new RuleCondition({programEncounter: encounter})
-        .valueInEncounter("Paracheck")
+        .valueInEncounter("Paracheck/Blood Smear (B.S)")
         .is.notDefined
         .matches();
 };

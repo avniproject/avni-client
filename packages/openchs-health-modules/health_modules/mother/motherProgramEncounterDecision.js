@@ -174,7 +174,7 @@ export function getDecisions (programEncounter, today) {
         }
 
         function analyseMalaria() {
-            var paracheck = getObservationValueFromEntireEnrolment('Paracheck');
+            var paracheck = getObservationValueFromEntireEnrolment("Paracheck/Blood Smear (B.S)");
             if (paracheck === 'Positive for PF' || paracheck === 'Positive for PV' || paracheck === 'Positive for PF and PV')
                 addComplication('Malaria');
         }

@@ -21,7 +21,7 @@ describe("Malaria medications", () => {
         complaintsConcept = EntityFactory.createConcept("Complaint", Concept.dataType.Coded);
         EntityFactory.addCodedAnswers(complaintsConcept, ["Body Ache", "Headache", "Abdominal pain", "Scabies", "Cold", "Wound", "Acidity", "Cough", "Diarrhoea", "Ring Worm", "Chloroquine Resistant Malaria", "Boils", "Pregnancy", "Giddiness", "Fever", "Vomiting"]);
         weightConcept = EntityFactory.createConcept("Weight", Concept.dataType.Numeric);
-        paracheckConcept = EntityFactory.createConcept("Paracheck", Concept.dataType.Coded);
+        paracheckConcept = EntityFactory.createConcept("Paracheck/Blood Smear (B.S)", Concept.dataType.Coded);
         EntityFactory.addCodedAnswers(paracheckConcept, ["Positive for PF", "Positive for PF and PV", "Positive for PV", "Negative"]);
         encounter = Encounter.create();
         encounter.individual = Individual.newInstance("0bdf1d2c-b918-47b8-ac59-343060c3de4b", "first", "last", moment().subtract(2, 'years').toDate(), true, Gender.create("Female"), 1);
