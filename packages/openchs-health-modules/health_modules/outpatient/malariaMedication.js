@@ -7,6 +7,12 @@ const paracheckResultContains = (encounter, ...values) => {
         .containsAnyAnswerConceptName(...values)
         .matches();
 };
+const paracheckNotDone = (encounter) => {
+    return new RuleCondition({programEncounter: encounter})
+        .valueInEncounter("Paracheck")
+        .is.notDefined
+        .matches();
+};
 const isPvPositive = (encounter) => paracheckResultContains(encounter, "Positive for PF and PV", "Positive for PV");
 const isPfPositive = (encounter) => paracheckResultContains(encounter, "Positive for PF and PV", "Positive for PF");
 
@@ -95,7 +101,7 @@ const actRequired = (encounter) => {
 };
 
 const pcmRequired = () => true; //you come here only if you have fever.
-const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV", "Negative");
+const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV", "Negative") || paracheckNotDone(encounter);
 
 const malariaTreatment = [
     {

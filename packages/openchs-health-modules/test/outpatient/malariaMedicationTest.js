@@ -178,6 +178,50 @@ describe("Malaria medications", () => {
 
     });
 
+    describe("Chloroquine", () => {
+       it("is given when positive for PV", () => {
+           const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+           const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+           paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
+           encounter.observations.push(weightObs);
+           encounter.observations.push(paracheckObs);
+
+           encounter.individual.gender = Gender.create("Male");
+           encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
+
+           let prescriptions = prescription(encounter);
+           let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+           expect(chloroquine).to.be.ok;
+       }) ;
+       it("is given when negative for malaria", () => {
+           const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+           const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+           paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Negative").concept.uuid);
+           encounter.observations.push(weightObs);
+           encounter.observations.push(paracheckObs);
+
+           encounter.individual.gender = Gender.create("Male");
+           encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
+
+           let prescriptions = prescription(encounter);
+           let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+           expect(chloroquine).to.be.ok;
+       }) ;
+
+       it("is given when Paracheck result not provided", () => {
+           const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+           encounter.observations.push(weightObs);
+
+           encounter.individual.gender = Gender.create("Male");
+           encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
+
+           let prescriptions = prescription(encounter);
+           let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+           expect(chloroquine).to.be.ok;
+       }) ;
+
+    });
+
     describe("Integrating everything together", () => {
         it("when primaquine, act, paracetamol and chloroquine are required", () => {
 
