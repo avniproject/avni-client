@@ -414,7 +414,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Paracheck/Blood Smear (B.S)",
+    "name": "Paracheck",
     "uuid": "10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8",
     "dataType": "Coded",
     "answers": [

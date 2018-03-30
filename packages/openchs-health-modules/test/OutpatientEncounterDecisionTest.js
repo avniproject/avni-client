@@ -131,7 +131,7 @@ describe('Make Decision', function () {
 
     it('Boundary condition of weight', () => {
         var complaintConceptName = "Complaint";
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Fever"]).setGender("Male").setAge(10).setObservation("Weight", 5.5).setObservation("Paracheck/Blood Smear (B.S)", ["Positive PV"])).encounterDecisions;
+        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Fever"]).setGender("Male").setAge(10).setObservation("Weight", 5.5).setObservation("Paracheck", ["Positive PV"])).encounterDecisions;
         assert.equal(decisions.length, 1);
     });
 

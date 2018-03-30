@@ -437,7 +437,7 @@
           "mandatory": false
         },
         {
-          "name": "Paracheck/Blood Smear (B.S)",
+          "name": "Paracheck",
           "uuid": "f09992f0-ef48-4fb8-ad08-0f9a718aee54",
           "keyValues": [],
           "type": "SingleSelect",
