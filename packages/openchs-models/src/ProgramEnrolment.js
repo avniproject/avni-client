@@ -154,6 +154,19 @@ class ProgramEnrolment extends BaseEntity {
             .maxBy((encounter) => encounter.encounterDateTime).value();
     }
 
+    getObservationsForConceptName(conceptName) {
+        return _.chain(this.getEncounters(true))
+            .map((encounter) => {
+                return {
+                    encounterDateTime: encounter.encounterDateTime,
+                    obs: encounter.findObservation(conceptName)
+                }
+            })
+            .filter((observation) => observation.obs)
+            .map((observation) => {return {encounterDateTime: observation.encounterDateTime, obs: observation.obs.getValue()}})
+            .value();
+    }
+
     get isActive() {
         return _.isNil(this.programExitDateTime);
     }
@@ -161,6 +174,10 @@ class ProgramEnrolment extends BaseEntity {
     addEncounter(programEncounter) {
         if (!_.some(this.encounters, (encounter) => encounter.uuid === programEncounter.uuid))
             this.encounters.push(programEncounter);
+    }
+
+    addEncounters(...programEncounters) {
+        _.each(programEncounters, (programEncounter) => this.addEncounter(programEncounter))
     }
 
     createChecklists(expectedChecklists, conceptFinder) {
