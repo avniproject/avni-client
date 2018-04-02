@@ -49,8 +49,7 @@ describe('Make Decision', function () {
 
     it('Do not give any medicine for chloroquin resistant malaria to women between 16-40', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Chloroquine Resistant Malaria"]).setGender("Female").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        assert.equal(decisions[0].value, "");
-        assert.isTrue(decisions[0].abnormal);
+        assert.isEmpty(decisions)
     });
 
     it('Do not provide day wise instructions when not specified for days separately', function () {
@@ -143,10 +142,16 @@ describe('Make Decision', function () {
         assert.equal((message.match(/३ दिवस/g) || []).length, 1, message);
     });
 
+    it("Shouldn't generate treatment advice if complain is other", () => {
+        var complaintConceptName = "Complaint";
+        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Other"]).setGender("Male").setAge(20).setObservation("Weight", 18)).encounterDecisions;
+        assert.isEmpty(decisions);
+    });
+
     var completeValue = function (decisions) {
         var message = "";
         for (var i = 0; i < decisions.length; i++)
-            message+= decisions[i].value;
+            message += decisions[i].value;
         return message;
     }
 });

@@ -3,6 +3,7 @@ import FormFilterHelper from "./rules/FormFilterHelper";
 import OPDFormHandler from "./outpatient/OPDFormHandler";
 import RuleCondition from "./rules/RuleCondition";
 import C from './common';
+
 const _ = require("lodash");
 
 const treatmentByComplaintAndCode = {
@@ -1501,6 +1502,8 @@ const hasMalaria = function (encounter) {
         .matches();
 };
 
+const notEmpty = (decision) => !_.isEmpty(decision) && !_.isEmpty(decision.value) && !_.isEmpty(decision.name);
+
 const getDecisions = function (encounter) {
     if (encounter.encounterType.name !== "Outpatient") return {};
 
@@ -1528,7 +1531,7 @@ const getDecisions = function (encounter) {
         var prescriptionSet;
         if (potentiallyPregnant && ["Cough", "Boils", "Wound"].indexOf(complaints[complaintIndex]) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
-        } else if (complaints.indexOf("Fever") === -1){
+        } else if (complaints.indexOf("Fever") === -1) {
             prescriptionSet = treatmentByComplaintAndCode[complaints[complaintIndex]];
         }
 
@@ -1586,16 +1589,16 @@ const getDecisions = function (encounter) {
             }
         }
 
-        decision.value = decision.value === ''? message: `${decision.value}\n${message}`;
+        decision.value = decision.value === '' ? message : `${decision.value}\n${message}`;
 
         if (complaints[complaintIndex] === "Fever") {
             decision.value = `${decision.value}\n${malariaPrescriptionMessage(encounter)}`;
         }
 
         if (weight >= 13 && complaints[complaintIndex] === "Fever") {
-            if (decision.value.indexOf("क्लोरोक्विन") !== -1 && decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
+            if (decision.value.indexOf("क्लोरोक्विन") !== -1 && decision.value.indexOf("पॅरासिटामॉल") !== -1) {
                 decision.value = `${decision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
-            } else if (decision.value.indexOf("पॅरासिटामॉल") !== -1 ) {
+            } else if (decision.value.indexOf("पॅरासिटामॉल") !== -1) {
                 decision.value = `${decision.value}\nपॅरासिटामॉल ही औषध जेवल्यावर खायला सांगावी`;
             }
         }
@@ -1613,9 +1616,10 @@ const getDecisions = function (encounter) {
 
     if (_.isNumber(height) && _.isNumber(weight))
         decisions.push({name: "BMI", value: C.calculateBMI(weight, height)});
-
+    decisions = decisions.filter(notEmpty);
     return {encounterDecisions: decisions};
 };
+
 
 function getParameters(encounter) {
     const params = {};
