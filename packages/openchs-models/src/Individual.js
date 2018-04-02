@@ -94,6 +94,14 @@ class Individual extends BaseEntity {
         return individual;
     }
 
+    isMale() {
+        return this.gender.isMale();
+    }
+
+    isFemale() {
+        return this.gender.isFemale();
+    }
+
     static merge = (childEntityClass) =>
         BaseEntity.mergeOn(new Map([[ProgramEnrolment, 'enrolments'], [Encounter, "encounters"]]).get(childEntityClass));
 

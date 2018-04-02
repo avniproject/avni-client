@@ -11,6 +11,14 @@ class Gender extends ReferenceEntity {
         }
     };
 
+    isMale() {
+        return this.name === "Male";
+    }
+
+    isFemale() {
+        return this.name === "Female";
+    }
+
     static create(name) {
         let gender = new Gender();
         gender.uuid = General.randomUUID();
