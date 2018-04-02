@@ -34,8 +34,8 @@ class RuleEvaluationService extends BaseService {
         return this.entityRulesMap.get(entityName).getDecisions(entity, context);
     }
 
-    getSummary(entity, entityName, context) {
-        let summary = this.entityRulesMap.get(entityName).getSummary(entity, context);
+    getEnrolmentSummary(entity, entityName, context) {
+        let summary = this.entityRulesMap.get(entityName).getEnrolmentSummary(entity, context);
         const conceptService = this.getService(ConceptService);
         let summaryWithObservations = [];
         summary.forEach((summaryElement) => {

@@ -8,8 +8,8 @@ export function getDecisions (enrolment, usage) {
     return executeProgramEnrolmentFunc({parameter: [enrolment, usage], fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}})
 }
 
-export function getSummary (enrolment, context) {
-    return executeProgramEnrolmentFunc({parameter: [enrolment, context], fn: "getSummary", defaultValue: []});
+export function getEnrolmentSummary (enrolment, context) {
+    return executeProgramEnrolmentFunc({parameter: [enrolment, context], fn: "getEnrolmentSummary", defaultValue: []});
 }
 
 export function getNextScheduledVisits(enrolment) {

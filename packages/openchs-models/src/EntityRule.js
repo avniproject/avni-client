@@ -10,7 +10,7 @@ class EntityRule {
     setFunctions(exports) {
         if (!_.isNil(exports)) {
             this.decisionFn = exports.getDecisions;
-            this.summaryFn = exports.getSummary;
+            this.enrolmentSummaryFn = exports.getEnrolmentSummary;
             this.validationFn = exports.validate;
             this.getNextScheduledVisitsFn = exports.getNextScheduledVisits;
             this.getChecklistFn = exports.getChecklists;
@@ -26,12 +26,12 @@ class EntityRule {
         return decisions;
     }
 
-    getSummary(entity, context) {
+    getEnrolmentSummary(entity, context) {
         const defaultValue = [];
-        const summary = this._safeInvokeRule(this.summaryFn, 'Summary', defaultValue, entity, context);
+        const enrolmentSummary = this._safeInvokeRule(this.enrolmentSummaryFn, 'Summary', defaultValue, entity, context);
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('EntityRule', `Summary made: ${JSON.stringify(decisions)}`);
-        return summary;
+        return enrolmentSummary;
     }
 
     _safeInvokeRule(func, ruleNameForLogging, defaultValue, ...params) {

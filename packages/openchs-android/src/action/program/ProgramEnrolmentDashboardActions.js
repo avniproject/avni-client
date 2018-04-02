@@ -56,12 +56,11 @@ class ProgramEnrolmentDashboardActions {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
             newState.enrolment = individual.enrolments.length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
-            newState.enrolmentSummary = {};
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         }
-        newState.enrolmentSummary = ruleService.getSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
+        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
 
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
@@ -147,7 +146,7 @@ class ProgramEnrolmentDashboardActions {
         const ruleService = context.get(RuleEvaluationService);
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.enrolment = state.enrolment.individual.findEnrolmentForProgram(action.program);
-        newState.enrolmentSummary = ruleService.getSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
+        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(action.program, context);
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);

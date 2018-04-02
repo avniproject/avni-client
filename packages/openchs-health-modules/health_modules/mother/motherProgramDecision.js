@@ -77,7 +77,7 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
     }
 };
 
-const getSummary= function (programEnrolment, context, today) {
+const getEnrolmentSummary= function (programEnrolment, context, today) {
     let summary = [];
     const lmpDate = programEnrolment.getObservationValue('Last Menstrual Period');
     let daysFromLMP = C.getDays(lmpDate, today);
@@ -91,5 +91,5 @@ const getSummary= function (programEnrolment, context, today) {
 export {
     getDecisions,
     getNextScheduledVisits,
-    getSummary
+    getEnrolmentSummary
 }
