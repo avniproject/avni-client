@@ -46,7 +46,7 @@ class Observation {
             return i18n.t(_.toString(valueWrapper.getValue()));
         } else {
             const unit = _.defaultTo(observation.concept.unit, "");
-            return _.toString(`${valueWrapper.getValue()}${unit}`);
+            return _.toString(`${valueWrapper.getValue()} ${unit}`);
         }
     }
 

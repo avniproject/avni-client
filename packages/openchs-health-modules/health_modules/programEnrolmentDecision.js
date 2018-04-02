@@ -1,12 +1,15 @@
 import * as Mother from './mother/motherProgramEnrolmentDecision';
 import * as Child from './child/childProgramEnrolmentDecision';
 import * as Adolescent from './adolescent/adolescentProgramEnrolmentDecision';
-import _ from "lodash";
 import {FormElementStatus} from "openchs-models";
 const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
 
 export function getDecisions (enrolment, usage) {
     return executeProgramEnrolmentFunc({parameter: [enrolment, usage], fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}})
+}
+
+export function getSummary (enrolment, context) {
+    return executeProgramEnrolmentFunc({parameter: [enrolment, context], fn: "getSummary", defaultValue: []});
 }
 
 export function getNextScheduledVisits(enrolment) {

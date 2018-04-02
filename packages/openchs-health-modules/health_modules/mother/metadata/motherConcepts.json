@@ -1050,5 +1050,12 @@
     "name": "Pre Eclampsia/ Eclampsia",
     "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
     "dataType": "NA"
+  },
+  {
+    "name": "Gestational Age",
+    "uuid": "4b7fcf0b-3ecb-49fe-882d-959b58e7229d",
+    "dataType": "Numeric",
+    "unit": "week(s)"
   }
+
 ]

@@ -17,6 +17,10 @@ export function getDecisions (enrolment, context, today) {
     return {enrolmentDecisions: decisions, encounterDecisions: []};
 }
 
+export function getSummary (enrolment, context, today) {
+    return programDecision.getSummary(enrolment, context, today);
+}
+
 export function validate (programEnrolment) {
     const validationResults = [];
 

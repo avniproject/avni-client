@@ -7,6 +7,7 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import EntityTypeChoiceActionNames from "../common/EntityTypeChoiceActionNames";
 import General from "../../utility/General";
 import ProgramConfigService from "../../service/ProgramConfigService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -50,14 +51,18 @@ class ProgramEnrolmentDashboardActions {
     static onLoad(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.getInitialState();
         const entityService = context.get(EntityService);
+        const ruleService = context.get(RuleEvaluationService);
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
             newState.enrolment = individual.enrolments.length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
+            newState.enrolmentSummary = {};
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         }
+        newState.enrolmentSummary = ruleService.getSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
+
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
@@ -139,8 +144,10 @@ class ProgramEnrolmentDashboardActions {
     static onProgramChange(state, action, context) {
         if (action.program.uuid === state.enrolment.program.uuid) return state;
 
+        const ruleService = context.get(RuleEvaluationService);
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.enrolment = state.enrolment.individual.findEnrolmentForProgram(action.program);
+        newState.enrolmentSummary = ruleService.getSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(action.program, context);
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);

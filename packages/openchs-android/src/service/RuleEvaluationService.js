@@ -1,7 +1,7 @@
 import Service from "../framework/bean/Service";
 import _ from 'lodash';
 import BaseService from "./BaseService";
-import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule, FormElementStatus} from "openchs-models";
+import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule, FormElementStatus, Observation} from "openchs-models";
 import {
     encounterDecision,
     programEncounterDecision,
@@ -32,6 +32,17 @@ class RuleEvaluationService extends BaseService {
 
     getDecisions(entity, entityName, context) {
         return this.entityRulesMap.get(entityName).getDecisions(entity, context);
+    }
+
+    getSummary(entity, entityName, context) {
+        let summary = this.entityRulesMap.get(entityName).getSummary(entity, context);
+        const conceptService = this.getService(ConceptService);
+        let summaryWithObservations = [];
+        summary.forEach((summaryElement) => {
+           let concept = conceptService.conceptFor(summaryElement.name);
+           summaryWithObservations.push(Observation.create(concept, concept.getValueWrapperFor(summaryElement.value)));
+        });
+        return summaryWithObservations;
     }
 
     validateAgainstRule(entity, form, entityName) {

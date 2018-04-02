@@ -164,5 +164,6 @@
   "menu": "Menu",
   "overdue": "Overdue",
   "highRisk": "At Risk",
-  "patientCountForVisitType": "Patients with {{visitType}} Visits: {{count}}"
+  "patientCountForVisitType": "Patients with {{visitType}} Visits: {{count}}",
+  "summary": "Summary"
 }

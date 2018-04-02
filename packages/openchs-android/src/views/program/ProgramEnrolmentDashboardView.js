@@ -137,9 +137,20 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             </View>);
     }
 
+    renderSummary() {
+        return _.isEmpty(this.state.enrolmentSummary) ? (<View/>):
+            (<View>
+                <ObservationsSectionTitle
+                    contextActions={[]}
+                    title={this.I18n.t('summary')}/>
+                <Observations observations={_.defaultTo(this.state.enrolmentSummary, [])}
+                              style={{marginVertical: DGS.resizeHeight(8)}}/>
+            </View>);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
-        var enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
+        let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
@@ -196,6 +207,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             </View>
                             {enrolments.length === 0 ? <View/> :
                                 <View style={{marginHorizontal: 8}}>
+                                    {this.renderSummary()}
                                     {this.renderExitObservations()}
                                     <View>
                                         <ObservationsSectionTitle contextActions={this.getEnrolmentContextActions()}

@@ -77,7 +77,19 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
     }
 };
 
+const getSummary= function (programEnrolment, context, today) {
+    let summary = [];
+    const lmpDate = programEnrolment.getObservationValue('Last Menstrual Period');
+    let daysFromLMP = C.getDays(lmpDate, today);
+    let gestationalAge = _.round(daysFromLMP / 7, 1);
+    summary.push({name: 'Gestational Age', value: gestationalAge});
+    summary.push({name: 'Estimated Date of Delivery', value: programEnrolment.getObservationValue('Estimated Date of Delivery')});
+    summary.push({name: 'High Risk Conditions', value: programEnrolment.getObservationValue('High Risk Conditions')});
+    return summary;
+};
+
 export {
     getDecisions,
-    getNextScheduledVisits
+    getNextScheduledVisits,
+    getSummary
 }
