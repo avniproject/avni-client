@@ -22,6 +22,7 @@ class GrowthChartView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        console.log(JSON.stringify(props.params.data.weightForAge));
     }
 
     componentWillMount() {
@@ -130,7 +131,6 @@ class GrowthChartView extends AbstractComponent {
             this.setState({...this.state, selectedEntry: JSON.stringify(entry)})
         }
 
-        console.log(event.nativeEvent)
     }
 
 
@@ -145,7 +145,6 @@ class GrowthChartView extends AbstractComponent {
             }
         });
         let borderColor = processColor("red");
-        console.log(_.keys(this.state));
 
         return (
             <View style={{flex: 1}}>
