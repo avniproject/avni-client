@@ -24,7 +24,15 @@ class GrowthChartView extends AbstractComponent {
         super(props, context);
     }
 
-    componentWillMount() {
+    mapToXY(array, yName) {
+        console.log(array);
+        return _.map(array, (item) => {
+            return {x: item.Month, y: item[yName]}
+        });
+    }
+
+
+    render() {
         const legend = {
             enabled: true,
             textColor: processColor('red'),
@@ -49,53 +57,29 @@ class GrowthChartView extends AbstractComponent {
             textColor: processColor('white'),
             markerFontSize: 14,
         };
-
-        this.setState(() => {
-            return {data: {}, legend: legend, marker: marker}
-        });
-    }
-
-    componentDidMount() {
-        const data = this.mapToXY(this.props.params.data.weightForAge, 'SD0');
-        this.setState(() => {
-            return {
-                data: {
-                    dataSets: [
-                        {
-                            values: data,
-                            label: 'Hello',
-                            config: {
-                                lineWidth: 1,
-                                drawValues: true,
-                                circleRadius: 5,
-                                highlightEnabled: true,
-                                drawHighlightIndicators: true,
-                                color: processColor('red'),
-                                drawFilled: true,
-                                valueTextSize: 10,
-                                fillColor: processColor('red'),
-                                fillAlpha: 45,
-                                valueFormatter: "$###.0",
-                                circleColor: processColor('red')
-                            }
-                        }
-                    ]
-                },
-            }
-        })
-    }
-
-
-    mapToXY(array, yName) {
-        console.log(array)
-        return _.map(array, (item) => {
-            return {x: item.Month, y: item[yName]}
-        });
-    }
-
-
-    render() {
         const selectedEntry = "";
+        const data = {
+            dataSets: [
+                {
+                    values: this.mapToXY(this.props.params.data.weightForAge, 'SD0'),
+                    label: 'Hello',
+                    config: {
+                        lineWidth: 1,
+                        drawValues: true,
+                        circleRadius: 5,
+                        highlightEnabled: true,
+                        drawHighlightIndicators: true,
+                        color: processColor('red'),
+                        drawFilled: true,
+                        valueTextSize: 10,
+                        fillColor: processColor('red'),
+                        fillAlpha: 45,
+                        valueFormatter: "$###.0",
+                        circleColor: processColor('red')
+                    }
+                }
+            ]
+        };
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
@@ -118,10 +102,10 @@ class GrowthChartView extends AbstractComponent {
                 <View style={styles.container}>
                     <LineChart
                         style={styles.chart}
-                        data={this.state.data}
+                        data={data}
                         chartDescription={{text: ''}}
-                        legend={this.state.legend}
-                        marker={this.state.marker}
+                        legend={legend}
+                        marker={marker}
 
                         drawGridBackground={true}
 
