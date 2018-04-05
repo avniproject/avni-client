@@ -16,6 +16,34 @@ class GrowthChartView extends AbstractComponent {
         params: React.PropTypes.object.isRequired
     };
 
+    settings = {
+        SD3neg: {
+            color: "red",
+            label: "Grade 3",
+            alpha: 150
+        },
+        SD2neg: {
+            color: "orange",
+            label: "Grade 2",
+            alpha: 150
+        },
+        SD0: {
+            color: "green",
+            label: "Grade 1",
+            alpha: 30
+        },
+        SD2: {
+            color: "green",
+            label: "Grade 1",
+            alpha: 30
+        },
+        SD3: {
+            color: "green",
+            label: "Grade 1",
+            alpha: 30
+        }
+    };
+
     viewName() {
         return 'GrowthChartView';
     }
@@ -24,11 +52,53 @@ class GrowthChartView extends AbstractComponent {
         super(props, context);
     }
 
-    mapToXY(array, yName) {
-        console.log(array);
-        return _.map(array, (item) => {
-            return {x: item.Month, y: item[yName]}
-        });
+    datasetLabel(labelKey) {
+        return {
+            "SD3neg": "Grade 3",
+            "SD2neg": "Grade 2",
+            "SD0": "Grade 1"
+
+        }[labelKey] || "";
+    }
+
+    datasetColor(labelKey) {
+        return {
+            "SD3neg": "blue",
+            "SD2neg": "red",
+            "SD0": "green",
+            "SD2": "red",
+            "SD3": "blue"
+        }[labelKey] || "black";
+    }
+
+    getDataSet(array, line) {
+        const settings = this.settings[line];
+        return {
+            values: _.map(array, (item) => {
+                return {x: item.Month, y: item[line]}
+            }),
+            label: settings.label,
+            config: {
+                lineWidth: 1,
+                drawValues: false,
+                circleRadius: 0,
+                highlightEnabled: true,
+                drawHighlightIndicators: true,
+                color: processColor(settings.color),
+                drawFilled: true,
+                valueTextSize: 10,
+                drawCircleHole: false,
+                drawCircles: false,
+                dashedLineEnabled: true,
+                fillColor: processColor(settings.color),
+                fillAlpha: settings.alpha,
+                // circleColor: processColor('red')
+            }
+        }
+    }
+
+    getDataSets(array) {
+        return _.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getDataSet(array, line));
     }
 
 
@@ -46,10 +116,10 @@ class GrowthChartView extends AbstractComponent {
             wordWrapEnabled: true,
             maxSizePercent: 0.5,
             labelCount: 5,
-            custom: {
-                colors: [processColor('red'), processColor('red')],
-                labels: ['REFER', 'USER',]
-            }
+            // custom: {
+            //     colors: [processColor('red'), processColor('red')],
+            //     labels: ['REFER', 'USER',]
+            // }
         };
         const marker = {
             enabled: true,
@@ -59,26 +129,7 @@ class GrowthChartView extends AbstractComponent {
         };
         const selectedEntry = "";
         const data = {
-            dataSets: [
-                {
-                    values: this.mapToXY(this.props.params.data.weightForAge, 'SD0'),
-                    label: 'Hello',
-                    config: {
-                        lineWidth: 1,
-                        drawValues: true,
-                        circleRadius: 5,
-                        highlightEnabled: true,
-                        drawHighlightIndicators: true,
-                        color: processColor('red'),
-                        drawFilled: true,
-                        valueTextSize: 10,
-                        fillColor: processColor('red'),
-                        fillAlpha: 45,
-                        valueFormatter: "$###.0",
-                        circleColor: processColor('red')
-                    }
-                }
-            ]
+            dataSets: this.getDataSets(this.props.params.data.weightForAge)
         };
         const styles = StyleSheet.create({
             container: {
@@ -104,7 +155,7 @@ class GrowthChartView extends AbstractComponent {
                         style={styles.chart}
                         data={data}
                         chartDescription={{text: ''}}
-                        legend={legend}
+                        // legend={legend}
                         marker={marker}
 
                         drawGridBackground={true}
