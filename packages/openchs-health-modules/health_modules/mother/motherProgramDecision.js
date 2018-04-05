@@ -84,7 +84,11 @@ const getEnrolmentSummary= function (programEnrolment, context, today) {
     let gestationalAge = _.round(daysFromLMP / 7, 1);
     summary.push({name: 'Gestational Age', value: gestationalAge});
     summary.push({name: 'Estimated Date of Delivery', value: programEnrolment.getObservationValue('Estimated Date of Delivery')});
-    summary.push({name: 'High Risk Conditions', value: programEnrolment.getObservationValue('High Risk Conditions')});
+    let highRiskConditions = programEnrolment.getObservationValue('High Risk Conditions');
+    if(!_.isNil(highRiskConditions))
+    {
+        summary.push({name: 'High Risk Conditions', value: highRiskConditions});
+    }
     return summary;
 };
 
