@@ -22,80 +22,48 @@ class GrowthChartView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        console.log(JSON.stringify(props.params.data.weightForAge));
     }
 
     componentWillMount() {
-        this.setState(() => {
-            return {
-                data: {},
-                legend: {
-                    enabled: true,
-                    textColor: processColor('red'),
-                    textSize: 12,
-                    position: 'BELOW_CHART_RIGHT',
-                    form: 'SQUARE',
-                    formSize: 14,
-                    xEntrySpace: 10,
-                    yEntrySpace: 5,
-                    formToTextSpace: 5,
-                    wordWrapEnabled: true,
-                    maxSizePercent: 0.5,
-                    custom: {
-                        colors: [processColor('red'), processColor('red')],
-                        labels: ['REFER', 'USER',]
-                    }
-                },
-                marker: {
-                    enabled: true,
-                    markerColor: processColor('#F0C0FF8C'),
-                    textColor: processColor('white'),
-                    markerFontSize: 14,
-                },
-                selectedEntry: ""
+        const legend = {
+            enabled: true,
+            textColor: processColor('red'),
+            textSize: 12,
+            position: 'BELOW_CHART_RIGHT',
+            form: 'SQUARE',
+            formSize: 14,
+            xEntrySpace: 10,
+            yEntrySpace: 5,
+            formToTextSpace: 5,
+            wordWrapEnabled: true,
+            maxSizePercent: 0.5,
+            labelCount: 5,
+            custom: {
+                colors: [processColor('red'), processColor('red')],
+                labels: ['REFER', 'USER',]
             }
+        };
+        const marker = {
+            enabled: true,
+            markerColor: processColor('#F0C0FF8C'),
+            textColor: processColor('white'),
+            markerFontSize: 14,
+        };
+
+        this.setState(() => {
+            return {data: {}, legend: legend, marker: marker}
         });
     }
 
     componentDidMount() {
-        const size = 80;
-
+        const data = this.mapToXY(this.props.params.data.weightForAge, 'SD0');
         this.setState(() => {
-                return {
-                    data: {
-                        dataSets: [{
-                            values: this._randomParabolaValues(size),
-                            label: 'refer',
-                            config: {
-                                lineWidth: 2,
-                                drawValues: false,
-                                drawCircles: false,
-                                highlightColor: processColor('red'),
-                                color: processColor('red'),
-                                drawFilled: true,
-                                fillColor: processColor('blue'),
-                                fillAlpha: 60,
-                                highlightEnabled: false,
-                                dashedLine: {
-                                    lineLength: 20,
-                                    spaceLength: 20
-                                }
-                            }
-                        }, {
-                            values: [
-                                {
-                                    x: 1,
-                                    y: 11000,
-                                    marker: "a very long long long long long long long long \nmarker at top left"
-                                },
-                                {x: 20, y: 90, marker: "eat eat eat, never\n stop eat"},
-                                {x: 40, y: -130, marker: ""},
-                                {x: 65, y: 11000, marker: "test top center marker"},
-                                {x: 70, y: -2000, marker: "eat more"},
-                                {x: 90, y: 9000, marker: "your are overweight, eat less"},
-                                {x: 100, y: 11000, marker: "test top right marker"}],
-
-                            label: 'user',
+            return {
+                data: {
+                    dataSets: [
+                        {
+                            values: data,
+                            label: 'Hello',
                             config: {
                                 lineWidth: 1,
                                 drawValues: true,
@@ -110,31 +78,24 @@ class GrowthChartView extends AbstractComponent {
                                 valueFormatter: "$###.0",
                                 circleColor: processColor('red')
                             }
-                        }],
-                    }
-                }
+                        }
+                    ]
+                },
             }
-        )
+        })
     }
 
-    _randomParabolaValues(size) {
-        return _.times(size, (index) => {
-            return {x: index, y: index * index}
+
+    mapToXY(array, yName) {
+        console.log(array)
+        return _.map(array, (item) => {
+            return {x: item.Month, y: item[yName]}
         });
-    }
-
-    handleSelect(event) {
-        let entry = event.nativeEvent
-        if (entry == null) {
-            this.setState({...this.state, selectedEntry: null})
-        } else {
-            this.setState({...this.state, selectedEntry: JSON.stringify(entry)})
-        }
-
     }
 
 
     render() {
+        const selectedEntry = "";
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
@@ -151,7 +112,7 @@ class GrowthChartView extends AbstractComponent {
 
                 <View style={{height: 80}}>
                     <Text> selected entry</Text>
-                    <Text> {this.state.selectedEntry}</Text>
+                    <Text> {selectedEntry}</Text>
                 </View>
 
                 <View style={styles.container}>
@@ -178,11 +139,11 @@ class GrowthChartView extends AbstractComponent {
 
                         dragDecelerationEnabled={true}
                         dragDecelerationFrictionCoef={0.99}
-                        yAxis={{left: {axisMaximum: 12000}}}
+                        // yAxis={{left: {axisMaximum: 12000}}}
 
                         keepPositionOnRotation={false}
 
-                        xAxis={{valueFormatter: 'percent', position: 'BOTTOM'}}
+                        xAxis={{position: 'BOTTOM', labelCount: 5}}
 
                         // onSelect={this.handleSelect.bind(this)}
                         // onChange={(event) => console.log(event.nativeEvent)}
