@@ -30,7 +30,7 @@ class EntityRule {
         const defaultValue = [];
         const enrolmentSummary = this._safeInvokeRule(this.enrolmentSummaryFn, 'Summary', defaultValue, entity, context);
         if (General.canLog(General.LogLevel.Debug))
-            General.logDebug('EntityRule', `Summary made: ${JSON.stringify(decisions)}`);
+            General.logDebug('EntityRule', `Summary made: ${JSON.stringify(enrolmentSummary)}`);
         return enrolmentSummary;
     }
 
