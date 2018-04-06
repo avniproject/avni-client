@@ -8,7 +8,7 @@ programEnrolmentExports.Child = require('./child/childProgramEnrolmentDecision')
 programEnrolmentExports.Adolescent = require('./adolescent/adolescentProgramEnrolmentDecision');
 
 const programConfigExports = {};
-programConfigExports.Child = require('./child/newChildProgramConfig');
+programConfigExports.Child = require('./child/childProgramConfig');
 
 module.exports = {};
 

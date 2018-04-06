@@ -1,4 +1,4 @@
-import childProgramConfig from "./child/newChildProgramConfig";
+import childProgramConfig from "./child/childProgramConfig";
 
 const programConfigExports = {};
 programConfigExports.Child = childProgramConfig;
