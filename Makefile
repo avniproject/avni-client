@@ -1,11 +1,30 @@
 # Objects: env, apk, packager, app
+# <makefile>
+help:
+	@IFS=$$'\n' ; \
+	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//'`); \
+	for help_line in $${help_lines[@]}; do \
+	    IFS=$$'#' ; \
+	    help_split=($$help_line) ; \
+	    help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
+	    help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
+	    printf "%-30s %s\n" $$help_command $$help_info ; \
+	done
+# </makefile>
+
 define test
 	cd packages/openchs-$1; npm test
 endef
 
-clean: clean_env
+# <clean>
+clean: clean_env ## 
+# </clean>
 
-deps: build_env
+# <deps>
+deps: build_env ## 
+# </deps>
+
+
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | tail -1 | cut -d ' ' -f 2 | cut -d ' ' -f 1)
 setup_hosts:
 	cd packages/openchs-android; adb root
@@ -14,114 +33,122 @@ setup_hosts:
 	echo '$(ip)	dev.openchs.org' >> /tmp/hosts-adb
 	cd packages/openchs-android; adb push /tmp/hosts-adb /system/etc/hosts
 
-test-health-modules:
+# <test>
+test-health-modules: ## 
 	$(call test,health-modules)
 
-test-android:
+test-android: ## 
 	$(call test,android)
 
-test-models:
+test-models: ## 
 	$(call test,models)
 
-test: test-models test-health-modules test-android
+test: test-models test-health-modules test-android  ## 
+# </test>
 
 
-release:
+# <release>
+release: ## 
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
 
-release-demo:
+release-demo: ## 
 	ENVFILE=.env.demo make release
 
-release-live:
+release-live: ## 
 	ENVFILE=.env.live make release
 
-release-staging:
+release-staging: ## 
 	ENVFILE=.env.staging make release
 
-release-offline:
+release-offline: ## 
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
+# </release>
 
-log:
+# <log>
+log:  ## 
 	adb logcat *:S ReactNative:V ReactNativeJS:V
+# </log>
 
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 
-deploy:
+# <deploy>
+deploy: ## Deploy apk to bintray
 	make deps
 	make release
 	@curl -T packages/openchs-android/android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/dev/openchs-client-$(ts).apk?publish=1
+# <deploy>
 
 # <db>
-get_db:
+get_db: ## Get realmdb and copy to ../
 	mkdir -p ../db; adb pull /data/data/com.openchsclient/files/default.realm ../db
 
-open_db: get_db
+open_db: get_db ## Open realmdb in Realm Browser
 	open ../db/default.realm
 # </db>
 
 
 # <apk>
-uninstall_apk:
+uninstall_apk: ## 
 	adb uninstall com.openchsclient
 
-install_apk:
+install_apk: ## 
 	adb install packages/openchs-android/android/app/build/outputs/apk/app-release.apk
 
-reinstall_apk: uninstall_apk install_apk
+reinstall_apk: uninstall_apk install_apk ## 
 
-reinstall: uninstall_apk run_app
+reinstall: uninstall_apk run_app ## 
 
-local_deploy_apk:
+local_deploy_apk: ## 
 	cp packages/openchs-android/android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
 
-openlocation_apk:
+openlocation_apk: ## 
 	open packages/openchs-android/android/app/build/outputs/apk
 # </apk>
 
 
 # <env>
-clean_env:
+clean_env:  ## 
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-models/node_modules
 
-setup_env:
+setup_env: ## 
 	npm install -g jest@20.0.1
 	npm install -g jest-cli@20.0.1
 
-build_env:
+build_env: ## 
 	npm install
 	npm run bootstrap
 # </env>
 
 
 # <packager>
-run_packager:
+run_packager: ## 
 	cd packages/openchs-android && REACT_EDITOR=subl npm start
 # </packager>
 
 
 # <app>
-run_app: setup_hosts
+run_app: setup_hosts ## 
 	cd packages/openchs-android && react-native run-android
 
 # sometimes there are errors for which we need to run the following to get the exact problem
-run_app_debug: setup_hosts
+run_app_debug: setup_hosts  ## 
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
 # </app>
 
 
 
 # <crash>
-analyse_crash:
+analyse_crash: ## 
 	cd packages/unminifiy && npm start ../openchs-android/android/app/build/generated/sourcemap.js $(line) $(column)
 # </crash>
 
 
 # <metadata>
-deploy_metadata:
+deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 
-deploy_metadata_and_demo: deploy_metadata
+deploy_metadata_and_demo: deploy_metadata ## Deploy demo refdata
 	cd packages/demo-organisation && make deploy_refdata
 # </metadata>
