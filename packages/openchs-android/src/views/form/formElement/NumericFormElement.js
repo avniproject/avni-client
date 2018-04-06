@@ -54,11 +54,17 @@ class NumericFormElement extends AbstractFormElement {
                     <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
                 </View>
                 <View>
-                    <TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText]}
-                               underlineColorAndroid={this.borderColor} keyboardType='numeric'
-                               value={_.toString(this.props.value.getValue())}
-                               onChangeText={(text) => this.onInputChange(text)}
-                               onEndEditing={(text) => this.onInputChange(text)}/>
+                    {this.props.element.editable === false ?
+                        <Text style={[{
+                            flex: 1,
+                            marginVertical: 0,
+                            paddingVertical: 5
+                        }, Styles.formBodyText]}>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') :_.toString(this.props.value.getValue())}</Text> :
+                        <TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText]}
+                                   underlineColorAndroid={this.borderColor} keyboardType='numeric'
+                                   value={_.toString(this.props.value.getValue())}
+                                   onChangeText={(text) => this.onInputChange(text)}
+                                   onEndEditing={(text) => this.onInputChange(text)}/>}
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>

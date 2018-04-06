@@ -143,6 +143,11 @@ class FormElement {
         return _.isNil(durationOptions) ? null : durationOptions.getValue();
     }
 
+    get editable() {
+        const editable = this.recordByKey('editable');
+        return _.isNil(editable) ? true : editable.getValue() === 'true';
+    }
+
     matches(elementNameOrUUID) {
         return this.name === elementNameOrUUID || this.uuid === elementNameOrUUID;
     }

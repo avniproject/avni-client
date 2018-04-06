@@ -165,5 +165,6 @@
   "overdue": "Overdue",
   "highRisk": "At Risk",
   "patientCountForVisitType": "Patients with {{visitType}} Visits: {{count}}",
-  "summary": "Summary"
+  "summary": "Summary",
+  "Not Known Yet": "Not Known Yet"
 }
