@@ -40,9 +40,9 @@ export function executeProgramEnrolmentFunc (config, today = new Date()) {
     return fn(...config.parameter, today);
 }
 
-export function filterFormElements(programEnrolment, formElementGroup) {
+export function getFormElementsStatuses(programEnrolment, formElementGroup) {
     return executeProgramEnrolmentFunc({
         parameter: [programEnrolment, formElementGroup],
-        fn: "filterFormElements",
+        fn: "getFormElementsStatuses",
         defaultValue: formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined))});
 }

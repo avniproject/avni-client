@@ -2,7 +2,7 @@ import {getNextScheduledVisits as nextScheduledVisits} from './motherVisitSchedu
 import * as programDecision from './motherProgramDecision';
 import c from '../common';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
-import FormFilterHelper from "../rules/FormFilterHelper";
+import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 
 
 export function getNextScheduledVisits (enrolment, today) {
@@ -17,9 +17,9 @@ export function getDecisions (enrolment, context, today) {
     return {enrolmentDecisions: decisions, encounterDecisions: []};
 }
 
-export function filterFormElements (programEnrolment, formElementGroup) {
+export function getFormElementsStatuses (programEnrolment, formElementGroup) {
     let handler = new EnrolmentFormHandler();
-    return FormFilterHelper.filterFormElements(handler, programEnrolment, formElementGroup);
+    return FormElementsStatusHelper.getFormElementsStatuses(handler, programEnrolment, formElementGroup);
 }
 
 

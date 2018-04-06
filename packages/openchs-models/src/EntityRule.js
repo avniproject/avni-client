@@ -14,7 +14,7 @@ class EntityRule {
             this.validationFn = exports.validate;
             this.getNextScheduledVisitsFn = exports.getNextScheduledVisits;
             this.getChecklistFn = exports.getChecklists;
-            this.filterFormElements = exports.filterFormElements;
+            this.getFormElementsStatuses = exports.getFormElementsStatuses;
         }
     }
 

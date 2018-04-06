@@ -29,8 +29,8 @@ export function getNextScheduledVisits (programEncounter) {
     return executeProgramEncounterFunc({parameter: [programEncounter], fn: "getNextScheduledVisits", defaultValue: []});
 }
 
-export function filterFormElements(programEncounter, formElementGroup) {
-    return executeProgramEncounterFunc({parameter: [programEncounter, formElementGroup], fn: "filterFormElements", defaultValue: formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined))});
+export function getFormElementsStatuses(programEncounter, formElementGroup) {
+    return executeProgramEncounterFunc({parameter: [programEncounter, formElementGroup], fn: "getFormElementsStatuses", defaultValue: formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined))});
 }
 
 module.exports.executeProgramEncounterFunc = executeProgramEncounterFunc;

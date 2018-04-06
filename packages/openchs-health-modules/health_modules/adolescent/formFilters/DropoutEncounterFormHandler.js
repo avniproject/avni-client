@@ -1,4 +1,4 @@
-import FormFilterHelper from "../../rules/FormFilterHelper";
+import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
 
 export default class {

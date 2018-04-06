@@ -1,4 +1,4 @@
-import FormFilterHelper from "../rules/FormFilterHelper";
+import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandler";
 import {encounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';
@@ -20,9 +20,9 @@ const getDecisions = (programEncounter) => {
     return referralDecisions(counsellingDecisions, programEncounter);
 };
 
-const filterFormElements = (programEncounter, formElementGroup) => {
+const getFormElementsStatuses = (programEncounter, formElementGroup) => {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
-    return FormFilterHelper.filterFormElements(handler, programEncounter, formElementGroup);
+    return FormElementsStatusHelper.getFormElementsStatuses(handler, programEncounter, formElementGroup);
 };
 
-export {getDecisions, filterFormElements, getNextScheduledVisits};
+export {getDecisions, getFormElementsStatuses, getNextScheduledVisits};

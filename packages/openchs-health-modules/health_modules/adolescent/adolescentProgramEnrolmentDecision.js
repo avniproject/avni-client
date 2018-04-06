@@ -1,5 +1,5 @@
 import EnrolmentFormHandler from "./formFilters/ExitFormHandler";
-import FormFilterHelper from "../rules/FormFilterHelper";
+import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import C from "../common";
 import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 
@@ -8,9 +8,9 @@ const getDecisions = (programEnrolment, context, today) => {
     return {enrolmentDecisions: [], encounterDecisions: []};
 };
 
-const filterFormElements = (programEnrolment, formElementGroup) => {
+const getFormElementsStatuses = (programEnrolment, formElementGroup) => {
     let handler = new EnrolmentFormHandler();
-    return FormFilterHelper.filterFormElements(handler, programEnrolment, formElementGroup);
+    return FormElementsStatusHelper.getFormElementsStatuses(handler, programEnrolment, formElementGroup);
 };
 
 const newScheduledEncounter = (enrolment) => {
@@ -47,4 +47,4 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
     return scheduleBuilder.getAll();
 };
 
-export {getDecisions, getNextScheduledVisits, filterFormElements};
+export {getDecisions, getNextScheduledVisits, getFormElementsStatuses};

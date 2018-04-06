@@ -14,9 +14,8 @@ class ProgramEncounterActions {
     }
 
     static filterFormElements(formElementGroup, context, programEncounter) {
-        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(programEncounter, ProgramEncounter.schema.name, formElementGroup);
-        let filteredElements = formElementGroup.filterElements(formElementStatuses);
-        return filteredElements;
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(programEncounter, ProgramEncounter.schema.name, formElementGroup);
+        return formElementGroup.filterElements(formElementStatuses);
     };
 
     static onLoad(state, action, context) {

@@ -1,5 +1,5 @@
 import {malariaPrescriptionMessage} from "./outpatient/malariaMedication";
-import FormFilterHelper from "./rules/FormFilterHelper";
+import FormElementsStatusHelper from "./rules/FormElementsStatusHelper";
 import OPDFormHandler from "./outpatient/OPDFormHandler";
 import RuleCondition from "./rules/RuleCondition";
 import C from './common';
@@ -1659,15 +1659,15 @@ const validate = function (encounter, form) {
     return validationResults;
 };
 
-const filterFormElements = (encounter, formElementGroup) => {
+const getFormElementsStatuses = (encounter, formElementGroup) => {
     let handler = new OPDFormHandler();
-    return FormFilterHelper.filterFormElements(handler, encounter, formElementGroup);
+    return FormElementsStatusHelper.getFormElementsStatuses(handler, encounter, formElementGroup);
 };
 
 export {
     getDecisions,
     treatmentByComplaintAndCode,
     weightRangesToCode,
-    filterFormElements,
+    getFormElementsStatuses,
     validate
 };

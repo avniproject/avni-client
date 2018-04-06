@@ -1,11 +1,11 @@
 import _ from "lodash";
-import FormFilterHelper from "../../rules/FormFilterHelper";
+import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
 import {FormElementStatus} from "openchs-models";
 
 class ANC {
     preFilter(programEncounter, formElement, today) {
         let lmp = programEncounter.programEnrolment.getObservationValue('Last Menstrual Period');
-        this.weeksSinceLMP = FormFilterHelper.weeksBetween(today, lmp);
+        this.weeksSinceLMP = FormElementsStatusHelper.weeksBetween(today, lmp);
     }
 
     breastExaminationNipple(programEncounter, formElement) {

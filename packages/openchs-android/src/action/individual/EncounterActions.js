@@ -25,7 +25,7 @@ export class EncounterActions {
 
         const form = context.get(FormMappingService)
                             .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
-        let formElementStatuses = context.get(RuleEvaluationService).filterFormElements(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
     }

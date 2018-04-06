@@ -2,15 +2,15 @@ import _ from "lodash";
 import {FormElementStatus} from "openchs-models";
 import moment from "moment";
 
-class FormFilterHelper {
+class FormElementsStatusesHelper {
     static removeSpecialCharsRegex = new RegExp(/[-[\]{}()*+?.,\\^$|#]/g);
 
-    static filterFormElements(handler = {}, entity, formElementGroup, today) {
+    static getFormElementsStatuses(handler = {}, entity, formElementGroup, today) {
         if (handler['preFilter'])
             handler['preFilter'](entity, formElementGroup, today);
 
         return formElementGroup.getFormElements().map((formElement) => {
-            let nameWOSpecialChars = formElement.name.replace(FormFilterHelper.removeSpecialCharsRegex, '');
+            let nameWOSpecialChars = formElement.name.replace(FormElementsStatusesHelper.removeSpecialCharsRegex, '');
             let fnName = _.camelCase(nameWOSpecialChars);
             let fn = handler[fnName];
             if (_.isNil(fn)) return new FormElementStatus(formElement.uuid, true);
@@ -32,4 +32,4 @@ class FormFilterHelper {
     }
 }
 
-export default FormFilterHelper;
+export default FormElementsStatusesHelper;
