@@ -14,9 +14,10 @@ help:
 # </makefile>
 
 
-port=8021
-server=http://localhost
-
+#port=443
+#server=https://staging.openchs.org
+port:= $(if $(port),$(port),8021)
+server:= $(if $(server),$(server),http://localhost)
 
 # <env> (Code Environment)
 test_env: ## Run unit tests
@@ -24,10 +25,10 @@ test_env: ## Run unit tests
 # </env>
 
 token:=''
-poolId:=''
-clientId:=''
-username:=''
-password:=''
+poolId:='ap-south-1_xyqqAVWOS'
+clientId:='1krsb4rucg4t6j4b7ighltfj62'
+username:='admin'
+password:='!tsMyNewp@ssw0rd4StagingThingsByTheAdMinisterFowler'
 
 auth:
 	$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password)))
@@ -47,6 +48,9 @@ build_rules: ## Create webpack files for all the rules
 deploy_metadata: auth dev_deploy_metadata## Upload metadata to server
 
 dev_deploy_metadata: ## Upload metadata to server
+	@echo "-----------------"
+	@echo " Common metadata"
+	@echo "-----------------"
 	curl -X POST $(server):$(port)/concepts -d @health_modules/commonConcepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
 
 	curl -X POST $(server):$(port)/concepts -d @health_modules/outpatient/metadata/concepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
@@ -82,3 +86,17 @@ dev_deploy_metadata: ## Upload metadata to server
 deploy: deploy_metadata
 test: test_env
 # </Workflows related, Composite, Convenience and Conventional Actions>
+
+deploy_demo_refdata:
+	@echo "----------"
+	@echo "demo"
+	@echo "----------"
+	cd ../demo-organisation && make deploy_refdata server=$(server) port=$(port) token=$(token)
+
+implementations := sewa-rural lbp-arogyadoot
+
+# <deploy-all>
+deploy_all_impls: auth deploy deploy_demo_refdata ## Deploy all implementations/ create_org separately before/ optional arguments: server=https://staging.openchs.org port=443
+	$(foreach impl,$(implementations),./deploy_implementation.sh $(impl) $(server) $(port) $(token);)
+
+# </deploy-all>
