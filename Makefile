@@ -129,11 +129,7 @@ run_packager: ##
 
 
 # <app>
-<<<<<<< HEAD
 run_app: setup_hosts ## 
-=======
-run_app: 
->>>>>>> temp
 	cd packages/openchs-android && react-native run-android
 
 # sometimes there are errors for which we need to run the following to get the exact problem
