@@ -25,10 +25,10 @@ test_env: ## Run unit tests
 # </env>
 
 token:=''
-poolId:='ap-south-1_xyqqAVWOS'
-clientId:='1krsb4rucg4t6j4b7ighltfj62'
-username:='admin'
-password:='!tsMyNewp@ssw0rd4StagingThingsByTheAdMinisterFowler'
+poolId:=''
+clientId:=''
+username:=''
+password:=''
 
 auth:
 	$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password)))
