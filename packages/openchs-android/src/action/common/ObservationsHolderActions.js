@@ -9,6 +9,7 @@ class ObservationsHolderActions {
         const ruleService = context.get(RuleEvaluationService);
         let formElementStatuses = ruleService.filterFormElements(state.getEntity(), state.getEntityType(), formElementGroup);
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
+        return formElementStatuses;
     }
 
     static onPrimitiveObsUpdateValue(state, action, context) {
@@ -17,8 +18,9 @@ class ObservationsHolderActions {
             return newState;
 
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
-        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         return newState;
     }
 
@@ -62,7 +64,8 @@ class ObservationsHolderActions {
             newState.formElementsUserState[action.formElement.uuid] = {durationUnit: action.duration.durationUnit};
         }
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, dateValue);
-        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
         const validationResult = action.formElement.validate(dateValue);
         newState.handleValidationResult(validationResult);

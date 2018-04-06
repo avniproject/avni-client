@@ -1,6 +1,9 @@
 import {getNextScheduledVisits as nextScheduledVisits} from './motherVisitSchedule';
 import * as programDecision from './motherProgramDecision';
 import c from '../common';
+import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
+import FormFilterHelper from "../rules/FormFilterHelper";
+
 
 export function getNextScheduledVisits (enrolment, today) {
     return nextScheduledVisits(enrolment, today);
@@ -11,11 +14,14 @@ export function getDecisions (enrolment, context, today) {
         return {enrolmentDecisions: [], encounterDecisions: []};
 
     let decisions = programDecision.getDecisions(enrolment, today);
-    const lmpDate = enrolment.getObservationValue('Last Menstrual Period');
-    const edd = c.addDays(lmpDate, 280);
-    decisions.push({name:"Estimated Date of Delivery", value:edd});
     return {enrolmentDecisions: decisions, encounterDecisions: []};
 }
+
+export function filterFormElements (programEnrolment, formElementGroup) {
+    let handler = new EnrolmentFormHandler();
+    return FormFilterHelper.filterFormElements(handler, programEnrolment, formElementGroup);
+}
+
 
 export function getEnrolmentSummary (enrolment, context, today) {
     return programDecision.getEnrolmentSummary(enrolment, context, today);

@@ -57,6 +57,20 @@
           "mandatory": true
         },
         {
+          "name": "Estimated Date of Delivery",
+          "uuid": "fef50f26-8251-4ba8-80dd-526eaade37f1",
+          "keyValues": [
+            {
+              "key": "editable",
+              "value": false
+            }
+          ],
+          "concept": {
+            "uuid": "dde911fa-15eb-4564-8deb-bba46e9d3744"
+          },
+          "displayOrder": 4
+        },
+        {
           "name": "Height",
           "uuid": "1e3afc0f-4f40-46f5-ab20-0739c30f99cd",
           "keyValues": [],
@@ -70,7 +84,7 @@
             "highNormal": 200.0,
             "unit": "cm"
           },
-          "displayOrder": 4,
+          "displayOrder": 5,
           "mandatory": false
         }
       ]

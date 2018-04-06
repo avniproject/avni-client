@@ -37,6 +37,17 @@ class ObservationsHolder {
             .map((fe) => _.remove(this.observations, (obs) => obs.concept.uuid === fe.concept.uuid));
     }
 
+    updatePrimitiveObs(applicableFormElements, formElementStatuses) {
+        applicableFormElements.forEach((fe) => {
+            let value = _.find(formElementStatuses, (formElementStatus) => {
+                return fe.uuid === formElementStatus.uuid;
+            }).value;
+            if(!_.isNil(value)){
+                this.addOrUpdatePrimitiveObs(fe.concept, value);
+            }
+        })
+    }
+
     toggleSingleSelectAnswer(concept, answerUUID) {
         return this.toggleCodedAnswer(concept, answerUUID, true);
     }
