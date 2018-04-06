@@ -25,12 +25,12 @@ export default class FormElementStatusBuilder {
     }
 
     value(value) {
-        this.value = value;
+        this._value = value;
         return this.valueRule;
     }
 
     build() {
         const answersToSkip = _.reduce(this.answerSkipRules, (acc, ruleItem)=> ruleItem.rule.matches()? _.concat(acc, ruleItem.answers): acc , []);
-        return new FormElementStatus(this.context.formElement.uuid, this.visibilityRule.matches(), this.valueRule.matches()? this.value: null, answersToSkip);
+        return new FormElementStatus(this.context.formElement.uuid, this.visibilityRule.matches(), this.valueRule.matches()? this._value: null, answersToSkip);
     }
 }
