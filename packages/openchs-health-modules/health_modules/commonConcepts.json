@@ -435,5 +435,10 @@
         "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
       }
     ]
+  },
+  {
+    "name": "Aadhar ID",
+    "uuid": "43c4860f-fccf-48c9-818a-191bc0f8d0cf",
+    "dataType": "Numeric"
   }
 ]
