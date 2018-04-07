@@ -11,6 +11,7 @@ class Colors {
     static TertiaryColor = 'lightgrey';
 
     static ValidationError = '#d0011b';
+    static AbnormalValueHighlight = '#d0011b';
     static InputNormal = 'rgba(0, 0, 0, 0.87)';
     static InputBorderNormal = 'rgba(0, 0, 0, 0.12)';
     static GreyBackground = 'rgba(97, 97, 97, 0.20)';

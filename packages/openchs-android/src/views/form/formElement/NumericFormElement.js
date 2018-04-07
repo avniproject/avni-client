@@ -1,11 +1,11 @@
 import {TextInput, View} from "react-native";
 import React from "react";
 import {Text} from "native-base";
-import DynamicGlobalStyles from "../../primitives/DynamicGlobalStyles";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Styles from "../../primitives/Styles";
+import Colors from "../../primitives/Colors";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
@@ -60,7 +60,7 @@ class NumericFormElement extends AbstractFormElement {
                             marginVertical: 0,
                             paddingVertical: 5
                         }, Styles.formBodyText]}>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}</Text> :
-                        <View><TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText]}
+                        <View><TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText, {color: this.props.element.concept.isAbnormal(this.props.value.getValue()) ? Colors.AbnormalValueHighlight : Colors.InputNormal}]}
                                          underlineColorAndroid={this.borderColor} keyboardType='numeric'
                                          value={_.toString(this.props.value.getValue())}
                                          onChangeText={(text) => this.onInputChange(text)}
