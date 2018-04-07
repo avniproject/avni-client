@@ -13,7 +13,7 @@ class SelectFormElement extends AbstractFormElement {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,
         isSelected: React.PropTypes.func.isRequired,
-        validationResult: React.PropTypes.object,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -27,7 +27,7 @@ class SelectFormElement extends AbstractFormElement {
 
     render() {
         const valueLabelPairs = this.props.element.getAnswers()
-            .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid));
+            .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <View style={{backgroundColor: '#ffffff'}}>

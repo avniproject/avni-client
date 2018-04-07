@@ -11,9 +11,10 @@ import _ from 'lodash';
 
 
 export class RadioLabelValue {
-    constructor(label, value) {
+    constructor(label, value, abnormal) {
         this.label = label;
         this.value = value;
+        this.abnormal = abnormal;
     }
 }
 
@@ -46,6 +47,7 @@ class RadioGroup extends AbstractComponent {
                 {rlvPair.map((rlv) =>
                     <PresetOptionItem displayText={this.I18n.t(rlv.label)}
                                       checked={this.props.selectionFn(rlv.value)}
+                                      abnormal={rlv.abnormal}
                                       multiSelect={this.props.multiSelect}
                                       chunked={true}
                                       validationResult={this.props.validationError}

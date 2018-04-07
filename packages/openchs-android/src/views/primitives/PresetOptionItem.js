@@ -20,6 +20,7 @@ class PresetOptionItem extends AbstractComponent {
         onPress: React.PropTypes.func,
         displayText: React.PropTypes.string.isRequired,
         validationResult: React.PropTypes.object,
+        abnormal: React.PropTypes.bool,
         style: React.PropTypes.object,
         chunked: React.PropTypes.bool
     };
@@ -45,7 +46,7 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const color = _.isNil(this.props.validationResult) ? Colors.InputNormal : Colors.ValidationError;
+        const color = _.isNil(this.props.validationResult) ? this.props.checked && this.props.abnormal ? Colors.AbnormalValueHighlight : Colors.InputNormal : Colors.ValidationError;
         const chunked = {
             padding: PresetOptionItem.styles.multiPadding,
             content: PresetOptionItem.styles.multiContent,

@@ -137,11 +137,10 @@ export default class Concept {
     }
 
     abnormalAnswers() {
-        let abnormalAnswers = _.filter(this.answers,
+        return _.filter(this.answers,
             (conceptAnswer) => conceptAnswer.abnormal).map((conceptAnswer) => {
             return conceptAnswer.concept.uuid
-        })
-        return abnormalAnswers;
+        });
     }
 
     isBelowLowNormal(value) {
