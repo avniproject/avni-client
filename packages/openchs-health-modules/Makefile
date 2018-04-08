@@ -24,14 +24,14 @@ test_env: ## Run unit tests
 	npm test
 # </env>
 
-token:=''
-poolId:=''
-clientId:=''
-username:=''
-password:=''
+token:=
+poolId:=
+clientId:=
+username:=
+password:=
 
 auth:
-	$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password)))
+	$(if $(poolId),$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password))))
 
 # <rules>
 build_rules: ## Create webpack files for all the rules
@@ -97,6 +97,6 @@ implementations := sewa-rural lbp-arogyadoot
 
 # <deploy-all>
 deploy_all_impls: auth deploy deploy_demo_refdata ## Deploy all implementations/ create_org separately before/ optional arguments: server=https://staging.openchs.org port=443
-	$(foreach impl,$(implementations),./deploy_implementation.sh $(impl) $(server) $(port) $(token);)
+	$(foreach impl,$(implementations),./scripts/deploy_implementation.sh $(impl) $(server) $(port) $(token);)
 
 # </deploy-all>

@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $# -le 3 ]; then
+if [ $# -lt 3 ]; then
     echo "!!!! To be used as part of make deploy_all_impls task !!"
     exit 1
 fi
