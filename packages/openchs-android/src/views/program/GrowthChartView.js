@@ -2,6 +2,8 @@ import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import * as React from "react";
 import {LineChart} from 'react-native-charts-wrapper';
+import {Button} from "native-base";
+
 import {
     Text,
     View,
@@ -156,6 +158,45 @@ class GrowthChartView extends AbstractComponent {
         return [this.getDataFor(concept, suffix), ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line))];
     }
 
+    static style = {
+        graphButton: {
+            self: {
+                height: 28,
+                borderRadius: 2,
+                height: 36,
+                margin: 4,
+                flex: 1
+            }
+        },
+        selectedGraphButton: {
+            self: {
+                backgroundColor: Styles.accentColor,
+            },
+            text: {
+                color: Styles.whiteColor,
+                fontSize: 16
+            }
+        },
+        unselectedGraphButton: {
+            self: {
+                borderWidth: 1,
+                borderColor: Styles.accentColor,
+                backgroundColor: Styles.whiteColor
+            },
+            text: {
+                color: Styles.accentColor,
+                fontSize: 16
+            }
+        }
+    };
+
+    getWeightGraphStyle() {
+        return this.states.weightForAge === this.state.selectedGraph? GrowthChartView.style.selectedGraphButton : GrowthChartView.style.unselectedGraphButton;
+    }
+
+    getHeightGraphStyle() {
+        return this.states.heightForAge === this.state.selectedGraph? GrowthChartView.style.selectedGraphButton : GrowthChartView.style.unselectedGraphButton;
+    }
 
     render() {
         const legend = {
@@ -188,21 +229,20 @@ class GrowthChartView extends AbstractComponent {
         });
         let borderColor = processColor("red");
         return (
-            <View style={{flex: 1, paddingHorizontal: 8}}>
-                <View style={{flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between'}}>
-                    <TouchableNativeFeedback onPress={() => {this.onGraphSelected(this.states.weightForAge)}}
-                                             background={TouchableNativeFeedback.SelectableBackground()}>
-                        <View style={[Styles.basicPrimaryButtonView, {flex: 1, height: 36, margin: 4}]}>
-                            <Text style={[{color: Styles.whiteColor, fontSize: 16}]}>{this.states.weightForAge}</Text>
-                        </View>
-                    </TouchableNativeFeedback>
+            <View style={{ flex: 1, paddingHorizontal: 8, flexDirection: 'column' }}>
+                <View style={{ flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between' }}>
 
-                    <TouchableNativeFeedback onPress={() => {this.onGraphSelected(this.states.heightForAge)}}
-                                             background={TouchableNativeFeedback.SelectableBackground()}>
-                        <View style={[Styles.basicPrimaryButtonView, {flex: 1, height: 36, margin: 4}]}>
-                            <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.states.heightForAge}</Text>
-                        </View>
-                    </TouchableNativeFeedback>
+                    <Button style={[GrowthChartView.style.graphButton.self, this.getWeightGraphStyle().self]}
+                        textStyle={this.getWeightGraphStyle().text}
+                        onPress={() => { this.onGraphSelected(this.states.weightForAge) }}>
+                        {this.states.weightForAge}
+                    </Button>
+
+                    <Button style={[GrowthChartView.style.graphButton.self, this.getHeightGraphStyle().self]}
+                        textStyle={this.getHeightGraphStyle().text}
+                        onPress={() => { this.onGraphSelected(this.states.heightForAge) }}>
+                        {this.states.heightForAge}
+                    </Button>
                 </View>
 
                 <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.state.title}</Text>
