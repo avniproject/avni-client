@@ -30,7 +30,7 @@ class DateFormElement extends AbstractFormElement {
                              flex: 1,
                              marginVertical: 0,
                              paddingVertical: 5
-                         }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('NOT KNOWN YET') :this.props.dateValue.asDisplayDate()}</Text>:
+                         }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
                         <DatePicker dateValue={this.props.dateValue.getValue()}
                                     validationResult={this.props.validationResult}
                                     actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
