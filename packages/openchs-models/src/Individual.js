@@ -295,6 +295,18 @@ class Individual extends BaseEntity {
         }
     }
 
+    findObservation(conceptName) {
+        return _.find(this.observations, (observation) => {
+            return observation.concept.name === conceptName
+        });
+    }
+
+    getObservationValue(conceptName) {
+        const observationForConcept = this.findObservation(conceptName);
+        return _.isEmpty(observationForConcept) ? observationForConcept : observationForConcept.getValue();
+    }
+
+
     getPreviousEnrolment(programName, enrolmentUUID) {
         const chronologicalEnrolments = this.chronologicalEnrolments;
         let index = _.findIndex(chronologicalEnrolments, (enrolment) => enrolment.uuid === enrolmentUUID);

@@ -73,14 +73,14 @@ const matchByWeight = (codeMap, valueMap) => {
 const womanBetween16And40Years = (encounter) => {
     return new RuleCondition({programEncounter: encounter})
         .female
-        .and.age.is.greaterThanOrEqualTo(16, 'years')
-        .and.lessThanOrEqualTo(40, 'years')
+        .and.age.is.greaterThanOrEqualTo(16)
+        .and.age.is.lessThanOrEqualTo(40)
         .matches();
 };
 
 const childBelow1Year = (encounter) => {
     return new RuleCondition({programEncounter: encounter})
-        .age.is.lessThan(1, 'years')
+        .age.is.lessThan(1)
         .matches();
 };
 
@@ -292,7 +292,7 @@ const translateForRegularDosage = (prescription) => {
     if (dosage.dosage === 10 && prescription.medicine === "Primaquine Tablets") {
         translation = translation + "(७.५ mg+२.५ mg) ";
     }
-    translation = translation + (prescription.form === 'Tablets'? numberToText(dosage.itemsPerServing): numberToTextMale(dosage.itemsPerServing)) + " ";
+    translation = translation + (prescription.form === 'Tablets' ? numberToText(dosage.itemsPerServing) : numberToTextMale(dosage.itemsPerServing)) + " ";
     translation = translation + translateForm(prescription.form, dosage) + " ";
     translation = translation + (dosage.timesPerDay ? "दिवसातून " + numberTranslator(dosage.timesPerDay) + " वेळा " : "");
     translation = translation + "१ ते " + numberTranslator(dosage.days) + " दिवसांसाठी";
@@ -303,7 +303,7 @@ const translateFordaywiseDose = (prescription) => {
     let translation = "", dosage = prescription.dosage;
     translation = translation + lookup[prescription.medicine] + " ";
     translation = translation + (dosage.row ? dayth(dosage.row) + " रांगेतील " : "");
-    translation = translation + (prescription.form === 'Tablets'? numberToText(dosage.itemsPerServing): numberToTextMale(dosage.itemsPerServing)) + " ";
+    translation = translation + (prescription.form === 'Tablets' ? numberToText(dosage.itemsPerServing) : numberToTextMale(dosage.itemsPerServing)) + " ";
     translation = translation + translateForm(prescription.form, dosage) + " ";
     translation = translation + (dosage.timesPerDay ? "दिवसातून " + numberTranslator(dosage.timesPerDay) + " वेळा " : "");
     return translation;
@@ -312,7 +312,13 @@ const translateFordaywiseDose = (prescription) => {
 const convertPrescriptionsToMarathi = (prescriptions) => {
     const daywisePrescriptions = _.chain(prescriptions)
         .filter((prescription) => prescription.dosageType === "daywise")
-        .map((prescription) => {return {day: prescription.dosage.day, medicine: prescription.medicine, message: translateFordaywiseDose(prescription)}})
+        .map((prescription) => {
+            return {
+                day: prescription.dosage.day,
+                medicine: prescription.medicine,
+                message: translateFordaywiseDose(prescription)
+            }
+        })
         .sortBy('day', 'medicine')
         .groupBy((item) => item.day)
         .map((prescriptions) => {

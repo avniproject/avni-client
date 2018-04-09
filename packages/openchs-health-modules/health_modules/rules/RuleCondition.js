@@ -178,6 +178,13 @@ export default class RuleCondition {
         });
     }
 
+    get asAge() {
+        return this._addToChain((next, context) => {
+            context.valueToBeChecked = context.valueToBeChecked && moment(this._contextualTime(context)).diff(moment(context.valueToBeChecked), "years");
+            return next(context);
+        });
+    }
+
     get male() {
         return this._addToChain((next, context) => {
             context.matches = this._getIndividual(context).gender.name === "Male";
@@ -201,7 +208,8 @@ export default class RuleCondition {
 
     get age() {
         return this._addToChain((next, context) => {
-            context.valueToBeChecked = this._contextualTime().diff(moment(this._getIndividual(context).dateOfBirth));
+            context.valueToBeChecked = this._contextualTime().diff(moment(this._getIndividual(context).dateOfBirth), 'years');
+            console.log(context.valueToBeChecked)
             return next(context);
         });
     }
@@ -225,6 +233,15 @@ export default class RuleCondition {
     valueInDecisions(conceptName) {
         return this._addToChain((next, context) => {
             const obs = context.existingDecisions.find((decision) => decision.name === conceptName);
+            context.obsToBeChecked = obs;
+            context.valueToBeChecked = obs && obs.value;
+            return next(context);
+        });
+    }
+
+    valueInRegistration(conceptName) {
+        return this._addToChain((next, context) => {
+            const obs = this._getIndividual(context).findObservation(conceptName);
             context.obsToBeChecked = obs;
             context.valueToBeChecked = obs && obs.value;
             return next(context);

@@ -103,9 +103,9 @@ describe('RuleConditions', () => {
     });
 
     it("age checks for the age at the time of the program encounter", () => {
-        assert.isTrue(a1.when.age.is.greaterThan(5, 'years').matches());
-        assert.isTrue(a1.when.age.is.greaterThanOrEqualTo(5, 'years').matches());
-        assert.isFalse(a1.when.age.is.lessThan(5, 'years').matches());
+        assert.isTrue(a1.when.age.is.greaterThan(5).matches());
+        assert.isTrue(a1.when.age.is.greaterThanOrEqualTo(5).matches());
+        assert.isFalse(a1.when.age.is.lessThan(5).matches());
     });
 
     it('whenItem checks for a constant value. to match', () => {

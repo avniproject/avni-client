@@ -12,7 +12,7 @@
   },
   {
     "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
-    "name": "Pregnancy Induced Hypertension",
+    "name": "Pregnancy induced hypertension",
     "abnormal": true,
     "dataType": "NA"
   },
@@ -251,6 +251,23 @@
     "dataType": "NA"
   },
   {
+    "uuid": "c1071344-deb9-4311-a397-b67b8a4bfecf",
+    "name": "Chronic Hypertension",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "89d2230c-7c64-4959-8835-bef4667f8428",
+    "name": "Heart Disease",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
+    "name": "Rh Negative Blood Group",
+    "dataType": "NA"
+  },
+  {
     "name": "High Risk Conditions",
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
@@ -267,7 +284,6 @@
       },
       {
         "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
-        "name": "Pregnancy Induced Hypertension",
         "abnormal": true
       },
       {
@@ -464,6 +480,32 @@
         "uuid": "b694eefb-6b9d-4123-98a4-1bfc39a7dcb4",
         "name": "Convulsions Present",
         "abnormal": true
+      },
+      {
+        "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
+        "name": "Rh Negative Blood Group",
+        "abnormal": true
+      },
+      {
+        "uuid": "c1071344-deb9-4311-a397-b67b8a4bfecf"
+      },
+      {
+        "uuid": "89d2230c-7c64-4959-8835-bef4667f8428"
+      },
+      {
+        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f"
+      },
+      {
+        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505"
+      },
+      {
+        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7"
+      },
+      {
+        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec"
+      },
+      {
+        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560"
       }
     ]
   },
@@ -705,7 +747,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Threatened Abortion",
+    "name": "Threatened abortion",
     "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
     "abnormal": true,
     "dataType": "NA"
@@ -717,7 +759,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Intrauterine Death",
+    "name": "Intrauterine death",
     "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1",
     "abnormal": true,
     "dataType": "NA"
@@ -1066,5 +1108,144 @@
     "name": "Eclampsia",
     "uuid": "489f07e5-d9e1-478a-969d-3acad587a15e",
     "dataType": "NA"
+  },
+  {
+    "name": "Congenital anomaly",
+    "uuid": "e641d792-ea69-40ed-bf26-67c6c567f687",
+    "dataType": "NA"
+  },
+  {
+    "name": "Obstetrics history",
+    "uuid": "8a4ab436-6767-45d5-95d7-075d9459609e",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
+        "abnormal": true
+      },
+      {
+        "uuid": "502759ae-00c9-4a22-a7eb-7e40e842f931",
+        "abnormal": true
+      },
+      {
+        "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
+        "abnormal": true
+      },
+      {
+        "uuid": "16d08bef-fa20-40d3-8813-1cd10268bbb1",
+        "abnormal": true
+      },
+      {
+        "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
+        "abnormal": true
+      },
+      {
+        "uuid": "3dc4aa0e-e941-4f02-8dd5-d1e1d48753ff",
+        "abnormal": true
+      },
+      {
+        "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2",
+        "abnormal": true
+      },
+      {
+        "uuid": "d86bf489-eb51-47c9-8c98-b109aba38951",
+        "abnormal": true
+      },
+      {
+        "uuid": "2156deeb-bec7-4614-873f-eed4807a74f3",
+        "abnormal": true
+      },
+      {
+        "uuid": "02df7aad-d88c-4155-ab92-4d3569b64376",
+        "abnormal": true
+      },
+      {
+        "uuid": "eb68c395-17dc-4679-828c-487753228e9f",
+        "abnormal": true
+      },
+      {
+        "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
+        "abnormal": true
+      },
+      {
+        "uuid": "b5719e3e-db9c-49c1-af0c-3047b1b9c57a",
+        "abnormal": true
+      },
+      {
+        "uuid": "d211703c-beab-40f3-9e87-a271759c5ec9",
+        "abnormal": true
+      },
+      {
+        "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca",
+        "abnormal": true
+      },
+      {
+        "uuid": "92ba84ab-b395-48c4-b867-932524f60d15",
+        "abnormal": true
+      },
+      {
+        "uuid": "58146bb8-9fbe-439b-a472-08e17a8cd4ba",
+        "abnormal": true
+      },
+      {
+        "uuid": "e641d792-ea69-40ed-bf26-67c6c567f687",
+        "abnormal": true
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "abnormal": true
+      },
+      {
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      }
+    ]
+  },
+  {
+    "name": "Other obstetrics history",
+    "uuid": "7d34125a-1b0b-4755-acc8-aeda71af8bd3",
+    "dataType": "Text"
+  },
+  {
+    "name": "Institutional Delivery",
+    "uuid": "c958100c-ad81-4da8-816e-6ad7eceaac87",
+    "dataType": "NA"
+  },
+  {
+    "name": "Institutional ANC",
+    "uuid": "a72f03ce-c239-4f28-a18b-0e680db20f62",
+    "dataType": "NA"
+  },
+  {
+    "name": "Number of abortions",
+    "uuid": "38b9986b-76e8-4015-ae51-48152b1cd42c",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "highAbsolute": 10
+  },
+  {
+    "name": "Recommendations",
+    "uuid": "39c83171-b9ff-441a-9b68-071741ecb618",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "c958100c-ad81-4da8-816e-6ad7eceaac87",
+        "abnormal": true
+      },
+      {
+        "uuid": "a72f03ce-c239-4f28-a18b-0e680db20f62",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Refer her to hospital for",
+    "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
+        "abnormal": true
+      }
+    ]
   }
 ]

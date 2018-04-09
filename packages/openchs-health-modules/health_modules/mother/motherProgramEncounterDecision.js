@@ -38,7 +38,7 @@ export function getDecisions (programEncounter, today) {
 
         var decisions = [];
 
-        const lmpDate = programEncounter.programEnrolment.getObservationValue('Last Menstrual Period');
+        const lmpDate = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
         const pregnancyPeriodInWeeks = C.getWeeks(lmpDate, programEncounter.encounterDateTime);
 
         let investigationAdviceBuilder = new InvestigationAdviceBuilder();

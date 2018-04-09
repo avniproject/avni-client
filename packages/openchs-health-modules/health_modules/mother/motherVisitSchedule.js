@@ -14,7 +14,7 @@ const encounterSchedule = {
 };
 
 const getNextScheduledVisits = function (programEnrolment, today, currentEncounter) {
-    const lmpConceptName = 'Last Menstrual Period';
+    const lmpConceptName = 'Last menstrual period';
 
     const encounters = [];
 

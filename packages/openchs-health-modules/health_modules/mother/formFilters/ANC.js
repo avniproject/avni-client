@@ -4,7 +4,7 @@ import {FormElementStatus} from "openchs-models";
 
 class ANC {
     preFilter(programEncounter, formElement, today) {
-        let lmp = programEncounter.programEnrolment.getObservationValue('Last Menstrual Period');
+        let lmp = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
         this.weeksSinceLMP = FormElementsStatusHelper.weeksBetween(today, lmp);
     }
 

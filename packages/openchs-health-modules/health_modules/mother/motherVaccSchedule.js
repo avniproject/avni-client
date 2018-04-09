@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 export function getVaccSchedule (programEnrolment) {
     const checklistItems = [];
-    const lmpDate = programEnrolment.getObservationValue('Last Menstrual Period');
+    const lmpDate = programEnrolment.getObservationValue('Last menstrual period');
 
     if (ttTakenAlreadyInPreviousPregnancy()) {
         var oneMonthBeforeDelivery = C.addDays(lmpDate, 280 - 30);

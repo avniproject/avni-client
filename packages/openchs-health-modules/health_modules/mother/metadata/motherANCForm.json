@@ -499,20 +499,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "HIV/AIDS",
-            "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
-                "abnormal": true
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              }
-            ]
+            "uuid": "8425af99-4a07-4d99-97b2-cf955713a560"
           },
           "displayOrder": 6,
           "mandatory": false

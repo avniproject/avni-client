@@ -13,7 +13,7 @@ describe('Create ANC/PNC Visit Schedule', function () {
     //[new ProgramEncounter('ANC', new Date(2017, 1, 3), 'ANC 1')]
     beforeEach(function() {
         enrolment = new ProgramEnrolment('Mother', []);
-        enrolment.setObservation('Last Menstrual Period', new Date(2017, 0, 3));
+        enrolment.setObservation('Last menstrual period', new Date(2017, 0, 3));
     });
 
     it ("Creates all ANC visits for a fresh enrolment", function() {

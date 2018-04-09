@@ -32,12 +32,12 @@ describe('High Risk Pregnancy Determination', () => {
         hbE = concepts["Hb Electrophoresis"];
         hbsAg = concepts["HbsAg"];
         paracheck = concepts["Paracheck"];
-        obstetricsHistory = concepts["Obstetrics History"];
-        enrolment.setObservation('Last Menstrual Period', moment(referenceDate).subtract(20, "weeks").toDate());
+        obstetricsHistory = concepts["Obstetrics history"];
+        enrolment.setObservation('Last menstrual period', moment(referenceDate).subtract(20, "weeks").toDate());
     });
 
     it("is run fresh every time ", () => {
-        enrolment.setObservation('Last Menstrual Period', moment(referenceDate).subtract(20, "weeks").toDate());
+        enrolment.setObservation('Last menstrual period', moment(referenceDate).subtract(20, "weeks").toDate());
         programEncounter.setObservation("High Risk Conditions", ["Dummy high risk condition"]);
         let decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
 
@@ -56,7 +56,7 @@ describe('High Risk Pregnancy Determination', () => {
     describe("Less than 20 weeks of pregnancy", () => {
 
         beforeEach(() => {
-            enrolment.setObservation('Last Menstrual Period', moment(referenceDate).subtract(20, "weeks").toDate());
+            enrolment.setObservation('Last menstrual period', moment(referenceDate).subtract(20, "weeks").toDate());
         });
 
         describe("Ante Partum hemorrhage (APH)", () => {
@@ -194,7 +194,7 @@ describe('High Risk Pregnancy Determination', () => {
         let lmp;
         beforeEach(() => {
             lmp = new Date(2017, 1, 10);
-            enrolment.setObservation('Last Menstrual Period', lmp);
+            enrolment.setObservation('Last menstrual period', lmp);
         });
 
         describe("Ante Partum hemorrhage (APH)", () => {
@@ -547,7 +547,7 @@ describe('High Risk Pregnancy Determination', () => {
             programEncounter = new ProgramEncounter("ANC", referenceDate);
             enrolment = new ProgramEnrolment('Mother', [programEncounter], dob);
             programEncounter.programEnrolment = enrolment;
-            enrolment.setObservation('Last Menstrual Period', moment(referenceDate).subtract(20, "weeks").toDate());
+            enrolment.setObservation('Last menstrual period', moment(referenceDate).subtract(20, "weeks").toDate());
         };
 
         it("Shouldn't mark high risk if age is 18", () => {
@@ -658,7 +658,7 @@ describe('High Risk Pregnancy Determination', () => {
         });
 
         it("Should mark high risk if Intrauterine death in Obstetrics History", () => {
-            enrolment.setObservation(obstetricsHistory.name, ['Intrauterine Death']);
+            enrolment.setObservation(obstetricsHistory.name, ['Intrauterine death']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.exist;

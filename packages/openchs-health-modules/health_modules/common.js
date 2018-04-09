@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 
 function C() {
 
@@ -49,6 +50,10 @@ function C() {
     this.getDays = function (firstDate, secondDate) {
         var oneDay = 24 * 60 * 60 * 1000;
         return (Math.round(Math.abs((firstDate.getTime() - secondDate.getTime()) / (oneDay))));
+    };
+
+    this.getDateOfBirth = (age, fromDate = new Date()) => {
+        return moment(fromDate).subtract(age, 'years').toDate();
     };
 
 

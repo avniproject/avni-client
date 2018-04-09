@@ -27,7 +27,7 @@ addANCRule(new ObservationRule("TT Booster Date", {validFrom: 13, allowedOccurre
 addANCRule(new ObservationRule("TT2 Date", {validFrom: 21, allowedOccurrences: 1}));
 
 function addANCRule(observationRule) {
-    observationRule.validityBasedOn = "Last Menstrual Period";
+    observationRule.validityBasedOn = "Last menstrual period";
     observationRules.push(observationRule);
 }
 
