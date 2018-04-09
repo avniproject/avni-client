@@ -35,13 +35,11 @@
           "mandatory": false
         },
         {
-          "name": "AADHAAR No",
+          "name": "Aadhaar No",
           "uuid": "f75cd6e1-c8a0-4cd9-8ed0-761552f42f9c",
           "keyValues": [],
           "concept": {
-            "name": "AADHAAR No",
-            "uuid": "2ce5b32f-3871-44be-a5c9-1c496893cfea",
-            "dataType": "Numeric"
+            "uuid": "43c4860f-fccf-48c9-818a-191bc0f8d0cf"
           },
           "displayOrder": 3,
           "mandatory": false
