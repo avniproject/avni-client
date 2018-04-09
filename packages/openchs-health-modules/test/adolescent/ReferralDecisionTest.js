@@ -116,7 +116,7 @@ describe("Referral Decision Test", () => {
         assert.include(decisionsToRefer, "Yellowish discharge from penis/vagina");
     });
 
-    it("Shouldn't carry over the last encounter's referral advice given referral followup was involved a visit to the hospital", () => {
+    it("Shouldn't carry over the last encounter's referral advice given referral followup involved a visit to the hospital", () => {
         const encounterDecisions = {encounterDecisions: []};
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");
