@@ -44,6 +44,13 @@ class NumericFormElement extends AbstractFormElement {
         this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text});
     }
 
+    color() {
+        if (_.isNil(this.props.value.getValue())){
+            return Colors.InputNormal;
+        }
+        return this.props.element.concept.isAbnormal(this.props.value.getValue()) ? Colors.AbnormalValueHighlight : Colors.InputNormal;
+    }
+
     render() {
         let rangeText = this.rangeText();
         let unitText = this.unitText();
@@ -59,8 +66,8 @@ class NumericFormElement extends AbstractFormElement {
                             flex: 1,
                             marginVertical: 0,
                             paddingVertical: 5
-                        }, Styles.formBodyText]}>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}</Text> :
-                        <View><TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText, {color: this.props.element.concept.isAbnormal(this.props.value.getValue()) ? Colors.AbnormalValueHighlight : Colors.InputNormal}]}
+                        }, Styles.formBodyText, {color: this.color()}] }>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}</Text> :
+                        <View><TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText, {color: this.color()}]}
                                          underlineColorAndroid={this.borderColor} keyboardType='numeric'
                                          value={_.toString(this.props.value.getValue())}
                                          onChangeText={(text) => this.onInputChange(text)}
