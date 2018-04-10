@@ -1502,7 +1502,8 @@ const hasMalaria = function (encounter) {
         .matches();
 };
 
-const notEmpty = (decision) => !_.isEmpty(decision) && !_.isEmpty(decision.value) && !_.isEmpty(decision.name);
+const notEmpty = (decision) => 
+    !_.some([decision, decision.name, decision.value], C.isEmptyOrBlank);
 
 const getDecisions = function (encounter) {
     if (encounter.encounterType.name !== "Outpatient") return {};
@@ -1616,6 +1617,7 @@ const getDecisions = function (encounter) {
 
     if (_.isNumber(height) && _.isNumber(weight))
         decisions.push({name: "BMI", value: C.calculateBMI(weight, height)});
+
     decisions = decisions.filter(notEmpty);
     return {encounterDecisions: decisions};
 };

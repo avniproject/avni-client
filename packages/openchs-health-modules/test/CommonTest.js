@@ -17,4 +17,18 @@ describe('CommonTest', () => {
         const bmi = C.calculateBMI(35, 160);
         assert.equal(bmi, 13.7);
     });
+
+    it('isEmptyOrBlank should correctly identify empty values', () => {
+        expect(C.isEmptyOrBlank()).to.be.true; 
+        expect(C.isEmptyOrBlank({})).to.be.true; 
+        expect(C.isEmptyOrBlank([])).to.be.true; 
+        expect(C.isEmptyOrBlank("")).to.be.true;
+        expect(C.isEmptyOrBlank(new String(""))).to.be.true; 
+        expect(C.isEmptyOrBlank(null)).to.be.true; 
+        expect(C.isEmptyOrBlank(NaN)).to.be.true; 
+        expect(C.isEmptyOrBlank(0)).to.be.false;
+        expect(C.isEmptyOrBlank("abc")).to.be.false; 
+        expect(C.isEmptyOrBlank(false)).to.be.false; 
+        expect(C.isEmptyOrBlank(true)).to.be.false; 
+    });
 });

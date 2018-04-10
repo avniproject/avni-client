@@ -107,6 +107,12 @@ function C() {
     this.isNil = function (obj) {
         return obj === null || obj === undefined;
     }
+
+    this.isEmptyOrBlank = (value) =>
+        _.overSome([_.isNil, _.isNaN])(value) ? true : 
+            _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
+                    _.isEmpty(value); 
+
 }
 
 module.exports = new C();
