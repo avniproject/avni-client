@@ -44,7 +44,7 @@ export function validate(programEnrolment) {
 
     const gravida = programEnrolment.getObservationValue('Gravida');
     const parity = programEnrolment.getObservationValue('Parity');
-    const number_of_abortion = programEnrolment.getObservationValue('Number of abortion');
+    const number_of_abortion = programEnrolment.getObservationValue('Number of abortions');
 
     if (gravida !== undefined && parity !== undefined && parity > gravida) {
         validationResults.push(c.createValidationError('parityCannotBeGreaterThanGravida'));
