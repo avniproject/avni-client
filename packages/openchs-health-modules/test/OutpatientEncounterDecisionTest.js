@@ -12,7 +12,7 @@ describe('Make Decision', function () {
                     encounter.setObservation("Weight", weightRangeToCode.start);
                     encounter.setGender(gender);
                     encounter.setAge(10);
-                    console.log("##### {complaint}, {weightRangeToCode.start}, {gender} ######".replace("{complaint}", complaint).replace("{weightRangeToCode.start}", weightRangeToCode.start).replace("{gender}", gender));
+                    //console.log("##### {complaint}, {weightRangeToCode.start}, {gender} ######".replace("{complaint}", complaint).replace("{weightRangeToCode.start}", weightRangeToCode.start).replace("{gender}", gender));
                     if (decision.validate(encounter, new Form()).success) {
                         const decisions = decision.getDecisions(encounter);
                         expect(decisions.length, 1);
@@ -67,28 +67,60 @@ describe('Make Decision', function () {
         assert.equal((decisions[0].value.match(/पहिल्या दिवशी/g) || []).length, 0, decisions[0].value);
     });
 
-    it('In cough do not give Septran to potentially pregnant women', function () {
-        var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cough"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
-        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
+    describe("For Cough, Boils, Wound", function() {
+        let complaints = ['Cough', 'Boils', 'Wound'];
 
-        decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cough"]).setGender("Female").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
-        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+        it('Cifran instead of Septran for potentially pregnant women (16-40 years age group)', function () {
+            for (let complaint of complaints) {
+                let decisions = decision.getDecisions(new Encounter('Outpatient')
+                    .setObservation("Complaint", [complaint])
+                    .setGender("Female")
+                    .setAge(25)
+                    .setObservation("Weight", 40)).encounterDecisions;
+                assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
+                assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+            }
+        });
 
-        decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cough"]).setGender("Female").setAge(45).setObservation("Weight", 40)).encounterDecisions;
-        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
-        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
+        it('Cifran instead of Septran for pregnant women regardless of age', function() {
+            for (let complaint of complaints) {
+                for (let age of [14, 25, 45]) {
+                    let decisions = decision.getDecisions(new Encounter('Outpatient')
+                        .setObservation("Complaint", [complaint, "Pregnancy"])
+                        .setGender("Female")
+                        .setAge(age)
+                        .setObservation("Weight", 40)).encounterDecisions;
+                    assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
+                    assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+                }
+            }
+        });
 
-        decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Boils"]).setGender("Female").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
-        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+        it('Prescribe Septran for everybody else', function() {
+            for (let complaint of complaints) {
+                for (let age of [14, 30, 50]) {
+                    let decisions = decision.getDecisions(new Encounter('Outpatient')
+                        .setObservation("Complaint", [complaint])
+                        .setGender("Male")
+                        .setAge(age)
+                        .setObservation("Weight", 40)).encounterDecisions;
+                    assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
+                    assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
 
-        decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Wound"]).setGender("Female").setAge(25).setObservation("Weight", 40)).encounterDecisions;
-        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
-        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+                    if (age < 16 && age > 40) {
+                        decisions = decision.getDecisions(new Encounter('Outpatient')
+                            .setObservation("Complaint", [complaint])
+                            .setGender("Female")
+                            .setAge(age)
+                            .setObservation("Weight", 40)).encounterDecisions;
+                        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
+                        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
+                    }
+                }
+            }
+        });
     });
-
+    
     it('Before food and after food instruction', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         assert.equal((decisions[0].value.match(/जेवणाआधी/g) || []).length, 0, decisions[0].value);

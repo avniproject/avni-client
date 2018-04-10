@@ -1517,6 +1517,7 @@ const getDecisions = function (encounter) {
     }));
 
     var potentiallyPregnant = (sex === "Female" && (age >= 16 && age <= 40));
+    var pregnant = complaints.includes("Pregnancy");
     var decisions = [];
     var prescribedMedicines = [];
 
@@ -1527,7 +1528,7 @@ const getDecisions = function (encounter) {
         decision.code = weightRangeToCode.code;
 
         var prescriptionSet;
-        if (potentiallyPregnant && ["Cough", "Boils", "Wound"].indexOf(complaints[complaintIndex]) !== -1) {
+        if (potentiallyPregnant || pregnant && ["Cough", "Boils", "Wound"].indexOf(complaints[complaintIndex]) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
         } else if (complaints.indexOf("Fever") === -1) {
             prescriptionSet = treatmentByComplaintAndCode[complaints[complaintIndex]];
