@@ -32,4 +32,19 @@ describe('General', () => {
         const randomUUID2 = General.randomUUID();
         expect(randomUUID1).is.not.equal(randomUUID2);
     });
+
+    it('isEmptyOrBlank', () => {
+        const isEmptyOrBlank = General.isEmptyOrBlank;
+        expect(isEmptyOrBlank()).to.be.true; 
+        expect(isEmptyOrBlank({})).to.be.true; 
+        expect(isEmptyOrBlank([])).to.be.true; 
+        expect(isEmptyOrBlank("")).to.be.true;
+        expect(isEmptyOrBlank(new String(""))).to.be.true; 
+        expect(isEmptyOrBlank(null)).to.be.true; 
+        expect(isEmptyOrBlank(NaN)).to.be.true; 
+        expect(isEmptyOrBlank(0)).to.be.false;
+        expect(isEmptyOrBlank("abc")).to.be.false; 
+        expect(isEmptyOrBlank(false)).to.be.false; 
+        expect(isEmptyOrBlank(true)).to.be.false; 
+    });
 });

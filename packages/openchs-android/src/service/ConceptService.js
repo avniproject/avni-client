@@ -98,7 +98,7 @@ class ConceptService extends BaseService {
     }
 
     _isEmpty(value) {
-        return _.isArray(value) ? _.isEmpty(value) : _.isNil(value);
+        return General.isEmptyOrBlank(value);
     }
 
     getObservationsFromDecisions(decisions) {

@@ -217,6 +217,12 @@ class General {
     static weeksBetween(arg1, arg2) {
         return moment.duration(moment(arg1).diff(moment(arg2))).asWeeks();
     }
+
+    static isEmptyOrBlank(value) {
+        return _.overSome([_.isNil, _.isNaN])(value) ? true : 
+            _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
+                    _.isEmpty(value);
+    }
 }
 
 export default General;
