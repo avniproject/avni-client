@@ -214,8 +214,8 @@ class GrowthChartView extends AbstractComponent {
         };
         const marker = {
             enabled: true,
-            markerColor: processColor('#F0C0FF8C'),
-            textColor: processColor('white'),
+            markerColor: processColor('white'),
+            textColor: processColor('black'),
             markerFontSize: 14,
         };
         const styles = StyleSheet.create({
