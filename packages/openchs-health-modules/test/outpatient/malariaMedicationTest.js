@@ -32,7 +32,7 @@ describe("Malaria medications", () => {
     });
 
     describe("Primaquine", () => {
-        it("should be given when patient is PV positive", () => {
+        it("should be given when PV Positive", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(35, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
@@ -86,7 +86,7 @@ describe("Malaria medications", () => {
             expect(primaquineDosage.timesPerDay).to.equal(1);
         });
 
-        it("is not given for women between 16 and 40 years of age", () => {
+        it("should not be given to women between 16 and 40 years of age", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
@@ -100,7 +100,7 @@ describe("Malaria medications", () => {
             expect(primaquine).to.be.undefined;
         });
 
-        it("is not given to pregnant women", () => {
+        it("should not be given to pregnant women", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
@@ -115,7 +115,7 @@ describe("Malaria medications", () => {
             expect(primaquine).to.be.undefined;
         });
 
-        it("is not given to children below 1 year of age", () => {
+        it("should not be given to children below 1 year of age", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
@@ -138,33 +138,51 @@ describe("Malaria medications", () => {
     });
 
     describe("ACT", () => {
-        it("should be given when patient is PF positive", () => {
+        it("should be given when PF positive", () => {
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF").concept.uuid);
             encounter.observations.push(paracheckObs);
-            encounter.encounterDateTime = new Date();
             encounter.individual.dateOfBirth = moment().subtract(2, 'years').toDate();
 
             let prescriptions = prescription(encounter);
             expect(prescriptions).to.have.lengthOf(3);
+            let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
+            expect(act).to.be.not.undefined;
 
             expect(_.map(prescriptions, 'dosage')).to.deep.include({day: 1, code: "A1", row: 1, itemsPerServing: 2});
             expect(_.map(prescriptions, 'dosage')).to.deep.include({day: 2, code: "A1", row: 2, itemsPerServing: 1});
             expect(_.map(prescriptions, 'dosage')).to.deep.include({day: 3, code: "A1", row: 3, itemsPerServing: 1});
-
-
-            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
-            prescriptions = prescription(encounter);
-            const act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
-            expect(act).not.to.be.ok;
         });
+
+        it("should not be given when PV positive", () => {
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
+            let prescriptions = prescription(encounter);
+            let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
+            expect(act).to.be.undefined;
+        });
+
+        it("should not be given to pregnant women", () => {
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF").concept.uuid);
+            complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Pregnancy").concept.uuid);
+            encounter.observations.push(paracheckObs);
+            encounter.observations.push(weightObs);
+            encounter.individual.dateOfBirth = moment().subtract(14, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
+            expect(act).to.be.undefined;
+        });
+
     });
 
-    describe("ACT and Primaquine", () => {
-        it("are provided when positive for PV and PF", () => {
+    describe("Chloroquine", () => {
+        it("should be given when PV Positive", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
-            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF and PV").concept.uuid);
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
             encounter.observations.push(weightObs);
             encounter.observations.push(paracheckObs);
 
@@ -172,59 +190,71 @@ describe("Malaria medications", () => {
             encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
 
             let prescriptions = prescription(encounter);
-            let primaquine = _.find(prescriptions, (pres) => pres.medicine === 'Primaquine Tablets');
-            expect(primaquine).to.be.ok;
+            let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+            expect(chloroquine).to.be.not.undefined;
+        }) ;
+
+        it("should be given when patient is pregnant and PF Positive", () => {
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF").concept.uuid);
+            complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Pregnancy").concept.uuid);
+            encounter.observations.push(paracheckObs);
+            encounter.observations.push(weightObs);
+            encounter.individual.dateOfBirth = moment().subtract(14, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
+            expect(act).to.be.undefined;
+            let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+            expect(chloroquine).to.be.not.undefined;
+        });
+
+        it("should be given when patient is pregnant and Positive for PF and PV", () => {
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF and PV").concept.uuid);
+            complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Pregnancy").concept.uuid);
+            encounter.observations.push(paracheckObs);
+            encounter.observations.push(weightObs);
+            encounter.individual.dateOfBirth = moment().subtract(14, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+            expect(chloroquine).to.be.not.undefined;
+        });
+
+        it("is given when paracheck/malaria negative", () => {
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Negative").concept.uuid);
+            encounter.observations.push(weightObs);
+            encounter.observations.push(paracheckObs);
+
+            encounter.individual.gender = Gender.create("Male");
+            encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+            expect(chloroquine).to.be.ok;
+        }) ;
+
+        it("is given when Paracheck result not provided", () => {
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            encounter.observations.push(weightObs);
+
+            encounter.individual.gender = Gender.create("Male");
+            encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
+            expect(chloroquine).to.be.ok;
         });
 
     });
 
-    describe("Chloroquine", () => {
-       it("is given when positive for PV", () => {
-           const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
-           const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
-           paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
-           encounter.observations.push(weightObs);
-           encounter.observations.push(paracheckObs);
-
-           encounter.individual.gender = Gender.create("Male");
-           encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
-
-           let prescriptions = prescription(encounter);
-           let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
-           expect(chloroquine).to.be.ok;
-       }) ;
-       it("is given when negative for malaria", () => {
-           const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
-           const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
-           paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Negative").concept.uuid);
-           encounter.observations.push(weightObs);
-           encounter.observations.push(paracheckObs);
-
-           encounter.individual.gender = Gender.create("Male");
-           encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
-
-           let prescriptions = prescription(encounter);
-           let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
-           expect(chloroquine).to.be.ok;
-       }) ;
-
-       it("is given when Paracheck result not provided", () => {
-           const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
-           encounter.observations.push(weightObs);
-
-           encounter.individual.gender = Gender.create("Male");
-           encounter.individual.dateOfBirth = moment().subtract(10, 'years').toDate();
-
-           let prescriptions = prescription(encounter);
-           let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
-           expect(chloroquine).to.be.ok;
-       }) ;
-
-    });
-
-    describe("Integrating everything together", () => {
-        it("when primaquine, act, paracetamol and chloroquine are required", () => {
-
+    describe("Primaquine, ACT & Paracetamol", () => {
+        it("should be given when Positive for PF and PV", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF and PV").concept.uuid);
@@ -244,11 +274,26 @@ describe("Malaria medications", () => {
             //
             // पॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी
             // प्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी
-            console.log(malariaPrescriptionMessage(encounter))
+            console.log(malariaPrescriptionMessage(encounter));
             expect(malariaPrescriptionMessage(encounter)).to.equal('पहिल्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी पहिल्या रांगेतील तीन गोळ्या \nदुसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी दुसऱ्या रांगेतील एक गोळी \nतिसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी तिसऱ्या रांगेतील एक गोळी \n\nपॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी\nप्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी');
         });
 
-    })
+        it("Primaquine & ACT should not be given when patient is pregnant and Positive for PF and PV", () => {
+            const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
+            paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF and PV").concept.uuid);
+            complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Pregnancy").concept.uuid);
+            encounter.observations.push(paracheckObs);
+            encounter.observations.push(weightObs);
+            encounter.individual.dateOfBirth = moment().subtract(14, 'years').toDate();
+
+            let prescriptions = prescription(encounter);
+            let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
+            expect(act).to.be.undefined;
+            let primaquine = _.find(prescriptions, (pres) => pres.medicine === 'Primaquine Tablets');
+            expect(primaquine).to.be.undefined;
+        });
+    });
 });
 
 describe("Conversion to marathi", () => {

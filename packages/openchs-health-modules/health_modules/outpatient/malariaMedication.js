@@ -93,15 +93,21 @@ const pregnant = (encounter) => {
 };
 
 const primaquineRequired = (encounter) => {
-    return !childBelow1Year(encounter) && !womanBetween16And40Years(encounter) && isPvPositive(encounter) && !pregnant(encounter);
+    return !childBelow1Year(encounter) 
+    && !womanBetween16And40Years(encounter) 
+    && isPvPositive(encounter) 
+    && !pregnant(encounter);
 };
 
-const actRequired = (encounter) => {
-    return isPfPositive(encounter);
-};
+const actRequired = (encounter) => isPfPositive(encounter) && !pregnant(encounter);
 
 const pcmRequired = () => true; //you come here only if you have fever.
-const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV", "Negative") || paracheckNotDone(encounter);
+
+const chloroquineRequired = (encounter) => {
+    return paracheckResultContains(encounter, "Positive for PV", "Negative") 
+    || paracheckNotDone(encounter)
+    || (isPfPositive(encounter) && pregnant(encounter));
+};
 
 const malariaTreatment = [
     {

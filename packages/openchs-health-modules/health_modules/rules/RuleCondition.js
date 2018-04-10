@@ -20,7 +20,6 @@ export default class RuleCondition {
 
     get look() {
         return this._addToChain((next, context) => {
-            console.log(context.matches);
             return next(context);
         });
     }
@@ -209,7 +208,7 @@ export default class RuleCondition {
     get age() {
         return this._addToChain((next, context) => {
             context.valueToBeChecked = this._contextualTime().diff(moment(this._getIndividual(context).dateOfBirth), 'years');
-            console.log(context.valueToBeChecked)
+            //console.log(context.valueToBeChecked)
             return next(context);
         });
     }
