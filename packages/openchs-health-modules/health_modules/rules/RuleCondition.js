@@ -270,8 +270,6 @@ export default class RuleCondition {
     }
 
     containsAnyAnswerConceptName(...conceptNames) {
-        console.log('containsAnyAnswerConceptName');
-        console.log(conceptNames);
         return this._addToChain((next, context) => {
             if (!this._hasCodedObs(context)) {
                 context.matches = false;
