@@ -2,7 +2,7 @@ import _ from "lodash";
 import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
 import {FormElementStatus} from "openchs-models";
 
-class ANC {
+class ANCFormHandler {
     preFilter(programEncounter, formElement, today) {
         let lmp = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
         this.weeksSinceLMP = FormElementsStatusHelper.weeksBetween(today, lmp);
@@ -83,4 +83,4 @@ class ANC {
     }
 }
 
-export default ANC;
+export default ANCFormHandler;

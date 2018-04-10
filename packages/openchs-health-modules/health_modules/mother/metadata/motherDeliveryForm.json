@@ -12,31 +12,15 @@
       "display": "Service Details",
       "formElements": [
         {
-          "name": "Date of discharge",
-          "uuid": "77791c29-90ec-485a-9cef-298b9b575dd2",
-          "keyValues": [],
-          "concept": {
-            "name": "Date of discharge",
-            "uuid": "b4d6b6b6-fff0-4dda-8f60-aa273ff20250",
-            "dataType": "Date"
-          },
-          "displayOrder": 1,
-          "mandatory": false
-        },
-        {
           "name": "Place of delivery",
           "uuid": "f48b8eb2-a338-45fd-b63d-3c00d266d388",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Place of delivery",
             "uuid": "a0405799-1e3c-40ef-90ba-84c9c0931660",
             "dataType": "Coded",
             "answers": [
-              {
-                "name": "Regional Hospital",
-                "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda"
-              },
               {
                 "name": "Home",
                 "uuid": "bb75a86c-05af-4b05-b699-860737d19e57"
@@ -46,21 +30,48 @@
                 "uuid": "fe24e909-6346-4e84-bacc-2ec5ae85bed8"
               },
               {
+                "name": "Primary Health Center",
+                "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43"
+              },
+              {
+                "name": "Regional Hospital",
+                "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda"
+              },
+              {
                 "name": "NGO Hospital",
                 "uuid": "cdb94629-a710-43f0-b5ce-3921905f24f2"
               },
               {
                 "name": "During Transportation like in Ambulance etc",
                 "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7"
-              },
-              {
-                "name": "Primary Health Center",
-                "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43"
               }
             ]
           },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Date of discharge",
+          "uuid": "77791c29-90ec-485a-9cef-298b9b575dd2",
+          "keyValues": [],
+          "concept": {
+            "name": "Date of discharge",
+            "uuid": "b4d6b6b6-fff0-4dda-8f60-aa273ff20250",
+            "dataType": "Date"
+          },
           "displayOrder": 2,
           "mandatory": false
+        },
+        {
+          "name": "Date of delivery",
+          "uuid": "4ff66c5e-becb-4f0c-bb33-59f5546311f4",
+          "concept": {
+            "name": "Date of delivery",
+            "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
+            "dataType": "Date"
+          },
+          "displayOrder": 3,
+          "mandatory": true
         },
         {
           "name": "Delivered By",
@@ -68,7 +79,7 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Delivered By",
+            "name": "Delivered by",
             "uuid": "58b6367a-825f-43e2-b6b7-b35a5cbc3a09",
             "dataType": "Coded",
             "answers": [
@@ -77,12 +88,12 @@
                 "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2"
               },
               {
-                "name": "Medical Officer/ Doctor",
-                "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27"
-              },
-              {
                 "name": "TBA (Trained Birth Attendant)",
                 "uuid": "f6947afd-9592-4ac8-808a-4cd5bdc1443e"
+              },
+              {
+                "name": "Medical Officer/ Doctor",
+                "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27"
               },
               {
                 "name": "Auxillary Nurse Midwife",
@@ -90,8 +101,8 @@
               }
             ]
           },
-          "displayOrder": 3,
-          "mandatory": false
+          "displayOrder": 4,
+          "mandatory": true
         }
       ]
     },
@@ -126,7 +137,7 @@
             ]
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Delivery Outcome",
@@ -155,7 +166,7 @@
             ]
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Number of babies",
@@ -168,21 +179,21 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Triplet",
-                "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab"
+                "name": "1",
+                "uuid": "9139d435-2178-46d9-aea9-429597e533b2"
               },
               {
                 "name": "Twins",
                 "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0"
               },
               {
-                "name": "1",
-                "uuid": "9139d435-2178-46d9-aea9-429597e533b2"
+                "name": "Triplet",
+                "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab"
               }
             ]
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Delivery Complications",
@@ -195,16 +206,6 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Uterine Rupture",
-                "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
-                "abnormal": true
-              },
-              {
-                "name": "Vaginal Rupture",
-                "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
-                "abnormal": true
-              },
-              {
                 "name": "Obstructed Labour",
                 "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152",
                 "abnormal": true
@@ -215,14 +216,55 @@
                 "abnormal": true
               },
               {
+                "name": "Uterine Rupture",
+                "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
+                "abnormal": true
+              },
+              {
+                "name": "Vaginal Rupture",
+                "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
+                "abnormal": true
+              },
+              {
                 "name": "Maternal Death",
                 "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373",
                 "abnormal": true
+              },
+              {
+                "name": "None",
+                "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
               }
             ]
           },
           "displayOrder": 4,
-          "mandatory": false
+          "mandatory": true
+        },
+        {
+          "name": "Sex of newborn",
+          "uuid": "d45a091c-b70d-4a66-a98e-32592f0ba3e6'",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Sex of newborn",
+            "uuid": "88b8cac0-0522-4ee2-a9e8-e287af00be32",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Male",
+                "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+              },
+              {
+                "name": "Female",
+                "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+              },
+              {
+                "name": "Other",
+                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+              }
+            ]
+          },
+          "displayOrder": 5,
+          "mandatory": true
         }
       ]
     }

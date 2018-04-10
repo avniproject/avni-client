@@ -1,8 +1,9 @@
 import * as programDecision from './motherProgramDecision';
 import {getDecisions as pncEncounterDecisions} from './pncEncounterDecision';
 import C from '../common';
-import ANC from "./formFilters/ANC";
+import ANCFormhandler from "./formFilters/ANCFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];
@@ -223,7 +224,8 @@ export function getNextScheduledVisits (programEncounter, today) {
     return programDecision.getNextScheduledVisits(programEncounter.programEnrolment, today, programEncounter);
 }
 
-const encounterTypeHandlerMap = new Map([['ANC', new ANC()]]);
+const encounterTypeHandlerMap = new Map([['ANC', new ANCFormhandler()], ['Delivery', new DeliveryFormHandler()]]);
+
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
     return FormElementsStatusHelper.getFormElementsStatuses(handler, programEncounter, formElementGroup, today);
