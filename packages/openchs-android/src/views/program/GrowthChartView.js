@@ -75,7 +75,7 @@ class GrowthChartView extends AbstractComponent {
                 drawCircleHole: false,
                 highlightEnabled: true,
                 drawValues: true,
-                circleRadius: 2,
+                circleRadius: 5              
             }
         }
     };
@@ -155,7 +155,9 @@ class GrowthChartView extends AbstractComponent {
     }
 
     getDataSets(array, concept, suffix) {
-        return [this.getDataFor(concept, suffix), ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line))];
+        let data = this.getDataFor(concept, suffix);
+        data = _.merge(data, { label: `${concept} in ${suffix}` });
+        return [ data, ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line))];
     }
 
     static style = {
