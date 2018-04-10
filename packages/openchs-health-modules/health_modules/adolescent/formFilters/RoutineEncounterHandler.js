@@ -51,6 +51,7 @@ export default class RoutineEncounterHandler {
     }
 
     fathersOccupation(programEncounter, formElement) {
+        console.log('Came to fathers occupation');
         return this._fatherIsAlive(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
     }
 

@@ -205,13 +205,6 @@
     ]
   },
   {
-    "name": "BMI",
-    "uuid": "7ac0d759-c50d-4971-88e0-84274224c839",
-    "dataType": "Numeric",
-    "lowNormal": 18.5,
-    "highNormal": 24.9
-  },
-  {
     "name": "5",
     "uuid": "98408506-1159-4245-ba94-5834be1ccd2e",
     "dataType": "NA"

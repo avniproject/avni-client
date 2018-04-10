@@ -77,6 +77,13 @@
     "unit": "°F"
   },
   {
+    "name": "BMI",
+    "uuid": "7ac0d759-c50d-4971-88e0-84274224c839",
+    "dataType": "Numeric",
+    "lowNormal": 18.5,
+    "highNormal": 24.9
+  },
+  {
     "name": "Underweight",
     "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
     "dataType": "NA"

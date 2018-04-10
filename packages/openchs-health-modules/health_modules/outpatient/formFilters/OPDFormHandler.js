@@ -1,4 +1,7 @@
-import FormElementStatusBuilder from "../rules/FormElementStatusBuilder";
+import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import C from '../../common';
+import _ from 'lodash';
+import FormElementStatus from "../../../../openchs-models/src/application/FormElementStatus";
 
 export default class {
 
@@ -13,6 +16,17 @@ export default class {
         statusBuilder.show().when
             .valueInEncounter("Is outpatient referred to higher health center?").containsAnswerConceptName("Yes");
         return statusBuilder.build();
+    }
+
+    bmi(encounter, formElement) {
+        let weight = encounter.getObservationValue('Weight');
+        let height = encounter.getObservationValue('Height');
+
+        let bmi;
+        if (_.isNumber(height) && _.isNumber(weight)) {
+            bmi = C.calculateBMI(weight, height);
+        }
+        return new FormElementStatus(formElement.uuid, true, bmi);
     }
 
     _getStatusBuilder(encounter, formElement) {

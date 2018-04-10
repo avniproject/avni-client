@@ -38,13 +38,28 @@
           "mandatory": false
         },
         {
+          "name": "BMI",
+          "uuid": "e32ff173-fef2-4c6f-9440-2a5232fa44e7",
+          "keyValues": [
+            {
+              "key": "editable",
+              "value": false
+            }
+          ],
+          "concept": {
+            "uuid": "7ac0d759-c50d-4971-88e0-84274224c839"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
           "name": "Temperature",
           "uuid": "294c23fb-aef2-499c-b91f-3294df5a28c0",
           "keyValues": [],
           "concept": {
             "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9"
           },
-          "displayOrder": 3,
+          "displayOrder": 4,
           "mandatory": false
         },
         {
@@ -54,7 +69,7 @@
           "concept": {
             "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37"
           },
-          "displayOrder": 4,
+          "displayOrder": 5,
           "mandatory": false
         },
         {
@@ -64,7 +79,7 @@
           "concept": {
             "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8"
           },
-          "displayOrder": 5,
+          "displayOrder": 6,
           "mandatory": false
         },
         {
@@ -81,7 +96,7 @@
             "highNormal": 140.0,
             "unit": "mm Hg"
           },
-          "displayOrder": 6,
+          "displayOrder": 7,
           "mandatory": false
         },
         {
@@ -98,7 +113,7 @@
             "highNormal": 90.0,
             "unit": "mm Hg"
           },
-          "displayOrder": 7,
+          "displayOrder": 8,
           "mandatory": false
         }
       ]
