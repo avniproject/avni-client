@@ -72,10 +72,10 @@ class GrowthChartView extends AbstractComponent {
                 color: processColor("black"),
                 drawFilled: false,
                 drawCircles: true,
-                drawCircleHole: false,
+                circleColor: processColor("black"),
                 highlightEnabled: true,
                 drawValues: true,
-                circleRadius: 5              
+                circleRadius: 3
             }
         }
     };
@@ -123,7 +123,7 @@ class GrowthChartView extends AbstractComponent {
                 drawHighlightIndicators: true,
                 color: processColor("red"),
                 drawFilled: true,
-                valueTextSize: 10,
+                valueTextSize: 18,
                 drawCircleHole: false,
                 drawCircles: false,
                 dashedLineEnabled: true,
@@ -169,7 +169,6 @@ class GrowthChartView extends AbstractComponent {
     static style = {
         graphButton: {
             self: {
-                height: 28,
                 borderRadius: 2,
                 height: 36,
                 margin: 4,
@@ -206,25 +205,33 @@ class GrowthChartView extends AbstractComponent {
         return this.states.heightForAge === this.state.selectedGraph? GrowthChartView.style.selectedGraphButton : GrowthChartView.style.unselectedGraphButton;
     }
 
+    getLegendLabel() {
+        return this.states.weightForAge === this.state.selectedGraph? "Weight" : "Height";
+    }
+
     render() {
         const legend = {
             enabled: true,
             textColor: processColor('red'),
             textSize: 12,
-            position: 'BELOW_CHART_RIGHT',
+            position: 'BELOW_CHART_LEFT',
             form: 'SQUARE',
             formSize: 14,
             xEntrySpace: 10,
             yEntrySpace: 5,
             formToTextSpace: 5,
             wordWrapEnabled: true,
-            maxSizePercent: 0.5
+            maxSizePercent: 0.5,
+            custom: {
+                colors: [processColor('black'), processColor('green'), processColor("orange"), processColor("red")],
+                labels: [this.getLegendLabel(), "Grade 1", "Grade 2", "Grade 3"]
+            }
         };
-        const marker = {
+        const marker = {    
             enabled: true,
             markerColor: processColor('white'),
             textColor: processColor('black'),
-            markerFontSize: 14,
+            markerFontSize: 18,
         };
         const styles = StyleSheet.create({
             container: {
@@ -279,7 +286,6 @@ class GrowthChartView extends AbstractComponent {
 
                         dragDecelerationEnabled={true}
                         dragDecelerationFrictionCoef={0.99}
-                        // yAxis={{left: {axisMaximum: 12000}}}
 
                         keepPositionOnRotation={false}
 
