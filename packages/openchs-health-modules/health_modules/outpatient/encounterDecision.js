@@ -181,7 +181,7 @@ const getDecisions = function (encounter) {
         let weightRangeToCode = getWeightRangeToCode(complaint, weight);
 
         let prescriptionSet;
-        if (potentiallyPregnant || pregnant && ["Cough", "Boils", "Wound"].indexOf(complaint) !== -1) {
+        if ((potentiallyPregnant || pregnant) && ["Cough", "Boils", "Wound"].indexOf(complaint) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
         } else if (complaints.indexOf("Fever") === -1) {
             prescriptionSet = treatmentByComplaintAndCode[complaint];

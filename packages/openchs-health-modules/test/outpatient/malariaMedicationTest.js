@@ -140,12 +140,13 @@ describe("Malaria medications", () => {
     describe("ACT", () => {
         it("should be given when PF positive", () => {
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(10, Concept.dataType.Numeric));
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF").concept.uuid);
             encounter.observations.push(paracheckObs);
+            encounter.observations.push(weightObs);
             encounter.individual.dateOfBirth = moment().subtract(2, 'years').toDate();
 
             let prescriptions = prescription(encounter);
-            expect(prescriptions).to.have.lengthOf(3);
             let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
             expect(act).to.be.not.undefined;
 
@@ -156,7 +157,10 @@ describe("Malaria medications", () => {
 
         it("should not be given when PV positive", () => {
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
+            const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PV").concept.uuid);
+            encounter.observations.push(paracheckObs);
+            encounter.observations.push(weightObs);
             let prescriptions = prescription(encounter);
             let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
             expect(act).to.be.undefined;

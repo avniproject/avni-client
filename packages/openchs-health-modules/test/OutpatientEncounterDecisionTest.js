@@ -67,60 +67,6 @@ describe('Make Decision', function () {
         assert.equal((decisions[0].value.match(/पहिल्या दिवशी/g) || []).length, 0, decisions[0].value);
     });
 
-    describe("For Cough, Boils, Wound", function() {
-        let complaints = ['Cough', 'Boils', 'Wound'];
-
-        it('Cifran instead of Septran for potentially pregnant women (16-40 years age group)', function () {
-            for (let complaint of complaints) {
-                let decisions = decision.getDecisions(new Encounter('Outpatient')
-                    .setObservation("Complaint", [complaint])
-                    .setGender("Female")
-                    .setAge(25)
-                    .setObservation("Weight", 40)).encounterDecisions;
-                assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
-                assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
-            }
-        });
-
-        it('Cifran instead of Septran for pregnant women regardless of age', function() {
-            for (let complaint of complaints) {
-                for (let age of [14, 25, 45]) {
-                    let decisions = decision.getDecisions(new Encounter('Outpatient')
-                        .setObservation("Complaint", [complaint, "Pregnancy"])
-                        .setGender("Female")
-                        .setAge(age)
-                        .setObservation("Weight", 40)).encounterDecisions;
-                    assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
-                    assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
-                }
-            }
-        });
-
-        it('Prescribe Septran for everybody else', function() {
-            for (let complaint of complaints) {
-                for (let age of [14, 30, 50]) {
-                    let decisions = decision.getDecisions(new Encounter('Outpatient')
-                        .setObservation("Complaint", [complaint])
-                        .setGender("Male")
-                        .setAge(age)
-                        .setObservation("Weight", 40)).encounterDecisions;
-                    assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
-                    assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
-
-                    if (age < 16 && age > 40) {
-                        decisions = decision.getDecisions(new Encounter('Outpatient')
-                            .setObservation("Complaint", [complaint])
-                            .setGender("Female")
-                            .setAge(age)
-                            .setObservation("Weight", 40)).encounterDecisions;
-                        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
-                        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
-                    }
-                }
-            }
-        });
-    });
-    
     it('Before food and after food instruction', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation("Complaint", ["Cold"]).setGender("Male").setAge(25).setObservation("Weight", 40)).encounterDecisions;
         assert.equal((decisions[0].value.match(/जेवणाआधी/g) || []).length, 0, decisions[0].value);
@@ -180,6 +126,150 @@ describe('Make Decision', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Other"]).setGender("Male").setAge(20).setObservation("Weight", 18)).encounterDecisions;
         let treatmentDecision = getDecisionByName(decisions, 'Treatment Advice');
         assert.equal(treatmentDecision.value, '');
+    });
+
+    var defaultEncounter = (complaint, weight=40) => 
+        new Encounter('Outpatient').setObservation("Complaint", [complaint]).setObservation("Weight", weight)
+
+    var defaultMaleEncounter = (complaint, weight) => 
+        defaultEncounter(complaint, weight).setGender("Male").setAge(25);
+
+    var defaultFemaleEncounter = (complaint, weight) => 
+        defaultEncounter(complaint, weight).setGender("Female").setAge(25);
+
+    var verifyPrescriptionForComplaint = (complaint, assertionFn, nonDefaultEncounter) => {
+        let verifyPrescription = (encounter) => {
+            let decisions = decision.getDecisions(encounter).encounterDecisions;
+            let message = completeValue(decisions);
+            assertionFn(decisions, message);
+        };
+
+        if (!nonDefaultEncounter) {
+            verifyPrescription(defaultMaleEncounter(complaint));
+            verifyPrescription(defaultFemaleEncounter(complaint));
+        }
+        else {
+            verifyPrescription(nonDefaultEncounter);
+        }
+    }
+
+    describe("For Headache", () => {
+        it("prescribe Paracetamol for 3 days", () => {
+            verifyPrescriptionForComplaint("Headache", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/३ दिवस\nपॅरासिटामॉल/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Cold", () => {
+        it("prescribe Cetrizine for 3-5 days", () => {
+            verifyPrescriptionForComplaint("Cold", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Diarrhoea", () => {
+        it("prescribe Furoxone, BC and ORS for 3 days", () => {
+            verifyPrescriptionForComplaint("Diarrhoea", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/३ दिवस\nफ्युरोक्सोन/g) || []).length, 1, message);
+                assert.equal((message.match(/३ दिवस\nबीसी/g) || []).length, 1, message);
+                assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Vomiting", () => {
+        let complaint = "Vomiting";
+
+        it("if weight upto 8 kgs, prescribe Ondenestran Syrup and ORS for 3 days", () => {
+            let weight = 7;
+            [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)].map(
+                (encounter) =>
+                    verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                        assert.equal(decisions.length, 1); 
+                        assert.equal((message.match(/३ दिवस\nऑन्डेन सायरप/g) || []).length, 1, message);
+                        assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
+                    }, encounter)
+            );
+        });
+        it("if weight between 8 and 16, prescribe Onden Syrup and ORS for 3 days", () => {
+            let weight = 12;
+            [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)].map(
+                (encounter) =>
+                    verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                        assert.equal(decisions.length, 1); 
+                        assert.equal((message.match(/३ दिवस\nसायरप ओंडेन/g) || []).length, 1, message);
+                        assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
+                    }, encounter)
+            );
+        });
+        it("if weight more than 16, prescribe Perinorm and ORS for 3 days", () => {
+            let weight = 25;
+            [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)].map(
+                (encounter) =>
+                    verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                        assert.equal(decisions.length, 1); 
+                        assert.equal((message.match(/३ दिवस\nपेरीनॉर्म/g) || []).length, 1, message);
+                        assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
+                    }, encounter)
+            );
+        });
+    });
+
+    describe("For Cough or Boils or Wound", function() {
+        let complaints = ['Cough', 'Boils', 'Wound'];
+
+        it('Cifran instead of Septran for potentially pregnant women (16-40 years age group)', function () {
+            for (let complaint of complaints) {
+                verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                    assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
+                    assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+                }, defaultFemaleEncounter(complaint))
+            }
+        });
+
+        it('Cifran instead of Septran for pregnant women regardless of age', function() {
+            for (let complaint of complaints) {
+                for (let age of [14, 25, 45]) {
+                    verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
+                        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
+                    }, defaultFemaleEncounter(complaint).setObservation("Complaint", [complaint, "Pregnancy"]).setAge(age))
+                }
+            }
+        });
+
+        it('Prescribe Septran for everybody else', function() {
+            for (let complaint of complaints) {
+                for (let age of [14, 30, 50]) {
+                    verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                        assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
+                        assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
+                    }, defaultMaleEncounter(complaint).setAge(age))
+
+                    if (age < 16 && age > 40) {
+                        verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                            assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
+                            assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
+                        }, defaultFemaleEncounter(complaint).setAge(age))
+                    }
+                }
+            }
+        });
+    });
+
+    describe("For Ring Worm", () => {
+        it("prescribe Cetrizine and Salicyclic Acid for 3 days", () => {
+            verifyPrescriptionForComplaint("Ring Worm", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
+                assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसॅलिसिलिक ऍसिड/g) || []).length, 1, message);
+            });
+        });
     });
 
     var completeValue = function (decisions) {
