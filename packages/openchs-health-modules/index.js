@@ -1,4 +1,4 @@
-export * as encounterDecision from "./health_modules/encounterDecision";
+export * as encounterDecision from "./health_modules/outpatient/encounterDecision";
 export * as individualRegistrationDecision from "./health_modules/individualRegistrationDecision";
 export * as programConfig from "./health_modules/programConfig";
 export * as programEnrolmentDecision from "./health_modules/programEnrolmentDecision";

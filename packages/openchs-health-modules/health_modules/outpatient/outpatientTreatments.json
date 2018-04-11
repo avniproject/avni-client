@@ -1,0 +1,1349 @@
+{
+  "Headache": {
+    "X1": {
+      "3": [
+        {
+          "Medicine": "Paracetamol Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": 3
+        }]
+    },
+    "X2": {
+      "3": [
+        {
+          "Medicine": "Paracetamol Syrup",
+          "Dose Unit": "Spoon",
+          "Amount": 1,
+          "Times": 3
+        }]
+    },
+    "X3": {
+      "3": [
+        {
+          "Medicine": "Paracetamol Syrup",
+          "Amount": 1.5,
+          "Dose Unit": "Spoon",
+          "Times": 3
+        }]
+    },
+    "X4": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X5": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        }]
+    },
+    "X6": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X7": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        }]
+    }
+  },
+  "Chloroquine Resistant Malaria": {
+    "X1": {
+      "3": [
+        {
+          "Medicine": "Lonart Forte",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X2": {
+      "3": [
+        {
+          "Medicine": "Lonart Forte",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X3": {
+      "3": [
+        {
+          "Medicine": "Lonart Forte",
+          "Amount": 1.5,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X4": {
+      "3": [
+        {
+          "Medicine": "Lonart Forte",
+          "Amount": 2,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    }
+  },
+  "Cold": {
+    "X1": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.25,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        }
+      ]
+    },
+    "X2": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        }
+      ]
+    },
+    "X3": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        }
+      ]
+    },
+    "X4": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        }
+      ]
+    },
+    "X5": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        }
+      ]
+    },
+    "X6": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        }
+      ]
+    },
+    "X7": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        }
+      ]
+    }
+  },
+  "Cough": {
+    "X1": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X2": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X3": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X4": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X5": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X6": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X7": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 2,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    }
+  },
+  "Cifran-Special": {
+    "X1": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X2": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X3": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X4": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X5": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X6": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X7": {
+      "1-5": [
+        {
+          "Medicine": "Cifran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    }
+  },
+  "Diarrhoea": {
+    "X1": {
+      "3": [
+        {
+          "Medicine": "Furoxone Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": 3
+        },
+        {
+          "Medicine": "Abdek Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X2": {
+      "3": [
+        {
+          "Medicine": "Furoxone Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon Syrup",
+          "Times": 3
+        },
+        {
+          "Medicine": "Abdek Syrup",
+          "Dose Unit": "Spoon",
+          "Amount": 1,
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X3": {
+      "3": [
+        {
+          "Medicine": "Furoxone Syrup",
+          "Amount": 2,
+          "Dose Unit": "Spoon",
+          "Times": 3
+        },
+        {
+          "Medicine": "Abdek Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X4": {
+      "3": [
+        {
+          "Medicine": "Furoxone",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "BC",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X5": {
+      "3": [
+        {
+          "Medicine": "Furoxone",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        },
+        {
+          "Medicine": "BC",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X6": {
+      "3": [
+        {
+          "Medicine": "Furoxone",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "BC",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X7": {
+      "3": [
+        {
+          "Medicine": "Furoxone",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        },
+        {
+          "Medicine": "BC",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    }
+  },
+  "Vomiting": {
+    "X1": {
+      "3": [
+        {
+          "Medicine": "Ondensetran Syrup",
+          "Amount": 1,
+          "Dose Unit": "ml",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X2": {
+      "3": [
+        {
+          "Medicine": "Ondensetran Syrup",
+          "Amount": 2,
+          "Dose Unit": "ml",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X3": {
+      "3": [
+        {
+          "Medicine": "Onden Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X4": {
+      "3": [
+        {
+          "Medicine": "Onden Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X5": {
+      "3": [
+        {
+          "Medicine": "Perinorm",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X6": {
+      "3": [
+        {
+          "Medicine": "Perinorm",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X7": {
+      "3": [
+        {
+          "Medicine": "Perinorm",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }
+      ]
+    }
+  },
+  "Abdominal pain": {
+    "X1": {
+      "2": [
+        {
+          "Medicine": "Cyclopam Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "3"
+        }
+      ]
+    },
+    "X2": {
+      "2": [
+        {
+          "Medicine": "Cyclopam Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "3"
+        }
+      ]
+    },
+    "X3": {
+      "2": [
+        {
+          "Medicine": "Cyclopam Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "3"
+        }
+      ]
+    },
+    "X4": {
+      "2": [
+        {
+          "Medicine": "Cyclopam",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X5": {
+      "2": [
+        {
+          "Medicine": "Cyclopam",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "3"
+        }
+      ]
+    },
+    "X6": {
+      "2": [
+        {
+          "Medicine": "Cyclopam",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X7": {
+      "2": [
+        {
+          "Medicine": "Cyclopam",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "3"
+        }
+      ]
+    }
+  },
+  "Acidity": {
+    "X4": {
+      "1-5": [
+        {
+          "Medicine": "Famotidine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "1"
+        }
+      ]
+    },
+    "X5": {
+      "1-5": [
+        {
+          "Medicine": "Famotidine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X6": {
+      "1-5": [
+        {
+          "Medicine": "Famotidine",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X7": {
+      "1-5": [
+        {
+          "Medicine": "Famotidine",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    }
+  },
+  "Boils": {
+    "X1": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X2": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X3": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X4": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X5": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X6": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X7": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 2,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    }
+  },
+  "Scabies": {
+    "X1": {
+      "3": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.25,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X2": {
+      "3": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X3": {
+      "3": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X4": {
+      "3": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X5": {
+      "3": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X6": {
+      "3": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X7": {
+      "3": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Scabizol",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    }
+  },
+  "Ring Worm": {
+    "X1": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.25,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X2": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X3": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X4": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X5": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X6": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    },
+    "X7": {
+      "3-5": [
+        {
+          "Medicine": "Cetrizine",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "Once Evening"
+        },
+        {
+          "Medicine": "Salicylic Acid",
+          "Amount": 0,
+          "Dose Unit": "Paste",
+          "Times": "Special Instruction"
+        }
+      ]
+    }
+  },
+  "Body Ache": {
+    "X1": {
+      "3": [
+        {
+          "Medicine": "Paracetamol Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": 3
+        }]
+    },
+    "X2": {
+      "3": [
+        {
+          "Medicine": "Paracetamol Syrup",
+          "Dose Unit": "Spoon",
+          "Amount": 1,
+          "Times": 3
+        }]
+    },
+    "X3": {
+      "3": [
+        {
+          "Medicine": "Paracetamol Syrup",
+          "Amount": 1.5,
+          "Dose Unit": "Spoon",
+          "Times": 3
+        }]
+    },
+    "X4": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X5": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        }]
+    },
+    "X6": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X7": {
+      "3": [
+        {
+          "Medicine": "Paracetamol",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 3
+        }]
+    }
+  },
+  "Pregnancy": {
+    "X1": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X2": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X3": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X4": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X5": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X6": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    },
+    "X7": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "Calcium",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        }]
+    }
+  },
+  "Wound": {
+    "X1": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X2": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 0.5,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X3": {
+      "1-5": [
+        {
+          "Medicine": "Septran Syrup",
+          "Amount": 1,
+          "Dose Unit": "Spoon",
+          "Times": "2"
+        }
+      ]
+    },
+    "X4": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 0.5,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X5": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X6": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    },
+    "X7": {
+      "1-5": [
+        {
+          "Medicine": "Septran",
+          "Amount": 2,
+          "Dose Unit": "Tablet",
+          "Times": "2"
+        }
+      ]
+    }
+  },
+  "Giddiness": {
+    "X1": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X2": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X3": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X4": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X5": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X6": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    },
+    "X7": {
+      "1-30": [
+        {
+          "Medicine": "Iron Folic Acid",
+          "Amount": 1,
+          "Dose Unit": "Tablet",
+          "Times": 2
+        },
+        {
+          "Medicine": "ORS",
+          "Amount": 0,
+          "Dose Unit": "Powder",
+          "Times": "Special Instruction"
+        }]
+    }
+  }
+}

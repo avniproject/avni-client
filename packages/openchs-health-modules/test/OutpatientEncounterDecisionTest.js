@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-var decision = require('../health_modules/encounterDecision');
+var decision = require('../health_modules/outpatient/encounterDecision');
 var {Encounter, Form} = require('./Entities');
 
 describe('Make Decision', function () {
