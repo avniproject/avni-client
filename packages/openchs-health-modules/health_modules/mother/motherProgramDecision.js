@@ -108,7 +108,7 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     let summary = [];
     const lmpDate = programEnrolment.getObservationValue('Last menstrual period');
     let daysFromLMP = C.getDays(lmpDate, today);
-    let gestationalAge = _.round(daysFromLMP / 7, 1);
+    let gestationalAge = _.floor(daysFromLMP / 7, 0);
     summary.push({name: 'Gestational Age', value: gestationalAge});
     summary.push({
         name: 'Estimated Date of Delivery',
