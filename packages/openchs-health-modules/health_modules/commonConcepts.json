@@ -35,6 +35,11 @@
     "unit": "kg"
   },
   {
+    "name": "Fever",
+    "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+    "dataType": "NA"
+  },
+  {
     "name": "Height",
     "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
     "dataType": "Numeric",
@@ -58,7 +63,7 @@
     "dataType": "Numeric",
     "lowNormal": 60,
     "highNormal": 100,
-    "unit": "beats/minute"
+    "unit": "bpm"
   },
   {
     "name": "Respiratory Rate",
@@ -461,6 +466,11 @@
   {
     "name": "HIV/AIDS",
     "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
+    "dataType": "NA"
+  },
+  {
+    "name": "HIV/AIDS Test",
+    "uuid": "f5d77785-c9e1-421c-98f7-fb713aeef140",
     "dataType": "Coded",
     "answers": [
       {
@@ -524,6 +534,36 @@
   {
     "name": "None",
     "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+    "dataType": "NA"
+  },
+  {
+    "name": "One",
+    "uuid": "73431353-137e-4997-92aa-26b3cb79eba7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Two",
+    "uuid": "d1e58ac3-1ea7-46a1-8e17-e9f2c6789715",
+    "dataType": "NA"
+  },
+  {
+    "name": "Three",
+    "uuid": "a335e989-3c98-45f6-9659-1178c231cda0",
+    "dataType": "NA"
+  },
+  {
+    "name": "More than three",
+    "uuid": "0ba85fd4-4d70-4f03-b449-8dd12e30d690",
+    "dataType": "NA"
+  },
+  {
+    "name": "Increased",
+    "uuid": "563eb915-f607-48de-86af-3295b6f35bb8",
+    "dataType": "NA"
+  },
+  {
+    "name": "Decreased",
+    "uuid": "1aef1b55-0c52-4961-a1c9-f35e4c6a6f00",
     "dataType": "NA"
   }
 ]

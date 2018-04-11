@@ -635,7 +635,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Bad headache",
+    "name": "Severe headache",
     "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
     "abnormal": true,
     "dataType": "NA"
@@ -893,6 +893,16 @@
     "name": "White Discharge",
     "uuid": "1ff880ff-477d-4519-a664-a612a393dd60",
     "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Previa",
+    "uuid": "d9501d6b-7ae9-4b2f-b1a3-56f7fb1ea241",
+    "dataType": "NA"
+  },
+  {
+    "name": "Not Previ",
+    "uuid": "92454e8f-6ead-42a8-8c8c-114a405c1e39",
     "dataType": "NA"
   },
   {
@@ -1247,5 +1257,79 @@
         "abnormal": true
       }
     ]
+  },
+  {
+    "name": "Excessive vomiting and inability to consume anything orally",
+    "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Pregnancy complications",
+    "uuid": "0adc4170-9ebb-4feb-8b81-450fbf9a04dc",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+        "abnormal": true
+      },
+      {
+        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "abnormal": true
+      },
+      {
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+        "abnormal": true
+      },
+      {
+        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+        "abnormal": true
+      },
+      {
+        "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
+        "abnormal": true
+      },
+      {
+        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "abnormal": true
+      },
+      {
+        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+        "abnormal": true
+      },
+      {
+        "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
+        "abnormal": true
+      },
+      {
+        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+        "abnormal": true
+      },
+      {
+        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+        "abnormal": true
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "abnormal": true
+      },
+      {
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      }
+    ]
+  },
+  {
+    "name": "Other pregnancy complications",
+    "uuid": "9ab68204-6336-4074-b99b-7de20549be3b",
+    "dataType": "Text"
+  },
+  {
+    "name": "Present and Regular",
+    "uuid": "45b86f84-aeb9-474d-bef8-df986c0a0927",
+    "dataType": "NA"
+  },
+  {
+    "name": "Present and Irregular",
+    "uuid": "5576ac3f-5492-4956-9934-801f06f1ca13",
+    "dataType": "NA"
   }
 ]

@@ -142,7 +142,7 @@ export function getDecisions (programEncounter, today) {
         }
 
         function manageVaginalBleeding() {
-            let pregnancyComplaints = getObservationValueFromEntireEnrolment("Pregnancy Complaints");
+            let pregnancyComplaints = getObservationValueFromEntireEnrolment("Pregnancy complications");
             var vaginalBleeding = pregnancyComplaints && pregnancyComplaints
                 .indexOf("PV bleeding") >= 0;
             if (vaginalBleeding && pregnancyPeriodInWeeks > 20) {
