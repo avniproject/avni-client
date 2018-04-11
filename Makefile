@@ -24,8 +24,7 @@ clean: clean_env ##
 deps: build_env ## 
 # </deps>
 
-
-ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | cut -d ' ' -f 2 | cut -d ' ' -f 1)
+ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 setup_hosts:
 	cd packages/openchs-android; adb root
 	cd packages/openchs-android; adb remount
