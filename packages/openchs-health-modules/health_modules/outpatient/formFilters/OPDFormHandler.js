@@ -22,11 +22,12 @@ export default class {
         let weight = encounter.getObservationValue('Weight');
         let height = encounter.getObservationValue('Height');
 
-        let bmi;
+        let bmi = '';
         if (_.isNumber(height) && _.isNumber(weight)) {
             bmi = C.calculateBMI(weight, height);
         }
         return new FormElementStatus(formElement.uuid, true, bmi);
+
     }
 
     _getStatusBuilder(encounter, formElement) {
