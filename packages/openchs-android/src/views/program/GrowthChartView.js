@@ -157,6 +157,12 @@ class GrowthChartView extends AbstractComponent {
     getDataSets(array, concept, suffix) {
         let data = this.getDataFor(concept, suffix);
         data = _.merge(data, { label: `${concept} in ${suffix}` });
+        if (concept == 'Weight') {
+            const birthWt = this.props.params.enrolment.findObservation('Birth Weight');
+            if (birthWt) {
+                data.values.unshift({ x:0, y:birthWt.getValue(), marker: `${birthWt.getValue()} ${suffix}`});
+            }
+        }
         return [ data, ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line))];
     }
 
