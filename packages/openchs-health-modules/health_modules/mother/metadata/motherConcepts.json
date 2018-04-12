@@ -288,351 +288,6 @@
     "dataType": "NA"
   },
   {
-    "name": "High Risk Conditions",
-    "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "47b79102-ad82-4a61-83cd-e01c4bc73cfe",
-        "abnormal": true
-      },
-      {
-        "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
-        "abnormal": true
-      },
-      {
-        "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
-        "abnormal": true
-      },
-      {
-        "uuid": "d976d3c9-0c39-4faf-8544-f9a2273ea2d5",
-        "abnormal": true
-      },
-      {
-        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
-        "abnormal": true
-      },
-      {
-        "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
-        "abnormal": true
-      },
-      {
-        "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
-        "abnormal": true
-      },
-      {
-        "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
-        "abnormal": true
-      },
-      {
-        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
-        "abnormal": true
-      },
-      {
-        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
-        "abnormal": true
-      },
-      {
-        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
-        "abnormal": true
-      },
-      {
-        "uuid": "cc23823e-2f67-4230-98d4-46d326548869",
-        "abnormal": true
-      },
-      {
-        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
-        "abnormal": true
-      },
-      {
-        "uuid": "57c62191-910f-4d86-bb9d-ab0d9009a04d",
-        "abnormal": true
-      },
-      {
-        "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
-        "name": "Essential Hypertension",
-        "abnormal": true
-      },
-      {
-        "uuid": "f2e5ac5b-b0f8-4088-bc42-397a3885308f",
-        "name": "Superimposed Pre-Eclampsia",
-        "abnormal": true
-      },
-      {
-        "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
-        "abnormal": true
-      },
-      {
-        "uuid": "0eb43d96-dfff-4e45-91e8-1a273b419763",
-        "name": "Mild Pre-Eclampsia",
-        "abnormal": true
-      },
-      {
-        "uuid": "e6b24a5c-00f2-46c7-aa67-5b460df5cc81",
-        "name": "Severe Pre-Eclampsia",
-        "abnormal": true
-      },
-      {
-        "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
-        "name": "Severe Anemia",
-        "abnormal": true
-      },
-      {
-        "uuid": "c67d2c3a-c1c8-4cb7-b76e-b77e02541577",
-        "name": "Moderate Anemia",
-        "abnormal": true
-      },
-      {
-        "uuid": "338d5fb1-0493-4270-8d35-81105c239bbb",
-        "name": "Grand Multipara",
-        "abnormal": true
-      },
-      {
-        "uuid": "8021adee-ad70-4644-97c6-d0804851f8d3",
-        "name": "Old age pregnancy",
-        "abnormal": true
-      },
-      {
-        "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
-        "name": "Underweight",
-        "abnormal": true
-      },
-      {
-        "uuid": "9af1e8e9-f16c-46de-8794-ac302444c63d",
-        "name": "Short Stature",
-        "abnormal": true
-      },
-      {
-        "uuid": "edb0ec5e-56dc-4826-b922-52ed2e182fd8",
-        "name": "Under age pregnancy",
-        "abnormal": true
-      },
-      {
-        "uuid": "73ece93d-2065-4ff2-8f87-669142d186e6",
-        "name": "Weight Gain Per Month less than 1kg",
-        "abnormal": true
-      },
-      {
-        "uuid": "4d95ca6e-f2a1-42bd-b52b-44fd8e853d63",
-        "name": "Weight Gain Per Month more than 1.5kg",
-        "abnormal": true
-      },
-      {
-        "uuid": "45350576-a60b-4431-90da-65604933d97c",
-        "name": "HIV/AIDS Positive",
-        "abnormal": true
-      },
-      {
-        "uuid": "06c6b0ea-8ddc-4ed0-ab58-59ed67659571",
-        "name": "VDRL Positive",
-        "abnormal": true
-      },
-      {
-        "uuid": "4d2733ec-098a-407b-bfd2-1fd123dbe96d",
-        "name": "Sickling Positive",
-        "abnormal": true
-      },
-      {
-        "uuid": "705b3ef7-e41a-4954-bc3f-9556eb002f3d",
-        "name": "Sickle cell disease SS",
-        "abnormal": true
-      },
-      {
-        "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c",
-        "name": "Hepatitis B Positive",
-        "abnormal": true
-      },
-      {
-        "uuid": "0dee2973-eebe-4699-b676-b770fdd1c411",
-        "name": "Malaria",
-        "abnormal": true
-      },
-      {
-        "uuid": "96ec37c6-9572-4288-9220-2fe806093bde",
-        "name": "Malpresentation",
-        "abnormal": true
-      },
-      {
-        "uuid": "af7ae32a-dc5f-4ac2-a372-1baa6edf0b53",
-        "name": "Previous Abortion(s)",
-        "abnormal": true
-      },
-      {
-        "uuid": "9b9b1c0e-8dd3-4520-8c46-4488fd030fa9",
-        "name": "Previous Retained Placenta",
-        "abnormal": true
-      },
-      {
-        "uuid": "937a4d2a-7e38-4ca5-8309-113199d4a27e",
-        "name": "Previous Still Birth",
-        "abnormal": true
-      },
-      {
-        "uuid": "217d0b53-0314-4a64-b710-82fc8fe1bf9c",
-        "name": "Previous Intrauterine Death",
-        "abnormal": true
-      },
-      {
-        "uuid": "6b641e43-b981-4c10-a83c-fafac4654372",
-        "name": "Previous Intrauterine Growth Retardation",
-        "abnormal": true
-      },
-      {
-        "uuid": "e6759d31-2529-4919-b38b-34cb09188767",
-        "name": "Previous Post Partum Haemorrhage",
-        "abnormal": true
-      },
-      {
-        "uuid": "43524d76-5f86-485f-b101-3b669ca3431e",
-        "name": "Previous Threatened Abortion",
-        "abnormal": true
-      },
-      {
-        "uuid": "de5d06c1-df58-4e0f-949c-52100f769932",
-        "name": "Previous LSCS/C-section",
-        "abnormal": true
-      },
-      {
-        "uuid": "79a37abe-1a1d-41fc-9732-c95b7108553e",
-        "name": "Previous Pre-term labour",
-        "abnormal": true
-      },
-      {
-        "uuid": "4f40dbfb-008f-4b34-856e-d668207cdb7e",
-        "name": "Previous Instrumental Delivery",
-        "abnormal": true
-      },
-      {
-        "uuid": "24bd28bc-9301-446f-94c0-9264bf3e4cd8",
-        "name": "Previous Prolonged labour",
-        "abnormal": true
-      },
-      {
-        "uuid": "5d0ba446-65b7-4704-b435-6071bf49bcd0",
-        "name": "Previous Pre Eclampsia/ Eclampsia",
-        "abnormal": true
-      },
-      {
-        "uuid": "d8637e17-faef-42fe-b2da-a16cfd7de33f",
-        "name": "Previous Pregnancy Induced Hypertension",
-        "abnormal": true
-      },
-      {
-        "uuid": "1b4f8d76-8272-4afe-ba1a-c277421d74d4",
-        "name": "Previous Neonatal death within first 28 days",
-        "abnormal": true
-      },
-      {
-        "uuid": "9133804d-26a0-4546-a459-15b2c9ade793",
-        "name": "Previous Intrapartum Death",
-        "abnormal": true
-      },
-      {
-        "uuid": "36824575-042b-4137-ba3c-ce1145ce81e8",
-        "name": "Previous Ante Partum Haemorrhage",
-        "abnormal": true
-      },
-      {
-        "uuid": "6f969c17-cc0d-48cf-8ca4-835c02de4e1c",
-        "name": "Previous Multiple Births",
-        "abnormal": true
-      },
-      {
-        "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",
-        "name": "Ante Partum hemorrhage (APH)",
-        "abnormal": true
-      },
-      {
-        "uuid": "902df2a5-6403-4cb8-8732-e1e62bfa2364",
-        "name": "Foetal Movements Absent",
-        "abnormal": true
-      },
-      {
-        "uuid": "2facaa69-1164-4847-82bd-a0216e9c1a50",
-        "name": "Jaundice Present",
-        "abnormal": true
-      },
-      {
-        "uuid": "b694eefb-6b9d-4123-98a4-1bfc39a7dcb4",
-        "name": "Convulsions Present",
-        "abnormal": true
-      },
-      {
-        "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
-        "name": "Rh Negative Blood Group",
-        "abnormal": true
-      },
-      {
-        "uuid": "c1071344-deb9-4311-a397-b67b8a4bfecf",
-        "abnormal": true
-      },
-      {
-        "uuid": "89d2230c-7c64-4959-8835-bef4667f8428",
-        "abnormal": true
-      },
-      {
-        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
-        "abnormal": true
-      },
-      {
-        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
-        "abnormal": true
-      },
-      {
-        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
-        "abnormal": true
-      },
-      {
-        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec",
-        "abnormal": true
-      },
-      {
-        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
-        "abnormal": true
-      },
-      {
-        "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
-        "abnormal": true
-      },
-      {
-        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
-        "abnormal": true
-      },
-      {
-        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
-        "abnormal": true
-      },
-      {
-        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
-        "abnormal": true
-      },
-      {
-        "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
-        "abnormal": true
-      },
-      {
-        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
-        "abnormal": true
-      },
-      {
-        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
-        "abnormal": true
-      },
-      {
-        "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
-        "abnormal": true
-      },
-      {
-        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
-        "abnormal": true
-      },
-      {
-        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
-        "abnormal": true
-      }
-    ]
-  },
-  {
     "name": "Estimated Date of Delivery",
     "uuid": "dde911fa-15eb-4564-8deb-bba46e9d3744",
     "dataType": "Date"
@@ -1472,133 +1127,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Refer her to hospital for",
-    "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "c99f5dc0-7dc7-410c-bb4a-997666ac312b",
-        "abnormal": true
-      },
-      {
-        "uuid": "b52921f9-5450-4a99-a172-02e9b33fbb3d",
-        "abnormal": true
-      },
-      {
-        "uuid": "8afff549-a6b4-4eef-b229-b534be99e8e4",
-        "abnormal": true
-      },
-      {
-        "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
-        "abnormal": true
-      },
-      {
-        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
-        "abnormal": true
-      },
-      {
-        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
-        "abnormal": true
-      },
-      {
-        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
-        "abnormal": true
-      },
-      {
-        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
-        "abnormal": true
-      },
-      {
-        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
-        "abnormal": true
-      },
-      {
-        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
-        "abnormal": true
-      },
-      {
-        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
-        "abnormal": true
-      },
-      {
-        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
-        "abnormal": true
-      },
-      {
-        "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
-        "abnormal": true
-      },
-      {
-        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
-        "abnormal": true
-      },
-      {
-        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
-        "abnormal": true
-      },
-      {
-        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
-        "abnormal": true
-      },
-      {
-        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
-        "abnormal": true
-      },
-      {
-        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
-        "abnormal": true
-      },
-      {
-        "uuid": "8df37793-00cc-4d7e-9f4a-656216661a71",
-        "abnormal": true
-      },
-      {
-        "uuid": "2f9afed5-dccb-4a2e-b771-48e88e48c814",
-        "abnormal": true
-      },
-      {
-        "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
-        "abnormal": true
-      },
-      {
-        "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
-        "abnormal": true
-      },
-      {
-        "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
-        "abnormal": true
-      },
-      {
-        "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
-        "abnormal": true
-      },
-      {
-        "uuid": "a0460e35-d7de-46f2-8c12-783c3ae445b3",
-        "abnormal": true
-      },
-      {
-        "uuid": "b21e0c2c-7516-4019-85a2-a103e1ef7156",
-        "abnormal": true
-      },
-      {
-        "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
-        "abnormal": true
-      },
-      {
-        "uuid": "e8b6e80e-2952-4ad8-8e8a-bb7299a13c7b",
-        "abnormal": true
-      },
-      {
-        "uuid": "834adde5-0f87-46a7-93eb-779130ba510e",
-        "abnormal": true
-      },
-      {
-        "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
-        "abnormal": true
-      }
-    ]
-  },
-  {
     "name": "Excessive vomiting and inability to consume anything orally",
     "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
     "dataType": "NA"
@@ -1724,6 +1252,478 @@
       },
       {
         "uuid": "40503ff9-6a37-46d7-be5d-843c12971c60"
+      }
+    ]
+  },
+  {
+    "name": "High Risk Conditions",
+    "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "47b79102-ad82-4a61-83cd-e01c4bc73cfe",
+        "abnormal": true
+      },
+      {
+        "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
+        "abnormal": true
+      },
+      {
+        "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
+        "abnormal": true
+      },
+      {
+        "uuid": "d976d3c9-0c39-4faf-8544-f9a2273ea2d5",
+        "abnormal": true
+      },
+      {
+        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+        "abnormal": true
+      },
+      {
+        "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
+        "abnormal": true
+      },
+      {
+        "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
+        "abnormal": true
+      },
+      {
+        "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
+        "abnormal": true
+      },
+      {
+        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
+        "abnormal": true
+      },
+      {
+        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
+        "abnormal": true
+      },
+      {
+        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
+        "abnormal": true
+      },
+      {
+        "uuid": "cc23823e-2f67-4230-98d4-46d326548869",
+        "abnormal": true
+      },
+      {
+        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+        "abnormal": true
+      },
+      {
+        "uuid": "57c62191-910f-4d86-bb9d-ab0d9009a04d",
+        "abnormal": true
+      },
+      {
+        "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
+        "name": "Essential Hypertension",
+        "abnormal": true
+      },
+      {
+        "uuid": "f2e5ac5b-b0f8-4088-bc42-397a3885308f",
+        "name": "Superimposed Pre-Eclampsia",
+        "abnormal": true
+      },
+      {
+        "uuid": "5a738df9-b09a-4e7d-b683-189a9cdabcad",
+        "abnormal": true
+      },
+      {
+        "uuid": "0eb43d96-dfff-4e45-91e8-1a273b419763",
+        "name": "Mild Pre-Eclampsia",
+        "abnormal": true
+      },
+      {
+        "uuid": "e6b24a5c-00f2-46c7-aa67-5b460df5cc81",
+        "name": "Severe Pre-Eclampsia",
+        "abnormal": true
+      },
+      {
+        "uuid": "1aff631c-e487-4202-a862-122b45168ac6",
+        "name": "Severe Anemia",
+        "abnormal": true
+      },
+      {
+        "uuid": "c67d2c3a-c1c8-4cb7-b76e-b77e02541577",
+        "name": "Moderate Anemia",
+        "abnormal": true
+      },
+      {
+        "uuid": "338d5fb1-0493-4270-8d35-81105c239bbb",
+        "name": "Grand Multipara",
+        "abnormal": true
+      },
+      {
+        "uuid": "8021adee-ad70-4644-97c6-d0804851f8d3",
+        "name": "Old age pregnancy",
+        "abnormal": true
+      },
+      {
+        "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
+        "name": "Underweight",
+        "abnormal": true
+      },
+      {
+        "uuid": "9af1e8e9-f16c-46de-8794-ac302444c63d",
+        "name": "Short Stature",
+        "abnormal": true
+      },
+      {
+        "uuid": "edb0ec5e-56dc-4826-b922-52ed2e182fd8",
+        "name": "Under age pregnancy",
+        "abnormal": true
+      },
+      {
+        "uuid": "73ece93d-2065-4ff2-8f87-669142d186e6",
+        "name": "Weight Gain Per Month less than 1kg",
+        "abnormal": true
+      },
+      {
+        "uuid": "4d95ca6e-f2a1-42bd-b52b-44fd8e853d63",
+        "name": "Weight Gain Per Month more than 1.5kg",
+        "abnormal": true
+      },
+      {
+        "uuid": "45350576-a60b-4431-90da-65604933d97c",
+        "name": "HIV/AIDS Positive",
+        "abnormal": true
+      },
+      {
+        "uuid": "06c6b0ea-8ddc-4ed0-ab58-59ed67659571",
+        "name": "VDRL Positive",
+        "abnormal": true
+      },
+      {
+        "uuid": "4d2733ec-098a-407b-bfd2-1fd123dbe96d",
+        "name": "Sickling Positive",
+        "abnormal": true
+      },
+      {
+        "uuid": "705b3ef7-e41a-4954-bc3f-9556eb002f3d",
+        "name": "Sickle cell disease SS",
+        "abnormal": true
+      },
+      {
+        "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c",
+        "name": "Hepatitis B Positive",
+        "abnormal": true
+      },
+      {
+        "uuid": "0dee2973-eebe-4699-b676-b770fdd1c411",
+        "name": "Malaria",
+        "abnormal": true
+      },
+      {
+        "uuid": "96ec37c6-9572-4288-9220-2fe806093bde",
+        "name": "Malpresentation",
+        "abnormal": true
+      },
+      {
+        "uuid": "af7ae32a-dc5f-4ac2-a372-1baa6edf0b53",
+        "name": "Previous Abortion(s)",
+        "abnormal": true
+      },
+      {
+        "uuid": "9b9b1c0e-8dd3-4520-8c46-4488fd030fa9",
+        "name": "Previous Retained Placenta",
+        "abnormal": true
+      },
+      {
+        "uuid": "937a4d2a-7e38-4ca5-8309-113199d4a27e",
+        "name": "Previous Still Birth",
+        "abnormal": true
+      },
+      {
+        "uuid": "217d0b53-0314-4a64-b710-82fc8fe1bf9c",
+        "name": "Previous Intrauterine Death",
+        "abnormal": true
+      },
+      {
+        "uuid": "6b641e43-b981-4c10-a83c-fafac4654372",
+        "name": "Previous Intrauterine Growth Retardation",
+        "abnormal": true
+      },
+      {
+        "uuid": "e6759d31-2529-4919-b38b-34cb09188767",
+        "name": "Previous Post Partum Haemorrhage",
+        "abnormal": true
+      },
+      {
+        "uuid": "43524d76-5f86-485f-b101-3b669ca3431e",
+        "name": "Previous Threatened Abortion",
+        "abnormal": true
+      },
+      {
+        "uuid": "de5d06c1-df58-4e0f-949c-52100f769932",
+        "name": "Previous LSCS/C-section",
+        "abnormal": true
+      },
+      {
+        "uuid": "79a37abe-1a1d-41fc-9732-c95b7108553e",
+        "name": "Previous Pre-term labour",
+        "abnormal": true
+      },
+      {
+        "uuid": "4f40dbfb-008f-4b34-856e-d668207cdb7e",
+        "name": "Previous Instrumental Delivery",
+        "abnormal": true
+      },
+      {
+        "uuid": "24bd28bc-9301-446f-94c0-9264bf3e4cd8",
+        "name": "Previous Prolonged labour",
+        "abnormal": true
+      },
+      {
+        "uuid": "5d0ba446-65b7-4704-b435-6071bf49bcd0",
+        "name": "Previous Pre Eclampsia/ Eclampsia",
+        "abnormal": true
+      },
+      {
+        "uuid": "d8637e17-faef-42fe-b2da-a16cfd7de33f",
+        "name": "Previous Pregnancy Induced Hypertension",
+        "abnormal": true
+      },
+      {
+        "uuid": "1b4f8d76-8272-4afe-ba1a-c277421d74d4",
+        "name": "Previous Neonatal death within first 28 days",
+        "abnormal": true
+      },
+      {
+        "uuid": "9133804d-26a0-4546-a459-15b2c9ade793",
+        "name": "Previous Intrapartum Death",
+        "abnormal": true
+      },
+      {
+        "uuid": "36824575-042b-4137-ba3c-ce1145ce81e8",
+        "name": "Previous Ante Partum Haemorrhage",
+        "abnormal": true
+      },
+      {
+        "uuid": "6f969c17-cc0d-48cf-8ca4-835c02de4e1c",
+        "name": "Previous Multiple Births",
+        "abnormal": true
+      },
+      {
+        "uuid": "bbcab554-15c0-424f-a86f-e12a9ad38a53",
+        "name": "Ante Partum hemorrhage (APH)",
+        "abnormal": true
+      },
+      {
+        "uuid": "902df2a5-6403-4cb8-8732-e1e62bfa2364",
+        "name": "Foetal Movements Absent",
+        "abnormal": true
+      },
+      {
+        "uuid": "2facaa69-1164-4847-82bd-a0216e9c1a50",
+        "name": "Jaundice Present",
+        "abnormal": true
+      },
+      {
+        "uuid": "b694eefb-6b9d-4123-98a4-1bfc39a7dcb4",
+        "name": "Convulsions Present",
+        "abnormal": true
+      },
+      {
+        "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
+        "name": "Rh Negative Blood Group",
+        "abnormal": true
+      },
+      {
+        "uuid": "c1071344-deb9-4311-a397-b67b8a4bfecf",
+        "abnormal": true
+      },
+      {
+        "uuid": "89d2230c-7c64-4959-8835-bef4667f8428",
+        "abnormal": true
+      },
+      {
+        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
+        "abnormal": true
+      },
+      {
+        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
+        "abnormal": true
+      },
+      {
+        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
+        "abnormal": true
+      },
+      {
+        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec",
+        "abnormal": true
+      },
+      {
+        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
+        "abnormal": true
+      },
+      {
+        "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+        "abnormal": true
+      },
+      {
+        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "abnormal": true
+      },
+      {
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+        "abnormal": true
+      },
+      {
+        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+        "abnormal": true
+      },
+      {
+        "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
+        "abnormal": true
+      },
+      {
+        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "abnormal": true
+      },
+      {
+        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+        "abnormal": true
+      },
+      {
+        "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
+        "abnormal": true
+      },
+      {
+        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+        "abnormal": true
+      },
+      {
+        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Refer her to hospital for",
+    "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "c99f5dc0-7dc7-410c-bb4a-997666ac312b",
+        "abnormal": true
+      },
+      {
+        "uuid": "b52921f9-5450-4a99-a172-02e9b33fbb3d",
+        "abnormal": true
+      },
+      {
+        "uuid": "8afff549-a6b4-4eef-b229-b534be99e8e4",
+        "abnormal": true
+      },
+      {
+        "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
+        "abnormal": true
+      },
+      {
+        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "abnormal": true
+      },
+      {
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+        "abnormal": true
+      },
+      {
+        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+        "abnormal": true
+      },
+      {
+        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "abnormal": true
+      },
+      {
+        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+        "abnormal": true
+      },
+      {
+        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+        "abnormal": true
+      },
+      {
+        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+        "abnormal": true
+      },
+      {
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+        "abnormal": true
+      },
+      {
+        "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
+        "abnormal": true
+      },
+      {
+        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
+        "abnormal": true
+      },
+      {
+        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
+        "abnormal": true
+      },
+      {
+        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+        "abnormal": true
+      },
+      {
+        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+        "abnormal": true
+      },
+      {
+        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
+        "abnormal": true
+      },
+      {
+        "uuid": "8df37793-00cc-4d7e-9f4a-656216661a71",
+        "abnormal": true
+      },
+      {
+        "uuid": "2f9afed5-dccb-4a2e-b771-48e88e48c814",
+        "abnormal": true
+      },
+      {
+        "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
+        "abnormal": true
+      },
+      {
+        "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
+        "abnormal": true
+      },
+      {
+        "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
+        "abnormal": true
+      },
+      {
+        "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
+        "abnormal": true
+      },
+      {
+        "uuid": "a0460e35-d7de-46f2-8c12-783c3ae445b3",
+        "abnormal": true
+      },
+      {
+        "uuid": "b21e0c2c-7516-4019-85a2-a103e1ef7156",
+        "abnormal": true
+      },
+      {
+        "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
+        "abnormal": true
+      },
+      {
+        "uuid": "e8b6e80e-2952-4ad8-8e8a-bb7299a13c7b",
+        "abnormal": true
+      },
+      {
+        "uuid": "834adde5-0f87-46a7-93eb-779130ba510e",
+        "abnormal": true
+      },
+      {
+        "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
+        "abnormal": true
       }
     ]
   }

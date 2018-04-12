@@ -565,5 +565,10 @@
     "name": "Decreased",
     "uuid": "1aef1b55-0c52-4961-a1c9-f35e4c6a6f00",
     "dataType": "NA"
+  },
+  {
+    "name": "Jaundice",
+    "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
+    "dataType": "NA"
   }
 ]
