@@ -17,7 +17,7 @@ export function getDecisions(enrolment, context, today) {
 
     let decisions = programDecision.getDecisions(enrolment, today);
     decisions = decisions.concat(generateRecommendations(enrolment));
-    decisions = decisions.concat(referralAdvice(enrolment));
+    decisions = decisions.concat(referralAdvice(enrolment, null, today));
     return {enrolmentDecisions: decisions, encounterDecisions: []};
 }
 

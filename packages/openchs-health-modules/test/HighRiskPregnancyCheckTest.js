@@ -23,7 +23,7 @@ describe('High Risk Pregnancy Determination', () => {
         systolicConcept = concepts['Systolic'];
         diastolicConcept = concepts['Diastolic'];
         hb = concepts['Hb'];
-        hiv = concepts['HIV/AIDS'];
+        hiv = concepts['HIV/AIDS Test'];
         vdrl = concepts['VDRL'];
         height = concepts["Height"];
         urineAlbumin = concepts['Urine Albumin'];
@@ -315,7 +315,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should not mark Eclampsia for hyper tension, convulsions and Trace Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Present")
+                        .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, 'Trace');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -325,7 +325,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Eclampsia for hyper tension, convulsions and +1 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Present")
+                        .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+1');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -335,7 +335,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Eclampsia for hyper tension, convulsions and +2 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Present")
+                        .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+2');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -345,7 +345,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Eclampsia for hyper tension, convulsions and +3 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Present")
+                        .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+3');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -355,7 +355,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Eclampsia for hyper tension, convulsions and +4 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Present")
+                        .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+4');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -365,7 +365,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Mild Pre-Eclampsia for hyper tension and Trace Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Absent")
+                        .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, 'Trace');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -375,7 +375,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Mild Pre-Eclampsia for hyper tension and +1 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Absent")
+                        .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+1');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -385,7 +385,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Mild Pre-Eclampsia for hyper tension and +2 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Absent")
+                        .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+2');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -395,7 +395,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Mild Pre-Eclampsia for hyper tension and +3 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Absent")
+                        .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+3');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -405,7 +405,7 @@ describe('High Risk Pregnancy Determination', () => {
                 it("Should mark Mild Pre-Eclampsia for hyper tension and +3 Urine Albumin", () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1)
-                        .setObservation("Convulsions", "Absent")
+                        .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+4');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
@@ -764,7 +764,7 @@ describe('High Risk Pregnancy Determination', () => {
             programEncounter.setObservation(urineAlbumin.name, undefined);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
             const advices = C.findValue(decisions, 'Investigation Advice');
-            expect(advices).to.not.have.string(hb.name);
+            expect(advices).to.not.have.string(`${hb.name},`);
             expect(advices).to.have.string(urineAlbumin.name);
         });
 

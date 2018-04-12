@@ -37,7 +37,7 @@ export default class RuleCondition {
     }
 
     _getEnrolment(context) {
-        return context.programEnrolment || context.programEncounter.programEnrolment;
+        return _.get(context, "programEnrolment") || _.get(context, "programEncounter.programEnrolment");
     }
 
     _getIndividual(context) {
@@ -222,7 +222,7 @@ export default class RuleCondition {
 
     valueInEncounter(conceptName) {
         return this._addToChain((next, context) => {
-            const obs = context.programEncounter.findObservation(conceptName);
+            const obs = context.programEncounter && context.programEncounter.findObservation(conceptName);
             context.obsToBeChecked = obs;
             context.valueToBeChecked = obs && obs.getValue();
             return next(context);

@@ -1,9 +1,14 @@
 import * as programDecision from './motherProgramDecision';
 import {getDecisions as pncEncounterDecisions} from './pncEncounterDecision';
 import C from '../common';
+import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
+import generateRecommendations from "./recommendations";
+import generateTreatment from "./treatment";
+import referralAdvice from "./referral";
+import generateInvestigationAdvice from "./investigations";
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];
@@ -30,15 +35,15 @@ function InvestigationAdviceBuilder() {
     return new AdviceBuilder("Investigation Advice", "Send patient to FRU immediately for");
 }
 
-export function getDecisions (programEncounter, today) {
+export function getDecisions(programEncounter, today) {
     if (programEncounter.encounterType.name === 'PNC') {
         return pncEncounterDecisions(programEncounter);
     }
 
     if (programEncounter.encounterType.name === 'ANC') {
 
-        var decisions = [];
-
+        let decisions = [];
+        let enrolmentDecisions = [];
         const lmpDate = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
         const pregnancyPeriodInWeeks = C.getWeeks(lmpDate, programEncounter.encounterDateTime);
 
@@ -88,19 +93,16 @@ export function getDecisions (programEncounter, today) {
             const systolic = getObservationValue('Systolic');
             const diastolic = getObservationValue('Diastolic');
             const urineAlbumin = getObservationValue('Urine Albumin');
-            const obsHistory = getObservationValueFromEntireEnrolment('Obstetrics History');
+            const obsHistory = getObservationValueFromEntireEnrolment('Obstetrics history');
 
             const mildPreEclempsiaUrineAlbuminValues = ['Trace', '+1', '+2'];
             const severePreEclempsiaUrineAlbuminValues = ['+3', '+4'];
 
-            if (urineAlbumin === undefined)
-                investigationAdviceBuilder.add("Urine Albumin Test");
-
             const isBloodPressureHigh = (systolic >= 140) || (diastolic >= 90); //can go in high risk category
             const urineAlbuminIsMild = C.contains(mildPreEclempsiaUrineAlbuminValues, urineAlbumin);
             const urineAlbuminIsSevere = C.contains(severePreEclempsiaUrineAlbuminValues, urineAlbumin);
-            const obsHistoryOfPregnancyInducedHypertension = C.contains(obsHistory, 'Pregnancy Induced Hypertension');
-            const hasConvulsions = getObservationValue('Convulsions') === "Present"; //will be identified in hospital
+            const obsHistoryOfPregnancyInducedHypertension = C.contains(obsHistory, 'Pregnancy induced hypertension');
+            const hasConvulsions = getObservationValue('Has she been having convulsions?') === "Present"; //will be identified in hospital
             let highRiskConditions = getObservationValueFromEntireEnrolment('High Risk Conditions');
             const isEssentialHypertensive = highRiskConditions && highRiskConditions.indexOf('Essential Hypertension') >= 0;
 
@@ -122,23 +124,11 @@ export function getDecisions (programEncounter, today) {
 
         function analyseAnemia() { //anm also does this test
             var hemoglobin = getObservationValueFromEntireEnrolment('Hb');
-            if (hemoglobin === undefined) {
-                investigationAdviceBuilder.add("Haemoglobin Test (Hb)");
-            }
-            else if (hemoglobin < 7) {
-                decisions.push({
-                    name: 'Treatment Advice',
-                    value: "Severe Anemia. Refer to FRU for further checkup and possible transfusion"
-                });
+            if (hemoglobin !== undefined && hemoglobin < 7) {
                 addComplication('Severe Anemia');
-            } else if (hemoglobin >= 7 && hemoglobin <= 11) {
+            } else if (hemoglobin !== undefined && hemoglobin >= 7 && hemoglobin <= 11) {
                 addComplication('Moderate Anemia');
-                decisions.push({name: 'Treatment Advice', value: "Moderate Anemia. Start therapeutic dose of IFA"});
-            } else if (hemoglobin > 11)
-                decisions.push({
-                    name: 'Treatment Advice',
-                    value: "Hb normal. Proceed with Prophylactic treatment against anaemia"
-                });
+            }
         }
 
         function manageVaginalBleeding() {
@@ -146,16 +136,14 @@ export function getDecisions (programEncounter, today) {
             var vaginalBleeding = pregnancyComplaints && pregnancyComplaints
                 .indexOf("PV bleeding") >= 0;
             if (vaginalBleeding && pregnancyPeriodInWeeks > 20) {
-                decisions.push({name: 'Referral Advice', value: 'Send patient to FRU immediately'});
                 addComplication('Ante Partum hemorrhage (APH)');
             } else if (vaginalBleeding && pregnancyPeriodInWeeks <= 20) {
-                decisions.push({name: 'Referral Advice', value: 'Send patient to FRU immediately'});
                 addComplication('Miscarriage');
             }
         }
 
         function analyseSexuallyTransmittedDisease() {
-            var hivaids = getObservationValueFromEntireEnrolment('HIV/AIDS');
+            var hivaids = getObservationValueFromEntireEnrolment('HIV/AIDS Test');
             if (hivaids === 'Positive') addComplication('HIV/AIDS Positive');
 
             var vdrl = getObservationValueFromEntireEnrolment('VDRL');
@@ -181,13 +169,13 @@ export function getDecisions (programEncounter, today) {
         }
 
         function analyseJaundice() {
-            var jaundice = getObservationValueFromEntireEnrolment('Jaundice');
+            var jaundice = getObservationValueFromEntireEnrolment('Jaundice (Icterus)');
             if (jaundice === 'Present')
                 addComplication('Jaundice Present');
         }
 
         function analyseConvulsions() {
-            var convulsions = getObservationValueFromEntireEnrolment('Convulsions');
+            var convulsions = getObservationValueFromEntireEnrolment('Has she been having convulsions?');
             if (convulsions === 'Present')
                 addComplication('Convulsions Present');
         }
@@ -204,8 +192,15 @@ export function getDecisions (programEncounter, today) {
 
         }
 
+        enrolmentDecisions = enrolmentDecisions
+            .concat(generateRecommendations(programEncounter.programEnrolment, programEncounter))
+            .concat(generateTreatment(programEncounter.programEnrolment, programEncounter, today))
+            .concat(referralAdvice(programEncounter.programEnrolment, programEncounter));
+
+        decisions.push(generateInvestigationAdvice(programEncounter.programEnrolment, programEncounter, today));
+
         var highRiskConditions = C.findValue(decisions, 'High Risk Conditions');
-        var enrolmentDecisions = [];
+
         if (highRiskConditions) {
             enrolmentDecisions.push({
                 name: 'High Risk Conditions',
@@ -220,7 +215,7 @@ export function getDecisions (programEncounter, today) {
     } else return {enrolmentDecisions: [], encounterDecisions: []};
 }
 
-export function getNextScheduledVisits (programEncounter, today) {
+export function getNextScheduledVisits(programEncounter, today) {
     return programDecision.getNextScheduledVisits(programEncounter.programEnrolment, today, programEncounter);
 }
 

@@ -901,7 +901,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Not Previ",
+    "name": "Not Previa",
     "uuid": "92454e8f-6ead-42a8-8c8c-114a405c1e39",
     "dataType": "NA"
   },
@@ -1248,12 +1248,202 @@
     ]
   },
   {
+    "name": "Foetal Heart Rate",
+    "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
+    "dataType": "Numeric",
+    "unit": "bpm"
+  },
+  {
+    "name": "Flat Nipples",
+    "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Retracted Nipples",
+    "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Irregular weight gain",
+    "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+    "dataType": "NA"
+  },
+  {
+    "name": "Irregular fundal height increase",
+    "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+    "dataType": "NA"
+  },
+  {
+    "name": "Irregular abdominal girth increase",
+    "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
+    "dataType": "NA"
+  },
+  {
+    "name": "Foetal movements absent",
+    "uuid": "8df37793-00cc-4d7e-9f4a-656216661a71",
+    "dataType": "NA"
+  },
+  {
+    "name": "Foetal movements reduced",
+    "uuid": "2f9afed5-dccb-4a2e-b771-48e88e48c814",
+    "dataType": "NA"
+  },
+  {
+    "name": "Foetal heart sound irregular",
+    "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
+    "dataType": "NA"
+  },
+  {
+    "name": "Foetal heart sound absent",
+    "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
+    "dataType": "NA"
+  },
+  {
+    "name": "Foetal heart rate irregular",
+    "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abnormal Paracheck",
+    "uuid": "a0460e35-d7de-46f2-8c12-783c3ae445b3",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abnormal Hb",
+    "uuid": "b21e0c2c-7516-4019-85a2-a103e1ef7156",
+    "dataType": "NA"
+  },
+  {
+    "name": "High blood sugar",
+    "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abnormal Hb Electrophoresis",
+    "uuid": "e8b6e80e-2952-4ad8-8e8a-bb7299a13c7b",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abnormal Urine Albumin",
+    "uuid": "834adde5-0f87-46a7-93eb-779130ba510e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abnormal Urine Sugar",
+    "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
+    "dataType": "NA"
+  },
+  {
     "name": "Refer her to hospital for",
     "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
     "dataType": "Coded",
     "answers": [
       {
         "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
+        "abnormal": true
+      },
+      {
+        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "abnormal": true
+      },
+      {
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+        "abnormal": true
+      },
+      {
+        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+        "abnormal": true
+      },
+      {
+        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "abnormal": true
+      },
+      {
+        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+        "abnormal": true
+      },
+      {
+        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+        "abnormal": true
+      },
+      {
+        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+        "abnormal": true
+      },
+      {
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+        "abnormal": true
+      },
+      {
+        "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
+        "abnormal": true
+      },
+      {
+        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
+        "abnormal": true
+      },
+      {
+        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
+        "abnormal": true
+      },
+      {
+        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+        "abnormal": true
+      },
+      {
+        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+        "abnormal": true
+      },
+      {
+        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
+        "abnormal": true
+      },
+      {
+        "uuid": "8df37793-00cc-4d7e-9f4a-656216661a71",
+        "abnormal": true
+      },
+      {
+        "uuid": "2f9afed5-dccb-4a2e-b771-48e88e48c814",
+        "abnormal": true
+      },
+      {
+        "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
+        "abnormal": true
+      },
+      {
+        "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
+        "abnormal": true
+      },
+      {
+        "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
+        "abnormal": true
+      },
+      {
+        "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
+        "abnormal": true
+      },
+      {
+        "uuid": "a0460e35-d7de-46f2-8c12-783c3ae445b3",
+        "abnormal": true
+      },
+      {
+        "uuid": "b21e0c2c-7516-4019-85a2-a103e1ef7156",
+        "abnormal": true
+      },
+      {
+        "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
+        "abnormal": true
+      },
+      {
+        "uuid": "e8b6e80e-2952-4ad8-8e8a-bb7299a13c7b",
+        "abnormal": true
+      },
+      {
+        "uuid": "834adde5-0f87-46a7-93eb-779130ba510e",
+        "abnormal": true
+      },
+      {
+        "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
         "abnormal": true
       }
     ]
@@ -1331,5 +1521,60 @@
     "name": "Present and Irregular",
     "uuid": "5576ac3f-5492-4956-9934-801f06f1ca13",
     "dataType": "NA"
+  },
+  {
+    "name": "Doxinate 1 OD/BD for 10 Days",
+    "uuid": "46d34d4d-a5c0-4f3c-b70e-f1f067fb7c4e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Folic acid (1 OD)",
+    "uuid": "a9f90005-4865-4244-81a2-1a9e95279cb4",
+    "dataType": "NA"
+  },
+  {
+    "name": "Ferrous Sulphate (100mg)",
+    "uuid": "77e9e9d8-671c-483b-a460-33f1c65b6bcc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Ferrous Sulphate (200mg)",
+    "uuid": "33651495-9255-4885-977d-f6b2bf8471cc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Calcium 1g/day",
+    "uuid": "e4ccf02c-9767-4641-ab76-5128e2a1f0d9",
+    "dataType": "NA"
+  },
+  {
+    "name": "Aspirin",
+    "uuid": "40503ff9-6a37-46d7-be5d-843c12971c60",
+    "dataType": "NA"
+  },
+  {
+    "name": "Treatment",
+    "uuid": "4e6cdd7d-7ef3-493d-bb7a-c956722a772a",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "46d34d4d-a5c0-4f3c-b70e-f1f067fb7c4e"
+      },
+      {
+        "uuid": "a9f90005-4865-4244-81a2-1a9e95279cb4"
+      },
+      {
+        "uuid": "77e9e9d8-671c-483b-a460-33f1c65b6bcc"
+      },
+      {
+        "uuid": "33651495-9255-4885-977d-f6b2bf8471cc"
+      },
+      {
+        "uuid": "e4ccf02c-9767-4641-ab76-5128e2a1f0d9"
+      },
+      {
+        "uuid": "40503ff9-6a37-46d7-be5d-843c12971c60"
+      }
+    ]
   }
 ]
