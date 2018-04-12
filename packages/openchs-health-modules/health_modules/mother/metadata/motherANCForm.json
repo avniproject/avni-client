@@ -2,7 +2,9 @@
   "name": "ANC",
   "uuid": "3a95e9b0-731a-4714-ae7c-10e1d03cebfe",
   "formType": "ProgramEncounter",
-  "encounterTypes": ["ANC"],
+  "encounterTypes": [
+    "ANC"
+  ],
   "programName": "Mother",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
@@ -13,18 +15,25 @@
       "display": "General",
       "formElements": [
         {
-          "name": "Estimated date of delivery",
+          "name": "Have you enrolled in any government scheme?",
           "uuid": "f95fedd2-1dc1-4952-91be-f08ef80e11c1",
-          "keyValues": [
-            {
-              "key": "editable",
-              "value": false
-            }
-          ],
+          "type": "SingleSelect",
           "concept": {
-            "uuid": "dde911fa-15eb-4564-8deb-bba46e9d3744"
+            "uuid": "c10b6b0b-8223-4a4f-807c-57dc1eb44eef",
+            "name": "Have you enrolled in any government scheme?",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "name": "Yes",
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "name": "No",
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+              }
+            ]
           },
-          "displayOrder": 2,
+          "displayOrder": 1,
           "mandatory": true
         },
         {
@@ -859,6 +868,170 @@
             "dataType": "Date"
           },
           "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "70025486-e617-423c-98e7-016c5e9c59f5",
+      "name": "Nutritional Counselling",
+      "displayOrder": 10,
+      "display": "Nutritional Counselling",
+      "formElements": [
+        {
+          "name": "Diet Advice Dos",
+          "uuid": "d84f114c-2c52-475e-b78a-f346c2ef3321",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Diet Advice Do's",
+            "uuid": "98d5f572-2aff-4973-941e-5459fce82f45",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Diet Advice Donts",
+          "uuid": "a9337716-980e-4223-aea7-a2ece6147581",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Diet Advice Don'ts",
+            "uuid": "3f0de760-cb91-428f-928d-164b9c8b0e6c",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Supplementary nutritional therapy",
+          "uuid": "af2b1579-175a-4ce9-9c40-d97912002be9",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Supplementary nutritional therapy",
+            "uuid": "1307241d-92c2-4660-8ed9-c5da899aa06e",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "40f81e13-bcd8-4190-9651-f04f504b9f09",
+      "name": "General Counselling",
+      "displayOrder": 12,
+      "display": "General Counselling",
+      "formElements": [
+        {
+          "name": "Rest and sleep",
+          "uuid": "292c2e5b-23d4-40cd-a2a4-7b426f5e64c8",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Rest and sleep",
+            "uuid": "d070cf73-16f3-4fb7-bf4b-94b95ce753a1",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Immunization Counselling",
+          "uuid": "21b2dc49-e6b3-4284-9201-a458c1207276",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Immunization Counselling",
+            "uuid": "c210a202-78e4-493f-bcf6-11ed6e79d61c",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Coitus/Sex Counselling",
+          "uuid": "a5b16727-5cf4-4a49-8732-03dddf6ed311",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Coitus/Sex Counselling",
+            "uuid": "22d263c5-033a-487f-b237-2ebf6c8698e4",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "Illness management",
+          "uuid": "2443614a-fe92-4667-9baa-51392342ec39",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Illness management",
+            "uuid": "b5639c14-30a2-43d3-b818-21cd0cc0a2ff",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 4,
+          "mandatory": false
+        },
+        {
+          "name": "Finance management",
+          "uuid": "db534cf4-aaaa-4e21-a096-da10d7cb32de",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Finance management",
+            "uuid": "0dddfa30-74ee-47a4-b212-1918499f4c92",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 5,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "55dcd6c1-a406-4006-9d08-0c71c624d1c4",
+      "name": "Administrative Counselling",
+      "displayOrder": 13,
+      "display": "Administrative Counselling",
+      "formElements": [
+        {
+          "name": "Government scheme information",
+          "uuid": "2363acaa-e9d3-48df-8753-cac4c708a2fc",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Government scheme information",
+            "uuid": "fd8fcbd8-278f-4417-9696-176ff46c3bcc",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Ambulance services information",
+          "uuid": "8041f3fc-fc3e-4360-b732-105d9d599ee3",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Ambulance services information",
+            "uuid": "8b01c973-206a-42a7-9ecb-2471ee51be88",
+            "dataType": "Coded",
+            "answers": []
+          },
+          "displayOrder": 2,
           "mandatory": false
         }
       ]

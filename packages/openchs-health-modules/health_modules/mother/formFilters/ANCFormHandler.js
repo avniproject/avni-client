@@ -12,9 +12,10 @@ class ANCFormHandler {
         this.gestationalAge = FormElementsStatusHelper.weeksBetween(today, lmp);
     }
 
-    estimatedDateOfDelivery(programEncounter, formElement) {
-        const edd = programEncounter.programEnrolment.getObservationValue("Estimated Date of Delivery");
-        return new FormElementStatus(formElement.uuid, true, edd);
+    haveYouEnrolledInAnyGovernmentScheme(programEncounter, formElement) {
+        let statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEntireEnrolment("Have you enrolled in any government scheme?").is.notDefined;
+        return statusBuilder.build();
     }
 
     hasSheBeenDealingWithAnyComplications(programEncounter, formElement) {

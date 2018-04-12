@@ -9,6 +9,7 @@ import generateRecommendations from "./recommendations";
 import generateTreatment from "./treatment";
 import referralAdvice from "./referral";
 import generateInvestigationAdvice from "./investigations";
+import generateHighRiskConditionAdvice from "./highRisk";
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];
@@ -198,14 +199,14 @@ export function getDecisions(programEncounter, today) {
 
         decisions.push(generateInvestigationAdvice(programEncounter.programEnrolment, programEncounter, today));
 
-        var highRiskConditions = C.findValue(decisions, 'High Risk Conditions');
+        let highRiskConditions = C.findValue(decisions, 'High Risk Conditions');
+        const moreHighRiskConditions = generateHighRiskConditionAdvice(programEncounter.programEnrolment, programEncounter, today);
+        moreHighRiskConditions.value = moreHighRiskConditions.value.concat(_.isEmpty(highRiskConditions.value) ? [] : highRiskConditions.value);
 
-        if (highRiskConditions) {
-            enrolmentDecisions.push({
-                name: 'High Risk Conditions',
-                value: C.findValue(decisions, 'High Risk Conditions')
-            })
+        if (!_.isEmpty(moreHighRiskConditions.value)) {
+            enrolmentDecisions.push(moreHighRiskConditions);
         }
+
         if (investigationAdviceBuilder.exists()) decisions.push(investigationAdviceBuilder.build());
         return {
             enrolmentDecisions: enrolmentDecisions,

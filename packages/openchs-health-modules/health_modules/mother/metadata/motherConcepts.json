@@ -268,10 +268,48 @@
     "dataType": "NA"
   },
   {
+    "uuid": "cc23823e-2f67-4230-98d4-46d326548869",
+    "name": "Pedal Edema Present",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "57c62191-910f-4d86-bb9d-ab0d9009a04d",
+    "name": "Pallor Present",
+    "dataType": "NA"
+  },
+  {
     "name": "High Risk Conditions",
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
     "answers": [
+      {
+        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+        "abnormal": true
+      },
+      {
+        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
+        "abnormal": true
+      },
+      {
+        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
+        "abnormal": true
+      },
+      {
+        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
+        "abnormal": true
+      },
+      {
+        "uuid": "cc23823e-2f67-4230-98d4-46d326548869",
+        "abnormal": true
+      },
+      {
+        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+        "abnormal": true
+      },
+      {
+        "uuid": "57c62191-910f-4d86-bb9d-ab0d9009a04d",
+        "abnormal": true
+      },
       {
         "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
         "name": "Essential Hypertension",
@@ -487,25 +525,72 @@
         "abnormal": true
       },
       {
-        "uuid": "c1071344-deb9-4311-a397-b67b8a4bfecf"
+        "uuid": "c1071344-deb9-4311-a397-b67b8a4bfecf",
+        "abnormal": true
       },
       {
-        "uuid": "89d2230c-7c64-4959-8835-bef4667f8428"
+        "uuid": "89d2230c-7c64-4959-8835-bef4667f8428",
+        "abnormal": true
       },
       {
-        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f"
+        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
+        "abnormal": true
       },
       {
-        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505"
+        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
+        "abnormal": true
       },
       {
-        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7"
+        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
+        "abnormal": true
       },
       {
-        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec"
+        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec",
+        "abnormal": true
       },
       {
-        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560"
+        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
+        "abnormal": true
+      },
+      {
+        "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+        "abnormal": true
+      },
+      {
+        "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "abnormal": true
+      },
+      {
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+        "abnormal": true
+      },
+      {
+        "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+        "abnormal": true
+      },
+      {
+        "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
+        "abnormal": true
+      },
+      {
+        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "abnormal": true
+      },
+      {
+        "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+        "abnormal": true
+      },
+      {
+        "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
+        "abnormal": true
+      },
+      {
+        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+        "abnormal": true
+      },
+      {
+        "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+        "abnormal": true
       }
     ]
   },
