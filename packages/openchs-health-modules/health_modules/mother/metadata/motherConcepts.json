@@ -278,12 +278,50 @@
     "dataType": "NA"
   },
   {
+    "uuid": "d976d3c9-0c39-4faf-8544-f9a2273ea2d5",
+    "name": "Irregular pulse",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "47b79102-ad82-4a61-83cd-e01c4bc73cfe",
+    "name": "Irregular Respiratory Rate",
+    "dataType": "NA"
+  },
+  {
     "name": "High Risk Conditions",
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
     "answers": [
       {
+        "uuid": "47b79102-ad82-4a61-83cd-e01c4bc73cfe",
+        "abnormal": true
+      },
+      {
+        "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
+        "abnormal": true
+      },
+      {
+        "uuid": "3eab36f5-13cd-4c7b-9f4d-0ecbdbfdb57e",
+        "abnormal": true
+      },
+      {
+        "uuid": "d976d3c9-0c39-4faf-8544-f9a2273ea2d5",
+        "abnormal": true
+      },
+      {
         "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+        "abnormal": true
+      },
+      {
+        "uuid": "dc3ed683-9e61-47be-899f-3c024ef2896f",
+        "abnormal": true
+      },
+      {
+        "uuid": "36b67c37-5ea2-463b-9eef-47ba95d2c097",
+        "abnormal": true
+      },
+      {
+        "uuid": "b85fce4e-aace-47df-898f-3f574f7587ae",
         "abnormal": true
       },
       {
@@ -1419,10 +1457,37 @@
     "dataType": "NA"
   },
   {
+    "name": "Multiple fetuses",
+    "uuid": "c99f5dc0-7dc7-410c-bb4a-997666ac312b",
+    "dataType": "NA"
+  },
+  {
+    "name": "Abnormal Liquour",
+    "uuid": "b52921f9-5450-4a99-a172-02e9b33fbb3d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Placenta Previa Present",
+    "uuid": "8afff549-a6b4-4eef-b229-b534be99e8e4",
+    "dataType": "NA"
+  },
+  {
     "name": "Refer her to hospital for",
     "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
     "dataType": "Coded",
     "answers": [
+      {
+        "uuid": "c99f5dc0-7dc7-410c-bb4a-997666ac312b",
+        "abnormal": true
+      },
+      {
+        "uuid": "b52921f9-5450-4a99-a172-02e9b33fbb3d",
+        "abnormal": true
+      },
+      {
+        "uuid": "8afff549-a6b4-4eef-b229-b534be99e8e4",
+        "abnormal": true
+      },
       {
         "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
         "abnormal": true

@@ -104,11 +104,11 @@ class ANCFormHandler {
     }
 
     tt1Date(programEncounter, formElement) {
-        return this.validOnceAfter(programEncounter, formElement, 'TT1 Date', 13);
+        return this.validOnceAfter(programEncounter, formElement, 'TT1 Date', 12);
     }
 
     ttBoosterDate(programEncounter, formElement) {
-        return this.validOnceAfter(programEncounter, formElement, 'TT Booster Date', 13);
+        return this.validOnceAfter(programEncounter, formElement, 'TT Booster Date', 12);
     }
 
     tt2Date(programEncounter, formElement) {

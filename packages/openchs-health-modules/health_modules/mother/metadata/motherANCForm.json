@@ -178,7 +178,7 @@
             ]
           },
           "displayOrder": 4,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Breast Examination - Nipple",
@@ -207,7 +207,7 @@
             ]
           },
           "displayOrder": 8,
-          "mandatory": true
+          "mandatory": false
         }
       ]
     },
@@ -283,7 +283,7 @@
             ]
           },
           "displayOrder": 4,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Foetal Heart Sound",
@@ -311,7 +311,7 @@
             ]
           },
           "displayOrder": 5,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Foetal Heart Rate",
@@ -324,7 +324,7 @@
             "unit": "bpm"
           },
           "displayOrder": 6,
-          "mandatory": true
+          "mandatory": false
         }
       ]
     },
@@ -750,7 +750,7 @@
             ]
           },
           "displayOrder": 3,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Liquour",
@@ -774,7 +774,7 @@
             ]
           },
           "displayOrder": 4,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Placenta Previa",
@@ -795,7 +795,7 @@
             ]
           },
           "displayOrder": 5,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Foetal presentation",
@@ -824,7 +824,7 @@
             ]
           },
           "displayOrder": 6,
-          "mandatory": true
+          "mandatory": false
         }
       ]
     },

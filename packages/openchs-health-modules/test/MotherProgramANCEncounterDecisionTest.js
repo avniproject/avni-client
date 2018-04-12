@@ -1226,5 +1226,117 @@ describe("Mother Program ANC", () => {
             assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
         });
 
+        it("is generated if foetal heart sound is irregular or absent", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forSingleCoded("Foetal Heart Sound", "Present and Irregular")
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart sound irregular");
+
+            ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forSingleCoded("Foetal Heart Sound", "Absent")
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart sound absent");
+        });
+
+        it("is generated if foetal heart heart rate is less than 120 or greater than 160", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Foetal Heart Rate", 119)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart rate irregular");
+
+            ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Foetal Heart Rate", 161)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart rate irregular");
+        });
+
+        it("is not generated if foetal heart heart rate is between 120 and 160", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Foetal Heart Rate", 121)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+        });
+
+        it("is generated if pulse is abnormal (<60 or >100)", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Pulse", 59)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular pulse");
+
+            ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Pulse", 101)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular pulse");
+
+        });
+
+        it("is generated if RR is abnormal (<12 or >20)", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Respiratory Rate", 11)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
+
+            ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Respiratory Rate", 21)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
+
+        });
+
+        it("is generated if Blood Sugar is abnormal (>=140)", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forConcept("Blood Sugar", 141)
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "High blood sugar");
+        });
+
+        it("is generated if Urine Sugar is Trace or more", () => {
+            ["Trace", "+1", "+2", "+3", "+4"].forEach((result) => {
+                let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                    .forSingleCoded("Urine Sugar", result)
+                    .build();
+                decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Abnormal Urine Sugar");
+            });
+        });
+
+        it("is generated if more than 1 foetus", () => {
+            ["One", "Two", "Three", "More than three"].forEach((result) => {
+                let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                    .forSingleCoded("USG Scanning Report - Number of foetus", result)
+                    .build();
+                decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Multiple fetuses");
+            });
+        });
+
+        it("is generated if more liquour increased or decreased", () => {
+            ["Increased", "Decreased"].forEach((result) => {
+                let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                    .forSingleCoded("USG Scanning Report - Liquour", result)
+                    .build();
+                decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Abnormal Liquour");
+            });
+        });
+
+        it("is generated if placenta previa", () => {
+            let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
+                .forSingleCoded("USG Scanning Report - Placenta Previa", "Previa")
+                .build();
+            decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Placenta Previa Present");
+        });
+
     });
 });
