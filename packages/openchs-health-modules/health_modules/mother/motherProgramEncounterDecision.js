@@ -207,6 +207,8 @@ export function getDecisions(programEncounter, today) {
             enrolmentDecisions.push(moreHighRiskConditions);
         }
 
+        decisions = decisions.filter((d) => !_.isEmpty(d));
+        enrolmentDecisions = enrolmentDecisions.filter((d) => !_.isEmpty(d));
         if (investigationAdviceBuilder.exists()) decisions.push(investigationAdviceBuilder.build());
         return {
             enrolmentDecisions: enrolmentDecisions,

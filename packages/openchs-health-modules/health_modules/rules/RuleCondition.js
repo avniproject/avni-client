@@ -208,7 +208,6 @@ export default class RuleCondition {
     get age() {
         return this._addToChain((next, context) => {
             context.valueToBeChecked = this._contextualTime().diff(moment(this._getIndividual(context).dateOfBirth), 'years');
-            //console.log(context.valueToBeChecked)
             return next(context);
         });
     }
