@@ -153,12 +153,22 @@ describe('Make Decision', function () {
         }
     }
 
+    var paracetamolFor3Days = (complaint) => {
+        verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+            assert.equal(decisions.length, 1); 
+            assert.equal((message.match(/३ दिवस\nपॅरासिटामॉल/g) || []).length, 1, message);
+        });
+    }
+
     describe("For Headache", () => {
         it("prescribe Paracetamol for 3 days", () => {
-            verifyPrescriptionForComplaint("Headache", (decisions,message) => {
-                assert.equal(decisions.length, 1); 
-                assert.equal((message.match(/३ दिवस\nपॅरासिटामॉल/g) || []).length, 1, message);
-            });
+            paracetamolFor3Days("Headache")
+        });
+    });
+
+    describe("For Body Ache", () => {
+        it("prescribe Paracetamol for 3 days", () => {
+            paracetamolFor3Days("Body Ache")
         });
     });
 
@@ -263,11 +273,70 @@ describe('Make Decision', function () {
     });
 
     describe("For Ring Worm", () => {
-        it("prescribe Cetrizine and Salicyclic Acid for 3 days", () => {
+        it("prescribe Cetrizine and Salicyclic Acid for 3 days + directions for Salicyclic Acid", () => {
             verifyPrescriptionForComplaint("Ring Worm", (decisions,message) => {
                 assert.equal(decisions.length, 1); 
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसॅलिसिलिक ऍसिड/g) || []).length, 1, message);
+                assert.equal((message.match(/गजकर्णाच्या जागेवर लावण्यास सांगावे/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Abdominal pain", () => {
+        it("prescribe Cyclopam for 2 days", () => {
+            verifyPrescriptionForComplaint("Abdominal pain", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/२ दिवस\nसायक्लोपाम/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Acidity", () => {
+        it("prescribe Famotidine for 1-5 days", () => {
+            verifyPrescriptionForComplaint("Acidity", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/१ ते ५ दिवस\nफॅमोटिडीन/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Scabies", () => {
+        it("prescribe Cetrizine and Scabizol for 3 days + directions for Scabizol", () => {
+            verifyPrescriptionForComplaint("Scabies", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/३ दिवस\nसेट्रीझीन/g) || []).length, 1, message);
+                assert.equal((message.match(/३ दिवस\nखरुजेचे औषध/g) || []).length, 1, message);
+                assert.equal((message.match(/मानेपासून संपूर्ण अंगास अंघोळीनंतर लावणे व कपडे १ तास गरम पाण्यात उकळवीणे/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Pregnancy", () => {
+        let complaint = "Pregnancy";
+        it("prescribe Iron Folic Acid and Calcium for 1-30 days", () => {
+            verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/आयरन/g) || []).length, 1, message);
+                assert.equal((message.match(/कॅल्शियम/g) || []).length, 1, message);
+            }, defaultFemaleEncounter(complaint));
+        });
+    });
+
+    describe("For Giddiness", () => {
+        it("prescribe Iron Folic Acid and ORS for 1-30 days", () => {
+            verifyPrescriptionForComplaint("Giddiness", (decisions,message) => {
+                assert.equal(decisions.length, 1); 
+                assert.equal((message.match(/आयरन/g) || []).length, 1, message);
+                assert.equal((message.match(/ORS/g) || []).length, 1, message);
+            });
+        });
+    });
+
+    describe("For Chloroquine Resistant Malaria", () => {
+        it("no prescription to be generated", () => {
+            verifyPrescriptionForComplaint("Chloroquine Resistant Malaria", (decisions,message) => {
+                assert.isEmpty(message); 
             });
         });
     });

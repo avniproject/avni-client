@@ -257,7 +257,7 @@ const getDecisions = function (encounter) {
         else if (complaint === 'Vomiting') {
             treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nउलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत`;
         }
-        else if (complaint === 'Chloroquine Resistant Malaria' && (age >= 16 || age <= 40) && sex === "Female") {
+        else if (complaint === 'Chloroquine Resistant Malaria') {
             treatmentAdviceDecision.value = treatmentAdviceDecision.value.replace(message, '');
         } else if (complaint === 'Wound') {
             treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nड्रेसिंग`;
