@@ -10,7 +10,6 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import Svg,{Line} from 'react-native-svg';
 import Styles from "../primitives/Styles";
 
 @Path('/individualSearchResults')
@@ -102,7 +101,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                       </View>
                                   </View>
                               </View>
-                            <Svg height="1" width={width}><Line x1="0" x2={width} y1="0" y2="0" stroke={Colors.GreyBackground} strokeWidth="1"/></Svg>
+                            <View style={{borderBottomColor: Colors.GreyBackground, borderBottomWidth: 1,}}/>
                         </View>
                     </TouchableNativeFeedback>
                               }>

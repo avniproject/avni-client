@@ -7,7 +7,6 @@ import com.facebook.react.ReactApplication;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.airlabsinc.RNAWSCognitoPackage;
-import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -37,10 +36,9 @@ public class MainApplication extends Application implements ReactApplication {
             return Arrays.<ReactPackage>asList(
                     new FabricPackage(),
                     new MainReactPackage(),
-            new MPAndroidChartPackage(),
-            new ReactNativeConfigPackage(),
-            new RNAWSCognitoPackage(),
-                    new SvgPackage(),
+                    new MPAndroidChartPackage(),
+                    new ReactNativeConfigPackage(),
+                    new RNAWSCognitoPackage(),
                     new VectorIconsPackage(),
                     new ReactNativeI18n(),
                     new RealmReactPackage(),

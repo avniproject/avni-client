@@ -23,7 +23,6 @@
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		4BE420ECAE4D49D8AD1E4636 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 846D2720E74A4E24B289679E /* libRNSVG.a */; };
 		6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FFF05AE4806E4237A36107D8 /* libRCTRestart.a */; };
 		1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */; };
 		9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */; };
@@ -146,8 +145,6 @@
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
-		9EA04D05DB004BDB9205FA0E /* RNSVG.xcodeproj */ = {isa = PBXFileReference; name = "RNSVG.xcodeproj"; path = "../node_modules/react-native-svg/ios/RNSVG.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		846D2720E74A4E24B289679E /* libRNSVG.a */ = {isa = PBXFileReference; name = "libRNSVG.a"; path = "libRNSVG.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */ = {isa = PBXFileReference; name = "RCTRestart.xcodeproj"; path = "../node_modules/react-native-restart/ios/RCTRestart.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		FFF05AE4806E4237A36107D8 /* libRCTRestart.a */ = {isa = PBXFileReference; name = "libRCTRestart.a"; path = "libRCTRestart.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */ = {isa = PBXFileReference; name = "RNAWSCognito.xcodeproj"; path = "../node_modules/react-native-aws-cognito-js/ios/RNAWSCognito.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
@@ -180,7 +177,6 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
-				4BE420ECAE4D49D8AD1E4636 /* libRNSVG.a in Frameworks */,
 				6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */,
 				1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */,
 				9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */,
@@ -316,7 +312,6 @@
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
-				9EA04D05DB004BDB9205FA0E /* RNSVG.xcodeproj */,
 				AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */,
 				7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */,
 				ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */,
@@ -758,7 +753,6 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/../node_modules/react-native/ReactCommon/**",
-					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-restart/ios/RCTRestart/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -800,7 +794,6 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/../node_modules/react-native/ReactCommon/**",
-					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-restart/ios/RCTRestart/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

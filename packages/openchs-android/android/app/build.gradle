@@ -158,7 +158,6 @@ dependencies {
     compile project(':react-native-charts-wrapper')
     compile project(':react-native-config')
     compile project(':react-native-aws-cognito-js')
-    compile project(':react-native-svg')
     compile project(':react-native-vector-icons')
     compile project(':react-native-fabric')
     compile project(':react-native-i18n')
