@@ -278,7 +278,6 @@ describe("Malaria medications", () => {
             //
             // पॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी
             // प्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी
-            console.log(malariaPrescriptionMessage(encounter));
             expect(malariaPrescriptionMessage(encounter)).to.equal('पहिल्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी पहिल्या रांगेतील तीन गोळ्या \nदुसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी दुसऱ्या रांगेतील एक गोळी \nतिसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी तिसऱ्या रांगेतील एक गोळी \n\nपॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी\nप्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी');
         });
 
@@ -322,7 +321,6 @@ describe("Conversion to marathi", () => {
             form: "Tablets",
             dosage: {days: 14, dosage: 7.5, itemsPerServing: 0.5, timesPerDay: 1}
         }];
-        console.log(convertPrescriptionsToMarathi(prescriptions))
         expect(convertPrescriptionsToMarathi(prescriptions)).to.have.string("प्रायामाक्वीन ७.५ mg अर्धी गोळी दिवसातून १ वेळा १ ते १४ दिवसांसाठी");
 
         prescriptions = [{
@@ -333,7 +331,6 @@ describe("Conversion to marathi", () => {
             form: "Tablets",
             dosage: {days: 14, dosage: 2.5, itemsPerServing: 2, timesPerDay: 1}
         }];
-        console.log(convertPrescriptionsToMarathi(prescriptions))
 
         expect(convertPrescriptionsToMarathi(prescriptions)).to.have.string("प्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी");
 
@@ -345,7 +342,6 @@ describe("Conversion to marathi", () => {
             form: "Tablets",
             dosage: {days: 14, dosage: 10, itemsPerServing: 1, timesPerDay: 1}
         }];
-        console.log(convertPrescriptionsToMarathi(prescriptions))
 
         expect(convertPrescriptionsToMarathi(prescriptions)).to.have.string("प्रायामाक्वीन १० mg (७.५ mg+२.५ mg) एक गोळी दिवसातून १ वेळा १ ते १४ दिवसांसाठी");
     });

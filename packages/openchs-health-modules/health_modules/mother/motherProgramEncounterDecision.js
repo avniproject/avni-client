@@ -73,7 +73,6 @@ export function getDecisions(programEncounter, today) {
         }
 
         function addComplication(conceptName) {
-            console.log('(MotherProgramEncounterDecision) Adding if not exists to preg complications: ' + conceptName);
             C.findValue(decisions, 'High Risk Conditions').push(conceptName);
         }
 

@@ -20,7 +20,6 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
     return decisions;
 
     function addIfNotExists(conceptName) {
-        console.log('(MotherProgramDecision) Adding if not exists to preg complications: ' + conceptName);
         if (!observationExistsInEntireEnrolment(conceptName))
             highRiskConditions.push(conceptName);
     }
