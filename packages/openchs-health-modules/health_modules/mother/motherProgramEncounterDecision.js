@@ -192,30 +192,42 @@ export function getDecisions(programEncounter, today) {
 
         }
 
-        enrolmentDecisions = enrolmentDecisions
+        decisions = decisions
             .concat(generateRecommendations(programEncounter.programEnrolment, programEncounter))
             .concat(generateTreatment(programEncounter.programEnrolment, programEncounter, today))
             .concat(referralAdvice(programEncounter.programEnrolment, programEncounter));
-
-        decisions.push(generateInvestigationAdvice(programEncounter.programEnrolment, programEncounter, today));
 
         let highRiskConditions = C.findValue(decisions, 'High Risk Conditions');
         const moreHighRiskConditions = generateHighRiskConditionAdvice(programEncounter.programEnrolment, programEncounter, today);
         moreHighRiskConditions.value = moreHighRiskConditions.value.concat(_.isEmpty(highRiskConditions.value) ? [] : highRiskConditions.value);
 
         if (!_.isEmpty(moreHighRiskConditions.value)) {
-            enrolmentDecisions.push(moreHighRiskConditions);
+            decisions.push(moreHighRiskConditions);
         }
 
         decisions = decisions.filter((d) => !_.isEmpty(d));
+
         enrolmentDecisions = enrolmentDecisions.filter((d) => !_.isEmpty(d));
-        if (investigationAdviceBuilder.exists()) decisions.push(investigationAdviceBuilder.build());
+
+        enrolmentDecisions = mergeDecisionsByKey(enrolmentDecisions);
+        decisions = mergeDecisionsByKey(decisions);
+        decisions.push(generateInvestigationAdvice(programEncounter.programEnrolment, programEncounter, today));
+
         return {
             enrolmentDecisions: enrolmentDecisions,
             encounterDecisions: decisions
         };
     } else return {enrolmentDecisions: [], encounterDecisions: []};
 }
+
+const mergeDecisionsByKey = (decisions) => {
+    let decisionKeys = decisions.map(d => d.name);
+    return decisionKeys.map((dk) => {
+        const d = _.flatten(decisions.filter((d) => d.name === dk).map(d => d.value || []));
+        return {name: dk, value: d};
+    });
+};
+
 
 export function getNextScheduledVisits(programEncounter, today) {
     return programDecision.getNextScheduledVisits(programEncounter.programEnrolment, today, programEncounter);

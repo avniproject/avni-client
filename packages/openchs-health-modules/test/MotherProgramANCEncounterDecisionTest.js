@@ -34,7 +34,7 @@ describe("Mother Program ANC", () => {
             .build();
         enrolment = new EnrolmentFiller(programData, individual, new Date())
             .build();
-        decisions = {encounterDecisions: [], enrolmentDecisions: []};
+        decisions = {encounterDecisions: [], encounterDecisions: []};
     });
 
     describe("Institutional Delivery and ANC", () => {
@@ -43,8 +43,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Systolic", 90)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forMultiCoded("Recommendations", ["Institutional Delivery", "Institutional ANC"])
@@ -54,8 +54,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Systolic", 89)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("is advised for hypertension", () => {
@@ -63,15 +63,15 @@ describe("Mother Program ANC", () => {
                 .forConcept("Systolic", 141)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Diastolic", 91)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("is advised if Urine Albumin is Trace or more", () => {
@@ -80,8 +80,8 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Urine Albumin", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
             });
         });
 
@@ -91,8 +91,8 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Urine Sugar", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
             });
         });
 
@@ -102,8 +102,8 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("USG Scanning Report - Number of foetus", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
             });
         });
 
@@ -113,8 +113,8 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("USG Scanning Report - Liquour", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
             });
         });
 
@@ -123,8 +123,8 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("USG Scanning Report - Placenta Previa", "Previa")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("is advised if foetal presentation is transverse or breech", () => {
@@ -133,8 +133,8 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Foetal presentation", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
             });
         });
     });
@@ -146,7 +146,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("VDRL", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
             });
         });
 
@@ -156,7 +156,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("HIV/AIDS Test", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
             });
         });
 
@@ -166,7 +166,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("HbsAg", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
             });
         });
 
@@ -176,7 +176,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Sickling Test", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
             });
         });
 
@@ -186,7 +186,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Hb Electrophoresis", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
             });
         });
     });
@@ -200,7 +200,7 @@ describe("Mother Program ANC", () => {
                 .forMultiCoded("Pregnancy complications", ["Morning Sickness"])
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
         });
 
         it("Doxinate is not advised if Morning Sickness in the last trimester", () => {
@@ -211,7 +211,7 @@ describe("Mother Program ANC", () => {
                 .forMultiCoded("Pregnancy complications", ["Morning Sickness"])
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
         });
 
         it("Doxinate 1OD/BD for 10 days is advised in case of Morning Sickness for the first 2 trimesters", () => {
@@ -222,7 +222,7 @@ describe("Mother Program ANC", () => {
                 .forMultiCoded("Pregnancy complications", ["Excessive vomiting and inability to consume anything orally"])
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
         });
 
         it("Folic acid is advised for the first trimester", () => {
@@ -232,7 +232,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Folic acid (1 OD)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Folic acid (1 OD)");
         });
 
         it("Folic acid is not advised for the second and third trimester", () => {
@@ -242,7 +242,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Folic acid (1 OD)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Folic acid (1 OD)");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -250,7 +250,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Folic acid (1 OD)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Folic acid (1 OD)");
         });
 
         it("Ferrous Sulphate (100mg) is advised for the last 2 trimesters and when Hb>=11g/dl", () => {
@@ -261,8 +261,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 11)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -271,8 +271,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 12)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
         });
 
         it("Ferrous Sulphate (200mg) is advised for the last 2 trimesters and when 8g/dl<=Hb<11g/dl", () => {
@@ -283,8 +283,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -293,8 +293,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
         });
 
 
@@ -306,8 +306,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(12, "w").toDate())
@@ -316,8 +316,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
         });
 
         it("Calcium isn't advised in the first trimester of pregnancy", () => {
@@ -327,7 +327,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Calcium");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(12, "w").toDate())
@@ -335,7 +335,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Calcium");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
         });
 
         it("Calcium is advised in the last 2 trimesters of pregnancy", () => {
@@ -345,7 +345,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Calcium");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -353,7 +353,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Calcium");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
         });
 
         it("Aspirin is advised in the last 2 trimesters of pregnancy till 35th week", () => {
@@ -363,7 +363,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Aspirin");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -371,7 +371,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Aspirin");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(35, "w").toDate())
@@ -379,7 +379,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Aspirin");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(5, "w").toDate())
@@ -387,7 +387,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Treatment"), "Aspirin");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
         });
     });
 
@@ -399,7 +399,7 @@ describe("Mother Program ANC", () => {
                     .forMultiCoded("Pregnancy complications", [complication])
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), complication);
+                assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), complication);
             });
         });
 
@@ -408,7 +408,7 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Has she been having convulsions?", "Present")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Convulsions");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Convulsions");
         });
 
         it("is generated if mother is has Jaundice", () => {
@@ -416,7 +416,7 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Jaundice (Icterus)", "Present")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Jaundice");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Jaundice");
         });
 
         ["Flat", "Retracted"].forEach((nippleState) => {
@@ -425,7 +425,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Breast Examination - Nipple", nippleState)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), `${nippleState} Nipples`);
+                assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), `${nippleState} Nipples`);
             });
         });
 
@@ -443,7 +443,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains less than equal to 1 KG in 1st trimester", () => {
@@ -460,7 +460,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
 
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
@@ -473,7 +473,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 6 KGs in 2nd trimester", () => {
@@ -490,7 +490,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 5-6 KGs in 2nd trimester", () => {
@@ -507,7 +507,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 5 KGs in 2nd trimester", () => {
@@ -524,7 +524,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 3 KGs within 2nd trimester", () => {
@@ -541,7 +541,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 2-3 KGs within 2nd trimester", () => {
@@ -558,7 +558,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 2 KGs within 2nd trimester", () => {
@@ -575,7 +575,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 2 KGs within 3rd trimester", () => {
@@ -592,7 +592,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 3 KGs within 3rd trimester", () => {
@@ -609,7 +609,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 2-3 KGs within 3rd trimester", () => {
@@ -626,7 +626,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular weight gain");
         });
 
         it("is generated if fundal height from pubic symphysis increase is more than 1 cm per week", () => {
@@ -643,7 +643,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular fundal height increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular fundal height increase");
         });
 
         it("is generated if fundal height from pubic symphysis increase is less than 1 cm per week", () => {
@@ -660,7 +660,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular fundal height increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular fundal height increase");
         });
 
         it("is not generated if fundal height from pubic symphysis increase is 1 cm per week", () => {
@@ -677,7 +677,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular fundal height increase");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular fundal height increase");
         });
 
         it("is generated if abdominal girth is more than 2.5 cm per week", () => {
@@ -694,7 +694,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular abdominal girth increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular abdominal girth increase");
         });
 
         it("is generated if abdominal girth increase is less than 2.5 cm per week", () => {
@@ -711,7 +711,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular abdominal girth increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular abdominal girth increase");
         });
 
         it("is not generated if abdominal girth increase is 2.5 cm per week", () => {
@@ -728,7 +728,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Irregular abdominal girth increase");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Irregular abdominal girth increase");
         });
 
         it("is generated if foetal movements reduced or absent", () => {
@@ -736,13 +736,13 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Foetal movements", "Absent")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal movements absent");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal movements absent");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forSingleCoded("Foetal movements", "Reduced")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal movements reduced");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal movements reduced");
         });
 
         it("is generated if foetal heart sound is irregular or absent", () => {
@@ -750,13 +750,13 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Foetal Heart Sound", "Present and Irregular")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal heart sound irregular");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal heart sound irregular");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forSingleCoded("Foetal Heart Sound", "Absent")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal heart sound absent");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal heart sound absent");
         });
 
         it("is generated if foetal heart heart rate is less than 120 or greater than 160", () => {
@@ -764,13 +764,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Foetal Heart Rate", 119)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal heart rate irregular");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal heart rate irregular");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Foetal Heart Rate", 161)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal heart rate irregular");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal heart rate irregular");
         });
 
         it("is not generated if foetal heart heart rate is between 120 and 160", () => {
@@ -778,7 +778,7 @@ describe("Mother Program ANC", () => {
                 .forConcept("Foetal Heart Rate", 121)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Foetal heart rate irregular");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Foetal heart rate irregular");
         });
 
         it("is generated for hypertension (Systolic > 140 or Diastolic > 90)", () => {
@@ -786,13 +786,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Systolic", 141)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Hypertension");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Hypertension");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Diastolic", 91)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Hypertension");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Hypertension");
         });
 
         it("is generated for fever (temperature > 99)", () => {
@@ -800,7 +800,7 @@ describe("Mother Program ANC", () => {
                 .forConcept("Temperature", 100)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Fever");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Fever");
         });
 
         [
@@ -813,7 +813,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Paracheck", paracheckResult)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Paracheck");
+                assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Paracheck");
             });
         });
 
@@ -822,13 +822,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 7)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Hb");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Hb");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Hb", 12)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Hb");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Hb");
         });
 
         it(`is generated for high Blood Sugar (>= 140mg/dl)`, () => {
@@ -836,13 +836,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Blood Sugar", 140)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "High blood sugar");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "High blood sugar");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Blood Sugar", 139)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "High blood sugar");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "High blood sugar");
         });
 
         it(`is generated for SS Hb Electrophoresis`, () => {
@@ -850,14 +850,14 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Hb Electrophoresis", "SS")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Hb Electrophoresis");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Hb Electrophoresis");
 
             ["AS", "AA"].forEach((r) => {
                 ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                     .forSingleCoded("Hb Electrophoresis", r)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Hb Electrophoresis");
+                assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Hb Electrophoresis");
             });
         });
 
@@ -867,7 +867,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Urine Albumin", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Urine Albumin");
+                assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Urine Albumin");
             });
         });
 
@@ -877,7 +877,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Urine Sugar", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Refer her to hospital for"), "Abnormal Urine Sugar");
+                assert.include(C.findValue(decisions.encounterDecisions, "Refer her to hospital for"), "Abnormal Urine Sugar");
             });
         });
     });
@@ -892,7 +892,7 @@ describe("Mother Program ANC", () => {
                         .forMultiCoded("Pregnancy complications", [complication])
                         .build();
                     decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                    assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), complication);
+                    assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), complication);
                 });
             });
 
@@ -902,7 +902,7 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Pedal Edema", "Present")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Pedal Edema Present");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Pedal Edema Present");
         });
 
         it("is added in case of presence of Pallor", () => {
@@ -910,7 +910,7 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Pallor", "Present")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Pallor Present");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Pallor Present");
         });
 
 
@@ -928,7 +928,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is not added if mother gains less than equal to 1 KG in 1st trimester", () => {
@@ -945,7 +945,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
 
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
@@ -958,7 +958,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         it("is generated if mother gains more than 6 KGs in 2nd trimester", () => {
@@ -975,7 +975,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 5-6 KGs in 2nd trimester", () => {
@@ -992,7 +992,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         it("is generated if mother gains less than 5 KGs in 2nd trimester", () => {
@@ -1009,7 +1009,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 3 KGs within 2nd trimester", () => {
@@ -1026,7 +1026,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 2-3 KGs within 2nd trimester", () => {
@@ -1043,7 +1043,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         it("is generated if mother gains less than 2 KGs within 2nd trimester", () => {
@@ -1060,7 +1060,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 2 KGs within 3rd trimester", () => {
@@ -1077,7 +1077,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 3 KGs within 3rd trimester", () => {
@@ -1094,7 +1094,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 2-3 KGs within 3rd trimester", () => {
@@ -1111,7 +1111,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         ["Flat", "Retracted"].forEach((nippleState) => {
@@ -1120,7 +1120,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Breast Examination - Nipple", nippleState)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), `${nippleState} Nipples`);
+                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), `${nippleState} Nipples`);
             });
         });
 
@@ -1138,7 +1138,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular fundal height increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular fundal height increase");
         });
 
         it("is added if fundal height from pubic symphysis increase is less than 1 cm per week", () => {
@@ -1155,7 +1155,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular fundal height increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular fundal height increase");
         });
 
         it("is not added if fundal height from pubic symphysis increase is 1 cm per week", () => {
@@ -1172,7 +1172,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         it("is added if abdominal girth is more than 2.5 cm per week", () => {
@@ -1189,7 +1189,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular abdominal girth increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular abdominal girth increase");
         });
 
         it("is added if abdominal girth increase is less than 2.5 cm per week", () => {
@@ -1206,7 +1206,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular abdominal girth increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular abdominal girth increase");
         });
 
         it("is not added if abdominal girth increase is 2.5 cm per week", () => {
@@ -1223,7 +1223,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         it("is generated if foetal heart sound is irregular or absent", () => {
@@ -1231,13 +1231,13 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("Foetal Heart Sound", "Present and Irregular")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart sound irregular");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Foetal heart sound irregular");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forSingleCoded("Foetal Heart Sound", "Absent")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart sound absent");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Foetal heart sound absent");
         });
 
         it("is generated if foetal heart heart rate is less than 120 or greater than 160", () => {
@@ -1245,13 +1245,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Foetal Heart Rate", 119)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart rate irregular");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Foetal heart rate irregular");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Foetal Heart Rate", 161)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Foetal heart rate irregular");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Foetal heart rate irregular");
         });
 
         it("is not generated if foetal heart heart rate is between 120 and 160", () => {
@@ -1259,7 +1259,7 @@ describe("Mother Program ANC", () => {
                 .forConcept("Foetal Heart Rate", 121)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.isNull(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"));
+            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
         });
 
         it("is generated if pulse is abnormal (<60 or >100)", () => {
@@ -1267,13 +1267,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Pulse", 59)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular pulse");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular pulse");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Pulse", 101)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular pulse");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular pulse");
 
         });
 
@@ -1282,13 +1282,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Respiratory Rate", 11)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Respiratory Rate", 21)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
 
         });
 
@@ -1297,7 +1297,7 @@ describe("Mother Program ANC", () => {
                 .forConcept("Blood Sugar", 141)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "High blood sugar");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "High blood sugar");
         });
 
         it("is generated if Urine Sugar is Trace or more", () => {
@@ -1306,7 +1306,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Urine Sugar", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Abnormal Urine Sugar");
+                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Abnormal Urine Sugar");
             });
         });
 
@@ -1316,7 +1316,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("USG Scanning Report - Number of foetus", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Multiple fetuses");
+                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Multiple fetuses");
             });
         });
 
@@ -1326,7 +1326,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("USG Scanning Report - Liquour", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Abnormal Liquour");
+                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Abnormal Liquour");
             });
         });
 
@@ -1335,7 +1335,7 @@ describe("Mother Program ANC", () => {
                 .forSingleCoded("USG Scanning Report - Placenta Previa", "Previa")
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Placenta Previa Present");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Placenta Previa Present");
         });
 
     });
