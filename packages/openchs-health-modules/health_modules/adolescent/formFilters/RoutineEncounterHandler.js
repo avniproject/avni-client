@@ -117,9 +117,19 @@ export default class RoutineEncounterHandler {
     }
 
     bmi(programEncounter, formElement) {
-        return new FormElementStatus(formElement.uuid, false)
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL))
+
+        let weight = programEncounter.getObservationValue('Weight');
+        let height = programEncounter.getObservationValue('Height');
+
+        let bmi = '';
+        if (_.isNumber(height) && _.isNumber(weight)) {
+            bmi = C.calculateBMI(weight, height);
+        }
+
+        let formElmentStatus = this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL)
             .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+        formElmentStatus.value = bmi;
+        return formElmentStatus;
     }
 
     hemoglobinTestDone(programEncounter, formElement) {

@@ -83,7 +83,7 @@ const referralDecisions = (existingDecisions, programEncounter) => {
     complicationsBuilder.addComplication("Severe Anemia").when
         .valueInEncounter("Hb").lessThan(7);
     complicationsBuilder.addComplication("Severe malnourishment").when
-        .valueInDecisions("BMI").lessThanOrEqualTo(14.5);
+        .valueInEncounter("BMI").lessThanOrEqualTo(14.5);
     complicationsBuilder.addComplication("Sickle Cell Anemia").when
         .valueInEncounter("Sickling Test Result").containsAnyAnswerConceptName("Disease", "Trait");
     complicationsBuilder.addComplication("Self Addiction").when

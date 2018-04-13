@@ -423,7 +423,12 @@
         {
           "name": "BMI",
           "uuid": "145417d6-e454-4c41-95d5-cd8ef68ed40c",
-          "keyValues": [],
+          "keyValues": [
+            {
+              "key": "editable",
+              "value": false
+            }
+          ],
           "concept": {
             "uuid": "7ac0d759-c50d-4971-88e0-84274224c839"
           },
