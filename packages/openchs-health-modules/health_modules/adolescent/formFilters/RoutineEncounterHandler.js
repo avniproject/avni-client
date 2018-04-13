@@ -814,11 +814,7 @@ export default class RoutineEncounterHandler {
     }
 
     _notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, encounterTypes) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, encounterTypes);
-        statusBuilder.show()
-            .when.latestValueInAllEncounters("Standard").not.containsAnyAnswerConceptName("11", "12")
-            .or.addressType.not.equalsOneOf("School", "Boarding");
-        return statusBuilder.build();
+        return new FormElementStatus(formElement.uuid, !this._isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter));
     }
 
     _isAdolescentEleventhTwelfthStandardAndRegisteredAtSchoolOrBoarding(programEncounter) {
