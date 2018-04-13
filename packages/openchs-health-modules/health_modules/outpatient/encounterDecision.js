@@ -272,11 +272,10 @@ const getDecisions = function (encounter) {
                                 || complaints.indexOf('Chloroquine Resistant Malaria') !== -1 
                                 || complaints.indexOf('Other') !== -1
 
-    decisions.push(treatmentAdviceDecision);
-    if (referralAdviceNeeded) {
+    if (referralAdviceNeeded) 
         referralAdviceDecision.value = 'लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे';
-        decisions.push(referralAdviceDecision);
-    }
+
+    decisions.push(treatmentAdviceDecision, referralAdviceDecision);
 
     return {encounterDecisions: decisions};
 };
