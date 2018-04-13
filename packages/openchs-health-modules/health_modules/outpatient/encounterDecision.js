@@ -306,9 +306,6 @@ const validate = function (encounter, form) {
         if (complaint === 'Pregnancy' && params.age < 10) {
             addValidationError("lessThanTenCannotBePregnant");
         }
-        if (weightRangeToCode.code === "X0" || (complaint === 'Acidity' && params.weight < 13)) {
-            addValidationError("lonartNotToBeGivenToChildren");
-        }
     }
 
     function addValidationError(messageKey) {

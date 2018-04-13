@@ -245,7 +245,7 @@ describe("Malaria medications", () => {
             expect(chloroquine).to.be.not.undefined;
         });
 
-        it("is given when Paracheck negative", () => {
+        it("is given when Paracheck negative and patient has Fever", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Negative").concept.uuid);
@@ -260,7 +260,7 @@ describe("Malaria medications", () => {
             expect(chloroquine).to.be.ok;
         });
 
-        it("is given when Paracheck result not provided", () => {
+        it("is given when Paracheck result not provided and patient has Fever", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));
             encounter.observations.push(weightObs);
 
