@@ -331,12 +331,6 @@ describe('Make Decision', function () {
                 }, defaultFemaleEncounter(complaint));
             });
 
-            it("refer patient to LBP Hospital", () => {
-                let positivePfEncounter = defaultFemaleEncounter(complaint).setObservation("Paracheck", "Positive for PF");
-                let positivePfAndPvEncounter = defaultFemaleEncounter(complaint).setObservation("Paracheck", "Positive for PF and PV");
-                referralAdviceIsGenerated(complaint, positivePfEncounter);
-                referralAdviceIsGenerated(complaint, positivePfAndPvEncounter);
-            });
         });
     });
 
