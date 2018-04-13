@@ -77,26 +77,22 @@
           "name": "Delivered By",
           "uuid": "c317355a-180b-447f-b406-d6dbbeadc17f",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Delivered by",
             "uuid": "58b6367a-825f-43e2-b6b7-b35a5cbc3a09",
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Non-Skilled Birth Attendant (NSBA)",
                 "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2"
               },
               {
-                "name": "TBA (Trained Birth Attendant)",
                 "uuid": "f6947afd-9592-4ac8-808a-4cd5bdc1443e"
               },
               {
-                "name": "Medical Officer/ Doctor",
                 "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27"
               },
               {
-                "name": "Auxillary Nurse Midwife",
                 "uuid": "d3f764e5-938a-42dd-bdef-02614d424f8d"
               }
             ]
@@ -116,22 +112,19 @@
           "name": "Type of Delivery",
           "uuid": "f9453d8c-2085-4435-840f-3ddcd79f788f",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Type of Delivery",
             "uuid": "69d0acf1-c32b-4694-9bc2-874b5e7a44c8",
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Normal",
                 "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
               },
               {
-                "name": "Caesarean",
                 "uuid": "f5192c76-f772-4e84-8fea-16d980de15bc"
               },
               {
-                "name": "Instrumental",
                 "uuid": "eeaf9b42-71f7-49d4-80c6-a498619d1645"
               }
             ]
@@ -143,25 +136,22 @@
           "name": "Delivery Outcome",
           "uuid": "14ebb121-7602-4644-81b3-6e171cea19ab",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Delivery Outcome",
             "uuid": "36b7b1a8-d191-4bbe-ad3c-0e25a48334e0",
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Early Neonatal death within first 24 Hours of birth",
-                "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
-                "abnormal": true
+                "uuid": "e3999b21-821c-4c6e-9953-156e70b9217c"
               },
               {
-                "name": "Still Birth",
                 "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
                 "abnormal": true
               },
               {
-                "name": "Live Birth",
-                "uuid": "e3999b21-821c-4c6e-9953-156e70b9217c"
+                "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
+                "abnormal": true
               }
             ]
           },
@@ -172,22 +162,19 @@
           "name": "Number of babies",
           "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
           "keyValues": [],
-          "type": "MultiSelect",
+          "type": "SingleSelect",
           "concept": {
             "name": "Number of babies",
             "uuid": "884cd2fb-1e50-4a2e-a9ae-2b90d4a78ede",
             "dataType": "Coded",
             "answers": [
               {
-                "name": "1",
                 "uuid": "9139d435-2178-46d9-aea9-429597e533b2"
               },
               {
-                "name": "Twins",
                 "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0"
               },
               {
-                "name": "Triplet",
                 "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab"
               }
             ]
@@ -206,32 +193,26 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Obstructed Labour",
                 "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152",
                 "abnormal": true
               },
               {
-                "name": "PPH",
                 "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4",
                 "abnormal": true
               },
               {
-                "name": "Uterine Rupture",
                 "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
                 "abnormal": true
               },
               {
-                "name": "Vaginal Rupture",
                 "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
                 "abnormal": true
               },
               {
-                "name": "Maternal Death",
                 "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373",
                 "abnormal": true
               },
               {
-                "name": "None",
                 "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
               }
             ]
@@ -250,15 +231,12 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Male",
                 "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
               },
               {
-                "name": "Female",
                 "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
               },
               {
-                "name": "Other",
                 "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
               }
             ]

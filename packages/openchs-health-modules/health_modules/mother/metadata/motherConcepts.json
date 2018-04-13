@@ -1726,5 +1726,36 @@
         "abnormal": true
       }
     ]
+  },
+  {
+    "name": "Term",
+    "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Preterm",
+    "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657",
+    "dataType": "NA"
+  },
+  {
+    "name": "Very preterm",
+    "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90",
+    "dataType": "NA"
+  },
+  {
+    "name": "Gestational age category at birth",
+    "uuid": "24c71448-1068-4dc2-aa2f-8bbb66a5123f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f"
+      },
+      {
+        "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657"
+      },
+      {
+        "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90"
+      }
+    ]
   }
 ]

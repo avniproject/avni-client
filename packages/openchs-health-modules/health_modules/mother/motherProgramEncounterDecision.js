@@ -10,6 +10,7 @@ import generateTreatment from "./treatment";
 import referralAdvice from "./referral";
 import generateInvestigationAdvice from "./investigations";
 import generateHighRiskConditionAdvice from "./highRisk";
+import {gestationalAgeCategoryAsOn} from "./common";
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];
@@ -39,6 +40,17 @@ function InvestigationAdviceBuilder() {
 export function getDecisions(programEncounter, today) {
     if (programEncounter.encounterType.name === 'PNC') {
         return pncEncounterDecisions(programEncounter);
+    }
+
+    if (programEncounter.encounterType.name = "Delivery") {
+        let decisions = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
+        decisions.encounterDecisions.push(
+            {
+                name: 'Gestational age category at birth',
+                value: [gestationalAgeCategoryAsOn(programEncounter.findObservation("Date of delivery").getValue(), programEncounter.programEnrolment)]
+            }
+        );
+        return decisions;
     }
 
     if (programEncounter.encounterType.name === 'ANC') {
