@@ -128,28 +128,23 @@ describe('Make Decision', function () {
         assert.equal(treatmentDecision.value, '');
     });
 
-    var defaultEncounter = (complaint, weight=40) => 
-        new Encounter('Outpatient').setObservation("Complaint", [complaint]).setObservation("Weight", weight)
+    var defaultEncounter = (complaint, weight=40) => new Encounter('Outpatient').setObservation("Complaint", [complaint]).setObservation("Weight", weight)
+    var defaultMaleEncounter = (complaint, weight) => defaultEncounter(complaint, weight).setGender("Male").setAge(25);
+    var defaultFemaleEncounter = (complaint, weight) => defaultEncounter(complaint, weight).setGender("Female").setAge(25);
 
-    var defaultMaleEncounter = (complaint, weight) => 
-        defaultEncounter(complaint, weight).setGender("Male").setAge(25);
-
-    var defaultFemaleEncounter = (complaint, weight) => 
-        defaultEncounter(complaint, weight).setGender("Female").setAge(25);
+    var verifyPrescription = (encounter, assertionFn) => {
+        let decisions = decision.getDecisions(encounter).encounterDecisions;
+        let message = completeValue(decisions);
+        assertionFn(decisions, message);
+    };
 
     var verifyPrescriptionForComplaint = (complaint, assertionFn, nonDefaultEncounter) => {
-        let verifyPrescription = (encounter) => {
-            let decisions = decision.getDecisions(encounter).encounterDecisions;
-            let message = completeValue(decisions);
-            assertionFn(decisions, message);
-        };
-
         if (!nonDefaultEncounter) {
-            verifyPrescription(defaultMaleEncounter(complaint));
-            verifyPrescription(defaultFemaleEncounter(complaint));
+            verifyPrescription(defaultMaleEncounter(complaint), assertionFn);
+            verifyPrescription(defaultFemaleEncounter(complaint), assertionFn);
         }
         else {
-            verifyPrescription(nonDefaultEncounter);
+            verifyPrescription(nonDefaultEncounter, assertionFn);
         }
     }
 
@@ -314,7 +309,7 @@ describe('Make Decision', function () {
 
     describe("For Pregnancy", () => {
         let complaint = "Pregnancy";
-        it("prescribe Iron Folic Acid and Calcium for 1-30 days", () => {
+        it("prescribe Iron Folic Acid and Calcium", () => {
             verifyPrescriptionForComplaint(complaint, (decisions,message) => {
                 assert.equal(decisions.length, 1); 
                 assert.equal((message.match(/आयरन/g) || []).length, 1, message);
@@ -324,7 +319,7 @@ describe('Make Decision', function () {
     });
 
     describe("For Giddiness", () => {
-        it("prescribe Iron Folic Acid and ORS for 1-30 days", () => {
+        it("prescribe Iron Folic Acid and ORS", () => {
             verifyPrescriptionForComplaint("Giddiness", (decisions,message) => {
                 assert.equal(decisions.length, 1); 
                 assert.equal((message.match(/आयरन/g) || []).length, 1, message);
@@ -333,11 +328,36 @@ describe('Make Decision', function () {
         });
     });
 
+    let treatmentAdviceIsEmpty = (complaint) => {
+        verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+            assert.isEmpty(decisions.find(decision => decision.name === 'Treatment Advice').value); 
+        });
+    }
+
+    let referralAdviceIsGenerated = (complaint) => {
+        verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+            assert.isNotEmpty(decisions.find(decision => decision.name === 'Referral Advice')); 
+            assert.equal((message.match(/लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे/g) || []).length, 1, message);
+        });
+    }
+
     describe("For Chloroquine Resistant Malaria", () => {
-        it("no prescription to be generated", () => {
-            verifyPrescriptionForComplaint("Chloroquine Resistant Malaria", (decisions,message) => {
-                assert.isEmpty(message); 
-            });
+        let complaint = "Chloroquine Resistant Malaria";
+        it("no prescription to be given", () => {
+            treatmentAdviceIsEmpty(complaint);
+        });
+        it("refer to LBP Hospital", () => {
+            referralAdviceIsGenerated(complaint);
+        });
+    });
+
+    describe("For Other Complaint", () => {
+        let complaint = "Other";
+        it("no prescription to be given", () => {
+            treatmentAdviceIsEmpty(complaint);
+        });
+        it("refer to LBP Hospital", () => {
+            referralAdviceIsGenerated(complaint);
         });
     });
 

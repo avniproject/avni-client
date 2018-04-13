@@ -162,7 +162,7 @@ const getDecisions = function (encounter) {
         complaints.push("Fever");
     }
 
-    //TODO Review if this is really required.Tests pass even on removing this.
+    // Ordering Fever before all other complaints
     complaints = complaints.filter(function (item) {
         return item === 'Fever';
     }).concat(complaints.filter(function (item) {
@@ -176,11 +176,18 @@ const getDecisions = function (encounter) {
 
     let treatmentAdviceDecision = {name: "Treatment Advice", value: '', abnormal: true};
 
+    // As of now, anything that goes into System Recommendations should be initialised
+    // as an empty string and value should be set later. This is to allow addUpdateOrRemoveObs
+    // in ConceptService to do its job
+    let referralAdviceDecision = {name: "Referral Advice", value: ''};
+
     for (let complaintIndex = 0; complaintIndex < complaints.length; complaintIndex++) {
         let complaint = complaints[complaintIndex];
         let weightRangeToCode = getWeightRangeToCode(complaint, weight);
 
         let prescriptionSet;
+        if (complaint === 'Chloroquine Resistant Malaria') // Don't generate any treatment advice
+            continue;
         if ((potentiallyPregnant || pregnant) && ["Cough", "Boils", "Wound"].indexOf(complaint) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
         } else if (complaints.indexOf("Fever") === -1) {
@@ -256,15 +263,20 @@ const getDecisions = function (encounter) {
         }
         else if (complaint === 'Vomiting') {
             treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nउलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत`;
-        }
-        else if (complaint === 'Chloroquine Resistant Malaria') {
-            treatmentAdviceDecision.value = treatmentAdviceDecision.value.replace(message, '');
         } else if (complaint === 'Wound') {
             treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nड्रेसिंग`;
         }
     }
 
+    let referralAdviceNeeded = (pregnant && hasMalaria(encounter)) 
+                                || complaints.indexOf('Chloroquine Resistant Malaria') !== -1 
+                                || complaints.indexOf('Other') !== -1
+
     decisions.push(treatmentAdviceDecision);
+    if (referralAdviceNeeded) {
+        referralAdviceDecision.value = 'लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे';
+        decisions.push(referralAdviceDecision);
+    }
 
     return {encounterDecisions: decisions};
 };
