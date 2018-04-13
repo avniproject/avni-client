@@ -55,10 +55,8 @@ const matchByType = (codeMap, valueMap, variableFn) => {
     }
 
 };
-const matchByAge = (codeMap, valueMap) => {
-    return matchByType(codeMap, valueMap, (encounter) => encounter.individual.getAgeInYears(encounter.encounterDateTime));
+const matchByAge = (codeMap, valueMap) => matchByType(codeMap, valueMap, (encounter) => (encounter.individual.getAgeInWeeks(encounter.encounterDateTime, true) / 52));
 
-};
 const matchByWeight = (codeMap, valueMap) => {
     return (encounter) => {
         const weightObs = encounter.findObservation("Weight");
@@ -92,22 +90,18 @@ const pregnant = (encounter) => {
     return matches;
 };
 
-const primaquineRequired = (encounter) => {
-    return !childBelow1Year(encounter) 
-    && !womanBetween16And40Years(encounter) 
-    && isPvPositive(encounter) 
+const primaquineRequired = (encounter) => !childBelow1Year(encounter)
+    && !womanBetween16And40Years(encounter)
+    && isPvPositive(encounter)
     && !pregnant(encounter);
-};
 
 const actRequired = (encounter) => isPfPositive(encounter) && !pregnant(encounter);
 
 const pcmRequired = () => true; //you come here only if you have fever.
 
-const chloroquineRequired = (encounter) => {
-    return paracheckResultContains(encounter, "Positive for PV", "Negative") 
+const chloroquineRequired = (encounter) => paracheckResultContains(encounter, "Positive for PV", "Negative")
     || paracheckNotDone(encounter)
     || (isPfPositive(encounter) && pregnant(encounter));
-};
 
 const malariaTreatment = [
     {

@@ -1,6 +1,10 @@
 import {expect} from "chai";
 import _ from "lodash";
-import {prescription, convertPrescriptionsToMarathi, malariaPrescriptionMessage} from "../../health_modules/outpatient/malariaMedication";
+import {
+    prescription,
+    convertPrescriptionsToMarathi,
+    malariaPrescriptionMessage
+} from "../../health_modules/outpatient/malariaMedication";
 import {
     Encounter,
     Concept,
@@ -144,7 +148,7 @@ describe("Malaria medications", () => {
             paracheckObs.toggleSingleSelectAnswer(paracheckConcept.getPossibleAnswerConcept("Positive for PF").concept.uuid);
             encounter.observations.push(paracheckObs);
             encounter.observations.push(weightObs);
-            encounter.individual.dateOfBirth = moment().subtract(2, 'years').toDate();
+            encounter.individual.dateOfBirth = moment().subtract(1.001, 'years').toDate();
 
             let prescriptions = prescription(encounter);
             let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
@@ -196,7 +200,7 @@ describe("Malaria medications", () => {
             let prescriptions = prescription(encounter);
             let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
             expect(chloroquine).to.be.not.undefined;
-        }) ;
+        });
 
         it("should be given when patient is pregnant and PF Positive", () => {
             const paracheckObs = Observation.create(paracheckConcept, new SingleCodedValue());
@@ -241,7 +245,7 @@ describe("Malaria medications", () => {
             let prescriptions = prescription(encounter);
             let chloroquine = _.find(prescriptions, (pres) => pres.medicine === 'Chloroquine Tablets');
             expect(chloroquine).to.be.ok;
-        }) ;
+        });
 
         it("is given when Paracheck result not provided", () => {
             const weightObs = Observation.create(weightConcept, new PrimitiveValue(16, Concept.dataType.Numeric));

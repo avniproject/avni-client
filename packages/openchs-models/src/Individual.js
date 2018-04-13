@@ -152,19 +152,20 @@ class Individual extends BaseEntity {
         return `${this.firstName} ${this.lastName}`;
     }
 
-    getAgeInMonths(asOnDate) {
-        asOnDate = asOnDate || moment();
-        return moment(asOnDate).diff(this.dateOfBirth, 'months');
+    getAgeIn(unit) {
+        return (asOnDate = moment(), precise = false) => moment(asOnDate).diff(this.dateOfBirth, unit, precise);
     }
 
-    getAgeInWeeks(asOnDate) {
-        asOnDate = asOnDate || moment();
-        return moment(asOnDate).diff(this.dateOfBirth, 'weeks');
+    getAgeInMonths(asOnDate, precise) {
+        return this.getAgeIn("months")(asOnDate, precise);
     }
 
-    getAgeInYears(asOnDate) {
-        asOnDate = asOnDate || moment();
-        return moment(asOnDate).diff(this.dateOfBirth, 'years');
+    getAgeInWeeks(asOnDate, precise) {
+        return this.getAgeIn("weeks")(asOnDate, precise);
+    }
+
+    getAgeInYears(asOnDate, precise) {
+        return this.getAgeIn("years")(asOnDate, precise);
     }
 
     toSummaryString() {
