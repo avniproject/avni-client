@@ -339,7 +339,7 @@
             ]
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Reason for referral",
