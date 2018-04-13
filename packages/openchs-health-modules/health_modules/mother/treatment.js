@@ -25,7 +25,7 @@ const treatment = (enrolment, encounter, today) => {
         .and.when.valueInEncounter("Hb").lessThan(11)
         .and.whenItem(trimester).equalsOneOf(2, 3);
 
-    treatmentBuilder.addComplication("Calcium")
+    treatmentBuilder.addComplication("Calcium 1g/day")
         .whenItem(trimester).equalsOneOf(2, 3);
 
     treatmentBuilder.addComplication("Aspirin")

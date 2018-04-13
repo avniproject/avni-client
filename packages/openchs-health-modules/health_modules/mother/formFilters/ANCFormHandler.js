@@ -9,7 +9,8 @@ class ANCFormHandler {
 
     preFilter(programEncounter, formElement, today) {
         let lmp = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
-        this.gestationalAge = FormElementsStatusHelper.weeksBetween(today, lmp);
+        let td = _.get(programEncounter, "encounterDateTime", new Date());
+        this.gestationalAge = FormElementsStatusHelper.weeksBetween(td, lmp);
     }
 
     haveYouEnrolledInAnyGovernmentScheme(programEncounter, formElement) {
@@ -32,12 +33,13 @@ class ANCFormHandler {
                 uuid: answer.concept.uuid
             }))
             .filter(answer => [...inclusionMapping.keys()].indexOf(answer.name) > -1)
-            .filter((answer) => {
+            .map((answer) => {
                 statusBuilder.skipAnswers(answer.name)
                     .whenItem(this._isInCurrentTrimester(inclusionMapping.get(answer.name)))
                     .is.not.truthy;
             });
 
+        statusBuilder.show().whenItem(true).is.truthy;
         return statusBuilder.build();
     }
 

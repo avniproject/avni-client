@@ -327,7 +327,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium 1g/day");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(12, "w").toDate())
@@ -335,7 +335,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium 1g/day");
         });
 
         it("Calcium is advised in the last 2 trimesters of pregnancy", () => {
@@ -345,7 +345,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium 1g/day");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -353,7 +353,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Calcium 1g/day");
         });
 
         it("Aspirin is advised in the last 2 trimesters of pregnancy till 35th week", () => {

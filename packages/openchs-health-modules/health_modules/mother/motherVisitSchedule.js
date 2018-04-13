@@ -36,11 +36,6 @@ const getNextScheduledVisits = function (programEnrolment, today, currentEncount
     };
 
     if (lmpDate) {
-        addEncounter(lmpDate, 'ANC', 'ANC 1');
-        addEncounter(lmpDate, 'ANC', 'ANC 2');
-        addEncounter(lmpDate, 'ANC', 'ANC 3');
-        addEncounter(lmpDate, 'ANC', 'ANC 4');
-        addEncounter(lmpDate, 'Delivery', 'Delivery');
     }
 
     if (deliveryDate) {
