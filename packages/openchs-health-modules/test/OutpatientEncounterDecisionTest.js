@@ -162,7 +162,6 @@ describe('Make Decision', function () {
 
     var referralAdviceIsGenerated = (complaints, nonDefaultEncounter) => {
         verifyPrescriptionForComplaints(complaints, (decisions,message) => {
-            console.log(decisions);
             assert.isNotEmpty(decisions.find(decision => decision.name === 'Referral Advice')); 
             assert.equal((message.match(/लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे/g) || []).length, 1, message);
         }, nonDefaultEncounter);
@@ -200,7 +199,7 @@ describe('Make Decision', function () {
 
     describe("For Vomiting", () => {
         let complaint = ["Vomiting"];
-        let customEncounters = (weight) => [defaultMaleEncounter([complaint], weight), defaultFemaleEncounter([complaint], weight)];
+        let customEncounters = (weight) => [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)];
 
         it("if weight upto 8 kgs, prescribe Ondenestran Syrup and ORS for 3 days", () => {
             let weight = 7;
@@ -331,6 +330,10 @@ describe('Make Decision', function () {
                 }, defaultFemaleEncounter(complaint));
             });
 
+            it("refer patient to LBP Hospital [NOT BEING TESTED. BEHAVIOUR WORKS AS PER REQUIREMENT]", () => {
+                // empty test for now for documentation purposes only
+                // TO FIX
+            });
         });
     });
 
@@ -343,7 +346,6 @@ describe('Make Decision', function () {
         });
     });
 
-    /*
     describe("For Chloroquine Resistant Malaria", () => {
         let complaint = ["Chloroquine Resistant Malaria"];
         it("no prescription to be given", () => {
@@ -363,7 +365,7 @@ describe('Make Decision', function () {
             referralAdviceIsGenerated(complaint);
         });
     });
-    */
+
     var completeValue = function (decisions) {
         var message = "";
         for (var i = 0; i < decisions.length; i++)
