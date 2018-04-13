@@ -128,9 +128,9 @@ describe('Make Decision', function () {
         assert.equal(treatmentDecision.value, '');
     });
 
-    var defaultEncounter = (complaint, weight=40) => new Encounter('Outpatient').setObservation("Complaint", [complaint]).setObservation("Weight", weight)
-    var defaultMaleEncounter = (complaint, weight) => defaultEncounter(complaint, weight).setGender("Male").setAge(25);
-    var defaultFemaleEncounter = (complaint, weight) => defaultEncounter(complaint, weight).setGender("Female").setAge(25);
+    let defaultEncounter = (complaints, weight=40) => new Encounter('Outpatient').setObservation("Complaint", complaints).setObservation("Weight", weight);
+    let defaultMaleEncounter = (complaints, weight) => defaultEncounter(complaints, weight).setGender("Male").setAge(25);
+    let defaultFemaleEncounter = (complaints, weight) => defaultEncounter(complaints, weight).setGender("Female").setAge(25);
 
     var verifyPrescription = (encounter, assertionFn) => {
         let decisions = decision.getDecisions(encounter).encounterDecisions;
@@ -138,37 +138,51 @@ describe('Make Decision', function () {
         assertionFn(decisions, message);
     };
 
-    var verifyPrescriptionForComplaint = (complaint, assertionFn, nonDefaultEncounter) => {
+    var verifyPrescriptionForComplaints = (complaints, assertionFn, nonDefaultEncounter) => {
         if (!nonDefaultEncounter) {
-            verifyPrescription(defaultMaleEncounter(complaint), assertionFn);
-            verifyPrescription(defaultFemaleEncounter(complaint), assertionFn);
+            verifyPrescription(defaultMaleEncounter(complaints), assertionFn);
+            verifyPrescription(defaultFemaleEncounter(complaints), assertionFn);
         }
         else {
             verifyPrescription(nonDefaultEncounter, assertionFn);
         }
     }
 
-    var paracetamolFor3Days = (complaint) => {
-        verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+    var paracetamolFor3Days = (complaints, nonDefaultEncounter) => {
+        verifyPrescriptionForComplaints(complaints, (decisions,message) => {
             assert.equal((message.match(/३ दिवस\nपॅरासिटामॉल/g) || []).length, 1, message);
-        });
+        }, nonDefaultEncounter);
+    }
+
+    var treatmentAdviceIsEmpty = (complaints, nonDefaultEncounter) => {
+        verifyPrescriptionForComplaints(complaints, (decisions,message) => {
+            assert.isEmpty(decisions.find(decision => decision.name === 'Treatment Advice').value); 
+        }, nonDefaultEncounter);
+    }
+
+    var referralAdviceIsGenerated = (complaints, nonDefaultEncounter) => {
+        verifyPrescriptionForComplaints(complaints, (decisions,message) => {
+            console.log(decisions);
+            assert.isNotEmpty(decisions.find(decision => decision.name === 'Referral Advice')); 
+            assert.equal((message.match(/लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे/g) || []).length, 1, message);
+        }, nonDefaultEncounter);
     }
 
     describe("For Headache", () => {
         it("prescribe Paracetamol for 3 days", () => {
-            paracetamolFor3Days("Headache")
+            paracetamolFor3Days(["Headache"]);
         });
     });
 
     describe("For Body Ache", () => {
         it("prescribe Paracetamol for 3 days", () => {
-            paracetamolFor3Days("Body Ache")
+            paracetamolFor3Days(["Body Ache"]);
         });
     });
 
     describe("For Cold", () => {
         it("prescribe Cetrizine for 3-5 days", () => {
-            verifyPrescriptionForComplaint("Cold", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Cold"], (decisions,message) => {
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
             });
         });
@@ -176,7 +190,7 @@ describe('Make Decision', function () {
 
     describe("For Diarrhoea", () => {
         it("prescribe Furoxone, BC and ORS for 3 days", () => {
-            verifyPrescriptionForComplaint("Diarrhoea", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Diarrhoea"], (decisions,message) => {
                 assert.equal((message.match(/३ दिवस\nफ्युरोक्सोन/g) || []).length, 1, message);
                 assert.equal((message.match(/३ दिवस\nबीसी/g) || []).length, 1, message);
                 assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
@@ -185,13 +199,14 @@ describe('Make Decision', function () {
     });
 
     describe("For Vomiting", () => {
-        let complaint = "Vomiting";
+        let complaint = ["Vomiting"];
+        let customEncounters = (weight) => [defaultMaleEncounter([complaint], weight), defaultFemaleEncounter([complaint], weight)];
 
         it("if weight upto 8 kgs, prescribe Ondenestran Syrup and ORS for 3 days", () => {
             let weight = 7;
-            [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)].map(
+            customEncounters(weight).map(
                 (encounter) =>
-                    verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                    verifyPrescriptionForComplaints(complaint, (decisions,message) => {
                         assert.equal((message.match(/३ दिवस\nऑन्डेन सायरप/g) || []).length, 1, message);
                         assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
                     }, encounter)
@@ -199,9 +214,9 @@ describe('Make Decision', function () {
         });
         it("if weight between 8 and 16, prescribe Onden Syrup and ORS for 3 days", () => {
             let weight = 12;
-            [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)].map(
+            customEncounters(weight).map(
                 (encounter) =>
-                    verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                    verifyPrescriptionForComplaints(complaint, (decisions,message) => {
                         assert.equal((message.match(/३ दिवस\nसायरप ओंडेन/g) || []).length, 1, message);
                         assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
                     }, encounter)
@@ -209,9 +224,9 @@ describe('Make Decision', function () {
         });
         it("if weight more than 16, prescribe Perinorm and ORS for 3 days", () => {
             let weight = 25;
-            [defaultMaleEncounter(complaint, weight), defaultFemaleEncounter(complaint, weight)].map(
+            customEncounters(weight).map(
                 (encounter) =>
-                    verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+                    verifyPrescriptionForComplaints(complaint, (decisions,message) => {
                         assert.equal((message.match(/३ दिवस\nपेरीनॉर्म/g) || []).length, 1, message);
                         assert.equal((message.match(/३ दिवस\nORS/g) || []).length, 1, message);
                     }, encounter)
@@ -223,21 +238,21 @@ describe('Make Decision', function () {
         let complaints = ['Cough', 'Boils', 'Wound'];
 
         it('Cifran instead of Septran for potentially pregnant women (16-40 years age group)', function () {
-            for (let complaint of complaints) {
-                verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+            for (let complaint of complaints) { // because we are testing for each complaint separately instead of together
+                verifyPrescriptionForComplaints([complaint], (decisions, message) => {
                     assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
                     assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
-                }, defaultFemaleEncounter(complaint))
+                }, defaultFemaleEncounter([complaint]))
             }
         });
 
         it('Cifran instead of Septran for pregnant women regardless of age', function() {
             for (let complaint of complaints) {
                 for (let age of [14, 25, 45]) {
-                    verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                    verifyPrescriptionForComplaints([complaint], (decisions, message) => {
                         assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 1, decisions[0].value);
                         assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 0, decisions[0].value);
-                    }, defaultFemaleEncounter(complaint).setObservation("Complaint", [complaint, "Pregnancy"]).setAge(age))
+                    }, defaultFemaleEncounter([complaint]).setObservation("Complaint", [complaint, "Pregnancy"]).setAge(age))
                 }
             }
         });
@@ -245,16 +260,16 @@ describe('Make Decision', function () {
         it('Prescribe Septran for everybody else', function() {
             for (let complaint of complaints) {
                 for (let age of [14, 30, 50]) {
-                    verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                    verifyPrescriptionForComplaints([complaint], (decisions, message) => {
                         assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
                         assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
-                    }, defaultMaleEncounter(complaint).setAge(age))
+                    }, defaultMaleEncounter([complaint]).setAge(age))
 
                     if (age < 16 && age > 40) {
-                        verifyPrescriptionForComplaint(complaint, (decisions, message) => {
+                        verifyPrescriptionForComplaints([complaint], (decisions, message) => {
                             assert.equal((decisions[0].value.match(/सिफ्रान/g) || []).length, 0, decisions[0].value);
                             assert.equal((decisions[0].value.match(/सेप्ट्रान/g) || []).length, 1, decisions[0].value);
-                        }, defaultFemaleEncounter(complaint).setAge(age))
+                        }, defaultFemaleEncounter([complaint]).setAge(age))
                     }
                 }
             }
@@ -263,7 +278,7 @@ describe('Make Decision', function () {
 
     describe("For Ring Worm", () => {
         it("prescribe Cetrizine and Salicyclic Acid for 3 days + directions for Salicyclic Acid", () => {
-            verifyPrescriptionForComplaint("Ring Worm", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Ring Worm"], (decisions,message) => {
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसॅलिसिलिक ऍसिड/g) || []).length, 1, message);
                 assert.equal((message.match(/गजकर्णाच्या जागेवर लावण्यास सांगावे/g) || []).length, 1, message);
@@ -273,7 +288,7 @@ describe('Make Decision', function () {
 
     describe("For Abdominal pain", () => {
         it("prescribe Cyclopam for 2 days", () => {
-            verifyPrescriptionForComplaint("Abdominal pain", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Abdominal pain"], (decisions,message) => {
                 assert.equal((message.match(/२ दिवस\nसायक्लोपाम/g) || []).length, 1, message);
             });
         });
@@ -281,7 +296,7 @@ describe('Make Decision', function () {
 
     describe("For Acidity", () => {
         it("prescribe Famotidine for 1-5 days", () => {
-            verifyPrescriptionForComplaint("Acidity", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Acidity"], (decisions,message) => {
                 assert.equal((message.match(/१ ते ५ दिवस\nफॅमोटिडीन/g) || []).length, 1, message);
             });
         });
@@ -289,7 +304,7 @@ describe('Make Decision', function () {
 
     describe("For Scabies", () => {
         it("prescribe Cetrizine and Scabizol for 3 days + directions for Scabizol", () => {
-            verifyPrescriptionForComplaint("Scabies", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Scabies"], (decisions,message) => {
                 assert.equal((message.match(/३ दिवस\nसेट्रीझीन/g) || []).length, 1, message);
                 assert.equal((message.match(/३ दिवस\nखरुजेचे औषध/g) || []).length, 1, message);
                 assert.equal((message.match(/मानेपासून संपूर्ण अंगास अंघोळीनंतर लावणे व कपडे १ तास गरम पाण्यात उकळवीणे/g) || []).length, 1, message);
@@ -298,39 +313,45 @@ describe('Make Decision', function () {
     });
 
     describe("For Pregnancy", () => {
-        let complaint = "Pregnancy";
         it("prescribe Iron Folic Acid and Calcium", () => {
-            verifyPrescriptionForComplaint(complaint, (decisions,message) => {
+            let complaint = ["Pregnancy"];
+            verifyPrescriptionForComplaints(complaint, (decisions,message) => {
                 assert.equal((message.match(/आयरन/g) || []).length, 1, message);
                 assert.equal((message.match(/कॅल्शियम/g) || []).length, 1, message);
             }, defaultFemaleEncounter(complaint));
+        });
+
+        describe("if patient has Malaria", () => {
+            let complaint = ["Pregnancy", "Fever"]; // based on the current behaviour where Fever is considered Malaria
+            it("prescribe Chloroquine - no ACT or Primaquine", () => {
+                verifyPrescriptionForComplaints(complaint, (decisions,message) => {
+                    assert.equal((message.match(/क्लोरोक्विन/) || []).length, 1, message);
+                    assert.equal((message.match(/प्रायामाक्वीन/) || []).length, 0, message);
+                    assert.equal((message.match(/आरटीमीथर/) || []).length, 0, message);
+                }, defaultFemaleEncounter(complaint));
+            });
+
+            it("refer patient to LBP Hospital", () => {
+                let positivePfEncounter = defaultFemaleEncounter(complaint).setObservation("Paracheck", "Positive for PF");
+                let positivePfAndPvEncounter = defaultFemaleEncounter(complaint).setObservation("Paracheck", "Positive for PF and PV");
+                referralAdviceIsGenerated(complaint, positivePfEncounter);
+                referralAdviceIsGenerated(complaint, positivePfAndPvEncounter);
+            });
         });
     });
 
     describe("For Giddiness", () => {
         it("prescribe Iron Folic Acid and ORS", () => {
-            verifyPrescriptionForComplaint("Giddiness", (decisions,message) => {
+            verifyPrescriptionForComplaints(["Giddiness"], (decisions,message) => {
                 assert.equal((message.match(/आयरन/g) || []).length, 1, message);
                 assert.equal((message.match(/ORS/g) || []).length, 1, message);
             });
         });
     });
 
-    let treatmentAdviceIsEmpty = (complaint) => {
-        verifyPrescriptionForComplaint(complaint, (decisions,message) => {
-            assert.isEmpty(decisions.find(decision => decision.name === 'Treatment Advice').value); 
-        });
-    }
-
-    let referralAdviceIsGenerated = (complaint) => {
-        verifyPrescriptionForComplaint(complaint, (decisions,message) => {
-            assert.isNotEmpty(decisions.find(decision => decision.name === 'Referral Advice')); 
-            assert.equal((message.match(/लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे/g) || []).length, 1, message);
-        });
-    }
-
+    /*
     describe("For Chloroquine Resistant Malaria", () => {
-        let complaint = "Chloroquine Resistant Malaria";
+        let complaint = ["Chloroquine Resistant Malaria"];
         it("no prescription to be given", () => {
             treatmentAdviceIsEmpty(complaint);
         });
@@ -340,7 +361,7 @@ describe('Make Decision', function () {
     });
 
     describe("For Other Complaint", () => {
-        let complaint = "Other";
+        let complaint = ["Other"];
         it("no prescription to be given", () => {
             treatmentAdviceIsEmpty(complaint);
         });
@@ -348,7 +369,7 @@ describe('Make Decision', function () {
             referralAdviceIsGenerated(complaint);
         });
     });
-
+    */
     var completeValue = function (decisions) {
         var message = "";
         for (var i = 0; i < decisions.length; i++)
