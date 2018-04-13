@@ -122,12 +122,6 @@ class ANCFormHandler {
         return new FormElementStatus(formElement.uuid, visibility);
     }
 
-    urinePregnancyTest(programEncounter, formElement) {
-        let statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().when.valueInEntireEnrolment("Urine pregnancy test").is.notDefined;
-        return statusBuilder.build();
-    }
-
     _formStatusBuilder(programEncounter, formElement) {
         return new FormElementStatusBuilder({
             programEncounter: programEncounter,

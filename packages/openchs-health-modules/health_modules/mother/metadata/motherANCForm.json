@@ -657,30 +657,6 @@
           },
           "displayOrder": 2,
           "mandatory": false
-        },
-        {
-          "name": "Urine pregnancy test",
-          "uuid": "d89cb5f4-03f7-45ae-8229-932897efb46c",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "concept": {
-            "name": "Urine pregnancy test",
-            "uuid": "ae076480-008d-47ca-9fab-a5300a626e42",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
-                "abnormal": true
-              }
-            ]
-          },
-          "displayOrder": 3,
-          "mandatory": false
         }
       ]
     },

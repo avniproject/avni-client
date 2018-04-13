@@ -38,7 +38,7 @@ export default class EnrolmentFormHandler {
         return statusBuilder.build();
     }
 
-    isSheOnMedication(programEnrolment, formElement) {
+    isSheOnTbMedication(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
         statusBuilder.show().when.valueInRegistration("Medical history").is.containsAnswerConceptName("TB");
         return statusBuilder.build();
