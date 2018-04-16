@@ -1,9 +1,12 @@
 import C from "../common";
 import _ from "lodash";
 
+const lmp = (programEnrolment) => {
+    return programEnrolment.getObservationValue('Last menstrual period');
+};
+
 const gestationalAgeAsOn = (date, programEnrolment) => {
-    const lmpDate = programEnrolment.getObservationValue('Last menstrual period');
-    let daysFromLMP = C.getDays(lmpDate, date);
+    let daysFromLMP = C.getDays(lmp(programEnrolment), date);
     return _.floor(daysFromLMP / 7, 0);
 };
 
@@ -16,4 +19,8 @@ const gestationalAgeCategoryAsOn = (date, programEnrolment) => {
     }
 };
 
-export {gestationalAgeAsOn, gestationalAgeCategoryAsOn};
+const estimatedDateOfDelivery = (programEnrolment) => {
+    return C.addDays(lmp(programEnrolment), 280);
+};
+
+export {gestationalAgeAsOn, gestationalAgeCategoryAsOn, estimatedDateOfDelivery};
