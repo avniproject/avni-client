@@ -108,6 +108,7 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     const lmpDate = programEnrolment.getObservationValue('Last menstrual period');
     let daysFromLMP = C.getDays(lmpDate, today);
     let gestationalAge = _.floor(daysFromLMP / 7, 0);
+    summary.push({name: 'Last menstrual period', value: lmpDate});
     summary.push({name: 'Gestational Age', value: gestationalAge});
     summary.push({
         name: 'Estimated Date of Delivery',
@@ -121,9 +122,33 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
         .uniq()
         .value();
 
+    const recommendations = _.chain(programEnrolment.getEncounters(true))
+        .map(encounter => encounter.getObservationValue("Recommendations"))
+        .concat([programEnrolment.getObservationValue('Recommendations')])
+        .compact()
+        .flatten()
+        .uniq()
+        .value();
+
+    const treatment = _.chain(programEnrolment.getEncounters(true))
+        .map(encounter => encounter.getObservationValue("Treatment"))
+        .concat([programEnrolment.getObservationValue('Treatment')])
+        .compact()
+        .flatten()
+        .uniq()
+        .value();
+
+    const referralAdvice = _.chain(programEnrolment.getEncounters(true))
+        .map(encounter => encounter.getObservationValue("Refer her to hospital for"))
+        .concat([programEnrolment.getObservationValue('Refer her to hospital for')])
+        .compact()
+        .flatten()
+        .uniq()
+        .value();
+
     let medicalHistory = programEnrolment.individual.getObservationValue('Medical history');
     let bloodGroup = programEnrolment.individual.getObservationValue('Blood group');
-    if (!_.isNil(highRiskConditions)) {
+    if (!_.isEmpty(highRiskConditions)) {
         summary.push({name: 'High Risk Conditions', value: highRiskConditions});
     }
     if (!_.isNil(medicalHistory)) {
@@ -131,6 +156,15 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     }
     if (!_.isNil(bloodGroup)) {
         summary.push({name: 'Blood group', value: bloodGroup});
+    }
+    if (!_.isEmpty(recommendations)) {
+        summary.push({name: 'Recommendations', value: recommendations});
+    }
+    if (!_.isEmpty(treatment)) {
+        summary.push({name: 'Treatment', value: treatment});
+    }
+    if (!_.isEmpty(referralAdvice)) {
+        summary.push({name: 'Refer her to hospital for', value: referralAdvice});
     }
     return summary;
 };
