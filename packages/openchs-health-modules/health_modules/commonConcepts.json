@@ -86,7 +86,8 @@
     "uuid": "7ac0d759-c50d-4971-88e0-84274224c839",
     "dataType": "Numeric",
     "lowNormal": 18.5,
-    "highNormal": 24.9
+    "highNormal": 24.9,
+    "unit": "kg/m²"
   },
   {
     "name": "Underweight",
