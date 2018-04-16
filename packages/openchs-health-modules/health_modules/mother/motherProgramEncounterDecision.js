@@ -42,7 +42,7 @@ export function getDecisions(programEncounter, today) {
         return pncEncounterDecisions(programEncounter);
     }
 
-    if (programEncounter.encounterType.name = "Delivery") {
+    if (programEncounter.encounterType.name === "Delivery") {
         let decisions = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
         decisions.encounterDecisions.push(
             {
