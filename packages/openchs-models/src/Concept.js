@@ -108,6 +108,7 @@ export default class Concept {
     cloneForReference() {
         const concept = Concept.create(this.name, this.datatype);
         concept.uuid = this.uuid;
+        concept.unit = this.unit;
         concept.lowAbsolute = this.lowAbsolute;
         concept.lowNormal = this.lowNormal;
         concept.hiNormal = this.hiNormal;
