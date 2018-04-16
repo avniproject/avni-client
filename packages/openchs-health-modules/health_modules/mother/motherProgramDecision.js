@@ -113,7 +113,14 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
         name: 'Estimated Date of Delivery',
         value: programEnrolment.getObservationValue('Estimated Date of Delivery')
     });
-    let highRiskConditions = programEnrolment.getObservationValue('High Risk Conditions');
+    const highRiskConditions = _.chain(programEnrolment.getEncounters(true))
+        .map(encounter => encounter.getObservationValue("High Risk Conditions"))
+        .concat([programEnrolment.getObservationValue('High Risk Conditions')])
+        .compact()
+        .flatten()
+        .uniq()
+        .value();
+
     let medicalHistory = programEnrolment.individual.getObservationValue('Medical history');
     let bloodGroup = programEnrolment.individual.getObservationValue('Blood group');
     if (!_.isNil(highRiskConditions)) {
