@@ -10,7 +10,7 @@ import generateTreatment from "./treatment";
 import referralAdvice from "./referral";
 import generateInvestigationAdvice from "./investigations";
 import generateHighRiskConditionAdvice from "./highRisk";
-import {gestationalAgeCategoryAsOn} from "./common";
+import {gestationalAgeCategoryAsOn} from "./calculations";
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];

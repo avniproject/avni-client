@@ -7,7 +7,6 @@ import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolm
 import ancForm from "../health_modules/mother/metadata/motherANCForm";
 import EnrolmentFiller from "./ref/EnrolmentFiller";
 import EncounterFiller from "./ref/EncounterFiller";
-import EntityFactory from "../../openchs-models/test/EntityFactory";
 
 const moment = require('moment');
 const assert = require('chai').assert;
