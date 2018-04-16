@@ -36,6 +36,9 @@ describe('Make Decision', function () {
 
         validationResults = decision.validate(new Encounter('Outpatient').setObservation(complaintConceptName, ["Pregnancy"]).setAge(12).setGender("Female").setObservation("Weight", 40), new Form());
         assert.equal(validationResults.length, 0, validationResults);
+
+        validationResults = decision.validate(new Encounter('Outpatient').setObservation(complaintConceptName, ["Acidity"]).setObservation("Weight", 3).setGender("Male"), new Form());
+        assert.equal(validationResults[0].success, false, validationResults[0].message);
     });
 
     it('Complaint which allows for prescription', function () {
@@ -92,12 +95,10 @@ describe('Make Decision', function () {
         assert.equal((message.match(/सॅलिसिलिक ऍसिड/g) || []).length, 1, message);
     });
 
-    it('[NEEDS REVIEW] Pick validation errors corresponding to all complaints', function () {
-        /* Looks like an obsolete test
+    it('Pick validation errors corresponding to all complaints', function () {
         var complaintConceptName = "Complaint";
         var validationResult = decision.validate(new Encounter('Outpatient').setObservation(complaintConceptName, ["Cold", "Acidity"]).setGender("Male").setAge(5).setObservation("Weight", 12), new Form())[0];
         assert.equal(validationResult.success, false, validationResult.message);
-        */
     });
 
     it('Multiple complaints and passing all validations', function () {

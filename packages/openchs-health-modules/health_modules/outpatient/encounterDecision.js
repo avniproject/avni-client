@@ -26,7 +26,7 @@ const weightRangesToCodeForLonartForte = [
 ];
 
 const complaintToWeightRangesToCodeMap = {
-    "Chloroquine Resistant Malaria": weightRangesToCodeForLonartForte
+    //"Chloroquine Resistant Malaria": weightRangesToCodeForLonartForte
 };
 
 const englishWordsToMarathi = {
@@ -305,6 +305,9 @@ const validate = function (encounter, form) {
         }
         if (complaint === 'Pregnancy' && params.age < 10) {
             addValidationError("lessThanTenCannotBePregnant");
+        }
+        if (complaint === 'Acidity' && params.weight < 13) {
+            addValidationError("acidityMedsNotToBeGivenToChildren");
         }
     }
 
