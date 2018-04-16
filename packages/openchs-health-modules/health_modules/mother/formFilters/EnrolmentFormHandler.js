@@ -46,13 +46,13 @@ export default class EnrolmentFormHandler {
 
     hasSheBeenTakingHerTbMedicationRegularly(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
-        statusBuilder.show().when.valueInEnrolment("Is she on medication?").is.containsAnswerConceptName("Yes");
+        statusBuilder.show().when.valueInEnrolment("Is she on TB medication?").is.containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
 
     didSheCompleteHerTbTreatment(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
-        statusBuilder.show().when.valueInEnrolment("Is she on medication?").is.containsAnswerConceptName("No");
+        statusBuilder.show().when.valueInEnrolment("Is she on TB medication?").is.containsAnswerConceptName("No");
         return statusBuilder.build();
     }
 
