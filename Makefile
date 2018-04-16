@@ -59,6 +59,9 @@ release-live: ##
 release-staging: ## 
 	ENVFILE=.env.staging make release
 
+release-uat: ##
+	ENVFILE=.env.uat make release
+
 release-offline: ## 
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
 # </release>
