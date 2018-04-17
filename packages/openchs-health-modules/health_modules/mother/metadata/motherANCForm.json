@@ -446,7 +446,8 @@
           "concept": {
             "name": "Blood Sugar",
             "uuid": "d6bfbe2e-c301-4a26-8893-5236fd20f661",
-            "dataType": "Numeric"
+            "dataType": "Numeric",
+            "unit":"mg/dl"
           },
           "displayOrder": 4,
           "mandatory": false

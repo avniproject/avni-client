@@ -22,6 +22,7 @@ class ANCFormHandler {
     hasSheBeenDealingWithAnyComplications(programEncounter, formElement) {
         const inclusionMapping = new Map([["Morning Sickness", [1, 2]],
             ["Difficulty breathing", [2, 3]],
+            ["Fever", []],
             ["Blurring of vision", [2, 3]],
             ["Decreased Foetal movements", [3]],
             ["Severe headache", [2, 3]],

@@ -391,7 +391,7 @@ describe("Mother Program ANC", () => {
     });
 
     describe("Referral", () => {
-        ["Excessive vomiting and inability to consume anything orally", "Fever", "Severe Abdominal Pain", "Blurring of vision",
+        ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurring of vision",
             "Decreased Foetal movements", "PV bleeding", "PV leaking"].forEach((complication) => {
             it(`is generated if ${complication}`, () => {
                 let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
@@ -883,7 +883,7 @@ describe("Mother Program ANC", () => {
 
     describe("High Risk Condition", () => {
 
-        ["Excessive vomiting and inability to consume anything orally", "Fever", "Severe Abdominal Pain", "Blurring of vision",
+        ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurring of vision",
             "Decreased Foetal movements", "PV bleeding", "PV leaking", "Morning Sickness", "Difficulty breathing", "Severe headache"]
             .forEach((complication) => {
                 it(`is added if mother has ${complication}`, () => {

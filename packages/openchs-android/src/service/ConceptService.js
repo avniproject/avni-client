@@ -41,7 +41,10 @@ class ConceptService extends BaseService {
 
     addDecisions(observations, decisions) {
         decisions = decisions || [];
-        decisions.forEach((decision) => this.addUpdateOrRemoveObs(observations, decision));
+        _.chain(decisions)
+            .compact()
+            .map((decision) => this.addUpdateOrRemoveObs(observations, decision))
+            .value();
     }
 
     addUpdateOrRemoveObs(observations, decision) {
