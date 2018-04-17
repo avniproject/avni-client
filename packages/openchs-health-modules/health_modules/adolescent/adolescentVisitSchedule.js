@@ -72,7 +72,7 @@ const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
     const dateTimeToUse = programEncounter.encounterDateTime || new Date();
     const enrolment = programEncounter.programEnrolment;
     const scheduledDropoutVisit = enrolment.scheduledEncountersOfType("Dropout Home Visit");
-    if (!_.isNil(scheduledDropoutVisit)) return;
+    if (!_.isEmpty(scheduledDropoutVisit)) return;
     scheduleBuilder.add({
             name: "Dropout Home Visit",
             encounterType: "Dropout Home Visit",
@@ -86,7 +86,7 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
     const dateTimeToUse = programEncounter.encounterDateTime || new Date();
     const enrolment = programEncounter.programEnrolment;
     const scheduledDropoutVisit = enrolment.scheduledEncountersOfType("Dropout Followup Visit");
-    if (!_.isNil(scheduledDropoutVisit)) return;
+    if (!_.isEmpty(scheduledDropoutVisit)) return;
     scheduleBuilder.add({
             name: "Dropout Followup Visit",
             encounterType: "Dropout Followup Visit",
