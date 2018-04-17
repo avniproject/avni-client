@@ -162,20 +162,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Jaundice (Icterus)",
-            "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-                "abnormal": true
-              },
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              }
-            ]
+            "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d"
           },
           "displayOrder": 4,
           "mandatory": false

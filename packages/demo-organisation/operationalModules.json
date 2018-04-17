@@ -1,6 +1,6 @@
 {
   "organisationName": "demo",
   "encounterTypes": ["Outpatient", "Delivery", "Abortion", "Child Default", "ANC", "PNC", "Annual Visit", "Quarterly Visit", "Half-Yearly Visit", "Monthly Visit","Dropout Home Visit",
-    "Dropout Followup Visit"],
+    "Dropout Followup Visit", "Child Delivery"],
   "programs": ["Mother", "Child", "Adolescent"]
 }

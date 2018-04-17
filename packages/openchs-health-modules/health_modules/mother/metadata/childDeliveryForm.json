@@ -1,0 +1,185 @@
+{
+  "name": "Delivery-Child",
+  "uuid": "901e2f48-2fb8-402b-9073-ee2fac33fce4",
+  "formType": "ProgramEncounter",
+  "encounterTypes": ["Child Delivery"],
+  "programName": "Mother",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "187479ba-7c41-4cd4-beac-9d0cf7735852",
+      "name": "General",
+      "displayOrder": 1,
+      "display": "General",
+      "formElements": [
+        {
+          "name": "Birth Weight",
+          "uuid": "245a4a27-b39f-4859-8d7d-cd6995c4203f",
+          "concept": {
+            "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Gestational age at birth",
+          "uuid": "368d545d-5491-403b-953d-8ea522e33101",
+          "keyValues": [],
+          "concept": {
+            "name": "Gestational age at birth",
+            "uuid": "2c0c49eb-fdb1-4675-9f5b-3bcd91caf0d1",
+            "dataType": "Numeric",
+            "unit": "week(s)"
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Did the baby cry soon after birth?",
+          "uuid": "ee2966d4-035c-4282-9314-a4453f260f28",
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Cried soon after birth",
+            "uuid": "e3158f7c-6349-4e96-8e63-6223f8444500",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+                "abnormal": true
+              }
+            ]
+          },
+          "displayOrder": 3,
+          "mandatory": true
+        },
+        {
+          "name": "Did breast feeding start within 1 hour of birth?",
+          "uuid": "c11bc3cd-7b58-49ba-b085-040378958a57",
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Breast feeding within 1 hour of birth",
+            "uuid": "ae2b1a14-4c76-415c-8520-656f57bcb48d",
+            "dataType": "Coded",
+            "answers": [
+              {
+                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+              },
+              {
+                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+                "abnormal": true
+              }
+            ]
+          },
+          "displayOrder": 4,
+          "mandatory": true
+        },
+        {
+          "name": "When did breast feeding start?",
+          "uuid": "8977ed9d-ef91-4c97-8cc1-2515c827eff1",
+          "concept": {
+            "name": "Breast feeding started",
+            "uuid": "05a76d7c-aa02-4023-9d98-639c36a269a7",
+            "dataType": "Numeric",
+            "unit": "Day(s)"
+          },
+          "displayOrder": 5,
+          "mandatory": true
+        }
+      ]
+    },
+    {
+      "uuid": "330730f4-71c8-4e31-aa30-5cbf4d07d1e2",
+      "name": "Danger signs",
+      "displayOrder": 2,
+      "display": "Danger signs",
+      "formElements": [
+        {
+          "name": "Colour of child",
+          "uuid": "6985bbf7-0f97-40a8-8c06-875e31631bc6",
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "747f9b96-5b88-4f08-b52c-e1a060df4c30"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Reflex",
+          "uuid": "c29973e2-baea-429d-9f4c-42f33fa8edd4",
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "85359b71-4790-4c00-b8ca-89cb024985bd"
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Muscle tone",
+          "uuid": "4039039a-c395-4fd1-b7b2-379910df2494",
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "8ae7a140-900c-4bae-bb20-15b8c883869a"
+          },
+          "displayOrder": 3,
+          "mandatory": true
+        }
+      ]
+    },
+    {
+      "uuid": "5d1cff96-3a19-430d-92bf-0244a2562154",
+      "name": "Vitals",
+      "displayOrder": 3,
+      "display": "Vitals",
+      "formElements": [
+        {
+          "name": "Pulse",
+          "uuid": "e9097f25-cb68-44d5-8709-f7ccfa3d36d6",
+          "concept": {
+            "uuid": "4629403c-7d38-4984-89cb-8be929b66e69"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Temperature",
+          "uuid": "c31449fa-9102-4a46-8264-022d529d4f38",
+          "concept": {
+            "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9"
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Respiratory Rate",
+          "uuid": "ceed29aa-0145-4c77-a032-2c1546682612",
+          "concept": {
+            "uuid": "8ae7a140-900c-4bae-bb20-15b8c883869a"
+          },
+          "displayOrder": 3,
+          "mandatory": true
+        }
+      ]
+    },
+    {
+      "uuid": "92802ca9-1494-4c7a-a629-96362d0f4756",
+      "name": "Physical Examination",
+      "displayOrder": 4,
+      "display": "Physical Examination",
+      "formElements": [
+        {
+          "name": "Jaundice (Icterus)",
+          "uuid": "1f0bbcce-801e-4736-b5ab-c8afee6e8521",
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d"
+          },
+          "displayOrder": 4,
+          "mandatory": true
+        }
+      ]
+    }
+  ]
+}

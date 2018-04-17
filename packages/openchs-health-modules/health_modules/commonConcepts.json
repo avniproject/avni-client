@@ -66,11 +66,27 @@
     "unit": "bpm"
   },
   {
+    "name": "Child Pulse",
+    "uuid": "4629403c-7d38-4984-89cb-8be929b66e69",
+    "dataType": "Numeric",
+    "lowNormal": 100,
+    "highNormal": 160,
+    "unit": "bpm"
+  },
+  {
     "name": "Respiratory Rate",
     "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37",
     "dataType": "Numeric",
     "lowNormal": 16,
     "highNormal": 20,
+    "unit": "breaths/minute"
+  },
+  {
+    "name": "Child Respiratory Rate",
+    "uuid": "a669a751-574e-4f7b-8c34-d3d755adecf8",
+    "dataType": "Numeric",
+    "lowNormal": 30,
+    "highNormal": 60,
     "unit": "breaths/minute"
   },
   {

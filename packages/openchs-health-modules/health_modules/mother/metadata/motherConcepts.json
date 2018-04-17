@@ -1809,5 +1809,108 @@
         "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90"
       }
     ]
+  },
+  {
+    "name": "Blue/pale",
+    "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
+    "dataType": "NA"
+  },
+  {
+    "name": "Body pink but hands and feet blue/pale",
+    "uuid": "c66ef660-ded1-439a-8255-917ecf0e61a1",
+    "dataType": "NA"
+  },
+  {
+    "name": "Completely pink",
+    "uuid": "0d6fdc51-a8c7-4baf-a85e-e6a55b14cd8d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Colour of child",
+    "uuid": "747f9b96-5b88-4f08-b52c-e1a060df4c30",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3"
+      },
+      {
+        "uuid": "c66ef660-ded1-439a-8255-917ecf0e61a1"
+      },
+      {
+        "uuid": "0d6fdc51-a8c7-4baf-a85e-e6a55b14cd8d"
+      }
+    ]
+  },
+  {
+    "name": "Grimace/painful expression",
+    "uuid": "2facbe79-1def-40c2-a107-e6fcfd6e9977",
+    "dataType": "NA"
+  },
+  {
+    "name": "Grimace/painful expression and Cough or sneeze",
+    "uuid": "6c1b893d-d18e-40ca-af29-85d1bb4ef497",
+    "dataType": "NA"
+  },
+  {
+    "name": "Reflex",
+    "uuid": "85359b71-4790-4c00-b8ca-89cb024985bd",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+        "abnormal": true
+      },
+      {
+        "uuid": "2facbe79-1def-40c2-a107-e6fcfd6e9977"
+      },
+      {
+        "uuid": "6c1b893d-d18e-40ca-af29-85d1bb4ef497"
+      }
+    ]
+  },
+  {
+    "name": "Flexed arms and legs",
+    "uuid": "5e430139-4681-441e-9218-c806033dea77",
+    "dataType": "NA"
+  },
+  {
+    "name": "Active movements",
+    "uuid": "05f99af0-af6d-4818-927b-c8502b4551d7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Muscle tone",
+    "uuid": "8ae7a140-900c-4bae-bb20-15b8c883869a",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      },
+      {
+        "uuid": "5e430139-4681-441e-9218-c806033dea77"
+      },
+      {
+        "uuid": "05f99af0-af6d-4818-927b-c8502b4551d7"
+      }
+    ]
+  },
+  {
+    "name": "Jaundice (Icterus)",
+    "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+        "abnormal": true
+      },
+      {
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      }
+    ]
+  },
+  {
+    "name": "Birth Weight",
+    "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14",
+    "dataType": "Numeric"
   }
 ]
