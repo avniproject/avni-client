@@ -4,6 +4,9 @@
   "formType": "ProgramEncounter",
   "programName": "Mother",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "encounterTypes": [
+    "Delivery"
+  ],
   "formElementGroups": [
     {
       "uuid": "586b9fc7-7db9-42b5-9e89-ee1f05ac9de8",

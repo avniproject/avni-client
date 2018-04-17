@@ -138,7 +138,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     renderSummary() {
-        return _.isEmpty(this.state.enrolmentSummary) ? (<View/>):
+        return _.isEmpty(this.state.enrolmentSummary) ? (<View/>) :
             (<View>
                 <ObservationsSectionTitle
                     contextActions={[]}

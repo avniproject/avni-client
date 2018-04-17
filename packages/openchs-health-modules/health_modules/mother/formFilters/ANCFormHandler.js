@@ -115,7 +115,7 @@ class ANCFormHandler {
     }
 
     tt2Date(programEncounter, formElement) {
-        return this.validOnceAfter(programEncounter, formElement, 'TT2 Date', 21);
+        return this.validOnceAfter(programEncounter, formElement, 'TT2 Date', 16);
     }
 
     validOnceAfter(programEncounter, formElement, conceptName, weeks) {
