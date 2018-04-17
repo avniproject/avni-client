@@ -304,6 +304,24 @@ describe("Mother Program Enrolment", () => {
             assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Chronic Hypertension");
         });
 
+        it("should be highlighted if age of youngest child is 1 year", () => {
+            const mother = new IndividualBuilder().withName("Test", "Mother")
+                .withAge(19)
+                .withGender("Female")
+                .build();
+            let enrolment = new EnrolmentFiller(programData, mother, new Date())
+                .forConcept("Age of youngest child", new Date())
+                .build();
+            let decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Young child");
+
+            enrolment = new EnrolmentFiller(programData, mother, new Date())
+                .forConcept("Age of youngest child", moment().subtract(3, "years").toDate())
+                .build();
+            decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
+            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Young child");
+        });
+
         it("should be advised if mother has Heart Disease", () => {
             const mother = new IndividualBuilder(programData).withName("Test", "Mother")
                 .withAge(25)
