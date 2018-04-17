@@ -11,6 +11,11 @@
     "dataType": "NA"
   },
   {
+    "uuid": "d424590a-c8a0-4f9e-a421-1d429932e3cd",
+    "name": "School dropped out",
+    "dataType": "NA"
+  },
+  {
     "uuid": "4f1c4d88-8d87-4a53-8e3a-1bb163e13b66",
     "name": "Early Pregnancy & RTI",
     "abnormal": true,
