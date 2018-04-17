@@ -9,7 +9,7 @@ const referralAdvice = (enrolment, encounter, today = new Date()) => {
     const referralAdvice = new ComplicationsBuilder({
         programEnrolment: enrolment,
         programEncounter: encounter,
-        complicationsConcept: 'Refer her to hospital for'
+        complicationsConcept: 'Refer to the hospital immediately for'
     });
     referralAdvice.addComplication("TB")
         .when.valueInEnrolment("Did she complete her TB treatment?").containsAnswerConceptName("No")

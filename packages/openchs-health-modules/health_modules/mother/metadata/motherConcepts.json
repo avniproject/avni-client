@@ -1653,7 +1653,7 @@
     ]
   },
   {
-    "name": "Refer her to hospital for",
+    "name": "Refer to the hospital immediately for",
     "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
     "dataType": "Coded",
     "answers": [

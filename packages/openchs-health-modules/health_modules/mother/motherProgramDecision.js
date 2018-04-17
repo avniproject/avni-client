@@ -139,8 +139,8 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
         .value();
 
     const referralAdvice = _.chain(programEnrolment.getEncounters(true))
-        .map(encounter => encounter.getObservationValue("Refer her to hospital for"))
-        .concat([programEnrolment.getObservationValue('Refer her to hospital for')])
+        .map(encounter => encounter.getObservationValue("Refer to the hospital immediately for"))
+        .concat([programEnrolment.getObservationValue('Refer to the hospital immediately for')])
         .compact()
         .flatten()
         .uniq()
@@ -164,7 +164,7 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
         summary.push({name: 'Treatment', value: treatment});
     }
     if (!_.isEmpty(referralAdvice)) {
-        summary.push({name: 'Refer her to hospital for', value: referralAdvice});
+        summary.push({name: 'Refer to the hospital immediately for', value: referralAdvice});
     }
     return summary;
 };
