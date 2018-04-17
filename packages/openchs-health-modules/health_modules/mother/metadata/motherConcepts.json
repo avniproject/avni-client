@@ -1653,6 +1653,33 @@
     ]
   },
   {
+    "name": "Refer to the hospital for",
+    "uuid": "18cfc41a-2110-484e-a3c6-3f5592387324",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+        "abnormal": true
+      },
+      {
+        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
+        "abnormal": true
+      },
+      {
+        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
+        "abnormal": true
+      },
+      {
+        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
+        "abnormal": true
+      },
+      {
+        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
+        "abnormal": true
+      }
+    ]
+  },
+  {
     "name": "Refer to the hospital immediately for",
     "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
     "dataType": "Coded",
@@ -1707,26 +1734,6 @@
       },
       {
         "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
-        "abnormal": true
-      },
-      {
-        "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
-        "abnormal": true
-      },
-      {
-        "uuid": "c95ab0ea-46bb-41fb-995a-24a2db3681a2",
-        "abnormal": true
-      },
-      {
-        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
-        "abnormal": true
-      },
-      {
-        "uuid": "a88feab9-1f5d-4c83-a215-cd0ba44006f6",
-        "abnormal": true
-      },
-      {
-        "uuid": "701b5f95-0a7a-453e-8bcd-282af4d2dc97",
         "abnormal": true
       },
       {

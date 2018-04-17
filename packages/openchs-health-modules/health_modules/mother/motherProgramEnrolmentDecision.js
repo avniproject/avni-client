@@ -4,7 +4,7 @@ import c from '../common';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import generateRecommendations from './recommendations';
-import referralAdvice from './referral';
+import {referralAdvice, immediateReferralAdvice} from './referral';
 
 
 export function getNextScheduledVisits(enrolment, today) {
@@ -17,7 +17,7 @@ export function getDecisions(enrolment, context, today) {
 
     let decisions = programDecision.getDecisions(enrolment, today);
     decisions = decisions.concat(generateRecommendations(enrolment));
-    decisions = decisions.concat(referralAdvice(enrolment, null, today));
+    decisions = decisions.concat(immediateReferralAdvice(enrolment, null, today));
     return {enrolmentDecisions: decisions, encounterDecisions: []};
 }
 

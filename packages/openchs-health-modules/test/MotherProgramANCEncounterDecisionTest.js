@@ -424,7 +424,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("Breast Examination - Nipple", nippleState)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), `${nippleState} Nipples`);
+                assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), `${nippleState} Nipples`);
             });
         });
 
@@ -442,7 +442,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains less than equal to 1 KG in 1st trimester", () => {
@@ -489,7 +489,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 5-6 KGs in 2nd trimester", () => {
@@ -523,7 +523,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 3 KGs within 2nd trimester", () => {
@@ -540,7 +540,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 2-3 KGs within 2nd trimester", () => {
@@ -557,7 +557,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 2 KGs within 2nd trimester", () => {
@@ -574,7 +574,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 2 KGs within 3rd trimester", () => {
@@ -591,7 +591,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains more than 3 KGs within 3rd trimester", () => {
@@ -608,7 +608,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is not generated if mother gains 2-3 KGs within 3rd trimester", () => {
@@ -625,7 +625,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
         it("is generated if fundal height from pubic symphysis increase is more than 1 cm per week", () => {
@@ -642,7 +642,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular fundal height increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular fundal height increase");
         });
 
         it("is generated if fundal height from pubic symphysis increase is less than 1 cm per week", () => {
@@ -659,7 +659,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular fundal height increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular fundal height increase");
         });
 
         it("is not generated if fundal height from pubic symphysis increase is 1 cm per week", () => {
@@ -676,7 +676,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular fundal height increase");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular fundal height increase");
         });
 
         it("is generated if abdominal girth is more than 2.5 cm per week", () => {
@@ -693,7 +693,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular abdominal girth increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular abdominal girth increase");
         });
 
         it("is generated if abdominal girth increase is less than 2.5 cm per week", () => {
@@ -710,7 +710,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular abdominal girth increase");
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular abdominal girth increase");
         });
 
         it("is not generated if abdominal girth increase is 2.5 cm per week", () => {
@@ -727,7 +727,7 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular abdominal girth increase");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular abdominal girth increase");
         });
 
         it("is generated if foetal movements reduced or absent", () => {

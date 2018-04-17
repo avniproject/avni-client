@@ -7,7 +7,7 @@ import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
 import generateRecommendations from "./recommendations";
 import generateTreatment from "./treatment";
-import referralAdvice from "./referral";
+import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
 import generateHighRiskConditionAdvice from "./highRisk";
 import {gestationalAgeCategoryAsOn} from "./calculations";
@@ -207,7 +207,8 @@ export function getDecisions(programEncounter, today) {
         decisions = decisions
             .concat(generateRecommendations(programEncounter.programEnrolment, programEncounter))
             .concat(generateTreatment(programEncounter.programEnrolment, programEncounter, today))
-            .concat(referralAdvice(programEncounter.programEnrolment, programEncounter));
+            .concat(referralAdvice(programEncounter.programEnrolment, programEncounter, today))
+            .concat(immediateReferralAdvice(programEncounter.programEnrolment, programEncounter, today));
 
         let highRiskConditions = C.findValue(decisions, 'High Risk Conditions');
         const moreHighRiskConditions = generateHighRiskConditionAdvice(programEncounter.programEnrolment, programEncounter, today);

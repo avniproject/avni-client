@@ -5,7 +5,7 @@ import {
 } from "./utils";
 import _ from "lodash";
 
-const referralAdvice = (enrolment, encounter, today = new Date()) => {
+const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
     const referralAdvice = new ComplicationsBuilder({
         programEnrolment: enrolment,
         programEncounter: encounter,
@@ -28,22 +28,6 @@ const referralAdvice = (enrolment, encounter, today = new Date()) => {
 
     referralAdvice.addComplication("Jaundice")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");
-
-    ["Flat", "Retracted"].forEach((nippleState) => {
-        referralAdvice.addComplication(`${nippleState} Nipples`)
-            .when.valueInEncounter("Breast Examination - Nipple").containsAnswerConceptName(nippleState);
-    });
-
-    referralAdvice.addComplication("Irregular weight gain")
-        .whenItem(isNormalWeightGain(enrolment, encounter, today)).is.not.truthy;
-
-    referralAdvice.addComplication("Irregular fundal height increase")
-        .whenItem(gestationalAge(enrolment, today)).greaterThan(24)
-        .and.whenItem(isNormalFundalHeightIncrease(enrolment, encounter, today)).is.not.truthy;
-
-    referralAdvice.addComplication("Irregular abdominal girth increase")
-        .whenItem(gestationalAge(enrolment, today)).greaterThan(30)
-        .and.whenItem(isNormalAbdominalGirthIncrease(enrolment, encounter, today)).is.not.truthy;
 
     referralAdvice.addComplication("Foetal movements absent")
         .when.valueInEncounter("Foetal movements").containsAnswerConceptName("Absent");
@@ -89,4 +73,32 @@ const referralAdvice = (enrolment, encounter, today = new Date()) => {
     return referralAdvice.getComplications();
 };
 
-export default referralAdvice;
+const referralAdvice = (enrolment, encounter, today = new Date()) => {
+    const referralAdvice = new ComplicationsBuilder({
+        programEnrolment: enrolment,
+        programEncounter: encounter,
+        complicationsConcept: 'Refer to the hospital for'
+    });
+
+    if (_.isEmpty(encounter)) return referralAdvice.getComplications();
+
+    ["Flat", "Retracted"].forEach((nippleState) => {
+        referralAdvice.addComplication(`${nippleState} Nipples`)
+            .when.valueInEncounter("Breast Examination - Nipple").containsAnswerConceptName(nippleState);
+    });
+
+    referralAdvice.addComplication("Irregular weight gain")
+        .whenItem(isNormalWeightGain(enrolment, encounter, today)).is.not.truthy;
+
+    referralAdvice.addComplication("Irregular fundal height increase")
+        .whenItem(gestationalAge(enrolment, today)).greaterThan(24)
+        .and.whenItem(isNormalFundalHeightIncrease(enrolment, encounter, today)).is.not.truthy;
+
+    referralAdvice.addComplication("Irregular abdominal girth increase")
+        .whenItem(gestationalAge(enrolment, today)).greaterThan(30)
+        .and.whenItem(isNormalAbdominalGirthIncrease(enrolment, encounter, today)).is.not.truthy;
+
+    return referralAdvice.getComplications();
+};
+
+export {referralAdvice, immediateReferralAdvice};
