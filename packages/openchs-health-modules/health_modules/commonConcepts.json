@@ -508,43 +508,53 @@
     "answers": [
       {
         "name": "Diabetes",
-        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505"
+        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
+        "abnormal": true
       },
       {
         "name": "TB",
-        "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191"
+        "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
+        "abnormal": true
       },
       {
         "name": "Heart-related Diseases",
-        "uuid": "712e683a-337d-49bd-a3d7-f7b0e1b8e22e"
+        "uuid": "712e683a-337d-49bd-a3d7-f7b0e1b8e22e",
+        "abnormal": true
       },
       {
         "name": "Hypertension",
-        "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f"
+        "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
+        "abnormal": true
       },
       {
         "name": "Nephrotic syndrome",
-        "uuid": "5a798bac-6417-4b36-98c8-13d4380aa69e"
+        "uuid": "5a798bac-6417-4b36-98c8-13d4380aa69e",
+        "abnormal": true
       },
       {
         "name": "Sickle Cell",
-        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f"
+        "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
+        "abnormal": true
       },
       {
         "name": "Epilepsy",
-        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7"
+        "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
+        "abnormal": true
       },
       {
         "name": "Renal Disease",
-        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec"
+        "uuid": "2e86955f-0d81-4e80-a1f4-255b3c186bec",
+        "abnormal": true
       },
       {
         "name": "Asthma",
-        "uuid": "3d6fcc5e-fb31-4222-aa69-a02d43ff91cf"
+        "uuid": "3d6fcc5e-fb31-4222-aa69-a02d43ff91cf",
+        "abnormal": true
       },
       {
         "name": "HIV/AIDS",
-        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560"
+        "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
+        "abnormal": true
       }
     ]
   },
