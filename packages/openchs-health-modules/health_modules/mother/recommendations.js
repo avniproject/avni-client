@@ -55,6 +55,21 @@ const institutionalDelivery = (enrolment, encounter) => {
         .or.when.valueInEntireEnrolment("Recommendations").containsAnyAnswerConceptName("Institutional ANC")
     ;
 
+    recommendationBuilder.addComplication("Keep the baby warm")
+        .when.valueInEncounter("Pulse").lessThan(100)
+        .or.when.valueInEncounter("Pulse").greaterThan(160)
+        .or.when.valueInEncounter("Respiration Rate").lessThan(30)
+        .or.when.valueInEncounter("Respiration Rate").greaterThan(60)
+    ;
+
+    recommendationBuilder.addComplication("Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.")
+        .when.valueInEncounter("Temperature").lessThan(97.5)
+    ;
+
+    recommendationBuilder.addComplication("Give exclusive breast feeding")
+        .when.valueInEncounter("Temperature").lessThan(97.5)
+    ;
+
     return recommendationBuilder.getComplications()
 };
 

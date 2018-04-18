@@ -230,6 +230,23 @@ export function getDecisions(programEncounter, today) {
             enrolmentDecisions: enrolmentDecisions,
             encounterDecisions: decisions
         };
+    }
+    if (programEncounter.encounterType.name === 'Child Delivery') {
+        let decisions = [
+            generateRecommendations(programEncounter.programEnrolment, programEncounter),
+            immediateReferralAdvice(programEncounter.programEnrolment, programEncounter, today),
+            referralAdvice(programEncounter.programEnrolment, programEncounter, today)
+        ];
+
+        let highRiskConditions = generateHighRiskConditionAdvice(programEncounter.programEnrolment, programEncounter, today);
+        if (!_.isEmpty(highRiskConditions.value)) {
+            decisions.push(highRiskConditions);
+        }
+
+        return {
+            enrolmentDecisions: [],
+            encounterDecisions: decisions
+        }
     } else return {enrolmentDecisions: [], encounterDecisions: []};
 }
 
