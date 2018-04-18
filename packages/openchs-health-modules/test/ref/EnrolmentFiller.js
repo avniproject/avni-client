@@ -24,7 +24,6 @@ export default class EnrolmentFiller {
     forConcept(conceptName, value) {
         let concept = this._getConcept(conceptName) || this.__createNewConcept(conceptName);
         let obs = EntityFactory.createObservation(concept, value);
-        obs.valueJSON = JSON.stringify({answer: value});
         this.observations.push(obs);
         return this;
     }

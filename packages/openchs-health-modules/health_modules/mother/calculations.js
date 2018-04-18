@@ -12,11 +12,9 @@ const gestationalAgeAsOn = (date, programEnrolment) => {
 
 const gestationalAgeCategoryAsOn = (date, programEnrolment) => {
     const gestationalAge = gestationalAgeAsOn(date, programEnrolment);
-    switch (gestationalAge) {
-        case gestationalAge < 36: return "Very preterm";
-        case gestationalAge < 38: return "Preterm";
-        default: return "Term";
-    }
+    if (gestationalAge < 36) return "Very preterm";
+    if (gestationalAge < 38) return "Preterm";
+    return "Term";
 };
 
 const estimatedDateOfDelivery = (programEnrolment) => {
