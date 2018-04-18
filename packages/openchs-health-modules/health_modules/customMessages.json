@@ -447,7 +447,18 @@
     "Can’t be treated at health centre level": "आरोग्य केंद्रात उपचार होऊ शकत नाही",
     "Not getting cured after receiving complete treatment at health center": "आरोग्य केंद्रात पूर्ण उपचार घेऊनही रुग्ण बरा/बरी  होत नाही आहे",
     "true": "true",
-    "false": "false"
+    "false": "false",
+    "Do you consume any tobacco products?": "तुम्ही कुठलेही तंबाखूजण्य पदार्थाचे सेवन करता काय?",
+    "Tobacco consumption": "तुम्ही कुठलेही तंबाखूजण्य पदार्थाचे सेवन करता काय?",
+    "Chewable Tobacco": "तंबाखू",
+    "Kharra": "खर्रा",
+    "Gutkha": "गुटखा",
+    "Bidi or Cigarette": "बिडी/ सिगरेट",
+    "Do you consume any alcoholic products?": "तुम्ही कुठल्याही प्रकारच्या दारूचे सेवन करता काय?",
+    "Alcohol consumption": "तुम्ही कुठल्याही प्रकारच्या दारूचे सेवन करता काय?",
+    "Tadi": "ताडी",
+    "Gorga": "गोरगा",
+    "Moha": "मोहाची दारू"
   },
   "en": {
     "maleCannotBePregnant": "Male cannot be pregnant",
