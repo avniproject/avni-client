@@ -55,6 +55,7 @@ class ProgramEncounterService extends BaseService {
                 let encounterToSchedule;
                 if (nextScheduledVisit.uuid) {
                     encounterToSchedule = this.findByUUID(nextScheduledVisit.uuid, ProgramEncounter.schema.name);
+                    encounterToSchedule.encounterType = encounterType;
                 }
                 if (!encounterToSchedule) {
                     encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEncounter.programEnrolment);
