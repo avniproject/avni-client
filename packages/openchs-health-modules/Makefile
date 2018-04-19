@@ -45,7 +45,7 @@ build_rules: ## Create webpack files for all the rules
 # </rules>
 
 # <metadata>
-deploy_metadata: auth dev_deploy_metadata## Upload metadata to server
+deploy_metadata: auth dev_deploy_metadata ## Upload metadata to server; poolId,clientId,username,password should be set if not deploying to local
 
 dev_deploy_metadata: ## Upload metadata to server
 	@echo "-----------------"
