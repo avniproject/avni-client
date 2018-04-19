@@ -126,7 +126,9 @@ build_env: ##
 
 # <packager>
 run_packager: ## 
-	cd packages/openchs-android && REACT_EDITOR=subl npm start
+	cd packages/openchs-android
+	REACT_EDITOR=$([ "$REACT_EDITOR" == "" ] && echo "subl" || echo "$REACT_EDITOR")
+	npm start
 # </packager>
 
 

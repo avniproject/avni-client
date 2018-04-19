@@ -2,7 +2,6 @@ import {Text, View} from "react-native";
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Colors from "../../primitives/Colors";
 import Distances from "../../primitives/Distances";
 import PresetOptionItem from "../../primitives/PresetOptionItem";
@@ -30,9 +29,6 @@ class SelectFormElement extends AbstractFormElement {
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
-                <View style={{backgroundColor: '#ffffff'}}>
-                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
-                </View>
                 <RadioGroup
                     multiSelect={this.props.multiSelect}
                     inPairs={true}
@@ -40,6 +36,7 @@ class SelectFormElement extends AbstractFormElement {
                     selectionFn={this.props.isSelected}
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
+                    validationError={this.props.validationResult}
                     labelValuePairs={valueLabelPairs}/>
             </View>);
     }

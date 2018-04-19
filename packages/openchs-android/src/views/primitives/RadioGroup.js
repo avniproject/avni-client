@@ -8,6 +8,7 @@ import PresetOptionItem from "./PresetOptionItem";
 import Distances from "./Distances";
 import Styles from "./Styles";
 import _ from 'lodash';
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 
 export class RadioLabelValue {
@@ -84,6 +85,9 @@ class RadioGroup extends AbstractComponent {
                 }}>
                     {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                 </View> : <View/> }
+                <View style={{backgroundColor: '#ffffff'}}>
+                    <ValidationErrorMessage validationResult={this.props.validationError}/>
+                </View>
             </View>
         );
     }
