@@ -37,7 +37,7 @@ class DurationDateFormElement extends AbstractFormElement {
                     <View>
                         <Text style={DGS.formElementLabel}>{`${this.I18n.t(this.props.label)} - ${this.I18n.t("date")}`}</Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
+                    <View>
                         <DatePicker actionName={this.props.actionName} actionObject={{formElement: this.props.element}} validationResult={this.props.validationResult}
                                     dateValue={this.props.dateValue.getValue()} noDateMessageKey={this.props.noDateMessageKey}/>
                     </View>
