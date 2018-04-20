@@ -53,6 +53,18 @@ export default class EnrolmentFormHandler {
         return statusBuilder.build();
     }
 
+    parity(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment("Gravida").is.greaterThan(1);
+        return statusBuilder.build();
+    }
+
+    numberOfAbortions(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment("Gravida").is.greaterThan(1);
+        return statusBuilder.build();
+    }
+
     _getStatusBuilder(programEnrolment, formElement) {
         return new FormElementStatusBuilder({
             programEnrolment: programEnrolment,

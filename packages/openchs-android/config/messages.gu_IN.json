@@ -42,8 +42,8 @@
   "registrationBeforeDateOfBirth": "નોંધણી જન્મ તારીખ પહેલાં ન હોઈ શકે",
 
   "numberOutOfRangeMessage": "મૂલ્ય માન્ય શ્રેણીની બહાર છે",
-  "numberAboveHiAbsolute": "{{limit}} કરતાં ઓછી હોવી જોઈએ",
-  "numberBelowLowAbsolute": "{{limit}} થી વધુ હોવો જોઈએ",
+  "numberAboveHiAbsolute": "{{limit}} અથવા {{limit}} કરતાં ઓછી હોવી જોઈએ",
+  "numberBelowLowAbsolute": "{{limit}} અથવા {{limit}} થી વધુ હોવો જોઈએ",
   "dateOfBirthCannotBeInFuture": "જન્મ તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
 
   "syncError": "સમન્વયન નિષ્ફળ થયું",

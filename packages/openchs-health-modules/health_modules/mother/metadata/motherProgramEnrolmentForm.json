@@ -115,7 +115,7 @@
             "name": "Gravida",
             "uuid": "dc2c23e9-19ad-471f-81d1-213069ccc975",
             "dataType": "Numeric",
-            "lowAbsolute": 0,
+            "lowAbsolute": 1,
             "highAbsolute": 10
           },
           "displayOrder": 1,
