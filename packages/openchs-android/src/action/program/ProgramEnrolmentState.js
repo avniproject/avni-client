@@ -13,7 +13,6 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements);
         this.usage = usage;
         this.enrolment = enrolment;
-        this.formElementsUserState = {};
         if (!_.isNil(enrolment)) {
             this.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? enrolment.observations : enrolment.programExitObservations);
         }
@@ -34,7 +33,6 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         newState.newEnrolment = this.newEnrolment;
         newState.usage = this.usage;
         newState.applicableObservationsHolder = new ObservationsHolder(this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);
-        newState.formElementsUserState = this.formElementsUserState;
         return newState;
     }
 

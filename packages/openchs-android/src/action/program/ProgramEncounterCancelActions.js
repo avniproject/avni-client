@@ -59,6 +59,7 @@ const ProgramEncounterCancelActionsNames = {
     TOGGLE_SINGLESELECT_ANSWER: "ProgramEncounterCancelActions.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'ProgramEncounterCancelActions.PRIMITIVE_VALUE_CHANGE',
     PRIMITIVE_VALUE_END_EDITING: 'ProgramEncounterCancelActions.PRIMITIVE_VALUE_END_EDITING',
+    DURATION_CHANGE: 'ProgramEncounterCancelActions.DURATION_CHANGE',
     PREVIOUS: 'ProgramEncounterCancelActions.PREVIOUS',
     NEXT: 'ProgramEncounterCancelActions.NEXT',
     SAVE: "ProgramEncounterCancelActions.SAVE",
@@ -70,6 +71,7 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [ProgramEncounterCancelActionsNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [ProgramEncounterCancelActionsNames.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
+    [ProgramEncounterCancelActionsNames.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [ProgramEncounterCancelActionsNames.NEXT, ProgramEncounterCancelActions.onNext],
     [ProgramEncounterCancelActionsNames.PREVIOUS, ProgramEncounterCancelActions.onPrevious],
     [ProgramEncounterCancelActionsNames.SAVE, ProgramEncounterCancelActions.onSave]

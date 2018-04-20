@@ -6,7 +6,7 @@ import ObservationHolderActions from "../action/common/ObservationsHolderActions
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
-        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {});
     }
 
     clone(newState) {
@@ -17,6 +17,7 @@ class AbstractDataEntryState {
         newState.formElementGroup = this.formElementGroup;
         newState.filteredFormElements = this.filteredFormElements;
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
+        newState.formElementsUserState = this.formElementsUserState;
         return newState;
     }
 
@@ -157,12 +158,13 @@ class AbstractDataEntryState {
         return [];
     }
 
-    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
         this.isNewEntity = isNewEntity;
         this.filteredFormElements = filteredFormElements;
+        this.formElementsUserState = formElementsUserState;
     }
 
     hasNoFormElements() {

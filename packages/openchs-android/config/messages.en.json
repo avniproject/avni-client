@@ -72,7 +72,7 @@
   "Female": "Female",
   "Other": "Other",
   "enrolInProgram": "Enrol in Program",
-  "followupTypes": "Followup Types",
+  "followupTypes": "Types",
   "proceed": "Proceed",
   "enrol": "ENROL",
   "exit": "EXIT",
@@ -106,7 +106,7 @@
   "enrolments": "Enrolments",
   "programList": "Program List",
   "newProgramVisit": "New Program Visit",
-  "newGeneralVisit": "New General Visit",
+  "newGeneralVisit": "New Form",
   "edit": "(edit)",
   "cancelled": "(CANCELLED)",
   "cancelVisit": "CANCEL VISIT",
@@ -169,5 +169,6 @@
   "Not Known Yet": "Not Known Yet",
   "Diet Advice Dos": "Dietary To Do's:\n1. Have a complete diet\n2. Have multiple meals throughout the day\n3. Consume fruits on a regular basis\n4. Include a protein source like milk, egg, fish, meat, chicken in your diet\n5. Have more of green leafy vegetables\n6. Consume THR from Anganwadi Center regularly\n7. Use iodised salt",
   "Diet Advice Donts": "Dietary Don't:\n1. Avoid alcohol (Tadi, Gorga, Alcohol)\n2. Avoid tobacco (Kharra, Areca Nut, Guthka)\n3. Excessive Tea consumption",
-  "OnlyLettersAndSpaces": "Required only letters and spaces"
+  "OnlyLettersAndSpaces": "Required only letters and spaces",
+  "Hospital": "Hospital"
 }

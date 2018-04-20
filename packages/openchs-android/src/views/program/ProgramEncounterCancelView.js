@@ -76,7 +76,9 @@ class ProgramEncounterCancelView extends AbstractComponent {
                             group={this.state.formElementGroup}
                             actions={Actions}
                             validationResults={this.state.validationResults}
-                            filteredFormElements={this.state.filteredFormElements}/>
+                            filteredFormElements={this.state.filteredFormElements}
+                            formElementsUserState={this.props.state.formElementsUserState}
+                        />
                         <WizardButtons previous={{
                             func: () => this.previous(),
                             visible: !this.state.wizard.isFirstPage(),
