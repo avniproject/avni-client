@@ -124,6 +124,7 @@ const actions = {
     TOGGLE_SINGLESELECT_ANSWER: "cdc7b1c2-d5aa-4382-aa93-1663275132f7",
     PRIMITIVE_VALUE_CHANGE: '13230ada-ee22-4a50-a2a8-5f14d1d9cd46',
     PRIMITIVE_VALUE_END_EDITING: '84f511d9-acf0-412d-951b-4226f7c6cf47',
+    DURATION_CHANGE: 'b1136ef7-202b-4a41-8b82-5603a4f90000',
     SAVE: 'IRA.SAVE'
 };
 
@@ -144,6 +145,7 @@ export default new Map([
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsUpdateValue],
+    [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, IndividualRegisterActions.onSave],
 ]);
 
