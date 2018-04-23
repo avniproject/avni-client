@@ -1,4 +1,5 @@
 import IndividualService from "../../service/IndividualService";
+import ProgramService from "../../service/program/ProgramService";
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
@@ -7,7 +8,7 @@ class IndividualRegistrationDetailsActions {
 
     static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
-        return {individual: individual};
+        return {individual: individual, programsAvailable: context.get(ProgramService).programsAvailable};
     }
 }
 

@@ -8,6 +8,8 @@ import EntityTypeChoiceActionNames from "../common/EntityTypeChoiceActionNames";
 import General from "../../utility/General";
 import ProgramConfigService from "../../service/ProgramConfigService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {Program} from 'openchs-models';
+import ProgramService from "../../service/program/ProgramService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -44,7 +46,8 @@ class ProgramEnrolmentDashboardActions {
         return {
             programEncounterTypeState: state.programEncounterTypeState.clone(),
             encounterTypeState: state.encounterTypeState.clone(),
-            enrolment: state.enrolment
+            enrolment: state.enrolment,
+            programsAvailable: state.programsAvailable
         };
     }
 
@@ -61,7 +64,7 @@ class ProgramEnrolmentDashboardActions {
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         }
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
-
+        newState.programsAvailable = context.get(ProgramService).programsAvailable;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }

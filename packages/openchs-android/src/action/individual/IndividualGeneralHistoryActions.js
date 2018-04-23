@@ -1,4 +1,5 @@
 import IndividualService from "../../service/IndividualService";
+import ProgramService from "../../service/program/ProgramService";
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {
@@ -6,7 +7,7 @@ export class IndividualGeneralHistoryActions {
     }
 
     static loadHistory(state, action, context) {
-        return {individual: context.get(IndividualService).findByUUID(action.individualUUID)};
+        return {individual: context.get(IndividualService).findByUUID(action.individualUUID), programsAvailable: context.get(ProgramService).programsAvailable};
     }
 }
 

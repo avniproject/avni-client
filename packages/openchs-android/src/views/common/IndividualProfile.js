@@ -19,6 +19,7 @@ class IndividualProfile extends AbstractComponent {
     static propTypes = {
         individual: React.PropTypes.object.isRequired,
         viewContext: React.PropTypes.string.isRequired,
+        programsAvailable: React.PropTypes.bool,
         style: React.PropTypes.object
     };
 
@@ -107,7 +108,7 @@ class IndividualProfile extends AbstractComponent {
                                 this.viewProfile()
                             })
                         }
-                        {this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram())}
+                        {this.props.programsAvailable ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
                         {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}

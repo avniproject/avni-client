@@ -23,7 +23,11 @@ class BaseService {
 
     findAllByCriteria(filterCriteria, schema) {
         if (_.isNil(schema)) schema = this.getSchema();
-        return this.db.objects(schema).filtered(filterCriteria);
+        return this.findAll(schema).filtered(filterCriteria);
+    }
+
+    findAll(schema) {
+        return this.db.objects(schema);
     }
 
     findByUUID(uuid, schema) {
