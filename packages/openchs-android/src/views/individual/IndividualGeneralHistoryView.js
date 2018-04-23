@@ -44,15 +44,16 @@ class IndividualGeneralHistoryView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.I18n.t('generalHistory')}/>
-                    <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual} style={DGS.common.content}/>
+                    <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual} style={DGS.common.content}
+                                       programsAvailable={this.state.programsAvailable}/>
                     <Card style={{
                         flexDirection: 'column',
                         marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
                         borderRadius: 5,
                         paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
                     }}>
-                        <PreviousEncounters encounters={this.state.individual.encounters} 
-                                            formType={Form.formTypes.Encounter} 
+                        <PreviousEncounters encounters={this.state.individual.encounters}
+                                            formType={Form.formTypes.Encounter}
                                             style={{marginBottom: 21}}/>
                     </Card>
                 </CHSContent>
