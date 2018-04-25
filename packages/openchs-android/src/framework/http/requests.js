@@ -1,14 +1,25 @@
 import General from "../../utility/General";
 import _ from 'lodash';
+import AuthenticationError from "../../service/AuthenticationError";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const fetchFactory = (endpoint, method = "GET", params) => {
     return fetch(endpoint, {"method": method, ...params})
         .then((response) =>
-            ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1 ?
-                Promise.resolve(response) :
-                Promise.reject(response));
+        {
+            if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
+                return response;
+                Promise.resolve(response);
+                return;
+            }
+            if (parseInt(response.status) === 403) {
+                General.logError("requests", response);
+                Promise.reject(new AuthenticationError(response));
+                return;
+            }
+            Promise.reject(response);
+        });
 };
 
 const makeHeader = (type) => new Map([['json', {

@@ -35,7 +35,7 @@ class AuthService extends BaseService {
                 .then((status) => this._updateUserSettings(status));
 
         return Promise.resolve(settingsService.getSettings())
-            .then((settings) => this._updateCognitoPoolSettingsFromServer())
+            .then(() => this._updateCognitoPoolSettingsFromServer())
             .then((settings) => this._authIsStubbed(settings) ? {status: "LOGIN_SUCCESS"} : authenticateAndUpdateUserSettings(userId, password, settings));
     }
 

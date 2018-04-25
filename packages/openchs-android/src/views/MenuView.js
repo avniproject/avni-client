@@ -110,8 +110,9 @@ class MenuView extends AbstractComponent {
         General.logError(`${this.viewName()}-Sync`, error);
         this.setState({syncing: false});
         if (error instanceof AuthenticationError) {
-            General.logWarn(this.viewName(), "Could not authenticate. Redirecting to login view");
-            General.logWarn(this.viewName(), error);
+            General.logError(this.viewName(), "Could not authenticate");
+            General.logError(this.viewName(), error);
+            General.logError(this.viewName(), "Redirecting to login view");
             CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToLandingView(source, true, {
                 tabIndex: 1,
                 menuProps: {startSync: true}
