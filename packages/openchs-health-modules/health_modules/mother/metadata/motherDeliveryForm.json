@@ -216,7 +216,8 @@
                 "abnormal": true
               },
               {
-                "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+                "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+                "unique": true
               }
             ]
           },

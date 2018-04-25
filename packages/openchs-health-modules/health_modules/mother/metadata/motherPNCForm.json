@@ -125,7 +125,8 @@
               },
               {
                 "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+                "unique":true
               }
             ]
           },
@@ -154,7 +155,8 @@
               },
               {
                 "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+                "unique":true
               }
             ]
           },
@@ -188,7 +190,8 @@
               },
               {
                 "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+                "unique":true
               }
             ]
           },
@@ -217,7 +220,8 @@
               },
               {
                 "name": "No difficulties",
-                "uuid": "a440c668-a9d8-4ac4-8652-0660e0ca6364"
+                "uuid": "a440c668-a9d8-4ac4-8652-0660e0ca6364",
+                "unique":true
               }
             ]
           },
@@ -235,10 +239,6 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
-              },
-              {
                 "name": "Cracked Nipple",
                 "uuid": "804a3c4c-e42e-47b0-923b-43c808c631bc",
                 "abnormal": true
@@ -252,6 +252,11 @@
                 "name": "Breast hardness",
                 "uuid": "9d5b4823-959b-4650-bec2-ed7a1db7c057",
                 "abnormal": true
+              },
+              {
+                "name": "No problem",
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+                "unique":true
               }
             ]
           },
@@ -269,10 +274,6 @@
             "dataType": "Coded",
             "answers": [
               {
-                "name": "Normal",
-                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
-              },
-              {
                 "name": "Indurated",
                 "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d",
                 "abnormal": true
@@ -286,6 +287,11 @@
                 "name": "Filled with pus",
                 "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5",
                 "abnormal": true
+              },
+              {
+                "name": "Normal",
+                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+                "unique":true
               }
             ]
           },
@@ -337,10 +343,7 @@
             "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",
             "dataType": "Coded",
             "answers": [
-              {
-                "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
-              },
+              
               {
                 "name": "Insomnia",
                 "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
@@ -360,6 +363,11 @@
                 "name": "Weakness",
                 "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
                 "abnormal": true
+              },
+              {
+                "name": "No problem",
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+                "unique": true
               }
             ]
           },

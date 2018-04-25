@@ -371,7 +371,8 @@
               },
               {
                 "name": "No sickness",
-                "uuid": "c43f9228-2995-48d3-8ecd-a22586210664"
+                "uuid": "c43f9228-2995-48d3-8ecd-a22586210664",
+                "unique": true
               },
               {
                 "name": "Other",
@@ -1400,7 +1401,8 @@
               },
               {
                 "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+                "unique":true
               },
               {
                 "name": "Other",
@@ -1459,7 +1461,8 @@
               },
               {
                 "name": "No sickness",
-                "uuid": "c43f9228-2995-48d3-8ecd-a22586210664"
+                "uuid": "c43f9228-2995-48d3-8ecd-a22586210664",
+                "unique":true
               },
               {
                 "name": "Other",

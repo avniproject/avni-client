@@ -1060,7 +1060,8 @@
         "abnormal": true
       },
       {
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
       }
     ]
   },
@@ -1265,7 +1266,8 @@
         "abnormal": true
       },
       {
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
       }
     ]
   },
