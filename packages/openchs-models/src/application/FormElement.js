@@ -101,7 +101,7 @@ class FormElement {
         else if (!_.isEmpty(this.validFormat) && !_.isEmpty(_.toString(value)) && !this.validFormat.valid(value)) {
             failure.messageKey = this.validFormat.descriptionKey;
         }
-        else if (this.isMultiSelect()) {
+        else if (this.isMultiSelect() && !_.isEmpty(value)) {
             return this._validateMultiSelect(value);
         }
         else {
@@ -182,7 +182,7 @@ class FormElement {
     getUniqueAnswerConflict(selectedUUIDs) {
         const conceptAnswers = this.getAnswers();
         const selectedConceptAnswers = _.map(selectedUUIDs, (UUID)=> _.find(conceptAnswers, (it)=> it.concept.uuid === UUID));
-        const firstUniqueAnswer = _.find(selectedConceptAnswers, (conceptAnswer)=> conceptAnswer.unique);
+        const firstUniqueAnswer = _.find(selectedConceptAnswers, (conceptAnswer)=> _.get(conceptAnswer,'unique'));
         if(selectedUUIDs.length > 1 && !_.isNil(firstUniqueAnswer)){
             return firstUniqueAnswer;
         }
