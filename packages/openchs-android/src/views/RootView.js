@@ -23,7 +23,7 @@ class RootView extends AbstractComponent {
     componentWillMount() {
         const authService = this.context.getService(AuthService);
         authService.userExists().then(
-            (userExists) => userExists ? CHSNavigator.navigateToLandingView(this, true) : CHSNavigator.navigateToLoginView(this),
+            (userExists) => userExists ? CHSNavigator.navigateToLandingView(this, true) : CHSNavigator.navigateToLoginView(this, false),
             CHSNavigator.navigateToLandingView(this, true));
     }
 

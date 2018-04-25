@@ -9,16 +9,13 @@ const fetchFactory = (endpoint, method = "GET", params) => {
         .then((response) =>
         {
             if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
-                return response;
-                Promise.resolve(response);
-                return;
+                return Promise.resolve(response);
             }
             if (parseInt(response.status) === 403) {
                 General.logError("requests", response);
-                Promise.reject(new AuthenticationError(response));
-                return;
+                return Promise.reject(new AuthenticationError(response));
             }
-            Promise.reject(response);
+            return Promise.reject(response);
         });
 };
 

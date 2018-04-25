@@ -155,20 +155,20 @@ class LoginView extends AbstractComponent {
                             {this.spinner()}
                         </View>
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-
-                            <TouchableNativeFeedback onPress={() => {
-                                this.cancelLogin()
-                            }}
-                                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                                <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
-                                    <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
-                                </View>
-                            </TouchableNativeFeedback>
-
+                            {_.get(this, 'props.params.allowSkipLogin')?
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.cancelLogin()
+                                }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                    <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
+                                        <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                    </View>
+                                </TouchableNativeFeedback>
+                            :
+                                <View/>
+                            }
                             <TouchableNativeFeedback onPress={() => {
                                 this.startLogin()
-                            }}
-                                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                            }} background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
                                     <Text style={{color: Styles.whiteColor, fontSize: 16}}>LOGIN</Text>
                                 </View>

@@ -42,7 +42,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
                 this.setState(() => {
                     showSpinner: false
                 });
-                CHSNavigator.navigateToLoginView(this);
+                CHSNavigator.navigateToLoginView(this, true);
             },
             (error) => {
                 this.setState(() => {

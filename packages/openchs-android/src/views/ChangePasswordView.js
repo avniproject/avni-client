@@ -42,7 +42,7 @@ class ChangePasswordView extends AbstractComponent {
                     })
             },
             () => {
-                CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToChangePasswordView(source));
+                CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToChangePasswordView(source, true));
             }
         )
     }

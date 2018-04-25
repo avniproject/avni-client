@@ -28,7 +28,7 @@ class ForgotPasswordView extends AbstractComponent {
             (response) => {
                 this.setState(() => {return {showSpinner: false}});
                 if (response.status === "SUCCESS") {
-                    CHSNavigator.navigateToLoginView(this);
+                    CHSNavigator.navigateToLoginView(this, true);
                 }
                 if (response.status === "INPUT_VERIFICATION_CODE") {
                     CHSNavigator.navigateToResetPasswordView(this, response.user);

@@ -21,8 +21,8 @@ import ChangePasswordView from "../views/ChangePasswordView";
 import ProgramEncounterCancelView from "../views/program/ProgramEncounterCancelView";
 
 class CHSNavigator {
-    static navigateToLoginView(source, backFunction) {
-        TypedTransition.from(source).with({backFunction: backFunction}).to(LoginView, true, _.isNil(backFunction));
+    static navigateToLoginView(source, allowSkipLogin, backFunction) {
+        TypedTransition.from(source).with({allowSkipLogin: allowSkipLogin, backFunction: backFunction}).to(LoginView, true, _.isNil(backFunction));
     }
 
     static navigateToLandingView(source, replace, props) {

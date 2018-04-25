@@ -113,12 +113,12 @@ class MenuView extends AbstractComponent {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
-            CHSNavigator.navigateToLoginView(this, (source) => CHSNavigator.navigateToLandingView(source, true, {
+            CHSNavigator.navigateToLoginView(this, true, (source) => CHSNavigator.navigateToLandingView(source, true, {
                 tabIndex: 1,
                 menuProps: {startSync: true}
             }));
         } else {
-            Alert.alert(this.I18n.t("syncError"), error.message, [{
+            Alert.alert(this.I18n.t("syncError"), error.message , [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
                 },
