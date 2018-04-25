@@ -30,7 +30,7 @@ class SettingsService extends BaseService {
                 settings.catchment = InitialSettings.catchment;
                 settings.serverURL = Config.SERVER_URL;
                 settings.poolId = "";
-                settings.clientId = "";
+                settings.clientId = Config.CLIENT_ID || "";
                 dbInScope.create('Settings', settings, true);
             }
 

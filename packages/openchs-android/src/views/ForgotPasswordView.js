@@ -1,6 +1,6 @@
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
-import Path, {PathRoot} from "../framework/routing/Path";
+import Path from "../framework/routing/Path";
 import {Image, Text, View, Dimensions, TextInput, TouchableNativeFeedback} from "react-native";
 import AuthService from "../service/AuthService";
 import Styles from "./primitives/Styles";

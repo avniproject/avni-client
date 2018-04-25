@@ -99,13 +99,16 @@ class AuthService extends BaseService {
         return new Promise((resolve) => {
             const settings = this.settingsService.getSettings();
 
-            //Fail fast. Do not do round trip server requests if settings is absent
-            if (this._authParametersAbsent(settings)) {
-                return false;
+            if (this._authIsStubbed(settings)) {
+                General.logDebug("AuthService", "User is stubbed");
+                resolve(true);
+                return;
             }
 
-            if (this._authIsStubbed(settings)) {
-                resolve(true);
+            //Fail fast. Do not do round trip server requests if settings is absent
+            if (this._authParametersAbsent(settings)) {
+                General.logDebug("AuthService", "Auth parameters are missing");
+                resolve(false);
                 return;
             }
 
