@@ -171,5 +171,6 @@
   "Diet Advice Donts": "Dietary Don't:\n1. Avoid alcohol (Tadi, Gorga, Alcohol)\n2. Avoid tobacco (Kharra, Areca Nut, Guthka)\n3. Excessive Tea consumption",
   "OnlyLettersAndSpaces": "Required only letters and spaces",
   "Hospital": "Hospital",
-  "Required10Digits": "Required 10 digits"
+  "Required10Digits": "Required 10 digits",
+  "uniqueAnswerConflict": "'{{answer}}' cannot be selected with other answers"
 }

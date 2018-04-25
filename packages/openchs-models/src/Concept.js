@@ -15,6 +15,7 @@ export class ConceptAnswer {
             concept: 'Concept',
             answerOrder: 'int',
             abnormal: 'bool',
+            unique: 'bool',
             voided: {"type": 'bool', optional: false}
         }
     };
@@ -29,6 +30,7 @@ export class ConceptAnswer {
         conceptAnswer.uuid = resource.uuid;
         conceptAnswer.answerOrder = resource.order;
         conceptAnswer.abnormal = resource.abnormal;
+        conceptAnswer.unique = resource.unique;
         conceptAnswer.voided = resource.voided || false;//This change should be independently deployable irrespective of server
         return conceptAnswer;
     }
