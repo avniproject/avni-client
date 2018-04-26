@@ -33,6 +33,12 @@ password:=
 auth:
 	$(if $(poolId),$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password))))
 
+upload = \
+	curl -X POST $(server):$(port)/$(1) -d $(2)  \
+		-H "Content-Type: application/json"  \
+		-H "ORGANISATION-NAME: OpenCHS"  \
+		-H "AUTH-TOKEN: $(token)"
+
 # <rules>
 build_rules: ## Create webpack files for all the rules
 	python build-config/json_validation.py health_modules
@@ -52,35 +58,35 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo " Common metadata"
 	@echo "-----------------"
 
-	curl -X POST $(server):$(port)/concepts -d @health_modules/commonConcepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
+	$(call upload,concepts,@health_modules/commonConcepts.json)
 
-	curl -X POST $(server):$(port)/concepts -d @health_modules/outpatient/metadata/concepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/outpatient/metadata/encounterForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
+	$(call upload,concepts,@health_modules/outpatient/metadata/concepts.json)
+	$(call upload,forms,@health_modules/outpatient/metadata/encounterForm.json)
 
-	curl -X POST $(server):$(port)/concepts -d @health_modules/mother/metadata/motherConcepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/programs -d @health_modules/mother/metadata/motherProgram.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/motherProgramEnrolmentForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/motherANCForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"  -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/motherDeliveryForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/motherAbortionForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"  -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/motherPNCForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"  -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/motherProgramExitForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
+	$(call upload,concepts,@health_modules/mother/metadata/motherConcepts.json)
+	$(call upload,programs,@health_modules/mother/metadata/motherProgram.json)
+	$(call upload,forms,@health_modules/mother/metadata/motherProgramEnrolmentForm.json)
+	$(call upload,forms,@health_modules/mother/metadata/motherANCForm.json)
+	$(call upload,forms,@health_modules/mother/metadata/motherDeliveryForm.json)
+	$(call upload,forms,@health_modules/mother/metadata/motherAbortionForm.json)
+	$(call upload,forms,@health_modules/mother/metadata/motherPNCForm.json)
+	$(call upload,forms,@health_modules/mother/metadata/motherProgramExitForm.json)
 
-	curl -X POST $(server):$(port)/concepts -d @health_modules/child/metadata/concepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"  -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/programs -d @health_modules/child/metadata/childProgram.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/child/metadata/childProgramEnrolmentForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/child/metadata/childDefaultProgramEncounterForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/child/metadata/childProgramExitForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"   -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/mother/metadata/childDeliveryForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS"  -H "AUTH-TOKEN: $(token)"
+	$(call upload,concepts,@health_modules/child/metadata/concepts.json)
+	$(call upload,programs,@health_modules/child/metadata/childProgram.json)
+	$(call upload,forms,@health_modules/child/metadata/childProgramEnrolmentForm.json)
+	$(call upload,forms,@health_modules/child/metadata/childDefaultProgramEncounterForm.json)
+	$(call upload,forms,@health_modules/child/metadata/childProgramExitForm.json)
+	$(call upload,forms,@health_modules/mother/metadata/childDeliveryForm.json)
 
-	curl -X POST $(server):$(port)/programs -d @health_modules/adolescent/metadata/adolescentProgram.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/concepts -d @health_modules/adolescent/metadata/adolescentConcepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentEnrolment.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentProgramExitForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentRoutineVisit.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentDropoutForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentDropoutFollowupForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @health_modules/adolescent/metadata/adolescentProgramEncounterCancellationForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: OpenCHS" -H "AUTH-TOKEN: $(token)"
+	$(call upload,programs,@health_modules/adolescent/metadata/adolescentProgram.json)
+	$(call upload,concepts,@health_modules/adolescent/metadata/adolescentConcepts.json)
+	$(call upload,forms,@health_modules/adolescent/metadata/adolescentEnrolment.json)
+	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramExitForm.json)
+	$(call upload,forms,@health_modules/adolescent/metadata/adolescentRoutineVisit.json)
+	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutForm.json)
+	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutFollowupForm.json)
+	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramEncounterCancellationForm.json)
 
 	date
 
