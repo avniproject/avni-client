@@ -696,5 +696,15 @@
     "name": "Contact Number",
     "uuid": "82fa0dbb-92f9-4ec2-9263-49054e64d909",
     "dataType": "Text"
+  },
+  {
+    "name": "Relative",
+    "uuid": "5dcdbebc-913e-46a5-a254-dd38d2956c80",
+    "dataType": "NA"
+  },
+  {
+    "name": "Nurse",
+    "uuid": "f2060c53-4cb4-4b35-9bb6-6f717a8a3f56",
+    "dataType": "NA"
   }
 ]

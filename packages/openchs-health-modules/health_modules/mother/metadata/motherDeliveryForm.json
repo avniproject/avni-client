@@ -112,12 +112,12 @@
       "display": "Medical Details",
       "formElements": [
         {
-          "name": "Type of Delivery",
+          "name": "Type of delivery",
           "uuid": "f9453d8c-2085-4435-840f-3ddcd79f788f",
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Type of Delivery",
+            "name": "Type of delivery",
             "uuid": "69d0acf1-c32b-4694-9bc2-874b5e7a44c8",
             "dataType": "Coded",
             "answers": [
@@ -125,10 +125,12 @@
                 "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
               },
               {
-                "uuid": "f5192c76-f772-4e84-8fea-16d980de15bc"
+                "uuid": "f5192c76-f772-4e84-8fea-16d980de15bc",
+                "abnormal": true
               },
               {
-                "uuid": "eeaf9b42-71f7-49d4-80c6-a498619d1645"
+                "uuid": "eeaf9b42-71f7-49d4-80c6-a498619d1645",
+                "abnormal": true
               }
             ]
           },
@@ -175,10 +177,12 @@
                 "uuid": "9139d435-2178-46d9-aea9-429597e533b2"
               },
               {
-                "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0"
+                "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0",
+                "abnormal": true
               },
               {
-                "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab"
+                "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab",
+                "abnormal": true
               }
             ]
           },

@@ -28,7 +28,7 @@ export default class EnrolmentFormHandler {
         return this.parityGreaterThanZero(programEnrolment, formElement);
     }
 
-    numberOfFemaleChildren(programEnrolment, formElemnt) {
+    numberOfFemaleChildren(programEnrolment, formElement) {
         return this.parityGreaterThanZero(programEnrolment, formElement);
     }
 
