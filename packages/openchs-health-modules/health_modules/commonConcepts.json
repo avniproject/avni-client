@@ -691,5 +691,10 @@
     "name": "Identification number",
     "uuid": "a82d1ed8-7e4d-4994-afff-be252f1b608e",
     "dataType": "Text"
+  },
+  {
+    "name": "Contact Number",
+    "uuid": "82fa0dbb-92f9-4ec2-9263-49054e64d909",
+    "dataType": "Text"
   }
 ]
