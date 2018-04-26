@@ -8,7 +8,7 @@ const institutionalDelivery = (enrolment, encounter) => {
         "Instrumental Delivery", "LSCS/C-section", "Intrauterine death", "Threatened abortion",
         "3 or more than 3 spontaneous abortions", "Still Birth", "Multiple Births", "Retained Placenta",
         "Post Partum Haemorrhage", "Intrapartum Death", "Neonatal death within first 28 days",
-        "Congenital anomaly"
+        "Congenital anomaly", "Rh negative in the previous pregnancy"
     ];
     const recommendationBuilder = new ComplicationsBuilder({
         programEnrolment: enrolment,

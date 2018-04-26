@@ -172,6 +172,27 @@
           },
           "displayOrder": 5,
           "mandatory": true
+        },
+        {
+          "name": "Age of youngest child",
+          "uuid": "d07f9fdc-2dbe-4b21-abce-eb79c30470b8",
+          "keyValues": [
+            {
+              "key": "durationOptions",
+              "value": [
+                "days",
+                "weeks",
+                "months"
+              ]
+            }
+          ],
+          "concept": {
+            "name": "Age of youngest child",
+            "uuid": "305f693c-c8b6-4e3e-9a82-a6e91a3e462f",
+            "dataType": "Date"
+          },
+          "displayOrder": 6,
+          "mandatory": true
         }
       ]
     },
@@ -200,6 +221,17 @@
           },
           "displayOrder": 2,
           "mandatory": true
+        },
+        {
+          "name": "Family History",
+          "uuid": "955713c1-ea0e-439f-8d95-8fdef38a9a49",
+          "keyValues": [],
+          "type": "MultiSelect",
+          "concept": {
+            "uuid": "18fa9773-bf4b-47f8-9535-f1573a477940"
+          },
+          "displayOrder": 3,
+          "mandatory": false
         }
       ]
     },

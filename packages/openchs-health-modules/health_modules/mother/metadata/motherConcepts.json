@@ -979,6 +979,31 @@
     "dataType": "NA"
   },
   {
+    "name": "Breech or transverse presentation [ObstetricHistory]",
+    "uuid": "60cf6ea6-2a4c-459d-ac67-52c6cdc23f54",
+    "dataType": "NA"
+  },
+  {
+    "name": "Puerperal sepsis",
+    "uuid": "8993ed6a-df82-420e-9da8-fc4eecd6bdc3",
+    "dataType": "NA"
+  },
+  {
+    "name": "Post abortion complications",
+    "uuid": "8b757ad9-c413-4efa-af54-974f65e727ac",
+    "dataType": "NA"
+  },
+  {
+    "name": "Rh negative in the previous pregnancy",
+    "uuid": "fe1c108e-507b-4abc-ad91-3930b59d3c62",
+    "dataType": "NA"
+  },
+  {
+    "name": "Weight of the previous baby less than 2500g or more than 4500g",
+    "uuid": "afb87749-1c3a-455f-81d2-f320ce72f45e",
+    "dataType": "NA"
+  },
+  {
     "name": "Obstetrics history",
     "uuid": "8a4ab436-6767-45d5-95d7-075d9459609e",
     "dataType": "Coded",
@@ -1056,6 +1081,31 @@
         "abnormal": true
       },
       {
+        "comment": "Breech or transverse presentation",
+        "uuid": "60cf6ea6-2a4c-459d-ac67-52c6cdc23f54",
+        "abnormal": true
+      },
+      {
+        "comment": "Puerperal sepsis",
+        "uuid": "8993ed6a-df82-420e-9da8-fc4eecd6bdc3",
+        "abnormal": true
+      },
+      {
+        "comment": "Post abortion complications",
+        "uuid": "8b757ad9-c413-4efa-af54-974f65e727ac",
+        "abnormal": true
+      },
+      {
+        "comment": "Rh negative in the previous pregnancy",
+        "uuid": "fe1c108e-507b-4abc-ad91-3930b59d3c62",
+        "abnormal": true
+      },
+      {
+        "comment": "Weight of the previous baby less than 2500g or more than 4500g",
+        "uuid": "afb87749-1c3a-455f-81d2-f320ce72f45e",
+        "abnormal": true
+      },
+      {
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
         "abnormal": true
       },
@@ -1069,6 +1119,22 @@
     "name": "Other obstetrics history",
     "uuid": "7d34125a-1b0b-4755-acc8-aeda71af8bd3",
     "dataType": "Text"
+  },
+  {
+    "name": "Family history",
+    "uuid": "18fa9773-bf4b-47f8-9535-f1573a477940",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f"
+      },
+      {
+        "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505"
+      },
+      {
+        "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191"
+      }
+    ]
   },
   {
     "name": "Institutional Delivery",
@@ -1783,6 +1849,16 @@
       {
         "abnormal": true,
         "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191"
+      },
+      {
+        "abnormal": true,
+        "uuid": "8993ed6a-df82-420e-9da8-fc4eecd6bdc3",
+        "name": "Puerperal sepsis"
+      },
+      {
+        "abnormal": true,
+        "uuid": "8b757ad9-c413-4efa-af54-974f65e727ac",
+        "name": "Post abortion complications"
       }
     ]
   },

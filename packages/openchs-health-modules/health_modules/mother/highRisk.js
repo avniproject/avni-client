@@ -117,4 +117,19 @@ const generateHighRiskConditionAdvice = (enrolment, encounter, today = new Date(
     return highRisk(enrolment, encounter, today = new Date());
 };
 
-export default generateHighRiskConditionAdvice;
+const getHighRiskConditionsInEnrolment = (enrolment) => {
+    const highRiskBuilder = new ComplicationsBuilder({
+        programEnrolment: enrolment,
+        complicationsConcept: 'High Risk Conditions'
+    });
+
+    highRiskBuilder.addComplication("Puerperal sepsis")
+        .when.valueInEnrolment("Obstetrics history").containsAnswerConceptName("Puerperal sepsis");
+
+    highRiskBuilder.addComplication("Post abortion complications")
+        .when.valueInEnrolment("Obstetrics history").containsAnswerConceptName("Post abortion complications");
+
+    return highRiskBuilder.getComplications();
+};
+
+export { generateHighRiskConditionAdvice as default, getHighRiskConditionsInEnrolment };

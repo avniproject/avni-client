@@ -5,6 +5,7 @@ import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import generateRecommendations from './recommendations';
 import {referralAdvice, immediateReferralAdvice} from './referral';
+import {getHighRiskConditionsInEnrolment} from "./highRisk";
 
 
 export function getNextScheduledVisits(enrolment, today) {
@@ -16,6 +17,7 @@ export function getDecisions(enrolment, context, today) {
         return {enrolmentDecisions: [], encounterDecisions: []};
 
     let decisions = programDecision.getDecisions(enrolment, today);
+    decisions = decisions.concat(getHighRiskConditionsInEnrolment(enrolment));
     decisions = decisions.concat(generateRecommendations(enrolment));
     decisions = decisions.concat(immediateReferralAdvice(enrolment, null, today));
     return {enrolmentDecisions: decisions, encounterDecisions: []};
