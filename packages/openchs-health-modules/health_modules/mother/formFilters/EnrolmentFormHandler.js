@@ -18,14 +18,18 @@ export default class EnrolmentFormHandler {
         return statusBuilder.build();
     }
 
-    numberOfMaleChildren(programEnrolment, formElement) {
+    parityGreaterThanZero(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
         statusBuilder.show().when.valueInEnrolment("Parity").is.greaterThan(0);
         return statusBuilder.build();
     }
 
+    numberOfMaleChildren(programEnrolment, formElement) {
+        return this.parityGreaterThanZero(programEnrolment, formElement);
+    }
+
     numberOfFemaleChildren(programEnrolment, formElemnt) {
-        return this.numberOfMaleChildren(programEnrolment, formElemnt);
+        return this.parityGreaterThanZero(programEnrolment, formElement);
     }
 
     ageOfYoungestChild(programEnrolment, formElement) {
