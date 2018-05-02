@@ -40,6 +40,10 @@ import Schema from "./src/Schema";
 import Settings from "./src/Settings";
 import UserDefinedIndividualProperty from "./src/UserDefinedIndividualProperty";
 import FormElementStatus from "./src/application/FormElementStatus";
+import StringKeyNumericValue from "./src/application/StringKeyNumericValue";
+import VisitScheduleInterval from "./src/VisitScheduleInterval";
+import VisitScheduleConfig from "./src/VisitScheduleConfig";
+import ProgramConfig from "./src/ProgramConfig";
 
 export {
     Form,
@@ -84,5 +88,9 @@ export {
     Settings,
     UserDefinedIndividualProperty,
     FormElementStatus,
-    UserInfo
+    UserInfo,
+    StringKeyNumericValue,
+    VisitScheduleInterval,
+    VisitScheduleConfig,
+    ProgramConfig
 };

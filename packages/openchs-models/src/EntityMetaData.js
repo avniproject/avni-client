@@ -19,6 +19,7 @@ import FormMapping from "./application/FormMapping";
 import Checklist from "./Checklist";
 import ChecklistItem from "./ChecklistItem";
 import UserInfo from "./UserInfo";
+import ProgramConfig from "./ProgramConfig";
 
 class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
@@ -29,6 +30,7 @@ class EntityMetaData {
     static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
     static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference", nameTranslated: true};
     static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
+    static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "tx"};
 
     static encounter() {
@@ -66,6 +68,7 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
+            EntityMetaData.programConfig,
             EntityMetaData.formMapping,
             EntityMetaData.formElement(),
             EntityMetaData.formElementGroup(),
