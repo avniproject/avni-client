@@ -1,7 +1,15 @@
 import Service from "../framework/bean/Service";
 import _ from 'lodash';
 import BaseService from "./BaseService";
-import {Encounter, Individual, ProgramEncounter, ProgramEnrolment, EntityRule, FormElementStatus, Observation} from "openchs-models";
+import {
+    Encounter,
+    Individual,
+    ProgramEncounter,
+    ProgramEnrolment,
+    EntityRule,
+    FormElementStatus,
+    Observation
+} from "openchs-models";
 import {
     encounterDecision,
     programEncounterDecision,
@@ -39,8 +47,8 @@ class RuleEvaluationService extends BaseService {
         const conceptService = this.getService(ConceptService);
         let summaryWithObservations = [];
         summary.forEach((summaryElement) => {
-           let concept = conceptService.conceptFor(summaryElement.name);
-           summaryWithObservations.push(Observation.create(concept, concept.getValueWrapperFor(summaryElement.value)));
+            let concept = conceptService.conceptFor(summaryElement.name);
+            summaryWithObservations.push(Observation.create(concept, concept.getValueWrapperFor(summaryElement.value)));
         });
         return summaryWithObservations;
     }
@@ -49,8 +57,8 @@ class RuleEvaluationService extends BaseService {
         return this.entityRulesMap.get(entityName).validate(entity, form);
     }
 
-    getNextScheduledVisits(entity, entityName) {
-        return this.entityRulesMap.get(entityName).getNextScheduledVisits(entity);
+    getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
+        return this.entityRulesMap.get(entityName).getNextScheduledVisits(entity, visitScheduleConfig);
     }
 
     getChecklists(enrolment) {

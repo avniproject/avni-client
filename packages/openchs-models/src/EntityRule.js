@@ -55,8 +55,8 @@ class EntityRule {
         return validationResults;
     }
 
-    getNextScheduledVisits(entity) {
-        const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, 'NextScheduledVisits', [], entity);
+    getNextScheduledVisits(entity, config) {
+        const nextScheduledVisits = this._safeInvokeRule(this.getNextScheduledVisitsFn, 'NextScheduledVisits', [], entity, config);
         General.logInfo('EntityRule', `${nextScheduledVisits.length} scheduled visits returned`);
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('EntityRule', `NextScheduledVisits: ${JSON.stringify(nextScheduledVisits)}`);

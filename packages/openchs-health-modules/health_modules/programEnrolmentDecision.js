@@ -12,8 +12,8 @@ export function getEnrolmentSummary (enrolment, context) {
     return executeProgramEnrolmentFunc({parameter: [enrolment, context], fn: "getEnrolmentSummary", defaultValue: []});
 }
 
-export function getNextScheduledVisits(enrolment) {
-    return executeProgramEnrolmentFunc({parameter: [enrolment], fn: "getNextScheduledVisits"})
+export function getNextScheduledVisits(enrolment, config) {
+    return executeProgramEnrolmentFunc({parameter: [enrolment, config], fn: "getNextScheduledVisits"})
 }
 
 export function getChecklists (enrolment) {

@@ -2,6 +2,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {ProgramEnrolment, ObservationsHolder} from 'openchs-models';
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
+import ProgramConfig from "../../../../openchs-models/src/ProgramConfig";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {
@@ -61,7 +62,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name, {usage:this.usage});
+        let decisions = ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name, {usage: this.usage});
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             context.get(ConceptService).addDecisions(this.enrolment.observations, decisions.enrolmentDecisions);
         } else {
@@ -81,7 +82,13 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name) : null;
+        const programConfig = {
+            ...ruleService
+                .findByKey("program.uuid", this.enrolment.program.uuid, ProgramConfig.schema.name)
+        };
+        return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name,
+            [..._.get(programConfig, "visitSchedule", [])]
+                .map(k => Object.assign({}, k))) : null;
     }
 
     static isInitialised(programEnrolmentState) {

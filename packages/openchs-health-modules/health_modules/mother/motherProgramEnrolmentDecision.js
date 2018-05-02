@@ -8,7 +8,7 @@ import {referralAdvice, immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";
 
 
-export function getNextScheduledVisits(enrolment, today) {
+export function getNextScheduledVisits(enrolment, config, today) {
     return nextScheduledVisits(enrolment, today);
 }
 

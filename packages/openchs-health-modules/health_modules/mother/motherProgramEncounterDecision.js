@@ -259,7 +259,7 @@ const mergeDecisionsByKey = (decisions) => {
 };
 
 
-export function getNextScheduledVisits(programEncounter, today) {
+export function getNextScheduledVisits(programEncounter, config, today) {
     return programDecision.getNextScheduledVisits(programEncounter.programEnrolment, today, programEncounter);
 }
 

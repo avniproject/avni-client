@@ -2,6 +2,8 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import {AbstractEncounter, ObservationsHolder, ProgramEncounter} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
+import ProgramConfig from "../../../../openchs-models/src/ProgramConfig";
+import _ from 'lodash';
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements) {
@@ -54,7 +56,12 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name);
+        const programConfig = {
+            ...ruleService
+                .findByKey("program.uuid", this.programEncounter.programEnrolment.program.uuid, ProgramConfig.schema.name)
+        };
+        return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [..._.get(programConfig, "visitSchedule", [])]
+            .map(k => Object.assign({}, k)));
     }
 }
 

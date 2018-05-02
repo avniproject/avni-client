@@ -23,7 +23,7 @@ const newScheduledEncounter = (enrolment) => {
     return nextScheduledRoutineEncounter && nextScheduledRoutineEncounter.cloneForEdit() || {};
 };
 
-const getNextScheduledVisits = function (programEnrolment, today, currentEncounter) {
+const getNextScheduledVisits = function (programEnrolment, config, today, currentEncounter) {
     const scheduleBuilder = new VisitScheduleBuilder({programEnrolment: programEnrolment});
     scheduleBuilder.add({
         name: "Annual Visit",

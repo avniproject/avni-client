@@ -25,8 +25,8 @@ export function getDecisions (programEncounter) {
     return executeProgramEncounterFunc({parameter: [programEncounter], fn: "getDecisions", defaultValue: {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []}});
 }
 
-export function getNextScheduledVisits (programEncounter) {
-    return executeProgramEncounterFunc({parameter: [programEncounter], fn: "getNextScheduledVisits", defaultValue: []});
+export function getNextScheduledVisits (programEncounter, config) {
+    return executeProgramEncounterFunc({parameter: [programEncounter, config], fn: "getNextScheduledVisits", defaultValue: []});
 }
 
 export function getFormElementsStatuses(programEncounter, formElementGroup) {
