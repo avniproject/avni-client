@@ -46,10 +46,12 @@ class IndividualRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('registration')}/>
+                    <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)} group={this.state.formElementGroup}
-                                          actions={Actions} validationResults={this.state.validationResults} formElementsUserState={this.state.formElementsUserState}/>
+                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
+                                          group={this.state.formElementGroup}
+                                          actions={Actions} validationResults={this.state.validationResults}
+                                          formElementsUserState={this.state.formElementsUserState}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{
                                            func: () => IndividualRegisterViewsMixin.next(this),
