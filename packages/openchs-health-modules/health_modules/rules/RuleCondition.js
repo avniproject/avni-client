@@ -300,6 +300,13 @@ export default class RuleCondition {
         });
     }
 
+    get defined() {
+        return this._addToChain((next, context) => {
+            context.matches = _.every([undefined,null], (value) => context.valueToBeChecked !== value);
+            return next(context);
+        });
+    }
+
     matchesFn(fn) {
         return this._addToChain((next, context) => {
             context.matches = fn(context.valueToBeChecked) ? true : false;

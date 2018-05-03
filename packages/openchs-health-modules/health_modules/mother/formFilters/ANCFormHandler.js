@@ -21,6 +21,7 @@ class ANCFormHandler {
 
     hasSheBeenDealingWithAnyComplications(programEncounter, formElement) {
         const inclusionMapping = new Map([["Morning Sickness", [1, 2]],
+            ['Excessive vomiting and inability to consume anything orally', [1,2]],
             ["Difficulty breathing", [2, 3]],
             ["Fever", []],
             ["Blurring of vision", [2, 3]],
@@ -47,6 +48,41 @@ class ANCFormHandler {
     otherComplications(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
         statusBuilder.show().when.valueInEncounter("Pregnancy complications").containsAnswerConceptName("Other");
+        return statusBuilder.build();
+    }
+
+    vdrl(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEntireEnrolment("VDRL").is.notDefined
+            .or.when.valueInEncounter("VDRL").is.defined;
+        return statusBuilder.build();
+    }
+
+    hivAidsTest(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEntireEnrolment("HIV/AIDS Test").is.notDefined
+            .or.when.valueInEncounter("HIV/AIDS Test").is.defined;
+        return statusBuilder.build();
+    }
+
+    hbsAg(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEntireEnrolment("HbsAg").is.notDefined
+            .or.when.valueInEncounter("HbsAg").is.defined;
+        return statusBuilder.build();
+    }
+
+    sicklingTest(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEntireEnrolment("Sickling Test").is.notDefined
+            .or.when.valueInEncounter("Sickling Test").is.defined;
+        return statusBuilder.build();
+    }
+
+    hbElectrophoresis(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEntireEnrolment("Hb Electrophoresis").is.notDefined
+            .or.when.valueInEncounter("Hb Electrophoresis").is.defined;
         return statusBuilder.build();
     }
 
@@ -85,6 +121,32 @@ class ANCFormHandler {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
         statusBuilder.show()
             .when.valueInEncounter("US Scanning Done").containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
+
+    usgDatingScanDone(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(7).and.lessThanOrEqualTo(28);
+        return statusBuilder.build();
+    }
+
+    usgAnomalyScanDone(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show().whenItem(this.currentTrimester).equals(2);
+        return statusBuilder.build();
+    }
+
+    dateOfUsgDatingScan(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
+            .when.valueInEncounter("USG dating scan done?").containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
+
+    dateOfUsgAnomalyScan(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
+            .when.valueInEncounter("USG anomaly scan done?").containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
 

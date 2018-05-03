@@ -1287,6 +1287,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Pain on urination",
+    "uuid": "97652252-0024-434d-8749-078b395fb6f2",
+    "dataType": "NA"
+  },
+  {
     "name": "Pregnancy complications",
     "uuid": "0adc4170-9ebb-4feb-8b81-450fbf9a04dc",
     "dataType": "Coded",
@@ -1297,6 +1302,10 @@
       },
       {
         "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "abnormal": true
+      },
+      {
+        "uuid": "97652252-0024-434d-8749-078b395fb6f2",
         "abnormal": true
       },
       {
