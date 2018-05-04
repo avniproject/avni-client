@@ -1,6 +1,6 @@
 import ProgramFactory from "./ref/ProgramFactory";
 import IndividualBuilder from "./ref/IndividualBuilder";
-import program from "../health_modules/adolescent/metadata/adolescentProgram.json";
+import program from "../health_modules/mother/metadata/motherProgram.json";
 import motherConcepts from "../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
 import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolmentForm.json";
@@ -15,7 +15,8 @@ const motherEncounterDecision = require('../health_modules/mother/motherProgramE
 const C = require('../health_modules/common');
 
 describe("Mother Program Child Delivery", () => {
-    let programData, enrolment, individual, decisions;
+    let programData, enrolment, individual, lmpDate,
+        decisions, protoChildDeliveryEncounter;
 
     beforeEach(() => {
         programData = new ProgramFactory(program)
@@ -30,9 +31,22 @@ describe("Mother Program Child Delivery", () => {
             .withGender("Female")
             .withSingleCodedObservation("Blood group", "B+")
             .build();
+        lmpDate = moment().subtract(1, 'months').toDate();
         enrolment = new EnrolmentFiller(programData, individual, new Date())
+            .forConcept("Last menstrual period", lmpDate)
             .build();
         decisions = { encounterDecisions: [], encounterDecisions: [] };
+        protoChildDeliveryEncounter = new EncounterFiller(programData, enrolment, "Child Delivery", new Date())
+            .forConcept("Date of delivery", moment(lmpDate).add(37, 'weeks').toDate())
+    });
+
+    describe('Unit tests', function () {
+        it('show "Gestational age category at birth" in System Recommendations', function () {
+            let childDeliveryEncounter = protoChildDeliveryEncounter.build();
+
+            decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
+            assert.isNotEmpty(C.findValue(decisions.encounterDecisions, "Gestational age category at birth"))
+        });
     });
 
 
@@ -47,9 +61,7 @@ describe("Mother Program Child Delivery", () => {
         ].forEach((risk) => {
 
             it(`is added if ${risk.concept} is '${risk.value}'`, () => {
-                let childDeliveryEncounter = new EncounterFiller(programData, enrolment, "Child Delivery", new Date())
-                    .forSingleCoded(risk.concept, risk.value)
-                    .build();
+                let childDeliveryEncounter = protoChildDeliveryEncounter.forSingleCoded(risk.concept, risk.value).build();
                 decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
                     `expected high risk conditions to include '${risk.riskName}'`);
@@ -67,9 +79,7 @@ describe("Mother Program Child Delivery", () => {
         ].forEach((risk) => {
 
             it(`is added if ${risk.concept} is '${risk.value}'`, () => {
-                let childDeliveryEncounter = new EncounterFiller(programData, enrolment, "Child Delivery", new Date())
-                    .forConcept(risk.concept, risk.value)
-                    .build();
+                let childDeliveryEncounter = protoChildDeliveryEncounter.forConcept(risk.concept, risk.value).build();
                 decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
                     `expected high risk conditions to include '${risk.riskName}'`);
@@ -88,9 +98,7 @@ describe("Mother Program Child Delivery", () => {
         ].forEach((referral) => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
-                let childDeliveryEncounter = new EncounterFiller(programData, enrolment, "Child Delivery", new Date())
-                    .forSingleCoded(referral.concept, referral.value)
-                    .build();
+                let childDeliveryEncounter = protoChildDeliveryEncounter.forSingleCoded(referral.concept, referral.value).build();
                 decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
                     `expected to be referred to the hospital immediately for '${referral.complication}'`);
@@ -108,9 +116,7 @@ describe("Mother Program Child Delivery", () => {
         ].forEach((referral) => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
-                let childDeliveryEncounter = new EncounterFiller(programData, enrolment, "Child Delivery", new Date())
-                    .forConcept(referral.concept, referral.value)
-                    .build();
+                let childDeliveryEncounter = protoChildDeliveryEncounter.forConcept(referral.concept, referral.value).build();
                 decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
                     `expected to be referred to the hospital immediately for '${referral.complication}'`);
@@ -125,9 +131,7 @@ describe("Mother Program Child Delivery", () => {
         ].forEach((referral) => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
-                let childDeliveryEncounter = new EncounterFiller(programData, enrolment, "Child Delivery", new Date())
-                    .forSingleCoded(referral.concept, referral.value)
-                    .build();
+                let childDeliveryEncounter = protoChildDeliveryEncounter.forSingleCoded(referral.concept, referral.value).build();
                 decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital for'), referral.complication,
                     `expected to be referred to the hospital for '${referral.complication}'`);
