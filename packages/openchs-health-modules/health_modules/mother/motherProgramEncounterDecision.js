@@ -5,6 +5,7 @@ import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
+import ChildDeliveryFormHandler from "./formFilters/childDeliveryFormHandler";
 import generateRecommendations from "./recommendations";
 import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
@@ -42,12 +43,14 @@ export function getDecisions(programEncounter, today) {
         return pncEncounterDecisions(programEncounter);
     }
 
-    if (programEncounter.encounterType.name === "Delivery") {
+    if (programEncounter.encounterType.name === "Delivery"
+        || programEncounter.encounterType.name === "Child Delivery")
+    {
         let decisions = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
         decisions.encounterDecisions.push(
             {
                 name: 'Gestational age category at birth',
-                value: [gestationalAgeCategoryAsOn(programEncounter.findObservation("Date of delivery").getValue(), programEncounter.programEnrolment)]
+                value: [gestationalAgeCategoryAsOn(programEncounter.programEnrolment.findObservationInEntireEnrolment("Date of delivery", programEncounter).getValue(), programEncounter.programEnrolment)]
             }
         );
         return decisions;
@@ -263,7 +266,11 @@ export function getNextScheduledVisits(programEncounter, config, today) {
     return programDecision.getNextScheduledVisits(programEncounter.programEnrolment, today, programEncounter);
 }
 
-const encounterTypeHandlerMap = new Map([['ANC', new ANCFormhandler()], ['Delivery', new DeliveryFormHandler()]]);
+const encounterTypeHandlerMap = new Map([
+    ['ANC', new ANCFormhandler()],
+    ['Delivery', new DeliveryFormHandler()],
+    ['Child Delivery', new ChildDeliveryFormHandler()]
+]);
 
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);

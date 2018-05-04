@@ -2136,6 +2136,22 @@
     "dataType": "NA"
   },
   {
+    "name": "Gender of child",
+    "uuid": "5572fc36-e766-4034-8217-7f92d0225c86",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
+      }
+    ]
+  },
+  {
     "name": "Colour of child",
     "uuid": "747f9b96-5b88-4f08-b52c-e1a060df4c30",
     "dataType": "Coded",
