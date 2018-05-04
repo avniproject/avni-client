@@ -26,12 +26,12 @@ deps: build_env ##
 
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 setup_hosts:
-	cd packages/openchs-android; adb root
-	cd packages/openchs-android; adb remount
-	cd packages/openchs-android; cat /etc/hosts|sed 's/127.0.0.1/'$(ip)'/' > /tmp/hosts-adb
+	adb root
+	adb remount
+	adb pull /system/etc/hosts /tmp/hosts-adb
+	sed -i.bak '/dev.openchs.org/d' /tmp/hosts-adb
 	echo '$(ip)	dev.openchs.org' >> /tmp/hosts-adb
-	cd packages/openchs-android; adb push /tmp/hosts-adb /system/etc/hosts
-
+	adb push /tmp/hosts-adb /system/etc/hosts
 # <test>
 test-health-modules: ## 
 	$(call test,health-modules)
