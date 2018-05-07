@@ -13,13 +13,35 @@
       "display": "General",
       "formElements": [
         {
-          "name": "Gender of child",
+          "name": "Child's Father name",
+          "uuid": "5a6fe3f7-aab2-45c1-8d54-38ddc47d8b89",
+          "type": "SingleSelect",
+          "concept": {
+            "name":"Child's Father name",
+            "uuid": "0323db68-da22-4c99-b578-99ea2949d5a5",
+            "dataType": "Text"
+          },
+          "displayOrder": 1
+        },
+        {
+          "name": "Child's Surname",
+          "uuid": "303d6411-e393-4b4a-b5a6-79c75a4d33e1",
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Child's Surname",
+            "uuid": "da18df86-cabb-489f-8032-8199a350c6da",
+            "dataType": "Text"
+          },
+          "displayOrder": 2
+        },
+        {
+          "name": "Child's Gender",
           "uuid": "c1ede711-9b95-4866-bd9c-e9b4f551555e",
           "type": "SingleSelect",
           "concept": {
             "uuid": "5572fc36-e766-4034-8217-7f92d0225c86"
           },
-          "displayOrder": 1,
+          "displayOrder": 3,
           "mandatory": true
         },
         {
@@ -30,7 +52,7 @@
             "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
             "dataType": "Date"
           },
-          "displayOrder": 2,
+          "displayOrder": 4,
           "mandatory": true
         },
         {
@@ -39,7 +61,7 @@
           "concept": {
             "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
           },
-          "displayOrder": 3,
+          "displayOrder": 5,
           "mandatory": true
         },
         {
@@ -60,7 +82,7 @@
               }
             ]
           },
-          "displayOrder": 4,
+          "displayOrder": 6,
           "mandatory": true
         },
         {
@@ -81,7 +103,7 @@
               }
             ]
           },
-          "displayOrder": 5,
+          "displayOrder": 7,
           "mandatory": true
         },
         {
@@ -93,7 +115,7 @@
             "dataType": "Numeric",
             "unit": "Day(s)"
           },
-          "displayOrder": 6,
+          "displayOrder": 8,
           "mandatory": true
         }
       ]

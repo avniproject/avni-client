@@ -219,6 +219,14 @@ export default class RuleCondition {
         });
     }
 
+    get yes() {
+        return this.containsAnswerConceptName("Yes");
+    }
+
+    get no() {
+        return this.containsAnswerConceptName("No");
+    }
+
     valueInEncounter(conceptName) {
         return this._addToChain((next, context) => {
             const obs = context.programEncounter && context.programEncounter.findObservation(conceptName);

@@ -2244,10 +2244,12 @@
     "dataType": "Coded",
     "answers": [
       {
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+        "abnormal": true
       },
       {
-        "uuid": "5e430139-4681-441e-9218-c806033dea77"
+        "uuid": "5e430139-4681-441e-9218-c806033dea77",
+        "abnormal": true
       },
       {
         "uuid": "05f99af0-af6d-4818-927b-c8502b4551d7"
