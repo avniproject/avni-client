@@ -25,6 +25,7 @@ deps: build_env ##
 # </deps>
 
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
+sha:=$(shell git rev-parse --short HEAD)
 setup_hosts:
 	adb root
 	adb remount
@@ -72,6 +73,7 @@ log:  ##
 # </log>
 
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
+dat := $(shell /bin/date "+%Y-%m-%d-%H-%M-%S")
 
 # <deploy>
 deploy: ## Deploy apk to bintray
@@ -156,3 +158,7 @@ deploy_metadata:  ## Deploy demo metadata
 deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata 
 	cd packages/demo-organisation && make deploy_refdata
 # </metadata>
+
+uat-apk: release-uat
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
