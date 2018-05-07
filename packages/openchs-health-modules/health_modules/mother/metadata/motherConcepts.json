@@ -1724,11 +1724,6 @@
       },
       {
         "abnormal": true,
-        "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
-        "name": "Rh Negative Blood Group"
-      },
-      {
-        "abnormal": true,
         "uuid": "af7ae32a-dc5f-4ac2-a372-1baa6edf0b53",
         "name": "Previous Abortion(s)"
       },
