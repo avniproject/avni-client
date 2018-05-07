@@ -74,7 +74,7 @@ const childDeliveryRecommendations = (enrolment, encounter) => {
         .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60)
     ;
 
-    recommendationBuilder.addComplication("Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.")
+    recommendationBuilder.addComplication("Keep the baby warm detailed advice")
         .when.valueInEncounter("Temperature").lessThan(97.5)
     ;
 
