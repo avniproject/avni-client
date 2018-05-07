@@ -2,7 +2,9 @@ import ComplicationsBuilder from "../rules/complicationsBuilder";
 
 const institutionalDelivery = (enrolment, encounter) => {
     const medicalHistory = ["Hypertension", "Heart-related Diseases", "Diabetes",
-        "Sickle Cell", "Epilepsy", "Renal Disease", "HIV/AIDS"];
+        "Sickle Cell", "Epilepsy", "Renal Disease", "HIV/AIDS", 
+        "Hepatitis B Positive"];
+
     const pastComplications = [
         "Ante Partum Haemorrhage", "Intrauterine Growth Retardation", "Pre-term labour", "Prolonged labour",
         "Instrumental Delivery", "LSCS/C-section", "Intrauterine death", "Threatened abortion",
@@ -78,6 +80,9 @@ const childDeliveryRecommendations = (enrolment, encounter) => {
 
     recommendationBuilder.addComplication("Give exclusive breast feeding")
         .when.valueInEncounter("Temperature").lessThan(97.5)
+    ;
+    recommendationBuilder.addComplication("Mother program enrolment with TB recommendation")
+        .when.valueInRegistration("Medical history").containsAnyAnswerConceptName("TB")
     ;
 
     return recommendationBuilder.getComplications()

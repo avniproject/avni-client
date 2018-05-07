@@ -1,5 +1,9 @@
 [
   {
+    "name": "Hepatitis B Positive",
+    "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c"
+  },
+  {
     "uuid": "4f835c2a-659d-453c-a1b7-817ebd2a4db3",
     "name": "Investigation Advice",
     "dataType": "Text"
@@ -544,6 +548,10 @@
       },
       {
         "uuid": "8425af99-4a07-4d99-97b2-cf955713a560",
+        "abnormal": true
+      },
+      {
+        "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c",
         "abnormal": true
       }
     ]

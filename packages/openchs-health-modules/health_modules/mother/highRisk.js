@@ -129,6 +129,13 @@ const getHighRiskConditionsInEnrolment = (enrolment) => {
     highRiskBuilder.addComplication("Post abortion complications")
         .when.valueInEnrolment("Obstetrics history").containsAnswerConceptName("Post abortion complications");
 
+    highRiskBuilder.addComplication("Age < 18").when.age.is.lessThan(18);
+
+    highRiskBuilder.addComplication("Age > 30").when.age.is.greaterThan(30);
+
+    highRiskBuilder.addComplication("Rh Negative Blood Group")
+        .when.valueInRegistration("Blood group").containsAnyAnswerConceptName("AB-", "O-", "A-", "B-");
+
     return highRiskBuilder.getComplications();
 };
 

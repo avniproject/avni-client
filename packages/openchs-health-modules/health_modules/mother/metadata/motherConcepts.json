@@ -1,5 +1,20 @@
 [
   {
+    "name":"Mother program enrolment with TB recommendation",
+    "uuid":"4b306479-a861-4bd5-b89a-7098ec75d4bc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Age < 18",
+    "uuid": "331aee3f-0567-4f75-9efd-722f04606e75",
+    "dataType": "NA"
+  },
+  {
+    "name": "Age > 30",
+    "uuid": "9e66cbbd-3b24-4578-b423-6f3022298be6",
+    "dataType": "NA"
+  },
+  {
     "name": "Child born Underweight",
     "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
     "dataType": "NA"
@@ -1159,6 +1174,10 @@
     "dataType": "Coded",
     "answers": [
       {
+        "uuid":"4b306479-a861-4bd5-b89a-7098ec75d4bc",
+        "abnormal": true
+      },
+      {
         "uuid": "c958100c-ad81-4da8-816e-6ad7eceaac87",
         "abnormal": true
       },
@@ -1421,6 +1440,21 @@
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
     "answers": [
+      {
+        "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
+        "name": "Rh Negative Blood Group",
+        "abnormal": true
+      },
+      {
+        "name": "Age < 18",
+        "uuid": "331aee3f-0567-4f75-9efd-722f04606e75",
+        "abnormal": true
+      },
+      {
+        "name": "Age > 30",
+        "uuid": "9e66cbbd-3b24-4578-b423-6f3022298be6",
+        "abnormal": true
+      },    
       {
         "uuid": "57f0b3c2-372e-4af7-8a0d-b23228f836db",
         "abnormal": true
