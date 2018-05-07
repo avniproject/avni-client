@@ -55,11 +55,21 @@ const institutionalDelivery = (enrolment, encounter) => {
         .or.when.valueInEntireEnrolment("Recommendations").containsAnyAnswerConceptName("Institutional ANC")
     ;
 
+    return recommendationBuilder.getComplications()
+};
+
+const childDeliveryRecommendations = (enrolment, encounter) => {
+    const recommendationBuilder = new ComplicationsBuilder({
+        programEnrolment: enrolment,
+        programEncounter: encounter,
+        complicationsConcept: 'Recommendations'
+    });
+
     recommendationBuilder.addComplication("Keep the baby warm")
-        .when.valueInEncounter("Pulse").lessThan(100)
-        .or.when.valueInEncounter("Pulse").greaterThan(160)
-        .or.when.valueInEncounter("Respiratory Rate").lessThan(30)
-        .or.when.valueInEncounter("Respiratory Rate").greaterThan(60)
+        .when.valueInEncounter("Child Pulse").lessThan(100)
+        .or.when.valueInEncounter("Child Pulse").greaterThan(160)
+        .or.when.valueInEncounter("Child Respiratory Rate").lessThan(30)
+        .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60)
     ;
 
     recommendationBuilder.addComplication("Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.")
@@ -74,6 +84,9 @@ const institutionalDelivery = (enrolment, encounter) => {
 };
 
 const generateRecommendations = (enrolment, encounter) => {
+    if (encounter && encounter.encounterType.name === 'Child Delivery')
+        return childDeliveryRecommendations(enrolment, encounter);
+
     return institutionalDelivery(enrolment, encounter);
 };
 
