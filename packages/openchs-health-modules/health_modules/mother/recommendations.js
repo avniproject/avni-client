@@ -26,6 +26,7 @@ const institutionalDelivery = (enrolment, encounter) => {
         .or.when.valueInEnrolment("Gravida").is.greaterThanOrEqualTo(5)
         .or.when.valueInEnrolment("Age of youngest child").asAge.is.lessThan(1)
         .or.when.valueInEnrolment("Obstetrics history").containsAnyAnswerConceptName(...pastComplications)
+        .or.when.valueInEnrolment("Infertility treatment").is.yes
         .or.when.valueInEncounter("Systolic").greaterThanOrEqualTo(140)
         .or.when.valueInEncounter("Diastolic").greaterThanOrEqualTo(90)
         .or.when.valueInEncounter("Urine Albumin").containsAnyAnswerConceptName("Trace", "+1", "+2", "+3", "+4")
