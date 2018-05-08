@@ -2270,5 +2270,13 @@
     "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14",
     "unit": "kg",
     "dataType": "Numeric"
+  },
+  {
+    "name": "Child Temperature",
+    "uuid": "c5e0d0e0-4ff7-40be-a929-292d7c4b17d0",
+    "dataType": "Numeric",
+    "lowNormal": 97.5,
+    "highNormal": 99.5,
+    "unit": "°F"
   }
 ]
