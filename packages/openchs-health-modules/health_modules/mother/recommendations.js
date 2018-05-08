@@ -39,7 +39,6 @@ const institutionalDelivery = (enrolment, encounter) => {
         .or.when.valueInEncounter("HbsAg").containsAnyAnswerConceptName("Positive")
         .or.when.valueInEncounter("Sickling Test").containsAnyAnswerConceptName("Positive")
         .or.when.valueInEncounter("Hb Electrophoresis").containsAnyAnswerConceptName("SS")
-        .or.when.valueInEntireEnrolment("Recommendations").containsAnyAnswerConceptName("Institutional Delivery")
     ;
 
     recommendationBuilder.addComplication("Institutional ANC")
@@ -54,7 +53,6 @@ const institutionalDelivery = (enrolment, encounter) => {
         .or.when.valueInEncounter("USG Scanning Report - Liquour").containsAnyAnswerConceptName("Increased", "Decreased")
         .or.when.valueInEncounter("USG Scanning Report - Placenta Previa").containsAnyAnswerConceptName("Previa")
         .or.when.valueInEncounter("Foetal presentation").containsAnyAnswerConceptName("Transverse", "Breech")
-        .or.when.valueInEntireEnrolment("Recommendations").containsAnyAnswerConceptName("Institutional ANC")
     ;
 
     return recommendationBuilder.getComplications()

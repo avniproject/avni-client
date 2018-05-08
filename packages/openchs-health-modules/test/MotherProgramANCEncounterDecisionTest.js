@@ -37,7 +37,7 @@ describe("Mother Program ANC", () => {
     });
 
     describe("Institutional Delivery and ANC", () => {
-        it("is carried over from every encounter and enrolment", () => {
+        it("is not carried over from every encounter and enrolment", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Systolic", 90)
                 .build();
@@ -53,8 +53,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Systolic", 89)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional Delivery");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("is advised for hypertension", () => {
