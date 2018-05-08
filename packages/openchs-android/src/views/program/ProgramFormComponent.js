@@ -16,6 +16,7 @@ import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import FormMappingService from "../../service/FormMappingService";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -32,7 +33,9 @@ class ProgramFormComponent extends AbstractComponent {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, true);
                 };
                 const headerMessage = `${this.I18n.t(state.enrolment.program.name)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits);
+                const formMappingService = this.context.getService(FormMappingService);
+                const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
             },
             movedNext: this.scrollToTop
         });
