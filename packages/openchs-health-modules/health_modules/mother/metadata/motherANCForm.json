@@ -431,10 +431,7 @@
           "uuid": "53899c85-3e5e-45e8-ab03-e05d7d295e11",
           "keyValues": [],
           "concept": {
-            "name": "Blood Sugar",
-            "uuid": "d6bfbe2e-c301-4a26-8893-5236fd20f661",
-            "dataType": "Numeric",
-            "unit":"mg/dl"
+            "uuid": "d6bfbe2e-c301-4a26-8893-5236fd20f661"
           },
           "displayOrder": 4,
           "mandatory": false
@@ -445,20 +442,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "VDRL",
-            "uuid": "1bb4b646-d494-40d3-9d9b-7141b920e92e",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
-                "abnormal": true
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              }
-            ]
+            "uuid": "1bb4b646-d494-40d3-9d9b-7141b920e92e"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -480,20 +464,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "HbsAg",
-            "uuid": "bf98b3dd-60e5-4af1-90b1-091cae84012b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
-                "abnormal": true
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              }
-            ]
+            "uuid": "bf98b3dd-60e5-4af1-90b1-091cae84012b"
           },
           "displayOrder": 7,
           "mandatory": false
@@ -504,20 +475,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Sickling Test",
-            "uuid": "b9e3bfc4-8688-44fb-8334-d9a480a50f6c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
-                "abnormal": true
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              }
-            ]
+            "uuid": "b9e3bfc4-8688-44fb-8334-d9a480a50f6c"
           },
           "displayOrder": 10,
           "mandatory": false
@@ -528,24 +486,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Hb Electrophoresis",
-            "uuid": "d78edcbb-2034-4220-ace2-20b445a1e0ad",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "SS",
-                "uuid": "3648a650-2f3e-4c2c-a899-c0a8212aace1",
-                "abnormal": true
-              },
-              {
-                "name": "AS",
-                "uuid": "77ee8a6a-2a01-421f-85ca-fc0ab39abcdb"
-              },
-              {
-                "name": "AA",
-                "uuid": "daa7c62f-c663-4981-a134-1f662b3036d0"
-              }
-            ]
+            "uuid": "d78edcbb-2034-4220-ace2-20b445a1e0ad"
           },
           "displayOrder": 11,
           "mandatory": false
@@ -564,40 +505,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Urine Albumin",
-            "uuid": "96cf3ccd-df7e-4614-a19c-05b44bed2b5b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
-                "name": "Trace",
-                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
-                "abnormal": true
-              },
-              {
-                "name": "+1",
-                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
-                "abnormal": true
-              },
-              {
-                "name": "+2",
-                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
-                "abnormal": true
-              },
-              {
-                "name": "+3",
-                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
-                "abnormal": true
-              },
-              {
-                "name": "+4",
-                "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
-                "abnormal": true
-              }
-            ]
+            "uuid": "96cf3ccd-df7e-4614-a19c-05b44bed2b5b"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -608,40 +516,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Urine Sugar",
-            "uuid": "64134706-9d55-4bae-82c5-5e4628012394",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              },
-              {
-                "name": "Trace",
-                "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
-                "abnormal": true
-              },
-              {
-                "name": "+1",
-                "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
-                "abnormal": true
-              },
-              {
-                "name": "+2",
-                "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
-                "abnormal": true
-              },
-              {
-                "name": "+3",
-                "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
-                "abnormal": true
-              },
-              {
-                "name": "+4",
-                "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
-                "abnormal": true
-              }
-            ]
+            "uuid": "64134706-9d55-4bae-82c5-5e4628012394"
           },
           "displayOrder": 2,
           "mandatory": false

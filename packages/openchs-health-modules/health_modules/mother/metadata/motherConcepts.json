@@ -1200,43 +1200,6 @@
     ]
   },
   {
-    "name": "Missing tests",
-    "uuid": "278bac4b-3749-4024-bc4f-7e5f44584f63",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid":"10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8"
-      },
-      {
-        "uuid":"f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b"
-      },
-      {
-        "uuid":"d6bfbe2e-c301-4a26-8893-5236fd20f661"
-      },
-      {
-        "uuid":"1bb4b646-d494-40d3-9d9b-7141b920e92e"
-      },
-      {
-        "uuid":"f5d77785-c9e1-421c-98f7-fb713aeef140"
-      },
-      {
-        "uuid":"bf98b3dd-60e5-4af1-90b1-091cae84012b"
-      },
-      {
-        "uuid":"b9e3bfc4-8688-44fb-8334-d9a480a50f6c"
-      },
-      {
-        "uuid":"d78edcbb-2034-4220-ace2-20b445a1e0ad"
-      },
-      {
-        "uuid":"96cf3ccd-df7e-4614-a19c-05b44bed2b5b"
-      },
-      {
-        "uuid":"64134706-9d55-4bae-82c5-5e4628012394"
-      }
-    ]
-  },
-  {
     "name": "Foetal Heart Rate",
     "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
     "dataType": "Numeric",
@@ -2315,5 +2278,188 @@
     "lowNormal": 97.5,
     "highNormal": 99.5,
     "unit": "°F"
+  },
+  {
+    "name": "Blood Sugar",
+    "uuid": "d6bfbe2e-c301-4a26-8893-5236fd20f661",
+    "dataType": "Numeric",
+    "unit":"mg/dl"
+  },
+  {
+    "name": "VDRL",
+    "uuid": "1bb4b646-d494-40d3-9d9b-7141b920e92e",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Positive",
+        "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+        "abnormal": true
+      },
+      {
+        "name": "Negative",
+        "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
+      }
+    ]
+  },
+  {
+    "name": "HbsAg",
+    "uuid": "bf98b3dd-60e5-4af1-90b1-091cae84012b",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Positive",
+        "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+        "abnormal": true
+      },
+      {
+        "name": "Negative",
+        "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
+      }
+    ]
+  },
+  {
+    "name": "Sickling Test",
+    "uuid": "b9e3bfc4-8688-44fb-8334-d9a480a50f6c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Positive",
+        "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8",
+        "abnormal": true
+      },
+      {
+        "name": "Negative",
+        "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
+      }
+    ]
+  },
+  {
+    "name": "Hb Electrophoresis",
+    "uuid": "d78edcbb-2034-4220-ace2-20b445a1e0ad",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "SS",
+        "uuid": "3648a650-2f3e-4c2c-a899-c0a8212aace1",
+        "abnormal": true
+      },
+      {
+        "name": "AS",
+        "uuid": "77ee8a6a-2a01-421f-85ca-fc0ab39abcdb"
+      },
+      {
+        "name": "AA",
+        "uuid": "daa7c62f-c663-4981-a134-1f662b3036d0"
+      }
+    ]
+  },
+  {
+    "name": "Urine Albumin",
+    "uuid": "96cf3ccd-df7e-4614-a19c-05b44bed2b5b",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Absent",
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      },
+      {
+        "name": "Trace",
+        "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+        "abnormal": true
+      },
+      {
+        "name": "+1",
+        "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+        "abnormal": true
+      },
+      {
+        "name": "+2",
+        "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+        "abnormal": true
+      },
+      {
+        "name": "+3",
+        "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+        "abnormal": true
+      },
+      {
+        "name": "+4",
+        "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Urine Sugar",
+    "uuid": "64134706-9d55-4bae-82c5-5e4628012394",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Absent",
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      },
+      {
+        "name": "Trace",
+        "uuid": "17b0423e-ba04-4f24-b196-f82639c2ca4c",
+        "abnormal": true
+      },
+      {
+        "name": "+1",
+        "uuid": "3661d5a9-d097-4cd6-8387-58b38cfc61ea",
+        "abnormal": true
+      },
+      {
+        "name": "+2",
+        "uuid": "10db74d9-2357-412e-b04c-099ab9a1c3f1",
+        "abnormal": true
+      },
+      {
+        "name": "+3",
+        "uuid": "172513b3-b1bb-4411-a3ea-a8e9914cb21a",
+        "abnormal": true
+      },
+      {
+        "name": "+4",
+        "uuid": "98d05a6e-2234-4238-85d2-92835581803d",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Missing tests",
+    "uuid": "278bac4b-3749-4024-bc4f-7e5f44584f63",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid":"10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8"
+      },
+      {
+        "uuid":"f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b"
+      },
+      {
+        "uuid":"d6bfbe2e-c301-4a26-8893-5236fd20f661"
+      },
+      {
+        "uuid":"1bb4b646-d494-40d3-9d9b-7141b920e92e"
+      },
+      {
+        "uuid":"f5d77785-c9e1-421c-98f7-fb713aeef140"
+      },
+      {
+        "uuid":"bf98b3dd-60e5-4af1-90b1-091cae84012b"
+      },
+      {
+        "uuid":"b9e3bfc4-8688-44fb-8334-d9a480a50f6c"
+      },
+      {
+        "uuid":"d78edcbb-2034-4220-ace2-20b445a1e0ad"
+      },
+      {
+        "uuid":"96cf3ccd-df7e-4614-a19c-05b44bed2b5b"
+      },
+      {
+        "uuid":"64134706-9d55-4bae-82c5-5e4628012394"
+      }
+    ]
   }
 ]
