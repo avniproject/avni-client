@@ -8,7 +8,7 @@ const investigationAdvice = (enrolment, encounter, today = new Date()) => {
     const adviceBuilder = new ComplicationsBuilder({
         programEnrolment: enrolment,
         programEncounter: encounter,
-        complicationsConcept: 'Investigation Advice'
+        complicationsConcept: 'Missing tests'
     });
 
     investigations.forEach(([investigation, applicableTrimesters]) => {
@@ -18,8 +18,6 @@ const investigationAdvice = (enrolment, encounter, today = new Date()) => {
     });
     if (!adviceBuilder.hasComplications()) return null;
     const complications = adviceBuilder.getComplications();
-    complications.value = `Missing Tests - ${complications.value.join(", ")}`;
-    complications.abnormal = true;
     return complications
 };
 
