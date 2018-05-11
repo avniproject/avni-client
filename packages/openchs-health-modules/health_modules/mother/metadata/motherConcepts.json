@@ -1202,7 +1202,39 @@
   {
     "name": "Missing tests",
     "uuid": "278bac4b-3749-4024-bc4f-7e5f44584f63",
-    "dataType": "Coded"
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid":"10ac6d19-49f9-4ca1-8d26-aa4f1e9997c8"
+      },
+      {
+        "uuid":"f9ecabbc-2df2-4bfc-a6fa-aa417c50e11b"
+      },
+      {
+        "uuid":"d6bfbe2e-c301-4a26-8893-5236fd20f661"
+      },
+      {
+        "uuid":"1bb4b646-d494-40d3-9d9b-7141b920e92e"
+      },
+      {
+        "uuid":"f5d77785-c9e1-421c-98f7-fb713aeef140"
+      },
+      {
+        "uuid":"bf98b3dd-60e5-4af1-90b1-091cae84012b"
+      },
+      {
+        "uuid":"b9e3bfc4-8688-44fb-8334-d9a480a50f6c"
+      },
+      {
+        "uuid":"d78edcbb-2034-4220-ace2-20b445a1e0ad"
+      },
+      {
+        "uuid":"96cf3ccd-df7e-4614-a19c-05b44bed2b5b"
+      },
+      {
+        "uuid":"64134706-9d55-4bae-82c5-5e4628012394"
+      }
+    ]
   },
   {
     "name": "Foetal Heart Rate",
