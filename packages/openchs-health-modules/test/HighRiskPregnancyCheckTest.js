@@ -749,33 +749,22 @@ describe('High Risk Pregnancy Determination', () => {
         });
     });
 
-    describe('Should give join multiple investigation advice', () => {
-        it("HB and Urine Albumin Investigation advice", () => {
+    describe('Should show investigation advice (missing tests)', () => {
+        it("show (multiple) HB and Urine Albumin missing", () => {
             programEncounter.setObservation(hb.name, undefined);
             programEncounter.setObservation(urineAlbumin.name, undefined);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const advices = C.findValue(decisions, 'Investigation Advice');
-            expect(advices).to.have.string(hb.name);
-            expect(advices).to.have.string(urineAlbumin.name);
+            const advices = C.findValue(decisions, 'Missing tests');
+            expect(advices).to.include.members([hb.name, urineAlbumin.name]);
         });
 
-        it("Urine Albumin Investigation advice", () => {
+        it("show (single) Urine Albumin missing", () => {
             programEncounter.setObservation(hb.name, 1);
             programEncounter.setObservation(urineAlbumin.name, undefined);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const advices = C.findValue(decisions, 'Investigation Advice');
-            expect(advices).to.not.have.string(`${hb.name},`);
-            expect(advices).to.have.string(urineAlbumin.name);
+            const advices = C.findValue(decisions, 'Missing tests');
+            expect(advices).to.not.include(hb.name);
+            expect(advices).to.include(urineAlbumin.name);
         });
-
-        it("Hb Investigation advice", () => {
-            programEncounter.setObservation(hb.name, undefined);
-            programEncounter.setObservation(urineAlbumin.name, "+1");
-            const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const advices = C.findValue(decisions, 'Investigation Advice');
-            expect(advices).to.have.string(hb.name);
-            expect(advices).to.not.have.string(urineAlbumin.name);
-        });
-
     });
 });
