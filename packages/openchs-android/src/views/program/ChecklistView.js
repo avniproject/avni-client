@@ -96,7 +96,7 @@ class ChecklistView extends AbstractComponent {
                                 {checklist.groupedItems().map((itemGroup, itemGroupIndex) => {
                                     const duration = Duration.durationBetween(checklist.baseDate, itemGroup[0].dueDate);
                                     return <View key={`c${index}-clig${itemGroupIndex}`} style={{marginTop: DGS.resizeHeight(10)}}>
-                                        <Text style={{fontSize: Fonts.Medium}}>{duration.toString(this.I18n)}</Text>
+                                        <Text style={{fontSize: Fonts.Medium}}>{duration.toUnicodeString(this.I18n)}</Text>
                                         <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start'}}>
                                             {itemGroup.map((checklistItem, checklistItemIndex) => {
                                                 const actionObject = {checklistName: checklist.name, checklistItemName: checklistItem.concept.name};

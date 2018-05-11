@@ -26,4 +26,11 @@ describe('DurationTest', () => {
         const duration = Duration.basedOnToday(new Date(2017, 5, 10), Duration.Day, new Date(2017, 5, 13));
         assert.equal(duration.durationValue, 3);
     });
+
+    it('Duration between', () => {
+        assert.equal(Duration.durationBetween(new Date(2018, 5, 1), new Date(2018, 5, 29)).toString(), '28 days');
+        assert.equal(Duration.durationBetween(new Date(2018, 5, 1), new Date(2018, 6, 1)).toString(), '1 months');
+        assert.equal(Duration.durationBetween(new Date(2018, 5, 1), new Date(2018, 6, 16)).toString(), '1.5 months');
+        assert.equal(Duration.durationBetween(new Date(2018, 5, 1), new Date(2019, 7, 1)).toString(), '14 months');
+    });
 });

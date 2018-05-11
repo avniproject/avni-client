@@ -24,9 +24,9 @@ class Duration {
     }
 
     static durationBetween(dateA, dateB) {
-        const diff = moment(dateB).diff(dateA, 'months');
-        if (diff > 0) {
-            return new Duration(diff, Duration.Month);
+        const diff = moment(dateB).diff(dateA, 'months', true);
+        if (diff >= 1) {
+            return new Duration(Math.round(diff*2)/2, Duration.Month); // round to nearest .5
         } else {
             return new Duration(moment(dateB).diff(dateA, 'days'), Duration.Day);
         }
@@ -52,6 +52,10 @@ class Duration {
     toString(i18n) {
         const durationUnitText = this._durationValue <= 1 ? this.durationUnit.substring(0, this.durationUnit.length - 1) : this.durationUnit;
         return i18n ? `${this.durationValueAsString} ${i18n.t(durationUnitText.toLowerCase())}` : `${this.durationValueAsString} ${this.durationUnit}`;
+    }
+
+    toUnicodeString(i18n) {
+        return this.toString(i18n).replace('.5', '\u00BD');
     }
 
     get isEmpty() {
