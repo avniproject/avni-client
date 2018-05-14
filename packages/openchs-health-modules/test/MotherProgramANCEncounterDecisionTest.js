@@ -1310,7 +1310,7 @@ describe("Mother Program ANC", () => {
         });
 
         it("is generated if more than 1 foetus", () => {
-            ["One", "Two", "Three", "More than three"].forEach((result) => {
+            ["Two", "Three", "More than three"].forEach((result) => {
                 let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                     .forSingleCoded("USG Scanning Report - Number of foetus", result)
                     .build();
