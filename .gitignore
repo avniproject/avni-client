@@ -75,3 +75,4 @@ gradlew.bat
 .vscode
 .project
 .settings/
+packages/openchs-android/.env.devs.*

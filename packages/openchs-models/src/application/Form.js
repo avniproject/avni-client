@@ -38,10 +38,8 @@ class Form {
     static associateChild(child, childEntityClass, childResource, entityService) {
         let form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formUUID"), Form.schema.name);
         form = General.pick(form, ["uuid"], ["formElementGroups"]);
-        let newFormElementGroups = [];
         if (childEntityClass === FormElementGroup) {
-            BaseEntity.addNewChild(child, newFormElementGroups);
-            form.formElementGroups = newFormElementGroups;
+            BaseEntity.addNewChild(child, form.formElementGroups);
         }
         else
             throw `${childEntityClass.name} not support by Form`;
@@ -67,8 +65,12 @@ class Form {
         return this.getFormElementGroups()[currentIndex - 1];
     }
 
+    nonVoidedFormElementGroups() {
+        return _.filter(this.formElementGroups, (formElementGroup) => !formElementGroup.voided);
+    }
+
     getFormElementGroups() {
-        return _.sortBy(this.formElementGroups, (feg) => feg.displayOrder);
+        return _.sortBy(this.nonVoidedFormElementGroups(), (feg) => feg.displayOrder);
     }
 
     getLastFormElementElementGroup() {
@@ -76,7 +78,7 @@ class Form {
     }
 
     get numberOfPages() {
-        return this.formElementGroups.length;
+        return this.nonVoidedFormElementGroups().length;
     }
 
     get firstFormElementGroup() {
@@ -85,7 +87,7 @@ class Form {
 
     findFormElement(formElementName) {
         var formElement;
-        _.forEach(this.formElementGroups, (formElementGroup) => {
+        _.forEach(this.nonVoidedFormElementGroups(), (formElementGroup) => {
             const foundFormElement = _.find(formElementGroup.getFormElements(), (formElement) => formElement.name === formElementName);
             if (!_.isNil(foundFormElement)) formElement = foundFormElement;
         });

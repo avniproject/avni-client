@@ -16,7 +16,7 @@ export class ConceptAnswer {
             answerOrder: 'int',
             abnormal: 'bool',
             unique: 'bool',
-            voided: {"type": 'bool', optional: false}
+            voided: {type: 'bool', default: false}
         }
     };
 
@@ -50,7 +50,7 @@ export default class Concept {
             lowNormal: {"type": 'int', optional: true},
             hiNormal: {"type": 'int', optional: true},
             unit: {"type": 'string', optional: true},
-            voided: {"type": 'bool', optional: false}
+            voided: {type: 'bool', default: false}
         }
     };
 
@@ -88,11 +88,7 @@ export default class Concept {
             throw `${childEntityClass.name} not support by ${Concept.name}`;
         }
 
-        if (child.voided) {
-            BaseEntity.removeFromCollection(newAnswers, child);
-        } else {
-            BaseEntity.addNewChild(child, newAnswers);
-        }
+        BaseEntity.addNewChild(child, newAnswers);
 
         concept.answers = newAnswers;
         return concept;

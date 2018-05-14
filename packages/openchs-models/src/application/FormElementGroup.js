@@ -15,12 +15,13 @@ class FormElementGroup {
             displayOrder: 'double',
             display: {type: 'string', optional: true},
             formElements: {type: 'list', objectType: 'FormElement'},
-            form: 'Form'
+            form: 'Form',
+            voided: {type: 'bool', default: false}
         }
     };
 
     static fromResource(resource, entityService) {
-        const formElementGroup = General.assignFields(resource, new FormElementGroup(), ["uuid", "name", "displayOrder", "display"]);
+        const formElementGroup = General.assignFields(resource, new FormElementGroup(), ["uuid", "name", "displayOrder", "display", "voided"]);
         formElementGroup.form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
         return formElementGroup;
     }
@@ -30,10 +31,8 @@ class FormElementGroup {
     static associateChild(child, childEntityClass, childResource, entityService) {
         let formElementGroup = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "formElementGroupUUID"), FormElementGroup.schema.name);
         formElementGroup = General.pick(formElementGroup, ["uuid"], ["formElements"]);
-        let newFormElements = [];
         if (childEntityClass === FormElement) {
-            BaseEntity.addNewChild(child, newFormElements);
-            formElementGroup.formElements = newFormElements;
+            BaseEntity.addNewChild(child, formElementGroup.formElements);
         }
         else
             throw `${childEntityClass.name} not support by ${FormElementGroup.name}`;
@@ -72,12 +71,16 @@ class FormElementGroup {
 
     get formElementIds() {
         return this.getFormElements().map((formElement) => {
-            return formElement.uuid
+            return formElement.uuid;
         });
     }
 
+    nonVoidedFormElements() {
+        return _.filter(this.formElements, (formElement) => !formElement.voided);
+    }
+
     getFormElements() {
-        return FormElementGroup._sortedFormElements(this.formElements);
+        return FormElementGroup._sortedFormElements(this.nonVoidedFormElements());
     }
 
     static _sortedFormElements(list) {

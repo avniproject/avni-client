@@ -26,7 +26,7 @@ class ProgramEncounterCancelActions {
         const programEncounter = action.programEncounter.cloneForEdit();
         programEncounter.cancelDateTime = new Date();
 
-        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.formElementGroups, [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             throw new Error("No form element group with visible form element");
