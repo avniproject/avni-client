@@ -1,7 +1,9 @@
 import RuleRegistry from './RuleRegistry';
 
-export default function Rule(name) {
+const RuleFactory = (opts) => (id, metadata) => {
     return (fn) => {
-        RuleRegistry.add(name, fn);
+        RuleRegistry.add(id, {metadata: {...metadata, ...opts}, fn: fn});
     };
-}
+};
+
+export let TreatmentRule = RuleFactory({type: "treatment"});
