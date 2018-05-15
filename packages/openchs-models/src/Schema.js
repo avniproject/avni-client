@@ -33,7 +33,7 @@ import VisitScheduleConfig from "./VisitScheduleConfig";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig],
-    schemaVersion: 51,
+    schemaVersion: 52,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
