@@ -212,6 +212,14 @@ export default class RuleCondition {
         });
     }
 
+    get encounterType() {
+        return this._addToChain((next, context) => {
+            context.valueToBeChecked = context.programEncounter && context.programEncounter.encounterType.name;
+            return next(context);
+        });
+
+    }
+
     get encounterMonth() {
         return this._addToChain((next, context) => {
             context.valueToBeChecked = moment(context.programEncounter.encounterDateTime).month() + 1;

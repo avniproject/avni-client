@@ -92,19 +92,23 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
 
     highRiskBuilder.addComplication("Muscle tone Absent/Flexed arms and legs")
         .when.valueInEncounter("Muscle tone").containsAnyAnswerConceptName("Absent", "Flexed arms and legs")
-    
+
     highRiskBuilder.addComplication("Pulse <100 or > 160 bpm")
-        .when.valueInEncounter("Pulse").lessThan(100)
-        .or.when.valueInEncounter("Pulse").greaterThan(160);
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Child Pulse").lessThan(100)
+        .or.when.valueInEncounter("Child Pulse").greaterThan(160);
 
     highRiskBuilder.addComplication("Low Temperature")
-        .when.valueInEncounter("Temperature").lessThan(97.5)
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Temperature").lessThan(97.5);
 
     highRiskBuilder.addComplication("High Temperature")
+        .when.encounterType.equals("Child Delivery")
         .when.valueInEncounter("Temperature").greaterThan(99.5);
 
     highRiskBuilder.addComplication("Respiratory Rate <30 or > 60 bpm")
-        .when.valueInEncounter("Respiratory Rate").lessThan(30)
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Respiratory Rate").lessThan(30)
         .or.when.valueInEncounter("Respiratory Rate").greaterThan(60);
 
     highRiskBuilder.addComplication("Icterus Present")

@@ -86,17 +86,21 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
         .when.valueInEncounter("Muscle tone").containsAnyAnswerConceptName("Absent", "Flexed arms and legs")
 
     referralAdvice.addComplication("Pulse <100 or > 160 bpm")
-        .when.valueInEncounter("Pulse").lessThan(100)
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Pulse").lessThan(100)
         .or.when.valueInEncounter("Pulse").greaterThan(160);
 
     referralAdvice.addComplication("Low Temperature")
-        .when.valueInEncounter("Temperature").lessThan(97.5)
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Temperature").lessThan(97.5)
 
     referralAdvice.addComplication("High Temperature")
-        .when.valueInEncounter("Temperature").greaterThan(99.5);
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Temperature").greaterThan(99.5);
 
     referralAdvice.addComplication("Respiratory Rate <30 or > 60 bpm")
-        .when.valueInEncounter("Respiratory Rate").lessThan(30)
+        .when.encounterType.equals("Child Delivery")
+        .and.valueInEncounter("Respiratory Rate").lessThan(30)
         .or.when.valueInEncounter("Respiratory Rate").greaterThan(60);
 
     referralAdvice.addComplication("Icterus Present")

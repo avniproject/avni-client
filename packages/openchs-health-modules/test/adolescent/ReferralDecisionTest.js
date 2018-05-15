@@ -11,7 +11,6 @@ import EntityFactory from "../../../openchs-models/test/EntityFactory";
 import Gender from "../../../openchs-models/src/Gender";
 import EncounterFiller from "../ref/EncounterFiller";
 import C from '../../health_modules/common';
-import RoutineEncounterHandler from "../../health_modules/adolescent/formFilters/RoutineEncounterHandler";
 import moment from "moment";
 
 
