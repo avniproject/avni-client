@@ -8,4 +8,16 @@ class RuleRegistry {
     }
 }
 
-export default new RuleRegistry();
+
+class Registry {
+    constructor() {
+        this.registryMap = new Map();
+    }
+
+    add() {
+
+    }
+}
+
+
+export default new Registry();

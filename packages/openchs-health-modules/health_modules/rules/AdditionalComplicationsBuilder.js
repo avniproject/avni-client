@@ -15,14 +15,14 @@ export default class AdditionalComplicationBuilder {
     }
 
     getComplications() {
-        let complications = [];
+        let decision = {name: this.context.complicationsConcept, value: []};
         if (this.complicationCondition.condition.matches()) {
-            const decision = _.compact([this.context.decisions
+            decision = _.compact([this.context.decisions
                 .find(decision => decision.name === this.context.complicationsConcept),
-                {name: this.context.complicationsConcept, value: []}]);
-            complications.value.push(this.complicationCondition.concept);
+                decision]);
+            decision.value = _.uniq([...decision.value, this.complicationCondition.concept]);
         }
-        return {name: this.context.complicationsConcept, value: _.uniq(complications)};
+        return decision;
     }
 
     hasComplications() {
