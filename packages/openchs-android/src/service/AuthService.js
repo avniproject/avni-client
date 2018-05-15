@@ -36,7 +36,7 @@ class AuthService extends BaseService {
 
         return Promise.resolve(settingsService.getSettings())
             .then(() => this._updateCognitoPoolSettingsFromServer())
-            .then((settings) => this._authIsStubbed(settings) ? {status: "LOGIN_SUCCESS"} : authenticateAndUpdateUserSettings(userId, password, settings));
+            .then((settings) => this._authIsStubbed(settings) ? {status: "LOGIN_SUCCESS"} : authenticateAndUpdateUserSettings(userId.trim(), password, settings));
     }
 
     getAuthToken() {
@@ -156,7 +156,7 @@ class AuthService extends BaseService {
     forgotPassword(userId) {
         return this._getSettings().then((settings) => {
             return new Promise((resolve, reject) => {
-                const cognitoUser = AuthService._createCognitoUser(settings, userId);
+                const cognitoUser = AuthService._createCognitoUser(settings, userId.trim());
                 cognitoUser.forgotPassword({
                     onSuccess: function (data) {
                         return resolve({status: "SUCCESS", data: data});
