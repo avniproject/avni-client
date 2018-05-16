@@ -73,12 +73,12 @@ const childDeliveryRecommendations = (enrolment, encounter) => {
         .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60)
     ;
 
-    recommendationBuilder.addComplication("Keep the baby warm detailed advice")
-        .when.valueInEncounter("Temperature").lessThan(97.5)
+    recommendationBuilder.addComplication("Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.")
+        .when.valueInEncounter("Child Temperature").lessThan(97.5)
     ;
 
     recommendationBuilder.addComplication("Give exclusive breast feeding")
-        .when.valueInEncounter("Temperature").lessThan(97.5)
+        .when.valueInEncounter("Child Temperature").lessThan(97.5)
     ;
     recommendationBuilder.addComplication("Mother program enrolment with TB recommendation")
         .when.valueInRegistration("Medical history").containsAnyAnswerConceptName("TB")
