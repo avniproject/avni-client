@@ -767,7 +767,8 @@
   {
     "name": "Previa",
     "uuid": "d9501d6b-7ae9-4b2f-b1a3-56f7fb1ea241",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "Not Previa",
