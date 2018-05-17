@@ -4,6 +4,7 @@ import Colors from "../primitives/Colors";
 import Reducers from "../../reducer";
 import Fonts from "../primitives/Fonts";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import General from "../../utility/General";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -33,7 +34,13 @@ class AddressLevels extends AbstractComponent {
         this.setState({addressLevels: this.getContextState("addressLevels")});
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return !General.areEqualShallow(nextProps.selectedAddressLevels,this.props.selectedAddressLevels) ||
+            !General.areEqualShallow(nextProps.validationError,this.props.validationError) ||
+            !General.areEqualShallow(nextState, this.state);
+    }
     render() {
+        General.logDebug(this.viewName(), 'render');
         const valueLabelPairs = this.state.addressLevels.addressLevels.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         return (
             <RadioGroup

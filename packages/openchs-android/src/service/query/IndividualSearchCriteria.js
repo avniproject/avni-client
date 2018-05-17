@@ -60,7 +60,7 @@ class IndividualSearchCriteria {
 
     clone() {
         const individualSearchCriteria = IndividualSearchCriteria.empty();
-        this.lowestAddressLevels.forEach((addressLevel) => individualSearchCriteria.lowestAddressLevels.push(addressLevel));
+        individualSearchCriteria.lowestAddressLevels = [...this.lowestAddressLevels];
         individualSearchCriteria.name = this.name;
         individualSearchCriteria.ageInYears = this.ageInYears;
         return individualSearchCriteria;
