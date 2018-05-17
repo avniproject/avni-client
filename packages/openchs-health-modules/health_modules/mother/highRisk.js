@@ -100,16 +100,16 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
 
     highRiskBuilder.addComplication("Low Temperature")
         .when.encounterType.equals("Child Delivery")
-        .and.valueInEncounter("Temperature").lessThan(97.5);
+        .and.valueInEncounter("Child Temperature").lessThan(97.5);
 
     highRiskBuilder.addComplication("High Temperature")
         .when.encounterType.equals("Child Delivery")
-        .when.valueInEncounter("Temperature").greaterThan(99.5);
+        .when.valueInEncounter("Child Temperature").greaterThan(99.5);
 
     highRiskBuilder.addComplication("Respiratory Rate <30 or > 60 bpm")
         .when.encounterType.equals("Child Delivery")
-        .and.valueInEncounter("Respiratory Rate").lessThan(30)
-        .or.when.valueInEncounter("Respiratory Rate").greaterThan(60);
+        .and.valueInEncounter("Child Respiratory Rate").lessThan(30)
+        .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60);
 
     highRiskBuilder.addComplication("Icterus Present")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");
