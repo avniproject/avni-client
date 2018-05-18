@@ -362,7 +362,7 @@ describe("Mother Program ANC", () => {
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin 75mg once a day");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -370,15 +370,15 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin 75mg once a day");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
-                .forConcept("Last menstrual period", moment().subtract(35, "w").toDate())
+                .forConcept("Last menstrual period", moment().subtract(36, "w").toDate())
                 .build();
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin 75mg once a day");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(5, "w").toDate())
@@ -386,7 +386,7 @@ describe("Mother Program ANC", () => {
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Aspirin 75mg once a day");
         });
     });
 

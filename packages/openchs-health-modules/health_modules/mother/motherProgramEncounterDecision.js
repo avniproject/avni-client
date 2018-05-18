@@ -126,7 +126,7 @@ export function getDecisions(programEncounter, today) {
                 }
             } else if (pregnancyPeriodInWeeks > 20 && !isEssentialHypertensive) {
                 if (!obsHistoryOfPregnancyInducedHypertension && isBloodPressureHigh) {
-                    addComplication('Pregnancy Induced Hypertension');
+                    addComplication('Pregnancy induced hypertension');
                     if (hasConvulsions && (urineAlbuminIsMild || urineAlbuminIsSevere))
                         addComplication('Eclampsia');
                     else if (!hasConvulsions && urineAlbuminIsMild) addComplication('Mild Pre-Eclampsia');

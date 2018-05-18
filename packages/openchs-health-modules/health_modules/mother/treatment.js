@@ -28,9 +28,9 @@ const treatment = (enrolment, encounter, today) => {
     treatmentBuilder.addComplication("Calcium 1g/day")
         .whenItem(trimester).equalsOneOf(2, 3);
 
-    treatmentBuilder.addComplication("Aspirin")
-        .whenItem(trimester).equalsOneOf(2, 3)
-        .and.whenItem(gestationalAgeInWeeks).lessThan(35);
+    treatmentBuilder.addComplication("Aspirin 75mg once a day")
+        .whenItem(gestationalAgeInWeeks).greaterThanOrEqualTo(13)
+        .and.whenItem(gestationalAgeInWeeks).lessThan(36);
 
     return treatmentBuilder.getComplications()
 };
