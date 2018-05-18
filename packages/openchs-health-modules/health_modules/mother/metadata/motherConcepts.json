@@ -2284,6 +2284,7 @@
     "name": "Blood Sugar",
     "uuid": "d6bfbe2e-c301-4a26-8893-5236fd20f661",
     "dataType": "Numeric",
+    "highNormal": 140,
     "unit":"mg/dl"
   },
   {
