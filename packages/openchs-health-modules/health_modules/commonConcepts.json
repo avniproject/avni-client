@@ -569,27 +569,32 @@
   {
     "name": "Two",
     "uuid": "d1e58ac3-1ea7-46a1-8e17-e9f2c6789715",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "Three",
     "uuid": "a335e989-3c98-45f6-9659-1178c231cda0",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "More than three",
     "uuid": "0ba85fd4-4d70-4f03-b449-8dd12e30d690",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "Increased",
     "uuid": "563eb915-f607-48de-86af-3295b6f35bb8",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "Decreased",
     "uuid": "1aef1b55-0c52-4961-a1c9-f35e4c6a6f00",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "Jaundice",

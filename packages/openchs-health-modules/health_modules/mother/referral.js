@@ -87,21 +87,21 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
 
     referralAdvice.addComplication("Pulse <100 or > 160 bpm")
         .when.encounterType.equals("Child Delivery")
-        .and.valueInEncounter("Pulse").lessThan(100)
-        .or.when.valueInEncounter("Pulse").greaterThan(160);
+        .and.valueInEncounter("Child Pulse").lessThan(100)
+        .or.when.valueInEncounter("Child Pulse").greaterThan(160);
 
     referralAdvice.addComplication("Low Temperature")
         .when.encounterType.equals("Child Delivery")
-        .and.valueInEncounter("Temperature").lessThan(97.5)
+        .and.valueInEncounter("Child Temperature").lessThan(97.5)
 
     referralAdvice.addComplication("High Temperature")
         .when.encounterType.equals("Child Delivery")
-        .and.valueInEncounter("Temperature").greaterThan(99.5);
+        .and.valueInEncounter("Child Temperature").greaterThan(99.5);
 
     referralAdvice.addComplication("Respiratory Rate <30 or > 60 bpm")
         .when.encounterType.equals("Child Delivery")
-        .and.valueInEncounter("Respiratory Rate").lessThan(30)
-        .or.when.valueInEncounter("Respiratory Rate").greaterThan(60);
+        .and.valueInEncounter("Child Respiratory Rate").lessThan(30)
+        .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60);
 
     referralAdvice.addComplication("Icterus Present")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");

@@ -148,12 +148,12 @@ class General {
         if (_.isNil(a) !== _.isNil(b))
             return false;
 
-        for (var key in a) {
-            if (a[key] !== b[key]) {
-                return false;
-            }
-        }
-        return true;
+        if (!_.isEmpty(_.xor(_.keys(a),_.keys(b))))
+            return false;
+
+        return _.every(_.keys(a), (key)=>{
+            return a[key] === b[key];
+        });
     }
 
     static dateWithoutTime(date) {

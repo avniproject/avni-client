@@ -75,7 +75,7 @@
     "dataType":"NA"
   },
   {
-    "name": "Keep the baby warm detailed advice",
+    "name": "Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.",
     "uuid": "e3e5b7aa-e24c-4f97-98fb-a175a9721e53",
     "dataType":"NA"
   },
@@ -767,7 +767,8 @@
   {
     "name": "Previa",
     "uuid": "d9501d6b-7ae9-4b2f-b1a3-56f7fb1ea241",
-    "dataType": "NA"
+    "dataType": "NA",
+    "abnormal": true
   },
   {
     "name": "Not Previa",
@@ -1014,7 +1015,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Weight of the previous baby less than 2500g or more than 4500g",
+    "name": "Weight of the previous baby less than 2.5kg or more than 4.5kg",
     "uuid": "afb87749-1c3a-455f-81d2-f320ce72f45e",
     "dataType": "NA"
   },
@@ -1406,7 +1407,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Aspirin",
+    "name": "Aspirin 75mg once a day",
     "uuid": "40503ff9-6a37-46d7-be5d-843c12971c60",
     "dataType": "NA"
   },
@@ -2283,6 +2284,7 @@
     "name": "Blood Sugar",
     "uuid": "d6bfbe2e-c301-4a26-8893-5236fd20f661",
     "dataType": "Numeric",
+    "highNormal": 140,
     "unit":"mg/dl"
   },
   {

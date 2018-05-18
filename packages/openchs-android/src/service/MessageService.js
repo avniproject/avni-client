@@ -14,6 +14,8 @@ import {customMessages} from "openchs-health-modules";
 class MessageService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
+        const t = I18n.t;
+        I18n.t = (param, opts) => t.bind(I18n)(param, {...opts, defaultValue: param});
         this.I18n = I18n;
         this.I18n.fallbacks = true;
         this.I18n.translations = {

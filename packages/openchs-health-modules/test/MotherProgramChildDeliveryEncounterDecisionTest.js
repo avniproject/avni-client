@@ -71,10 +71,10 @@ describe("Mother Program Child Delivery", () => {
 
         [{ concept: "Child Pulse", value: 95, riskName: "Pulse <100 or > 160 bpm" },
         { concept: "Child Pulse", value: 165, riskName: "Pulse <100 or > 160 bpm" },
-        { concept: "Temperature", value: 97.4, riskName: "Low Temperature" },
-        { concept: "Temperature", value: 99.6, riskName: "High Temperature" },
-        { concept: "Respiratory Rate", value: 29, riskName: "Respiratory Rate <30 or > 60 bpm" },
-        { concept: "Respiratory Rate", value: 61, riskName: "Respiratory Rate <30 or > 60 bpm" },
+        { concept: "Child Temperature", value: 97.4, riskName: "Low Temperature" },
+        { concept: "Child Temperature", value: 99.6, riskName: "High Temperature" },
+        { concept: "Child Respiratory Rate", value: 29, riskName: "Respiratory Rate <30 or > 60 bpm" },
+        { concept: "Child Respiratory Rate", value: 61, riskName: "Respiratory Rate <30 or > 60 bpm" },
         { concept: "Birth Weight", value: 1.5, riskName: "Child born Underweight" }
         ].forEach((risk) => {
 
@@ -106,12 +106,12 @@ describe("Mother Program Child Delivery", () => {
 
         });
 
-        [{ concept: "Pulse", value: 95, complication: "Pulse <100 or > 160 bpm" },
-        { concept: "Pulse", value: 165, complication: "Pulse <100 or > 160 bpm" },
-        { concept: "Temperature", value: 97.4, complication: "Low Temperature" },
-        { concept: "Temperature", value: 99.7, complication: "High Temperature" },
-        { concept: "Respiratory Rate", value: 29, complication: "Respiratory Rate <30 or > 60 bpm" },
-        { concept: "Respiratory Rate", value: 62, complication: "Respiratory Rate <30 or > 60 bpm" },
+        [{ concept: "Child Pulse", value: 95, complication: "Pulse <100 or > 160 bpm" },
+        { concept: "Child Pulse", value: 165, complication: "Pulse <100 or > 160 bpm" },
+        { concept: "Child Temperature", value: 97.4, complication: "Low Temperature" },
+        { concept: "Child Temperature", value: 99.7, complication: "High Temperature" },
+        { concept: "Child Respiratory Rate", value: 29, complication: "Respiratory Rate <30 or > 60 bpm" },
+        { concept: "Child Respiratory Rate", value: 62, complication: "Respiratory Rate <30 or > 60 bpm" },
         { concept: "Birth Weight", value: 1.2, complication: "Child born Underweight" }
         ].forEach((referral) => {
 

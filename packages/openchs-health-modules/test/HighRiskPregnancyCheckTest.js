@@ -243,7 +243,7 @@ describe('High Risk Pregnancy Determination', () => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
-                    expect(complications).to.be.an('array').that.includes('Pregnancy Induced Hypertension');
+                    expect(complications).to.be.an('array').that.includes('Pregnancy induced hypertension');
                 });
 
                 it("Should mark high risk for high Diastolic BP given normal BP before 20 Weeks", () => {
@@ -252,7 +252,7 @@ describe('High Risk Pregnancy Determination', () => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
-                    expect(complications).to.be.an('array').that.includes('Pregnancy Induced Hypertension');
+                    expect(complications).to.be.an('array').that.includes('Pregnancy induced hypertension');
                 });
 
                 it("Should mark high risk for high Diastolic and Diastolic BP given normal before 20 Weeks", () => {
@@ -261,7 +261,7 @@ describe('High Risk Pregnancy Determination', () => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                     const complications = C.findValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
-                    expect(complications).to.be.an('array').that.includes('Pregnancy Induced Hypertension');
+                    expect(complications).to.be.an('array').that.includes('Pregnancy induced hypertension');
                 });
             });
 
