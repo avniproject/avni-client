@@ -16,43 +16,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Stroke - Sudden onset",
             "uuid": "551af987-c107-43ee-9699-ea0d6763c5cf",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Numbness or clumsiness of one side of body",
-                "uuid": "9d1d0d1f-621f-4746-8f79-ccf114ac9304"
-              },
-              {
-                "name": "Seizures",
-                "uuid": "f728efe5-6620-424a-ac91-ad3efe43df97"
-              },
-              {
-                "name": "Inability to speak or understand",
-                "uuid": "c6993264-dc0f-41e0-884a-54c7e83cd3e4"
-              },
-              {
-                "name": "Severe headache",
-                "uuid": "006d2778-ad5a-412b-b238-1c6248025ac0"
-              },
-              {
-                "name": "Loss of consciousness",
-                "uuid": "dc0bc1b8-5852-4c5f-a9f6-3e8cd2bf29dc"
-              },
-              {
-                "name": "Loss of vision",
-                "uuid": "4a6a9e78-a70e-452c-9727-fa7d885b9892"
-              },
-              {
-                "name": "Weakness of one side of body",
-                "uuid": "0e555932-09e6-48a7-bb09-6d8211286556"
-              },
-              {
-                "name": "Unsteadiness of walking",
-                "uuid": "2857e43c-0fbb-4bc1-a44f-814237523744"
-              }
-            ]
+            "name": "Stroke - Sudden onset"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -63,19 +28,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "How long did the symptoms last",
             "uuid": "b80b5580-6ea3-429a-9773-a68bb8985e17",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Days, weeks or still persisting",
-                "uuid": "0465434c-8811-4b6c-8872-b70fa756fb95"
-              },
-              {
-                "name": "Lasted few minutes",
-                "uuid": "86639411-d7f0-4041-b4dd-e1895ebac0c2"
-              }
-            ]
+            "name": "How long did the symptoms last"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -86,27 +40,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "NCD Screening Other Symptoms",
             "uuid": "700f8bba-e79d-4952-8597-7107bac4d6dc",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "History of passing stones",
-                "uuid": "b908825a-b241-405b-af33-51d5a6970ee1"
-              },
-              {
-                "name": "Urinary difficulties",
-                "uuid": "96a93489-86dd-4fca-b2af-5689621aceb9"
-              },
-              {
-                "name": "Swelling of feet",
-                "uuid": "134285ac-d264-4c95-a533-9ee843c27729"
-              },
-              {
-                "name": "Breathing difficulty particularly on exertion",
-                "uuid": "4ceb86c9-5767-4887-a5dc-855ca6a2be63"
-              }
-            ]
+            "name": "NCD Screening Other Symptoms"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -117,19 +52,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Suffering from diabetes",
             "uuid": "078d6b4d-81f7-4ab9-8159-89de436da31f",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Suffering from diabetes"
           },
           "displayOrder": 4,
           "mandatory": false
@@ -140,19 +64,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Medications",
             "uuid": "a3d999d4-57f4-40ee-99ab-4f1ee1bd1e1b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Steroid intake for asthma",
-                "uuid": "c1231eeb-911f-45ba-b901-b863fa5fe030"
-              },
-              {
-                "name": "Frequent intake of pain relieving drugs",
-                "uuid": "5d5eca15-a470-4273-a02d-4e8663f01814"
-              }
-            ]
+            "name": "Medications"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -171,19 +84,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Smoking (Current or in last one year)",
             "uuid": "facdca21-7cb0-46d4-aef2-8df27f306844",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Smoking (Current or in last one year)"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -194,19 +96,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "High intake of alcohol",
             "uuid": "db566116-4e36-4a86-a735-03a9545aa60b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              },
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              }
-            ]
+            "name": "High intake of alcohol"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -217,19 +108,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Lifestyle",
             "uuid": "23014529-92a4-4c58-a1dd-1cdc7c3bab5b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Lack of physical activity",
-                "uuid": "f312e95d-3414-4981-ac93-eff963448d55"
-              },
-              {
-                "name": "High sodium intake/high salt intake",
-                "uuid": "e0879d09-a1f5-4470-9975-32afd087a1dc"
-              }
-            ]
+            "name": "Lifestyle"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -247,14 +127,8 @@
           "uuid": "89379f92-5669-426c-a152-18c4d2ae4e64",
           "keyValues": [],
           "concept": {
-            "name": "Systolic",
             "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
-            "dataType": "Numeric",
-            "lowAbsolute": 20,
-            "highAbsolute": 190,
-            "lowNormal": 90,
-            "highNormal": 140,
-            "unit": "mm Hg"
+            "name": "Systolic"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -264,14 +138,8 @@
           "uuid": "deebe126-452d-461b-a254-62603b29f62b",
           "keyValues": [],
           "concept": {
-            "name": "Diastolic",
             "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
-            "dataType": "Numeric",
-            "lowAbsolute": 10,
-            "highAbsolute": 120,
-            "lowNormal": 50,
-            "highNormal": 90,
-            "unit": "mm Hg"
+            "name": "Diastolic"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -281,14 +149,8 @@
           "uuid": "37dfca37-42a9-4455-bf16-91b096e4ae92",
           "keyValues": [],
           "concept": {
-            "name": "Weight",
             "uuid": "75b1656e-2777-4753-9612-ce03a766a5e1",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 300,
-            "lowNormal": 1,
-            "highNormal": 100,
-            "unit": "kg"
+            "name": "Weight"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -298,14 +160,8 @@
           "uuid": "3c62343a-517a-4870-8bc9-fb71a8e36c9c",
           "keyValues": [],
           "concept": {
-            "name": "Height",
             "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
-            "dataType": "Numeric",
-            "lowAbsolute": 20,
-            "highAbsolute": 300,
-            "lowNormal": 30,
-            "highNormal": 200,
-            "unit": "cm"
+            "name": "Height"
           },
           "displayOrder": 4,
           "mandatory": false
@@ -315,9 +171,8 @@
           "uuid": "bbdbcd95-3555-46f7-8225-85c2b7196ddc",
           "keyValues": [],
           "concept": {
-            "name": "Waist circumference",
             "uuid": "d64aef6f-c81f-4246-b717-ea4c461461c4",
-            "dataType": "Numeric"
+            "name": "Waist circumference"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -327,9 +182,8 @@
           "uuid": "41708514-eec0-47be-90e2-066ee8f240f4",
           "keyValues": [],
           "concept": {
-            "name": "Fasting blood glucose",
             "uuid": "76c0bd04-73af-4bdf-846e-f194de5f3fe7",
-            "dataType": "Numeric"
+            "name": "Fasting blood glucose"
           },
           "displayOrder": 6,
           "mandatory": false
@@ -339,9 +193,8 @@
           "uuid": "26c71549-18f4-4447-ad1a-7a50a6764bac",
           "keyValues": [],
           "concept": {
-            "name": "Post meal blood glucose",
             "uuid": "41e972b1-e4df-41c9-9b86-6ba4cbdba456",
-            "dataType": "Numeric"
+            "name": "Post meal blood glucose"
           },
           "displayOrder": 7,
           "mandatory": false
@@ -352,31 +205,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Feet examination",
             "uuid": "289a3ddd-603d-4681-ba62-a2cfa8183f0b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Ulcers",
-                "uuid": "47377070-7512-411d-8c1f-f434ba05e6e5"
-              },
-              {
-                "name": "Prominent veins",
-                "uuid": "04215dea-f701-4ea4-a098-54b94ff05194"
-              },
-              {
-                "name": "Edema",
-                "uuid": "39c2d80c-2105-4aad-acc6-7e4880f6243a"
-              },
-              {
-                "name": "Injuries",
-                "uuid": "23fb4055-ebde-4608-8531-b1f0954d081e"
-              },
-              {
-                "name": "Calluses",
-                "uuid": "a9412299-df94-470c-85c0-1ca0b561248c"
-              }
-            ]
+            "name": "Feet examination"
           },
           "displayOrder": 8,
           "mandatory": false
@@ -394,9 +224,8 @@
           "uuid": "47943edb-c498-4067-96bb-2f01a82c0ab6",
           "keyValues": [],
           "concept": {
-            "name": "Total Cholesterol",
             "uuid": "d2540581-510b-4604-98a8-3a539cb5daf4",
-            "dataType": "Numeric"
+            "name": "Total Cholesterol"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -406,14 +235,8 @@
           "uuid": "9bfae53b-d81e-4fed-acd9-c42b791cab1a",
           "keyValues": [],
           "concept": {
-            "name": "Systolic",
             "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
-            "dataType": "Numeric",
-            "lowAbsolute": 20,
-            "highAbsolute": 190,
-            "lowNormal": 90,
-            "highNormal": 140,
-            "unit": "mm Hg"
+            "name": "Systolic"
           },
           "displayOrder": 2,
           "mandatory": false
