@@ -2,7 +2,9 @@
   "name": "Delivery-Child",
   "uuid": "901e2f48-2fb8-402b-9073-ee2fac33fce4",
   "formType": "ProgramEncounter",
-  "encounterTypes": ["Child Delivery"],
+  "encounterTypes": [
+    "Child Delivery"
+  ],
   "programName": "Mother",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
@@ -17,7 +19,7 @@
           "uuid": "5a6fe3f7-aab2-45c1-8d54-38ddc47d8b89",
           "type": "SingleSelect",
           "concept": {
-            "name":"Child's Father name",
+            "name": "Child's Father name",
             "uuid": "0323db68-da22-4c99-b578-99ea2949d5a5",
             "dataType": "Text"
           },
