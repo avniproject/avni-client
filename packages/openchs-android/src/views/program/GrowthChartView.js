@@ -7,7 +7,7 @@ import {Button} from "native-base";
 import {
     Text,
     View,
-    processColor, StyleSheet, TouchableNativeFeedback
+    processColor, StyleSheet
 } from 'react-native';
 import moment from "moment";
 
@@ -22,7 +22,8 @@ class GrowthChartView extends AbstractComponent {
 
     states = {
         weightForAge: "Weight For Age",
-        heightForAge: "Height For Age"
+        heightForAge: "Height For Age",
+        weightForHeight: "Weight For Height"
     };
 
     settings = {
@@ -90,7 +91,7 @@ class GrowthChartView extends AbstractComponent {
 
     graphForSelection(prevState, selectedGraph) {
         return {
-            data: selectedGraph === this.states.weightForAge? prevState.weightForAge: prevState.heightForAge,
+            data: prevState[_.findKey(this.states, (state) => state === selectedGraph)],
             title: selectedGraph,
             selectedGraph: selectedGraph
         }
@@ -104,7 +105,8 @@ class GrowthChartView extends AbstractComponent {
         this.setState(() => {
             const newState = {
                 weightForAge: {dataSets: this.getDataSets(this.props.params.data.weightForAge, 'Weight', 'kg')},
-                heightForAge: {dataSets: this.getDataSets(this.props.params.data.heightForAge, 'Height', 'cm')}
+                heightForAge: {dataSets: this.getDataSets(this.props.params.data.heightForAge, 'Height', 'cm')},
+                weightForHeight: {dataSets: this.getDataSets(this.props.params.data.weightForHeight, 'Weight', 'cm', "Height")}
             };
 
             return _.merge(newState, this.graphForSelection(newState, this.states.weightForAge));
@@ -133,37 +135,47 @@ class GrowthChartView extends AbstractComponent {
         }, this.settings[line])
     }
 
-    getGridLine(array, line) {
+    getGridLine(array, line, identifier) {
         return _.merge({
             values: _.map(array, (item) => {
-                return {x: item.Month, y: item[line]}
+                return {x: item[identifier || "Month"], y: item[line]}
             })
         }, this.addConfig(array, line));
     }
 
-    getDataFor(concept, suffix) {
+    getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
         const enrolment = this.props.params.enrolment;
-        let observations = _.map(enrolment.getObservationsForConceptName(concept),
-            (observation) => {
-                return {
-                    x: moment(observation.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months'),
-                    y: observation.obs,
-                    marker: `${observation.obs} ${suffix}`
-                }
-            });
+        let observations = _.chain(enrolment.encounters)
+            .map((encounter) => {
+                let yValue = encounter.findObservation(yAxisConceptName).getValue();
+                let xValue = xAxisConceptName ? encounter.findObservation(xAxisConceptName).getValue() :
+                    moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
+                return xValue && yValue ? {
+                    x: xValue,
+                    y: yValue,
+                    marker: `${yValue} ${suffix}`
+                } : undefined;
+            })
+            .compact()
+            .value();
         return this.addConfig(_.sortBy(observations, 'x'), "data");
     }
 
-    getDataSets(array, concept, suffix) {
-        let data = this.getDataFor(concept, suffix);
-        data = _.merge(data, { label: `${concept} in ${suffix}` });
-        if (concept == 'Weight') {
+    getDataSets(array, yAxisConcept, suffix, xAxisConcept) {
+        let data = this.getDataFor(yAxisConcept, suffix, xAxisConcept);
+        data = _.merge(data, {label: `${yAxisConcept} in ${suffix}`});
+        this.addBirthWeightIfRequired(yAxisConcept, data, suffix);
+
+        return [data, ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line, xAxisConcept))];
+    }
+
+    addBirthWeightIfRequired(yAxisConcept, data, suffix) {
+        if (yAxisConcept == 'Weight') {
             const birthWt = this.props.params.enrolment.findObservation('Birth Weight');
             if (birthWt) {
-                data.values.unshift({ x:0, y:birthWt.getValue(), marker: `${birthWt.getValue()} ${suffix}`});
+                data.values.unshift({x: 0, y: birthWt.getValue(), marker: `${birthWt.getValue()} ${suffix}`});
             }
         }
-        return [ data, ..._.map(["SD3", "SD2", "SD0", "SD2neg", "SD3neg"], (line) => this.getGridLine(array, line))];
     }
 
     static style = {
@@ -197,16 +209,12 @@ class GrowthChartView extends AbstractComponent {
         }
     };
 
-    getWeightGraphStyle() {
-        return this.states.weightForAge === this.state.selectedGraph? GrowthChartView.style.selectedGraphButton : GrowthChartView.style.unselectedGraphButton;
-    }
-
-    getHeightGraphStyle() {
-        return this.states.heightForAge === this.state.selectedGraph? GrowthChartView.style.selectedGraphButton : GrowthChartView.style.unselectedGraphButton;
+    getGraphStyle(state) {
+        return this.state.selectedGraph === state ? GrowthChartView.style.selectedGraphButton : GrowthChartView.style.unselectedGraphButton;
     }
 
     getLegendLabel() {
-        return this.states.weightForAge === this.state.selectedGraph? "Weight" : "Height";
+        return this.states.weightForAge === this.state.selectedGraph ? "Weight" : "Height";
     }
 
     render() {
@@ -227,7 +235,7 @@ class GrowthChartView extends AbstractComponent {
                 labels: [this.getLegendLabel(), "Grade 1", "Grade 2", "Grade 3"]
             }
         };
-        const marker = {    
+        const marker = {
             enabled: true,
             markerColor: processColor('white'),
             textColor: processColor('black'),
@@ -244,19 +252,34 @@ class GrowthChartView extends AbstractComponent {
         });
         let borderColor = processColor("red");
         return (
-            <View style={{ flex: 1, paddingHorizontal: 8, flexDirection: 'column' }}>
-                <View style={{ flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between' }}>
+            <View style={{flex: 1, paddingHorizontal: 8, flexDirection: 'column'}}>
+                <View style={{flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between'}}>
 
-                    <Button style={[GrowthChartView.style.graphButton.self, this.getWeightGraphStyle().self]}
-                        textStyle={this.getWeightGraphStyle().text}
-                        onPress={() => { this.onGraphSelected(this.states.weightForAge) }}>
+                    <Button
+                        style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForAge).self]}
+                        textStyle={this.getGraphStyle(this.states.weightForAge).text}
+                        onPress={() => {
+                            this.onGraphSelected(this.states.weightForAge)
+                        }}>
                         {this.states.weightForAge}
                     </Button>
 
-                    <Button style={[GrowthChartView.style.graphButton.self, this.getHeightGraphStyle().self]}
-                        textStyle={this.getHeightGraphStyle().text}
-                        onPress={() => { this.onGraphSelected(this.states.heightForAge) }}>
+                    <Button
+                        style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.heightForAge).self]}
+                        textStyle={this.getGraphStyle(this.states.heightForAge).text}
+                        onPress={() => {
+                            this.onGraphSelected(this.states.heightForAge)
+                        }}>
                         {this.states.heightForAge}
+                    </Button>
+
+                    <Button
+                        style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForHeight).self]}
+                        textStyle={this.getGraphStyle(this.states.weightForHeight).text}
+                        onPress={() => {
+                            this.onGraphSelected(this.states.weightForHeight)
+                        }}>
+                        {this.states.weightForHeight}
                     </Button>
                 </View>
 

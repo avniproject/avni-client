@@ -22,7 +22,7 @@ describe("Child Program Config", () => {
         expect(growthChart).to.be.ok;
         expect(growthChart.label).to.equal('Growth Chart');
         expect(growthChart.openOnClick.type).to.equal('growthChart');
-        expect(growthChart.openOnClick.data(programEnrolment)).to.have.keys('weightForAge', 'heightForAge');
+        expect(growthChart.openOnClick.data(programEnrolment)).to.have.keys('weightForAge', 'heightForAge', 'weightForHeight');
     });
 
     it("Should return reference lines for weightForAge", () => {
