@@ -1,0 +1,447 @@
+[
+  {
+    "name": "Not True",
+    "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd",
+    "dataType": "NA"
+  },
+  {
+    "name": "Somewhat True",
+    "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715",
+    "dataType": "NA"
+  },
+  {
+    "name": "Certainly True",
+    "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6",
+    "dataType": "NA"
+  },
+  {
+    "name": "1. I try to be nice to other people. I care about their feelings",
+    "uuid": "2d7080f7-861f-4228-a47e-40b91f2c71d4",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "2. I am restless, I cannot stay still for long",
+    "uuid": "eba79379-71f9-4527-bc22-d0dee8e81e0b",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "3. I get a lot of headaches, stomach-aches or sickness",
+    "uuid": "45aeed2c-af50-4ea4-8cbc-8d7357fc1008",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "4. I usually share with others, for example (food, games, pens, etc.)",
+    "uuid": "b00b92eb-178c-4901-b40c-c369e2ea835c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "5. I get very angry and often lose my temper",
+    "uuid": "c3bb5ce5-6654-4a8c-8900-13facbff7937",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "6. I am usually on my own, I generally play alone or keep to myself",
+    "uuid": "6446f3c5-b117-46d3-ad7a-65fbcab726cc",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "7. I usually do as I am told",
+    "uuid": "b2973ad0-92e7-4b62-ae0a-75b4862c4f5e",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "8. I worry a lot",
+    "uuid": "9bed49e0-7586-4500-b621-f842957d65b1",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "9. I am helpful if someone is hurt, upset or feeling ill",
+    "uuid": "0b2f4557-fdb1-4067-919e-ea0b324bdd9d",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "10. I am constantly fidgeting or squirming",
+    "uuid": "3d80e210-100f-4d37-bd65-090264d938b2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "11. I have one good friend or more",
+    "uuid": "1268082e-751b-4850-a27d-f1250f7336d4",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "12. I fight a lot. I can make other people do what I want",
+    "uuid": "8948e200-eb1c-44bd-9299-28659eca7b85",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "13. I am often unhappy, down-hearted or tearful",
+    "uuid": "4fe8c70d-d2b7-4c58-bd0d-dd257d760e3f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "14. Other people my age generally like me",
+    "uuid": "0b6732c7-9d10-4162-92f5-92fcdfd7d5a5",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "15. I am easily distracted, I find it difficult to concentrate",
+    "uuid": "ca145d5d-ba06-43df-8b40-e8920e1b2395",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "16. I am nervous in new situations. I easily lose confidence",
+    "uuid": "0d2e44fd-bfae-42e7-a46f-730a58d4e362",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "17. I am kind to younger children",
+    "uuid": "4a867b46-003b-423a-b73d-ab1b919a9be6",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "18. I am often accused of lying or cheating",
+    "uuid": "96ca9638-6fc8-4358-a3a8-d9eabde861f2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "19. Other children or young people pick on me or bully me",
+    "uuid": "6cc03bee-514a-4866-a4b8-f3342cda6c0f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "20. I often volunteer  to help others (parents, teachers, children)",
+    "uuid": "264cc2fc-e202-44c1-ae19-5ef7b960c551",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "21. I think before I do things",
+    "uuid": "64ba418d-3851-4e72-8e52-89ba2c55150b",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "22. I take things that are not mine from home, school or elsewhere",
+    "uuid": "6a33912b-ccc1-4452-93c9-bea182b7384c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "23. I get on better with adults than with people my own age",
+    "uuid": "88f4abf7-4ede-4918-9919-7546ef48d1fa",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "24. I have many fears, I am easily scared",
+    "uuid": "3c58b343-2e4c-499c-ac39-fca350cccdd0",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "25. I finish the work I'm doing. My attention is good",
+    "uuid": "101ff884-37e0-4bac-85ac-e8f5dd596e9a",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "ae900527-6c77-4c5f-99f8-2d2be7bb1efd"
+      },
+      {
+        "uuid": "86d4e144-6a3b-4106-9bba-d6b7d6948715"
+      },
+      {
+        "uuid": "37d96c8a-b774-4bab-bc24-f9de9896c7a6"
+      }
+    ]
+  },
+  {
+    "name": "Total Score",
+    "uuid": "cc90807e-ee5f-4a84-9403-2374ceaadf62",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Emotional Score",
+    "uuid": "925fb616-7733-48ee-9fce-996e65a4d45c",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Conduct Score",
+    "uuid": "43d83d45-6e9b-4a21-a3a4-abf0cf20e982",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Hyper Activity Score",
+    "uuid": "9fd8ded3-7b88-47d8-97a7-f4f6b8e08f3a",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Peer Problem Score",
+    "uuid": "f6058f79-55f0-411a-a613-7051859c4d7c",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Pro Social Score",
+    "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4",
+    "dataType": "Numeric"
+  }
+]

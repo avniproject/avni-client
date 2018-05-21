@@ -757,7 +757,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Supplementary nutritional therapy",
+            "name": "Supplementary nutritional therapy (advice)",
             "uuid": "1307241d-92c2-4660-8ed9-c5da899aa06e",
             "dataType": "Coded",
             "answers": []
@@ -779,7 +779,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Rest and sleep",
+            "name": "Rest and sleep (advice)",
             "uuid": "d070cf73-16f3-4fb7-bf4b-94b95ce753a1",
             "dataType": "Coded",
             "answers": []
@@ -793,7 +793,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Immunization Counselling",
+            "name": "Immunization Counselling (advice)",
             "uuid": "c210a202-78e4-493f-bcf6-11ed6e79d61c",
             "dataType": "Coded",
             "answers": []
@@ -807,7 +807,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Coitus/Sex Counselling",
+            "name": "Coitus/Sex Counselling (advice)",
             "uuid": "22d263c5-033a-487f-b237-2ebf6c8698e4",
             "dataType": "Coded",
             "answers": []
@@ -821,7 +821,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Illness management",
+            "name": "Illness management (advice)",
             "uuid": "b5639c14-30a2-43d3-b818-21cd0cc0a2ff",
             "dataType": "Coded",
             "answers": []
@@ -835,7 +835,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Finance management",
+            "name": "Finance management (advice)",
             "uuid": "0dddfa30-74ee-47a4-b212-1918499f4c92",
             "dataType": "Coded",
             "answers": []
@@ -857,7 +857,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Government scheme information",
+            "name": "Government scheme information (advice)",
             "uuid": "fd8fcbd8-278f-4417-9696-176ff46c3bcc",
             "dataType": "Coded",
             "answers": []
@@ -871,7 +871,7 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Ambulance services information",
+            "name": "Ambulance services information (advice)",
             "uuid": "8b01c973-206a-42a7-9ecb-2471ee51be88",
             "dataType": "Coded",
             "answers": []
