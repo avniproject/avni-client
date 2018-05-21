@@ -15,16 +15,23 @@ help:
 
 port:= $(if $(port),$(port),8021)
 server:= $(if $(server),$(server),http://localhost)
+org_name:=demo
+
+_curl = \
+	curl -X $(1) $(server):$(port)/$(2) -d $(3)  \
+		-H "Content-Type: application/json"  \
+		-H "ORGANISATION-NAME: $(org_name)"  \
+		-H "AUTH-TOKEN: $(token)" \
 
 create_org:
 	psql -U$(su) openchs < create_org.sql
 
 # <refdata>
 deploy_refdata: ## Creates reference data by POSTing it to the server
-	curl -X POST $(server):$(port)/catchments -d @catchments.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo"  -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/concepts -d @concepts.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/forms -d @registrationForm.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo" -H "AUTH-TOKEN: $(token)"
-	curl -X POST $(server):$(port)/operationalModules -d @operationalModules.json -H "Content-Type: application/json" -H "ORGANISATION-NAME: demo" -H "AUTH-TOKEN: $(token)"
+	$(call _curl,POST,catchments,@catchments.json)
+	$(call _curl,POST,concepts,@concepts.json)
+	$(call _curl,POST,forms,@registrationForm.json)
+	$(call _curl,POST,operationalModules,@operationalModules.json)
 # </refdata>
 
 deploy: deploy_refdata
