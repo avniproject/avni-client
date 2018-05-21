@@ -123,5 +123,193 @@
     "name": "Not getting cured after receiving complete treatment at health center",
     "uuid": "1224317d-0e64-41eb-a73b-09644c63582f",
     "dataType": "NA"
+  },
+  {
+    "name": "Weight",
+    "uuid": "75b1656e-2777-4753-9612-ce03a766a5e1",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "highAbsolute": 300,
+    "lowNormal": 1,
+    "highNormal": 100,
+    "unit": "kg"
+  },
+  {
+    "name": "Systolic",
+    "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
+    "dataType": "Numeric",
+    "lowAbsolute": 20,
+    "highAbsolute": 190,
+    "lowNormal": 90,
+    "highNormal": 140,
+    "unit": "mm Hg"
+  },
+  {
+    "name": "Diastolic",
+    "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
+    "dataType": "Numeric",
+    "lowAbsolute": 10,
+    "highAbsolute": 120,
+    "lowNormal": 50,
+    "highNormal": 90,
+    "unit": "mm Hg"
+  },
+  {
+    "name": "Pallor",
+    "uuid": "226f8715-563b-4a8b-8afa-f75cce2767af",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Present",
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+      },
+      {
+        "name": "Absent",
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      }
+    ]
+  },
+  {
+    "name": "Pedal Edema",
+    "uuid": "b441c480-1a19-4ad0-9d0a-196485aacf12",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Present",
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+      },
+      {
+        "name": "Absent",
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      }
+    ]
+  },
+  {
+    "name": "Skin Condition",
+    "uuid": "bff2c24c-32d2-4400-a691-4f43fa59090a",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Scabies",
+        "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5"
+      },
+      {
+        "name": "Wound",
+        "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c"
+      },
+      {
+        "name": "Ring Worm",
+        "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137"
+      },
+      {
+        "name": "Boils",
+        "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9"
+      }
+    ]
+  },
+  {
+    "name": "Complaint",
+    "uuid": "561c5f87-03f0-4135-be19-88ed548c1ce1",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Giddiness",
+        "uuid": "4b569ac1-3965-47a0-9ca7-2317f40fdd61"
+      },
+      {
+        "name": "Chloroquine Resistant Malaria",
+        "uuid": "567ed59c-7cfb-46ff-a0f5-e2ea042a03b6"
+      },
+      {
+        "name": "Headache",
+        "uuid": "4085f165-ccb8-409b-9d6e-ea7755cf123e"
+      },
+      {
+        "name": "Scabies",
+        "uuid": "e6b85a4c-04cf-4738-bbb4-1884d853f2e5"
+      },
+      {
+        "name": "Acidity",
+        "uuid": "96c17d14-f663-4b62-ba28-1efe49ee9ddd"
+      },
+      {
+        "name": "Body Ache",
+        "uuid": "7dba1853-3147-47da-b016-7d306d19320f"
+      },
+      {
+        "name": "Abdominal pain",
+        "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c"
+      },
+      {
+        "name": "Ring Worm",
+        "uuid": "8146a561-0f46-4ada-a63b-cbe29c626137"
+      },
+      {
+        "name": "Wound",
+        "uuid": "5126ffae-a2a3-4474-aa3f-73d2a576d42c"
+      },
+      {
+        "name": "Cold",
+        "uuid": "bddfcbbf-b706-4e08-845e-cd64dd43752a"
+      },
+      {
+        "name": "Fever",
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456"
+      },
+      {
+        "name": "Pregnancy",
+        "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8"
+      },
+      {
+        "name": "Cough",
+        "uuid": "63658ea8-0447-4180-8026-bed500486e13"
+      },
+      {
+        "name": "Boils",
+        "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9"
+      },
+      {
+        "name": "Diarrhoea",
+        "uuid": "88af3c67-3828-4f4b-8993-1497a86bf2bf"
+      },
+      {
+        "name": "Vomiting",
+        "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      }
+    ]
+  },
+  {
+    "name": "Is outpatient referred to higher health center?",
+    "uuid": "2bf14bb0-faa1-4d71-933e-c98e4e0fd458",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
+  },
+  {
+    "name": "Reason for referral",
+    "uuid": "222054fc-2cf0-4bb5-a66d-7c0888277548",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Can’t be treated at health centre level",
+        "uuid": "02282c77-4aed-4545-b855-a6478b457e1e"
+      },
+      {
+        "name": "Not getting cured after receiving complete treatment at health center",
+        "uuid": "1224317d-0e64-41eb-a73b-09644c63582f"
+      }
+    ]
   }
 ]

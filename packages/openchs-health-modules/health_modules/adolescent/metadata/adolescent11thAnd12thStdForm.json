@@ -17,18 +17,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "School going",
             "uuid": "575a29c3-a070-4c7d-ac96-fe58b6bddca3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "Dropped Out",
-                "uuid": "58f789aa-6570-4aea-87a7-1f7651729c5a"
-              }
-            ]
+            "name": "School going"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -91,18 +81,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "2973890d-0142-41a6-a6f5-988e7eb36d79",
-            "name": "Iron tablets received",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Iron tablets received"
           },
           "mandatory": true,
           "displayOrder": 1
@@ -113,19 +92,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Albendazole tablets received?",
             "uuid": "a2e181c3-0827-4da2-9121-a59386449823",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Albendazole tablets received?"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -136,19 +104,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Regular treatment taken for Sickle cell disease",
             "uuid": "2c1c084d-24d6-4363-8bbe-e145c19a1fb3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Regular treatment taken for Sickle cell disease"
           },
           "mandatory": true,
           "displayOrder": 3

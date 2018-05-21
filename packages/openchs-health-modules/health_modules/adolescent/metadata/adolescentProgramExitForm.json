@@ -17,35 +17,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Adolescent exit reason",
             "uuid": "04d33465-0cd3-4755-8329-b057a3d8f707",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Age more than 20 years",
-                "uuid": "569a0841-46a8-4397-b179-4a1c27a54ea0"
-              },
-              {
-                "name": "Death",
-                "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83"
-              },
-              {
-                "name": "Migration",
-                "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c"
-              },
-              {
-                "name": "Marriage",
-                "uuid": "104c7ffb-fb43-45a0-876b-77fba9ee7759"
-              },
-              {
-                "name": "Pregnancy",
-                "uuid": "adc37af2-06c1-4adf-9f10-0e121b8a49b8"
-              },
-              {
-                "name": "Lost to follow-up",
-                "uuid": "d55d0635-c101-466f-a624-e72d7223eeb2"
-              }
-            ]
+            "name": "Adolescent exit reason"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -75,9 +48,8 @@
           "uuid": "b8388d09-a34a-4a81-a615-96b513d79c0b",
           "keyValues": [],
           "concept": {
-            "name": "Age at Marriage",
             "uuid": "ce235c58-c84b-4cda-b600-305ebf7091e4",
-            "dataType": "Numeric"
+            "name": "Age at Marriage"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -87,9 +59,8 @@
           "uuid": "63faced0-b889-448b-aee5-b1a998876c1b",
           "keyValues": [],
           "concept": {
-            "name": "Age at Pregnancy",
             "uuid": "01a1588f-b13d-4dd0-8330-1243b4def25c",
-            "dataType": "Numeric"
+            "name": "Age at Pregnancy"
           },
           "displayOrder": 5,
           "mandatory": true

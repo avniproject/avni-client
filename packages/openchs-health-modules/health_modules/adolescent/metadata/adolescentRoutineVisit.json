@@ -23,19 +23,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "School going",
             "uuid": "575a29c3-a070-4c7d-ac96-fe58b6bddca3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "Dropped Out",
-                "uuid": "58f789aa-6570-4aea-87a7-1f7651729c5a",
-                "abnormal": true
-              }
-            ]
+            "name": "School going"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -47,9 +36,8 @@
           "mandatory": true,
           "displayOrder": 2,
           "concept": {
-            "name": "Name of school",
             "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
-            "dataType": "Text"
+            "name": "Name of school"
           }
         },
         {
@@ -68,9 +56,8 @@
           "uuid": "e7e166fe-9453-422d-998f-1777534adb80",
           "keyValues": [],
           "concept": {
-            "name": "Roll Number",
             "uuid": "34afa9e5-5a31-4f92-96c9-e13833bf023b",
-            "dataType": "Numeric"
+            "name": "Roll Number"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -89,34 +76,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Parents' life status",
             "uuid": "9083aae8-0a78-4b5b-9177-dd993e6d088c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Both Alive",
-                "uuid": "64491e8e-cea5-4774-9cc8-d42442891e03"
-              },
-              {
-                "name": "Only Father Alive",
-                "uuid": "1645d2d8-9dc8-4a6a-ad6c-50b0cca09190",
-                "abnormal": true
-              },
-              {
-                "name": "Only Mother Alive",
-                "uuid": "6b384012-b46d-4397-b17e-a0b4fa2e4469",
-                "abnormal": true
-              },
-              {
-                "name": "Both Expired",
-                "uuid": "0e7d6595-6217-4498-aa97-79c2edbb875a",
-                "abnormal": true
-              },
-              {
-                "uuid": "00f2eb9a-94c6-48eb-bfad-0b93784d3cb9",
-                "abnormal": true
-              }
-            ]
+            "name": "Parents' life status"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -127,35 +88,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Father's Occupation",
             "uuid": "fb3214f4-d040-40bc-bd38-883ad5e0cae7",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Labour",
-                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
-              },
-              {
-                "name": "Farming",
-                "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
-              },
-              {
-                "name": "Business",
-                "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
-              },
-              {
-                "name": "Job",
-                "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              },
-              {
-                "name": "Don't know",
-                "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
-              }
-            ]
+            "name": "Father's Occupation"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -166,34 +100,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Father's Addiction",
             "uuid": "e90dee68-0a5f-4dd3-ae26-9b6229c4a02a",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a",
-                "abnormal": true
-              },
-              {
-                "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34",
-                "abnormal": true
-              },
-              {
-                "name": "Both",
-                "uuid": "246df73a-07d8-4924-8cf9-787dea8278fe",
-                "abnormal": true
-              },
-              {
-                "name": "No Addiction",
-                "uuid": "c7f89d3c-2aa3-4570-a7a5-163e002fba66"
-              },
-              {
-                "name": "Don't know",
-                "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
-              }
-            ]
+            "name": "Father's Addiction"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -204,39 +112,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Mother's Occupation",
             "uuid": "dc9882a4-ceff-4dc9-b6fc-3e2ba7e9b197",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Housework",
-                "uuid": "3e7e80cc-1744-4292-a34f-1beff9dd2316"
-              },
-              {
-                "name": "Labour",
-                "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
-              },
-              {
-                "name": "Farming",
-                "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
-              },
-              {
-                "name": "Business",
-                "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
-              },
-              {
-                "name": "Job",
-                "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              },
-              {
-                "name": "Don't know",
-                "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
-              }
-            ]
+            "name": "Mother's Occupation"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -247,34 +124,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Mother's Addiction",
             "uuid": "a3200784-2512-477b-9e78-f1c947d7dd75",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Alcohol",
-                "uuid": "92654fda-d485-4b6d-97c5-8a8fe2a9582a",
-                "abnormal": true
-              },
-              {
-                "name": "Tobacco",
-                "uuid": "ef29759b-5f74-4f5a-b186-fea7697cfb34",
-                "abnormal": true
-              },
-              {
-                "name": "Both",
-                "uuid": "246df73a-07d8-4924-8cf9-787dea8278fe",
-                "abnormal": true
-              },
-              {
-                "name": "No Addiction",
-                "uuid": "c7f89d3c-2aa3-4570-a7a5-163e002fba66"
-              },
-              {
-                "name": "Don't know",
-                "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
-              }
-            ]
+            "name": "Mother's Addiction"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -285,23 +136,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Staying with",
             "uuid": "eb47f6b7-1f64-4008-87f3-a781c7c342cd",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Parents",
-                "uuid": "fdad6445-316c-4cb7-a327-332e25469dc7"
-              },
-              {
-                "name": "Relatives",
-                "uuid": "bf99bcf7-5046-4835-9eb3-6fc5d558d60b"
-              },
-              {
-                "name": "Hostel",
-                "uuid": "b14dc6d9-c724-4005-b407-77b365e8241d"
-              }
-            ]
+            "name": "Staying with"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -311,11 +147,8 @@
           "uuid": "4446e4c0-2cd0-4257-a7f4-44a58c1a9179",
           "keyValues": [],
           "concept": {
-            "name": "Number of brothers",
             "uuid": "f4ad3b83-8673-4040-9972-571ae93149ab",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 99
+            "name": "Number of brothers"
           },
           "displayOrder": 8,
           "mandatory": true
@@ -325,11 +158,8 @@
           "uuid": "dbb08a98-270e-4899-8ac7-cbca55ac025b",
           "keyValues": [],
           "concept": {
-            "name": "Number of sisters",
             "uuid": "5e60baa0-c394-4140-80a6-424384a2f567",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 99
+            "name": "Number of sisters"
           },
           "displayOrder": 9,
           "mandatory": true
@@ -340,46 +170,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Chronic sickness in family",
             "uuid": "d2f7ac65-54d1-4f4b-b213-a29587e16abd",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Diabetes",
-                "uuid": "674f348f-5075-4c85-8bc2-9edfdee27505",
-                "abnormal": true
-              },
-              {
-                "name": "Hypertension",
-                "uuid": "998d1bae-05d8-47b9-89b8-0254829f238f",
-                "abnormal": true
-              },
-              {
-                "name": "TB",
-                "uuid": "ca8a5f57-c409-47ad-8acf-921cdd0fc191",
-                "abnormal": true
-              },
-              {
-                "name": "Cancer",
-                "uuid": "e8480835-eca9-44ff-920c-dd0c909a4492",
-                "abnormal": true
-              },
-              {
-                "name": "Sicklecell Disease",
-                "uuid": "37acc93a-8416-4440-ba68-d61ac4ba4c5f",
-                "abnormal": true
-              },
-              {
-                "name": "No sickness",
-                "uuid": "c43f9228-2995-48d3-8ecd-a22586210664",
-                "unique": true
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
-                "abnormal": true
-              }
-            ]
+            "name": "Chronic sickness in family"
           },
           "displayOrder": 10,
           "mandatory": true
@@ -442,18 +234,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "c874229a-47b4-4aab-9938-e88cf1cbadfc",
-            "name": "Hemoglobin Test Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Hemoglobin Test Done"
           },
           "mandatory": true,
           "displayOrder": 4
@@ -479,19 +260,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "729d937f-204e-4409-8e0d-1cf9354cb980",
-            "name": "Sickling Test Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-                "abnormal": true
-              }
-            ]
+            "name": "Sickling Test Done"
           },
           "mandatory": true,
           "displayOrder": 6
@@ -504,22 +273,7 @@
           "displayOrder": 7,
           "concept": {
             "uuid": "b5daf90d-5b71-4b53-827f-edd4f6539d15",
-            "name": "Sickling Test Result",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269"
-              },
-              {
-                "name": "Trait",
-                "uuid": "d53a31d6-3c5e-496f-8b92-bc0f703d3b33"
-              },
-              {
-                "name": "Disease",
-                "uuid": "2c343c7a-db14-4531-902a-d7b169300073"
-              }
-            ]
+            "name": "Sickling Test Result"
           },
           "mandatory": true
         },
@@ -530,18 +284,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "836809b0-45d0-49b4-a0a0-16b1bdb9628d",
-            "name": "Are you taking regular treatment for Sickle cell disease?",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Are you taking regular treatment for Sickle cell disease?"
           },
           "mandatory": true,
           "displayOrder": 8
@@ -553,18 +296,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "2973890d-0142-41a6-a6f5-988e7eb36d79",
-            "name": "Iron tablets received",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Iron tablets received"
           },
           "mandatory": true,
           "displayOrder": 9
@@ -576,18 +308,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "7e67cb41-e373-430c-87f1-8ff647b1b7c2",
-            "name": "Iron tablets provider",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Government",
-                "uuid": "7f1ceee8-415b-47df-97ff-c9ff74aab4f7"
-              },
-              {
-                "name": "SEWA Rural",
-                "uuid": "3e594596-68f1-407c-bf09-d265edc1744a"
-              }
-            ]
+            "name": "Iron tablets provider"
           },
           "mandatory": true,
           "displayOrder": 10
@@ -598,10 +319,7 @@
           "keyValues": [],
           "concept": {
             "uuid": "56358db1-8d55-4fbf-89c5-fde97c819c2c",
-            "name": "Iron tablets consumed in last month",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 99
+            "name": "Iron tablets consumed in last month"
           },
           "mandatory": true,
           "displayOrder": 11
@@ -612,19 +330,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Albendazole tablets received?",
             "uuid": "a2e181c3-0827-4da2-9121-a59386449823",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Albendazole tablets received?"
           },
           "displayOrder": 12,
           "mandatory": true
@@ -643,20 +350,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there any physical defect?",
             "uuid": "bd4bab3c-f0c5-4427-a2cb-325e538774e3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there any physical defect?"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -667,20 +362,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there a swelling at lower back?",
             "uuid": "53ba2bf5-e8d8-4f88-86a3-0068465086ac",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there a swelling at lower back?"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -691,20 +374,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there Cleft lip/Cleft palate?",
             "uuid": "e36ee991-51f2-4443-afbc-ab96a7ec4276",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there Cleft lip/Cleft palate?"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -715,20 +386,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there large gap between toe and finger?",
             "uuid": "14598553-b87c-4c7c-b97a-27c83effae73",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there large gap between toe and finger?"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -739,20 +398,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is her nails/tongue pale?",
             "uuid": "f621f0e0-f73f-4443-b02f-0b9d7cb5a5a6",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is her nails/tongue pale?"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -763,20 +410,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is she/he severely malnourished?",
             "uuid": "7a71445d-6faa-4db6-95e1-f891312d0a33",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is she/he severely malnourished?"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -787,20 +422,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there any problem in leg bone?",
             "uuid": "1701b2f7-aaad-4808-9dcc-05437dd569f7",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there any problem in leg bone?"
           },
           "displayOrder": 7,
           "mandatory": true
@@ -811,20 +434,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there a swelling over throat?",
             "uuid": "54a4c12f-7e67-471d-a668-eddc3b712c0d",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there a swelling over throat?"
           },
           "displayOrder": 8,
           "mandatory": true
@@ -835,20 +446,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Does she have difficulty in breathing while playing?",
             "uuid": "50d57508-77c3-4561-b8fc-402bd6d7a413",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Does she have difficulty in breathing while playing?"
           },
           "displayOrder": 9,
           "mandatory": true
@@ -859,20 +458,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": " Are there dental carries?",
             "uuid": "4f29a019-05f5-4d50-a255-81ab7e12b4a3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": " Are there dental carries?"
           },
           "displayOrder": 10,
           "mandatory": true
@@ -883,20 +470,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there a white patch in her eyes?",
             "uuid": "41b9cc54-8f06-4d9f-a70d-f9311b95c747",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there a white patch in her eyes?"
           },
           "displayOrder": 11,
           "mandatory": true
@@ -907,20 +482,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Does she have impaired vision?",
             "uuid": "f3794468-8ff5-44a3-a279-2d8d2fb5aa78",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Does she have impaired vision?"
           },
           "displayOrder": 12,
           "mandatory": true
@@ -931,20 +494,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there pus coming from ear?",
             "uuid": "15004f46-0720-417a-ab03-8805a3b549c4",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there pus coming from ear?"
           },
           "displayOrder": 13,
           "mandatory": true
@@ -955,20 +506,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Does she have impaired hearing?",
             "uuid": "4c58ddb2-0ba9-490d-ba07-f1cd70e0905a",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Does she have impaired hearing?"
           },
           "displayOrder": 14,
           "mandatory": true
@@ -979,20 +518,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Does she have skin problems?",
             "uuid": "4db4857f-7caa-4bd8-a528-09e8416e8f11",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Does she have skin problems?"
           },
           "displayOrder": 15,
           "mandatory": true
@@ -1003,20 +530,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Has she ever suffered from convulsions?",
             "uuid": "5af82adf-6be9-4792-9b3d-543b4b00f816",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Has she ever suffered from convulsions?"
           },
           "displayOrder": 16,
           "mandatory": true
@@ -1027,20 +542,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there any neurological motor defect?",
             "uuid": "14bb22df-1348-4336-9e4a-66b0741a6c3b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there any neurological motor defect?"
           },
           "displayOrder": 17,
           "mandatory": true
@@ -1051,20 +554,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is her behavior different from others?",
             "uuid": "f0e3c0db-0f01-4c3d-a468-b740849d0011",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is her behavior different from others?"
           },
           "displayOrder": 18,
           "mandatory": true
@@ -1075,20 +566,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is she slower than others in learning and understanding new things?",
             "uuid": "fdd74e4f-363b-4f74-a38c-d7e8ad1b00a1",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is she slower than others in learning and understanding new things?"
           },
           "displayOrder": 19,
           "mandatory": true
@@ -1099,20 +578,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Is there any developmental delay or disability seen?",
             "uuid": "cbcfdd44-dac8-435f-9cd9-35f20db1f367",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Is there any developmental delay or disability seen?"
           },
           "displayOrder": 20,
           "mandatory": true
@@ -1131,19 +598,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Menstruation started",
             "uuid": "9cb4c266-0511-48f6-a058-d4f1fa3eb17c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Menstruation started"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -1153,11 +609,8 @@
           "uuid": "9687ca63-19e4-4cd3-ad22-0bde6cdbcd28",
           "keyValues": [],
           "concept": {
-            "name": "Age when menstruation started",
             "uuid": "e1687f36-b38d-4bf8-9dbf-59cdc6fa1b6d",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 120
+            "name": "Age when menstruation started"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -1168,27 +621,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Absorbent material used",
             "uuid": "a54fcfad-8656-46ae-9706-671a600eabca",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Old cloth",
-                "uuid": "968b26b8-a357-4960-8aa8-0db67a728481"
-              },
-              {
-                "name": "Sanitary pad",
-                "uuid": "fa118efa-116e-471e-a9cc-f39eabbc0a57"
-              },
-              {
-                "name": "Falalin",
-                "uuid": "6ebf2af2-38c6-4703-98c2-cba9f234b8f5"
-              },
-              {
-                "name": "Kit pad",
-                "uuid": "99414d2a-b7b1-434d-9354-c3da69619d83"
-              }
-            ]
+            "name": "Absorbent material used"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -1210,31 +644,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Any treatment taken",
             "uuid": "bd3d1ba3-0a85-4aa7-a62c-78254d8e0762",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Home remedy",
-                "uuid": "c215bcd4-6057-4544-b0bd-1339c8e75d5d"
-              },
-              {
-                "name": "Consulted doctor",
-                "uuid": "905d4a48-7fe6-43ac-a64f-61b906596b34"
-              },
-              {
-                "name": "Tablet from Shop",
-                "uuid": "19394a8e-bd38-46a2-a5e4-23f063125477"
-              },
-              {
-                "name": "Tablet from Kit",
-                "uuid": "750c91e9-f768-4888-9103-423c3736d203"
-              },
-              {
-                "name": "No treatment taken",
-                "uuid": "e4ab2c89-d464-4f6b-94e5-046902e7a076"
-              }
-            ]
+            "name": "Any treatment taken"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -1245,20 +656,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Does she remain absent during menstruation?",
             "uuid": "4cae960e-5e1e-4b23-9927-d95db35d83e3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Does she remain absent during menstruation?"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -1269,27 +668,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Reason for remaining absent during menstruation",
             "uuid": "c1288e8a-9b6a-4928-aa6d-3010814ee5c2",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Pain",
-                "uuid": "9676fe70-082f-456c-88c0-28fb48171098"
-              },
-              {
-                "name": "Heavy bleeding",
-                "uuid": "e27f4a35-c2ae-4d05-8930-e19e432221d1"
-              },
-              {
-                "name": "No toilet facility in school",
-                "uuid": "f4f14fea-5a02-445d-be41-039670675525"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
+            "name": "Reason for remaining absent during menstruation"
           },
           "displayOrder": 7,
           "mandatory": true
@@ -1298,9 +678,8 @@
           "name": "Other reason (please specify)",
           "uuid": "5e87c326-8356-4cc7-98d6-dadf9840f203",
           "concept": {
-            "name": "Other reason for remaining absent during menstruation",
             "uuid": "fb42511b-0166-4118-abda-f985616de426",
-            "dataType": "Text"
+            "name": "Other reason for remaining absent during menstruation"
           },
           "displayOrder": 8,
           "mandatory": true
@@ -1310,9 +689,8 @@
           "uuid": "43f5eb60-7204-4ba8-952a-9594e8203596",
           "keyValues": [],
           "concept": {
-            "name": "How many days does she take off during menstruation?",
             "uuid": "ea7676d9-6609-4c6f-9187-2137bf3c9cbe",
-            "dataType": "Numeric"
+            "name": "How many days does she take off during menstruation?"
           },
           "displayOrder": 9,
           "mandatory": true
@@ -1322,19 +700,8 @@
           "uuid": "3d4775c1-01fc-4640-9462-a41880d1ea22",
           "type": "SingleSelect",
           "concept": {
-            "name": "MHM Kit received",
             "uuid": "5b11c506-d17b-499c-902f-75405bfc1d67",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "MHM Kit received"
           },
           "displayOrder": 10,
           "mandatory": true
@@ -1344,19 +711,8 @@
           "uuid": "2cd008ef-e50f-4f2d-a9f2-e5e65c3a454e",
           "type": "SingleSelect",
           "concept": {
-            "name": "MHM Kit used in the last month",
             "uuid": "7503cf02-c2e6-440b-a768-8e4cb1df4c68",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "MHM Kit used in the last month"
           },
           "displayOrder": 11,
           "mandatory": true
@@ -1375,40 +731,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Is there any other condition you want to mention about him/her?",
             "uuid": "b00a5ea2-e09c-43aa-b514-ac3c50474647",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Heart problem",
-                "uuid": "3505bbe2-e276-4f1b-a0d9-5c22ce160fd4",
-                "abnormal": true
-              },
-              {
-                "name": "Kidney problem",
-                "uuid": "4cb9f91e-c8f8-4e9f-8c4b-544d94b5afa5",
-                "abnormal": true
-              },
-              {
-                "name": "Sickle cell disease",
-                "uuid": "00ff88d0-d8bd-493b-98e2-fe60f6f9ce66",
-                "abnormal": true
-              },
-              {
-                "name": "Epilepsy",
-                "uuid": "a34bf7a0-4d55-41fa-855a-0b8094f369f7",
-                "abnormal": true
-              },
-              {
-                "name": "No problem",
-                "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
-                "unique": true
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
+            "name": "Is there any other condition you want to mention about him/her?"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -1417,9 +741,8 @@
           "name": "Other conditions (please specify)",
           "uuid": "60d34da0-ec33-4812-8a24-9c642b4f5e2b",
           "concept": {
-            "name": "Other conditions mentioned",
             "uuid": "a9258172-949c-49bd-bbb3-ac9607150ab4",
-            "dataType": "Text"
+            "name": "Other conditions mentioned"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -1430,46 +753,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Sickness in last 3 months",
             "uuid": "719fc446-50b0-4212-9e91-47bfd1aa5559",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Fever",
-                "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
-                "abnormal": true
-              },
-              {
-                "name": "Diarrhoea",
-                "uuid": "88af3c67-3828-4f4b-8993-1497a86bf2bf",
-                "abnormal": true
-              },
-              {
-                "name": "Abdominal pain",
-                "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c",
-                "abnormal": true
-              },
-              {
-                "name": "Jaundice",
-                "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104",
-                "abnormal": true
-              },
-              {
-                "name": "Common cold",
-                "uuid": "48689220-7064-4a73-90c4-b8857445a0c8",
-                "abnormal": true
-              },
-              {
-                "name": "No sickness",
-                "uuid": "c43f9228-2995-48d3-8ecd-a22586210664",
-                "unique": true
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
-                "abnormal": true
-              }
-            ]
+            "name": "Sickness in last 3 months"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -1478,10 +763,8 @@
           "name": "Other sickness (please specify)",
           "uuid": "dc7811fe-27b0-43ce-a20b-a8a75a1b1eb6",
           "concept": {
-            "name": "Other sickness in last 3 months",
             "uuid": "626906af-9517-4452-a124-1614f6801e48",
-            "dataType": "Text",
-            "abnormal": true
+            "name": "Other sickness in last 3 months"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -1492,20 +775,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Hospitalized in last 3 months",
             "uuid": "342a4172-131a-41fd-a9c7-ae16603b582f",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Hospitalized in last 3 months"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -1527,25 +798,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Are friends addicted?",
             "uuid": "d9b98bba-885c-4f78-9bf6-ba251128a5c3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              },
-              {
-                "name": "No Friend",
-                "uuid": "e8c867b1-a036-41ef-9a10-6eea593adacf",
-                "abnormal": true
-              }
-            ]
+            "name": "Are friends addicted?"
           },
           "displayOrder": 7,
           "mandatory": true
@@ -1564,19 +818,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Sexually active",
             "uuid": "cd637ed2-5a97-4f36-970a-3af1f27dfe78",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Sexually active"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -1587,20 +830,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Unprotected sex",
             "uuid": "672815aa-4c3f-457b-ac87-fa0b3924c957",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Unprotected sex"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -1611,19 +842,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Multiple Sexual Partners",
             "uuid": "84e60852-0d0b-4e8e-a3b0-f22d079d42d9",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Multiple Sexual Partners"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -1634,20 +854,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Burning Micturition",
             "uuid": "d86fbdcd-cbd3-4c13-9067-3bbde010438f",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Burning Micturition"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -1658,20 +866,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Ulcer over genitalia",
             "uuid": "66dd68ee-6118-47df-95ee-a0d115a75a12",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Ulcer over genitalia"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -1682,20 +878,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Yellowish discharge from Vagina / penis",
             "uuid": "65fe703a-9756-4688-96d7-6854e783caa1",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Yellowish discharge from Vagina / penis"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -1714,19 +898,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Owns 2 wheeler",
             "uuid": "da15c64c-3a5b-4b0b-8cd4-f9636b9c4d3b",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Owns 2 wheeler"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -1737,19 +910,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Drives 2 wheeler",
             "uuid": "b573841e-83c4-4132-9a5d-92d227ce26a9",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Drives 2 wheeler"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -1760,20 +922,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Has driving license",
             "uuid": "524c431a-3cfd-410d-af6c-e5b39ddd85d3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-                "abnormal": true
-              }
-            ]
+            "name": "Has driving license"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -1784,20 +934,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Wears helmet",
             "uuid": "c0d283e3-0b4a-4583-9666-a0c88e6465f7",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-                "abnormal": true
-              }
-            ]
+            "name": "Wears helmet"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -1808,20 +946,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Road accident in past 6 months",
             "uuid": "e0340738-27fb-424d-8c8a-f783cd922659",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Road accident in past 6 months"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -1832,23 +958,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "How the accident has happened?",
             "uuid": "dfe28b79-41c4-4c46-97e3-a100f016db04",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "While walking",
-                "uuid": "39fd91d5-1009-448b-a1c5-c6ee9b71f237"
-              },
-              {
-                "name": "While driving",
-                "uuid": "62a9af03-55ad-48a8-ac73-3a3d6314daa0"
-              },
-              {
-                "name": "While having a ride (Back seat)",
-                "uuid": "ac15df28-11a5-4380-bf74-adb4f234f4cc"
-              }
-            ]
+            "name": "How the accident has happened?"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -1867,19 +978,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Used Mitra Helpline",
             "uuid": "c411ed4a-8b52-4a7f-bdc8-a7190251b0de",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Used Mitra Helpline"
           },
           "mandatory": true,
           "displayOrder": 1
@@ -1891,18 +991,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "cfca9716-6eef-4b82-8bb7-60f7e6f01356",
-            "name": "Satisfied with Mitra counseling service",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Satisfied with Mitra counseling service"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -1922,9 +1011,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "c0a8057a-a15b-46c8-99f0-de164a921205",
-            "name": "Counselling for No Parents / Single Parent Information Checklist",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling for No Parents / Single Parent Information Checklist"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -1936,18 +1023,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "e45d8168-c4a2-427b-85aa-d0f0e8467a8f",
-            "name": "Counselling for No Parents / Single Parent Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for No Parents / Single Parent Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -1967,9 +1043,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "61cb327e-bccd-417e-9a87-2dce0069277f",
-            "name": "Counselling checklist for Menstrual Disorder",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Menstrual Disorder"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -1981,18 +1055,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "e31481f1-c719-46dc-b1de-a0f282b33d12",
-            "name": "Counselling for Menstrual Disorder Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Menstrual Disorder Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -2012,9 +1075,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "b4ad6f1e-7481-4fe0-93b8-db78b620bf1c",
-            "name": "Counselling checklist for Severe Anemia",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Severe Anemia"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -2026,18 +1087,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "6c0ed446-b555-4bb7-90f8-6da6f9827ab9",
-            "name": "Counselling for Severe Anemia Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Severe Anemia Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -2057,9 +1107,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "8460c376-5fe7-47dd-add7-af9163583c6f",
-            "name": "Counselling checklist for Malnutrition",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Malnutrition"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -2071,18 +1119,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "ed9ea061-2e35-41b8-a50f-aa2b30b7fc3c",
-            "name": "Counselling for Malnutrition Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Malnutrition Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -2102,9 +1139,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "41fb7905-9732-4cbe-9645-c3aac8883ca0",
-            "name": "Counselling checklist for Sickle Cell Anemia(Trait)",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Sickle Cell Anemia(Trait)"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -2116,9 +1151,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "c449b65a-8982-4275-b126-02f4902da5b7",
-            "name": "Counselling checklist for Sickle Cell Anemia(Disease)",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Sickle Cell Anemia(Disease)"
           },
           "mandatory": false,
           "displayOrder": 2
@@ -2130,18 +1163,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "a32eeb3a-a36d-4f82-a02d-d8066c41a5b1",
-            "name": "Counselling for Sickle Cell Anemia Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Sickle Cell Anemia Done"
           },
           "mandatory": true,
           "displayOrder": 3
@@ -2161,9 +1183,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "8927fdfe-dc55-44ad-9803-77f5bc4a43d0",
-            "name": "Counselling checklist for Addiction",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Addiction"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -2175,18 +1195,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "c3aceea7-e0f0-46f1-855a-a664ecc4d063",
-            "name": "Counselling for Addiction Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Addiction Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -2206,9 +1215,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "28a0e2e4-d837-4548-b3df-de958f6cae2b",
-            "name": "Counselling checklist for RTI",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for RTI"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -2220,18 +1227,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "5a300ad8-13f3-4d1c-aa2d-6bc36dcb5ff6",
-            "name": "Counselling for Early Pregnancy & RTI Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Early Pregnancy & RTI Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -2251,9 +1247,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "dfa102eb-cb9f-428b-bdfa-f7a63becbf1b",
-            "name": "Counselling checklist for Road Traffic Accident",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for Road Traffic Accident"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -2265,18 +1259,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "a53a6c13-8a84-4be5-958b-e07611426fe0",
-            "name": "Counselling for Road Traffic Accident Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for Road Traffic Accident Done"
           },
           "mandatory": true,
           "displayOrder": 2
@@ -2296,18 +1279,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "5e72e3c7-bb5a-483f-ace3-24e0be31842a",
-            "name": "Have you stopped addiction?",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Have you stopped addiction?"
           },
           "mandatory": true,
           "displayOrder": 1

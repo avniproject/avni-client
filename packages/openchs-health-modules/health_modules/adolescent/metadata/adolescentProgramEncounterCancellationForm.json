@@ -25,30 +25,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "afc5f9db-6c89-40b4-8122-02fb43c9348c",
-            "name": "Reason for cancellation of visit",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Followup visits for other vulnerability have been triggered",
-                "uuid": "9f0b0d40-caba-4f2e-bdf8-e1ca5c32c5d9"
-              },
-              {
-                "name": "Adolescent was not available on the day of visit",
-                "uuid": "0c042d2c-f8b3-4601-b2c7-cd702391e5e7"
-              },
-              {
-                "name": "AHS was on leave",
-                "uuid": "c552a5db-49c3-4bdf-82be-e08849790521"
-              },
-              {
-                "name": "Visit was not possible due to holidays/ exams",
-                "uuid": "62049f19-3f3c-438f-9a17-4e3d85bc2f6b"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
+            "name": "Reason for cancellation of visit"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -58,8 +35,7 @@
           "uuid": "2e2a1adb-d94c-44a5-bfe1-97a1e09dbfb0",
           "concept": {
             "uuid": "86e9677d-a944-4bfd-b873-224229a3a240",
-            "name": "Unspecified Reason for cancellation of visit",
-            "dataType": "Text"
+            "name": "Unspecified Reason for cancellation of visit"
           },
           "displayOrder": 2,
           "mandatory": true

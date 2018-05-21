@@ -20,18 +20,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "c10b6b0b-8223-4a4f-807c-57dc1eb44eef",
-            "name": "Have you enrolled in any government scheme?",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Have you enrolled in any government scheme?"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -89,20 +78,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Pedal Edema",
             "uuid": "b441c480-1a19-4ad0-9d0a-196485aacf12",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-                "abnormal": true
-              },
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              }
-            ]
+            "name": "Pedal Edema"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -113,20 +90,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Pallor",
             "uuid": "226f8715-563b-4a8b-8afa-f75cce2767af",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Present",
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-                "abnormal": true
-              },
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-              }
-            ]
+            "name": "Pallor"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -137,20 +102,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Has she been having convulsions?",
             "uuid": "4236230c-d109-4409-9acf-2925388ebad5",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-                "name": "Present",
-                "abnormal": true
-              },
-              {
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-                "name": "Absent"
-              }
-            ]
+            "name": "Has she been having convulsions?"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -172,25 +125,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Breast Examination - Nipple",
             "uuid": "ed087798-7116-4817-ba84-caa02a23e1b7",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Normal",
-                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
-              },
-              {
-                "name": "Retracted",
-                "uuid": "3273b055-0222-44b6-b0a6-7d45fb4e1b33",
-                "abnormal": true
-              },
-              {
-                "name": "Flat",
-                "uuid": "040e37d2-12ff-465c-8bf2-990358805f11",
-                "abnormal": true
-              }
-            ]
+            "name": "Breast Examination - Nipple"
           },
           "displayOrder": 8,
           "mandatory": false
@@ -208,10 +144,8 @@
           "uuid": "e7a89295-3b62-403d-9690-814488bc0a3d",
           "keyValues": [],
           "concept": {
-            "name": "Fundal Height",
             "uuid": "1e46713d-162d-4657-922d-1f458a3011a5",
-            "dataType": "Numeric",
-            "unit": "week(s)"
+            "name": "Fundal Height"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -221,10 +155,8 @@
           "uuid": "3170cf31-535c-4030-bec1-59229f26d81e",
           "keyValues": [],
           "concept": {
-            "name": "Fundal height from pubic symphysis",
             "uuid": "fefe6bd1-8111-42dc-9be4-056ab0f5fd36",
-            "dataType": "Numeric",
-            "unit": "cms"
+            "name": "Fundal height from pubic symphysis"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -234,10 +166,8 @@
           "uuid": "89136929-82c4-4e5c-a32f-5d00ef1ea4a4",
           "keyValues": [],
           "concept": {
-            "name": "Abdominal girth",
             "uuid": "334c4434-eda2-4119-9005-0139c2f0418e",
-            "dataType": "Numeric",
-            "unit": "cms"
+            "name": "Abdominal girth"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -248,25 +178,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Foetal movements",
             "uuid": "f90bb5df-c7fa-4266-8141-3534f3e47e6c",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-                "abnormal": true
-              },
-              {
-                "name": "Normal",
-                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
-              },
-              {
-                "name": "Reduced",
-                "uuid": "cc933b72-291f-41c3-a5c2-53cfc9966a63",
-                "abnormal": true
-              }
-            ]
+            "name": "Foetal movements"
           },
           "displayOrder": 4,
           "mandatory": false
@@ -277,24 +190,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Foetal Heart Sound",
             "uuid": "b32881ad-45e7-4c16-b072-9d75929e6873",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Present and Regular",
-                "uuid": "45b86f84-aeb9-474d-bef8-df986c0a0927"
-              },
-              {
-                "name": "Present and Irregular",
-                "uuid": "5576ac3f-5492-4956-9934-801f06f1ca13"
-              },
-              {
-                "name": "Absent",
-                "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-                "abnormal": true
-              }
-            ]
+            "name": "Foetal Heart Sound"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -304,10 +201,8 @@
           "uuid": "bcda771b-c8e2-4931-aa8a-13c9d340718c",
           "keyValues": [],
           "concept": {
-            "name": "Foetal Heart Rate",
             "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
-            "dataType": "Numeric",
-            "unit": "bpm"
+            "name": "Foetal Heart Rate"
           },
           "displayOrder": 6,
           "mandatory": false
@@ -325,14 +220,8 @@
           "uuid": "972a7890-4fa9-42c8-b4b8-fe8583c5ae80",
           "keyValues": [],
           "concept": {
-            "name": "Systolic",
             "uuid": "2a04bf88-6346-4eda-a86c-8a2afc011b22",
-            "dataType": "Numeric",
-            "lowAbsolute": 20,
-            "highAbsolute": 190,
-            "lowNormal": 90,
-            "highNormal": 140,
-            "unit": "mm Hg"
+            "name": "Systolic"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -342,14 +231,8 @@
           "uuid": "c253083f-a2f9-4bec-a07f-8883637125db",
           "keyValues": [],
           "concept": {
-            "name": "Diastolic",
             "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
-            "dataType": "Numeric",
-            "lowAbsolute": 10,
-            "highAbsolute": 120,
-            "lowNormal": 50,
-            "highNormal": 90,
-            "unit": "mm Hg"
+            "name": "Diastolic"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -397,9 +280,8 @@
           "uuid": "4854821e-d478-4b95-afed-00b2c233ce41",
           "keyValues": [],
           "concept": {
-            "name": "Blood Examination Date",
             "uuid": "63a1b5f2-f672-444a-b44b-c80819d85040",
-            "dataType": "Date"
+            "name": "Blood Examination Date"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -534,19 +416,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "US Scanning Done",
             "uuid": "35805527-362c-497c-8009-5c353a464192",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "US Scanning Done"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -557,8 +428,7 @@
           "keyValues": [],
           "concept": {
             "uuid": "e390b1b4-d492-4a51-87cf-cb0011465c0e",
-            "name": "USG Scanning Date",
-            "dataType": "Date"
+            "name": "USG Scanning Date"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -570,25 +440,7 @@
           "keyValues": [],
           "concept": {
             "uuid": "ea54eb71-5560-4871-9369-a91b6a064dba",
-            "name": "USG Scanning Report - Number of foetus",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "73431353-137e-4997-92aa-26b3cb79eba7"
-              },
-              {
-                "uuid": "d1e58ac3-1ea7-46a1-8e17-e9f2c6789715",
-                "abnormal": true
-              },
-              {
-                "uuid": "a335e989-3c98-45f6-9659-1178c231cda0",
-                "abnormal": true
-              },
-              {
-                "uuid": "0ba85fd4-4d70-4f03-b449-8dd12e30d690",
-                "abnormal": true
-              }
-            ]
+            "name": "USG Scanning Report - Number of foetus"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -600,21 +452,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "4b65c269-1394-40ce-8c1b-58377e791568",
-            "name": "USG Scanning Report - Liquour",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
-              },
-              {
-                "uuid": "563eb915-f607-48de-86af-3295b6f35bb8",
-                "abnormal": true
-              },
-              {
-                "uuid": "1aef1b55-0c52-4961-a1c9-f35e4c6a6f00",
-                "abnormal": true
-              }
-            ]
+            "name": "USG Scanning Report - Liquour"
           },
           "displayOrder": 4,
           "mandatory": false
@@ -625,18 +463,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "USG Scanning Report - Placenta Previa",
             "uuid": "648e5a59-9919-44d0-829c-6ff27cb355ea",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "d9501d6b-7ae9-4b2f-b1a3-56f7fb1ea241",
-                "abnormal": true
-              },
-              {
-                "uuid": "92454e8f-6ead-42a8-8c8c-114a405c1e39"
-              }
-            ]
+            "name": "USG Scanning Report - Placenta Previa"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -647,25 +475,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Foetal presentation",
             "uuid": "e57a15aa-e335-4b73-a593-e55af1a3bb25",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Cephalic",
-                "uuid": "ab96f92f-6412-43e2-bb20-aabecd3aefad"
-              },
-              {
-                "name": "Breech",
-                "uuid": "d225cac9-f306-49ba-b9d3-3826c92995e6",
-                "abnormal": true
-              },
-              {
-                "name": "Transverse",
-                "uuid": "74f986ee-faa5-40b1-baa8-78732761ce47",
-                "abnormal": true
-              }
-            ]
+            "name": "Foetal presentation"
           },
           "displayOrder": 6,
           "mandatory": false
@@ -683,9 +494,8 @@
           "uuid": "b220398e-6f51-4568-978d-8e632cab00be",
           "keyValues": [],
           "concept": {
-            "name": "TT1 Date",
             "uuid": "f91604a8-89ac-4a99-a3cb-9edd764c8b0e",
-            "dataType": "Date"
+            "name": "TT1 Date"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -695,9 +505,8 @@
           "uuid": "4fa32ede-c17d-4e0e-b8bc-2d5ced4b2dab",
           "keyValues": [],
           "concept": {
-            "name": "TT Booster Date",
             "uuid": "e1b7ce95-8c73-46fa-8354-19a14f5ca17f",
-            "dataType": "Date"
+            "name": "TT Booster Date"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -707,9 +516,8 @@
           "uuid": "6cf6bb59-08bb-4a78-9bfd-d82727f7e2b8",
           "keyValues": [],
           "concept": {
-            "name": "TT2 Date",
             "uuid": "57f66ff5-e050-4a72-ad03-94d99dad4630",
-            "dataType": "Date"
+            "name": "TT2 Date"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -728,10 +536,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Diet Advice Do's",
             "uuid": "98d5f572-2aff-4973-941e-5459fce82f45",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Diet Advice Do's"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -742,10 +548,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Diet Advice Don'ts",
             "uuid": "3f0de760-cb91-428f-928d-164b9c8b0e6c",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Diet Advice Don'ts"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -756,10 +560,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Supplementary nutritional therapy (advice)",
             "uuid": "1307241d-92c2-4660-8ed9-c5da899aa06e",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Supplementary nutritional therapy (advice)"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -778,10 +580,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Rest and sleep (advice)",
             "uuid": "d070cf73-16f3-4fb7-bf4b-94b95ce753a1",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Rest and sleep (advice)"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -792,10 +592,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Immunization Counselling (advice)",
             "uuid": "c210a202-78e4-493f-bcf6-11ed6e79d61c",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Immunization Counselling (advice)"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -806,10 +604,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Coitus/Sex Counselling (advice)",
             "uuid": "22d263c5-033a-487f-b237-2ebf6c8698e4",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Coitus/Sex Counselling (advice)"
           },
           "displayOrder": 3,
           "mandatory": false
@@ -820,10 +616,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Illness management (advice)",
             "uuid": "b5639c14-30a2-43d3-b818-21cd0cc0a2ff",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Illness management (advice)"
           },
           "displayOrder": 4,
           "mandatory": false
@@ -834,10 +628,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Finance management (advice)",
             "uuid": "0dddfa30-74ee-47a4-b212-1918499f4c92",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Finance management (advice)"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -856,10 +648,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Government scheme information (advice)",
             "uuid": "fd8fcbd8-278f-4417-9696-176ff46c3bcc",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Government scheme information (advice)"
           },
           "displayOrder": 1,
           "mandatory": false
@@ -870,10 +660,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Ambulance services information (advice)",
             "uuid": "8b01c973-206a-42a7-9ecb-2471ee51be88",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Ambulance services information (advice)"
           },
           "displayOrder": 2,
           "mandatory": false

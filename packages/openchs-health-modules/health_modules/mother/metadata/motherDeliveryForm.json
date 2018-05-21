@@ -20,35 +20,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Place of delivery",
             "uuid": "a0405799-1e3c-40ef-90ba-84c9c0931660",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Home",
-                "uuid": "bb75a86c-05af-4b05-b699-860737d19e57"
-              },
-              {
-                "name": "Sub Center",
-                "uuid": "fe24e909-6346-4e84-bacc-2ec5ae85bed8"
-              },
-              {
-                "name": "Primary Health Center",
-                "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43"
-              },
-              {
-                "name": "Regional Hospital",
-                "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda"
-              },
-              {
-                "name": "NGO Hospital",
-                "uuid": "cdb94629-a710-43f0-b5ce-3921905f24f2"
-              },
-              {
-                "name": "During Transportation like in Ambulance etc",
-                "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7"
-              }
-            ]
+            "name": "Place of delivery"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -58,9 +31,8 @@
           "uuid": "77791c29-90ec-485a-9cef-298b9b575dd2",
           "keyValues": [],
           "concept": {
-            "name": "Date of discharge",
             "uuid": "b4d6b6b6-fff0-4dda-8f60-aa273ff20250",
-            "dataType": "Date"
+            "name": "Date of discharge"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -69,9 +41,8 @@
           "name": "Date of delivery",
           "uuid": "4ff66c5e-becb-4f0c-bb33-59f5546311f4",
           "concept": {
-            "name": "Date of delivery",
             "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
-            "dataType": "Date"
+            "name": "Date of delivery"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -82,23 +53,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Delivered by",
             "uuid": "58b6367a-825f-43e2-b6b7-b35a5cbc3a09",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2"
-              },
-              {
-                "uuid": "f6947afd-9592-4ac8-808a-4cd5bdc1443e"
-              },
-              {
-                "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27"
-              },
-              {
-                "uuid": "d3f764e5-938a-42dd-bdef-02614d424f8d"
-              }
-            ]
+            "name": "Delivered by"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -117,22 +73,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Type of delivery",
             "uuid": "69d0acf1-c32b-4694-9bc2-874b5e7a44c8",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
-              },
-              {
-                "uuid": "f5192c76-f772-4e84-8fea-16d980de15bc",
-                "abnormal": true
-              },
-              {
-                "uuid": "eeaf9b42-71f7-49d4-80c6-a498619d1645",
-                "abnormal": true
-              }
-            ]
+            "name": "Type of delivery"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -143,22 +85,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Delivery Outcome",
             "uuid": "36b7b1a8-d191-4bbe-ad3c-0e25a48334e0",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "e3999b21-821c-4c6e-9953-156e70b9217c"
-              },
-              {
-                "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
-                "abnormal": true
-              },
-              {
-                "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
-                "abnormal": true
-              }
-            ]
+            "name": "Delivery Outcome"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -169,22 +97,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Number of babies",
             "uuid": "884cd2fb-1e50-4a2e-a9ae-2b90d4a78ede",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "9139d435-2178-46d9-aea9-429597e533b2"
-              },
-              {
-                "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0",
-                "abnormal": true
-              },
-              {
-                "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab",
-                "abnormal": true
-              }
-            ]
+            "name": "Number of babies"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -195,35 +109,8 @@
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
-            "name": "Delivery Complications",
             "uuid": "42fcfd17-4e35-4981-96b3-1d028915d808",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "3654f7c6-e515-4653-8298-50dfb54d2152",
-                "abnormal": true
-              },
-              {
-                "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4",
-                "abnormal": true
-              },
-              {
-                "uuid": "ae847737-5be5-4c55-8abe-db3606c2de6b",
-                "abnormal": true
-              },
-              {
-                "uuid": "3e562cd9-a23c-415b-922d-c4c86d788444",
-                "abnormal": true
-              },
-              {
-                "uuid": "475b4eba-f2ef-4d09-ac27-3913e0b23373",
-                "abnormal": true
-              },
-              {
-                "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
-                "unique": true
-              }
-            ]
+            "name": "Delivery Complications"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -234,20 +121,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Sex of newborn",
             "uuid": "88b8cac0-0522-4ee2-a9e8-e287af00be32",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
-              },
-              {
-                "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
-              },
-              {
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
+            "name": "Sex of newborn"
           },
           "displayOrder": 5,
           "mandatory": true

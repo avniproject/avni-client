@@ -21,21 +21,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "dcfc771a-0785-43be-bcb1-0d2755793e0e",
-            "name": "Have you started going to school once again",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes, started",
-                "uuid": "28e76608-dddd-4914-bd44-3689eccfa5ca"
-              },
-              {
-                "name": "Yes, but could not attend",
-                "uuid": "9715936e-03f2-44da-900f-33588fe95250"
-              },
-              {
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Have you started going to school once again"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -55,9 +41,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "efaa640c-f320-496f-b407-8351148da734",
-            "name": "Counselling checklist for dropout",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for dropout"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -69,18 +53,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "17628553-31d6-46ff-b702-315c9d32a30f",
-            "name": "Counselling for dropout Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for dropout Done"
           },
           "mandatory": true,
           "displayOrder": 2

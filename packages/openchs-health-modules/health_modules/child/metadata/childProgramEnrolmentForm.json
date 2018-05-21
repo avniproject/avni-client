@@ -26,9 +26,8 @@
           "uuid": "0e656272-03c2-41a9-8935-60444909082f",
           "keyValues": [],
           "concept": {
-            "name": "Birth Defects",
             "uuid": "408ce177-eac2-4103-8b5e-3f8bc67bea2b",
-            "dataType": "Text"
+            "name": "Birth Defects"
           },
           "displayOrder": 2,
           "mandatory": false
@@ -39,23 +38,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Registration at",
             "uuid": "7a67c0ed-0cfc-4025-b479-5c14330c9f87",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Birth",
-                "uuid": "46bc3a4b-bc43-42b5-a990-18fdaefa9a8b"
-              },
-              {
-                "name": "In migration",
-                "uuid": "e9e0c7f4-9de8-42c8-901b-c228ea18b92c"
-              },
-              {
-                "name": "Retrospective registration",
-                "uuid": "2c566f57-61c8-41eb-91db-9c8adf011819"
-              }
-            ]
+            "name": "Registration at"
           },
           "displayOrder": 3,
           "mandatory": false

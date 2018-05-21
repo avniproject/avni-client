@@ -16,9 +16,8 @@
           "uuid": "cadad826-0b4c-4474-b256-697b49159111",
           "keyValues": [],
           "concept": {
-            "name": "ANC registration no",
             "uuid": "bf1fb39e-ec62-4110-9942-042a91503457",
-            "dataType": "Text"
+            "name": "ANC registration no"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -37,9 +36,8 @@
             }
           ],
           "concept": {
-            "name": "Last menstrual period",
             "uuid": "1cc6fd5d-1359-483e-a971-4bf36e34a72d",
-            "dataType": "Date"
+            "name": "Last menstrual period"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -63,14 +61,8 @@
           "uuid": "1e3afc0f-4f40-46f5-ab20-0739c30f99cd",
           "keyValues": [],
           "concept": {
-            "name": "Height",
             "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
-            "dataType": "Numeric",
-            "lowAbsolute": 20,
-            "highAbsolute": 300,
-            "lowNormal": 30,
-            "highNormal": 200,
-            "unit": "cm"
+            "name": "Height"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -81,20 +73,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Urine pregnancy test",
             "uuid": "ae076480-008d-47ca-9fab-a5300a626e42",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Positive",
-                "uuid": "479cd95a-54ef-4818-b84a-09b478fc68b8"
-              },
-              {
-                "name": "Negative",
-                "uuid": "ad1f0481-a8ed-411a-ac00-d0435a670269",
-                "abnormal": true
-              }
-            ]
+            "name": "Urine pregnancy test"
           },
           "displayOrder": 5,
           "mandatory": false
@@ -112,11 +92,8 @@
           "uuid": "a21ba591-9f62-44b4-addc-44df0eea168b",
           "keyValues": [],
           "concept": {
-            "name": "Gravida",
             "uuid": "dc2c23e9-19ad-471f-81d1-213069ccc975",
-            "dataType": "Numeric",
-            "lowAbsolute": 1,
-            "highAbsolute": 10
+            "name": "Gravida"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -126,11 +103,8 @@
           "uuid": "8e82a356-22a7-44ae-b28f-2b30fd6f9664",
           "keyValues": [],
           "concept": {
-            "name": "Parity",
             "uuid": "2d679fd5-a75b-46bd-96c2-10c180187342",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 10
+            "name": "Parity"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -150,11 +124,8 @@
           "uuid": "0abd0e1e-484c-48c9-ab3a-ffa14b66c9c5",
           "keyValues": [],
           "concept": {
-            "name": "Number of male children",
             "uuid": "1b749b48-bfae-470d-8219-a735dae99f7a",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 10
+            "name": "Number of male children"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -164,11 +135,8 @@
           "uuid": "8b7b54a0-6f07-40b4-b080-f2023ec2ee2f",
           "keyValues": [],
           "concept": {
-            "name": "Number of female children",
             "uuid": "d924596e-e08e-4829-b4c3-77a0411d18c7",
-            "dataType": "Numeric",
-            "lowAbsolute": 0,
-            "highAbsolute": 10
+            "name": "Number of female children"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -187,9 +155,8 @@
             }
           ],
           "concept": {
-            "name": "Age of youngest child",
             "uuid": "305f693c-c8b6-4e3e-9a82-a6e91a3e462f",
-            "dataType": "Date"
+            "name": "Age of youngest child"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -246,18 +213,8 @@
           "uuid": "72d82a0a-162a-461f-a0c3-bb317412f35b",
           "type": "SingleSelect",
           "concept": {
-            "name": "Infertility treatment",
             "uuid": "79e2f5b7-f8c7-4f12-aec9-7e3d3382cf1a",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Infertility treatment"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -267,18 +224,8 @@
           "uuid": "3f4c9772-02d8-4632-9ba9-0c7de065e340",
           "type": "SingleSelect",
           "concept": {
-            "name": "Malaria in the past 6 months?",
             "uuid": "d9d0e39f-7dad-41fd-84a5-d1e988584ca7",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-                "abnormal": true
-              },
-              {
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Malaria in the past 6 months?"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -287,9 +234,8 @@
           "name": "Other notes",
           "uuid": "06458e0b-9b1c-45a0-9d29-eac854953bd1",
           "concept": {
-            "name": "Other obstetrics history notes",
             "uuid": "3491cdc9-20a0-4ea4-b6ce-8a1c8ded8183",
-            "dataType": "Text"
+            "name": "Other obstetrics history notes"
           },
           "displayOrder": 3,
           "mandatory": false

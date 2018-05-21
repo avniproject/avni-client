@@ -19,9 +19,8 @@
           "uuid": "7dda44bc-4700-4f0b-b51e-6b76617a6ac8",
           "keyValues": [],
           "concept": {
-            "name": "When did you leave school",
             "uuid": "c41ff8c3-1f33-4512-a5cd-e9b01d92913f",
-            "dataType": "Date"
+            "name": "When did you leave school"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -32,39 +31,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Dropped out of which standard",
             "uuid": "32005c85-c1de-4fc3-9314-6d6a10f34b57",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "6",
-                "uuid": "e9ce8718-ef32-4870-b3cb-b5e733fc115a"
-              },
-              {
-                "name": "7",
-                "uuid": "aafae271-765c-4347-be3b-3fc1e00e63a1"
-              },
-              {
-                "name": "8",
-                "uuid": "d7443a73-80b7-4320-9c45-6558595be70a"
-              },
-              {
-                "name": "9",
-                "uuid": "29d29318-6b0c-4a2b-85e3-5392bd5a668f"
-              },
-              {
-                "name": "10",
-                "uuid": "7f0e1fbd-a1b9-4121-b630-dfec36a2dfd0"
-              },
-              {
-                "name": "11",
-                "uuid": "72165544-dcef-4322-a07d-242a6e7771e0"
-              },
-              {
-                "name": "12",
-                "uuid": "9b141130-a1c7-4e3b-bc95-5b9b157f7160"
-              }
-            ]
+            "name": "Dropped out of which standard"
           },
           "displayOrder": 2,
           "mandatory": true
@@ -76,55 +44,7 @@
           "type": "MultiSelect",
           "concept": {
             "uuid": "c9aceef5-fb03-49ed-a455-bfa603dddb28",
-            "name": "Reason for dropping as per student / parent",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "384bdb12-0761-414e-8459-962aed124ead"
-              },
-              {
-                "uuid": "0e84adb9-f99a-408d-9a40-44a5d00866a1"
-              },
-              {
-                "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
-              },
-              {
-                "uuid": "104c7ffb-fb43-45a0-876b-77fba9ee7759"
-              },
-              {
-                "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c"
-              },
-              {
-                "uuid": "af10b937-e9f2-4b9b-8cfe-1d59bc0b21f6"
-              },
-              {
-                "uuid": "cd551661-1456-46bc-9855-7548e62c40f6"
-              },
-              {
-                "uuid": "b0b6ec77-c8fc-4cd8-8ad0-561cfb73b56b",
-                "name": "School study completed"
-              },
-              {
-                "uuid": "7b9d722b-32d2-4ffc-91c5-7d8b6ab84424",
-                "name": "Is afraid of teacher"
-              },
-              {
-                "uuid": "77418606-39c4-4f38-a6c7-0f8bd2d0a791",
-                "name": "Cannot read or write"
-              },
-              {
-                "uuid": "6bd0bedb-ef6e-4dc3-a053-a6c1b9478f05",
-                "name": "Name taken off from school"
-              },
-              {
-                "uuid": "0af52988-1f51-43f6-ad63-d6fb8b0ab36f",
-                "name": "Failed in exam"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
+            "name": "Reason for dropping as per student / parent"
           },
           "displayOrder": 3,
           "mandatory": true
@@ -133,9 +53,8 @@
           "name": "Other reason according to student/parent",
           "uuid": "711fb359-354d-4475-9e28-3a1c6d2fe0a9",
           "concept": {
-            "name": "Other reason according to student/parent",
             "uuid": "2a61f823-241b-4c09-be98-26cd1db49d7b",
-            "dataType": "Text"
+            "name": "Other reason according to student/parent"
           },
           "mandatory": true,
           "displayOrder": 4
@@ -147,42 +66,7 @@
           "type": "MultiSelect",
           "concept": {
             "uuid": "5972d90a-bc65-4801-8658-db746b146444",
-            "name": "Reason for dropping as per teacher",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Not interested in studies",
-                "uuid": "384bdb12-0761-414e-8459-962aed124ead"
-              },
-              {
-                "name": "Poor economic condition",
-                "uuid": "0e84adb9-f99a-408d-9a40-44a5d00866a1"
-              },
-              {
-                "name": "Domestic work",
-                "uuid": "5c9520f7-85e3-4859-91c0-5c378821e389"
-              },
-              {
-                "uuid": "b0b6ec77-c8fc-4cd8-8ad0-561cfb73b56b",
-                "name": "School study completed"
-              },
-              {
-                "uuid": "7b9d722b-32d2-4ffc-91c5-7d8b6ab84424",
-                "name": "Is afraid of teacher"
-              },
-              {
-                "uuid": "77418606-39c4-4f38-a6c7-0f8bd2d0a791",
-                "name": "Cannot read or write"
-              },
-              {
-                "uuid": "6bd0bedb-ef6e-4dc3-a053-a6c1b9478f05",
-                "name": "Name taken off from school"
-              },
-              {
-                "name": "Other",
-                "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
-              }
-            ]
+            "name": "Reason for dropping as per teacher"
           },
           "displayOrder": 5,
           "mandatory": true
@@ -191,9 +75,8 @@
           "name": "Other reason according to teacher",
           "uuid": "db04ee46-86a2-4e8d-84af-f612eff15895",
           "concept": {
-            "name": "Other reason according to teacher",
             "uuid": "0cf89f36-ce0d-4b2e-b978-d6988375cc2b",
-            "dataType": "Text"
+            "name": "Other reason according to teacher"
           },
           "mandatory": true,
           "displayOrder": 6
@@ -213,9 +96,8 @@
           "name": "Other activity (please specify)",
           "uuid": "92f8be44-582a-4af8-8ba4-48327046ddf9",
           "concept": {
-            "name": "Other activity",
             "uuid": "3a3f2078-ea0c-4dc0-ae4f-0777b95e8248",
-            "dataType": "Text"
+            "name": "Other activity"
           },
           "mandatory": true,
           "displayOrder": 8
@@ -227,26 +109,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "b76236df-a70a-4157-92ea-68c24ad21f4c",
-            "name": "How is the economic condition of family",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Good",
-                "uuid": "5361a2f5-f249-4a20-9da9-4f357e21db1e"
-              },
-              {
-                "name": "Average",
-                "uuid": "c8ab4338-17c4-49d0-ab9a-548594d6c74f"
-              },
-              {
-                "name": "Poor",
-                "uuid": "b0597438-4262-4fa7-9d43-12df90963559"
-              },
-              {
-                "uuid": "40d23e03-786e-4ff3-a380-e9005a8f0a62",
-                "name": "Very Poor"
-              }
-            ]
+            "name": "How is the economic condition of family"
           },
           "displayOrder": 9,
           "mandatory": true
@@ -258,16 +121,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "4c7d5f3e-8284-4207-8d7f-9ef7727eb811",
-            "name": "Are you ready for re-admission to school",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Are you ready for re-admission to school"
           },
           "displayOrder": 10,
           "mandatory": true
@@ -279,9 +133,8 @@
           "mandatory": true,
           "displayOrder": 11,
           "concept": {
-            "name": "Name of school",
             "uuid": "bdb1eb17-a803-40e3-947d-d812d5def18d",
-            "dataType": "Text"
+            "name": "Name of school"
           }
         }
       ]
@@ -299,9 +152,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "efaa640c-f320-496f-b407-8351148da734",
-            "name": "Counselling checklist for dropout",
-            "dataType": "Coded",
-            "answers": []
+            "name": "Counselling checklist for dropout"
           },
           "mandatory": false,
           "displayOrder": 1
@@ -313,18 +164,7 @@
           "type": "SingleSelect",
           "concept": {
             "uuid": "17628553-31d6-46ff-b702-315c9d32a30f",
-            "name": "Counselling for dropout Done",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Yes",
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "No",
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-              }
-            ]
+            "name": "Counselling for dropout Done"
           },
           "mandatory": true,
           "displayOrder": 2

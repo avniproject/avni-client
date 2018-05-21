@@ -17,19 +17,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "School going",
             "uuid": "575a29c3-a070-4c7d-ac96-fe58b6bddca3",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "name": "Dropped Out",
-                "uuid": "58f789aa-6570-4aea-87a7-1f7651729c5a",
-                "abnormal": true
-              }
-            ]
+            "name": "School going"
           },
           "displayOrder": 1,
           "mandatory": true

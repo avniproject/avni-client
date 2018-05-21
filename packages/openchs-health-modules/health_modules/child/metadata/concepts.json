@@ -239,5 +239,228 @@
     "name": "Umbilical cord is infected",
     "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077",
     "dataType": "NA"
+  },
+  {
+    "name": "Child exit reason",
+    "uuid": "be1239e9-bab3-4fa8-aa8e-1af7e10e18c7",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Shifted to other geographical area",
+        "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6"
+      },
+      {
+        "name": "Death",
+        "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83"
+      },
+      {
+        "name": "Completion",
+        "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
+      }
+    ]
+  },
+  {
+    "name": "Death place",
+    "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
+    "dataType": "Text"
+  },
+  {
+    "name": "Is child having any of the following",
+    "uuid": "9f5d3794-cf4c-47a3-bc65-7e47f55ec7fd",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Feels cold",
+        "uuid": "4b60f89e-f0a6-456f-af8a-5ec358d94986"
+      },
+      {
+        "name": "Not passing urine",
+        "uuid": "5d6f59a8-1334-419a-af6e-b88059d8238a"
+      },
+      {
+        "name": "Blood in stools",
+        "uuid": "ced8bcd4-642e-4e45-9af8-f9f9cf9c7b1f"
+      },
+      {
+        "name": "Cries Continuously",
+        "uuid": "0cd1ca5a-8a93-4edd-b7de-ace0f45d504a"
+      },
+      {
+        "name": "Looks blue",
+        "uuid": "d2b96a9c-4b87-42a8-a750-f31ab10fbf80"
+      },
+      {
+        "name": "Not passing stool",
+        "uuid": "ee8d6899-02c6-48a6-a4b7-2f84d61ac6d7"
+      },
+      {
+        "name": "Diarrhea",
+        "uuid": "eaacc06f-a678-4588-a864-a1a21da2286e"
+      },
+      {
+        "name": "Vomiting",
+        "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4"
+      },
+      {
+        "name": "Does not feed well",
+        "uuid": "56157f43-d681-4fcd-a414-171dee9af787"
+      },
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      }
+    ]
+  },
+  {
+    "name": "Number of days of diarrhea",
+    "uuid": "0b71db57-0add-4215-b198-0e9773d7da31",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Any activity problems",
+    "uuid": "16dd616a-4fc9-4fcc-8f24-4123a6dcfa21",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Slow activity / lethargic",
+        "uuid": "23884265-d78e-4159-8e04-dc9de88b1a4f"
+      },
+      {
+        "name": "Does not feed well",
+        "uuid": "56157f43-d681-4fcd-a414-171dee9af787"
+      },
+      {
+        "name": "Convulsions",
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8"
+      },
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      }
+    ]
+  },
+  {
+    "name": "Does child feel hot or have the chills",
+    "uuid": "1ef3c052-2437-4adc-ae05-e155bc62c207",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      },
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      }
+    ]
+  },
+  {
+    "name": "Is baby exclusively breastfeeding",
+    "uuid": "5a3b65c1-1647-47d0-ad66-d8b22722c472",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      },
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      }
+    ]
+  },
+  {
+    "name": "Any breathing problems",
+    "uuid": "17d5ed6e-b571-4e02-bebe-0c9db2c8f5ca",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Rib indrawing",
+        "uuid": "4ac39842-039b-45de-a50d-7b31e51c9850"
+      },
+      {
+        "name": "Breathing too fast",
+        "uuid": "2a68f048-bb8c-404f-9a51-7b2d46806d1f"
+      },
+      {
+        "name": "Breathing too slow",
+        "uuid": "e0422b25-f656-4e97-92ab-2db9aef28e8c"
+      },
+      {
+        "name": "Grunting noises while breathing",
+        "uuid": "5414e490-3bdd-4551-81d1-0ce69cb7580d"
+      },
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      }
+    ]
+  },
+  {
+    "name": "Any skin problems",
+    "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+      },
+      {
+        "name": "Umbilical cord is infected",
+        "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077"
+      },
+      {
+        "name": "Jaundice",
+        "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104"
+      },
+      {
+        "name": "Skin blisters",
+        "uuid": "fdfbfbc8-0a77-4ade-9a26-4203e23c3f82"
+      }
+    ]
+  },
+  {
+    "name": "Height",
+    "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
+    "dataType": "Numeric",
+    "lowAbsolute": 20,
+    "highAbsolute": 300,
+    "lowNormal": 30,
+    "highNormal": 200,
+    "unit": "cm"
+  },
+  {
+    "name": "Weight",
+    "uuid": "75b1656e-2777-4753-9612-ce03a766a5e1",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "highAbsolute": 300,
+    "lowNormal": 1,
+    "highNormal": 100,
+    "unit": "kg"
+  },
+  {
+    "name": "Birth Defects",
+    "uuid": "408ce177-eac2-4103-8b5e-3f8bc67bea2b",
+    "dataType": "Text"
+  },
+  {
+    "name": "Registration at",
+    "uuid": "7a67c0ed-0cfc-4025-b479-5c14330c9f87",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Birth",
+        "uuid": "46bc3a4b-bc43-42b5-a990-18fdaefa9a8b"
+      },
+      {
+        "name": "In migration",
+        "uuid": "e9e0c7f4-9de8-42c8-901b-c228ea18b92c"
+      },
+      {
+        "name": "Retrospective registration",
+        "uuid": "2c566f57-61c8-41eb-91db-9c8adf011819"
+      }
+    ]
   }
 ]

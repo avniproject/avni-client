@@ -17,29 +17,8 @@
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
-            "name": "Mother exit reason",
             "uuid": "5a2fca73-f3b6-4b7a-bc04-5fd8f5993fa1",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "name": "Completion",
-                "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
-              },
-              {
-                "name": "Death",
-                "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
-                "abnormal": true
-              },
-              {
-                "name": "Abortion",
-                "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
-                "abnormal": true
-              },
-              {
-                "name": "Shifted to other geographical area",
-                "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6"
-              }
-            ]
+            "name": "Mother exit reason"
           },
           "displayOrder": 1,
           "mandatory": true
@@ -59,9 +38,8 @@
           "uuid": "1ca19a30-1b67-4dd3-9994-c2048813aeff",
           "keyValues": [],
           "concept": {
-            "name": "Death place",
             "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
-            "dataType": "Text"
+            "name": "Death place"
           },
           "displayOrder": 3,
           "mandatory": false

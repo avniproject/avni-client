@@ -19,9 +19,8 @@
           "uuid": "5a6fe3f7-aab2-45c1-8d54-38ddc47d8b89",
           "type": "SingleSelect",
           "concept": {
-            "name": "Child's Father name",
             "uuid": "0323db68-da22-4c99-b578-99ea2949d5a5",
-            "dataType": "Text"
+            "name": "Child's Father name"
           },
           "displayOrder": 1
         },
@@ -30,9 +29,8 @@
           "uuid": "303d6411-e393-4b4a-b5a6-79c75a4d33e1",
           "type": "SingleSelect",
           "concept": {
-            "name": "Child's Surname",
             "uuid": "da18df86-cabb-489f-8032-8199a350c6da",
-            "dataType": "Text"
+            "name": "Child's Surname"
           },
           "displayOrder": 2
         },
@@ -50,9 +48,8 @@
           "name": "Date of delivery",
           "uuid": "4f3017e8-baf9-4b41-b1fb-02bac76b7bfa",
           "concept": {
-            "name": "Date of delivery",
             "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
-            "dataType": "Date"
+            "name": "Date of delivery"
           },
           "displayOrder": 4,
           "mandatory": true
@@ -71,18 +68,8 @@
           "uuid": "ee2966d4-035c-4282-9314-a4453f260f28",
           "type": "SingleSelect",
           "concept": {
-            "name": "Cried soon after birth",
             "uuid": "e3158f7c-6349-4e96-8e63-6223f8444500",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-                "abnormal": true
-              }
-            ]
+            "name": "Cried soon after birth"
           },
           "displayOrder": 6,
           "mandatory": true
@@ -92,18 +79,8 @@
           "uuid": "c11bc3cd-7b58-49ba-b085-040378958a57",
           "type": "SingleSelect",
           "concept": {
-            "name": "Breast feeding within 1 hour of birth",
             "uuid": "ae2b1a14-4c76-415c-8520-656f57bcb48d",
-            "dataType": "Coded",
-            "answers": [
-              {
-                "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-              },
-              {
-                "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-                "abnormal": true
-              }
-            ]
+            "name": "Breast feeding within 1 hour of birth"
           },
           "displayOrder": 7,
           "mandatory": true
@@ -112,10 +89,8 @@
           "name": "When did breast feeding start?",
           "uuid": "8977ed9d-ef91-4c97-8cc1-2515c827eff1",
           "concept": {
-            "name": "Breast feeding started",
             "uuid": "05a76d7c-aa02-4023-9d98-639c36a269a7",
-            "dataType": "Numeric",
-            "unit": "Day(s)"
+            "name": "Breast feeding started"
           },
           "displayOrder": 8,
           "mandatory": true
