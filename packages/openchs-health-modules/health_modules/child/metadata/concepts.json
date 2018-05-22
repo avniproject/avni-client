@@ -241,7 +241,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Child exit reason",
+    "name": "Reason for child exit",
     "uuid": "be1239e9-bab3-4fa8-aa8e-1af7e10e18c7",
     "dataType": "Coded",
     "answers": [
@@ -260,7 +260,7 @@
     ]
   },
   {
-    "name": "Death place",
+    "name": "Place of child's death",
     "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
     "dataType": "Text"
   },
@@ -462,5 +462,15 @@
         "uuid": "2c566f57-61c8-41eb-91db-9c8adf011819"
       }
     ]
+  },
+  {
+    "name": "Cause of child's death",
+    "uuid": "bf818a3e-6290-4e3f-922e-25e70d0a99f3",
+    "dataType": "Text"
+  },
+  {
+    "name": "Date of child's death",
+    "uuid": "ea699728-9f5e-4a63-9e4d-352dbee5969b",
+    "dataType": "Date"
   }
 ]

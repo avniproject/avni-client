@@ -12,15 +12,26 @@
       "display": "Basic Details",
       "formElements": [
         {
-          "name": "Child exit reason",
+          "name": "Reason for exit",
           "uuid": "443462ad-4de0-4d6f-bfbc-bc8c1404b131",
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
             "uuid": "be1239e9-bab3-4fa8-aa8e-1af7e10e18c7",
-            "name": "Child exit reason"
+            "name": "Reason for child exit"
           },
           "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Date of Death",
+          "uuid": "4f566336-c5cd-4353-9213-faa4411d5b2d",
+          "keyValues": [],
+          "concept": {
+            "uuid": "ea699728-9f5e-4a63-9e4d-352dbee5969b",
+            "name": "Date of child's death"
+          },
+          "displayOrder": 2,
           "mandatory": true
         },
         {
@@ -28,20 +39,21 @@
           "uuid": "f6efd6e9-ea2d-4a8f-baeb-6fe12a86f7d8",
           "keyValues": [],
           "concept": {
-            "uuid": "4876f1ce-28f0-4788-8d22-d8a3db617fd2"
+            "uuid": "bf818a3e-6290-4e3f-922e-25e70d0a99f3",
+            "name": "Cause of child's death"
           },
-          "displayOrder": 2,
-          "mandatory": false
+          "displayOrder": 3,
+          "mandatory": true
         },
         {
-          "name": "Death place",
+          "name": "Place of Death",
           "uuid": "83e6cb7b-5f2d-4c5b-a9d1-0be071d6e956",
           "keyValues": [],
           "concept": {
             "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
-            "name": "Death place"
+            "name": "Place of child's death"
           },
-          "displayOrder": 3,
+          "displayOrder": 4,
           "mandatory": false
         }
       ]
