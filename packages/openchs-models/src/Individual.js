@@ -34,8 +34,8 @@ class Individual extends BaseEntity {
     static validationKeys = {
         DOB: 'DOB',
         GENDER: 'GENDER',
-        FIRST_NAME: 'NAME',
-        LAST_NAME: 'NAME',
+        FIRST_NAME: 'FIRST_NAME',
+        LAST_NAME: 'LAST_NAME',
         REGISTRATION_DATE: 'REGISTRATION_DATE',
         LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
     };
