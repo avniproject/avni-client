@@ -2479,13 +2479,9 @@
         "abnormal": true
       },
       {
-        "name": "Abortion",
-        "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
+        "name": "Migration",
+        "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c",
         "abnormal": true
-      },
-      {
-        "name": "Shifted to other geographical area",
-        "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6"
       }
     ]
   },
@@ -3414,5 +3410,20 @@
         "unique": true
       }
     ]
+  },
+  {
+    "uuid": "8cb6e1ec-37cf-4563-8ce9-30b943664182",
+    "name": "Date of Death",
+    "dataType": "Date"
+  },
+  {
+    "name": "Death occured after how many days",
+    "uuid": "a04f8cb5-67f9-46c1-96d3-b34667984826",
+    "dataType": "Numeric"
+  },
+  {
+    "uuid": "43e14217-4bbd-4572-8c12-ba46e779fabc",
+    "name": "Cause of Mother's Death",
+    "dataType": "Text"
   }
 ]
