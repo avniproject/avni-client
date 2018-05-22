@@ -150,6 +150,10 @@
 
   "userId": "वापरकर्ता ID",
   "password": "पासवर्ड",
-  "syncRequired": "समक्रमण आवश्यक"
+  "syncRequired": "समक्रमण आवश्यक",
+  "enterDate": "दिनांक भरा",
+  "enterDuration": "कालावधी भरा",
+  "or": "किंवा"
+
 }
 

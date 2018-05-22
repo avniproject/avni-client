@@ -183,5 +183,7 @@
   "overdue": "મુદતવીતી",
   "completedVisits": "પૂર્ણ",
   "highRisk": "જોખમ",
-  "patientCountForVisitType": "{{visitType}} મુલાકાતોવાળા દર્દીઓ: {{count}}"
+  "patientCountForVisitType": "{{visitType}} મુલાકાતોવાળા દર્દીઓ: {{count}}",
+  "enterDate": "તારીખ દાખલ કરો",
+  "enterDuration": "સમયગાળો દાખલ કરો"
 }
