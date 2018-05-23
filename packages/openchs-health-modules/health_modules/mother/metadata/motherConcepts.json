@@ -2557,11 +2557,13 @@
     "answers": [
       {
         "name": "Spontaneous",
-        "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5"
+        "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5",
+        "abnormal": true
       },
       {
         "name": "Induced",
-        "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0"
+        "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
+        "abnormal": true
       }
     ]
   },
@@ -2576,7 +2578,8 @@
       },
       {
         "name": "Home",
-        "uuid": "bb75a86c-05af-4b05-b699-860737d19e57"
+        "uuid": "bb75a86c-05af-4b05-b699-860737d19e57",
+        "abnormal": true
       }
     ]
   },
@@ -3425,6 +3428,51 @@
   {
     "uuid": "43e14217-4bbd-4572-8c12-ba46e779fabc",
     "name": "Cause of Mother's Death",
+    "dataType": "Text"
+  },
+  {
+    "uuid": "6912e863-ba7c-438e-83d9-b73fc4878b92",
+    "name": "Period of gestation in weeks at the time of abortion",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Per vaginal bleeding",
+    "uuid": "6471787c-fd94-4231-8d22-90b53bd28788"
+  },
+  {
+    "name": "Abortion complaints",
+    "uuid": "fc1346b0-57fe-4a84-8d95-f4461d60176f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Abdominal pain",
+        "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c",
+        "abnormal": true
+      },
+      {
+        "name": "Per vaginal bleeding",
+        "uuid": "6471787c-fd94-4231-8d22-90b53bd28788",
+        "abnormal": true
+      },
+      {
+        "name": "Fever",
+        "uuid": "0b7f3334-f81e-4d84-a13d-b35011e34456",
+        "abnormal": true
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "name": "Other",
+        "abnormal": true
+      },
+      {
+        "name": "None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+      }
+    ]
+  },
+  {
+    "uuid": "a7d52633-56ff-486d-b451-b119d74a7760",
+    "name": "Other abortion complaints",
     "dataType": "Text"
   }
 ]

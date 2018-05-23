@@ -1,8 +1,10 @@
 import * as programDecision from './motherProgramDecision';
 import {getDecisions as pncEncounterDecisions} from './pncEncounterDecision';
+import {getDecisions as abortionEncounterDecisions} from "./abortionEncounterDecisions";
 import C from '../common';
 import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
+import AbortionFormhandler from "./formFilters/AbortionFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
 import ChildDeliveryFormHandler from "./formFilters/childDeliveryFormHandler";
@@ -39,6 +41,10 @@ function InvestigationAdviceBuilder() {
 }
 
 export function getDecisions(programEncounter, today) {
+    if ( programEncounter.encounterType.name === 'Abortion') {
+        return abortionEncounterDecisions(programEncounter)
+    }
+
     if (programEncounter.encounterType.name === 'PNC') {
         return pncEncounterDecisions(programEncounter);
     }
@@ -274,7 +280,8 @@ export function getNextScheduledVisits(programEncounter, config, today) {
 const encounterTypeHandlerMap = new Map([
     ['ANC', new ANCFormhandler()],
     ['Delivery', new DeliveryFormHandler()],
-    ['Child Delivery', new ChildDeliveryFormHandler()]
+    ['Child Delivery', new ChildDeliveryFormHandler()],
+    ['Abortion', new AbortionFormhandler()]
 ]);
 
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {

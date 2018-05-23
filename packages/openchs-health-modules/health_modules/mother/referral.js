@@ -137,6 +137,16 @@ const referralAdvice = (enrolment, encounter, today = new Date()) => {
     referralAdvice.addComplication("Not Breast-fed within 1 hour of birth")
         .when.valueInEncounter("Breast feeding within 1 hour of birth").containsAnswerConceptName("No");
 
+    referralAdvice.addComplication("Abdominal pain")
+        .when.valueInEncounter("Complaint").containsAnswerConceptName("Abdominal pain");
+
+    referralAdvice.addComplication("Per vaginal bleeding")
+        .when.valueInEncounter("Complaint").containsAnswerConceptName("Per vaginal bleeding");
+
+    referralAdvice.addComplication("Fever")
+        .when.valueInEncounter("Complaint").containsAnswerConceptName("Fever")
+        .and.valueInEncounter("Place of abortion").containsAnswerConceptName("Home");
+
     return referralAdvice.getComplications();
 };
 
