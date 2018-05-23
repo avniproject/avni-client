@@ -1083,5 +1083,10 @@
     "name": "Total Cholesterol",
     "uuid": "d2540581-510b-4604-98a8-3a539cb5daf4",
     "dataType": "Numeric"
+  },
+  {
+    "name": "Migration",
+    "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c",
+    "dataType": "NA"
   }
 ]
