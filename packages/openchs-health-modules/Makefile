@@ -59,34 +59,59 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo "-----------------"
 
 	$(call upload,concepts,@health_modules/commonConcepts.json)
+	@echo
 
 	$(call upload,concepts,@health_modules/outpatient/metadata/concepts.json)
+	@echo
 	$(call upload,forms,@health_modules/outpatient/metadata/encounterForm.json)
+	@echo
 
 	$(call upload,concepts,@health_modules/mother/metadata/motherConcepts.json)
+	@echo
 	$(call upload,programs,@health_modules/mother/metadata/motherProgram.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherProgramEnrolmentForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherANCForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherDeliveryForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherAbortionForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherPNCForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherProgramExitForm.json)
+	@echo
 
 	$(call upload,concepts,@health_modules/child/metadata/concepts.json)
+	@echo
 	$(call upload,programs,@health_modules/child/metadata/childProgram.json)
+	@echo
 	$(call upload,forms,@health_modules/child/metadata/childProgramEnrolmentForm.json)
+	@echo
 	$(call upload,forms,@health_modules/child/metadata/childDefaultProgramEncounterForm.json)
+	@echo
 	$(call upload,forms,@health_modules/child/metadata/childProgramExitForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/childDeliveryForm.json)
+	@echo
 
 	$(call upload,programs,@health_modules/adolescent/metadata/adolescentProgram.json)
+	@echo
 	$(call upload,concepts,@health_modules/adolescent/metadata/adolescentConcepts.json)
+	@echo
 	$(call upload,forms,@health_modules/adolescent/metadata/adolescentEnrolment.json)
+	@echo
 	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramExitForm.json)
+	@echo
 	$(call upload,forms,@health_modules/adolescent/metadata/adolescentRoutineVisit.json)
+	@echo
 	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutForm.json)
+	@echo
 	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutFollowupForm.json)
+	@echo
 	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramEncounterCancellationForm.json)
+	@echo
 
 	date
 

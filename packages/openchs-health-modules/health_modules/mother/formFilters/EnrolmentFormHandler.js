@@ -75,4 +75,18 @@ export default class EnrolmentFormHandler {
             formElement: formElement
         });
     }
+
+    _showIfMotherDead(programEnrolment, formElement) {
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);        
+        statusBuilder.show().when.valueInExit("Mother exit reason").containsAnyAnswerConceptName('Death');
+        return statusBuilder.build();
+    }
+
+    causeOfDeath = this._showIfMotherDead
+
+    dateOfDeath = this._showIfMotherDead
+
+    placeOfDeath = this._showIfMotherDead
+
+    deathOccuredAfterHowManyDaysOfDelivery = this._showIfMotherDead
 }
