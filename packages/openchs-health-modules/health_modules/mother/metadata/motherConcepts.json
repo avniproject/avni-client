@@ -2270,7 +2270,8 @@
     "name": "Birth Weight",
     "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14",
     "unit": "kg",
-    "dataType": "Numeric"
+    "dataType": "Numeric",
+    "lowNormal": 2.0
   },
   {
     "name": "Child Temperature",
