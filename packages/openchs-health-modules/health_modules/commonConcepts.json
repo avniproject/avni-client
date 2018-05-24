@@ -1090,23 +1090,137 @@
     "dataType": "NA"
   },
   {
-    "name":"Reproductive tract infection (RTI)",
+    "name": "Reproductive tract infection (RTI)",
     "uuid": "86801543-4a90-4f60-bff4-494ea06a2f0b",
     "dataType": "NA"
   },
   {
-    "name":"Sexually transmitted infection (STI)",
+    "name": "Sexually transmitted infection (STI)",
     "uuid": "c0276bed-a617-4516-a3c3-6c0649300062",
     "dataType": "NA"
   },
   {
-    "name":"Malaria in last one year",
+    "name": "Malaria in last one year",
     "uuid": "1c2be086-93b3-421b-88b1-e7cacf5e00fb",
     "dataType": "NA"
   },
   {
     "name": "Father/Husband",
     "uuid": "4edb709d-a0ad-44fd-9132-2884054cd114",
+    "dataType": "Text"
+  },
+  {
+    "name": "Is mother the primary caregiver",
+    "uuid": "47dec150-90f5-4db4-9ff5-6e96472176d7",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
+  },
+  {
+    "name": "Ground",
+    "uuid": "91e6a6af-2b68-455c-8608-29fa5169860a",
+    "dataType": "NA"
+  },
+  {
+    "name": "First",
+    "uuid": "1c6f143b-3361-482d-a30b-d458b9e8114d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Second",
+    "uuid": "bfdc6f85-f263-4968-b947-42fda5f98464",
+    "dataType": "NA"
+  },
+  {
+    "name": "Third",
+    "uuid": "0c001c12-1dc8-4f62-8130-430f6a396c24",
+    "dataType": "NA"
+  },
+  {
+    "name": "Forth",
+    "uuid": "ed73694b-9aad-4a58-bc59-905b3e946177",
+    "dataType": "NA"
+  },
+  {
+    "name": "Fifth",
+    "uuid": "d5e0617c-bb7e-4876-b1fb-3c909cbe63d8",
+    "dataType": "NA"
+  },
+  {
+    "name": "Sixth",
+    "uuid": "fdcb3459-f850-4e88-8f67-ea16fe51fedc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Seventh",
+    "uuid": "a4f2ee4e-b2c2-46f9-85a1-e72f7401b250",
+    "dataType": "NA"
+  },
+  {
+    "name": "Floor",
+    "uuid": "dd5b53f1-7508-4be8-aec2-ef782946e0f2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Ground",
+        "uuid": "91e6a6af-2b68-455c-8608-29fa5169860a"
+      },
+      {
+        "name": "First",
+        "uuid": "1c6f143b-3361-482d-a30b-d458b9e8114d"
+      },
+      {
+        "name": "Second",
+        "uuid": "bfdc6f85-f263-4968-b947-42fda5f98464"
+      },
+      {
+        "name": "Third",
+        "uuid": "0c001c12-1dc8-4f62-8130-430f6a396c24"
+      },
+      {
+        "name": "Forth",
+        "uuid": "ed73694b-9aad-4a58-bc59-905b3e946177"
+      },
+      {
+        "name": "Fifth",
+        "uuid": "d5e0617c-bb7e-4876-b1fb-3c909cbe63d8"
+      },
+      {
+        "name": "Sixth",
+        "uuid": "fdcb3459-f850-4e88-8f67-ea16fe51fedc"
+      },
+      {
+        "name": "Seventh",
+        "uuid": "a4f2ee4e-b2c2-46f9-85a1-e72f7401b250"
+      }
+    ]
+  },
+  {
+    "name": "Household number",
+    "uuid": "24dabc3a-6562-4521-bd42-5fff11ea5c46",
+    "dataType": "Text"
+  },
+  {
+    "name": "Room number",
+    "uuid": "f374fc29-52f5-42cb-964e-b9af65a1d618",
+    "dataType": "Text"
+  },
+  {
+    "name": "Street",
+    "uuid": "07cf0ae9-9738-418f-b1bd-bf69ebd20e3c",
+    "dataType": "Text"
+  },
+  {
+    "name": "Alternative contact number",
+    "uuid": "928b4521-98d0-4cb3-a38e-42a775bf814e",
     "dataType": "Text"
   }
 ]
