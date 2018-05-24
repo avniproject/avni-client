@@ -1088,5 +1088,25 @@
     "name": "Migration",
     "uuid": "229fac5f-468e-46f0-b812-bdcc56840b6c",
     "dataType": "NA"
+  },
+  {
+    "name":"Reproductive tract infection (RTI)",
+    "uuid": "86801543-4a90-4f60-bff4-494ea06a2f0b",
+    "dataType": "NA"
+  },
+  {
+    "name":"Sexually transmitted infection (STI)",
+    "uuid": "c0276bed-a617-4516-a3c3-6c0649300062",
+    "dataType": "NA"
+  },
+  {
+    "name":"Malaria in last one year",
+    "uuid": "1c2be086-93b3-421b-88b1-e7cacf5e00fb",
+    "dataType": "NA"
+  },
+  {
+    "name": "Father/Husband",
+    "uuid": "4edb709d-a0ad-44fd-9132-2884054cd114",
+    "dataType": "Text"
   }
 ]
