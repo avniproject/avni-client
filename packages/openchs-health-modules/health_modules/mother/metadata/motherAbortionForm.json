@@ -15,7 +15,7 @@
           "name": "Abortion complaints",
           "uuid":"c4658141-4d39-44bf-8c16-dab5919431ef",
           "keyValues":[],
-          "type":"SingleSelect",
+          "type":"MultiSelect",
           "concept":{
             "uuid": "fc1346b0-57fe-4a84-8d95-f4461d60176f",
             "name":"Abortion complaints"

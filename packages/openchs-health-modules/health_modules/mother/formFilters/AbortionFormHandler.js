@@ -11,7 +11,7 @@ export default class AbortionFormHandler {
 
     dateOfDischarge(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().when.valueInEncounter("Place of abortion").containsAnswerConceptName("Home");
+        statusBuilder.show().when.valueInEncounter("Place of abortion").containsAnswerConceptName("Institutional");
         return statusBuilder.build();
     }
 
