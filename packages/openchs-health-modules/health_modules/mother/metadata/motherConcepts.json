@@ -3434,7 +3434,7 @@
     "uuid": "6912e863-ba7c-438e-83d9-b73fc4878b92",
     "name": "Period of gestation in weeks at the time of abortion",
     "dataType": "Numeric",
-    "lowNormal": 20
+    "lowNormal": 21
   },
   {
     "name": "Per vaginal bleeding",
