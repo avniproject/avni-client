@@ -569,32 +569,37 @@
   {
     "name": "Two",
     "uuid": "d1e58ac3-1ea7-46a1-8e17-e9f2c6789715",
-    "dataType": "NA",
-    "abnormal": true
+    "dataType": "NA"
   },
   {
     "name": "Three",
     "uuid": "a335e989-3c98-45f6-9659-1178c231cda0",
-    "dataType": "NA",
-    "abnormal": true
+    "dataType": "NA"
   },
   {
     "name": "More than three",
     "uuid": "0ba85fd4-4d70-4f03-b449-8dd12e30d690",
-    "dataType": "NA",
-    "abnormal": true
+    "dataType": "NA"
+  },
+  {
+    "name": "Four",
+    "uuid": "c24a12dd-0804-4937-9ca2-4437ce1bed0e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Five or more",
+    "uuid": "766f585c-f79a-4d41-bd8f-53cc8ee83b98",
+    "dataType": "NA"
   },
   {
     "name": "Increased",
     "uuid": "563eb915-f607-48de-86af-3295b6f35bb8",
-    "dataType": "NA",
-    "abnormal": true
+    "dataType": "NA"
   },
   {
     "name": "Decreased",
     "uuid": "1aef1b55-0c52-4961-a1c9-f35e4c6a6f00",
-    "dataType": "NA",
-    "abnormal": true
+    "dataType": "NA"
   },
   {
     "name": "Jaundice",
@@ -632,6 +637,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Remarried",
+    "uuid": "bbbcef7d-45d4-4dee-b04f-3a954a3bb768",
+    "dataType": "NA"
+  },
+  {
     "name": "Marital status",
     "uuid": "aa6687c9-ba4d-49a3-9b3e-bba266eb6f32",
     "dataType": "Coded",
@@ -650,6 +660,9 @@
       },
       {
         "uuid": "a5e367b3-48c6-4b6e-860c-89a1e4ab4b89"
+      },
+      {
+        "uuid": "bbbcef7d-45d4-4dee-b04f-3a954a3bb768"
       }
     ]
   },
@@ -1221,6 +1234,11 @@
   {
     "name": "Alternative contact number",
     "uuid": "928b4521-98d0-4cb3-a38e-42a775bf814e",
+    "dataType": "Text"
+  },
+  {
+    "name": "Other (detailed text)",
+    "uuid": "bcf88019-5cf6-44c6-9e13-16c7e93eef4c",
     "dataType": "Text"
   }
 ]
