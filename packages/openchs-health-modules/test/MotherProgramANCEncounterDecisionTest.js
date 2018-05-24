@@ -1337,5 +1337,20 @@ describe("Mother Program ANC", () => {
             assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Placenta Previa Present");
         });
 
+        it("is not generated if mother has respiratory rate <30 or >60 bpm", () => {
+            const lmp = moment().subtract(25, "w").toDate();
+            const encounter1DateTime = moment().subtract(4, "w").toDate();
+            enrolment = new EnrolmentFiller(programData, individual, lmp)
+                .forConcept("Last menstrual period", lmp)
+                .build();
+            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
+                .forConcept("Respiratory Rate", 105)
+                .forConcept("Child Respiratory Rate", 105)
+                .build();
+            enrolment.encounters = [anc1Encounter];
+            decisions = motherEncounterDecision.getDecisions(anc1Encounter, new Date());
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Respiratory Rate <30 or > 60 bpm");
+        });
+
     });
 });
