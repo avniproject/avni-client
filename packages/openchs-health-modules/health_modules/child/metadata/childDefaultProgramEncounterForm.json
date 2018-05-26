@@ -2,7 +2,6 @@
   "name": "Child Default",
   "uuid": "e09dddeb-ed72-40c4-ae8d-112d8893f18b",
   "formType": "ProgramEncounter",
-  "programName": "Child",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
     {

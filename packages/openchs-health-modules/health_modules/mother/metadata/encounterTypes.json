@@ -1,0 +1,22 @@
+[
+  {
+    "uuid": "b1efaffa-c8df-4801-8bbb-bf7c7bd6a0bd",
+    "name": "ANC"
+  },
+  {
+    "uuid": "7b6a93c7-e1e1-4e73-842d-df8a1935bde2",
+    "name": "Delivery"
+  },
+  {
+    "uuid": "1dec6355-4abd-45b7-89ab-bae1f5f9cc07",
+    "name": "Abortion"
+  },
+  {
+    "uuid": "e9971396-b74f-411c-956d-da44073922f5",
+    "name": "PNC"
+  },
+  {
+    "uuid": "1f07ae8c-faa4-4934-8e06-9038e62fc2ac",
+    "name": "Child Delivery"
+  }
+]

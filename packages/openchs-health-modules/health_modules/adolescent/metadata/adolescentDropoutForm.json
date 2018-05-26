@@ -2,11 +2,7 @@
   "name": "Adolescent School Dropout",
   "uuid": "54636d6b-33bf-4faf-9397-eb3b1d9b1792",
   "formType": "ProgramEncounter",
-  "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
-  "encounterTypes": [
-    "Dropout Home Visit"
-  ],
   "formElementGroups": [
     {
       "uuid": "774323a1-4597-4de4-9e0d-e657537b5236",

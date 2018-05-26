@@ -2,7 +2,6 @@
   "name": "Adolescent Enrolment",
   "uuid": "32b3555a-7fe9-4246-a470-21ab2d2954e2",
   "formType": "ProgramEnrolment",
-  "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
     {

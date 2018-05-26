@@ -2,10 +2,6 @@
   "name": "ANC",
   "uuid": "3a95e9b0-731a-4714-ae7c-10e1d03cebfe",
   "formType": "ProgramEncounter",
-  "encounterTypes": [
-    "ANC"
-  ],
-  "programName": "Mother",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
     {

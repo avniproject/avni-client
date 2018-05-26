@@ -2,7 +2,6 @@
   "name": "Adolescent Monthly Visit (11th and 12th std)",
   "uuid": "33583095-09be-408d-8e4b-fbcfee047aaa",
   "formType": "ProgramEncounter",
-  "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
     {

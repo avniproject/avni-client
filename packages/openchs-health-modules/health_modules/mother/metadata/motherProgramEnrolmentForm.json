@@ -2,7 +2,6 @@
   "name": "Mother Enrolment",
   "uuid": "026e2f5c-8670-4e4b-9a54-cb03bbf3093d",
   "formType": "ProgramEnrolment",
-  "programName": "Mother",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
     {

@@ -2,14 +2,7 @@
   "name": "Routine Visit",
   "uuid": "92cd5f05-eec3-4e70-9537-62119c5e3a16",
   "formType": "ProgramEncounter",
-  "programName": "Adolescent",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
-  "encounterTypes": [
-    "Annual Visit",
-    "Quarterly Visit",
-    "Half-Yearly Visit",
-    "Monthly Visit"
-  ],
   "formElementGroups": [
     {
       "uuid": "62f9a0a5-8d88-4141-95ad-cabe62404478",

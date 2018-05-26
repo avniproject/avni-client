@@ -3,14 +3,6 @@
   "uuid": "c294aadf-94a6-4908-8d04-9cc4ce2b901c",
   "formType": "ProgramEncounterCancellation",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
-  "encounterTypes": [
-    "Annual Visit",
-    "Quarterly Visit",
-    "Half-Yearly Visit",
-    "Monthly Visit",
-    "Dropout Home Visit",
-    "Dropout Followup Visit"
-  ],
   "formElementGroups": [
     {
       "uuid": "67c567c1-fbef-4343-a779-d9261d947489",

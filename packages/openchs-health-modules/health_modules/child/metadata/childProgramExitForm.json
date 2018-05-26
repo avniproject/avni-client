@@ -2,7 +2,6 @@
   "name": "Child Exit",
   "uuid": "67165f46-890d-4747-ba9a-dbaa0cfa5353",
   "formType": "ProgramExit",
-  "programName": "Child",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
     {

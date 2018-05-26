@@ -2,11 +2,7 @@
   "name": "PNC",
   "uuid": "78b1400e-8100-4ba6-b78e-fef580f7fb77",
   "formType": "ProgramEncounter",
-  "programName": "Mother",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
-  "encounterTypes": [
-    "PNC"
-  ],
   "formElementGroups": [
     {
       "uuid": "9b937fd3-3a23-40c7-bb11-fa2bfd9ce906",
