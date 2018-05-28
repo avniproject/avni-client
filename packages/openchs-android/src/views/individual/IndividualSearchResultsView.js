@@ -15,7 +15,8 @@ import Styles from "../primitives/Styles";
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
-        searchResults: React.PropTypes.array.isRequired
+        searchResults: React.PropTypes.array.isRequired,
+        onIndividualSelection: React.PropTypes.func.isRequired
     };
 
     viewName() {
@@ -114,7 +115,8 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onResultRowPress(individual) {
-        CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
+        this.props.onIndividualSelection(this, individual);
+        // CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
     }
 }
 

@@ -13,6 +13,7 @@ import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
+import FamilyFolderView from "./familyfolder/FamilyFolderView";
 import CHSNavigator from "../utility/CHSNavigator";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import General from "../utility/General";
@@ -150,6 +151,10 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(MyDashboardView);
     }
 
+    familyFolder() {
+        TypedTransition.from(this).to(FamilyFolderView);
+    }
+
     runRules() {
         this.context.getService(RuleEvaluationService).runOnAll();
     }
@@ -226,7 +231,8 @@ class MenuView extends AbstractComponent {
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
             ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
-            ["face", "Run Rules", this.runRules.bind(this), () => __DEV__]
+            ["face", "Run Rules", this.runRules.bind(this), () => __DEV__],
+            ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData

@@ -2,6 +2,7 @@ import Settings from "./Settings";
 import LocaleMapping from "./LocaleMapping";
 import Concept, {ConceptAnswer} from "./Concept";
 import Individual from "./Individual";
+import Family from "./Family";
 import AddressLevel from "./AddressLevel";
 import UserDefinedIndividualProperty from "./UserDefinedIndividualProperty";
 import Gender from "./Gender";
@@ -32,8 +33,8 @@ import VisitScheduleConfig from "./VisitScheduleConfig";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig],
-    schemaVersion: 52,
+    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family],
+    schemaVersion: 53,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

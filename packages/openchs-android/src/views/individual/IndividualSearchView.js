@@ -16,7 +16,9 @@ import Styles from "../primitives/Styles";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
-    static propTypes = {};
+    static propTypes = {
+        onIndividualSelection: React.PropTypes.func.isRequired
+    };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualSearch);
@@ -29,7 +31,8 @@ class IndividualSearchView extends AbstractComponent {
     searchIndividual() {
         this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
             cb: (results) => TypedTransition.from(this).with({
-                searchResults: results
+                searchResults: results,
+                onIndividualSelection: this.props.onIndividualSelection
             }).to(IndividualSearchResultsView, true)
         });
     }

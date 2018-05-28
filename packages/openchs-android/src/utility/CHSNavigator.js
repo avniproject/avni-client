@@ -19,6 +19,7 @@ import SetPasswordView from "../views/SetPasswordView";
 import ResetForgottenPasswordView from "../views/ResetForgottenPasswordView";
 import ChangePasswordView from "../views/ChangePasswordView";
 import ProgramEncounterCancelView from "../views/program/ProgramEncounterCancelView";
+import IndividualSearchView from "../views/individual/IndividualSearchView";
 
 class CHSNavigator {
     static navigateToLoginView(source, allowSkipLogin, backFunction) {
@@ -74,6 +75,10 @@ class CHSNavigator {
 
     static navigateToIndividualRegisterView(source, individualUUID) {
         TypedTransition.from(source).with({individualUUID: individualUUID}).to(IndividualRegisterView);
+    }
+
+    static navigateToIndividualSearchView(source, onIndividualSelection) {
+        TypedTransition.from(source).with({onIndividualSelection: onIndividualSelection}).to(IndividualSearchView, true);
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter) {

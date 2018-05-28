@@ -14,7 +14,8 @@ import {
     encounterDecision,
     programEncounterDecision,
     programEnrolmentDecision,
-    individualRegistrationDecision
+    individualRegistrationDecision,
+    familyRegistrationDecision
 } from "openchs-health-modules";
 import ConceptService from "./ConceptService";
 import IndividualService from "./IndividualService";
@@ -30,9 +31,12 @@ class RuleEvaluationService extends BaseService {
 
     init() {
         this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
+            ['Family', new EntityRule(familyRegistrationDecision)],
             ['Encounter', new EntityRule(encounterDecision)],
             ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)],
-            ['ProgramEncounter', new EntityRule(programEncounterDecision)]]);
+            ['ProgramEncounter', new EntityRule(programEncounterDecision)],
+
+        ]);
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);
         });

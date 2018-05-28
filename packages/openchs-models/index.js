@@ -44,6 +44,7 @@ import StringKeyNumericValue from "./src/application/StringKeyNumericValue";
 import VisitScheduleInterval from "./src/VisitScheduleInterval";
 import VisitScheduleConfig from "./src/VisitScheduleConfig";
 import ProgramConfig from "./src/ProgramConfig";
+import Family from "./src/Family";
 
 export {
     Form,
@@ -92,5 +93,6 @@ export {
     StringKeyNumericValue,
     VisitScheduleInterval,
     VisitScheduleConfig,
-    ProgramConfig
+    ProgramConfig,
+    Family
 };

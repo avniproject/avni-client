@@ -9,6 +9,7 @@ import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
 import {StatusBar} from "react-native";
 import Styles from "./primitives/Styles";
+import CHSNavigator from "../utility/CHSNavigator";
 
 @Path('/landingView')
 class LandingView extends AbstractComponent {
@@ -18,7 +19,7 @@ class LandingView extends AbstractComponent {
     };
 
     static defaultProps = {
-        tabIndex: 0
+        tabIndex: 1
     };
 
     constructor(props, context) {
@@ -39,7 +40,11 @@ class LandingView extends AbstractComponent {
                 <CHSContent>
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
                     <Tabs ref={ t => this._tabs = t }>
-                        <IndividualSearchView tabLabel={this.I18n.t('home')} tabStyle={{backgroundColor: 'red'}}/>
+                        <IndividualSearchView
+                            tabLabel={this.I18n.t('home')}
+                            tabStyle={{backgroundColor: 'red'}}
+                            onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                        />
                         <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
                     </Tabs>
                 </CHSContent>

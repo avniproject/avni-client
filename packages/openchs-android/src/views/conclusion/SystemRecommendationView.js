@@ -4,6 +4,7 @@ import {View} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
+import FamilyProfile from "../familyfolder/FamilyProfile";
 import {Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
@@ -17,6 +18,7 @@ import ConceptService from "../../service/ConceptService";
 import ChecklistDisplay from "../program/ChecklistDisplay";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import {Individual} from "openchs-models";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -59,6 +61,22 @@ class SystemRecommendationView extends AbstractComponent {
         TypedTransition.from(this).goBack();
     }
 
+    profile(){
+        return (this.props.individual instanceof Individual) ?
+            <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                           individual={this.props.individual} style={{
+            backgroundColor: Colors.GreyContentBackground,
+            paddingHorizontal: 24,
+            paddingBottom: 12}}/> :
+            <FamilyProfile viewContext={FamilyProfile.viewContext.Wizard}
+                               family={this.props.individual} style={{
+                backgroundColor: Colors.GreyContentBackground,
+                paddingHorizontal: 24,
+                paddingBottom: 12}}/>
+
+
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         return (
@@ -66,13 +84,7 @@ class SystemRecommendationView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}/>
                     <View style={{flexDirection: 'column'}}>
-                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
-                                           individual={this.props.individual} style={{
-                            backgroundColor: Colors.GreyContentBackground,
-                            paddingHorizontal: 24,
-                            paddingBottom: 12,
-                        }}/>
-
+                        {this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
                                 {

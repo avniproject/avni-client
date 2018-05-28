@@ -41,7 +41,7 @@ class VisitBlock extends AbstractComponent {
         return (
             <TouchableNativeFeedback onPress={this.props.onPress}>
                 <View style={VisitBlock.styles.container}>
-                    <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400"}]}>
+                    <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400", textAlign: "center"}]}>
                         {this.I18n.t(this.props.title)}
                     </Text>
                     <Text style={[Fonts.typography("paperFontTitle"), textColor]}>

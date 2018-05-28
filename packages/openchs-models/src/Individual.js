@@ -274,6 +274,17 @@ class Individual extends BaseEntity {
         return individual;
     }
 
+    cloneForReference() {
+        const individual = new Individual();
+        individual.uuid = this.uuid;
+        individual.name = this.name;
+        individual.firstName = this.firstName;
+        individual.lastName = this.lastName;
+        individual.dateOfBirth = this.dateOfBirth;
+        individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
+        return individual;
+    }
+
     get hasActiveEnrolment() {
         return _.some(this.enrolments, (enrolment) => enrolment.isActive);
     }

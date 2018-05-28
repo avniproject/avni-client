@@ -1,6 +1,7 @@
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
 import Reducer from "./Reducer";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
+import FamilyProfileActionMap, {FamilyProfileActions} from "../action/familyFolder/FamilyProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/program/ProgramEnrolmentActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import {
@@ -16,10 +17,19 @@ import {
     ProgramEnrolmentDashboardActionsMap
 } from '../action/program/ProgramEnrolmentDashboardActions';
 import {
+    FamilyDashboardActions,
+    FamilyDashboardActionsMap
+} from '../action/familyFolder/FamilyDashboardActions';
+import {
     MyDashboardActions,
     MyDashboardActionsMap,
     MyDashboardPrefix
 } from '../action/mydashboard/MyDashboardActions';
+import {
+    FamilyFolderActions,
+    FamilyFolderActionsMap,
+    FamilyFolderPrefix
+} from '../action/familyFolder/FamilyFolderActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {
     IndividualRegistrationDetailsActions,
@@ -33,6 +43,8 @@ import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
 import {StartProgramActions, StartProgramActionsMap} from "../action/program/StartProgramActions";
 import {LoginActions, LoginActionsMap} from "../action/LoginActions";
 import {ProgramEncounterCancelActions, ProgramEncounterCancelActionsMap} from "../action/program/ProgramEncounterCancelActions";
+import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
+
 
 export default class Reducers {
     static reducerKeys = {
@@ -41,18 +53,22 @@ export default class Reducers {
         encounter: "encounter",
         individualRegister: "individualRegister",
         individualProfile: 'individualProfile',
+        familyProfile: 'familyProfile',
         programEnrolments: 'programEnrolments',
         programEnrolmentDashboard: 'programEnrolmentDashboard',
+        familyDashboard: 'familyDashboard',
         programEncounter: 'programEncounter',
         programEncounterCancel: 'programEncounterCancel',
         individualRegistrationDetails: 'individualRegistrationDetails',
         individualSearch: 'individualSearch',
         addressLevels: 'addressLevels',
         myDashboard: 'myDashboard',
+        familyFolder: 'familyFolder',
         checklist: 'checklist',
         settings: 'settings',
         startProgramActions: "startProgramActions",
-        loginActions: 'loginActions'
+        loginActions: 'loginActions',
+        familyRegister: "familyRegister",
     };
 
     static createReducers(beanStore) {
@@ -62,19 +78,23 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.addressLevels] = Reducers._add(new Map([]), AddressLevelActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegister] = Reducers._add(IndividualRegisterActionMap, IndividualRegisterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
+        reducerMap[Reducers.reducerKeys.familyProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolment] = Reducers._add(ProgramEnrolmentActionMap, ProgramEnrolmentActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualGeneralHistory] = Reducers._add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions, beanStore);
         reducerMap[Reducers.reducerKeys.encounter] = Reducers._add(IndividualEncounterViewActionsMap, EncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolments] = Reducers._add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolmentDashboard] = Reducers._add(ProgramEnrolmentDashboardActionsMap, ProgramEnrolmentDashboardActions, beanStore, ProgramEnrolmentDashboardActions.ACTION_PREFIX);
+        reducerMap[Reducers.reducerKeys.familyDashboard] = Reducers._add(FamilyDashboardActionsMap, FamilyDashboardActions, beanStore, FamilyDashboardActions.ACTION_PREFIX);
         reducerMap[Reducers.reducerKeys.programEncounter] = Reducers._add(ProgramEncounterActionsMap, ProgramEncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegistrationDetails] = Reducers._add(IndividualRegistrationDetailsActionsMap, IndividualRegistrationDetailsActions, beanStore);
         reducerMap[Reducers.reducerKeys.settings] = Reducers._add(SettingsActionsMap, SettingsActions, beanStore);
         reducerMap[Reducers.reducerKeys.startProgramActions] = Reducers._add(StartProgramActionsMap, StartProgramActions, beanStore);
         reducerMap[Reducers.reducerKeys.loginActions] = Reducers._add(LoginActionsMap, LoginActions, beanStore);
         reducerMap[Reducers.reducerKeys.myDashboard] = Reducers._add(MyDashboardActionsMap, MyDashboardActions, beanStore, MyDashboardPrefix);
+        reducerMap[Reducers.reducerKeys.familyFolder] = Reducers._add(FamilyFolderActionsMap, FamilyFolderActions, beanStore, FamilyFolderActions);
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
-
+        reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore);
+        return reducerMap;
         return reducerMap;
     };
 

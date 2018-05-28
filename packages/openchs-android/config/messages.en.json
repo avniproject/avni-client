@@ -90,6 +90,7 @@
   "enrolmentDate": "Enrolment Date",
   "exitDate": "Exit Date",
   "myDashboard": "My Dashboard",
+  "familyFolder": "Family Folder",
   "upcomingVisits": "Upcoming Visits",
   "scheduledDate": "Scheduled",
   "lastVisitDate": "Last Visited",
@@ -174,5 +175,7 @@
   "OnlyLettersAndSpaces": "Required only letters and spaces",
   "Hospital": "Hospital",
   "Required10Digits": "Required 10 digits",
-  "uniqueAnswerConflict": "'{{answer}}' cannot be selected with other answers"
+  "uniqueAnswerConflict": "'{{answer}}' cannot be selected with other answers",
+  "familyRegistration": "Family Registration",
+  "withHighRiskMember": "member at risk"
 }
