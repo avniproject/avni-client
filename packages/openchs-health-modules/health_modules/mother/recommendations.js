@@ -59,33 +59,6 @@ const institutionalDelivery = (enrolment, encounter) => {
     return recommendationBuilder.getComplications()
 };
 
-const childDeliveryRecommendations = (enrolment, encounter) => {
-    const recommendationBuilder = new ComplicationsBuilder({
-        programEnrolment: enrolment,
-        programEncounter: encounter,
-        complicationsConcept: 'Recommendations'
-    });
-
-    recommendationBuilder.addComplication("Keep the baby warm")
-        .when.valueInEncounter("Child Pulse").lessThan(100)
-        .or.when.valueInEncounter("Child Pulse").greaterThan(160)
-        .or.when.valueInEncounter("Child Respiratory Rate").lessThan(30)
-        .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60)
-    ;
-
-    recommendationBuilder.addComplication("Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.")
-        .when.valueInEncounter("Child Temperature").lessThan(97.5)
-    ;
-
-    recommendationBuilder.addComplication("Give exclusive breast feeding")
-        .when.valueInEncounter("Child Temperature").lessThan(97.5)
-    ;
-    recommendationBuilder.addComplication("Mother program enrolment with TB recommendation")
-        .when.valueInRegistration("Medical history").containsAnyAnswerConceptName("TB")
-    ;
-
-    return recommendationBuilder.getComplications()
-};
 
 const generateRecommendations = (enrolment, encounter) => {
     if (encounter && encounter.encounterType.name === 'Child Delivery')

@@ -4,14 +4,14 @@ import program from "../health_modules/mother/metadata/motherProgram.json";
 import motherConcepts from "../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
 import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolmentForm.json";
-import childDeliveryForm from "../health_modules/mother/metadata/childDeliveryForm";
+import childDeliveryForm from "../health_modules/child/metadata/childDeliveryForm";
 import EnrolmentFiller from "./ref/EnrolmentFiller";
 import EncounterFiller from "./ref/EncounterFiller";
 
 const moment = require('moment');
 const assert = require('chai').assert;
 const _ = require('lodash');
-const motherEncounterDecision = require('../health_modules/mother/motherProgramEncounterDecision');
+const childEncounterDecision = require('../health_modules/child/childProgramEncounterDecision');
 const C = require('../health_modules/common');
 
 describe("Mother Program Child Delivery", () => {
@@ -44,8 +44,7 @@ describe("Mother Program Child Delivery", () => {
         it('show "Gestational age category at birth" in System Recommendations', function () {
             let childDeliveryEncounter = protoChildDeliveryEncounter.build();
 
-            decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
-            assert.isNotEmpty(C.findValue(decisions.encounterDecisions, "Gestational age category at birth"))
+            decisions = childEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
         });
     });
 
@@ -62,7 +61,7 @@ describe("Mother Program Child Delivery", () => {
 
             it(`is added if ${risk.concept} is '${risk.value}'`, () => {
                 let childDeliveryEncounter = protoChildDeliveryEncounter.forSingleCoded(risk.concept, risk.value).build();
-                decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
+                decisions = childEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
                     `expected high risk conditions to include '${risk.riskName}'`);
             });
@@ -80,7 +79,7 @@ describe("Mother Program Child Delivery", () => {
 
             it(`is added if ${risk.concept} is '${risk.value}'`, () => {
                 let childDeliveryEncounter = protoChildDeliveryEncounter.forConcept(risk.concept, risk.value).build();
-                decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
+                decisions = childEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
                     `expected high risk conditions to include '${risk.riskName}'`);
             });
@@ -99,7 +98,7 @@ describe("Mother Program Child Delivery", () => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
                 let childDeliveryEncounter = protoChildDeliveryEncounter.forSingleCoded(referral.concept, referral.value).build();
-                decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
+                decisions = childEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
                     `expected to be referred to the hospital immediately for '${referral.complication}'`);
             });
@@ -117,7 +116,7 @@ describe("Mother Program Child Delivery", () => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
                 let childDeliveryEncounter = protoChildDeliveryEncounter.forConcept(referral.concept, referral.value).build();
-                decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
+                decisions = childEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
                     `expected to be referred to the hospital immediately for '${referral.complication}'`);
             });
@@ -132,7 +131,7 @@ describe("Mother Program Child Delivery", () => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
                 let childDeliveryEncounter = protoChildDeliveryEncounter.forSingleCoded(referral.concept, referral.value).build();
-                decisions = motherEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
+                decisions = childEncounterDecision.getDecisions(childDeliveryEncounter, new Date());
                 assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital for'), referral.complication,
                     `expected to be referred to the hospital for '${referral.complication}'`);
             });

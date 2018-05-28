@@ -89,8 +89,6 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherProgramExitForm.json)
 	@echo
-	$(call upload,forms,@health_modules/mother/metadata/childDeliveryForm.json)
-	@echo
 	$(call upload,formMappings,@health_modules/mother/metadata/formMappings.json)
 	@echo
 
@@ -99,6 +97,8 @@ dev_deploy_metadata: ## Upload metadata to server
 	$(call upload,programs,@health_modules/child/metadata/childProgram.json)
 	@echo
 	$(call upload,encounterTypes,@health_modules/child/metadata/encounterTypes.json)
+	@echo
+	$(call upload,forms,@health_modules/child/metadata/childDeliveryForm.json)
 	@echo
 	$(call upload,forms,@health_modules/child/metadata/childProgramEnrolmentForm.json)
 	@echo

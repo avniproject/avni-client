@@ -1,5 +1,4 @@
 import ComplicationsBuilder from "../rules/complicationsBuilder";
-import referralAdvice from "./referral";
 import {
     gestationalAge, isNormalAbdominalGirthIncrease, isNormalFundalHeightIncrease,
     isNormalWeightGain

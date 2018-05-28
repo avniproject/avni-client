@@ -7,7 +7,6 @@ import ANCFormhandler from "./formFilters/ANCFormHandler";
 import AbortionFormhandler from "./formFilters/AbortionFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
-import ChildDeliveryFormHandler from "./formFilters/childDeliveryFormHandler";
 import generateRecommendations from "./recommendations";
 import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
@@ -280,7 +279,6 @@ export function getNextScheduledVisits(programEncounter, config, today) {
 const encounterTypeHandlerMap = new Map([
     ['ANC', new ANCFormhandler()],
     ['Delivery', new DeliveryFormHandler()],
-    ['Child Delivery', new ChildDeliveryFormHandler()],
     ['Abortion', new AbortionFormhandler()]
 ]);
 

@@ -100,7 +100,6 @@ export default class ProgramBuilder {
     withEncounterForm(encounterForm) {
         let form = this._createForm(encounterForm);
         this.forms.push(form);
-        this.formMappings = this.formMappings.concat(this._createFormMapping(encounterForm, form));
         return this;
     }
 
