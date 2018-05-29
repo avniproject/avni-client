@@ -95,7 +95,6 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore);
         return reducerMap;
-        return reducerMap;
     };
 
     static onPossibleExternalStateChange(state, action, context) {
