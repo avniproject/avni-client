@@ -1,4 +1,4 @@
-import ChildDeliveryFormHandler from "./formFilters/childDeliveryFormHandler";
+import BirthFormHandler from "./formFilters/birthFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import _ from "lodash";
 import ComplicationsBuilder from "../rules/complicationsBuilder";
@@ -7,9 +7,9 @@ import generateHighRiskConditionAdvice from "./highRisk";
 
 
 export function getDecisions(programEncounter, today) {
-    if (programEncounter.encounterType.name === 'Child Delivery') {
+    if (programEncounter.encounterType.name === 'Birth') {
         let decisions = [
-            childDeliveryRecommendations(programEncounter.programEnrolment, programEncounter),
+            birthRecommendations(programEncounter.programEnrolment, programEncounter),
             immediateReferralAdvice(programEncounter.programEnrolment, programEncounter, today),
             referralAdvice(programEncounter.programEnrolment, programEncounter, today)
         ];
@@ -27,7 +27,7 @@ export function getDecisions(programEncounter, today) {
 }
 
 
-const childDeliveryRecommendations = (enrolment, encounter) => {
+const birthRecommendations = (enrolment, encounter) => {
     const recommendationBuilder = new ComplicationsBuilder({
         programEnrolment: enrolment,
         programEncounter: encounter,
@@ -54,7 +54,7 @@ const childDeliveryRecommendations = (enrolment, encounter) => {
 
 
 const encounterTypeHandlerMap = new Map([
-    ['Child Delivery', new ChildDeliveryFormHandler()],
+    ['Birth', new BirthFormHandler()],
 ]);
 
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {

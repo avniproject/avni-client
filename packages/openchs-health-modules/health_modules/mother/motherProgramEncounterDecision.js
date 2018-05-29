@@ -237,30 +237,6 @@ export function getDecisions(programEncounter, today) {
             encounterDecisions: decisions
         };
     }
-    if (programEncounter.encounterType.name === 'Child Delivery') {
-        let decisions = [
-            generateRecommendations(programEncounter.programEnrolment, programEncounter),
-            immediateReferralAdvice(programEncounter.programEnrolment, programEncounter, today),
-            referralAdvice(programEncounter.programEnrolment, programEncounter, today)
-        ];
-
-        decisions.push(
-            {
-                name: 'Gestational age category at birth',
-                value: [gestationalAgeCategoryAsOn(programEncounter.programEnrolment.findObservationInEntireEnrolment("Date of delivery", programEncounter).getValue(), programEncounter.programEnrolment)]
-            }
-        );
-
-        let highRiskConditions = generateHighRiskConditionAdvice(programEncounter.programEnrolment, programEncounter, today);
-        if (!_.isEmpty(highRiskConditions.value)) {
-            decisions.push(highRiskConditions);
-        }
-
-        return {
-            enrolmentDecisions: [],
-            encounterDecisions: decisions
-        }
-    } else return {enrolmentDecisions: [], encounterDecisions: []};
 }
 
 const mergeDecisionsByKey = (decisions) => {

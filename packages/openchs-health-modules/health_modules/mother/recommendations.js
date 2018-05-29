@@ -61,9 +61,6 @@ const institutionalDelivery = (enrolment, encounter) => {
 
 
 const generateRecommendations = (enrolment, encounter) => {
-    if (encounter && encounter.encounterType.name === 'Child Delivery')
-        return childDeliveryRecommendations(enrolment, encounter);
-
     return institutionalDelivery(enrolment, encounter);
 };
 

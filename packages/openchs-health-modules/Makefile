@@ -98,7 +98,7 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo
 	$(call upload,encounterTypes,@health_modules/child/metadata/encounterTypes.json)
 	@echo
-	$(call upload,forms,@health_modules/child/metadata/childDeliveryForm.json)
+	$(call upload,forms,@health_modules/child/metadata/birthForm.json)
 	@echo
 	$(call upload,forms,@health_modules/child/metadata/childProgramEnrolmentForm.json)
 	@echo
