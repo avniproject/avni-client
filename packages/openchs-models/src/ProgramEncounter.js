@@ -51,7 +51,6 @@ class ProgramEncounter extends AbstractEncounter {
             resource.maxVisitDateTime = moment(this.maxVisitDateTime).format();
         if (!_.isNil(this.cancelDateTime))
             resource.cancelDateTime = moment(this.cancelDateTime).format();
-        console.log(this.cancelObservations);
         resource.cancelObservations = _.map(this.cancelObservations, (obs) => { return obs.toResource});
         return resource;
     }

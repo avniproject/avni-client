@@ -1,9 +1,9 @@
 import ProgramFactory from "./ref/ProgramFactory";
 import IndividualBuilder from "./ref/IndividualBuilder";
-import program from "../health_modules/mother/metadata/motherProgram.json";
-import motherConcepts from "../health_modules/mother/metadata/motherConcepts.json";
+import program from "../health_modules/child/metadata/childProgram.json";
+import childConcepts from "../health_modules/child/metadata/concepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
-import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolmentForm.json";
+import enrolmentForm from "../health_modules/child/metadata/childProgramEnrolmentForm.json";
 import birthForm from "../health_modules/child/metadata/birthForm";
 import EnrolmentFiller from "./ref/EnrolmentFiller";
 import EncounterFiller from "./ref/EncounterFiller";
@@ -21,31 +21,20 @@ describe("Child Program Birth", () => {
     beforeEach(() => {
         programData = new ProgramFactory(program)
             .withConcepts(commonConcepts)
-            .withConcepts(motherConcepts)
+            .withConcepts(childConcepts)
             .withEnrolmentform(enrolmentForm)
             .withEncounterForm(birthForm)
             .build();
         individual = new IndividualBuilder(programData)
-            .withName("Test", "Mother")
-            .withAge(25)
+            .withName("Test", "Child")
+            .withAge(1)
             .withGender("Female")
             .withSingleCodedObservation("Blood group", "B+")
             .build();
-        lmpDate = moment().subtract(1, 'months').toDate();
         enrolment = new EnrolmentFiller(programData, individual, new Date())
-            .forConcept("Last menstrual period", lmpDate)
             .build();
         decisions = { encounterDecisions: [], encounterDecisions: [] };
-        protoBirthEncounter = new EncounterFiller(programData, enrolment, "Birth", new Date())
-            .forConcept("Date of delivery", moment(lmpDate).add(37, 'weeks').toDate())
-    });
-
-    describe('Unit tests', function () {
-        it('show "Gestational age category at birth" in System Recommendations', function () {
-            let birthEncounter = protoBirthEncounter.build();
-
-            decisions = childEncounterDecision.getDecisions(birthEncounter, new Date());
-        });
+        protoBirthEncounter = new EncounterFiller(programData, enrolment, "Birth", new Date());
     });
 
 

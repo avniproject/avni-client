@@ -1240,5 +1240,90 @@
     "name": "Other (detailed text)",
     "uuid": "bcf88019-5cf6-44c6-9e13-16c7e93eef4c",
     "dataType": "Text"
+  },
+  {
+    "name": "Home",
+    "uuid": "bb75a86c-05af-4b05-b699-860737d19e57",
+    "dataType": "NA"
+  },
+  {
+    "name": "Regional Hospital",
+    "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda",
+    "dataType": "NA"
+  },
+  {
+    "name": "Sub Center",
+    "uuid": "fe24e909-6346-4e84-bacc-2ec5ae85bed8",
+    "dataType": "NA"
+  },
+  {
+    "name": "NGO Hospital",
+    "uuid": "cdb94629-a710-43f0-b5ce-3921905f24f2",
+    "dataType": "NA"
+  },
+  {
+    "name": "During Transportation like in Ambulance etc",
+    "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Primary Health Center",
+    "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43",
+    "dataType": "NA"
+  },
+  {
+    "name": "Non-Skilled Birth Attendant (NSBA)",
+    "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Medical Officer/ Doctor",
+    "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27",
+    "dataType": "NA"
+  },
+  {
+    "name": "Term",
+    "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Preterm",
+    "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657",
+    "dataType": "NA"
+  },
+  {
+    "name": "Very preterm",
+    "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90",
+    "dataType": "NA"
+  },
+  {
+    "name": "Gestational age category at birth",
+    "uuid": "24c71448-1068-4dc2-aa2f-8bbb66a5123f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f"
+      },
+      {
+        "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657"
+      },
+      {
+        "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90"
+      }
+    ]
+  },
+  {
+    "name": "Jaundice (Icterus)",
+    "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+        "abnormal": true
+      },
+      {
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
+      }
+    ]
   }
 ]

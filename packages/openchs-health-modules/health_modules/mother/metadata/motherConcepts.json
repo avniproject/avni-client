@@ -15,76 +15,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Child born Underweight",
-    "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
-    "dataType": "NA"
-  },
-  {
-    "name": "Did not cry soon after birth",
-    "uuid": "603a37fb-1179-477d-a4bc-cb9f2f463f25",
-    "dataType": "NA"
-  },
-  {
-    "name": "Not Breast-fed within 1 hour of birth",
-    "uuid": "57f0b3c2-372e-4af7-8a0d-b23228f836db",
-    "dataType": "NA"
-  },
-  {
-    "name": "Colour of child is Pale or Blue",
-    "uuid": "73f97a3b-3b71-4b63-81f6-16976ee00aac",
-    "dataType": "NA"
-  },
-  {
-    "name": "Reflex Absent",
-    "uuid": "f2eb3d4c-838d-4f67-9815-cf108e0f05ff",
-    "dataType": "NA"
-  },
-  {
-    "name": "Muscle tone Absent/Flexed arms and legs",
-    "uuid": "8701cdcf-5d23-4b05-8be0-310159758a4d",
-    "dataType": "NA"
-  },
-  {
-    "name": "Pulse <100 or > 160 bpm",
-    "uuid": "e183bd41-eedf-458e-a96f-f818bf128243",
-    "dataType": "NA"
-  },
-  {
-    "name": "Low Temperature",
-    "uuid": "15f3e8c9-b39e-4617-b54e-6a425d8fa9a2",
-    "dataType": "NA"
-  },
-  {
-    "name": "High Temperature",
-    "uuid": "eb1ec712-8a28-4511-ba59-4254ad301700",
-    "dataType": "NA"
-  },
-  {
-    "name": "Respiratory Rate <30 or > 60 bpm",
-    "uuid": "6b329b8c-04b7-4cdd-90ea-1cd79dbd014b",
-    "dataType": "NA"
-  },
-  {
-    "name": "Icterus Present",
-    "uuid": "bab23da4-603e-4f9e-a823-90cc785d8f2f",
-    "dataType": "NA"
-  },
-  {
-    "name": "Keep the baby warm",
-    "uuid": "d53ccfbc-f5fd-4225-9b28-1736ec6c50b5",
-    "dataType": "NA"
-  },
-  {
-    "name": "Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.",
-    "uuid": "e3e5b7aa-e24c-4f97-98fb-a175a9721e53",
-    "dataType": "NA"
-  },
-  {
-    "name": "Give exclusive breast feeding",
-    "uuid": "d98df61f-00f4-4b06-816e-1e36fca847c2",
-    "dataType": "NA"
-  },
-  {
     "uuid": "1f4227dc-a51f-4237-9217-37d4cea92efd",
     "name": "Essential Hypertension",
     "abnormal": true
@@ -828,46 +758,6 @@
   {
     "name": "Institutional",
     "uuid": "071291ce-e644-4d66-89b9-94d14364effc",
-    "dataType": "NA"
-  },
-  {
-    "name": "Home",
-    "uuid": "bb75a86c-05af-4b05-b699-860737d19e57",
-    "dataType": "NA"
-  },
-  {
-    "name": "Regional Hospital",
-    "uuid": "0ad759eb-5fb9-4152-b39c-0c80e1c4ecda",
-    "dataType": "NA"
-  },
-  {
-    "name": "Sub Center",
-    "uuid": "fe24e909-6346-4e84-bacc-2ec5ae85bed8",
-    "dataType": "NA"
-  },
-  {
-    "name": "NGO Hospital",
-    "uuid": "cdb94629-a710-43f0-b5ce-3921905f24f2",
-    "dataType": "NA"
-  },
-  {
-    "name": "During Transportation like in Ambulance etc",
-    "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7",
-    "dataType": "NA"
-  },
-  {
-    "name": "Primary Health Center",
-    "uuid": "b4007f93-f288-49aa-b2ad-96f1a0f75a43",
-    "dataType": "NA"
-  },
-  {
-    "name": "Non-Skilled Birth Attendant (NSBA)",
-    "uuid": "136f5c20-c8be-4028-89cb-8a22571526c2",
-    "dataType": "NA"
-  },
-  {
-    "name": "Medical Officer/ Doctor",
-    "uuid": "c5a95b60-61b9-4861-a9a2-9b783e768b27",
     "dataType": "NA"
   },
   {
@@ -2120,55 +2010,10 @@
     ]
   },
   {
-    "name": "Term",
-    "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f",
-    "dataType": "NA"
-  },
-  {
-    "name": "Preterm",
-    "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657",
-    "dataType": "NA"
-  },
-  {
-    "name": "Very preterm",
-    "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90",
-    "dataType": "NA"
-  },
-  {
-    "name": "Gestational age category at birth",
-    "uuid": "24c71448-1068-4dc2-aa2f-8bbb66a5123f",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f"
-      },
-      {
-        "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657"
-      },
-      {
-        "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90"
-      }
-    ]
-  },
-  {
-    "name": "Blue/pale",
-    "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
-    "dataType": "NA"
-  },
-  {
-    "name": "Body pink but hands and feet blue/pale",
-    "uuid": "c66ef660-ded1-439a-8255-917ecf0e61a1",
-    "dataType": "NA"
-  },
-  {
-    "name": "Completely pink",
-    "uuid": "0d6fdc51-a8c7-4baf-a85e-e6a55b14cd8d",
-    "dataType": "NA"
-  },
-  {
     "name": "Gender of child",
     "uuid": "5572fc36-e766-4034-8217-7f92d0225c86",
     "dataType": "Coded",
+    "voided": true,
     "answers": [
       {
         "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
@@ -2180,106 +2025,6 @@
         "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
       }
     ]
-  },
-  {
-    "name": "Colour of child",
-    "uuid": "747f9b96-5b88-4f08-b52c-e1a060df4c30",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3"
-      },
-      {
-        "uuid": "c66ef660-ded1-439a-8255-917ecf0e61a1"
-      },
-      {
-        "uuid": "0d6fdc51-a8c7-4baf-a85e-e6a55b14cd8d"
-      }
-    ]
-  },
-  {
-    "name": "Grimace/painful expression",
-    "uuid": "2facbe79-1def-40c2-a107-e6fcfd6e9977",
-    "dataType": "NA"
-  },
-  {
-    "name": "Grimace/painful expression and Cough or sneeze",
-    "uuid": "6c1b893d-d18e-40ca-af29-85d1bb4ef497",
-    "dataType": "NA"
-  },
-  {
-    "name": "Reflex",
-    "uuid": "85359b71-4790-4c00-b8ca-89cb024985bd",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-        "abnormal": true
-      },
-      {
-        "uuid": "2facbe79-1def-40c2-a107-e6fcfd6e9977"
-      },
-      {
-        "uuid": "6c1b893d-d18e-40ca-af29-85d1bb4ef497"
-      }
-    ]
-  },
-  {
-    "name": "Flexed arms and legs",
-    "uuid": "5e430139-4681-441e-9218-c806033dea77",
-    "dataType": "NA"
-  },
-  {
-    "name": "Active movements",
-    "uuid": "05f99af0-af6d-4818-927b-c8502b4551d7",
-    "dataType": "NA"
-  },
-  {
-    "name": "Muscle tone",
-    "uuid": "8ae7a140-900c-4bae-bb20-15b8c883869a",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
-        "abnormal": true
-      },
-      {
-        "uuid": "5e430139-4681-441e-9218-c806033dea77",
-        "abnormal": true
-      },
-      {
-        "uuid": "05f99af0-af6d-4818-927b-c8502b4551d7"
-      }
-    ]
-  },
-  {
-    "name": "Jaundice (Icterus)",
-    "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-        "abnormal": true
-      },
-      {
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-      }
-    ]
-  },
-  {
-    "name": "Birth Weight",
-    "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14",
-    "unit": "kg",
-    "dataType": "Numeric",
-    "lowNormal": 2.0
-  },
-  {
-    "name": "Child Temperature",
-    "uuid": "c5e0d0e0-4ff7-40be-a929-292d7c4b17d0",
-    "dataType": "Numeric",
-    "lowNormal": 97.5,
-    "highNormal": 99.5,
-    "unit": "°F"
   },
   {
     "name": "Blood Sugar",
@@ -2492,53 +2237,9 @@
     "dataType": "Text"
   },
   {
-    "name": "Child's Father name",
-    "uuid": "0323db68-da22-4c99-b578-99ea2949d5a5",
-    "dataType": "Text"
-  },
-  {
-    "name": "Child's Surname",
-    "uuid": "da18df86-cabb-489f-8032-8199a350c6da",
-    "dataType": "Text"
-  },
-  {
     "name": "Date of delivery",
     "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
     "dataType": "Date"
-  },
-  {
-    "name": "Cried soon after birth",
-    "uuid": "e3158f7c-6349-4e96-8e63-6223f8444500",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-      },
-      {
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-        "abnormal": true
-      }
-    ]
-  },
-  {
-    "name": "Breast feeding within 1 hour of birth",
-    "uuid": "ae2b1a14-4c76-415c-8520-656f57bcb48d",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-      },
-      {
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-        "abnormal": true
-      }
-    ]
-  },
-  {
-    "name": "Breast feeding started",
-    "uuid": "05a76d7c-aa02-4023-9d98-639c36a269a7",
-    "dataType": "Numeric",
-    "unit": "Day(s)"
   },
   {
     "name": "Date of abortion",

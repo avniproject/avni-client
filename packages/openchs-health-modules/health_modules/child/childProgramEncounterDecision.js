@@ -1,4 +1,4 @@
-import BirthFormHandler from "./formFilters/birthFormHandler";
+import BirthFormHandler from "./formFilters/BirthFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import _ from "lodash";
 import ComplicationsBuilder from "../rules/complicationsBuilder";
