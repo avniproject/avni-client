@@ -11,6 +11,8 @@ import Individual from "../../../openchs-models/src/Individual";
 import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
 import faker from 'faker';
 import moment from 'moment';
+import {Observation} from "openchs-models";
+import Concept from "../../../openchs-models/src/Concept";
 
 @Service("fakeDataService")
 class FakeDataService extends BaseService {
@@ -47,12 +49,17 @@ class FakeDataService extends BaseService {
                 this.saveOrUpdate({uuid: individual.uuid, enrolments: [enrolment]}, Individual.schema.name);
                 this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
             } catch (e) {
-                General.logDebugObject("Failed scheduled :(", e);
+                General.logDebug("Failed scheduled :(", e);
             }
             finally {
                 General.logDebug("Finishing scheduled -- ", i);
             }
         });
+    }
+
+    createFakeObs(numberofObs) {
+        return _.range(0, numberofObs).map(i =>
+            Observation.create(Concept.create(`Concept No. ${i}`, "Text"), faker.name.findName(), false))
     }
 
     createFakeOverdueEncountersFor(numberOfIndividuals) {
@@ -82,7 +89,7 @@ class FakeDataService extends BaseService {
                 this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
             }
             catch (e) {
-                General.logDebugObject("Failed overdue :(", e);
+                General.logDebug("Failed overdue :(", e);
             }
 
             finally {
@@ -104,7 +111,9 @@ class FakeDataService extends BaseService {
                 const individual = Individual.newInstance(General.randomUUID(),
                     name[0], name[1], new Date(), true, gender, address);
                 individual.registrationDate = new Date();
+                individual.observations = this.createFakeObs(15);
                 const enrolment = ProgramEnrolment.createEmptyInstance();
+                enrolment.observations = this.createFakeObs(20);
                 enrolment.individual = individual;
                 enrolment.program = program;
                 let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
@@ -112,18 +121,28 @@ class FakeDataService extends BaseService {
                 programEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
                 programEncounter.encounterDateTime = new Date();
                 programEncounter.programEnrolment = enrolment;
+                programEncounter.observations = this.createFakeObs(40);
                 let savedIndividual = this.saveOrUpdate(individual, Individual.schema.name);
                 let savedEnrolment = this.saveOrUpdate(enrolment, ProgramEnrolment.schema.name);
                 let savedPE = this.saveOrUpdate(programEncounter, ProgramEncounter.schema.name);
                 this.saveOrUpdate({uuid: individual.uuid, enrolments: [enrolment]}, Individual.schema.name);
                 this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
             } catch (e) {
-                General.logDebugObject("Failed scheduled :(", e);
+                console.log(e);
+                General.logDebug("Failed scheduled :(", e);
             } finally {
                 General.logDebug("Finishing completed -- ", i);
             }
         });
     }
+
+    fakeSearch(searchString) {
+        let individuals = this.db.objects(Individual.schema.name)
+            .filtered('firstName contains[c] $0 or lastName contains[c] $3 or observations.valueJSON contains[c] $1 or enrolments.observations.valueJSON contains[c] $2', searchString, searchString, searchString, searchString);
+        return individuals;
+    }
+
+
 }
 
 export default FakeDataService;

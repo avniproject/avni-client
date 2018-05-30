@@ -96,10 +96,11 @@ export default class Concept {
 
     static merge = () => BaseEntity.mergeOn('answers');
 
-    static create(name, dataType) {
+    static create(name, dataType, uuid = General.randomUUID()) {
         const concept = new Concept();
         concept.name = name;
         concept.datatype = dataType;
+        concept.uuid = uuid;
         return concept;
     }
 

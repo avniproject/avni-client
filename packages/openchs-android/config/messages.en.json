@@ -59,6 +59,7 @@
   "lastName": "Last Name",
   "value": "Value",
   "age": "Age (in years)",
+  "obsKeyword": "Other data",
   "lowestAddressLevel": "Village",
   "Villages": "Villages",
   "search": "SEARCH",

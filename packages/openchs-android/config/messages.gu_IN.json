@@ -1,6 +1,7 @@
 ﻿{
   "name": "નામ",
   "age": "ઉંમર (વર્ષોમાં)",
+  "obsKeyword": "અન્ય ડેટા",
   "lowestAddressLevel": "ગામ",
 
   "months": "મહિના",

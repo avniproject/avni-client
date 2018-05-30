@@ -2,10 +2,12 @@
   "questionnaireList": "फेसला समर्थन",
   "confirmation": "पुष्टीकरण",
   "restart": "पुनः आरंभ करें",
-  "saveAndRestart": "बचाएँ ",
+  "saveAndRestart": "बचाएँ",
   "export": "निर्यात",
   "answersConfirmationTitle": "",
-
+  "obsKeyword": "अन्य डेटा",
+  "name": "नाम",
+  "age": "उम्र",
   "userId": "यूज़र आईडी",
   "password": "पासवर्ड",
   "syncRequired": "समन्वयन आवश्यक है"

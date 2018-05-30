@@ -32,6 +32,7 @@
   "Female": "स्त्री",
   "Other": "Other",
   "name": "नाव",
+  "obsKeyword": "इतर डेटा",
   "firstName": "पहिले नाव",
   "lastName": "आडनाव",
   "lowestAddressLevel": "गाव",

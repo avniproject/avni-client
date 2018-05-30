@@ -24,6 +24,12 @@ class IndividualSearchCriteria {
         if (!_.isEmpty(this.ageInYears)) {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
+
+        if (!_.isEmpty(this.obsKeyword)) {
+            let trimmedKeyword = this.obsKeyword.trim();
+            criteria.push(`(observations.valueJSON contains[c] "${trimmedKeyword}" OR enrolments.observations.valueJSON contains[c] "${trimmedKeyword}")`);
+        }
+
         if (this.lowestAddressLevels.length !== 0) {
             let addressLevelCriteria = [];
             this.lowestAddressLevels.forEach((addressLevel) =>
@@ -39,6 +45,10 @@ class IndividualSearchCriteria {
 
     addNameCriteria(name) {
         this.name = name;
+    }
+
+    addObsCriteria(obsKeyword) {
+        this.obsKeyword = obsKeyword;
     }
 
     toggleLowestAddress(lowestAddress) {
@@ -63,6 +73,7 @@ class IndividualSearchCriteria {
         individualSearchCriteria.lowestAddressLevels = [...this.lowestAddressLevels];
         individualSearchCriteria.name = this.name;
         individualSearchCriteria.ageInYears = this.ageInYears;
+        individualSearchCriteria.obsKeyword = this.obsKeyword;
         return individualSearchCriteria;
     }
 }

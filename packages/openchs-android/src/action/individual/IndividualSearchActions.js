@@ -18,6 +18,12 @@ export class IndividualSearchActions {
         return newState;
     };
 
+    static enterObsCriteria = function (state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addObsCriteria(action.value);
+        return newState;
+    };
+
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
         newState.searchCriteria.toggleLowestAddress(action.value);
@@ -39,6 +45,7 @@ export class IndividualSearchActions {
 const individualSearchActions = {
     ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
+    ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
     TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
     SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS"
 };
@@ -46,6 +53,7 @@ const individualSearchActions = {
 const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_NAME_CRITERIA, IndividualSearchActions.enterNameCriteria],
     [individualSearchActions.ENTER_AGE_CRITERIA, IndividualSearchActions.enterAgeCriteria],
+    [individualSearchActions.ENTER_OBS_CRITERIA, IndividualSearchActions.enterObsCriteria],
     [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
     [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria]
 ]);
