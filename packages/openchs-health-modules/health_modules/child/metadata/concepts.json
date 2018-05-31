@@ -365,18 +365,19 @@
       },
       {
         "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+        "abnormal": true
       }
 
     ]
   },
   {
-    "name": "Any breathing problems",
+    "name": "Child PNC breathing problems",
     "uuid": "17d5ed6e-b571-4e02-bebe-0c9db2c8f5ca",
     "dataType": "Coded",
     "answers": [
       {
-        "name": "Rib indrawing",
+        "name": "Chest indrawing",
         "uuid": "4ac39842-039b-45de-a50d-7b31e51c9850"
       },
       {
@@ -423,7 +424,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Any skin problems",
+    "name": "Child PNC skin problems",
     "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",
     "dataType": "Coded",
     "answers": [
@@ -903,13 +904,15 @@
     "name": "Duration in hours between birth and first urination",
     "uuid": "0a3fb6d3-ea49-4902-95ae-e2514d3739b6",
     "dataType": "Numeric",
-    "unit": "hour(s)"
+    "unit": "hour(s)",
+    "highNormal": 48
   },
   {
     "name": "Duration in hours between birth and meconium",
     "uuid": "e7766535-327c-481c-8eb9-bc43cdb2fab5",
     "dataType": "Numeric",
-    "unit": "hour(s)"
+    "unit": "hour(s)",
+    "highNormal": 48
 
   },
   {
@@ -919,7 +922,7 @@
   },
 
   {
-    "name": "PNC cry related complaints",
+    "name": "Child PNC cry related complaints",
     "uuid": "d6a0c77e-840d-40a2-9282-d22db7ede007",
     "dataType": "Coded",
     "answers": [
@@ -950,7 +953,7 @@
     "dataType": "NA"
   },
   {
-    "name": "PNC feeding related complaints",
+    "name": "Child PNC feeding related complaints",
     "uuid": "bc7b0015-ee9a-4089-b0a3-76862a30aa1c",
     "dataType": "Coded",
     "answers": [
@@ -986,7 +989,7 @@
     "dataType": "NA"
   },
   {
-    "name": "PNC urination related complaints",
+    "name": "Child PNC urination related complaints",
     "uuid": "43a78b5a-f4da-440d-9614-80af65090e1f",
     "dataType": "Coded",
     "answers": [
@@ -1017,7 +1020,7 @@
     "dataType": "NA"
   },
   {
-    "name": "PNC stool related complaints",
+    "name": "Child PNC stool related complaints",
     "uuid": "bcd4495f-41fa-494b-a5d9-a766c87f37f9",
     "dataType": "Coded",
     "answers": [
@@ -1054,7 +1057,7 @@
   },
 
   {
-    "name": "PNC activity related complaints",
+    "name": "Child PNC activity related complaints",
     "uuid": "ad5d7bf8-932a-4eb2-8e8a-7c38dc4bbe2b",
     "dataType": "Coded",
     "answers": [
@@ -1096,12 +1099,12 @@
     "answers": [
       {
         "name": "Yes",
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-        "abnormal": true
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
       },
       {
         "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+        "abnormal": true
       }
 
     ]
@@ -1123,7 +1126,7 @@
   },
 
   {
-    "name": "PNC Eye Examination",
+    "name": "Child PNC eye problems",
     "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8",
     "dataType": "Coded",
     "answers": [
@@ -1152,5 +1155,10 @@
         "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
       }
     ]
+  },
+  {
+    "name": "Urine not passed for more than 48 hours after birth",
+    "uuid": "5fd4d65f-70ab-4a22-a3f7-d7ab3aa2b8a3",
+    "dataType": "NA"
   }
 ]

@@ -40,6 +40,50 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
     referralAdvice.addComplication("Icterus Present")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");
 
+    referralAdvice.addComplication("Urine not passed for more than 48 hours after birth")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Duration in hours between birth and first urination").greaterThan(48);
+
+    referralAdvice.addComplication("Meconium not passed for more than 48 hours after birth")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Duration in hours between birth and meconium").greaterThan(48);
+
+    referralAdvice.addComplication("Child PNC cry related complaints")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC cry related complaints").containsAnswerConceptName("Cries Continuously", "Poor cry");
+
+    referralAdvice.addComplication("Child PNC feeding related complaints")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC feeding related complaints").containsAnswerConceptName("Not sucking milk at all", "Vomiting");
+
+    referralAdvice.addComplication("Child PNC urination related complaints")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC urination related complaints").containsAnswerConceptName("No micturation", "Difficulty in micturation");
+
+    referralAdvice.addComplication("Child PNC stool related complaints")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC stool related complaints").containsAnswerConceptName("Blood in stools", "Loose stools", "Not passing stools");
+
+    referralAdvice.addComplication("Child PNC activity related complaints")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC activity related complaints").containsAnswerConceptName("Sluggish movements", "Not sucking milk at all", "Convulsions", "Slow activity / lethargic", "Unconscious");
+
+    referralAdvice.addComplication("Fever/Chills")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Fever/Chills").containsAnswerConceptName("Yes");
+
+    referralAdvice.addComplication("Child PNC eye problems")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC eye problems").containsAnswerConceptName("Redness of eyes", "Swollen eyelids", "Discharge from eyes", "Icterus Present");
+
+    referralAdvice.addComplication("Child PNC skin problems")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC skin problems").containsAnswerConceptName("Blue/pale", "Umbilical redness and or discharge", "Umbilical Abscess", "Rash", "Wrinkled Skin", "Sunken fontanelle", "Skin blisters");
+
+    referralAdvice.addComplication("Child PNC breathing problems")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child PNC breathing problems").containsAnswerConceptName("Chest indrawing", "Breathing too fast", "Breathing too slow", "Grunting noises while breathing");
+
     return referralAdvice.getComplications();
 };
 

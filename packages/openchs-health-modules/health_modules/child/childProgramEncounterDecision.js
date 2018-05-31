@@ -7,9 +7,9 @@ import generateHighRiskConditionAdvice from "./highRisk";
 
 
 export function getDecisions(programEncounter, today) {
-    if (programEncounter.encounterType.name === 'Birth') {
+    if (programEncounter.encounterType.name === 'Birth' || programEncounter.encounterType.name === 'Child PNC') {
         let decisions = [
-            birthRecommendations(programEncounter.programEnrolment, programEncounter),
+            recommendations(programEncounter.programEnrolment, programEncounter),
             immediateReferralAdvice(programEncounter.programEnrolment, programEncounter, today),
             referralAdvice(programEncounter.programEnrolment, programEncounter, today)
         ];
@@ -27,12 +27,14 @@ export function getDecisions(programEncounter, today) {
 }
 
 
-const birthRecommendations = (enrolment, encounter) => {
+const recommendations = (enrolment, encounter) => {
     const recommendationBuilder = new ComplicationsBuilder({
         programEnrolment: enrolment,
         programEncounter: encounter,
         complicationsConcept: 'Recommendations'
     });
+
+    console.log("Came to find recommendations");
 
     recommendationBuilder.addComplication("Keep the baby warm")
         .when.valueInEncounter("Child Pulse").lessThan(100)
@@ -46,8 +48,12 @@ const birthRecommendations = (enrolment, encounter) => {
     ;
 
     recommendationBuilder.addComplication("Give exclusive breast feeding")
-        .when.valueInEncounter("Child Temperature").lessThan(97.5)
-    ;
+        .when.valueInEncounter("Child Temperature").lessThan(97.5);
+
+    recommendationBuilder.addComplication("Give exclusive breast feeding")
+        .when.encounterType.equals("Child PNC")
+        .and.valueInEncounter("Is baby exclusively breastfeeding").containsAnswerConceptName("No");
+
     return recommendationBuilder.getComplications();
 };
 
