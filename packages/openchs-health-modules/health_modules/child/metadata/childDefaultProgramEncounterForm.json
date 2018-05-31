@@ -1,5 +1,5 @@
 {
-  "name": "Child Default",
+  "name": "Child PNC",
   "uuid": "e09dddeb-ed72-40c4-ae8d-112d8893f18b",
   "formType": "ProgramEncounter",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
@@ -11,29 +11,29 @@
       "display": "Recent History",
       "formElements": [
         {
-          "name": "Is child having any of the following",
+          "name": "When did the child pass urine for the first time after birth?",
           "uuid": "d6b5cb76-843b-48b7-a0f1-645caf9a178e",
           "keyValues": [],
-          "type": "MultiSelect",
           "concept": {
-            "uuid": "9f5d3794-cf4c-47a3-bc65-7e47f55ec7fd",
-            "name": "Is child having any of the following"
+            "name": "Duration in hours between birth and first urination",
+            "uuid": "0a3fb6d3-ea49-4902-95ae-e2514d3739b6"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
-          "name": "Number of days of diarrhea",
+          "name": "When did the child pass meconium for the first time after birth",
           "uuid": "4849b8dd-cce8-4302-b77e-5bf28a555229",
           "keyValues": [],
           "concept": {
-            "uuid": "0b71db57-0add-4215-b198-0e9773d7da31",
-            "name": "Number of days of diarrhea"
+            "name": "Duration in hours between birth and meconium",
+            "uuid": "e7766535-327c-481c-8eb9-bc43cdb2fab5"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
+          "voided": true,
           "name": "Any activity problems",
           "uuid": "018f9968-79cf-4e40-988d-1befcdff73bb",
           "keyValues": [],
@@ -46,6 +46,7 @@
           "mandatory": false
         },
         {
+          "voided": true,
           "name": "Does child feel hot or have the chills",
           "uuid": "0dbaa2f0-080b-4657-b421-621943d4dd99",
           "keyValues": [],
@@ -58,6 +59,7 @@
           "mandatory": false
         },
         {
+          "voided": true,
           "name": "Is baby exclusively breastfeeding",
           "uuid": "0311c913-eb2b-4478-b435-dc142e7fe584",
           "keyValues": [],
@@ -72,9 +74,113 @@
       ]
     },
     {
+      "uuid": "daea5603-e7c8-449f-85ad-da9be62c2288",
+      "name": "Child PNC Complaints",
+      "displayOrder": 2,
+      "display": "PNC Complaints",
+      "formElements": [
+        {
+          "name": "Cry related complaints",
+          "uuid": "0b652f14-8d13-49d7-94fd-8c39a72f4033",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "PNC cry related complaints",
+            "uuid": "d6a0c77e-840d-40a2-9282-d22db7ede007"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Feeding related complaints",
+          "uuid": "67bb881d-808f-41ba-a336-27a57111ee1d",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "PNC feeding related complaints",
+            "uuid": "bc7b0015-ee9a-4089-b0a3-76862a30aa1c"
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Urination related complaints",
+          "uuid": "6181ecd8-3bfa-433b-96b1-768186bb03f5",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "PNC urination related complaints",
+            "uuid": "43a78b5a-f4da-440d-9614-80af65090e1f"
+          },
+          "displayOrder": 3,
+          "mandatory": true
+        },
+        {
+          "name": "Stool related complaints",
+          "uuid": "6564bc9a-aef4-48cf-b517-69848358f3e0",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "PNC stool related complaints",
+            "uuid": "bcd4495f-41fa-494b-a5d9-a766c87f37f9"
+          },
+          "displayOrder": 4,
+          "mandatory": true
+        },
+        {
+          "name": "Loose motion since how many days",
+          "uuid": "def57525-ba02-4aea-a79a-ab2513f0a7eb",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Number of days of diarrhoea",
+            "uuid": "0b71db57-0add-4215-b198-0e9773d7da31"
+          },
+          "displayOrder": 5,
+          "mandatory": false
+        },
+        {
+          "name": "Activity related complaints",
+          "uuid": "e9361bd1-9e3b-41e4-b83b-576aa83bd08b",
+          "keyValues": [],
+          "type": "MultiSelect",
+          "concept": {
+            "name": "PNC activity related complaints",
+            "uuid": "ad5d7bf8-932a-4eb2-8e8a-7c38dc4bbe2b"
+          },
+          "displayOrder": 6,
+          "mandatory": true
+        },
+        {
+          "name": "Does feel hot or have the chills?",
+          "uuid": "fe794b79-cd35-4a43-a203-e56fdfe08b63",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Fever/Chills",
+            "uuid": "2441879f-4f53-4755-9474-3168c68095a5"
+          },
+          "displayOrder": 7,
+          "mandatory": true
+        },
+        {
+          "name": "Child feeds only on mothers milk?",
+          "uuid": "a8aba1cf-be72-4bb0-bf04-d051ddbe5857",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Is baby exclusively breastfeeding",
+            "uuid": "5a3b65c1-1647-47d0-ad66-d8b22722c472"
+          },
+          "displayOrder": 8,
+          "mandatory": true
+        }
+      ]
+    },
+    {
       "uuid": "abde79ae-b9d5-484d-832e-be69d87824f4",
       "name": "Child Vitals",
-      "displayOrder": 2,
+      "displayOrder": 3,
       "display": "Vitals",
       "formElements": [
         {
@@ -85,7 +191,7 @@
             "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Respiratory Rate",
@@ -95,7 +201,7 @@
             "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Pulse",
@@ -105,46 +211,58 @@
             "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8"
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
         }
       ]
     },
     {
       "uuid": "4c5093dd-feb3-4f94-b930-b7168bb65c71",
       "name": "Child Examination",
-      "displayOrder": 3,
+      "displayOrder": 4,
       "display": "Examination",
       "formElements": [
         {
           "name": "Any breathing problems",
           "uuid": "37e5335a-42bc-4a25-840a-e82e820f4f15",
           "keyValues": [],
-          "type": "SingleSelect",
+          "type": "MultiSelect",
           "concept": {
             "uuid": "17d5ed6e-b571-4e02-bebe-0c9db2c8f5ca",
             "name": "Any breathing problems"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Any skin problems",
           "uuid": "a489a772-08f7-49c9-8bbc-814cfdcf1525",
           "keyValues": [],
-          "type": "SingleSelect",
+          "type": "MultiSelect",
           "concept": {
             "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",
             "name": "Any skin problems"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
+        },
+        {
+          "name": "Any eye problems",
+          "uuid": "84cc43d5-72ed-4f01-918e-86ecd7464079",
+          "keyValues": [],
+          "type": "MultiSelect",
+          "concept": {
+            "name": "PNC Eye Examination",
+            "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8"
+          },
+          "displayOrder": 3,
+          "mandatory": true
         }
       ]
     },
     {
       "uuid": "550cc969-4021-4d13-8ad3-d8759388205b",
       "name": "Child Anthropometry",
-      "displayOrder": 4,
+      "displayOrder": 5,
       "display": "Anthropometry",
       "formElements": [
         {

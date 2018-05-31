@@ -211,7 +211,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Rib indrawing",
+    "name": "Chest indrawing",
     "uuid": "4ac39842-039b-45de-a50d-7b31e51c9850",
     "dataType": "NA"
   },
@@ -312,7 +312,7 @@
     ]
   },
   {
-    "name": "Number of days of diarrhea",
+    "name": "Number of days of diarrhoea",
     "uuid": "0b71db57-0add-4215-b198-0e9773d7da31",
     "dataType": "Numeric"
   },
@@ -360,13 +360,14 @@
     "dataType": "Coded",
     "answers": [
       {
-        "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-      },
-      {
         "name": "Yes",
         "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
       }
+
     ]
   },
   {
@@ -397,26 +398,80 @@
     ]
   },
   {
+    "name": "Umbilical redness and or discharge",
+    "uuid": "eb030ccc-865c-43d1-84f1-11c20e7e7fc2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Umbilical Abscess",
+    "uuid": "4cc68725-905b-4f29-800a-5032bc169c4d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Rash",
+    "uuid": "966bf035-b14f-4fd0-8b2d-22798ad330c7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Wrinkled Skin",
+    "uuid": "efe68956-0ff4-4391-af2b-c9e49bb9e97e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Sunken fontanelle",
+    "uuid": "0210eee7-90e8-4c93-bd41-3c8f3dcb95c7",
+    "dataType": "NA"
+  },
+  {
     "name": "Any skin problems",
     "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",
     "dataType": "Coded",
     "answers": [
       {
-        "name": "No problem",
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
-      },
-      {
         "name": "Umbilical cord is infected",
-        "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077"
+        "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077",
+        "voided": true
       },
       {
-        "name": "Jaundice",
-        "uuid": "352bb8a4-1569-492f-9a53-14e3b134c104"
+        "name": "Blue/pale",
+        "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
+        "abnormal": true
+      },
+      {
+        "name": "Umbilical redness and or discharge",
+        "uuid": "eb030ccc-865c-43d1-84f1-11c20e7e7fc2",
+        "abnormal": true
+      },
+      {
+        "name": "Umbilical Abscess",
+        "uuid": "4cc68725-905b-4f29-800a-5032bc169c4d",
+        "abnormal": true
+      },
+      {
+        "name": "Rash",
+        "uuid": "966bf035-b14f-4fd0-8b2d-22798ad330c7",
+        "abnormal": true
+      },
+      {
+        "name": "Wrinkled Skin",
+        "uuid": "efe68956-0ff4-4391-af2b-c9e49bb9e97e",
+        "abnormal": true
+      },
+      {
+        "name": "Sunken fontanelle",
+        "uuid": "0210eee7-90e8-4c93-bd41-3c8f3dcb95c7",
+        "abnormal": true
       },
       {
         "name": "Skin blisters",
-        "uuid": "fdfbfbc8-0a77-4ade-9a26-4203e23c3f82"
+        "uuid": "fdfbfbc8-0a77-4ade-9a26-4203e23c3f82",
+        "abnormal": true
+      },
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
       }
+
     ]
   },
   {
@@ -640,7 +695,7 @@
     "name": "Breast feeding started",
     "uuid": "05a76d7c-aa02-4023-9d98-639c36a269a7",
     "dataType": "Numeric",
-    "unit": "Day(s)"
+    "unit": "day(s)"
   },
   {
     "name": "Birth Weight",
@@ -773,5 +828,329 @@
     "lowNormal": 97.5,
     "highNormal": 99.5,
     "unit": "°F"
+  },
+  {
+    "name": "Child born Underweight",
+    "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
+    "dataType": "NA"
+  },
+  {
+    "name": "Did not cry soon after birth",
+    "uuid": "603a37fb-1179-477d-a4bc-cb9f2f463f25",
+    "dataType": "NA"
+  },
+  {
+    "name": "Not Breast-fed within 1 hour of birth",
+    "uuid": "57f0b3c2-372e-4af7-8a0d-b23228f836db",
+    "dataType": "NA"
+  },
+  {
+    "name": "Colour of child is Pale or Blue",
+    "uuid": "73f97a3b-3b71-4b63-81f6-16976ee00aac",
+    "dataType": "NA"
+  },
+  {
+    "name": "Reflex Absent",
+    "uuid": "f2eb3d4c-838d-4f67-9815-cf108e0f05ff",
+    "dataType": "NA"
+  },
+  {
+    "name": "Muscle tone Absent/Flexed arms and legs",
+    "uuid": "8701cdcf-5d23-4b05-8be0-310159758a4d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Pulse <100 or > 160 bpm",
+    "uuid": "e183bd41-eedf-458e-a96f-f818bf128243",
+    "dataType": "NA"
+  },
+  {
+    "name": "Low Temperature",
+    "uuid": "15f3e8c9-b39e-4617-b54e-6a425d8fa9a2",
+    "dataType": "NA"
+  },
+  {
+    "name": "High Temperature",
+    "uuid": "eb1ec712-8a28-4511-ba59-4254ad301700",
+    "dataType": "NA"
+  },
+  {
+    "name": "Respiratory Rate <30 or > 60 bpm",
+    "uuid": "6b329b8c-04b7-4cdd-90ea-1cd79dbd014b",
+    "dataType": "NA"
+  },
+  {
+    "name": "Icterus present",
+    "uuid": "bab23da4-603e-4f9e-a823-90cc785d8f2f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Keep the baby warm",
+    "uuid": "d53ccfbc-f5fd-4225-9b28-1736ec6c50b5",
+    "dataType": "NA"
+  },
+  {
+    "name": "Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.",
+    "uuid": "e3e5b7aa-e24c-4f97-98fb-a175a9721e53",
+    "dataType": "NA"
+  },
+  {
+    "name": "Give exclusive breast feeding",
+    "uuid": "d98df61f-00f4-4b06-816e-1e36fca847c2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Duration in hours between birth and first urination",
+    "uuid": "0a3fb6d3-ea49-4902-95ae-e2514d3739b6",
+    "dataType": "Numeric",
+    "unit": "hour(s)"
+  },
+  {
+    "name": "Duration in hours between birth and meconium",
+    "uuid": "e7766535-327c-481c-8eb9-bc43cdb2fab5",
+    "dataType": "Numeric",
+    "unit": "hour(s)"
+
+  },
+  {
+    "name": "Poor cry",
+    "uuid": "2dab5910-bc76-4e8c-815f-627525958a25",
+    "dataType": "NA"
+  },
+
+  {
+    "name": "PNC cry related complaints",
+    "uuid": "d6a0c77e-840d-40a2-9282-d22db7ede007",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Cries Continuously",
+        "uuid": "0cd1ca5a-8a93-4edd-b7de-ace0f45d504a",
+        "abnormal": true
+      },
+      {
+        "name": "Poor cry",
+        "uuid": "2dab5910-bc76-4e8c-815f-627525958a25",
+        "abnormal": true
+      },
+      {
+        "name": "None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+      }
+    ]
+  },
+  {
+    "name": "Sucking well",
+    "uuid": "176bf779-21ce-4dff-ad0b-a28d45806ba8",
+    "dataType": "NA"
+  },
+  {
+    "name": "Not sucking milk at all",
+    "uuid": "8422c270-11fc-4bf5-85b0-bb3aeb2d39b9",
+    "dataType": "NA"
+  },
+  {
+    "name": "PNC feeding related complaints",
+    "uuid": "bc7b0015-ee9a-4089-b0a3-76862a30aa1c",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Sucking well",
+        "uuid": "176bf779-21ce-4dff-ad0b-a28d45806ba8"
+      },
+      {
+        "name": "Not sucking milk at all",
+        "uuid": "8422c270-11fc-4bf5-85b0-bb3aeb2d39b9",
+        "abnormal": true
+      },
+      {
+        "name": "Vomiting",
+        "uuid": "8126ae79-28d5-4587-bca1-1c8f518b48f4",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Proper micturation",
+    "uuid": "23d4fd31-1868-4605-a310-8e7a295cd37f",
+    "dataType": "NA"
+  },
+  {
+    "name": "No micturation",
+    "uuid": "874d4998-85f8-45a9-ba81-1e187a6b3278",
+    "dataType": "NA"
+  },
+  {
+    "name": "Difficulty in micturation",
+    "uuid": "c97a10fb-10ac-421e-a352-3244ef1753a7",
+    "dataType": "NA"
+  },
+  {
+    "name": "PNC urination related complaints",
+    "uuid": "43a78b5a-f4da-440d-9614-80af65090e1f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Proper micturation",
+        "uuid": "23d4fd31-1868-4605-a310-8e7a295cd37f"
+      },
+      {
+        "name": "No micturation",
+        "uuid": "874d4998-85f8-45a9-ba81-1e187a6b3278",
+        "abnormal": true
+      },
+      {
+        "name": "Difficulty in micturation",
+        "uuid": "c97a10fb-10ac-421e-a352-3244ef1753a7",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Loose stools",
+    "uuid": "a98c6c67-8c47-4a60-9f7b-82cd261167a4",
+    "dataType": "NA"
+  },
+  {
+    "name": "Not passing stools",
+    "uuid": "6481a8c2-fab8-49ad-bb37-d6abb72513ca",
+    "dataType": "NA"
+  },
+  {
+    "name": "PNC stool related complaints",
+    "uuid": "bcd4495f-41fa-494b-a5d9-a766c87f37f9",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Blood in stools",
+        "uuid": "ced8bcd4-642e-4e45-9af8-f9f9cf9c7b1f",
+        "abnormal": true
+      },
+      {
+        "name": "Loose stools",
+        "uuid": "a98c6c67-8c47-4a60-9f7b-82cd261167a4",
+        "abnormal": true
+      },
+      {
+        "name": "Not passing stools",
+        "uuid": "6481a8c2-fab8-49ad-bb37-d6abb72513ca",
+        "abnormal": true
+      },
+      {
+        "name": "None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+      }
+    ]
+  },
+  {
+    "name": "Sluggish movements",
+    "uuid": "7c767ec4-dfe8-46de-aeec-87dfaab3f056",
+    "dataType": "NA"
+  },
+  {
+    "name": "Unconscious",
+    "uuid": "04d0248b-72c4-4d78-b4f1-3e3d9cc247b1",
+    "dataType": "NA"
+  },
+
+  {
+    "name": "PNC activity related complaints",
+    "uuid": "ad5d7bf8-932a-4eb2-8e8a-7c38dc4bbe2b",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Sluggish movements",
+        "uuid": "7c767ec4-dfe8-46de-aeec-87dfaab3f056",
+        "abnormal": true
+      },
+      {
+        "name": "Not sucking milk at all",
+        "uuid": "8422c270-11fc-4bf5-85b0-bb3aeb2d39b9",
+        "abnormal": true
+      },
+      {
+        "name": "Convulsions",
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+        "abnormal": true
+      },
+      {
+        "name": "Slow activity / lethargic",
+        "uuid": "23884265-d78e-4159-8e04-dc9de88b1a4f",
+        "abnormal": true
+      },
+      {
+        "name": "Unconscious",
+        "uuid": "04d0248b-72c4-4d78-b4f1-3e3d9cc247b1",
+        "abnormal": true
+      },
+      {
+        "name": "None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+      }
+    ]
+  },
+  {
+    "name": "Fever/Chills",
+    "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
+        "abnormal": true
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+
+    ]
+  },
+  {
+    "name": "Redness of eyes",
+    "uuid": "f68197ea-a8b0-4187-a816-234ebf2720ee",
+    "dataType": "NA"
+  },
+  {
+    "name": "Swollen eyelids",
+    "uuid": "3b98f4f8-fa9b-4af1-bf16-e1cc3b25c03f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Discharge from eyes",
+    "uuid": "388cd26f-f73e-498f-8e33-1a23320b30a5",
+    "dataType": "NA"
+  },
+
+  {
+    "name": "PNC Eye Examination",
+    "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Redness of eyes",
+        "uuid": "f68197ea-a8b0-4187-a816-234ebf2720ee",
+        "abnormal": true
+      },
+      {
+        "name": "Swollen eyelids",
+        "uuid": "3b98f4f8-fa9b-4af1-bf16-e1cc3b25c03f",
+        "abnormal": true
+      },
+      {
+        "name": "Discharge from eyes",
+        "uuid": "388cd26f-f73e-498f-8e33-1a23320b30a5",
+        "abnormal": true
+      },
+      {
+        "name": "Icterus Present",
+        "uuid": "bab23da4-603e-4f9e-a823-90cc785d8f2f",
+        "abnormal": true
+      },
+      {
+        "name": "None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+      }
+    ]
   }
 ]

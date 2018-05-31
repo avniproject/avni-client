@@ -3139,22 +3139,6 @@
     ]
   },
   {
-    "name": "Does feel hot or have the chills",
-    "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
-      },
-      {
-        "name": "Yes",
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
-        "abnormal": true
-      }
-    ]
-  },
-  {
     "name": "Post-Partum Depression Symptoms",
     "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",
     "dataType": "Coded",

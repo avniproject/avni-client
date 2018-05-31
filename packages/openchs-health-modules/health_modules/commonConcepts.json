@@ -1325,5 +1325,11 @@
         "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
       }
     ]
+  },
+  {
+    "name": "Boils",
+    "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9",
+    "dataType": "NA"
   }
+
 ]
