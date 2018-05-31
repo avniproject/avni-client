@@ -184,6 +184,13 @@ export default class RuleCondition {
         });
     }
 
+    get asDaysSince() {
+        return this._addToChain((next, context) => {
+            context.valueToBeChecked = context.valueToBeChecked && moment(this._contextualTime(context)).diff(moment(context.valueToBeChecked), "days");
+            return next(context);
+        });
+    }
+
     get male() {
         return this._addToChain((next, context) => {
             context.matches = this._getIndividual(context).gender.name === "Male";

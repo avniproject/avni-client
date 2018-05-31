@@ -534,6 +534,24 @@
     "dataType": "NA"
   },
   {
+    "name": "Agalactorrhea- no or insufficient lactation",
+    "uuid": "189577a3-1b82-4b33-a9de-345de795a860",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Breast engorgement",
+    "uuid": "872e901c-15ef-4321-ae1d-0e7561b19093",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Breast abcess",
+    "uuid": "39e46278-8278-4c49-95a8-8af166723a5e",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
     "name": "Normal",
     "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
     "dataType": "NA"
@@ -1317,12 +1335,12 @@
     "dataType": "NA"
   },
   {
-    "name": "Ferrous Sulphate (100mg)",
+    "name": "Ferrous Sulphate (100mg) 1 OD",
     "uuid": "77e9e9d8-671c-483b-a460-33f1c65b6bcc",
     "dataType": "NA"
   },
   {
-    "name": "Ferrous Sulphate (200mg)",
+    "name": "Ferrous Sulphate (200mg) 1 OD",
     "uuid": "33651495-9255-4885-977d-f6b2bf8471cc",
     "dataType": "NA"
   },
@@ -3105,6 +3123,21 @@
         "abnormal": true
       },
       {
+        "name": "Agalactorrhea- no or insufficient lactation",
+        "uuid": "189577a3-1b82-4b33-a9de-345de795a860",
+        "abnormal": true
+      },
+      {
+        "name": "Breast engorgement",
+        "uuid": "872e901c-15ef-4321-ae1d-0e7561b19093",
+        "abnormal": true
+      },
+      {
+        "name": "Breast abcess",
+        "uuid": "39e46278-8278-4c49-95a8-8af166723a5e",
+        "abnormal": true
+      },
+      {
         "name": "No problem",
         "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
         "unique": true
@@ -3230,5 +3263,40 @@
     "uuid": "a7d52633-56ff-486d-b451-b119d74a7760",
     "name": "Other abortion complaints",
     "dataType": "Text"
+  },
+  {
+    "uuid": "8388ae07-4373-47c4-a8f5-2275a252c649",
+    "name": "Abdominal problems",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "ef2507b0-b070-4e7c-b61a-47ed87b8432f",
+    "name": "Vaginal problems",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "1cc9bca7-2774-40b3-9999-df2323bd2402",
+    "name": "Urination difficulties",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "5f2ba759-58ca-4fa9-8fee-3063e076d8fa",
+    "name": "Breast-related problems",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "e30b164e-3edc-4098-8271-42c4f483eec8",
+    "name": "Cesarean incision problems",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "42292a37-089f-462a-b174-130de4137baa",
+    "name": "Feeling hot or has chills",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "a410eda0-4794-4fd4-86ca-bd1eaa88040e",
+    "name": "Not using contraceptives",
+    "dataType": "NA"
   }
 ]

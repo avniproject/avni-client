@@ -11,6 +11,10 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
         programEncounter: encounter,
         complicationsConcept: 'Refer to the hospital immediately for'
     });
+
+    if (encounter && encounter.encounterType.name === "PNC")
+        return pncImmediateReferralAdvice(referralAdvice);
+
     referralAdvice.addComplication("TB")
         .when.valueInEnrolment("Did she complete her TB treatment?").containsAnswerConceptName("No")
         .or.when.valueInEnrolment("Has she been taking her TB medication regularly?").containsAnswerConceptName("No");
@@ -73,6 +77,72 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
     return referralAdvice.getComplications();
 };
 
+const pncImmediateReferralAdvice = (referralAdviceObj) => {
+    referralAdviceObj.addComplication("Hypertension")
+        .when.valueInEncounter("Systolic").greaterThanOrEqualTo(140)
+        .or.when.valueInEncounter("Diastolic").greaterThanOrEqualTo(90);
+
+    referralAdviceObj.addComplication("Fever")
+        .when.valueInEncounter("Temperature").greaterThan(99);
+
+    referralAdviceObj.addComplication("Abnormal Hb")
+        .when.valueInEncounter("Hb % Level").lessThan(8);
+
+    referralAdviceObj.addComplication("Post-Partum Haemorrhage symptoms")
+        .when.valueInEncounter("Post-Partum Haemorrhage symptoms")
+        .containsAnyAnswerConceptName("Difficulty breathing", "Bad headache", "Blurred vision");
+
+    referralAdviceObj.addComplication("Abdominal problems")
+        .when.valueInEncounter("Any abdominal problems")
+        .containsAnyAnswerConceptName("Uterus is soft or tender", "Abdominal pain");
+
+    referralAdviceObj.addComplication("Vaginal problems")
+        .when.valueInEncounter("Any vaginal problems")
+        .containsAnyAnswerConceptName("Heavy bleeding per vaginum", "Bad-smelling lochia", "Infected perineum suture");
+
+    referralAdviceObj.addComplication("Urination difficulties")
+        .when.valueInEncounter("Any difficulties with urinating")
+        .containsAnyAnswerConceptName("Difficulty passing urine", "Burning Urination");
+
+    referralAdviceObj.addComplication("Breast-related problems")
+        .when.valueInEncounter("Any breast problems")
+        .containsAnyAnswerConceptName("Cracked Nipple", "Nipple hardness", "Breast hardness", "Agalactorrhea- no or insufficient lactation", "Breast engorgement", "Breast abcess");
+
+    referralAdviceObj.addComplication("Cesarean incision problems")
+        .when.valueInEncounter("How is the Cesarean incision area")
+        .containsAnyAnswerConceptName("Indurated", "Looks red", "Filled with pus");
+
+    referralAdviceObj.addComplication("Feeling hot or has chills")
+        .when.valueInEncounter("Does feel hot or have the chills")
+        .containsAnswerConceptName("Yes");
+
+    referralAdviceObj.addComplication("Convulsions")
+        .when.valueInEncounter("Convulsions")
+        .containsAnswerConceptName("Present");
+
+    return referralAdviceObj.getComplications();
+};
+
+const pncReferralAdvice = (referralAdviceObj) => {
+    referralAdviceObj.addComplication("Post-Partum Depression Symptoms")
+        .when.valueInEncounter("Post-Partum Depression Symptoms")
+        .containsAnyAnswerConceptName("Insomnia", "Irritability", "Loss of appetite", "Weakness");
+
+    referralAdviceObj.addComplication("Irregular pulse")
+        .when.valueInEncounter("Pulse").is.lessThan(60)
+        .or.when.valueInEncounter("Pulse").is.greaterThan(100);
+
+    referralAdviceObj.addComplication("Irregular Respiratory Rate")
+        .when.valueInEncounter("Respiratory Rate").is.lessThan(12)
+        .or.when.valueInEncounter("Respiratory Rate").is.greaterThan(20);
+
+    referralAdviceObj.addComplication("Not using contraceptives")
+        .valueInEncounter("Is the mother using any contraceptive method?")
+        .containsAnswerConceptName("No");
+
+    return referralAdviceObj.getComplications();
+};
+
 const referralAdvice = (enrolment, encounter, today = new Date()) => {
     const referralAdvice = new ComplicationsBuilder({
         programEnrolment: enrolment,
@@ -81,6 +151,9 @@ const referralAdvice = (enrolment, encounter, today = new Date()) => {
     });
 
     if (_.isEmpty(encounter)) return referralAdvice.getComplications();
+
+    if (encounter && encounter.encounterType.name === "PNC")
+        return pncReferralAdvice(referralAdvice);
 
     ["Flat", "Retracted"].forEach((nippleState) => {
         referralAdvice.addComplication(`${nippleState} Nipples`)

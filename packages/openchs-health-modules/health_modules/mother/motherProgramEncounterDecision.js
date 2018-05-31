@@ -4,6 +4,7 @@ import {getDecisions as abortionEncounterDecisions} from "./abortionEncounterDec
 import C from '../common';
 import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
+import PNCFormHandler from "./formFilters/PNCFormHandler";
 import AbortionFormhandler from "./formFilters/AbortionFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
@@ -45,7 +46,12 @@ export function getDecisions(programEncounter, today) {
     }
 
     if (programEncounter.encounterType.name === 'PNC') {
-        return pncEncounterDecisions(programEncounter);
+        let decisions = [];
+        decisions = decisions.concat(generateTreatment(programEncounter.programEnrolment, programEncounter))
+            .concat(immediateReferralAdvice(programEncounter.programEnrolment, programEncounter))
+            .concat(referralAdvice(programEncounter.programEnrolment, programEncounter));
+
+        return { encounterDecisions : decisions };
     }
 
     if (programEncounter.encounterType.name === "Delivery") {
@@ -254,6 +260,7 @@ export function getNextScheduledVisits(programEncounter, config, today) {
 
 const encounterTypeHandlerMap = new Map([
     ['ANC', new ANCFormhandler()],
+    ['PNC', new PNCFormHandler()],
     ['Delivery', new DeliveryFormHandler()],
     ['Abortion', new AbortionFormhandler()]
 ]);

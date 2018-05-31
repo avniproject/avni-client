@@ -35,8 +35,29 @@ const treatment = (enrolment, encounter, today) => {
     return treatmentBuilder.getComplications()
 };
 
+const pncTreatment = (enrolment, encounter, today) => {
+    const treatmentBuilder = new ComplicationsBuilder({
+        programEnrolment: enrolment,
+        programEncounter: encounter,
+        complicationsConcept: 'Treatment'
+    });
+
+    treatmentBuilder.addComplication("Calcium 1g/day");
+
+    treatmentBuilder.addComplication("Ferrous Sulphate (100mg) 1 OD")
+        .when.valueInEncounter("Hb % Level").greaterThanOrEqualTo(11);
+
+    treatmentBuilder.addComplication("Ferrous Sulphate (200mg) 1 OD")
+        .when.valueInEncounter("Hb % Level").greaterThanOrEqualTo(8)
+        .and.when.valueInEncounter("Hb % Level").lessThan(11);
+
+    return treatmentBuilder.getComplications()
+};
+
+
 const generateTreatment = (enrolment, encounter, today = new Date()) => {
-    return treatment(enrolment, encounter, today);
+    if (encounter.encounterType.name === 'ANC') return treatment(enrolment, encounter, today);
+    if (encounter.encounterType.name === 'PNC') return pncTreatment(enrolment, encounter, today);
 };
 
 export default generateTreatment;

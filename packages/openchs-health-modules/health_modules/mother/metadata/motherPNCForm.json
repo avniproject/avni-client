@@ -19,7 +19,7 @@
             "name": "Systolic"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Diastolic",
@@ -30,7 +30,7 @@
             "name": "Diastolic"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Temperature",
@@ -40,7 +40,7 @@
             "uuid": "e6edb61c-c3d9-44c8-abf7-4fd09fe39ec9"
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Respiratory Rate",
@@ -50,7 +50,7 @@
             "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37"
           },
           "displayOrder": 4,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Pulse",
@@ -60,7 +60,7 @@
             "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8"
           },
           "displayOrder": 5,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Hb % Level",
@@ -91,7 +91,7 @@
             "name": "Post-Partum Haemorrhage symptoms"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Any abdominal problems",
@@ -103,7 +103,7 @@
             "name": "Any abdominal problems"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Any vaginal problems",
@@ -115,7 +115,7 @@
             "name": "Any vaginal problems"
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Any difficulties with urinating",
@@ -127,7 +127,7 @@
             "name": "Any difficulties with urinating"
           },
           "displayOrder": 4,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Any breast problems",
@@ -139,7 +139,7 @@
             "name": "Any breast problems"
           },
           "displayOrder": 5,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "How is the Cesarean incision area",
@@ -163,7 +163,7 @@
             "name": "Does feel hot or have the chills"
           },
           "displayOrder": 7,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Convulsions",
@@ -174,7 +174,7 @@
             "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8"
           },
           "displayOrder": 8,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Do you have the following complaints",
@@ -186,7 +186,7 @@
             "name": "Post-Partum Depression Symptoms"
           },
           "displayOrder": 9,
-          "mandatory": false
+          "mandatory": true
         }
       ]
     }
