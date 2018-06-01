@@ -31,6 +31,7 @@
   "syncRequired": "Sync Required",
   "syncingData": "Syncing Data",
   "changePassword": "Change Password",
+  "logout": "Logout",
   "close": "X",
   "serverURL": "Server URL",
   "catchmentId": "Catchment Id",
