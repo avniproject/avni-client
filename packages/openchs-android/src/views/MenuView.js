@@ -1,4 +1,4 @@
-import {Alert, Animated, Text, View, Dimensions, Modal, ActivityIndicator} from "react-native";
+import {Alert, ToastAndroid, Text, View, Dimensions, Modal, ActivityIndicator} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
@@ -146,6 +146,15 @@ class MenuView extends AbstractComponent {
         }
     }
 
+    logout() {
+        const authService = this.context.getService(AuthService);
+        authService.logout().then(() => {
+            CHSNavigator.navigateToLoginView(this, false, () => {
+                CHSNavigator.navigateToLandingView(this, true, {tabIndex: 2, menuProps: {startSync: false}});
+            });
+        });
+    }
+
     myDashboard() {
         TypedTransition.from(this).to(MyDashboardView);
     }
@@ -225,6 +234,7 @@ class MenuView extends AbstractComponent {
             ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
             ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
+            ["logout", this.I18n.t("logout"), this.logout.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["face", "Run Rules", this.runRules.bind(this), () => __DEV__]
         ];
