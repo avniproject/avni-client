@@ -1,5 +1,5 @@
-import RuleCondition from "./RuleCondition";
-import {FormElementStatus} from "openchs-models";
+import RuleCondition from "../RuleCondition";
+import {FormElementStatus} from "../../../../openchs-models/index";
 import _ from "lodash";
 
 export default class FormElementStatusBuilder {

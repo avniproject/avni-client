@@ -1,4 +1,4 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 
 export default class ExitFormHandler {
 

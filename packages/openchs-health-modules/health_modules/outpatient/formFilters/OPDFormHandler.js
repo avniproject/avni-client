@@ -1,4 +1,4 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 import C from '../../common';
 import _ from 'lodash';
 import FormElementStatus from "../../../../openchs-models/src/application/FormElementStatus";

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import RuleCondition from "./RuleCondition";
+import RuleCondition from "../RuleCondition";
 
 export default class ComplicationsBuilder {
 

@@ -1,6 +1,6 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 import _ from 'lodash';
-import RuleCondition from "../../rules/RuleCondition";
+import RuleCondition from "../../../../rules-config/src/rules/RuleCondition";
 
 export default class EncounterTypeFilter extends FormElementStatusBuilder{
     constructor(context, encounterTypeNames) {

@@ -1,4 +1,4 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 
 class ChildDeliveryFormHandler {
     dateOfDelivery(programEncounter, formElement) {

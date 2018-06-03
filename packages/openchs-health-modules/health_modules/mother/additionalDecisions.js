@@ -1,5 +1,5 @@
-import {TreatmentRule} from "../rules/Rule";
-import ComplicationsBuilder from "../rules/AdditionalComplicationsBuilder";
+import {TreatmentRule} from "../../../rules-config/src/rules/additional/Rule";
+import ComplicationsBuilder from "../../../rules-config/src/rules/builders/AdditionalComplicationsBuilder";
 import {currentTrimester, gestationalAge} from "./utils";
 
 @TreatmentRule("1db85292-e64a-4327-a6c0-161c6fab1614", {
@@ -41,3 +41,5 @@ function doxinatePrescription2(enrolment, encounter, decisions, today) {
 
     return treatmentBuilder.getComplications()
 }
+
+export {doxinatePrescription1, doxinatePrescription2};

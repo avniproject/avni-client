@@ -1,4 +1,4 @@
-import RuleCondition from "../rules/RuleCondition";
+import RuleCondition from "../../../rules-config/src/rules/RuleCondition";
 import _ from "lodash";
 
 const paracheckResultContains = (encounter, ...values) => {

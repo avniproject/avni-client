@@ -3,7 +3,7 @@ import {getDecisions as pncEncounterDecisions} from './pncEncounterDecision';
 import C from '../common';
 import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import FormElementsStatusHelper from "../../../rules-config/src/rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
 import ChildDeliveryFormHandler from "./formFilters/childDeliveryFormHandler";
 import generateRecommendations from "./recommendations";

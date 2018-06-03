@@ -1,4 +1,4 @@
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import FormElementsStatusHelper from "../../../rules-config/src/rules/FormElementsStatusHelper";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandler";
 import {encounterDecisions as vulnerabilityDecisionsFromEncounter} from './vulnerabilityDecisions';

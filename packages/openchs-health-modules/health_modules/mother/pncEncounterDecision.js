@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import ComplicationsBuilder from "../../../rules-config/src/rules/builders/complicationsBuilder";
 import _ from "lodash";
 
 const getDecisions = (programEncounter) => {

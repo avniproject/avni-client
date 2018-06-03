@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {FormElementStatus} from "openchs-models";
+import {FormElementStatus} from "../../../openchs-models/index";
 import moment from "moment";
 
 class FormElementsStatusesHelper {
