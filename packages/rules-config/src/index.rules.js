@@ -1,5 +1,4 @@
 export * from './rules/FormElementsStatusHelper';
-export * from './rules/FormFilter';
 export * from './rules/additional/Rule';
 export * from './rules/RuleChain';
 export * from './rules/RuleChainLink';
