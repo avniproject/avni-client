@@ -179,5 +179,6 @@
   "Required10Digits": "Required 10 digits",
   "uniqueAnswerConflict": "'{{answer}}' cannot be selected with other answers",
   "familyRegistration": "Family Registration",
-  "withHighRiskMember": "member at risk"
+  "withHighRiskMember": "member at risk",
+  "addARelative": "Add a relative"
 }

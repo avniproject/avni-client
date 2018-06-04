@@ -28,6 +28,7 @@ class Individual extends BaseEntity {
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
             observations: {type: 'list', objectType: 'Observation'},
+            relatives: {type: 'list', objectType: 'IndividualRelative'},
         }
     };
 
@@ -257,6 +258,11 @@ class Individual extends BaseEntity {
     addEncounter(encounter) {
         if (!_.some(this.encounters, (existingEncounter) => existingEncounter.uuid === encounter.uuid))
             this.encounters.push(encounter);
+    }
+
+    addRelative(relative) {
+        if (!_.some(this.relatives, (existingRelative) => existingRelative.uuid === relative.uuid))
+            this.relatives.push(relative);
     }
 
     cloneForEdit() {

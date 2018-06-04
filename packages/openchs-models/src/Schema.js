@@ -30,11 +30,13 @@ import ProgramConfig from "./ProgramConfig";
 import StringKeyNumericValue from "./application/StringKeyNumericValue";
 import VisitScheduleInterval from "./VisitScheduleInterval";
 import VisitScheduleConfig from "./VisitScheduleConfig";
+import IndividualRelation from "./IndividualRelation";
+import IndividualRelative from "./IndividualRelative";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family],
-    schemaVersion: 55,
+    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelative],
+    schemaVersion: 56,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

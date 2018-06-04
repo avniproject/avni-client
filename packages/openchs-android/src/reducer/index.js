@@ -44,6 +44,7 @@ import {StartProgramActions, StartProgramActionsMap} from "../action/program/Sta
 import {LoginActions, LoginActionsMap} from "../action/LoginActions";
 import {ProgramEncounterCancelActions, ProgramEncounterCancelActionsMap} from "../action/program/ProgramEncounterCancelActions";
 import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
+import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../action/individual/IndividualAddRelativeActions';
 
 
 export default class Reducers {
@@ -69,6 +70,7 @@ export default class Reducers {
         startProgramActions: "startProgramActions",
         loginActions: 'loginActions',
         familyRegister: "familyRegister",
+        individualAddRelative: "individualAddRelative",
     };
 
     static createReducers(beanStore) {
@@ -94,6 +96,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.familyFolder] = Reducers._add(FamilyFolderActionsMap, FamilyFolderActions, beanStore, FamilyFolderActions);
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.individualAddRelative] = Reducers._add(IndividualAddRelativeActionsMap, IndividualAddRelativeActions, beanStore);
         return reducerMap;
     };
 
