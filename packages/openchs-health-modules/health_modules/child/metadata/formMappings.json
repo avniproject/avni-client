@@ -4,7 +4,8 @@
     "formUUID": "1608c2c0-0334-41a6-aab0-5c61ea1eb069",
     "programUUID": "352d906c-b386-496c-ba23-91b1468a5613",
     "encounterTypeUUID": null,
-    "comment": "Child--Child Enrolment-ProgramEnrolment"
+    "comment": "Child--Child Enrolment-ProgramEnrolment",
+    "voided": true
   },
   {
     "uuid": "f030a553-f5f0-4972-a63d-9caad4b1bdfd",
@@ -26,5 +27,12 @@
     "programUUID": "352d906c-b386-496c-ba23-91b1468a5613",
     "encounterTypeUUID": "1f07ae8c-faa4-4934-8e06-9038e62fc2ac",
     "comment": "Mother-Birth-Birth-ProgramEncounter"
+  },
+  {
+    "uuid": "3b564c82-c7a7-41f6-8c99-0cbcef637821",
+    "formUUID": "6feb62e8-11a1-4187-9ea7-8f3611064ae3",
+    "programUUID": "352d906c-b386-496c-ba23-91b1468a5613",
+    "encounterTypeUUID": null,
+    "comment": "Child--Child Enrolment-ProgramEnrolment"
   }
 ]
