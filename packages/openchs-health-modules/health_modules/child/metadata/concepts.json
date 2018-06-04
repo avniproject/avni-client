@@ -424,6 +424,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Blue/pale",
+    "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
+    "dataType": "NA"
+  },
+  {
     "name": "Child PNC skin problems",
     "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",
     "dataType": "Coded",
@@ -735,11 +740,6 @@
         "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7"
       }
     ]
-  },
-  {
-    "name": "Blue/pale",
-    "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
-    "dataType": "NA"
   },
   {
     "name": "Body pink but hands and feet blue/pale",
@@ -1090,23 +1090,6 @@
         "name": "None",
         "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
       }
-    ]
-  },
-  {
-    "name": "Fever/Chills",
-    "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Yes",
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
-      },
-      {
-        "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-        "abnormal": true
-      }
-
     ]
   },
   {
