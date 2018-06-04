@@ -1,5 +1,6 @@
 import C from '../common';
 import _ from "lodash";
+import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
 
 const order = ["ae900527-6c77-4c5f-99f8-2d2be7bb1efd", "86d4e144-6a3b-4106-9bba-d6b7d6948715", "37d96c8a-b774-4bab-bc24-f9de9896c7a6"];
 
@@ -80,6 +81,22 @@ const getDecisions = function (programEncounter) {
     }
 };
 
+const getNextScheduledVisits = function (programEncounter) {
+    const scheduleBuilder = new VisitScheduleBuilder({
+        programEnrolment: programEncounter.programEnrolment,
+        programEncounter: programEncounter
+    });
+    let decisions = getDecisions(programEncounter);
+    scheduleBuilder.add({
+        name: "Counselling Visit",
+        encounterType: "SDQ",
+        earliestDate: C.addDays(new Date(), 7),
+        maxDate: C.addDays(new Date(), 15)
+    }).whenItem(decisions.encounterDecisions[0].value).is.greaterThan(15);
+    return scheduleBuilder.getAllUnique();
+};
+
 export {
     getDecisions,
+    getNextScheduledVisits
 }

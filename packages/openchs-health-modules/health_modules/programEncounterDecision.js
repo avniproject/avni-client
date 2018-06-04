@@ -1,8 +1,9 @@
 import * as Mother from './mother/motherProgramEncounterDecision';
 import * as Child from './child/childProgramEncounterDecision';
 import * as Adolescent from './adolescent/adolescentProgramEncounterDecision';
+import * as MentalHealth from './mentalhealth/mentalHealthProgramDecision';
 import FormElementStatus from "../../openchs-models/src/application/FormElementStatus";
-const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
+const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent, "Mental Health": MentalHealth};
 
 function targetFunction(fn, programName) {
     return allImports && allImports[programName] && allImports[programName][fn];
