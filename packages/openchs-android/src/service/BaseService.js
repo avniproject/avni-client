@@ -104,6 +104,10 @@ class BaseService {
             });
         });
     }
+
+    unVoided(item) {
+        return !_.get(item, 'voided');
+    }
 }
 
 export default BaseService;

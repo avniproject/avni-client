@@ -8,6 +8,7 @@ class EncounterType extends ReferenceEntity {
         properties: {
             uuid: 'string',
             name: 'string',
+            voided: { type: 'bool', default: false }
         }
     };
 
@@ -21,6 +22,7 @@ class EncounterType extends ReferenceEntity {
     static fromResource(resource) {
         let entity = ReferenceEntity.fromResource(resource, new EncounterType());
         entity.uuid = resource.encounterTypeUUID;
+        entity.voided = !!resource.encounterTypeVoided;
         return entity;
     }
 
