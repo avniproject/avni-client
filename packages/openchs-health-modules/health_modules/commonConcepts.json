@@ -1330,6 +1330,24 @@
     "name": "Boils",
     "uuid": "cb14a474-cfcb-46cd-97c5-1237cf006dc9",
     "dataType": "NA"
+  },
+  {
+    "name": "Fever/Chills",
+    "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+        "abnormal": true
+      }
+
+    ]
   }
+
 
 ]
