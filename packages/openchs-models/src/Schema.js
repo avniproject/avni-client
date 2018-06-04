@@ -34,7 +34,7 @@ import VisitScheduleConfig from "./VisitScheduleConfig";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family],
-    schemaVersion: 54,
+    schemaVersion: 55,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -147,6 +147,9 @@ export default {
         }
         if (oldDB.schemaVersion < 54) {
             _.forEach(newDB.objects('FormMapping'), (fm) => fm.voided = false);
+        }
+        if (oldDB.schemaVersion < 55) {
+            _.forEach(newDB.objects('EncounterType'), (fm) => fm.voided = false);
         }
     }
 };

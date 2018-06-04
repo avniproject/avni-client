@@ -32,22 +32,20 @@ class FormMappingService extends BaseService {
         return this._findProgramRelatedForm(program, Form.formTypes.ProgramExit);
     }
 
+    _findEncounterTypesForFormMapping = (formMapping)=> {
+        return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
+    }
+
     findEncounterTypesForProgram(program) {
         const formMappings = this.findAllByCriteria(`voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`);
-        return formMappings.map((formMapping) => {
-            return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
-        });
+        const encounterTypes = formMappings.map(this._findEncounterTypesForFormMapping).filter(this.unVoided);
+        return encounterTypes;
     }
 
     findEncounterTypesForEncounter() {
         //TODO: There are some encounter types whose mapping is synchronised to the client but the encounter types themselves are not, as form mapping API doesn't return mappings based on the organisation yet.
         const formMappings = this.findAllByCriteria(`voided = false AND form.formType="${Form.formTypes.Encounter}"`);
-        let encounterTypes = [];
-        formMappings.forEach((formMapping) => {
-            let encounterType = this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
-            if (!_.isNil(encounterType))
-                encounterTypes.push(encounterType);
-        });
+        const encounterTypes = formMappings.map(this._findEncounterTypesForFormMapping).filter(this.unVoided);
         return encounterTypes;
     }
 
