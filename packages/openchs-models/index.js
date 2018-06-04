@@ -45,6 +45,8 @@ import VisitScheduleInterval from "./src/VisitScheduleInterval";
 import VisitScheduleConfig from "./src/VisitScheduleConfig";
 import ProgramConfig from "./src/ProgramConfig";
 import Family from "./src/Family";
+import IndividualRelation from "./src/IndividualRelation"
+import IndividualRelative from "./src/IndividualRelative"
 
 export {
     Form,
@@ -94,5 +96,7 @@ export {
     VisitScheduleInterval,
     VisitScheduleConfig,
     ProgramConfig,
-    Family
+    Family,
+    IndividualRelation,
+    IndividualRelative
 };

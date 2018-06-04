@@ -20,6 +20,8 @@ import Checklist from "./Checklist";
 import ChecklistItem from "./ChecklistItem";
 import UserInfo from "./UserInfo";
 import ProgramConfig from "./ProgramConfig";
+import IndividualRelation from "./IndividualRelation";
+import IndividualRelative from "./IndividualRelative";
 
 class EntityMetaData {
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
@@ -29,6 +31,7 @@ class EntityMetaData {
     static program = {entityName: "Program", entityClass: Program, resourceName: "operationalProgram", type: "reference", nameTranslated: true};
     static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
     static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference", nameTranslated: true};
+    static individualRelation = {entityName: "IndividualRelation", entityClass: IndividualRelation, resourceName: "individualRelation", type: "reference", nameTranslated: true};
     static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
     static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "tx"};
@@ -65,9 +68,14 @@ class EntityMetaData {
         return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "checklistItem", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
     }
 
+    static individualRelative() {
+        return {entityName: "IndividualRelative", entityClass: IndividualRelative, resourceName: "individualRelative", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
+    }
+
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
+            EntityMetaData.individualRelation,
             EntityMetaData.programConfig,
             EntityMetaData.formMapping,
             EntityMetaData.formElement(),
@@ -82,6 +90,7 @@ class EntityMetaData {
             EntityMetaData.conceptAnswer(),
             EntityMetaData.concept,
 
+            EntityMetaData.individualRelative(),
             EntityMetaData.checklistItem(),
             EntityMetaData.checklist(),
             EntityMetaData.encounter(),
