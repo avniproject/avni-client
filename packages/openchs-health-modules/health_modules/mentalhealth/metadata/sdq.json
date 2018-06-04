@@ -1,0 +1,294 @@
+{
+  "name": "SDQ",
+  "uuid": "eab03b08-4c4b-4fe9-a536-7ab4c5addd7f",
+  "formType": "ProgramEncounter",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "encounterTypes": [
+    "SDQ"
+  ],
+  "formElementGroups": [
+    {
+      "uuid": "b6e6b733-e847-4596-9346-d7c1e866d16a",
+      "name": "Strengths and Difficulties Questionnaire",
+      "displayOrder": 1,
+      "display": "Strengths and Difficulties Questionnaire",
+      "formElements": [
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "1. I try to be nice to other people. I care about their feelings",
+          "type": "SingleSelect",
+          "displayOrder": 1,
+          "keyValues": [],
+          "uuid": "b53bc833-1863-415a-8558-e6bdce14ceb6"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "2. I am restless, I cannot stay still for long",
+          "type": "SingleSelect",
+          "displayOrder": 5,
+          "keyValues": [],
+          "uuid": "eb7a7198-45fb-4fb9-9488-14ac3b349bca"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "3. I get a lot of headaches, stomach-aches or sickness",
+          "type": "SingleSelect",
+          "displayOrder": 6,
+          "keyValues": [],
+          "uuid": "e35e3070-5e80-4d34-a8ee-70e412bda89c"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "4. I usually share with others, for example (food, games, pens, etc.)",
+          "type": "SingleSelect",
+          "displayOrder": 7,
+          "keyValues": [],
+          "uuid": "1cdd77f0-51af-4c45-a9c2-c434d56e920b"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "5. I get very angry and often lose my temper",
+          "type": "SingleSelect",
+          "displayOrder": 8,
+          "keyValues": [],
+          "uuid": "92e761b1-52d2-4b64-84bf-31a971ae8c89"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "6. I am usually on my own, I generally play alone or keep to myself",
+          "type": "SingleSelect",
+          "displayOrder": 9,
+          "keyValues": [],
+          "uuid": "3a41b549-18be-462c-8f85-f63335bbe2c8"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "7. I usually do as I am told",
+          "type": "SingleSelect",
+          "displayOrder": 10,
+          "keyValues": [],
+          "uuid": "a3dc1705-6be7-4010-8ff0-3e15fc1639f3"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "8. I worry a lot",
+          "type": "SingleSelect",
+          "displayOrder": 11,
+          "keyValues": [],
+          "uuid": "699b423e-6d83-41ea-83b9-99091c5f4557"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "9. I am helpful if someone is hurt, upset or feeling ill",
+          "type": "SingleSelect",
+          "displayOrder": 12,
+          "keyValues": [],
+          "uuid": "188d26be-3966-4c62-bce8-128ccdd77268"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "10. I am constantly fidgeting or squirming",
+          "type": "SingleSelect",
+          "displayOrder": 13,
+          "keyValues": [],
+          "uuid": "fc56c6ac-7e4d-4520-8c9a-952dc9201dd4"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "11. I have one good friend or more",
+          "type": "SingleSelect",
+          "displayOrder": 14,
+          "keyValues": [],
+          "uuid": "d52e3da2-d5f3-4d1c-89b2-60da5edf59f6"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "12. I fight a lot. I can make other people do what I want",
+          "type": "SingleSelect",
+          "displayOrder": 15,
+          "keyValues": [],
+          "uuid": "f8682352-6ca0-48f0-b987-6efc2e526359"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "13. I am often unhappy, down-hearted or tearful",
+          "type": "SingleSelect",
+          "displayOrder": 16,
+          "keyValues": [],
+          "uuid": "25e56e42-434f-4e93-a3db-22aea8f9a144"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "14. Other people my age generally like me",
+          "type": "SingleSelect",
+          "displayOrder": 17,
+          "keyValues": [],
+          "uuid": "3075d4e4-176e-456a-bb37-b3485df83017"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "15. I am easily distracted, I find it difficult to concentrate",
+          "type": "SingleSelect",
+          "displayOrder": 18,
+          "keyValues": [],
+          "uuid": "9691dbc3-cc23-4ed7-aaf2-04195cd15ecf"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "16. I am nervous in new situations. I easily lose confidence",
+          "type": "SingleSelect",
+          "displayOrder": 19,
+          "keyValues": [],
+          "uuid": "7cf5e454-e432-4e97-9908-dcd868808eeb"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "17. I am kind to younger children",
+          "type": "SingleSelect",
+          "displayOrder": 20,
+          "keyValues": [],
+          "uuid": "99f2e1ab-e01b-485f-a1d7-aff8cc9bb29d"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "18. I am often accused of lying or cheating",
+          "type": "SingleSelect",
+          "displayOrder": 21,
+          "keyValues": [],
+          "uuid": "be4a9936-a102-45f3-ab29-c5f4143821e1"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "19. Other children or young people pick on me or bully me",
+          "type": "SingleSelect",
+          "displayOrder": 22,
+          "keyValues": [],
+          "uuid": "b9a99a0d-6801-4810-83b4-11207136d8ac"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "20. I often volunteer  to help others (parents, teachers, children)",
+          "type": "SingleSelect",
+          "displayOrder": 23,
+          "keyValues": [],
+          "uuid": "914150f8-8327-43c7-a75e-58c6c404b5b3"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "21. I think before I do things",
+          "type": "SingleSelect",
+          "displayOrder": 24,
+          "keyValues": [],
+          "uuid": "e7efa222-b113-4492-ae40-aa7f81845885"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "22. I take things that are not mine from home, school or elsewhere",
+          "type": "SingleSelect",
+          "displayOrder": 25,
+          "keyValues": [],
+          "uuid": "f501db2e-4716-4656-a9e2-a5f0f752897a"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "23. I get on better with adults than with people my own age",
+          "type": "SingleSelect",
+          "displayOrder": 26,
+          "keyValues": [],
+          "uuid": "64c941b1-f5d3-4411-aeae-f4675de6613c"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "24. I have many fears, I am easily scared",
+          "type": "SingleSelect",
+          "displayOrder": 27,
+          "keyValues": [],
+          "uuid": "039a94ed-5a83-48c0-8e1c-d27893d04915"
+        },
+        {
+          "concept": {
+            "uuid": "4619b986-f560-4894-b3dd-3265cb21a1c4"
+          },
+          "mandatory": true,
+          "name": "25. I finish the work I am doing. My attention is good",
+          "type": "SingleSelect",
+          "displayOrder": 28,
+          "keyValues": [],
+          "uuid": "0a1cdb0d-9048-4d9a-a817-640e3d5ebe6f"
+        }
+      ]
+    }
+  ]
+}

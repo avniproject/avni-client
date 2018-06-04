@@ -90,7 +90,10 @@ dev_deploy_metadata: ## Upload metadata to server
 
 	date
 
-
+mental_health:
+	$(call upload,program,@health_modules/mentalhealth/metadata/mentalhealth.json)
+	$(call upload,concepts,@health_modules/mentalhealth/metadata/concepts.json)
+	$(call upload,forms,@health_modules/mentalhealth/metadata/sdq.json)
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata
 test: test_env
