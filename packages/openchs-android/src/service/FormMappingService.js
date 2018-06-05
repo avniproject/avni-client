@@ -15,12 +15,12 @@ class FormMappingService extends BaseService {
     }
 
     findForm(entity) {
-        const formMapping = this.findByKey('entityUUID', entity.uuid);
+        const formMapping = this.findByKey('voided = false AND entityUUID', entity.uuid);
         return formMapping.form;
     }
 
     _findProgramRelatedForm(program, formType) {
-        const formMapping = this.findByCriteria(`entityUUID="${program.uuid}" AND form.formType="${formType}"`);
+        const formMapping = this.findByCriteria(`voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}"`);
         return _.isNil(formMapping) ? null : formMapping.form;
     }
 
@@ -51,7 +51,7 @@ class FormMappingService extends BaseService {
 
     findFormForEncounterType(encounterType, formType = Form.formTypes.ProgramEncounter) {
         const formMapping = this.db.objects(FormMapping.schema.name)
-            .filtered("observationsTypeEntityUUID = $0 AND form.formType = $1", encounterType.uuid, formType)[0];
+            .filtered("voided = false AND observationsTypeEntityUUID = $0 AND form.formType = $1", encounterType.uuid, formType)[0];
         return formMapping.form;
     }
 
@@ -62,6 +62,7 @@ class FormMappingService extends BaseService {
 
     findFormForCancellingEncounterType(encounterType, program) {
         let matchingFormMapping = this.allFormMappings()
+            .unVoided()
             .forFormType(Form.formTypes.ProgramEncounterCancellation)
             .forEncounterType(encounterType)
             .forProgram(program)
