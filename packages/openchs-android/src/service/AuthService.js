@@ -222,10 +222,10 @@ class AuthService extends BaseService {
         const settings = this.settingsService.getSettings();
         let modifications = {};
         modifications.catchment = _.toNumber(detailsFromToken['custom:catchmentId']);
-        if (modifications.catchment !== settings.catchment) {
-            General.logInfo("AuthService", "Catchment change detected. Deleting all data");
-            this._deleteData();
-        }
+        // if (modifications.catchment !== settings.catchment) {
+        //     General.logInfo("AuthService", "Catchment change detected. Deleting all data");
+        //     this._deleteData();
+        // }
         const newSettings = Object.assign({}, settings, modifications);
         this.settingsService.saveOrUpdate(newSettings);
 
@@ -245,10 +245,10 @@ class AuthService extends BaseService {
         });
     }
 
-    _deleteData() {
-        this.entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-        this.entitySyncStatusService.setup(EntityMetaData.model());
-    }
+    // _deleteData() {
+    //     this.entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+    //     this.entitySyncStatusService.setup(EntityMetaData.model());
+    // }
 
     _authIsStubbed(settings) {
         return settings.clientId === 'dummy';
