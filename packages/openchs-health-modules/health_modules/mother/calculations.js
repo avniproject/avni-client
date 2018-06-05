@@ -18,7 +18,7 @@ const gestationalAgeCategoryAsOn = (date, programEnrolment) => {
 };
 
 const estimatedDateOfDelivery = (programEnrolment) => {
-    return C.addDays(lmp(programEnrolment), 280);
+    return C.addDays(lmp(programEnrolment), 9 * 30 + 7);
 };
 
 export {gestationalAgeAsOn, gestationalAgeCategoryAsOn, estimatedDateOfDelivery};
