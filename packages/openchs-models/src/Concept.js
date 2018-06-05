@@ -90,7 +90,7 @@ export default class Concept {
 
         BaseEntity.addNewChild(child, newAnswers);
 
-        concept.answers = newAnswers;
+        concept.answers = _.filter(newAnswers, (ans)=> !_.get(ans,'voided'));
         return concept;
     }
 
