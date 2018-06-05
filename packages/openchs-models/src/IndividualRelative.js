@@ -72,11 +72,11 @@ class IndividualRelative extends BaseEntity {
     };
 
     validateRelative() {
-        return this.validateFieldForEmpty(this.relative.name, IndividualRelative.validationKeys.HEAD_OF_FAMILY);
+        return this.validateFieldForEmpty(this.relative.name, IndividualRelative.validationKeys.RELATIVE);
     }
 
     validateIndividual() {
-        return this.validateFieldForEmpty(this.individual.name, IndividualRelative.validationKeys.HEAD_OF_FAMILY);
+        return this.validateFieldForEmpty(this.individual.name, IndividualRelative.validationKeys.INDIVIDUAL);
     }
 
     validateRelation() {
