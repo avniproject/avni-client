@@ -4,7 +4,8 @@
     "formUUID": "1608c2c0-0334-41a6-aab0-5c61ea1eb069",
     "programUUID": "352d906c-b386-496c-ba23-91b1468a5613",
     "encounterTypeUUID": null,
-    "comment": "Child--Child Enrolment-ProgramEnrolment"
+    "comment": "Child--Child Enrolment-ProgramEnrolment",
+    "voided": true
   },
   {
     "uuid": "f030a553-f5f0-4972-a63d-9caad4b1bdfd",
