@@ -4,6 +4,7 @@ import BaseEntity from "./BaseEntity";
 import Individual from "./Individual";
 import _ from "lodash";
 import IndividualRelation from "./IndividualRelation";
+import ValidationResult from "./application/ValidationResult";
 
 class IndividualRelative extends BaseEntity {
     static schema = {
@@ -60,7 +61,7 @@ class IndividualRelative extends BaseEntity {
         individualRelative.relation = this.relation.clone();
         individualRelative.enterDateTime = this.enterDateTime;
         individualRelative.exitDateTime = this.exitDateTime;
-        individualRelative.individual = this.individual.cloneForReference();
+        individualRelative.individual = this.individual;
         individualRelative.relative = this.relative.cloneForReference();
         return individualRelative;
     }
@@ -72,7 +73,9 @@ class IndividualRelative extends BaseEntity {
     };
 
     validateRelative() {
-        return this.validateFieldForEmpty(this.relative.name, IndividualRelative.validationKeys.RELATIVE);
+        const emptyValidation = this.validateFieldForEmpty(this.relative.name, IndividualRelative.validationKeys.RELATIVE);
+        if(!emptyValidation.success) return emptyValidation;
+        return this.relative.uuid === this.individual.uuid ? new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'selfRelationshipNotAllowed') : emptyValidation;
     }
 
     validateIndividual() {
@@ -88,9 +91,13 @@ class IndividualRelative extends BaseEntity {
         validationResults.push(this.validateRelative());
         validationResults.push(this.validateIndividual());
         validationResults.push(this.validateRelation());
+        if (!_.isNil(this.relative) && !_.isNil(this.relation)
+            && _.some(this.individual.relatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
+            validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'relationshipAlreadyRecorded'));
+            validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATION, 'relationshipAlreadyRecorded'));
+        }
         return validationResults;
     }
-
 
 
 }

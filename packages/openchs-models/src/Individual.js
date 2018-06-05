@@ -50,6 +50,7 @@ class Individual extends BaseEntity {
         individual.encounters = [];
         individual.enrolments = [];
         individual.lowestAddressLevel = AddressLevel.create("", "", 0, undefined, "");
+        individual.relatives = [];
         return individual;
     }
 
@@ -288,6 +289,7 @@ class Individual extends BaseEntity {
         individual.lastName = this.lastName;
         individual.dateOfBirth = this.dateOfBirth;
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
+        individual.relatives = this.relatives;
         return individual;
     }
 
