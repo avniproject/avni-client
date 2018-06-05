@@ -3,6 +3,7 @@ import EntityService from "../../service/EntityService";
 import IndividualRelation from "../../../../openchs-models/src/IndividualRelation";
 import IndividualRelative from "../../../../openchs-models/src/IndividualRelative";
 import IndividualRelativeService from "../../service/IndividualRelativeService";
+import _ from "lodash";
 
 
 export class IndividualAddRelativeActions {
@@ -37,8 +38,12 @@ export class IndividualAddRelativeActions {
 
     static onSave(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
-        context.get(IndividualRelativeService).saveOrUpdate(newState.individualRelative);
-        action.cb();
+        const validationResults = newState.individualRelative.validate();
+        newState.validationResults = validationResults;
+        if(_.isEmpty(validationResults)){
+            context.get(IndividualRelativeService).saveOrUpdate(newState.individualRelative);
+            action.cb();
+        }
         return newState;
     }
 }

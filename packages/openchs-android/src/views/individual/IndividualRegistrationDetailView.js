@@ -60,11 +60,11 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
                     <AppHeader title={this.I18n.t('viewProfile')}/>
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual} programsAvailable={this.state.programsAvailable}/>
-                    {this.state.individual.observations.length === 0 ? <View/> :
-                    <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor}}>
+
+                    <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor, paddingHorizontal:8}}>
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
                         {this.renderRelatives()}
-                    </Card>}
+                    </Card>
                 </CHSContent>
             </CHSContainer>
         );

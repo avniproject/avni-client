@@ -17,6 +17,7 @@ import WizardButtons from "../common/WizardButtons";
 import CHSContainer from "../common/CHSContainer";
 import themes from "../primitives/themes";
 import CHSNavigator from "../../utility/CHSNavigator";
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 
 @Path('/individualAddRelative')
 class IndividualAddRelativeView extends AbstractComponent {
@@ -66,7 +67,9 @@ class IndividualAddRelativeView extends AbstractComponent {
                 selectionFn={(relationUUID) => this.state.individualRelative.relation.uuid === relationUUID}
                 labelKey='Relation'
                 mandatory={true}
-                labelValuePairs={valueLabelPairs}/>
+                labelValuePairs={valueLabelPairs}
+                validationError={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATION)}
+            />
         );
 
     }
@@ -74,7 +77,6 @@ class IndividualAddRelativeView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const headerMessage = `${this.I18n.t(this.props.individual.nameString)} - ${this.I18n.t('addARelative')}`;
-
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
@@ -88,6 +90,7 @@ class IndividualAddRelativeView extends AbstractComponent {
                             individualNameValue={_.isNil(this.state.individualRelative.relative.name) ? "" : this.state.individualRelative.relative.name}
                             element={new StaticFormElement('Relative', true)}
                             inputChangeActionName={Actions.INDIVIDUAL_ADD_RELATIVE_SELECT_INDIVIDUAL}
+                            validationResult={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATIVE)}
                         />
                         {this.renderRelations()}
 
