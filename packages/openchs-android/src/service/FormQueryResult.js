@@ -23,6 +23,11 @@ class FormQueryResult {
         return this;
     }
 
+    unVoided() {
+        this.formMappings = _.filter(this.formMappings, (formMapping)=> !_.get(formMapping, 'voided'));
+        return this;
+    }
+
     bestMatch() {
         return _.last(this._sortedMappings());
     }
@@ -44,6 +49,7 @@ class FormQueryResult {
     _sortedMappings() {
         return _.sortBy(this.formMappings, (formMapping) => this._totalWeight(formMapping));
     }
+
 }
 
 export default FormQueryResult;
