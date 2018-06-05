@@ -1,8 +1,49 @@
 {
   "name": "Child Enrolment",
-  "uuid": "6feb62e8-11a1-4187-9ea7-8f3611064ae3",
+  "uuid": "1608c2c0-0334-41a6-aab0-5c61ea1eb069",
   "formType": "ProgramEnrolment",
   "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
   "formElementGroups": [
+    {
+      "uuid": "062ffc31-c311-485b-baf3-d5a95d10e97c",
+      "name": "Child Enrolment Basic Details",
+      "displayOrder": 1,
+      "display": "Basic Details",
+      "formElements": [
+        {
+          "name": "Birth Weight",
+          "uuid": "03daf5f7-9689-4eaa-a1f3-c95b609329b5",
+          "keyValues": [],
+          "concept": {
+            "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Birth Defects",
+          "uuid": "0e656272-03c2-41a9-8935-60444909082f",
+          "keyValues": [],
+          "concept": {
+            "uuid": "408ce177-eac2-4103-8b5e-3f8bc67bea2b",
+            "name": "Birth Defects"
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Registration at",
+          "uuid": "59903bac-e82a-42d0-b9b5-344769e26301",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "7a67c0ed-0cfc-4025-b479-5c14330c9f87",
+            "name": "Registration at"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
+    }
   ]
 }
