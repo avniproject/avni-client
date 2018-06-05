@@ -106,7 +106,8 @@ class ANCFormHandler {
 
     foetalMovements(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.currentTrimester).equalsOneOf(2, 3);
+        statusBuilder.show().whenItem(this.currentTrimester).equalsOneOf(2, 3)
+            .and.whenItem(this.gestationalAge).greaterThanOrEqualTo(18);
         return statusBuilder.build();
     }
 
