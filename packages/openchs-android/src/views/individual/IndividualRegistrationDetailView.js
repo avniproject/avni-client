@@ -48,7 +48,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 <ObservationsSectionTitle contextActions={this.getRelativeActions()}
                                           title={'Relatives'}/>
                 <Relatives relatives={this.state.individual.relatives}
-                              style={{marginVertical: DGS.resizeHeight(8)}}/>
+                              style={{marginVertical: DGS.resizeHeight(8)}}
+                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual)}/>
             </View>
         );
     }

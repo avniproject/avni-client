@@ -3,6 +3,7 @@ import EntityService from "../../service/EntityService";
 import IndividualRelation from "../../../../openchs-models/src/IndividualRelation";
 import IndividualRelative from "../../../../openchs-models/src/IndividualRelative";
 import IndividualRelativeService from "../../service/IndividualRelativeService";
+import {ValidationResult} from "openchs-models";
 import _ from "lodash";
 
 
@@ -13,12 +14,34 @@ export class IndividualAddRelativeActions {
     }
 
     static clone(state){
-        return {relations: state.relations, individualRelative: state.individualRelative.cloneForEdit()}
+        const newState = {};
+        newState.relations = state.relations;
+        newState.individualRelative = state.individualRelative.cloneForEdit();
+        newState.validationResults = [];
+        state.validationResults.forEach((validationResult) => {
+            newState.validationResults.push(ValidationResult.clone(validationResult));
+        });
+
+        return newState
     }
+
+    static handleValidationResult(state, validationResult) {
+        _.remove(state.validationResults, (existingValidationResult) => existingValidationResult.formIdentifier === validationResult.formIdentifier);
+        if (!validationResult.success) {
+            state.validationResults.push(validationResult);
+        }
+    }
+
+    static handleValidationResults(state, validationResults) {
+        validationResults.forEach((validationResult) => {
+            IndividualAddRelativeActions.handleValidationResult(state, validationResult);
+        });
+    }
+
 
     static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individual.uuid);
-        const newState = IndividualAddRelativeActions.clone(state);
+        const newState = IndividualAddRelativeActions.getInitialState(context);
         newState.individualRelative.individual = individual;
         return newState;
     }
@@ -26,7 +49,7 @@ export class IndividualAddRelativeActions {
     static selectRelative(state, action) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relative = action.value;
-        IndividualAddRelativeActions.validate(newState);
+        IndividualAddRelativeActions.handleValidationResult(newState, newState.individualRelative.validateRelative());
         return newState;
     }
 
@@ -34,20 +57,14 @@ export class IndividualAddRelativeActions {
     static selectRelation(state, action) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relation = action.value;
-        IndividualAddRelativeActions.validate(newState);
+        IndividualAddRelativeActions.handleValidationResult(newState, newState.individualRelative.validateRelation());
         return newState;
-    }
-
-    static validate(state){
-        const validationResults = state.individualRelative.validate();
-        state.validationResults = validationResults;
-        _.remove(state.validationResults, (validationResult) => validationResult.success === true);
-
     }
 
     static onSave(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
-        IndividualAddRelativeActions.validate(newState);
+        const validationResults = newState.individualRelative.validate();
+        IndividualAddRelativeActions.handleValidationResults(newState, validationResults);
         if(_.isEmpty(newState.validationResults)){
             context.get(IndividualRelativeService).saveOrUpdate(newState.individualRelative);
             action.cb();
