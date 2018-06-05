@@ -9,7 +9,7 @@ import _ from "lodash";
 export class IndividualAddRelativeActions {
     static getInitialState(context) {
         const relations = context.get(EntityService).getAll(IndividualRelation.schema.name);
-        return {relations: relations, individualRelative : IndividualRelative.createEmptyInstance()};
+        return {relations: relations, individualRelative : IndividualRelative.createEmptyInstance(), validationResults: []};
     }
 
     static clone(state){
@@ -26,6 +26,7 @@ export class IndividualAddRelativeActions {
     static selectRelative(state, action) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relative = action.value;
+        IndividualAddRelativeActions.validate(newState);
         return newState;
     }
 
@@ -33,14 +34,21 @@ export class IndividualAddRelativeActions {
     static selectRelation(state, action) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relation = action.value;
+        IndividualAddRelativeActions.validate(newState);
         return newState;
+    }
+
+    static validate(state){
+        const validationResults = state.individualRelative.validate();
+        state.validationResults = validationResults;
+        _.remove(state.validationResults, (validationResult) => validationResult.success === true);
+
     }
 
     static onSave(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
-        const validationResults = newState.individualRelative.validate();
-        newState.validationResults = validationResults;
-        if(_.isEmpty(validationResults)){
+        IndividualAddRelativeActions.validate(newState);
+        if(_.isEmpty(newState.validationResults)){
             context.get(IndividualRelativeService).saveOrUpdate(newState.individualRelative);
             action.cb();
         }
