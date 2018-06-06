@@ -175,7 +175,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <View>
                         <AppHeader title={this.I18n.t('individualDashboard')}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
-                                           viewContext={IndividualProfile.viewContext.Program} programsAvailable={this.state.programsAvailable}/>
+                                           viewContext={IndividualProfile.viewContext.Program}
+                                           programsAvailable={this.state.programsAvailable}/>
                         <Card style={{
                             flexDirection: 'column',
                             borderRadius: 5,
