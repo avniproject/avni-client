@@ -154,7 +154,20 @@
   "syncRequired": "समक्रमण आवश्यक",
   "enterDate": "दिनांक भरा",
   "enterDuration": "कालावधी भरा",
-  "or": "किंवा"
+  "or": "किंवा",
+  "son": "मुलगा",
+  "daughter": "मुलगी",
+  "father": "वडील",
+  "mother": "आई",
+  "husband": "नवरा",
+  "wife": "पत्नी",
+  "grandson": "नातू",
+  "granddaughter": "नात",
+  "grandfather": "आजोबा",
+  "grandmother": "आजी",
+  "addARelative": "एक नातेवाईक जोडा",
+  "relationshipAlreadyRecorded": "सापेक्ष आधीच रेकॉर्ड",
+  "selfRelationshipNotAllowed": "स्वत: नाते मान्य नाही"
 
 }
 

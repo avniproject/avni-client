@@ -10,5 +10,18 @@
   "age": "उम्र",
   "userId": "यूज़र आईडी",
   "password": "पासवर्ड",
-  "syncRequired": "समन्वयन आवश्यक है"
+  "syncRequired": "समन्वयन आवश्यक है",
+  "son": "बेटा",
+  "daughter": "बेटी",
+  "father": "पिता",
+  "mother": "मां",
+  "husband": "पति",
+  "wife": "पत्नी",
+  "grandson": "पोता",
+  "granddaughter": "पोती",
+  "grandfather": "दादा",
+  "grandmother": "दादी मा",
+  "addARelative": "एक रिश्तेदार जोड़ें",
+  "relationshipAlreadyRecorded": "रिश्ता पहले ही दर्ज किया गया है",
+  "selfRelationshipNotAllowed": "आत्म रिश्ते की अनुमति नहीं है"
 }
