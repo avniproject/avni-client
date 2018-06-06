@@ -24,16 +24,7 @@
         {
           "name": "Last menstrual period",
           "uuid": "10a7bb47-6780-4b43-9ebd-842b1f5cc58f",
-          "keyValues": [
-            {
-              "key": "durationOptions",
-              "value": [
-                "days",
-                "weeks",
-                "months"
-              ]
-            }
-          ],
+          "keyValues": [],
           "concept": {
             "uuid": "1cc6fd5d-1359-483e-a971-4bf36e34a72d",
             "name": "Last menstrual period"
