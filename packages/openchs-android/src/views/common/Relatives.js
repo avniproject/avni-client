@@ -78,6 +78,7 @@ class Relatives extends AbstractComponent {
 
 
     render() {
+        //TODO there is lot of duplication between this and ISRV but there are differences as well.Fix it.
         if (this.props.relatives.length === 0) return <View/>;
         const i18n = this.I18n;
          const relatives = this.props.relatives
@@ -93,6 +94,9 @@ class Relatives extends AbstractComponent {
                               <TouchableNativeFeedback onPress={() => this.onResultRowPress(relativeIndividual)}
                                                        background={TouchableNativeFeedback.SelectableBackground()}>
                                   <View>
+                                      <View style={{ flexDirection: 'row', flexWrap: 'nowrap',
+                                          paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
+                                          <Text style={Styles.relativeRelationText}>{relation}</Text></View>
                                       <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
                                           alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
                                           <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
@@ -110,7 +114,7 @@ class Relatives extends AbstractComponent {
                                               flex: 1
                                           }}>
                                               <View style={{justifyContent: 'flex-end'}}>
-                                                  <Text style={Styles.textStyle}>{relation}</Text>
+                                                  <Text style={Styles.textStyle}>{this.I18n.t(relativeIndividual.lowestAddressLevel.name)}</Text>
                                               </View>
                                               <View style={{ justifyContent: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end'}}>
                                                   {_.filter(relativeIndividual.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}

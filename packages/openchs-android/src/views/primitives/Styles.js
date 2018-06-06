@@ -207,6 +207,13 @@ Styles.userProfileSubtext = {
     paddingRight: 8
 };
 
+Styles.relativeRelationText = {
+    fontSize: Styles.titleSize,
+    fontStyle: 'normal',
+    color: Styles.blackColor,
+    paddingRight: 8
+};
+
 Styles.formLabel = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
