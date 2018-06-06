@@ -187,5 +187,19 @@
   "highRisk": "જોખમ",
   "patientCountForVisitType": "{{visitType}} મુલાકાતોવાળા દર્દીઓ: {{count}}",
   "enterDate": "તારીખ દાખલ કરો",
-  "enterDuration": "સમયગાળો દાખલ કરો"
+  "enterDuration": "સમયગાળો દાખલ કરો",
+  "son": "પુત્ર",
+  "daughter": "દીકરી",
+  "father": "પિતા",
+  "mother": "માતા",
+  "husband": "પતિ",
+  "wife": "પત્ની",
+  "grandson": "પૌત્ર",
+  "granddaughter": "પૌત્રી",
+  "grandfather": "દાદા",
+  "grandmother": "દાદી",
+  "addARelative": "સંબંધિત ઉમેરો",
+  "relationshipAlreadyRecorded": "સંબંધ પહેલેથી રેકોર્ડ છે",
+  "selfRelationshipNotAllowed": "સ્વયં સંબંધને મંજૂરી નથી"
+
 }
