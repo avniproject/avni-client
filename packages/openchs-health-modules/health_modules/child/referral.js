@@ -37,7 +37,7 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
         .when.valueInEncounter("Child Respiratory Rate").lessThan(30)
         .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60);
 
-    referralAdvice.addComplication("Icterus Present")
+    referralAdvice.addComplication("Icterus present")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");
 
     referralAdvice.addComplication("Urine not passed for more than 48 hours after birth")
@@ -74,7 +74,7 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
 
     referralAdvice.addComplication("Child PNC eye problems")
         .when.encounterType.equals("Child PNC")
-        .when.valueInEncounter("Child PNC eye problems").containsAnswerConceptName("Redness of eyes", "Swollen eyelids", "Discharge from eyes", "Icterus Present");
+        .when.valueInEncounter("Child PNC eye problems").containsAnswerConceptName("Redness of eyes", "Swollen eyelids", "Discharge from eyes", "Icterus present");
 
     referralAdvice.addComplication("Child PNC skin problems")
         .when.encounterType.equals("Child PNC")

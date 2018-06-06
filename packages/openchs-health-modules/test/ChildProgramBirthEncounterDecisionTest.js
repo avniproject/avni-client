@@ -43,7 +43,7 @@ describe("Child Program Birth", () => {
         { concept: "Breast feeding within 1 hour of birth", value: "No", riskName: "Not Breast-fed within 1 hour of birth" },
         { concept: "Colour of child", value: "Blue/pale", riskName: "Colour of child is Pale or Blue" },
         { concept: "Reflex", value: "Absent", riskName: "Reflex Absent" },
-        { concept: "Jaundice (Icterus)", value: "Present", riskName: "Icterus Present" },
+        { concept: "Jaundice (Icterus)", value: "Present", riskName: "Icterus present" },
         { concept: "Muscle tone", value: "Absent", riskName: "Muscle tone Absent/Flexed arms and legs" },
         { concept: "Muscle tone", value: "Flexed arms and legs", riskName: "Muscle tone Absent/Flexed arms and legs" }
         ].forEach((risk) => {
@@ -82,7 +82,7 @@ describe("Child Program Birth", () => {
         { concept: "Reflex", value: "Absent", complication: "Reflex Absent" },
         { concept: "Muscle tone", value: "Absent", complication: "Muscle tone Absent/Flexed arms and legs" },
         { concept: "Muscle tone", value: "Flexed arms and legs", complication: "Muscle tone Absent/Flexed arms and legs" },
-        { concept: "Jaundice (Icterus)", value: "Present", complication: "Icterus Present" }
+        { concept: "Jaundice (Icterus)", value: "Present", complication: "Icterus present" }
         ].forEach((referral) => {
 
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {

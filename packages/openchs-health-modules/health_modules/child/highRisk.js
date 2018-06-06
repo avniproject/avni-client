@@ -39,7 +39,7 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
         .when.valueInEncounter("Child Respiratory Rate").lessThan(30)
         .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60);
 
-    highRiskBuilder.addComplication("Icterus Present")
+    highRiskBuilder.addComplication("Icterus present")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");
 
     return highRiskBuilder.getComplications()
