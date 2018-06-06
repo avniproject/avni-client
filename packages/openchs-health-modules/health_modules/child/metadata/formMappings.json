@@ -26,6 +26,13 @@
     "formUUID": "901e2f48-2fb8-402b-9073-ee2fac33fce4",
     "programUUID": "352d906c-b386-496c-ba23-91b1468a5613",
     "encounterTypeUUID": "1f07ae8c-faa4-4934-8e06-9038e62fc2ac",
-    "comment": "Mother-Birth-Birth-ProgramEncounter"
+    "comment": "Child-Birth-Birth-ProgramEncounter"
+  },
+  {
+    "uuid": "a881addf-fdc7-4b6a-ad79-225396594ecd",
+    "formUUID": "d062907a-690c-44ca-b699-f8b2f688b075",
+    "programUUID": "352d906c-b386-496c-ba23-91b1468a5613",
+    "encounterTypeUUID": "02c72b2b-19f0-4f75-b734-dcad5601881b",
+    "comment": "Child-Anthropometry Assessment-Anthropometry Assessment-ProgramEncounter"
   }
 ]
