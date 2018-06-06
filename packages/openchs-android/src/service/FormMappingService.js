@@ -34,12 +34,14 @@ class FormMappingService extends BaseService {
 
     _findEncounterTypesForFormMapping = (formMapping) => {
         return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
-    }
+    };
 
     findEncounterTypesForProgram(program) {
         const formMappings = this.findAllByCriteria(`voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`);
-        const encounterTypes = formMappings.map(this._findEncounterTypesForFormMapping).filter(this.unVoided);
-        return encounterTypes;
+        return formMappings
+            .map(this._findEncounterTypesForFormMapping)
+            .filter(this.unVoided)
+            .filter(et => !_.isEmpty(et));
     }
 
     findEncounterTypesForEncounter() {
