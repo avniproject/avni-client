@@ -63,6 +63,11 @@ class AbstractEncounter extends BaseEntity {
         return _.isEmpty(observationForConcept) ? observationForConcept : observationForConcept.getValue();
     }
 
+    getObservationReadableValue(conceptName) {
+        const observationForConcept = this.findObservation(conceptName);
+        return _.isEmpty(observationForConcept) ? observationForConcept : observationForConcept.getReadableValue();
+    }
+
     addObservation(obs) {
         this.observations.push(obs);
     }

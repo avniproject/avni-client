@@ -845,6 +845,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Live birth and Still birth",
+    "uuid": "231982cb-bacc-4d8b-8ee7-be47bdd4d47e",
+    "dataType": "NA"
+  },
+  {
     "name": "Triplet",
     "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab",
     "dataType": "NA"
@@ -2461,14 +2466,22 @@
     "dataType": "Coded",
     "answers": [
       {
+        "name": "Live Birth",
         "uuid": "e3999b21-821c-4c6e-9953-156e70b9217c"
       },
       {
+        "name": "Still Birth",
         "uuid": "797c7923-1993-49d9-b759-1706aae62ae9",
         "abnormal": true
       },
       {
+        "name": "Early Neonatal death within first 24 Hours of birth",
         "uuid": "63c6e46e-77ea-44d7-bb46-ae4f16acb399",
+        "abnormal": true
+      },
+      {
+        "name": "Live birth and Still birth",
+        "uuid": "231982cb-bacc-4d8b-8ee7-be47bdd4d47e",
         "abnormal": true
       }
     ]
@@ -2476,20 +2489,8 @@
   {
     "name": "Number of babies",
     "uuid": "884cd2fb-1e50-4a2e-a9ae-2b90d4a78ede",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "9139d435-2178-46d9-aea9-429597e533b2"
-      },
-      {
-        "uuid": "d4943a59-16da-45e1-98c1-354c710fdbc0",
-        "abnormal": true
-      },
-      {
-        "uuid": "25c522b8-7f11-4ff0-8096-c7f5ddeba7ab",
-        "abnormal": true
-      }
-    ]
+    "dataType": "Numeric",
+    "lowAbsolute": 1
   },
   {
     "name": "Delivery Complications",
@@ -3303,5 +3304,86 @@
     "uuid": "a410eda0-4794-4fd4-86ca-bd1eaa88040e",
     "name": "Not using contraceptives",
     "dataType": "NA"
+  },
+  {
+    "uuid": "482a696a-4834-4cbe-b529-95b9699e9884",
+    "name": "Number of still born babies",
+    "dataType": "Numeric",
+    "lowAbsolute": 0
+  },
+  {
+    "uuid": "d1842738-a4a9-4122-9194-c0eb84e055dd",
+    "name": "Gender of stillborn1",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Male",
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "name": "Female",
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "name": "Other Gender",
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
+      }
+    ]
+  },
+  {
+    "uuid": "bd1eb295-238f-485b-9b9a-4dde399deda8",
+    "name": "Weight of stillborn1",
+    "dataType":"Numeric",
+    "unit":"kg"
+  },
+  {
+    "uuid": "6ad7e09b-526f-4a9d-994f-0b878af3968f",
+    "name": "Gender of stillborn2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Male",
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "name": "Female",
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "name": "Other Gender",
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
+      }
+    ]
+  },
+  {
+    "uuid": "1d4ed4f9-2e91-4539-8cf2-9c61f455f3c9",
+    "name": "Weight of stillborn2",
+    "dataType":"Numeric",
+    "unit":"kg"
+  },
+  {
+    "uuid": "a091cf0f-ba83-468a-a91e-86807afdbd36",
+    "name": "Gender of stillborn3",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Male",
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "name": "Female",
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "name": "Other Gender",
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
+      }
+    ]
+  },
+  {
+    "uuid": "80a00613-202a-4b47-b6ce-2fa8e186f839",
+    "name": "Weight of stillborn3",
+    "dataType":"Numeric",
+    "unit":"kg"
   }
 ]

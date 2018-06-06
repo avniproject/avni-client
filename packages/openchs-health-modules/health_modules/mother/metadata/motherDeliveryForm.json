@@ -84,19 +84,19 @@
             "uuid": "36b7b1a8-d191-4bbe-ad3c-0e25a48334e0",
             "name": "Delivery Outcome"
           },
-          "displayOrder": 2,
+          "displayOrder": 3,
           "mandatory": true
         },
         {
           "name": "Number of babies",
           "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
           "keyValues": [],
-          "type": "SingleSelect",
+          "type": "Numeric",
           "concept": {
             "uuid": "884cd2fb-1e50-4a2e-a9ae-2b90d4a78ede",
             "name": "Number of babies"
           },
-          "displayOrder": 3,
+          "displayOrder": 2,
           "mandatory": true
         },
         {
@@ -122,6 +122,88 @@
           },
           "displayOrder": 5,
           "mandatory": true
+        }
+      ]
+    },
+    {
+      "uuid": "b4c1288e-23d6-4612-a4da-7ad6047a9f83",
+      "name": "Still born babies' details",
+      "displayOrder": 3,
+      "display": "Still born babies' details",
+      "formElements": [
+        {
+          "uuid": "07b9d7ef-0b65-4e8b-8bda-1eafe5a7f507",
+          "name": "Number of still born babies",
+          "keyValues": [],
+          "concept": {
+            "uuid": "482a696a-4834-4cbe-b529-95b9699e9884",
+            "name": "Number of still born babies"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "uuid":"f598bad9-ffd5-499e-ac65-d3f1d3050ef7",
+          "name": "Gender of stillborn1",
+          "type":"SingleSelect",
+          "concept":{
+            "uuid":"d1842738-a4a9-4122-9194-c0eb84e055dd",
+            "name":"Gender of stillborn1"
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "uuid":"d7b930af-a7b4-44f1-9bf9-57440ff936cf",
+          "name":"Weight of stillborn1",
+          "concept":{
+            "uuid":"bd1eb295-238f-485b-9b9a-4dde399deda8",
+            "name":"Weight of stillborn1"
+          },
+          "displayOrder":3,
+          "mandatory":true
+        },
+        {
+          "uuid":"02326e62-285d-459b-99ae-248e829146a7",
+          "name": "Gender of stillborn2",
+          "type":"SingleSelect",
+          "concept":{
+            "uuid":"6ad7e09b-526f-4a9d-994f-0b878af3968f",
+            "name":"Gender of stillborn2"
+          },
+          "displayOrder": 4,
+          "mandatory": true
+        },
+        {
+          "uuid":"b8d47bca-d12c-4510-a660-dc87d7fb6845",
+          "name":"Weight of stillborn2",
+          "concept":{
+            "uuid":"1d4ed4f9-2e91-4539-8cf2-9c61f455f3c9",
+            "name":"Weight of stillborn2"
+          },
+          "displayOrder":5,
+          "mandatory":true
+        },
+        {
+          "uuid":"f5152230-2b81-4765-8e99-e739ab30cc73",
+          "name": "Gender of stillborn3",
+          "type":"SingleSelect",
+          "concept":{
+            "uuid":"a091cf0f-ba83-468a-a91e-86807afdbd36",
+            "name":"Gender of stillborn3"
+          },
+          "displayOrder": 6,
+          "mandatory": true
+        },
+        {
+          "uuid":"2b1b7e80-5ba9-42ba-a4ef-895a5653cd13",
+          "name":"Weight of stillborn3",
+          "concept":{
+            "uuid":"80a00613-202a-4b47-b6ce-2fa8e186f839",
+            "name":"Weight of stillborn3"
+          },
+          "displayOrder":7,
+          "mandatory":true
         }
       ]
     }
