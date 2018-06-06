@@ -112,39 +112,53 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     const lmpDate = programEnrolment.getObservationValue('Last menstrual period');
     let daysFromLMP = C.getDays(lmpDate, today);
     let gestationalAge = _.floor(daysFromLMP / 7, 0);
-    summary.push({name: 'Last menstrual period', value: lmpDate});
-    summary.push({name: 'Gestational Age', value: gestationalAge});
-    summary.push({
-        name: 'Estimated Date of Delivery',
-        value: programEnrolment.getObservationValue('Estimated Date of Delivery')
-    });
-    const highRiskConditions = _.chain(programEnrolment.getEncounters(true))
+
+    const postDeliveryEncounterTypes = ["Delivery", "PNC"];
+    const isPostDelivery = programEnrolment.hasAnyOfEncounterTypes(postDeliveryEncounterTypes);
+
+    if (!isPostDelivery) {
+        summary.push({name: 'Last menstrual period', value: lmpDate});
+        summary.push({name: 'Gestational Age', value: gestationalAge});
+        summary.push({
+            name: 'Estimated Date of Delivery',
+            value: programEnrolment.getObservationValue('Estimated Date of Delivery')
+        });
+    }
+
+    const allEncounters = programEnrolment.getEncounters(true);
+    const postDeliveryEncounters = allEncounters.filter(encounter =>
+        postDeliveryEncounterTypes.includes(encounter.encounterType.name)
+    );
+
+    const relevantEncounters = isPostDelivery ? postDeliveryEncounters : allEncounters;
+
+    const highRiskConditions = _.chain(relevantEncounters)
         .map(encounter => encounter.getObservationValue("High Risk Conditions"))
-        .concat([programEnrolment.getObservationValue('High Risk Conditions')])
+        .concat(isPostDelivery ? [] : [programEnrolment.getObservationValue('High Risk Conditions')])
         .compact()
         .flatten()
         .uniq()
         .value();
 
-    const recommendations = _.chain(programEnrolment.getEncounters(true))
+    const recommendations = _.chain(relevantEncounters)
         .map(encounter => encounter.getObservationValue("Recommendations"))
-        .concat([programEnrolment.getObservationValue('Recommendations')])
+        .concat(isPostDelivery ? [] : [programEnrolment.getObservationValue('Recommendations')])
         .compact()
         .flatten()
         .uniq()
         .value();
 
-    const treatment = _.chain(programEnrolment.getEncounters(true))
+    const treatment = _.chain(relevantEncounters)
         .map(encounter => encounter.getObservationValue("Treatment"))
-        .concat([programEnrolment.getObservationValue('Treatment')])
+        .concat(isPostDelivery ? [] : [programEnrolment.getObservationValue('Treatment')])
         .compact()
         .flatten()
         .uniq()
         .value();
 
-    const referralAdvice = _.chain(programEnrolment.getEncounters(true))
+    const referralAdvice = _.chain(relevantEncounters)
         .map(encounter => encounter.getObservationValue("Refer to the hospital immediately for"))
-        .concat([programEnrolment.getObservationValue('Refer to the hospital immediately for')])
+        .concat(isPostDelivery ? [] : [programEnrolment.getObservationValue('Refer to the hospital immediately for')])
         .compact()
         .flatten()
         .uniq()

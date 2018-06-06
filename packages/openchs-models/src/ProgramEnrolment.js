@@ -330,6 +330,13 @@ class ProgramEnrolment extends BaseEntity {
         return !_.isNil(this.findEncounter(encounterTypeName, encounterName));
     }
 
+    hasEncounterOfType = (encounterTypeName) =>
+        !_.isNil(this.encounters.find(encounter => encounter.encounterType.name === encounterTypeName));
+
+    hasAnyOfEncounterTypes(encounterTypeNames = []) {
+        return encounterTypeNames.some(this.hasEncounterOfType);
+    }
+
     //get has been taken by the prototype
     getObservationValue(conceptName) {
         const observationValue = this.findObservation(conceptName);

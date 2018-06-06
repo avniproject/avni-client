@@ -1338,12 +1338,12 @@
     "answers": [
       {
         "name": "Yes",
-        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
+        "abnormal": true
       },
       {
         "name": "No",
-        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
-        "abnormal": true
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
       }
 
     ]
