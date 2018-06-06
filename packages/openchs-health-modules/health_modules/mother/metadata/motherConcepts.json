@@ -3003,7 +3003,8 @@
   {
     "name": "Hb % Level",
     "uuid": "bf79f9bf-1dc7-4bb5-8747-a9e2ab1e73f3",
-    "dataType": "Numeric"
+    "dataType": "Numeric",
+    "lowNormal": 11
   },
   {
     "name": "Post-Partum Haemorrhage symptoms",
