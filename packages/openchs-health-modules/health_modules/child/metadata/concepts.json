@@ -247,11 +247,13 @@
     "answers": [
       {
         "name": "Shifted to other geographical area",
-        "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6"
+        "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
+        "abnormal": true
       },
       {
         "name": "Death",
-        "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83"
+        "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
+        "abnormal": true
       },
       {
         "name": "Completion",
@@ -368,7 +370,6 @@
         "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
         "abnormal": true
       }
-
     ]
   },
   {
@@ -477,7 +478,6 @@
         "name": "No problem",
         "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
       }
-
     ]
   },
   {
@@ -913,14 +913,12 @@
     "dataType": "Numeric",
     "unit": "hour(s)",
     "highNormal": 48
-
   },
   {
     "name": "Poor cry",
     "uuid": "2dab5910-bc76-4e8c-815f-627525958a25",
     "dataType": "NA"
   },
-
   {
     "name": "Child PNC cry related complaints",
     "uuid": "d6a0c77e-840d-40a2-9282-d22db7ede007",
@@ -1055,7 +1053,6 @@
     "uuid": "04d0248b-72c4-4d78-b4f1-3e3d9cc247b1",
     "dataType": "NA"
   },
-
   {
     "name": "Child PNC activity related complaints",
     "uuid": "ad5d7bf8-932a-4eb2-8e8a-7c38dc4bbe2b",
@@ -1107,7 +1104,6 @@
     "uuid": "388cd26f-f73e-498f-8e33-1a23320b30a5",
     "dataType": "NA"
   },
-
   {
     "name": "Child PNC eye problems",
     "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8",
