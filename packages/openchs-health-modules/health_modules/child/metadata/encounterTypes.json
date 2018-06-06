@@ -6,5 +6,9 @@
   {
     "uuid": "1f07ae8c-faa4-4934-8e06-9038e62fc2ac",
     "name": "Birth"
+  },
+  {
+    "uuid": "02c72b2b-19f0-4f75-b734-dcad5601881b",
+    "name": "Anthropometry Assessment"
   }
 ]

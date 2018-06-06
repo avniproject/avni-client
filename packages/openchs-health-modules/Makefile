@@ -106,6 +106,8 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo
 	$(call upload,forms,@health_modules/child/metadata/childProgramExitForm.json)
 	@echo
+	$(call upload,forms,@health_modules/child/metadata/anthroAssessmentForm.json)
+	@echo
 	$(call upload,formMappings,@health_modules/child/metadata/formMappings.json)
 	@echo
 
