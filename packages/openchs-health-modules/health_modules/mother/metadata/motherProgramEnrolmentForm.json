@@ -138,9 +138,8 @@
             {
               "key": "durationOptions",
               "value": [
-                "days",
-                "weeks",
-                "months"
+                "months",
+                "years"
               ]
             }
           ],
