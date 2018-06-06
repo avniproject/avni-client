@@ -1420,11 +1420,6 @@
     "dataType": "Coded",
     "answers": [
       {
-        "name": "Icterus present",
-        "uuid": "bab23da4-603e-4f9e-a823-90cc785d8f2f",
-        "abnormal": true
-      },
-      {
         "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
         "name": "Rh Negative Blood Group",
         "abnormal": true
