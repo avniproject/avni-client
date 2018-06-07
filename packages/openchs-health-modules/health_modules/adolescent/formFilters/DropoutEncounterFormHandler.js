@@ -1,5 +1,5 @@
-import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormElementsStatusHelper from "../../../../rules-config/src/rules/FormElementsStatusHelper";
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 
 export default class {
     constructor() {

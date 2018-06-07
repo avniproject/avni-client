@@ -1,4 +1,4 @@
-import RuleCondition from "./RuleCondition";
+import RuleCondition from "../RuleCondition";
 import _ from 'lodash';
 
 export default class VisitScheduleBuilder {

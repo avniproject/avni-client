@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import ComplicationsBuilder from "../../../rules-config/src/rules/builders/complicationsBuilder";
 
 const institutionalDelivery = (enrolment, encounter) => {
     const medicalHistory = ["Hypertension", "Heart-related Diseases", "Diabetes",

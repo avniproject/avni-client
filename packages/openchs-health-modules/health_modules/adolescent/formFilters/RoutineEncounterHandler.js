@@ -1,8 +1,8 @@
 import {FormElementStatus} from "openchs-models";
 import _ from "lodash";
 import EncounterTypeFilter from "./EncounterTypeFilter";
-import RuleCondition from "../../rules/RuleCondition"
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import RuleCondition from "../../../../rules-config/src/rules/RuleCondition"
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 import C from '../../common';
 
 export default class RoutineEncounterHandler {

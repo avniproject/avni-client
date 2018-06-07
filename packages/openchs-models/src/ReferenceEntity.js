@@ -17,4 +17,4 @@ class ReferenceEntity extends BaseEntity{
     }
 }
 
-export default ReferenceEntity;
+export default ReferenceEntityã;

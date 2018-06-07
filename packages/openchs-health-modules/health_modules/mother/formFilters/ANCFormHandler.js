@@ -1,7 +1,7 @@
 import _ from "lodash";
-import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
+import FormElementsStatusHelper from "../../../../rules-config/src/rules/FormElementsStatusHelper";
 import {FormElementStatus} from "openchs-models";
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import FormElementStatusBuilder from "../../../../rules-config/src/rules/builders/FormElementStatusBuilder";
 
 const TRIMESTER_MAPPING = new Map([[1, {from: 0, to: 12}], [2, {from: 13, to: 28}], [3, {from: 29, to: 40}]]);
 

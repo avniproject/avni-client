@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import FormFilter from "../../health_modules/rules/FormFilter";
+import FormFilter from "../../../rules-config/src/rules/FormFilter";
 import {ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue} from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
 

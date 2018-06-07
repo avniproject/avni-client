@@ -1,7 +1,7 @@
 import {malariaPrescriptionMessage} from "./malariaMedication";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import FormElementsStatusHelper from "../../../rules-config/src/rules/FormElementsStatusHelper";
 import OPDFormHandler from "./formFilters/OPDFormHandler";
-import RuleCondition from "../rules/RuleCondition";
+import RuleCondition from "../../../rules-config/src/rules/RuleCondition";
 import * as treatmentByComplaintAndCode from "./outpatientTreatments.json";
 import _ from 'lodash';
 

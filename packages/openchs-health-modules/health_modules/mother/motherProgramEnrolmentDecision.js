@@ -2,7 +2,7 @@ import {getNextScheduledVisits as nextScheduledVisits} from './motherVisitSchedu
 import * as programDecision from './motherProgramDecision';
 import c from '../common';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import FormElementsStatusHelper from "../../../rules-config/src/rules/FormElementsStatusHelper";
 import generateRecommendations from './recommendations';
 import {referralAdvice, immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";

@@ -1,5 +1,7 @@
 import _ from "lodash";
 import General from "../utility/General";
+import Individual from "../../../openchs-models/src/Individual";
+import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
 
 class BaseService {
     constructor(db, context) {

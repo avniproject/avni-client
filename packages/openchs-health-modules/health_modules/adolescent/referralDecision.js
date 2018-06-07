@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import ComplicationsBuilder from "../../../rules-config/src/rules/builders/complicationsBuilder";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
 
