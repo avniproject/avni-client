@@ -15,7 +15,7 @@ class IndividualRelative extends BaseEntity {
             relation: 'IndividualRelation',
             individual: 'Individual',
             relative: 'Individual',
-            enterDateTime: 'date',
+            enterDateTime: {type: 'date', optional: true},
             exitDateTime: {type: 'date', optional: true}
         }
     };
@@ -23,7 +23,6 @@ class IndividualRelative extends BaseEntity {
     static createEmptyInstance() {
         const individualRelative = new IndividualRelative();
         individualRelative.uuid = General.randomUUID();
-        individualRelative.enterDateTime = new Date();
         individualRelative.individual = Individual.createEmptyInstance();
         individualRelative.relative = Individual.createEmptyInstance();
         individualRelative.relation = IndividualRelation.createEmptyInstance();
