@@ -90,7 +90,7 @@ export default class Concept {
 
         BaseEntity.addNewChild(child, newAnswers);
 
-        concept.answers = _.filter(newAnswers, (ans)=> !_.get(ans,'voided'));
+        concept.answers = newAnswers;
         return concept;
     }
 
@@ -184,7 +184,7 @@ export default class Concept {
     }
 
     getAnswers() {
-        return _.sortBy(this.answers, (answer) => answer.answerOrder);
+        return _.sortBy(this.answers, (answer) => answer.answerOrder).filter((ans)=> !ans.voided);
     }
 
     get translatedFieldValue() {
