@@ -74,7 +74,7 @@ class Observations extends AbstractComponent {
             .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal()]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
-            <View style={{flexDirection: "column", paddingBottom: 10}}>
+            <View style={[{flexDirection: "column", paddingBottom: 10}, this.props.style]}>
                 {this.renderTitle()}
                 <ListView
                     enableEmptySections={true}
