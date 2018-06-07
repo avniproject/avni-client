@@ -44,7 +44,7 @@ class IndividualRelative extends BaseEntity {
     static fromResource(resource, entityService) {
         const relation = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "relationUUID"), IndividualRelation.schema.name);
         const individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
-        const relative = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "relativeUUID"), Individual.schema.name);
+        const relative = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "relativeIndividualUUID"), Individual.schema.name);
 
         const individualRelative = General.assignFields(resource, new IndividualRelative(), ["uuid"], ["enterDateTime", "exitDateTime"], [], entityService);
         individualRelative.relation = relation;

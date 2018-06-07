@@ -10,6 +10,7 @@ import Duration from "./Duration";
 import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
+import IndividualRelative from "./IndividualRelative";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -109,12 +110,14 @@ class Individual extends BaseEntity {
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualUUID"), Individual.schema.name);
-        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters"]);
+        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters", "relatives"]);
 
         if (childEntityClass === ProgramEnrolment)
             BaseEntity.addNewChild(child, individual.enrolments);
         else if (childEntityClass === Encounter)
             BaseEntity.addNewChild(child, individual.encounters);
+        else if (childEntityClass === IndividualRelative)
+            BaseEntity.addNewChild(child, individual.relatives);
         else
             throw `${childEntityClass.name} not support by ${Individual.nameString}`;
 
