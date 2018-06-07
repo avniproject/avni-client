@@ -4,6 +4,7 @@ import _ from "lodash";
 import ComplicationsBuilder from "../rules/complicationsBuilder";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateHighRiskConditionAdvice from "./highRisk";
+import {getDecisions as anthropometricDecisions} from "./anthropometricDecision"
 
 
 export function getDecisions(programEncounter, today) {
@@ -21,9 +22,13 @@ export function getDecisions(programEncounter, today) {
 
         return {
             enrolmentDecisions: [],
-            encounterDecisions: decisions
+            encounterDecisions: decisions.concat(anthropometricDecisions(programEncounter).encounterDecisions)
         }
-    } else return {enrolmentDecisions: [], encounterDecisions: []};
+    }
+    else if (programEncounter.encounterType.name === 'Anthropometry Assessment'){
+        return anthropometricDecisions(programEncounter);
+    }
+    else return {enrolmentDecisions: [], encounterDecisions: []};
 }
 
 
@@ -33,8 +38,6 @@ const recommendations = (enrolment, encounter) => {
         programEncounter: encounter,
         complicationsConcept: 'Recommendations'
     });
-
-    console.log("Came to find recommendations");
 
     recommendationBuilder.addComplication("Keep the baby warm")
         .when.valueInEncounter("Child Pulse").lessThan(100)
