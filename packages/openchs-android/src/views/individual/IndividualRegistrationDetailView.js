@@ -56,6 +56,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const relativesFeatureToggle = false;
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
@@ -64,7 +65,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
                     <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor, paddingHorizontal:8}}>
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
-                        {this.renderRelatives()}
+                        {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     </Card>
                 </CHSContent>
             </CHSContainer>
