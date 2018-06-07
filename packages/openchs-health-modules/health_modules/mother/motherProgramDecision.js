@@ -166,6 +166,17 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
 
     let medicalHistory = programEnrolment.individual.getObservationValue('Medical history');
     let bloodGroup = programEnrolment.individual.getObservationValue('Blood group');
+
+    let hivObs = programEnrolment.findObservationInEntireEnrolment("HIV/AIDS Test");
+    // _containsAnswerConceptName is being used here purely for functionality. Line not to be read literally
+    if (!_.isEmpty(hivObs) && programEnrolment._containsAnswerConceptName("Positive", hivObs) && isPostDelivery)
+        summary.push({name: 'HIV/AIDS Positive', value: programEnrolment.getObservationReadableValueInEntireEnrolment("HIV/AIDS Test")});
+
+    let sicklingObs = programEnrolment.findObservationInEntireEnrolment("Sickling Test");
+    // _containsAnswerConceptName is being used here purely for functionality. Line not to be read literally
+    if (!_.isEmpty(sicklingObs) && programEnrolment._containsAnswerConceptName("Positive", sicklingObs) && isPostDelivery)
+        summary.push({name: 'Sickling Positive', value: programEnrolment.getObservationReadableValueInEntireEnrolment("Sickling Test")});
+
     if (!_.isEmpty(highRiskConditions)) {
         summary.push({name: 'High Risk Conditions', value: highRiskConditions});
     }
