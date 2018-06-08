@@ -213,7 +213,9 @@ export function getDecisions(programEncounter, today) {
             if (foetalMovements === 'Absent') {
                 addComplication('Foetal Movements Absent');
             }
-
+            if (foetalMovements === 'Reduced') {
+                addComplication('Foetal movements reduced');
+            }
         }
 
         decisions = decisions

@@ -25,7 +25,6 @@ class ANCFormHandler {
             ["Difficulty breathing", [2, 3]],
             ["Fever", []],
             ["Blurring of vision", [2, 3]],
-            ["Decreased Foetal movements", [3]],
             ["Severe headache", [2, 3]],
             ["PV leaking", [2, 3]]]);
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
@@ -105,10 +104,15 @@ class ANCFormHandler {
     }
 
     foetalMovements(programEncounter, formElement) {
-        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.currentTrimester).equalsOneOf(2, 3)
-            .and.whenItem(this.gestationalAge).greaterThanOrEqualTo(18);
-        return statusBuilder.build();
+        const primiStatus = this._formStatusBuilder(programEncounter, formElement);
+        const nonPrimiStatus = this._formStatusBuilder(programEncounter, formElement);
+
+        primiStatus.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(22).and
+            .when.valueInEnrolment("Gravida").is.equals(1);
+
+        nonPrimiStatus.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(18).and
+            .when.valueInEnrolment("Gravida").is.greaterThan(1);
+        return primiStatus.build().or(nonPrimiStatus.build());
     }
 
     foetalHeartSound(programEncounter, formElement) {
