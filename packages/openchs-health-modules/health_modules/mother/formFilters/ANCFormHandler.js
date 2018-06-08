@@ -93,13 +93,13 @@ class ANCFormHandler {
 
     fundalHeightFromPubicSymphysis(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.currentTrimester).equals(3);
+        statusBuilder.show().whenItem(this.gestationalAge).is.greaterThanOrEqualTo(24);
         return statusBuilder.build();
     }
 
     abdominalGirth(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(24);
+        statusBuilder.show().whenItem(this.gestationalAge).greaterThan(30);
         return statusBuilder.build();
     }
 
