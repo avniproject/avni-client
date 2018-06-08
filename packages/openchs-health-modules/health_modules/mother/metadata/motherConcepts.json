@@ -3384,5 +3384,46 @@
     "name": "Weight of stillborn3",
     "dataType":"Numeric",
     "unit":"kg"
+  },
+  {
+    "name": "Is she on TB medication?",
+    "uuid": "b47dca1d-3f42-4280-9b3e-3d68cce88bed",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
+  },
+  {
+    "name": "Has she been taking her TB medication regularly?",
+    "uuid": "2a8a5306-c0a9-4ca6-8bd7-b394069aa6f2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Did she complete her TB treatment?",
+    "uuid": "4a20f69f-12c4-4472-ac82-ece0ab102e4b",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+        "abnormal": true
+      }
+    ]
   }
 ]

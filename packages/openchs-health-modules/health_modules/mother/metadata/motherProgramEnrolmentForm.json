@@ -192,9 +192,53 @@
       ]
     },
     {
+      "uuid": "fa3eaeb3-115f-4634-a6e7-e51b3e6d4e44",
+      "name": "TB Complications",
+      "displayOrder": 4,
+      "display": "TB Complications",
+      "formElements": [
+        {
+          "name": "Is she on TB medication?",
+          "uuid": "be6fad57-fe7e-4bc0-bf36-26a31aec0d78",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b47dca1d-3f42-4280-9b3e-3d68cce88bed",
+            "name": "Is she on TB medication?"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        },
+        {
+          "name": "Has she been taking her TB medication regularly?",
+          "uuid": "7eb50d2d-387c-47f2-b10b-b2cfd484eb2e",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "2a8a5306-c0a9-4ca6-8bd7-b394069aa6f2",
+            "name": "Has she been taking her TB medication regularly?"
+          },
+          "displayOrder": 2,
+          "mandatory": true
+        },
+        {
+          "name": "Did she complete her TB treatment?",
+          "uuid": "1d8cd852-f03c-45f1-b09c-a6e601d5f0b0",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "4a20f69f-12c4-4472-ac82-ece0ab102e4b",
+            "name": "Did she complete her TB treatment?"
+          },
+          "displayOrder": 3,
+          "mandatory": true
+        }
+      ]
+    },
+    {
       "uuid": "a9edaaef-c93b-4039-8fab-ef8b836cf19a",
       "name": "ANC Enrolment other medical complications",
-      "displayOrder": 4,
+      "displayOrder": 5,
       "display": "Other medical complications",
       "formElements": [
         {
