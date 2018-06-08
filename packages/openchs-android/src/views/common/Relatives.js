@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
-import {Icon} from "native-base";
+import {Icon, Button} from "native-base";
 class Relatives extends AbstractComponent {
     static propTypes = {
         relatives: React.PropTypes.object.isRequired,
@@ -72,8 +72,13 @@ class Relatives extends AbstractComponent {
                       paddingHorizontal:4,
                       backgroundColor: program.colour,
                       color: Colors.TextOnPrimaryColor,
+                      textAlignVertical: 'center'
                   }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.name)}</Text>
         );
+    }
+
+    onRelativeEditPress(){
+
     }
 
 
@@ -95,8 +100,22 @@ class Relatives extends AbstractComponent {
                                                        background={TouchableNativeFeedback.SelectableBackground()}>
                                   <View>
                                       <View style={{ flexDirection: 'row', flexWrap: 'nowrap',
-                                          paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
-                                          <Text style={Styles.relativeRelationText}>{relation}</Text></View>
+                                          paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge, alignItems: 'center',
+                                          alignSelf: 'center', flex:1}}>
+                                          <View style={{flex:0.75}}>
+                                              <Text style={Styles.relativeRelationText}>{relation}</Text>
+                                          </View>
+                                          <View style={{flex:0.125, flexDirection: 'row', justifyContent: 'flex-end'}}>
+                                              <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
+                                                  paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>edit</Button>
+                                              <Text style={{textAlignVertical: 'center'}}>|</Text>
+                                          </View>
+                                          <View style={{flex:0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
+                                              <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
+                                                  paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>delete</Button>
+
+                                          </View>
+                                      </View>
                                       <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
                                           alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
                                           <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
@@ -116,7 +135,7 @@ class Relatives extends AbstractComponent {
                                               <View style={{justifyContent: 'flex-end'}}>
                                                   <Text style={Styles.textStyle}>{this.I18n.t(relativeIndividual.lowestAddressLevel.name)}</Text>
                                               </View>
-                                              <View style={{ justifyContent: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end'}}>
+                                              <View style={{ flexDirection: 'row', justifyContent: 'flex-end'}}>
                                                   {_.filter(relativeIndividual.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
                                               </View>
                                           </View>
