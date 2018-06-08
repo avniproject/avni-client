@@ -29,7 +29,7 @@ class ANCFormHandler {
             ["Severe headache", [2, 3]],
             ["PV leaking", [2, 3]]]);
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        formElement.concept.answers
+        formElement.concept.getAnswers()
             .map((answer) => Object.assign({
                 name: answer.concept.name,
                 uuid: answer.concept.uuid
