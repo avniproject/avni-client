@@ -51,7 +51,7 @@ class IndividualNameFormElement extends AbstractFormElement {
                 <TouchableOpacity activeOpacity={0.5} onPress={this.search.bind(this)} transparent>
                     <Icon name="magnify" style={IndividualNameFormElement.iconStyle}/>
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5} onPress={this.register.bind(this)} transparent>
+                <TouchableOpacity disabled={true} activeOpacity={0.5} onPress={this.register.bind(this)} transparent>
                     <Icon name="account-plus" style={IndividualNameFormElement.iconStyle}/>
                 </TouchableOpacity>
                 </View>
