@@ -153,9 +153,5 @@ export default {
         if (oldDB.schemaVersion < 55) {
             _.forEach(newDB.objects('EncounterType'), (fm) => fm.voided = false);
         }
-        if (oldDB.schemaVersion < 57) {
-            const codedConcepts = _.filter(newDB.objects('Concept'), (c)=> c.datatype === Concept.dataType.Coded);
-            _.forEach(codedConcepts, (c)=> c.answers = _.filter(c.answers, (ans)=> !_.get(ans,'voided')));
-        }
     }
 };

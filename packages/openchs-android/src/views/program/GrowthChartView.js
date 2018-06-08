@@ -147,9 +147,15 @@ class GrowthChartView extends AbstractComponent {
         const enrolment = this.props.params.enrolment;
         let observations = _.chain(enrolment.encounters)
             .map((encounter) => {
-                let yValue = encounter.findObservation(yAxisConceptName).getValue();
-                let xValue = xAxisConceptName ? encounter.findObservation(xAxisConceptName).getValue() :
-                    moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
+                let y = encounter.findObservation(yAxisConceptName);
+                let yValue = y? y.getValue() : null;
+                let xValue;
+                if (xAxisConceptName) {
+                    let x = encounter.findObservation(xAxisConceptName);
+                    xValue = x? x.getValue(): null;
+                } else {
+                    xValue = moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
+                }
                 return xValue && yValue ? {
                     x: xValue,
                     y: yValue,

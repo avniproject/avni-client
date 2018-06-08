@@ -42,29 +42,38 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             (source) => CHSNavigator.navigateToIndividualRegistrationDetails(source, this.state.individual))})];
     }
 
+    goBackFromRelative(individual){
+        CHSNavigator.goBack(this);
+        this.dispatchAction(Actions.ON_LOAD, {individualUUID: individual.uuid});
+
+    }
+
     renderRelatives(){
+        const individualToComeBackTo = this.state.individual;
         return (
             <View>
                 <ObservationsSectionTitle contextActions={this.getRelativeActions()}
                                           title={'Relatives'}/>
                 <Relatives relatives={this.state.individual.relatives}
-                              style={{marginVertical: DGS.resizeHeight(8)}}
-                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual)}/>
+                           style={{marginVertical: DGS.resizeHeight(8)}}
+                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual,
+                               () => this.goBackFromRelative(individualToComeBackTo))}/>
             </View>
         );
     }
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const relativesFeatureToggle = true;
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
-                    <AppHeader title={this.I18n.t('viewProfile')}/>
+                    <AppHeader title={this.I18n.t('viewProfile')} func={this.props.params.backFunction}/>
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual} programsAvailable={this.state.programsAvailable}/>
 
                     <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor, paddingHorizontal:8}}>
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
-                        {this.renderRelatives()}
+                        {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     </Card>
                 </CHSContent>
             </CHSContainer>

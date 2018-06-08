@@ -388,5 +388,27 @@ describe("Mother Program Enrolment", () => {
             assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "HIV/AIDS");
         });
 
+        it("should be advised if mother is shorter than 145 cm", () => {
+            const mother = new IndividualBuilder(programData).withName("Test", "Mother")
+                .withAge(25)
+                .withGender("Female")
+                .build();
+            const enrolment = new EnrolmentFiller(programData, mother, new Date())
+                .forConcept("Height", 140)
+                .build();
+            const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Short Stature");
+        });
+
+        it("should have one list-of-decisions per decisions-category", () => {
+            const mother = new IndividualBuilder(programData).withName("Test", "Mother")
+                .withAge(25)
+                .withGender("Female")
+                .build();
+            const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
+            const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
+            assert.equal(_.uniq(_.map(decisions.enrolmentDecisions, 'name')).length, 
+                decisions.enrolmentDecisions.length, JSON.stringify(decisions.enrolmentDecisions,null,2));
+        });
     });
 });

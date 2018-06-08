@@ -70,8 +70,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({programEncounter: programEncounter}).to(ProgramEncounterCancelView);
     }
 
-    static navigateToIndividualRegistrationDetails(source, individual) {
-        TypedTransition.from(source).with({individualUUID: individual.uuid}).to(IndividualRegistrationDetailView);
+    static navigateToIndividualRegistrationDetails(source, individual, backFunction) {
+        TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
     }
 
     static navigateToIndividualRegisterView(source, individualUUID) {

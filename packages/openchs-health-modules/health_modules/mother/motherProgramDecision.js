@@ -166,6 +166,15 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
 
     let medicalHistory = programEnrolment.individual.getObservationValue('Medical history');
     let bloodGroup = programEnrolment.individual.getObservationValue('Blood group');
+
+    let hivObs = programEnrolment.findObservationInEntireEnrolment("HIV/AIDS Test");
+    if (!_.isEmpty(hivObs) && hivObs.getReadableValue() === "Positive" && isPostDelivery)
+        summary.push({name: 'HIV/AIDS Positive', value: hivObs.getReadableValue()});
+
+    let sicklingObs = programEnrolment.findObservationInEntireEnrolment("Sickling Test");
+    if (!_.isEmpty(sicklingObs) && sicklingObs.getReadableValue() === "Positive" && isPostDelivery)
+        summary.push({name: 'Sickling Positive', value: sicklingObs.getReadableValue()});
+
     if (!_.isEmpty(highRiskConditions)) {
         summary.push({name: 'High Risk Conditions', value: highRiskConditions});
     }

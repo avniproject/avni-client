@@ -9,6 +9,10 @@ function C() {
         return copied;
     };
 
+    this.addMonths = function (date, numberOfMonths) {
+        return moment(date).add(numberOfMonths, 'months').toDate();
+    }
+
     this.copyDate = function (date) {
         return new Date(date.getTime());
     };
