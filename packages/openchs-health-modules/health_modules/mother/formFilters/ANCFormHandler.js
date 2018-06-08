@@ -1,4 +1,5 @@
 import _ from "lodash";
+import C from "../../common";
 import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
 import {FormElementStatus} from "openchs-models";
 import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
@@ -180,15 +181,35 @@ class ANCFormHandler {
     }
 
     tt1Date(programEncounter, formElement) {
-        return this.validOnceAfter(programEncounter, formElement, 'TT1 Date', 12);
+        const neverExisted = this._formStatusBuilder(programEncounter, formElement);
+        const existsInCurrentEncounter = this._existsInCurrentEncounter(programEncounter, formElement, 'TT1 Date');
+        neverExisted.show()
+            .when.valueInEntireEnrolment('TT1 Date').is.notDefined;
+
+        return neverExisted.build().or(existsInCurrentEncounter);
     }
 
     ttBoosterDate(programEncounter, formElement) {
         return this.validOnceAfter(programEncounter, formElement, 'TT Booster Date', 12);
     }
 
-    tt2Date(programEncounter, formElement) {
-        return this.validOnceAfter(programEncounter, formElement, 'TT2 Date', 16);
+    tt2Date(programEncounter, formElement, today) {
+        const neverExisted = this._formStatusBuilder(programEncounter, formElement);
+        const existsInCurrentEncounter = this._existsInCurrentEncounter(programEncounter, formElement, 'TT2 Date');
+        
+        neverExisted.show()
+            .when.valueInEntireEnrolment('TT1 Date').is.defined.and
+            .when.valueInEntireEnrolment('TT2 Date').is.notDefined.and
+            .when.valueInEntireEnrolment('TT1 Date').matchesFn((tt1Date) => {
+                const TT2ToBeShownAfter = C.addWeeks(tt1Date, 4);
+                return C.isBefore(TT2ToBeShownAfter, today);
+            });
+        return neverExisted.build().or(existsInCurrentEncounter);
+    }
+
+    _existsInCurrentEncounter(programEncounter, formElement, conceptName) {
+        const visibility = !_.isNil(programEncounter.findObservation(conceptName));
+        return new FormElementStatus(formElement.uuid, visibility);
     }
 
     validOnceAfter(programEncounter, formElement, conceptName, weeks) {

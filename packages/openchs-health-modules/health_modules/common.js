@@ -13,6 +13,14 @@ function C() {
         return moment(date).add(numberOfMonths, 'months').toDate();
     }
 
+    this.addWeeks = function (date, numberOfWeeks) {
+        return moment(date).add(numberOfWeeks, 'weeks').toDate();
+    }
+
+    this.isBefore = function (past, present) {
+        return moment(past).isBefore(present);
+    }
+
     this.copyDate = function (date) {
         return new Date(date.getTime());
     };
