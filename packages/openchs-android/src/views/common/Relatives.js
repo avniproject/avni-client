@@ -81,8 +81,25 @@ class Relatives extends AbstractComponent {
 
     }
 
+    renderRelativeActionButton() {
+        return (<View>
+        <View style={{flex:0.125, flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
+                paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>edit</Button>
+            <Text style={{textAlignVertical: 'center'}}>|</Text>
+        </View>
+        <View style={{flex:0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
+    <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
+            paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>delete</Button>
+
+    </View>
+        </View>);
+
+    }
+
 
     render() {
+        const editDeleteFeatureToggle = false;
         //TODO there is lot of duplication between this and ISRV but there are differences as well.Fix it.
         if (this.props.relatives.length === 0) return <View/>;
         const i18n = this.I18n;
@@ -105,16 +122,7 @@ class Relatives extends AbstractComponent {
                                           <View style={{flex:0.75}}>
                                               <Text style={Styles.relativeRelationText}>{relation}</Text>
                                           </View>
-                                          <View style={{flex:0.125, flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                              <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-                                                  paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>edit</Button>
-                                              <Text style={{textAlignVertical: 'center'}}>|</Text>
-                                          </View>
-                                          <View style={{flex:0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-                                              <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-                                                  paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>delete</Button>
-
-                                          </View>
+                                          {editDeleteFeatureToggle ? this.renderRelativeActionButton() : <View/>}
                                       </View>
                                       <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
                                           alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
