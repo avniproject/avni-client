@@ -98,6 +98,15 @@ class IndividualRelative extends BaseEntity {
         return validationResults;
     }
 
+    getReverseRelative(individualReverseRelation){
+        const individualRelative = new IndividualRelative();
+        individualRelative.uuid = General.randomUUID();
+        individualRelative.individual = this.relative;
+        individualRelative.relation = individualReverseRelation.reverseRelation;
+        individualRelative.relative = this.individual;
+        return individualRelative;
+    }
+
 
 }
 
