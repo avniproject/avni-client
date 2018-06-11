@@ -561,7 +561,6 @@
     "Family history": "कौटुंबिक इतिहास",
     "Ferrous Sulphate (100mg)": "Ferrous Sulphate (100mg) ४ थ्या महिन्यापासून ते ९ महिने पर्यंत",
     "Ferrous Sulphate (200mg)": "Ferrous Sulphate (200mg) ४ थ्या महिन्यापासून ते ९ महिने पर्यंत",
-    "Finance management": "",
     "Finance management": "पैसे विषयक सल्ला \n✓ गरोदरपणात येणाऱ्या आपतकालीन स्थितीसाठी पैशाच्या बचत करणे आवश्यक आहे",
     "Flat Nipples": "चपटे निप्पल्स",
     "Foetal Heart Rate": "गर्भाच्या हृदयाचे ठोक्यांच दर (FHR)",
@@ -722,7 +721,17 @@
     "Mother program enrolment with TB recommendation":"TB - If on medication, ask/check whether having it regularly or not.  If not regularly taking the medicines, then send an individual to the hospital for rechecking.\n Ask for complition of treatment in case of TB diagnosis more than 6 months. If not completed the proper treatment, then send an individual to the hospital of rechecking",
     "Keep the baby warm detailed advice": "Keep the baby warm by giving mother's skin to skin contact and covering the baby's head, hands and feet with a cap, gloves and socks resp.",
     "Advice about reading card": "Please give the woman the laminated reading card and ask her to read the passage in the language of her choice",
-    "Principal occupation of the household": "Principal occupation of the household (Out of the three income earners, identify who is the principal occupation holder, then tick):"
+    "Principal occupation of the household": "Principal occupation of the household (Out of the three income earners, identify who is the principal occupation holder, then tick):",
+    "Diet Advice Dos": "Diet DOs\n✓ Eat complete, balanced diet\n✓ Eat multiple meals (3-4 times) in a day\n✓Eat many fruits\n✓ Have milk, eggs, chicken, fish, meat regularly\n✓ Have green leafy vegetables\n✓ Consume THR (Take Home Ration) from the Anganwadi Center regularly\n✓ Use only adequately iodised salt",
+    "Diet Advice Donts": "Diet DONTs\n✘ Avoid Kharra, Guthkha, Areca nut\n✘ Avoid Tadi, Gorga, Alcohol \n✘ Excessive consumption of Tea",
+    "Supplementary nutritional therapy": "Supplementary nutritional therapy\n✓ FS+Calcium Tablets regular consumption\n✓ Tablets given by CHWs and or by doctors from the hospital should be consumed regularly",
+    "Rest and sleep": "Rest and sleep\n✓ 8 hours complete sleep during night and minimum 2 hours rest at day time\n✘ Avoid Strenous work in 1st and 3rd trimester",
+    "Immunization Counselling": "Immunization\n✓ TT Vaccination is important as T.T. immunization protects the mother and the baby against tetanus – a life threatening disease",
+    "Coitus/Sex Counselling": "Coitus/Sex\n✓ Safe to have sex only in 2nd trimester\n✘ NO sex during 1st and 3rd trimester",
+    "Illness management": "Illness\n✘ Do not take any kind of medicine without an advice of doctor/nurse/health worker\n✘ Do not expose to X-ray without Doctor's advice",
+    "Finance management": "Money\n✓ Save adequate money to meet the expenses during emergency",
+    "Government scheme information": "Government scheme\n✓ Ask ANM or ASHA for enrolment in JSY scheme. Enrolling in this scheme assures financial assistance to pregnant women",
+    "Ambulance services information": "Ambulance services\n✓ For any emergency during pregnancy contact 102/108/104"
   },
   "gu_IN": {
     "Intervention Area": "ઇંટરવેંશન એરિયા",
