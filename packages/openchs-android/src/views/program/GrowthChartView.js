@@ -106,7 +106,7 @@ class GrowthChartView extends AbstractComponent {
             const newState = {
                 weightForAge: {dataSets: this.getDataSets(this.props.params.data.weightForAge, 'Weight', 'kg')},
                 heightForAge: {dataSets: this.getDataSets(this.props.params.data.heightForAge, 'Height', 'cm')},
-                weightForHeight: {dataSets: this.getDataSets(this.props.params.data.weightForHeight, 'Weight', 'cm', "Height")}
+                weightForHeight: {dataSets: this.getDataSets(this.props.params.data.weightForHeight, 'Weight', 'kg', "Height")}
             };
 
             return _.merge(newState, this.graphForSelection(newState, this.states.weightForAge));
