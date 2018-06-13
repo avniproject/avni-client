@@ -54,6 +54,9 @@ release: ##
 release-demo: ## 
 	ENVFILE=.env.demo make release
 
+release-vivek: ##
+	ENVFILE=.env.devs.vivek make release
+
 release-live: ## 
 	ENVFILE=.env.live make release
 
@@ -155,8 +158,8 @@ analyse_crash: ##
 deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 
-deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata 
-	cd packages/demo-organisation && make deploy_refdata
+deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
+	cd packages/demo-organisation && make deploy
 # </metadata>
 
 uat-apk: release-uat

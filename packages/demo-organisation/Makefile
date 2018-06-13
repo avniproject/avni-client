@@ -16,6 +16,7 @@ help:
 port:= $(if $(port),$(port),8021)
 server:= $(if $(server),$(server),http://localhost)
 org_name:=demo
+su:=$(shell id -un)
 
 _curl = \
 	curl -X $(1) $(server):$(port)/$(2) -d $(3)  \
@@ -24,10 +25,9 @@ _curl = \
 		-H "AUTH-TOKEN: $(token)" \
 
 create_org:
-	psql -U$(su) openchs < create_org.sql
+	-psql -h localhost -U $(su) -d openchs -f create_org.sql
 
-# <refdata>
-deploy_refdata: ## Creates reference data by POSTing it to the server
+deploy_metadata_refdata: ## Creates reference data by POSTing it to the server
 	$(call _curl,POST,catchments,@catchments.json)
 	@echo
 	$(call _curl,POST,concepts,@concepts.json)
@@ -36,10 +36,5 @@ deploy_refdata: ## Creates reference data by POSTing it to the server
 	@echo
 	$(call _curl,POST,operationalModules,@operationalModules.json)
 	@echo
-# </refdata>
 
-deploy: deploy_refdata
-
-# <create_deploy>
-create_deploy: create_org deploy ## Create and deploy 
-# </create_deploy>
+deploy: create_org deploy_metadata_refdata

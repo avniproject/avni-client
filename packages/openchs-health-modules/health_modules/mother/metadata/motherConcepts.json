@@ -2574,11 +2574,7 @@
   {
     "name": "Gravida",
     "uuid": "dc2c23e9-19ad-471f-81d1-213069ccc975",
-    "dataType": "Numeric",
-    "lowAbsolute": 1,
-    "lowNormal": 2,
-    "highNormal": 4,
-    "highAbsolute": 10
+    "dataType": "Numeric"
   },
   {
     "name": "Parity",
