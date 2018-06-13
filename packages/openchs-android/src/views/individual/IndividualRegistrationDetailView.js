@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, Alert} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -48,16 +48,36 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     }
 
+    onRelativeDeletePress(individualRelative){
+        Alert.alert(
+            this.I18n.t('deleteRelativeNoticeTitle'),
+            this.I18n.t('deleteRelativeConfirmationMessage', {individualA: individualRelative.individual.name, individualB: individualRelative.relative.name}),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                    this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative})
+                }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                },
+                    style: 'cancel'
+                }
+            ]
+        )
+
+    }
+
+
     renderRelatives(){
         const individualToComeBackTo = this.state.individual;
         return (
             <View>
                 <ObservationsSectionTitle contextActions={this.getRelativeActions()}
                                           title={'Relatives'}/>
-                <Relatives relatives={this.state.individual.relatives}
+                <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
-                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual,
-                               () => this.goBackFromRelative(individualToComeBackTo))}/>
+                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual, () => this.goBackFromRelative(individualToComeBackTo))} onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
             </View>
         );
     }

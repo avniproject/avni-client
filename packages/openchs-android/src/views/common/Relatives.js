@@ -7,11 +7,12 @@ import Styles from "../primitives/Styles";
 import {Icon, Button} from "native-base";
 class Relatives extends AbstractComponent {
     static propTypes = {
-        relatives: React.PropTypes.object.isRequired,
+        relatives: React.PropTypes.array.isRequired,
         style: React.PropTypes.object,
         title: React.PropTypes.string,
         highlight: React.PropTypes.bool,
-        onRelativeSelection: React.PropTypes.func.isRequired
+        onRelativeSelection: React.PropTypes.func.isRequired,
+        onRelativeDeletion: React.PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -77,34 +78,23 @@ class Relatives extends AbstractComponent {
         );
     }
 
-    onRelativeEditPress(){
-
-    }
-
-    renderRelativeActionButton() {
+    renderRelativeActionButton(individualRelative) {
         return (<View>
-        <View style={{flex:0.125, flexDirection: 'row', justifyContent: 'flex-end'}}>
-            <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-                paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>edit</Button>
-            <Text style={{textAlignVertical: 'center'}}>|</Text>
-        </View>
         <View style={{flex:0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
     <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-            paddingHorizontal: 5}} onPress={() => this.onRelativeEditPress()}>delete</Button>
+            paddingHorizontal: 5}} onPress={() => this.props.onRelativeDeletion(individualRelative)}>delete</Button>
 
     </View>
         </View>);
 
     }
 
-
     render() {
-        const editDeleteFeatureToggle = false;
+        const editDeleteFeatureToggle = true;
         //TODO there is lot of duplication between this and ISRV but there are differences as well.Fix it.
         if (this.props.relatives.length === 0) return <View/>;
         const i18n = this.I18n;
-         const relatives = this.props.relatives
-             .map(relative => [this.I18n.t(relative.relation.name), relative.relative]);
+         const relatives = this.props.relatives;
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(relatives);
         return (
             <View style={{flexDirection: "column", paddingBottom: 10}}>
@@ -112,26 +102,26 @@ class Relatives extends AbstractComponent {
                 <ListView enableEmptySections={true}
                           dataSource={dataSource}
                           style={{backgroundColor: Styles.greyBackground}}
-                          renderRow={([relation, relativeIndividual]) =>
-                              <TouchableNativeFeedback onPress={() => this.onResultRowPress(relativeIndividual)}
+                          renderRow={(relative) =>
+                              <TouchableNativeFeedback onPress={() => this.onResultRowPress(relative.relative)}
                                                        background={TouchableNativeFeedback.SelectableBackground()}>
                                   <View>
                                       <View style={{ flexDirection: 'row', flexWrap: 'nowrap',
                                           paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge, alignItems: 'center',
                                           alignSelf: 'center', flex:1}}>
                                           <View style={{flex:0.75}}>
-                                              <Text style={Styles.relativeRelationText}>{relation}</Text>
+                                              <Text style={Styles.relativeRelationText}>{i18n.t(relative.relation.name)}</Text>
                                           </View>
-                                          {editDeleteFeatureToggle ? this.renderRelativeActionButton() : <View/>}
+                                          {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) : <View/>}
                                       </View>
                                       <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
                                           alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
                                           <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
                                           <View style={{ flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
-                                              <Text style={Styles.textStyle}>{relativeIndividual.name}</Text>
+                                              <Text style={Styles.textStyle}>{relative.relative.name}</Text>
                                               <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                                                  <Text style={Styles.userProfileSubtext}>{this.I18n.t(relativeIndividual.gender.name)}</Text>
-                                                  <Text style={Styles.userProfileSubtext}>{relativeIndividual.getDisplayAge(i18n)}</Text>
+                                                  <Text style={Styles.userProfileSubtext}>{this.I18n.t(relative.relative.gender.name)}</Text>
+                                                  <Text style={Styles.userProfileSubtext}>{relative.relative.getDisplayAge(i18n)}</Text>
                                               </View>
                                           </View>
                                           <View style={{
@@ -141,10 +131,10 @@ class Relatives extends AbstractComponent {
                                               flex: 1
                                           }}>
                                               <View style={{justifyContent: 'flex-end'}}>
-                                                  <Text style={Styles.textStyle}>{this.I18n.t(relativeIndividual.lowestAddressLevel.name)}</Text>
+                                                  <Text style={Styles.textStyle}>{this.I18n.t(relative.relative.lowestAddressLevel.name)}</Text>
                                               </View>
                                               <View style={{ flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                                  {_.filter(relativeIndividual.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                                                  {_.filter(relative.relative.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
                                               </View>
                                           </View>
                                       </View>

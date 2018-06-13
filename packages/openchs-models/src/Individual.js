@@ -10,7 +10,6 @@ import Duration from "./Duration";
 import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
-import IndividualRelative from "./IndividualRelative";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -28,8 +27,7 @@ class Individual extends BaseEntity {
             lowestAddressLevel: 'AddressLevel',
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
-            observations: {type: 'list', objectType: 'Observation'},
-            relatives: {type: 'list', objectType: 'IndividualRelative'},
+            observations: {type: 'list', objectType: 'Observation'}
         }
     };
 
@@ -51,7 +49,6 @@ class Individual extends BaseEntity {
         individual.encounters = [];
         individual.enrolments = [];
         individual.lowestAddressLevel = AddressLevel.create("", "", 0, undefined, "");
-        individual.relatives = [];
         return individual;
     }
 
@@ -110,14 +107,12 @@ class Individual extends BaseEntity {
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualUUID"), Individual.schema.name);
-        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters", "relatives"]);
+        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters"]);
 
         if (childEntityClass === ProgramEnrolment)
             BaseEntity.addNewChild(child, individual.enrolments);
         else if (childEntityClass === Encounter)
             BaseEntity.addNewChild(child, individual.encounters);
-        else if (childEntityClass === IndividualRelative)
-            BaseEntity.addNewChild(child, individual.relatives);
         else
             throw `${childEntityClass.name} not support by ${Individual.nameString}`;
 
@@ -264,10 +259,6 @@ class Individual extends BaseEntity {
             this.encounters.push(encounter);
     }
 
-    addRelative(relative) {
-        if (!_.some(this.relatives, (existingRelative) => existingRelative.uuid === relative.uuid))
-            this.relatives.push(relative);
-    }
 
     cloneForEdit() {
         const individual = new Individual();
@@ -292,7 +283,6 @@ class Individual extends BaseEntity {
         individual.lastName = this.lastName;
         individual.dateOfBirth = this.dateOfBirth;
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
-        individual.relatives = this.relatives;
         return individual;
     }
 

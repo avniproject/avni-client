@@ -1,8 +1,9 @@
 import IndividualService from "../../service/IndividualService";
 import EntityService from "../../service/EntityService";
-import IndividualRelation from "../../../../openchs-models/src/IndividualRelation";
-import IndividualRelative from "../../../../openchs-models/src/IndividualRelative";
-import IndividualRelativeService from "../../service/IndividualRelativeService";
+import IndividualRelation from "../../../../openchs-models/src/relationship/IndividualRelation";
+import IndividualRelative from "../../../../openchs-models/src/relationship/IndividualRelative";
+import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
+import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
 import {ValidationResult} from "openchs-models";
 import _ from "lodash";
 
@@ -46,9 +47,11 @@ export class IndividualAddRelativeActions {
         return newState;
     }
 
-    static selectRelative(state, action) {
+    static selectRelative(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relative = action.value;
+        const possibleRelationsWithRelative = context.get(IndividualRelationGenderMappingService).getRelationsForGender(newState.individualRelative.individual.gender);
+        newState.relations = possibleRelationsWithRelative;
         IndividualAddRelativeActions.handleValidationResult(newState, newState.individualRelative.validateRelative());
         return newState;
     }
@@ -66,7 +69,7 @@ export class IndividualAddRelativeActions {
         const validationResults = newState.individualRelative.validate();
         IndividualAddRelativeActions.handleValidationResults(newState, validationResults);
         if(_.isEmpty(newState.validationResults)){
-            context.get(IndividualRelativeService).saveOrUpdate(newState.individualRelative);
+            context.get(IndividualRelationshipService).addRelative(newState.individualRelative);
             action.cb();
         }
         return newState;

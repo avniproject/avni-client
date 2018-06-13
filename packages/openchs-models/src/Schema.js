@@ -30,14 +30,15 @@ import ProgramConfig from "./ProgramConfig";
 import StringKeyNumericValue from "./application/StringKeyNumericValue";
 import VisitScheduleInterval from "./VisitScheduleInterval";
 import VisitScheduleConfig from "./VisitScheduleConfig";
-import IndividualRelation from "./IndividualRelation";
-import IndividualRelative from "./IndividualRelative";
-import IndividualReverseRelation from "./IndividualReverseRelation";
+import IndividualRelation from "./relationship/IndividualRelation";
+import IndividualRelationship from "./relationship/IndividualRelationship";
+import IndividualRelationshipType from "./relationship/IndividualRelationshipType";
+import IndividualRelationGenderMapping from "./relationship/IndividualRelationGenderMapping";
 
 export default {
     //order is important, should be arranged according to the dependency
-    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualReverseRelation, IndividualRelative],
-    schemaVersion: 60,
+    schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping, IndividualRelationshipType, IndividualRelationship],
+    schemaVersion: 62,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

@@ -1,28 +1,19 @@
-import General from "./utility/General";
-import ResourceUtil from "./utility/ResourceUtil";
-import BaseEntity from "./BaseEntity";
-import Individual from "./Individual";
+import Individual from "../Individual";
 import _ from "lodash";
 import IndividualRelation from "./IndividualRelation";
-import ValidationResult from "./application/ValidationResult";
+import ValidationResult from "../application/ValidationResult";
 
-class IndividualRelative extends BaseEntity {
-    static schema = {
-        name: 'IndividualRelative',
-        primaryKey: 'uuid',
-        properties: {
-            uuid: 'string',
-            relation: 'IndividualRelation',
-            individual: 'Individual',
-            relative: 'Individual',
-            enterDateTime: {type: 'date', optional: true},
-            exitDateTime: {type: 'date', optional: true}
-        }
-    };
+class IndividualRelative {
+
+    constructor(individual, relative, relation, relationshipUUID) {
+        this.individual = individual;
+        this.relative = relative;
+        this.relation = relation;
+        this.relationshipUUID = relationshipUUID;
+    }
 
     static createEmptyInstance() {
         const individualRelative = new IndividualRelative();
-        individualRelative.uuid = General.randomUUID();
         individualRelative.individual = Individual.createEmptyInstance();
         individualRelative.relative = Individual.createEmptyInstance();
         individualRelative.relation = IndividualRelation.createEmptyInstance();
@@ -30,40 +21,24 @@ class IndividualRelative extends BaseEntity {
     }
 
 
-    get toResource() {
-        const resource = _.pick(this, ["uuid"]);
-        resource["relationUUID"] = this.relation.uuid;
-        resource.enterDateTime = General.isoFormat(this.enterDateTime);
-        resource.exitDateTime = General.isoFormat(this.exitDateTime);
-        resource["individualUUID"] = this.individual.uuid;
-        resource["relativeIndividualUUID"] = this.relative.uuid;
-        return resource;
-    }
-
-    static fromResource(resource, entityService) {
-        const relation = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "relationUUID"), IndividualRelation.schema.name);
-        const individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
-        const relative = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "relativeIndividualUUID"), Individual.schema.name);
-
-        const individualRelative = General.assignFields(resource, new IndividualRelative(), ["uuid"], ["enterDateTime", "exitDateTime"], [], entityService);
-        individualRelative.relation = relation;
-        individualRelative.individual = individual;
-        individualRelative.relative = relative;
-
-        return individualRelative;
-    }
-
-
     cloneForEdit() {
         const individualRelative = new IndividualRelative();
-        individualRelative.uuid = this.uuid;
         individualRelative.relation = this.relation.clone();
         individualRelative.enterDateTime = this.enterDateTime;
         individualRelative.exitDateTime = this.exitDateTime;
         individualRelative.individual = this.individual;
         individualRelative.relative = this.relative.cloneForReference();
+        individualRelative.relationshipUUID = this.relationshipUUID;
         return individualRelative;
     }
+
+    validateFieldForEmpty(value, key) {
+        if (value instanceof Date) {
+            return _.isNil(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
+        }
+        return _.isEmpty(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
+    }
+
 
     static validationKeys = {
         RELATIVE: 'RELATIVE',
@@ -97,16 +72,6 @@ class IndividualRelative extends BaseEntity {
         }
         return validationResults;
     }
-
-    getReverseRelative(individualReverseRelation){
-        const individualRelative = new IndividualRelative();
-        individualRelative.uuid = General.randomUUID();
-        individualRelative.individual = this.relative;
-        individualRelative.relation = individualReverseRelation.reverseRelation;
-        individualRelative.relative = this.individual;
-        return individualRelative;
-    }
-
 
 }
 

@@ -169,7 +169,10 @@
   "grandmother": "आजी",
   "addARelative": "एक नातेवाईक जोडा",
   "relationshipAlreadyRecorded": "सापेक्ष आधीच रेकॉर्ड",
-  "selfRelationshipNotAllowed": "स्वत: नाते मान्य नाही"
+  "selfRelationshipNotAllowed": "स्वत: नाते मान्य नाही",
+  "deleteRelativeNoticeTitle": "સંબંધિત કાઢી નાખો?",
+  "deleteRelativeConfirmationMessage": "આ {{individualA}} અને {{individualB}} વચ્ચેના સંબંધને રદ્દ કરશે."
+
 
 }
 

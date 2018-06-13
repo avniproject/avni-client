@@ -202,6 +202,9 @@
   "grandmother": "દાદી",
   "addARelative": "સંબંધિત ઉમેરો",
   "relationshipAlreadyRecorded": "સંબંધ પહેલેથી રેકોર્ડ છે",
-  "selfRelationshipNotAllowed": "સ્વયં સંબંધને મંજૂરી નથી"
+  "selfRelationshipNotAllowed": "સ્વયં સંબંધને મંજૂરી નથી",
+  "deleteRelativeNoticeTitle": "સંબંધિત કાઢી નાખો?",
+  "deleteRelativeConfirmationMessage": "આ {{individualA}} અને {{individualB}} વચ્ચેના સંબંધને રદ્દ કરશે."
+
 
 }

@@ -45,8 +45,11 @@ import VisitScheduleInterval from "./src/VisitScheduleInterval";
 import VisitScheduleConfig from "./src/VisitScheduleConfig";
 import ProgramConfig from "./src/ProgramConfig";
 import Family from "./src/Family";
-import IndividualRelation from "./src/IndividualRelation"
-import IndividualRelative from "./src/IndividualRelative"
+import IndividualRelation from "./src/relationship/IndividualRelation"
+import IndividualRelationGenderMapping from "./src/relationship/IndividualRelationGenderMapping"
+import IndividualRelationshipType from "./src/relationship/IndividualRelationshipType"
+import IndividualRelationship from "./src/relationship/IndividualRelationship"
+import IndividualRelative from "./src/relationship/IndividualRelative"
 
 export {
     Form,
@@ -98,5 +101,8 @@ export {
     ProgramConfig,
     Family,
     IndividualRelation,
+    IndividualRelationGenderMapping,
+    IndividualRelationshipType,
+    IndividualRelationship,
     IndividualRelative
 };
