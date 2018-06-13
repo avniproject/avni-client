@@ -94,8 +94,8 @@ describe("Child Program Birth", () => {
 
         });
 
-        [{ concept: "Child Pulse", value: 55, complication: "Pulse <60 or >100 bpm" },
-        { concept: "Child Pulse", value: 105, complication: "Pulse <60 or >100 bpm" },
+        [{ concept: "Child Pulse", value: 55, complication: "Pulse <60 or > 100 bpm" },
+        { concept: "Child Pulse", value: 105, complication: "Pulse <60 or > 100 bpm" },
         { concept: "Child Temperature", value: 97.4, complication: "Low Temperature" },
         { concept: "Child Temperature", value: 99.7, complication: "High Temperature" },
         { concept: "Child Respiratory Rate", value: 29, complication: "Respiratory Rate <30 or > 60 bpm" },
