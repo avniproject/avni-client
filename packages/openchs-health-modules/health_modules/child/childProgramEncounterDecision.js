@@ -1,4 +1,5 @@
 import BirthFormHandler from "./formFilters/BirthFormHandler";
+import ChildPNCFormHandler from "./formFilters/ChildPNCFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import _ from "lodash";
 import ComplicationsBuilder from "../rules/complicationsBuilder";
@@ -40,8 +41,8 @@ const recommendations = (enrolment, encounter) => {
     });
 
     recommendationBuilder.addComplication("Keep the baby warm")
-        .when.valueInEncounter("Child Pulse").lessThan(100)
-        .or.when.valueInEncounter("Child Pulse").greaterThan(160)
+        .when.valueInEncounter("Child Pulse").lessThan(60)
+        .or.when.valueInEncounter("Child Pulse").greaterThan(100)
         .or.when.valueInEncounter("Child Respiratory Rate").lessThan(30)
         .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60)
     ;
@@ -64,6 +65,7 @@ const recommendations = (enrolment, encounter) => {
 
 const encounterTypeHandlerMap = new Map([
     ['Birth', new BirthFormHandler()],
+    ['Child PNC', new ChildPNCFormHandler()]
 ]);
 
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {

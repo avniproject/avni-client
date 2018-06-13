@@ -23,9 +23,9 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
     referralAdvice.addComplication("Muscle tone Absent/Flexed arms and legs")
         .when.valueInEncounter("Muscle tone").containsAnyAnswerConceptName("Absent", "Flexed arms and legs");
 
-    referralAdvice.addComplication("Pulse <100 or > 160 bpm")
-        .when.valueInEncounter("Child Pulse").lessThan(100)
-        .or.when.valueInEncounter("Child Pulse").greaterThan(160);
+    referralAdvice.addComplication("Pulse <60 or > 100 bpm")
+        .when.valueInEncounter("Child Pulse").lessThan(60)
+        .or.when.valueInEncounter("Child Pulse").greaterThan(100);
 
     referralAdvice.addComplication("Low Temperature")
         .when.valueInEncounter("Child Temperature").lessThan(97.5);
@@ -78,7 +78,8 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
 
     referralAdvice.addComplication("Child PNC skin problems")
         .when.encounterType.equals("Child PNC")
-        .when.valueInEncounter("Child PNC skin problems").containsAnswerConceptName("Blue/pale", "Umbilical redness and or discharge", "Umbilical Abscess", "Rash", "Wrinkled Skin", "Sunken fontanelle", "Skin blisters");
+        .when.valueInEncounter("Child PNC skin problems").containsAnswerConceptName("Blue/pale", "Umbilical redness and or discharge", "Umbilical Abscess", "Rash", "Wrinkled Skin", "Sunken fontanelle", "Skin blisters")
+        .or.when.valueInEncounter("Child PNC skin problems").containsAnswerConceptName("Rash").and.ageInDays.is.greaterThan(3);
 
     referralAdvice.addComplication("Child PNC breathing problems")
         .when.encounterType.equals("Child PNC")

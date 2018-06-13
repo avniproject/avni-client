@@ -45,10 +45,10 @@ export default class Concept {
             name: 'string',
             datatype: "string",
             answers: {"type": "list", "objectType": "ConceptAnswer"},
-            lowAbsolute: {"type": 'int', optional: true},
-            hiAbsolute: {"type": 'int', optional: true},
-            lowNormal: {"type": 'int', optional: true},
-            hiNormal: {"type": 'int', optional: true},
+            lowAbsolute: {"type": 'double', optional: true},
+            hiAbsolute: {"type": 'double', optional: true},
+            lowNormal: {"type": 'double', optional: true},
+            hiNormal: {"type": 'double', optional: true},
             unit: {"type": 'string', optional: true},
             voided: {type: 'bool', default: false}
         }

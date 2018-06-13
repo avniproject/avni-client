@@ -57,8 +57,8 @@ describe("Child Program Birth", () => {
 
         });
 
-        [{ concept: "Child Pulse", value: 95, riskName: "Pulse <100 or > 160 bpm" },
-        { concept: "Child Pulse", value: 165, riskName: "Pulse <100 or > 160 bpm" },
+        [{ concept: "Child Pulse", value: 55, riskName: "Pulse <60 or > 100 bpm" },
+        { concept: "Child Pulse", value: 105, riskName: "Pulse <60 or > 100 bpm" },
         { concept: "Child Temperature", value: 97.4, riskName: "Low Temperature" },
         { concept: "Child Temperature", value: 99.6, riskName: "High Temperature" },
         { concept: "Child Respiratory Rate", value: 29, riskName: "Respiratory Rate <30 or > 60 bpm" },
@@ -94,8 +94,8 @@ describe("Child Program Birth", () => {
 
         });
 
-        [{ concept: "Child Pulse", value: 95, complication: "Pulse <100 or > 160 bpm" },
-        { concept: "Child Pulse", value: 165, complication: "Pulse <100 or > 160 bpm" },
+        [{ concept: "Child Pulse", value: 55, complication: "Pulse <60 or >100 bpm" },
+        { concept: "Child Pulse", value: 105, complication: "Pulse <60 or >100 bpm" },
         { concept: "Child Temperature", value: 97.4, complication: "Low Temperature" },
         { concept: "Child Temperature", value: 99.7, complication: "High Temperature" },
         { concept: "Child Respiratory Rate", value: 29, complication: "Respiratory Rate <30 or > 60 bpm" },

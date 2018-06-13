@@ -861,8 +861,8 @@
     "dataType": "NA"
   },
   {
-    "name": "Pulse <100 or > 160 bpm",
-    "uuid": "e183bd41-eedf-458e-a96f-f818bf128243",
+    "name": "Pulse <60 or > 100 bpm",
+    "uuid": "0b396169-2110-41c3-936d-499687f24d25",
     "dataType": "NA"
   },
   {

@@ -25,9 +25,9 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
     highRiskBuilder.addComplication("Muscle tone Absent/Flexed arms and legs")
         .when.valueInEncounter("Muscle tone").containsAnyAnswerConceptName("Absent", "Flexed arms and legs");
 
-    highRiskBuilder.addComplication("Pulse <100 or > 160 bpm")
-        .when.valueInEncounter("Child Pulse").lessThan(100)
-        .or.when.valueInEncounter("Child Pulse").greaterThan(160);
+    highRiskBuilder.addComplication("Pulse <60 or > 100 bpm")
+        .when.valueInEncounter("Child Pulse").lessThan(60)
+        .or.when.valueInEncounter("Child Pulse").greaterThan(100);
 
     highRiskBuilder.addComplication("Low Temperature")
         .when.valueInEncounter("Child Temperature").lessThan(97.5);

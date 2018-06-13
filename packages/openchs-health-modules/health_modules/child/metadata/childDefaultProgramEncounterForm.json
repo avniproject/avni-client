@@ -22,7 +22,7 @@
           "mandatory": true
         },
         {
-          "name": "When did the child pass meconium for the first time after birth",
+          "name": "When did the child pass meconium for the first time after birth?",
           "uuid": "4849b8dd-cce8-4302-b77e-5bf28a555229",
           "keyValues": [],
           "concept": {
@@ -277,7 +277,7 @@
             "name": "Height"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Weight",
@@ -288,7 +288,7 @@
             "name": "Weight"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         }
       ]
     }

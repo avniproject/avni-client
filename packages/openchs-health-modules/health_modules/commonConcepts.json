@@ -73,8 +73,8 @@
     "name": "Child Pulse",
     "uuid": "4629403c-7d38-4984-89cb-8be929b66e69",
     "dataType": "Numeric",
-    "lowNormal": 100,
-    "highNormal": 160,
+    "lowNormal": 60,
+    "highNormal": 100,
     "unit": "bpm"
   },
   {
