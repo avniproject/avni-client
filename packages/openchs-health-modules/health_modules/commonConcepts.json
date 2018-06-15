@@ -506,6 +506,11 @@
     ]
   },
   {
+    "name": "HIV/AIDS positive",
+    "uuid": "a63bf6a9-61cf-47be-b251-b947e80247a4",
+    "dataType": "NA"
+  },
+  {
     "name": "Medical history",
     "uuid": "2991127b-7064-4027-a030-4a3a8d0e8aa7",
     "dataType": "Coded",

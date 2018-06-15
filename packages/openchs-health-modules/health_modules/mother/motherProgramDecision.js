@@ -48,6 +48,9 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
 
         if (programEnrolment.getObservationValue('Gravida') >= 5)
             addIfNotExists('Grand Multipara');
+
+        if (programEnrolment.getObservationValue('Gravida') == 1)
+            addIfNotExists('Primigravida');
     }
 
     function addObsHistoryRisk(obstetricsHistory, answer, risk) {

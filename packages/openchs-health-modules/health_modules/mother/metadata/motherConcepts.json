@@ -97,6 +97,11 @@
     "dataType": "NA"
   },
   {
+    "uuid": "5d406c89-a7fc-4ed9-9a85-c2f2f44c66fb",
+    "name": "Primigravida",
+    "dataType": "NA"
+  },
+  {
     "uuid": "338d5fb1-0493-4270-8d35-81105c239bbb",
     "name": "Grand Multipara",
     "abnormal": true,
@@ -1111,6 +1116,16 @@
     "dataType": "NA"
   },
   {
+    "name": "Reason(s) for Institutional Delivery",
+    "uuid": "889618b9-773e-42f2-94b4-f4b282fd02d7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Reason(s) for Institutional ANC",
+    "uuid": "cc2d76e6-cf11-43e8-96fc-f842abe63c5d",
+    "dataType": "NA"
+  },
+  {
     "name": "Number of abortions",
     "uuid": "38b9986b-76e8-4015-ae51-48152b1cd42c",
     "dataType": "Numeric",
@@ -1420,6 +1435,11 @@
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
     "answers": [
+      {
+        "uuid": "5d406c89-a7fc-4ed9-9a85-c2f2f44c66fb",
+        "name": "Primigravida",
+        "abnormal": true
+      },
       {
         "uuid": "0c3353c3-f4c9-4028-9cd0-bde9a317927b",
         "name": "Rh Negative Blood Group",

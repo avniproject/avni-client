@@ -8,7 +8,7 @@ import PNCFormHandler from "./formFilters/PNCFormHandler";
 import AbortionFormhandler from "./formFilters/AbortionFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
-import generateRecommendations from "./recommendations";
+import { generateRecommendations, generateReasonsForRecommendations } from './recommendations';
 import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
@@ -220,6 +220,7 @@ export function getDecisions(programEncounter, today) {
 
         decisions = decisions
             .concat(generateRecommendations(programEncounter.programEnrolment, programEncounter))
+            .concat(...generateReasonsForRecommendations(programEncounter.programEnrolment, programEncounter))
             .concat(generateTreatment(programEncounter.programEnrolment, programEncounter, today))
             .concat(referralAdvice(programEncounter.programEnrolment, programEncounter, today))
             .concat(immediateReferralAdvice(programEncounter.programEnrolment, programEncounter, today));

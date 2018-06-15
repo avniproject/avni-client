@@ -4,7 +4,7 @@ import * as programDecision from './motherProgramDecision';
 import c from '../common';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
-import generateRecommendations from './recommendations';
+import { generateRecommendations, generateReasonsForRecommendations } from './recommendations';
 import { referralAdvice, immediateReferralAdvice } from './referral';
 import { getHighRiskConditionsInEnrolment } from "./highRisk";
 
@@ -22,6 +22,7 @@ export function getDecisions(enrolment, context, today) {
     _addItems(decisions, programDecision.getDecisions(enrolment, today))
     _addItem(decisions, getHighRiskConditionsInEnrolment(enrolment));
     _addItem(decisions, generateRecommendations(enrolment));
+    _addItems(decisions, generateReasonsForRecommendations(enrolment));
     _addItem(decisions, immediateReferralAdvice(enrolment, null, today));
 
     return { enrolmentDecisions: decisions, encounterDecisions: [] };
