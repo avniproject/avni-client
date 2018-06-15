@@ -73,7 +73,7 @@ class ProgramActionsView extends AbstractComponent {
                     <View/>}
                 {this.props.enrolment.hasChecklist ?
                     this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
-                        this.I18n.t('openChecklist'), Colors.TextOnPrimaryColor)
+                        this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.goToView(button),

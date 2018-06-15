@@ -21,14 +21,14 @@ var getVaccSchedule = function (programEnrolment) {
     //at 9 months
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Measles 1", 274, 274));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "JE 1", 274, 274));
-    vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 1", 274, 274));
     //between 16 - 24 months
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Measles 2", 487, 730));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "JE 2", 487, 730));
-    vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 2", 487, 730));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "OPV Booster", 487, 730));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "DPT Booster", 487, 730));
     //Additional Vitamin A doses
+    vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 1", 274, 274));
+    vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 2", 548, 548));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 3", 730, 730));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 4", 913, 913));
     vaccScheduleItems.push(C.addChecklistItem(dateOfBirth, "Vitamin A 5", 1095, 1095));
