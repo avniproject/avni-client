@@ -50,7 +50,7 @@ export class IndividualAddRelativeActions {
     static selectRelative(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relative = action.value;
-        const possibleRelationsWithRelative = context.get(IndividualRelationGenderMappingService).getRelationsForGender(newState.individualRelative.individual.gender);
+        const possibleRelationsWithRelative = context.get(IndividualRelationGenderMappingService).getRelationsForGender(newState.individualRelative.relative.gender);
         newState.relations = possibleRelationsWithRelative;
         IndividualAddRelativeActions.handleValidationResult(newState, newState.individualRelative.validateRelative());
         return newState;
