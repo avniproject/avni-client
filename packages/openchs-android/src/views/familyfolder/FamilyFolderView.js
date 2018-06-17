@@ -15,6 +15,7 @@ import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import FamilyRegisterView from "../familyfolder/FamilyRegisterView";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 @Path('/FamilyFolder')
 class FamilyFolderView extends AbstractComponent {
@@ -36,19 +37,19 @@ class FamilyFolderView extends AbstractComponent {
         },
 
             TouchableOpacityStyle:{
-
                 position: 'absolute',
-                width: 50,
-                height: 50,
+                width: 60,
+                height: 60,
                 alignItems: 'center',
                 justifyContent: 'center',
                 right: 30,
                 bottom: 30,
+                borderRadius: 150,
+                backgroundColor:Colors.AccentColor
             },
 
             FloatingButtonStyle: {
-                width: 50,
-                height: 50,
+                color: Colors.TextOnPrimaryColor
             }
     });
 
@@ -77,9 +78,7 @@ class FamilyFolderView extends AbstractComponent {
                     </View>
                 </CHSContent>
                 <TouchableOpacity activeOpacity={0.5} onPress={this._onPressButton.bind(this)} style ={FamilyFolderView.styles.TouchableOpacityStyle}>
-                    //TODO create an image for this
-                    <Image source={{uri : 'https://reactnativecode.com/wp-content/uploads/2017/11/Floating_Button.png'}}
-
+                    <Icon name='account-multiple-plus' size={40}
                            style={FamilyFolderView.styles.FloatingButtonStyle} />
                 </TouchableOpacity>
             </CHSContainer>
