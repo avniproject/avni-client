@@ -47,6 +47,7 @@ class FamilyRegisterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
+        const headOfFamilySearchHeaderMessage = `Head of Family - ${this.I18n.t('search')}`;
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
@@ -88,6 +89,7 @@ class FamilyRegisterView extends AbstractComponent {
                             element={new StaticFormElement('Head of Family', true)}
                             inputChangeActionName={Actions.REGISTRATION_ENTER_HEAD_OF_FAMILY}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.HEAD_OF_FAMILY)}
+                            searchHeaderMessage={headOfFamilySearchHeaderMessage}
 
                         />
 

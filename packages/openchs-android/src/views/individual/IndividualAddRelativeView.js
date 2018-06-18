@@ -74,6 +74,7 @@ class IndividualAddRelativeView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const headerMessage = `${this.I18n.t(this.props.individual.nameString)} - ${this.I18n.t('addARelative')}`;
+        const searchHeaderMessage = `${headerMessage} - ${this.I18n.t('search')}`;
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
@@ -88,6 +89,7 @@ class IndividualAddRelativeView extends AbstractComponent {
                             element={new StaticFormElement('Relative', true)}
                             inputChangeActionName={Actions.INDIVIDUAL_ADD_RELATIVE_SELECT_INDIVIDUAL}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATIVE)}
+                            searchHeaderMessage={searchHeaderMessage}
                         />
                         {this.renderRelations()}
 

@@ -25,5 +25,7 @@
   "grandmother": "दादी मा",
   "addARelative": "एक रिश्तेदार जोड़ें",
   "relationshipAlreadyRecorded": "रिश्ता पहले ही दर्ज किया गया है",
-  "selfRelationshipNotAllowed": "आत्म रिश्ते की अनुमति नहीं है"
+  "selfRelationshipNotAllowed": "आत्म रिश्ते की अनुमति नहीं है",
+  "deleteRelativeNoticeTitle": "रिश्तेदार हटाना?",
+  "deleteRelativeConfirmationMessage": "यह {{individualA}} और {{individualB}} के बीच संबंध हटा देगा"
 }

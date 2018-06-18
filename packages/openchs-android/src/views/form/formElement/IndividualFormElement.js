@@ -11,11 +11,12 @@ import IndividualSearchView from "../../../views/individual/IndividualSearchView
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 
 
-class IndividualNameFormElement extends AbstractFormElement {
+class IndividualFormElement extends AbstractFormElement {
     static propTypes = {
         individualNameValue: React.PropTypes.string,
         inputChangeActionName: React.PropTypes.string.isRequired,
-        validationResult: React.PropTypes.object
+        validationResult: React.PropTypes.object,
+        searchHeaderMessage: React.PropTypes.string.isRequired,
     };
 
     constructor(props, context) {
@@ -31,6 +32,7 @@ class IndividualNameFormElement extends AbstractFormElement {
     search(){
         TypedTransition.from(this).bookmark().with(
             {
+            showHeader: true, headerMessage : this.props.searchHeaderMessage,
             onIndividualSelection : (source, individual) => {
                 TypedTransition.from(source).popToBookmark();
                 this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: individual});
@@ -49,7 +51,7 @@ class IndividualNameFormElement extends AbstractFormElement {
                     paddingVertical: 5
                 }, Styles.formBodyText]}>{this.props.individualNameValue}</Text>
                 <TouchableOpacity activeOpacity={0.5} onPress={this.search.bind(this)} transparent>
-                    <Icon name="magnify" style={IndividualNameFormElement.iconStyle}/>
+                    <Icon name="magnify" style={IndividualFormElement.iconStyle}/>
                 </TouchableOpacity>
                 </View>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
@@ -57,4 +59,4 @@ class IndividualNameFormElement extends AbstractFormElement {
     }
 }
 
-export default IndividualNameFormElement;
+export default IndividualFormElement;

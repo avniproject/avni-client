@@ -13,11 +13,16 @@ import TextFormElement from "../form/formElement/TextFormElement";
 import {PrimitiveValue} from "openchs-models";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
+import AppHeader from "../common/AppHeader";
+import themes from "../primitives/themes";
+import CHSContainer from "../common/CHSContainer";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
     static propTypes = {
-        onIndividualSelection: React.PropTypes.func.isRequired
+        onIndividualSelection: React.PropTypes.func.isRequired,
+        showHeader: React.PropTypes.bool,
+        headerMessage: React.PropTypes.string
     };
 
     constructor(props, context) {
@@ -40,7 +45,9 @@ class IndividualSearchView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <CHSContent>
+            <CHSContainer theme={themes}>
+                <CHSContent>
+                    {this.props.showHeader? <AppHeader title={ this.props.headerMessage ? this.props.headerMessage : this.I18n.t("search")}/> : <View/>}
                 <View style={{marginTop: Styles.ContentDistanceFromEdge, paddingHorizontal: Styles.ContentDistanceFromEdge, flexDirection: 'column'}}>
                     <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)}/>
                     <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')} value={new PrimitiveValue(this.state.searchCriteria.age)}/>
@@ -53,6 +60,7 @@ class IndividualSearchView extends AbstractComponent {
                             onPress={() => this.searchIndividual()}/>
                 </View>
             </CHSContent>
+            </CHSContainer>
         );
     }
 }

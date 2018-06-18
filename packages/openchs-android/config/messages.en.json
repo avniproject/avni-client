@@ -183,6 +183,6 @@
   "addARelative": "Add a relative",
   "relationshipAlreadyRecorded": "Relationship already recorded",
   "selfRelationshipNotAllowed": "Self relationship not allowed",
-  "deleteRelativeNoticeTitle": "संबंधित हटवायचे?",
-  "deleteRelativeConfirmationMessage": "हे {{individualA}} आणि {{individualB}} मधील संबंध हटवेल."
+  "deleteRelativeNoticeTitle": "Delete a relative?",
+  "deleteRelativeConfirmationMessage": "This will remove relationship between {{individualA}} and {{individualB}}"
 }

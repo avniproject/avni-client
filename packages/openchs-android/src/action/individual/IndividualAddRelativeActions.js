@@ -66,7 +66,8 @@ export class IndividualAddRelativeActions {
 
     static onSave(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
-        const validationResults = newState.individualRelative.validate();
+        const existingRelatives = context.get(IndividualRelationshipService).getRelatives(newState.individualRelative.individual);
+        const validationResults = newState.individualRelative.validate(existingRelatives);
         IndividualAddRelativeActions.handleValidationResults(newState, validationResults);
         if(_.isEmpty(newState.validationResults)){
             context.get(IndividualRelationshipService).addRelative(newState.individualRelative);

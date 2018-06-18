@@ -60,13 +60,13 @@ class IndividualRelative {
         return this.validateFieldForEmpty(this.relation.name, IndividualRelative.validationKeys.RELATION);
     }
 
-    validate() {
+    validate(existingRelatives) {
         const validationResults = [];
         validationResults.push(this.validateRelative());
         validationResults.push(this.validateIndividual());
         validationResults.push(this.validateRelation());
         if (!_.isNil(this.relative) && !_.isNil(this.relation)
-            && _.some(this.individual.relatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
+            && _.some(existingRelatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
             validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'relationshipAlreadyRecorded'));
             validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATION, 'relationshipAlreadyRecorded'));
         }
