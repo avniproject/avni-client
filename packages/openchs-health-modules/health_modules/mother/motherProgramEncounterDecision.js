@@ -12,7 +12,7 @@ import { generateRecommendations, generateReasonsForRecommendations } from './re
 import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
-import generateHighRiskConditionAdvice from "./highRisk";
+import generateHighRiskConditionAdvice, { getHighRiskConditionsInDeliveryEncounter } from "./highRisk";
 import {gestationalAgeCategoryAsOn} from "./calculations";
 
 function AdviceBuilder(type, prefixValue) {
@@ -62,6 +62,7 @@ export function getDecisions(programEncounter, today) {
                 value: [gestationalAgeCategoryAsOn(programEncounter.findObservation("Date of delivery").getValue(), programEncounter.programEnrolment)]
             }
         );
+        decisions.encounterDecisions.push(getHighRiskConditionsInDeliveryEncounter(programEncounter.programEnrolment, programEncounter));
         return decisions;
     }
 

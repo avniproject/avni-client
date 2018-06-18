@@ -121,7 +121,38 @@
             "name": "Sex of newborn"
           },
           "displayOrder": 5,
-          "mandatory": true
+          "mandatory": true,
+          "voided": true
+        },
+        {
+          "uuid":"205013a3-b967-4b42-ac0b-9ffe99fe88f9",
+          "name": "Gender of new born1",
+          "type":"SingleSelect",
+          "concept":{
+            "uuid":"0c26df89-e22e-4ea6-a20b-280d0b431774",
+            "name":"Gender of new born1"
+          },
+          "displayOrder": 6
+        },
+        {
+          "uuid":"598a7f46-b0e9-40b6-b4b4-1312e6238819",
+          "name": "Gender of new born2",
+          "type":"SingleSelect",
+          "concept":{
+            "uuid":"7804e278-e352-4c85-a3f1-12ff97ac1d6b",
+            "name":"Gender of new born2"
+          },
+          "displayOrder": 7
+        },
+        {
+          "uuid":"51bc43a2-1ee7-4f37-a3b1-e81aec1135e0",
+          "name": "Gender of new born3",
+          "type":"SingleSelect",
+          "concept":{
+            "uuid":"49c5461d-1103-4b17-bc80-6bc502db2558",
+            "name":"Gender of new born3"
+          },
+          "displayOrder": 8
         }
       ]
     },

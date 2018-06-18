@@ -48,6 +48,23 @@ class DeliveryFormHandler {
         return statusBuilder.build();
     }
 
+    _showWhenNoOfBabiesIsMoreThan(programEncounter, formElement, no) {
+        const statusBuilder = new FormElementStatusBuilder({ programEncounter: programEncounter, formElement: formElement });
+        statusBuilder.show().when.valueInEncounter("Number of babies")
+            .defined.and.greaterThanOrEqualTo(no);
+        return statusBuilder.build();
+    }
+
+    genderOfNewBorn1(programEncounter, formElement) {
+        return this._showWhenNoOfBabiesIsMoreThan(programEncounter,formElement,1);
+    }
+    genderOfNewBorn2(programEncounter, formElement) {
+        return this._showWhenNoOfBabiesIsMoreThan(programEncounter,formElement,2);
+    }
+    genderOfNewBorn3(programEncounter, formElement) {
+        return this._showWhenNoOfBabiesIsMoreThan(programEncounter,formElement,3);
+    }
+
     _getNoOfStillBornBabies(programEncounter) {
         const deliveryOutcome = programEncounter.getObservationReadableValue("Delivery Outcome");
         const noOfBabies = programEncounter.getObservationValue("Number of babies");

@@ -1436,6 +1436,11 @@
     "dataType": "Coded",
     "answers": [
       {
+        "name": "Multiple Births",
+        "uuid": "b5719e3e-db9c-49c1-af0c-3047b1b9c57a",
+        "abnormal": true
+      },
+      {
         "uuid": "5d406c89-a7fc-4ed9-9a85-c2f2f44c66fb",
         "name": "Primigravida",
         "abnormal": true
@@ -3348,8 +3353,8 @@
   {
     "uuid": "bd1eb295-238f-485b-9b9a-4dde399deda8",
     "name": "Weight of stillborn1",
-    "dataType":"Numeric",
-    "unit":"kg"
+    "dataType": "Numeric",
+    "unit": "kg"
   },
   {
     "uuid": "6ad7e09b-526f-4a9d-994f-0b878af3968f",
@@ -3373,8 +3378,8 @@
   {
     "uuid": "1d4ed4f9-2e91-4539-8cf2-9c61f455f3c9",
     "name": "Weight of stillborn2",
-    "dataType":"Numeric",
-    "unit":"kg"
+    "dataType": "Numeric",
+    "unit": "kg"
   },
   {
     "uuid": "a091cf0f-ba83-468a-a91e-86807afdbd36",
@@ -3398,8 +3403,8 @@
   {
     "uuid": "80a00613-202a-4b47-b6ce-2fa8e186f839",
     "name": "Weight of stillborn3",
-    "dataType":"Numeric",
-    "unit":"kg"
+    "dataType": "Numeric",
+    "unit": "kg"
   },
   {
     "name": "Is she on TB medication?",
@@ -3439,6 +3444,63 @@
       {
         "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
         "abnormal": true
+      }
+    ]
+  },
+  {
+    "uuid": "0c26df89-e22e-4ea6-a20b-280d0b431774",
+    "name": "Gender of new born1",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Male",
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "name": "Female",
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "name": "Other Gender",
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
+      }
+    ]
+  },
+  {
+    "uuid": "7804e278-e352-4c85-a3f1-12ff97ac1d6b",
+    "name": "Gender of new born2",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Male",
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "name": "Female",
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "name": "Other Gender",
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
+      }
+    ]
+  },
+  {
+    "uuid": "49c5461d-1103-4b17-bc80-6bc502db2558",
+    "name": "Gender of new born3",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Male",
+        "uuid": "7038d549-4a3b-4600-b856-f6f3d123fbd8"
+      },
+      {
+        "name": "Female",
+        "uuid": "09e1b06f-26be-4f7a-8121-5dba3a11b684"
+      },
+      {
+        "name": "Other Gender",
+        "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
       }
     ]
   }

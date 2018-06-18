@@ -103,4 +103,16 @@ const getHighRiskConditionsInEnrolment = (enrolment) => {
     return highRiskBuilder.getComplications();
 };
 
-export { generateHighRiskConditionAdvice as default, getHighRiskConditionsInEnrolment };
+const getHighRiskConditionsInDeliveryEncounter = (enrolment, encounter, today) => {
+    const highRiskBuilder = new ComplicationsBuilder({
+        programEnrolment: enrolment,
+        programEncounter: encounter,
+        complicationsConcept: 'High Risk Conditions'
+    });
+    highRiskBuilder.addComplication('Multiple Births')
+        .when.valueInEncounter("Number of babies").is.greaterThan(1);
+
+    return highRiskBuilder.getComplications();
+};
+
+export { generateHighRiskConditionAdvice as default, getHighRiskConditionsInEnrolment, getHighRiskConditionsInDeliveryEncounter };
