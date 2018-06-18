@@ -88,5 +88,5 @@ export default class EnrolmentFormHandler {
 
     placeOfDeath = this._showIfMotherDead
 
-    deathOccuredAfterHowManyDaysOfDelivery = this._showIfMotherDead
+    deathOccurredAfterHowManyDaysOfDelivery = this._showIfMotherDead
 }

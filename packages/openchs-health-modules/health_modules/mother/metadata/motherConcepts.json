@@ -3235,7 +3235,7 @@
     "dataType": "Date"
   },
   {
-    "name": "Death occured after how many days",
+    "name": "Death occurred after how many days",
     "uuid": "a04f8cb5-67f9-46c1-96d3-b34667984826",
     "dataType": "Numeric"
   },
