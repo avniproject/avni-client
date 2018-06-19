@@ -1139,5 +1139,10 @@
     "name": "Urine not passed for more than 48 hours after birth",
     "uuid": "5fd4d65f-70ab-4a22-a3f7-d7ab3aa2b8a3",
     "dataType": "NA"
+  },
+  {
+    "name": "Meconium not passed for more than 48 hours after birth",
+    "uuid": "b2837699-5590-47e5-9489-856d185e86df",
+    "dataType": "NA"
   }
 ]
