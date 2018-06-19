@@ -17,6 +17,8 @@ import Relatives from "../common/Relatives";
 import ContextAction from "../viewmodel/ContextAction";
 import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -39,7 +41,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     getRelativeActions() {
         return [new ContextAction('add', () => {CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
-            (source) => CHSNavigator.navigateToIndividualRegistrationDetails(source, this.state.individual))})];
+            (source) => TypedTransition.from(source).wizardCompleted([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
+        )})];
     }
 
     goBackFromRelative(individual){
