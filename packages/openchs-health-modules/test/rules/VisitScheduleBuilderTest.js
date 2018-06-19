@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import VisitScheduleBuilder from "../../health_modules/rules/VisitScheduleBuilder";
+import {VisitScheduleBuilder} from "rules-config/rules";
 
 const monthlyVisit = {
     name: 'Monthly Visit',

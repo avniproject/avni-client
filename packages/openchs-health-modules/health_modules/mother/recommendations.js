@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 
 const medicalHistory = [
     "Hypertension", "Heart-related Diseases", "Diabetes", "Sickle Cell", "Epilepsy", "Renal Disease",

@@ -1,4 +1,4 @@
-import RuleCondition from "../rules/RuleCondition";
+import {RuleCondition} from "rules-config/rules";
 import _ from "lodash";
 
 const paracheckResultContains = (encounter, ...values) => {
@@ -95,9 +95,9 @@ const primaquineRequired = (encounter) => !childBelow1Year(encounter)
     && isPvPositive(encounter)
     && !pregnant(encounter);
 
-const actRequired = (encounter) => isPfPositive(encounter) 
+const actRequired = (encounter) => isPfPositive(encounter)
     && !womanBetween16And40Years(encounter)
-    && !pregnant(encounter) ;
+    && !pregnant(encounter);
 
 const pcmRequired = () => true; //you come here only if you have fever.
 

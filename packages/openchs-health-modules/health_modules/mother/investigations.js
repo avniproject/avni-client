@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 import {currentTrimester} from "./utils";
 
 const investigationAdvice = (enrolment, encounter, today = new Date()) => {

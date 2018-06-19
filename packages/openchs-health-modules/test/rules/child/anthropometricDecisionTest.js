@@ -1,7 +1,7 @@
 import {expect, assert} from "chai";
 
 import {
-    Concept, Gender, MultipleCodedValues, Observation, PrimitiveValue, ProgramEncounter,
+    Concept, Gender, Observation, PrimitiveValue, ProgramEncounter,
     ProgramEnrolment, Individual
 } from "openchs-models";
 import {getDecisions} from "../../../health_modules/child/anthropometricDecision";

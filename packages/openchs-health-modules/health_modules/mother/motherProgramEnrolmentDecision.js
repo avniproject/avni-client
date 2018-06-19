@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { getNextScheduledVisits as nextScheduledVisits } from './motherVisitSchedule';
+import {getNextScheduledVisits as nextScheduledVisits} from './motherVisitSchedule';
 import * as programDecision from './motherProgramDecision';
 import c from '../common';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
-import { generateRecommendations, generateReasonsForRecommendations } from './recommendations';
-import { referralAdvice, immediateReferralAdvice } from './referral';
-import { getHighRiskConditionsInEnrolment } from "./highRisk";
+import {FormElementsStatusHelper} from "rules-config/rules";
+import {generateRecommendations, generateReasonsForRecommendations} from './recommendations';
+import {immediateReferralAdvice} from './referral';
+import {getHighRiskConditionsInEnrolment} from "./highRisk";
 
 
 export function getNextScheduledVisits(enrolment, config, today) {
@@ -15,7 +15,7 @@ export function getNextScheduledVisits(enrolment, config, today) {
 
 export function getDecisions(enrolment, context, today) {
     if (context.usage === 'Exit')
-        return { enrolmentDecisions: [], encounterDecisions: [] };
+        return {enrolmentDecisions: [], encounterDecisions: []};
 
     let decisions = [];
 
@@ -25,7 +25,7 @@ export function getDecisions(enrolment, context, today) {
     _addItems(decisions, generateReasonsForRecommendations(enrolment));
     _addItem(decisions, immediateReferralAdvice(enrolment, null, today));
 
-    return { enrolmentDecisions: decisions, encounterDecisions: [] };
+    return {enrolmentDecisions: decisions, encounterDecisions: []};
 }
 
 export function getFormElementsStatuses(programEnrolment, formElementGroup) {
@@ -71,13 +71,14 @@ export function getChecklists(programEnrolment, today) {
 }
 
 function _addItem(decisions, item) {
-    const originalItem = _.find(decisions, { name: item.name });
+    const originalItem = _.find(decisions, {name: item.name});
     if (originalItem) {
         originalItem.value = _.union(originalItem.value, item.value);
     } else {
         decisions.push(item);
     }
 }
+
 function _addItems(decisions, items) {
     _.forEach(items, (item) => _addItem(decisions, item));
 }

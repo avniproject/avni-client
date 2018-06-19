@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 import {currentTrimester, gestationalAge} from "./utils";
 
 const treatment = (enrolment, encounter, today) => {

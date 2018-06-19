@@ -1,6 +1,5 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import {FormElementStatusBuilder, FormElementStatus} from "rules-config/rules";
 import _ from 'lodash';
-import FormElementStatus from "../../../../openchs-models/src/application/FormElementStatus";
 import * as calculations from "../calculations";
 
 export default class EnrolmentFormHandler {
@@ -77,7 +76,7 @@ export default class EnrolmentFormHandler {
     }
 
     _showIfMotherDead(programEnrolment, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);        
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
         statusBuilder.show().when.valueInExit("Mother exit reason").containsAnyAnswerConceptName('Death');
         return statusBuilder.build();
     }

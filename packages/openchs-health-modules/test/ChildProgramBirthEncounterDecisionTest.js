@@ -8,7 +8,6 @@ import birthForm from "../health_modules/child/metadata/birthForm";
 import EnrolmentFiller from "./ref/EnrolmentFiller";
 import EncounterFiller from "./ref/EncounterFiller";
 
-const moment = require('moment');
 const assert = require('chai').assert;
 const _ = require('lodash');
 const childEncounterDecision = require('../health_modules/child/childProgramEncounterDecision');

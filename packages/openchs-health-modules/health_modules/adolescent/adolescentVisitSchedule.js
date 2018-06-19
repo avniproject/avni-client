@@ -1,8 +1,7 @@
 import C from '../common';
-import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
+import {RuleCondition, VisitScheduleBuilder} from "rules-config/rules";
 import moment from 'moment';
 import _ from 'lodash';
-import RuleCondition from '../rules/RuleCondition';
 
 const routineEncounterTypeNames = ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Monthly Visit"];
 

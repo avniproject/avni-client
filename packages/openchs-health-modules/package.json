@@ -23,7 +23,7 @@
     "@babel/polyfill": "^7.0.0-beta.35",
     "lodash": "4.14.0",
     "moment": "2.18.1",
-    "openchs-models": "0.0.1"
+    "rules-config": "github:openchs/rules-config"
   },
   "devDependencies": {
     "amazon-cognito-identity-js": "1.28.0",
@@ -37,6 +37,7 @@
     "chai": "^4.1.2",
     "jest": "20.0.1",
     "webpack": "3.5.5",
-    "webpack-node-externals": "1.6.0"
+    "webpack-node-externals": "1.6.0",
+    "openchs-models": "0.0.1"
   }
 }

@@ -1,18 +1,17 @@
 import * as programDecision from './motherProgramDecision';
-import {getDecisions as pncEncounterDecisions} from './pncEncounterDecision';
 import {getDecisions as abortionEncounterDecisions} from "./abortionEncounterDecisions";
 import C from '../common';
 import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
 import PNCFormHandler from "./formFilters/PNCFormHandler";
 import AbortionFormhandler from "./formFilters/AbortionFormHandler";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import {FormElementsStatusHelper} from "rules-config/rules";
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
-import { generateRecommendations, generateReasonsForRecommendations } from './recommendations';
+import {generateRecommendations, generateReasonsForRecommendations} from './recommendations';
 import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
-import generateHighRiskConditionAdvice, { getHighRiskConditionsInDeliveryEncounter } from "./highRisk";
+import generateHighRiskConditionAdvice, {getHighRiskConditionsInDeliveryEncounter} from "./highRisk";
 import {gestationalAgeCategoryAsOn} from "./calculations";
 
 function AdviceBuilder(type, prefixValue) {
@@ -41,7 +40,7 @@ function InvestigationAdviceBuilder() {
 }
 
 export function getDecisions(programEncounter, today) {
-    if ( programEncounter.encounterType.name === 'Abortion') {
+    if (programEncounter.encounterType.name === 'Abortion') {
         return abortionEncounterDecisions(programEncounter)
     }
 
@@ -51,7 +50,7 @@ export function getDecisions(programEncounter, today) {
             .concat(immediateReferralAdvice(programEncounter.programEnrolment, programEncounter))
             .concat(referralAdvice(programEncounter.programEnrolment, programEncounter));
 
-        return { encounterDecisions : decisions };
+        return {encounterDecisions: decisions};
     }
 
     if (programEncounter.encounterType.name === "Delivery") {

@@ -1,9 +1,8 @@
-import _ from "lodash";
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import {FormElementStatusBuilder} from "rules-config/rules";
 
 export default class AbortionFormHandler {
 
-    otherAbortionComplaints(programEncounter, formElement){
+    otherAbortionComplaints(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
         statusBuilder.show().when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Other");
         return statusBuilder.build();

@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 import _ from "lodash";
 
 const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {

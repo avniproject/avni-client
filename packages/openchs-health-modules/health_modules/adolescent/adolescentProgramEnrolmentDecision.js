@@ -1,8 +1,6 @@
 import EnrolmentFormHandler from "./formFilters/ExitFormHandler";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import {FormElementsStatusHelper, VisitScheduleBuilder} from "rules-config/rules";
 import C from "../common";
-import VisitScheduleBuilder from "../rules/VisitScheduleBuilder";
-
 
 const getDecisions = (programEnrolment, context, today) => {
     return {enrolmentDecisions: [], encounterDecisions: []};

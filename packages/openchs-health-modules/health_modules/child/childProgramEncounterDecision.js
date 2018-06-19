@@ -1,8 +1,7 @@
 import BirthFormHandler from "./formFilters/BirthFormHandler";
 import ChildPNCFormHandler from "./formFilters/ChildPNCFormHandler";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import {FormElementsStatusHelper, complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 import _ from "lodash";
-import ComplicationsBuilder from "../rules/complicationsBuilder";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateHighRiskConditionAdvice from "./highRisk";
 import {getDecisions as anthropometricDecisions} from "./anthropometricDecision"
@@ -26,7 +25,7 @@ export function getDecisions(programEncounter, today) {
             encounterDecisions: decisions.concat(anthropometricDecisions(programEncounter).encounterDecisions)
         }
     }
-    else if (programEncounter.encounterType.name === 'Anthropometry Assessment'){
+    else if (programEncounter.encounterType.name === 'Anthropometry Assessment') {
         return anthropometricDecisions(programEncounter);
     }
     else return {enrolmentDecisions: [], encounterDecisions: []};
@@ -60,7 +59,6 @@ const recommendations = (enrolment, encounter) => {
 
     return recommendationBuilder.getComplications();
 };
-
 
 
 const encounterTypeHandlerMap = new Map([

@@ -1,4 +1,4 @@
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import {FormElementsStatusHelper} from "rules-config/rules";
 import _ from "lodash";
 
 const TRIMESTER_MAPPING = new Map([[1, {from: 0, to: 12}], [2, {from: 13, to: 28}], [3, {from: 29, to: 40}]]);

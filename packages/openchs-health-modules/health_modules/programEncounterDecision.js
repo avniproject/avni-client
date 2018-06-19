@@ -1,7 +1,7 @@
 import * as Mother from './mother/motherProgramEncounterDecision';
 import * as Child from './child/childProgramEncounterDecision';
 import * as Adolescent from './adolescent/adolescentProgramEncounterDecision';
-import FormElementStatus from "../../openchs-models/src/application/FormElementStatus";
+import {FormElementStatus} from "rules-config/rules";
 const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
 
 function targetFunction(fn, programName) {

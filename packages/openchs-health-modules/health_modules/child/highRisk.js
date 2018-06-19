@@ -1,4 +1,4 @@
-import ComplicationsBuilder from "../rules/complicationsBuilder";
+import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 
 const highRisk = (enrolment, encounter, today = new Date()) => {
     const highRiskBuilder = new ComplicationsBuilder({
@@ -58,4 +58,4 @@ const getHighRiskConditionsInEnrolment = (enrolment) => {
     return highRiskBuilder.getComplications();
 };
 
-export { generateHighRiskConditionAdvice as default, getHighRiskConditionsInEnrolment };
+export {generateHighRiskConditionAdvice as default, getHighRiskConditionsInEnrolment};

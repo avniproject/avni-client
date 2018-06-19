@@ -1,5 +1,5 @@
 import childVaccinationSchedule from './childVaccSchedule';
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
+import {FormElementsStatusHelper} from "rules-config/rules";
 import ExitFormHandler from "./formFilters/ProgramExitFormHandler";
 
 const getDecisions = function (programEnrolment, today) {

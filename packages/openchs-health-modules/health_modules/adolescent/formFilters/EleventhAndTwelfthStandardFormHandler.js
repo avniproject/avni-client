@@ -1,4 +1,4 @@
-import FormElementsStatusHelper from "../../rules/FormElementsStatusHelper";
+import {FormElementsStatusHelper} from "rules-config/rules";
 
 export default class EleventhAndTwelfthStandardFormHandler {
     reasonForDroppingOut(programEncounter, formElement) {

@@ -1,4 +1,4 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import {FormElementStatusBuilder} from "rules-config/rules";
 
 class PNCFormHandler {
     isTheMotherUsingAnyContraceptiveMethod(programEncounter, formElement) {

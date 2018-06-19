@@ -4,7 +4,7 @@ import {
     Individual, Gender
 } from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
-import RuleCondition from "../../health_modules/rules/RuleCondition";
+import {RuleCondition} from "rules-config/rules";
 import AddressLevel from "../../../openchs-models/src/AddressLevel";
 
 describe('RuleConditions', () => {

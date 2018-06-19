@@ -1,8 +1,7 @@
-import FormElementStatusBuilder from "../../rules/FormElementStatusBuilder";
+import {FormElementStatusBuilder, RuleCondition} from "rules-config/rules";
 import _ from 'lodash';
-import RuleCondition from "../../rules/RuleCondition";
 
-export default class EncounterTypeFilter extends FormElementStatusBuilder{
+export default class EncounterTypeFilter extends FormElementStatusBuilder {
     constructor(context, encounterTypeNames) {
         if (_.isEmpty(encounterTypeNames)) {
             throw new Error("No encounter type names provided. This filter will always return false");
@@ -14,7 +13,7 @@ export default class EncounterTypeFilter extends FormElementStatusBuilder{
 
     build() {
         const formElementStatus = super.build();
-        const shouldShow = new RuleCondition(this.context).whenItem(this.context.programEncounter.encounterType.name).matchesFn(            (encounterTypeName) => {
+        const shouldShow = new RuleCondition(this.context).whenItem(this.context.programEncounter.encounterType.name).matchesFn((encounterTypeName) => {
             return _.some(this.encounterTypeNames, (validName) => validName === encounterTypeName);
         }).matches();
 

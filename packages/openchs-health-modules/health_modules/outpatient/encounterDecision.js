@@ -1,10 +1,8 @@
 import {malariaPrescriptionMessage} from "./malariaMedication";
-import FormElementsStatusHelper from "../rules/FormElementsStatusHelper";
 import OPDFormHandler from "./formFilters/OPDFormHandler";
-import RuleCondition from "../rules/RuleCondition";
+import {FormElementsStatusHelper, RuleCondition} from "rules-config/rules";
 import * as treatmentByComplaintAndCode from "./outpatientTreatments.json";
 import _ from 'lodash';
-
 
 
 const weightRangesToCode = [
@@ -268,11 +266,11 @@ const getDecisions = function (encounter) {
         }
     }
 
-    let referralAdviceNeeded = (pregnant && hasMalaria(encounter)) 
-                                || complaints.indexOf('Chloroquine Resistant Malaria') !== -1 
-                                || complaints.indexOf('Other') !== -1
+    let referralAdviceNeeded = (pregnant && hasMalaria(encounter))
+        || complaints.indexOf('Chloroquine Resistant Malaria') !== -1
+        || complaints.indexOf('Other') !== -1
 
-    if (referralAdviceNeeded) 
+    if (referralAdviceNeeded)
         referralAdviceDecision.value = 'लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे';
 
     decisions.push(treatmentAdviceDecision, referralAdviceDecision);
