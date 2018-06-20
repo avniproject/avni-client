@@ -21,7 +21,11 @@ clean: clean_env ##
 # </clean>
 
 # <deps>
-deps: build_env ## 
+deps: build_env ##
+
+ignore_deps_changes:
+	git checkout package-lock.json
+	git checkout packages/openchs-health-modules/package-lock.json
 # </deps>
 
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
@@ -140,6 +144,9 @@ run_packager: ##
 # <app>
 run_app: setup_hosts ## 
 	cd packages/openchs-android && react-native run-android
+
+run_app_staging_dev:
+	cd packages/openchs-android && ENVFILE=.env.staging.dev react-native run-android
 
 # sometimes there are errors for which we need to run the following to get the exact problem
 run_app_debug: setup_hosts  ## 
