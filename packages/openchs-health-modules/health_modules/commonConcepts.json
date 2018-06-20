@@ -938,17 +938,7 @@
   {
     "name": "Medications",
     "uuid": "a3d999d4-57f4-40ee-99ab-4f1ee1bd1e1b",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Steroid intake for asthma",
-        "uuid": "c1231eeb-911f-45ba-b901-b863fa5fe030"
-      },
-      {
-        "name": "Frequent intake of pain relieving drugs",
-        "uuid": "5d5eca15-a470-4273-a02d-4e8663f01814"
-      }
-    ]
+    "dataType": "Text"
   },
   {
     "name": "Smoking (Current or in last one year)",

@@ -62,7 +62,6 @@
           "name": "Medications",
           "uuid": "4ebc7a4f-c10c-4139-92c7-3677c9486fda",
           "keyValues": [],
-          "type": "MultiSelect",
           "concept": {
             "uuid": "a3d999d4-57f4-40ee-99ab-4f1ee1bd1e1b",
             "name": "Medications"
