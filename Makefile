@@ -158,6 +158,10 @@ analyse_crash: ##
 deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 
+deploy_metadata_live:
+	cd packages/openchs-health-modules && make deploy_metadata poolId=$(STAGING_USER_POOL_ID) clientId=$(STAGING_APP_CLIENT_ID) username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+#	cd packages/openchs-health-modules && make auth poolId=$(STAGING_USER_POOL_ID) clientId=$(STAGING_APP_CLIENT_ID) username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+
 deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
 	cd packages/demo-organisation && make deploy
 # </metadata>

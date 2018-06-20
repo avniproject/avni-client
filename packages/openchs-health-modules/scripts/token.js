@@ -16,7 +16,7 @@ var authenticate = function (poolId, clientId, username, password) {
             console.log(result.getIdToken().getJwtToken());
         },
         onFailure: function (error) {
-            console.log("Check Credentials");
+            console.log("Check Credentials. " + "PoolId=" + poolId + " ClientId=" + clientId + " Username=" + username + " Password=" + password);
         },
         newPasswordRequired: function (userAttributes, requiredAttributes) {
             cognitoUser.completeNewPasswordChallenge(password, userAttributes, this);
