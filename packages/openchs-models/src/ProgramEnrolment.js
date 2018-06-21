@@ -210,15 +210,20 @@ class ProgramEnrolment extends BaseEntity {
         return this._getEncounters(removeCancelledEncounters).value();
     }
 
-    findObservationInEntireEnrolment(conceptName, currentEncounter) {
-        const encounters = _.chain(this.getEncounters())
+    findObservationInEntireEnrolment(conceptName, currentEncounter, latest=false) {
+        let encounters = _.chain(this.getEncounters())
             .filter((enc) => currentEncounter ? enc.uuid !== currentEncounter.uuid : true)
             .concat(currentEncounter)
             .compact()
             .sortBy((enc) => enc.encounterDateTime)
             .value();
+        encounters = latest? _.reverse(encounters): encounters;
 
         return this._findObservationFromEntireEnrolment(conceptName, encounters, true);
+    }
+
+    findLatestObservationInEntireEnrolment(conceptName, currentEncounter) {
+        return this.findObservationInEntireEnrolment(conceptName, currentEncounter, true);
     }
 
     findLatestObservationFromEncounters(conceptName, currentEncounter, checkInEnrolment = false) {
