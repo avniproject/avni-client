@@ -5,6 +5,8 @@ import EntityTypeChoiceState from "../../action/common/EntityTypeChoiceState";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import _ from "lodash";
 import Styles from "../primitives/Styles";
+import General from "../../utility/General";
+
 
 class EntityTypeSelector extends AbstractComponent {
     static propTypes = {
@@ -41,6 +43,7 @@ class EntityTypeSelector extends AbstractComponent {
     }
 
     render() {
+        General.logDebug('EntityTypeSelector', 'render');        
         const {width, height} = Dimensions.get('window');
         const ENTITY_TYPE_SELECTED_ACTION = this.props.actions['ENTITY_TYPE_SELECTED'];
         return (

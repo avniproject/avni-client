@@ -55,7 +55,7 @@ class FormMappingService extends BaseService {
     findFormForEncounterType(encounterType, formType = Form.formTypes.ProgramEncounter) {
         const formMapping = this.db.objects(FormMapping.schema.name)
             .filtered("voided = false AND observationsTypeEntityUUID = $0 AND form.formType = $1", encounterType.uuid, formType)[0];
-        return formMapping.form;
+        return _.get(formMapping,'form');
     }
 
     allFormMappings() {
