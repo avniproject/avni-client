@@ -1,5 +1,6 @@
 import {FormElementsStatusHelper} from "rules-config/rules";
 import _ from "lodash";
+import C from '../common';
 
 const TRIMESTER_MAPPING = new Map([[1, {from: 0, to: 12}], [2, {from: 13, to: 28}], [3, {from: 29, to: 40}]]);
 const WEIGHT_GAIN_MAPPING = new Map([
@@ -49,3 +50,13 @@ export let isNormalFundalHeightIncrease = (enrolment, encounter, toDate = new Da
 export let isNormalAbdominalGirthIncrease = (enrolment, encounter, toDate = new Date()) => {
     return cmIncrease(enrolment, encounter, 2.5, "Abdominal girth", toDate);
 };
+
+export const getLatestBMI = function (enrolment, currentEncounter) {
+    let weight = enrolment.findLatestObservationInEntireEnrolment("Weight",currentEncounter);
+    let height = enrolment.findLatestObservationInEntireEnrolment("Height",currentEncounter);
+    weight = weight && weight.getValue();
+    height = height && height.getValue();
+    if (_.isFinite(weight) && _.isFinite(height)){
+        return C.calculateBMI(weight, height);
+    }
+}
