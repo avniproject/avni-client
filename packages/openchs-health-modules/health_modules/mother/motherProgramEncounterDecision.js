@@ -66,7 +66,7 @@ export function getDecisions(programEncounter, today) {
         return decisions;
     }
 
-    if (programEncounter.encounterType.name === 'ANC') {
+    if (['ANC', 'ANC Lab Test Results'].includes(programEncounter.encounterType.name)) {
 
         let decisions = [];
         let enrolmentDecisions = [];

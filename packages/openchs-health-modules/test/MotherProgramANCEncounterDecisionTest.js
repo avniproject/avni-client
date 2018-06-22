@@ -96,7 +96,7 @@ describe("Mother Program ANC", () => {
         });
 
         it("is advised if more than 1 foetus", () => {
-            ["One", "Two", "Three", "More than three"].forEach((result) => {
+            ["Two", "Three", "More than three"].forEach((result) => {
                 let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                     .forSingleCoded("USG Scanning Report - Number of foetus", result)
                     .build();
@@ -1315,7 +1315,7 @@ describe("Mother Program ANC", () => {
                     .forSingleCoded("USG Scanning Report - Number of foetus", result)
                     .build();
                 decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Multiple fetuses");
+                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Multiple foetuses");
             });
         });
 

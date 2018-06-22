@@ -65,7 +65,7 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
     highRiskBuilder.addComplication("Abnormal Urine Sugar")
         .when.valueInEncounter("Urine Sugar").containsAnyAnswerConceptName("Trace", "+1", "+2", "+3", "+4");
 
-    highRiskBuilder.addComplication("Multiple fetuses")
+    highRiskBuilder.addComplication("Multiple foetuses")
         .when.valueInEncounter("USG Scanning Report - Number of foetus").containsAnyAnswerConceptName("Two", "Three", "More than three");
 
     highRiskBuilder.addComplication("Abnormal Liquour")
