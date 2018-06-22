@@ -1436,6 +1436,16 @@
     "dataType": "Coded",
     "answers": [
       {
+        "comment":"Low BMI",
+        "uuid": "1faa1253-e4dd-48f1-aea2-c231390f9530",
+        "abnormal":true
+      },
+      {
+        "comment":"High BMI",
+        "uuid": "f58ed8eb-1873-4cea-aab2-09cb8b48ada2",
+        "abnormal":true
+      },
+      {
         "name": "Multiple Births",
         "uuid": "b5719e3e-db9c-49c1-af0c-3047b1b9c57a",
         "abnormal": true

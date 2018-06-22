@@ -110,6 +110,16 @@
     "unit": "kg/m²"
   },
   {
+    "name": "Low BMI",
+    "uuid": "1faa1253-e4dd-48f1-aea2-c231390f9530",
+    "dataType": "NA"
+  },
+  {
+    "name": "High BMI",
+    "uuid": "f58ed8eb-1873-4cea-aab2-09cb8b48ada2",
+    "dataType": "NA"
+  },
+  {
     "name": "Underweight",
     "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
     "dataType": "NA"

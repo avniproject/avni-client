@@ -178,6 +178,12 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     if (!_.isEmpty(sicklingObs) && sicklingObs.getReadableValue() === "Positive" && isPostDelivery)
         summary.push({name: 'Sickling Positive', value: sicklingObs.getValue()});
 
+    let bmi = programEnrolment.findLatestObservationInEntireEnrolment('BMI');
+    bmi = bmi && bmi.getValue();
+    if (_.isFinite(bmi)) {
+        summary.push({name: 'BMI', value: bmi});
+    }
+
     if (!_.isEmpty(highRiskConditions)) {
         summary.push({name: 'High Risk Conditions', value: highRiskConditions});
     }

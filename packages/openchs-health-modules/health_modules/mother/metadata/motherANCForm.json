@@ -30,6 +30,21 @@
           },
           "displayOrder": 3,
           "mandatory": true
+        },
+        {
+          "name": "BMI",
+          "uuid": "fe3a208c-41b4-45b4-82f0-39ad78b2b17a",
+          "keyValues": [
+            {
+              "key": "editable",
+              "value": false
+            }
+          ],
+          "concept": {
+            "uuid": "7ac0d759-c50d-4971-88e0-84274224c839"
+          },
+          "displayOrder": 4,
+          "mandatory": false
         }
       ]
     },

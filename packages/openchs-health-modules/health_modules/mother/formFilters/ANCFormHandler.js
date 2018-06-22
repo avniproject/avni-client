@@ -205,6 +205,18 @@ class ANCFormHandler {
         return neverExisted.build().or(existsInCurrentEncounter);
     }
 
+    bmi(programEncounter, formElement, today) {
+        const status = new FormElementStatus(formElement.uuid, true);
+        let height = programEncounter.findLatestObservationInEntireEnrolment("Height", programEncounter);
+        let weight = programEncounter.findObservation("Weight");
+        height = height && height.getValue();
+        weight = weight && weight.getValue();
+        if (_.isFinite(weight) && _.isFinite(height)) {
+            status.value = C.calculateBMI(weight, height);
+        }
+        return status;
+    }
+
     _existsInCurrentEncounter(programEncounter, formElement, conceptName) {
         const visibility = !_.isNil(programEncounter.findObservation(conceptName));
         return new FormElementStatus(formElement.uuid, visibility);

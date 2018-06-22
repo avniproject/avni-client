@@ -73,6 +73,12 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
 
     highRiskBuilder.addComplication("Placenta Previa Present")
         .when.valueInEncounter("USG Scanning Report - Placenta Previa").containsAnyAnswerConceptName("Previa");
+    
+    highRiskBuilder.addComplication('Low BMI')
+        .when.valueInEncounter('BMI').lessThan(18.5);
+
+    highRiskBuilder.addComplication('High BMI')
+        .when.valueInEncounter('BMI').greaterThan(24.9);
 
     return highRiskBuilder.getComplications()
 };
