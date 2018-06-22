@@ -2,7 +2,7 @@ import _ from "lodash";
 import C from "../../common";
 import {FormElementsStatusHelper, FormElementStatusBuilder, FormElementStatus} from "rules-config/rules";
 
-const TRIMESTER_MAPPING = new Map([[1, {from: 0, to: 12}], [2, {from: 13, to: 28}], [3, {from: 29, to: 40}]]);
+export const TRIMESTER_MAPPING = new Map([[1, {from: 0, to: 12}], [2, {from: 13, to: 28}], [3, {from: 29, to: 40}]]);
 
 class ANCFormHandler {
 

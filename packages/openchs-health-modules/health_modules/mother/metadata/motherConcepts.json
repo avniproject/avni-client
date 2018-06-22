@@ -3503,5 +3503,11 @@
         "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
       }
     ]
+  },
+  {
+    "name": "Gestational age - Doctor's estimate",
+    "uuid": "4e49b82f-8526-4b33-8fee-e235188af02d",
+    "dataType": "Numeric",
+    "unit": "week(s)"
   }
 ]

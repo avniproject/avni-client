@@ -3,6 +3,7 @@ import {getDecisions as abortionEncounterDecisions} from "./abortionEncounterDec
 import C from '../common';
 import _ from "lodash";
 import ANCFormhandler from "./formFilters/ANCFormHandler";
+import ANCLabTestResultsFormHandler from "./formFilters/ANCLabTestResultsFormHandler";
 import PNCFormHandler from "./formFilters/PNCFormHandler";
 import AbortionFormhandler from "./formFilters/AbortionFormHandler";
 import {FormElementsStatusHelper} from "rules-config/rules";
@@ -263,6 +264,7 @@ export function getNextScheduledVisits(programEncounter, config, today) {
 
 const encounterTypeHandlerMap = new Map([
     ['ANC', new ANCFormhandler()],
+    ['ANC Lab Test Results', new ANCLabTestResultsFormHandler()],
     ['PNC', new PNCFormHandler()],
     ['Delivery', new DeliveryFormHandler()],
     ['Abortion', new AbortionFormhandler()]

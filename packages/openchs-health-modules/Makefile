@@ -81,6 +81,8 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherANCForm.json)
 	@echo
+	$(call upload,forms,@health_modules/mother/metadata/motherANCLabTestResultsForm.json)
+	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherDeliveryForm.json)
 	@echo
 	$(call upload,forms,@health_modules/mother/metadata/motherAbortionForm.json)

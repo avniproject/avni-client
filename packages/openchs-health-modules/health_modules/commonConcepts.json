@@ -1347,5 +1347,10 @@
     "uuid": "36525e7b-575f-4b34-aae8-9a031adb84eb",
     "name": "Mother's Name",
     "dataType":"Text"
+  },
+  {
+    "name": "Remarks",
+    "uuid": "8ec9d5ed-e707-4493-a3eb-ece0ed564ab4",
+    "dataType": "Text"
   }
 ]
