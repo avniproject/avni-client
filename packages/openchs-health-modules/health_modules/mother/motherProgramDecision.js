@@ -62,7 +62,7 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
     function analyzeHistoryBasedComplications() {
         const obstetricsHistory = getObservationValueFromEntireEnrolment('Obstetrics history');
 
-        addObsHistoryRisk(obstetricsHistory, 'Post Partum Haemorrhage', 'Previous Post Partum Haemorrhage');
+        addObsHistoryRisk(obstetricsHistory, 'Post Partum Haemorrhage (Excessive bleeding after delivery)', 'Previous Post Partum Haemorrhage');
         addObsHistoryRisk(obstetricsHistory, 'Intrauterine death', 'Previous Intrauterine Death');
         addObsHistoryRisk(obstetricsHistory, 'Threatened abortion', 'Previous Threatened Abortion');
         addObsHistoryRisk(obstetricsHistory, '3 or more than 3 spontaneous abortions', 'Previous Abortion(s)');

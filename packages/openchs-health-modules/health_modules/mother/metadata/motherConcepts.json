@@ -676,7 +676,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Post Partum Haemorrhage",
+    "name": "Post Partum Haemorrhage (Excessive bleeding after delivery)",
     "uuid": "3abc1b44-0486-4378-abc0-ffb8235144ca",
     "abnormal": true,
     "dataType": "NA"
@@ -973,10 +973,19 @@
     "dataType": "NA"
   },
   {
+    "uuid": "b5bf5c83-d8eb-4b40-ba7b-aed8cb23f6e1",
+    "name": "Heavy bleeding during delivery"
+  },
+  {
     "name": "Obstetrics history",
     "uuid": "8a4ab436-6767-45d5-95d7-075d9459609e",
     "dataType": "Coded",
     "answers": [
+      {
+        "uuid": "b5bf5c83-d8eb-4b40-ba7b-aed8cb23f6e1",
+        "comment": "Heavy bleeding during delivery",
+        "abnormal": true
+      },
       {
         "uuid": "b61694a3-5762-483b-a439-3f09fa7b796b",
         "abnormal": true
@@ -1436,14 +1445,14 @@
     "dataType": "Coded",
     "answers": [
       {
-        "comment":"Low BMI",
+        "comment": "Low BMI",
         "uuid": "1faa1253-e4dd-48f1-aea2-c231390f9530",
-        "abnormal":true
+        "abnormal": true
       },
       {
-        "comment":"High BMI",
+        "comment": "High BMI",
         "uuid": "f58ed8eb-1873-4cea-aab2-09cb8b48ada2",
-        "abnormal":true
+        "abnormal": true
       },
       {
         "name": "Multiple Births",

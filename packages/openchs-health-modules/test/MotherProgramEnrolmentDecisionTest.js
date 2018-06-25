@@ -215,7 +215,7 @@ describe("Mother Program Enrolment", () => {
                 "Ante Partum Haemorrhage", "Intrauterine Growth Retardation", "Pre-term labour", "Prolonged labour",
                 "Instrumental Delivery", "LSCS/C-section", "Intrauterine death", "Threatened abortion",
                 "3 or more than 3 spontaneous abortions", "Still Birth", "Multiple Births", "Retained Placenta",
-                "Post Partum Haemorrhage", "Intrapartum Death", "Neonatal death within first 28 days",
+                "Post Partum Haemorrhage (Excessive bleeding after delivery)", "Intrapartum Death", "Neonatal death within first 28 days",
                 "Congenital anomaly"
             ].forEach((pastComplication) => {
                 const mother = new IndividualBuilder(programData).withName("Test", "Mother")
