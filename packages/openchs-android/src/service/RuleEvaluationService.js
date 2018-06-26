@@ -36,7 +36,6 @@ class RuleEvaluationService extends BaseService {
     }
 
     init() {
-        console.log(RuleRegistry);
         this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
             ['Family', new EntityRule(familyRegistrationDecision)],
             ['Encounter', new EntityRule(encounterDecision)],

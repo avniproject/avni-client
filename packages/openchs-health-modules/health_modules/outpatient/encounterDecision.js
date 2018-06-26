@@ -3,7 +3,7 @@ import OPDFormHandler from "./formFilters/OPDFormHandler";
 import * as treatmentByComplaintAndCode from "./outpatientTreatments.json";
 import _ from 'lodash';
 
-import {FormElementsStatusHelper, RuleCondition} from "rules-config/rules";
+import {FormElementsStatusHelper, RuleCondition, RuleFactory} from "rules-config/rules";
 
 
 const weightRangesToCode = [
@@ -321,6 +321,15 @@ const getFormElementsStatuses = (encounter, formElementGroup) => {
     let handler = new OPDFormHandler();
     return FormElementsStatusHelper.getFormElementsStatuses(handler, encounter, formElementGroup);
 };
+
+const EncounterDecisions = RuleFactory("e1472f56-c057-4aea-9f46-0decd9d068fe", "Decision");
+
+@EncounterDecisions("9626b9bd-c9dc-40f2-886d-9574fd944e4b", "All Encounter Decision", 1.0, {})
+class EncounterDecision {
+    static exec(encounter, decisions, context, today) {
+        return getDecisions(encounter);
+    }
+}
 
 export {
     getDecisions,
