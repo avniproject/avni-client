@@ -785,7 +785,15 @@
     "name": "Decreased Foetal movements",
     "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
     "abnormal": true,
-    "dataType": "NA"
+    "answers": [
+      {
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ],
+    "dataType": "Coded"
   },
   {
     "name": "SS",

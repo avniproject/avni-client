@@ -234,15 +234,17 @@ class MenuView extends AbstractComponent {
 
     render() {
         let menuItemsData = [
-            ["sync", this.I18n.t("syncData"), this.sync.bind(this)],
-            ["settings", this.I18n.t("settings"), this.settingsView.bind(this)],
-            ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__],
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
-            ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
-            ["logout", this.I18n.t("logout"), this.logout.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
+            ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__],
+
+            ["sync", this.I18n.t("syncData"), this.sync.bind(this)],
+            ["logout", this.I18n.t("logout"), this.logout.bind(this)],
+            ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
+
+            ["settings", this.I18n.t("settings"), this.settingsView.bind(this)],
             ["face", "Run Rules", this.runRules.bind(this), () => __DEV__],
-            ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__]
+            ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData

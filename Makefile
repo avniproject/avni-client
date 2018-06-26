@@ -72,6 +72,9 @@ release-uat: ##
 
 release-offline: ## 
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
+
+release-offline-vivek: ##
+	cd packages/openchs-android/android; ENVFILE=.env.devs.vivek ./gradlew --offline assembleRelease
 # </release>
 
 # <log>
