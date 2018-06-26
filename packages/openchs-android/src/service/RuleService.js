@@ -21,6 +21,7 @@ class RuleService extends BaseService {
     }
 
     getApplicableRules(form, type) {
+        if (_.isEmpty(this.allRules)) this.init();
         General.logDebug("RuleService", `Getting Rules of Type ${type} for Form - ${form.name} ${form.uuid}`);
         const rules = this.db.objects(Rule.schema.name)
             .filtered(`form.uuid=$0 and type=$1`, form.uuid, type)
