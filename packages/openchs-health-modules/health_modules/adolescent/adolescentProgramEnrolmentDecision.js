@@ -1,6 +1,16 @@
 import EnrolmentFormHandler from "./formFilters/ExitFormHandler";
-import {FormElementsStatusHelper, VisitScheduleBuilder} from "rules-config/rules";
+import {FormElementsStatusHelper, VisitScheduleBuilder, RuleFactory} from "rules-config/rules";
 import C from "../common";
+
+
+const EnrolmentDecisions = RuleFactory("32b3555a-7fe9-4246-a470-21ab2d2954e2", "Decision");
+
+@EnrolmentDecisions("703ad40c-7e68-488c-9c85-e169e7fa1b21", "ALl Enrolment Decisions", 1.0, {})
+class EnrolmentDecision {
+    static exec(enrolment, decisions, context, today) {
+        return getDecisions(enrolment, context, today);
+    }
+}
 
 const getDecisions = (programEnrolment, context, today) => {
     return {enrolmentDecisions: [], encounterDecisions: []};

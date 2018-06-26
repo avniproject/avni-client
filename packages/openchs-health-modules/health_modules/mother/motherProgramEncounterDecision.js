@@ -17,9 +17,33 @@ import {gestationalAgeCategoryAsOn} from "./calculations";
 import {FormElementsStatusHelper} from "rules-config/rules";
 
 const ANCFormDecision = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "Decision");
+const PNCFormDecision = RuleFactory("78b1400e-8100-4ba6-b78e-fef580f7fb77", "Decision");
+const AbortionDecision = RuleFactory("32428a7e-d553-4172-b697-e8df3bbfb61d", "Decision");
+const DeliveryDecision = RuleFactory("cc6a3c6a-c3cc-488d-a46c-d9d538fcc9c2", "Decision");
 
 @ANCFormDecision("9b3b65f7-e740-487f-b770-eb1558a7ed93", "All ANC Form Decisions", 1.0)
 class AllANCFormDecision {
+    static exec(programEncounter, decisions, context, today) {
+        return getDecisions(programEncounter, today);
+    }
+}
+
+@PNCFormDecision("b7498281-1d8a-4c0d-9577-a2142d503cf7", "All PNC Form Decisions", 1.0)
+class AllPNCFormDecision {
+    static exec(programEncounter, decisions, context, today) {
+        return getDecisions(programEncounter, today);
+    }
+}
+
+@AbortionDecision("98257a36-faaa-4db1-b922-6bdb65b1767c", "All Abortion Form Decisions", 1.0)
+class AllAbortionFormDecision {
+    static exec(programEncounter, decisions, context, today) {
+        return getDecisions(programEncounter, today);
+    }
+}
+
+@DeliveryDecision("06b9f646-33d9-4462-8a51-c922fe7d2ef3", "All Delivery Form Decisions", 1.0)
+class AllDeliveryFormDecision {
     static exec(programEncounter, decisions, context, today) {
         return getDecisions(programEncounter, today);
     }
