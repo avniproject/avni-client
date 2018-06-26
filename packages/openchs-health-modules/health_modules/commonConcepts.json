@@ -1362,5 +1362,10 @@
     "name": "Remarks",
     "uuid": "8ec9d5ed-e707-4493-a3eb-ece0ed564ab4",
     "dataType": "Text"
+  },
+  {
+    "name": "Condom",
+    "uuid": "8f975508-8179-450b-9a27-d11b7818677b",
+    "dataType": "NA"
   }
 ]
