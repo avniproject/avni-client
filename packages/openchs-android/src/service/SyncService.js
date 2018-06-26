@@ -13,6 +13,7 @@ import {UserInfo} from "openchs-models";
 import UserInfoService from "./UserInfoService";
 import FakeDataService from './FakeDataService';
 import RuleEvaluationService from "./RuleEvaluationService";
+import RuleService from "./RuleService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -47,7 +48,8 @@ class SyncService extends BaseService {
             .then(() => this.getUserInfo())
             .then(() => this.pushTxData(allTxEntityMetaData.slice()))
             .then(() => this.getData(allReferenceDataMetaData))
-            .then(() => this.getData(allTxEntityMetaData));
+            .then(() => this.getData(allTxEntityMetaData))
+            .then(() => this.getService(RuleService).init());
     }
 
     getUserInfo() {
