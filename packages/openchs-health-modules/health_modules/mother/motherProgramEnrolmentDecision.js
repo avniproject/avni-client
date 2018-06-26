@@ -21,8 +21,8 @@ class MotherProgramEnrolmentDecisions {
 
 @MotherEnrolmentFormFilter("1ca6aa7f-9379-45c8-8fde-5885f6f22cab", "Mother Enrolment Form filter", 1.0, {})
 class MotherEnrolmentFormViewFilter {
-    static exec(programEncounter, formElementGroup, today) {
-        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    static exec(programEnrolment, formElementGroup, today) {
+        return getFormElementsStatuses(programEnrolment, formElementGroup, today);
     }
 }
 

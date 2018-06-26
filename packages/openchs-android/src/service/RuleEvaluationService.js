@@ -116,7 +116,7 @@ class RuleEvaluationService extends BaseService {
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         const applicableRules = RuleRegistry.getRulesFor(formElementGroup.form.uuid, "ViewFilter");
-        const additionalRules = this.getService(RuleService).getApplicableRules(formElementGroup.form.uuid, "ViewFilter");
+        const additionalRules = this.getService(RuleService).getApplicableRules(formElementGroup.form, "ViewFilter");
         if (_.isEmpty(additionalRules.concat(applicableRules))) return formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
         return [..._.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
