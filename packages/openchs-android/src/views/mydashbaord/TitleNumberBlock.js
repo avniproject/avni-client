@@ -6,7 +6,7 @@ import DGS from '../primitives/DynamicGlobalStyles';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
 
-class VisitBlock extends AbstractComponent {
+class TitleNumberBlock extends AbstractComponent {
     static propTypes = {
         title: React.PropTypes.string,
         number: React.PropTypes.number,
@@ -37,10 +37,10 @@ class VisitBlock extends AbstractComponent {
     });
 
     render() {
-        const textColor = this.props.highlight ? VisitBlock.styles.highlight : VisitBlock.styles.title;
+        const textColor = this.props.highlight ? TitleNumberBlock.styles.highlight : TitleNumberBlock.styles.title;
         return (
             <TouchableNativeFeedback onPress={this.props.onPress}>
-                <View style={VisitBlock.styles.container}>
+                <View style={TitleNumberBlock.styles.container}>
                     <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400", textAlign: "center"}]}>
                         {this.I18n.t(this.props.title)}
                     </Text>
@@ -53,4 +53,4 @@ class VisitBlock extends AbstractComponent {
     }
 }
 
-export default VisitBlock;
+export default TitleNumberBlock;

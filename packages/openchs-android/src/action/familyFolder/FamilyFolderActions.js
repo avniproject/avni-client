@@ -5,7 +5,7 @@ import FamilyService from "../../service/FamilyService";
 
 class FamilyFolderActions {
     static getInitialState() {
-        return {visits: {}, individuals: {data: []}};
+        return {familiesSummary: {}, familiesList: {data: []}};
     }
 
 
@@ -21,14 +21,11 @@ class FamilyFolderActions {
         const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
         const allFamilies = _.groupBy(familyService.allFamiliesIn(), 'addressUUID');
-        // const individualsWithOverdueVisits = _.groupBy(familyService.allOverdueVisitsIn(), 'addressUUID');
-        // const individualsWithCompletedVisits = _.groupBy(familyService.allCompletedVisitsIn(), 'addressUUID');
-        // const highRiskPatients = _.groupBy(familyService.allHighRiskPatients(), 'addressUUID');
         allAddressLevels.map((addressLevel) => {
             const address = nameAndID(addressLevel);
             let existingResultForAddress = {
                 address: address,
-                visits: {
+                familiesSummary: {
                     all: {count: 0, abnormal: false},
                     withHighRiskMember: {count: 0, abnormal: true},
                     mother: {count: 0, abnormal: false},
@@ -36,31 +33,28 @@ class FamilyFolderActions {
                 },
                 ...results[addressLevel.uuid],
             };
-            existingResultForAddress.visits.all.count += _.get(allFamilies, addressLevel.uuid, []).length;
-            // existingResultForAddress.visits.overdue.count += _.get(individualsWithOverdueVisits, addressLevel.uuid, []).length;
-            // existingResultForAddress.visits.completedVisits.count += _.get(individualsWithCompletedVisits, addressLevel.uuid, []).length;
-            // existingResultForAddress.visits.highRisk.count += _.get(highRiskPatients, addressLevel.uuid, []).length;
+            existingResultForAddress.familiesSummary.all.count += _.get(allFamilies, addressLevel.uuid, []).length;
             results[addressLevel.uuid] = existingResultForAddress;
         });
-        return {...state, visits: results};
+        return {...state, familiesSummary: results};
     }
 
     static onListLoad(state, action, context) {
-        const individualService = context.get(FamilyService);
+        const familyService = context.get(FamilyService);
         const methodMap = new Map([
-            ["scheduled", individualService.allScheduledVisitsIn],
-            ["overdue", individualService.allOverdueVisitsIn],
-            ["completedVisits", individualService.allCompletedVisitsIn],
-            ["highRisk", individualService.allHighRiskPatients]
+            ["all", familyService.allFamiliesIn],
+            // ["withHighRiskMember", familyService.allOverdueVisitsIn],
+            // ["mother", familyService.allCompletedVisitsIn],
+            // ["child", familyService.allHighRiskPatients]
         ]);
-        const allIndividuals = methodMap.get(action.listType)(action.address, new Date(), new Date())
-            .map(({uuid}) => individualService.findByUUID(uuid));
-        const individuals = [...state.individuals.data,
-            ...allIndividuals];
+        const allFamilies = methodMap.get(action.listType)(action.address, new Date(), new Date())
+            .map(({uuid}) => familyService.findByUUID(uuid));
+        const families = [...state.familiesList.data,
+            ...allFamilies];
         return {
             ...state,
-            individuals: {
-                data: individuals,
+            familiesList: {
+                data: families,
             }
         };
     }
@@ -68,7 +62,7 @@ class FamilyFolderActions {
     static resetList(state, action, context) {
         return {
             ...state,
-            individuals: {
+            familiesList: {
                 data: [],
             }
         }

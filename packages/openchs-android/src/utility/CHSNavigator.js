@@ -21,6 +21,8 @@ import ChangePasswordView from "../views/ChangePasswordView";
 import ProgramEncounterCancelView from "../views/program/ProgramEncounterCancelView";
 import IndividualSearchView from "../views/individual/IndividualSearchView";
 import IndividualAddRelativeView from "../views/individual/IndividualAddRelativeView";
+import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
+
 
 class CHSNavigator {
     static navigateToLoginView(source, allowSkipLogin, backFunction) {
@@ -144,6 +146,11 @@ class CHSNavigator {
     static navigateToAddRelativeView(source, individual, onSaveCallback) {
         TypedTransition.from(source).with({individual: individual, onSaveCallback: onSaveCallback}).to(IndividualAddRelativeView, true);
     }
+
+    static navigateToFamilyDashboardView(source, familyUUID) {
+        TypedTransition.from(source).with({familyUUID: familyUUID}).to(FamilyDashboardView, true);
+    }
+
 }
 
 export default CHSNavigator;

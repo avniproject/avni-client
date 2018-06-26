@@ -10,7 +10,7 @@ import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import AddressVisitRow from '../mydashbaord/AddressVisitRow';
+import AddressFamilyRow from './AddressFamilyRow';
 import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -63,7 +63,7 @@ class FamilyFolderView extends AbstractComponent {
     }
 
     render() {
-        const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
+        const dataSource = this.ds.cloneWithRows(_.values(this.state.familiesSummary));
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('familyFolder')}/>
@@ -73,8 +73,8 @@ class FamilyFolderView extends AbstractComponent {
                                   initialListSize={1}
                                   removeClippedSubviews={true}
                                   renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}
-                                  renderRow={(rowData) => <AddressVisitRow address={rowData.address}
-                                                                           visits={rowData.visits}/>}/>
+                                  renderRow={(rowData) => <AddressFamilyRow address={rowData.address}
+                                                                           familiesSummary={rowData.familiesSummary}/>}/>
                     </View>
                 </CHSContent>
                 <TouchableOpacity activeOpacity={0.5} onPress={this._onPressButton.bind(this)} style ={FamilyFolderView.styles.TouchableOpacityStyle}>

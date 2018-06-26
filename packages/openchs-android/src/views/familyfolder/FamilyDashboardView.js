@@ -3,11 +3,13 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import {FamilyDashboardActions as Actions} from "../../action/familyFolder/FamilyDashboardActions";
+import {FamilyDashboardActionsNames as Actions} from "../../action/familyFolder/FamilyDashboardActions";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
+import FamilyProfile from './FamilyProfile';
+import AppHeader from "../common/AppHeader";
 
 @Path('/FamilyDashboardView')
 class FamilyDashboardView extends AbstractComponent {
@@ -21,19 +23,15 @@ class FamilyDashboardView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.familyDashboard);
-        this.getForm = this.getForm.bind(this);
     }
 
     componentWillMount() {
+        this.dispatchOnLoad();
         return super.componentWillMount();
     }
 
-    componentDidMount() {
-        this.dispatchOnLoad();
-    }
-
     dispatchOnLoad() {
-        setTimeout(() => this.dispatchAction(Actions.ON_LOAD, this.props), 200);
+        this.dispatchAction(Actions.ON_LOAD, this.props);
     }
 
     componentWillUnmount() {
@@ -41,19 +39,13 @@ class FamilyDashboardView extends AbstractComponent {
         super.componentWillUnmount();
     }
 
-    componentWillReceiveProps() {
-        if (this.state.possibleExternalStateChange) {
-            this.dispatchOnLoad();
-        }
-    }
-
-
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
-                    <View/>
+                    <AppHeader title={this.I18n.t('individualDashboard')}/>
+                    <FamilyProfile viewContext={FamilyProfile.viewContext.Family} family={this.state.family}/>
                 </CHSContent>
             </CHSContainer>
         );

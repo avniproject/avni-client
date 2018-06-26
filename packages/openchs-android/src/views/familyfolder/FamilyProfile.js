@@ -20,26 +20,18 @@ class FamilyProfile extends AbstractComponent {
         Program: 'Program',
         General: 'General',
         Wizard: 'Wizard',
-        Individual: 'Individual'
+        Family: 'Family'
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.familyProfile);
     }
 
-    componentWillMount() {
-        return super.componentWillMount();
-    }
-
-    componentDidMount() {
-        // setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {value: this.props.individual}), 300);
-    }
-
     render() {
         General.logDebug('FamilyProfile', 'render');
         return (
                 <View style={this.appendedStyle({
-                    flexDirection: 'column', backgroundColor: Colors.defaultBackground,
+                    flexDirection: 'column', backgroundColor: Colors.GreyContentBackground,
                     paddingHorizontal: Distances.ContentDistanceFromEdge
                 })}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>

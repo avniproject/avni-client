@@ -184,5 +184,6 @@
   "relationshipAlreadyRecorded": "Relationship already recorded",
   "selfRelationshipNotAllowed": "Self relationship not allowed",
   "deleteRelativeNoticeTitle": "Delete a relative?",
-  "deleteRelativeConfirmationMessage": "This will remove relationship between {{individualA}} and {{individualB}}"
+  "deleteRelativeConfirmationMessage": "This will remove relationship between {{individualA}} and {{individualB}}",
+  "familyCountInThisCategory": "Total Families in this category : {{count}}"
 }
