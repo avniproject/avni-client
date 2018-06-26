@@ -54,15 +54,16 @@ class RuleEvaluationService extends BaseService {
     }
 
     getEntityDecision(form, entity, context) {
-        if ([form, entity].some(_.isEmpty)) return;
+        const defaultDecisions = {
+            "enrolmentDecisions": [],
+            "encounterDecisions": [],
+            "registrationDecisions": []
+        };
+        if ([form, entity].some(_.isEmpty)) return defaultDecisions;
         const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Decision");
         const additionalRules = this.getService(RuleService).getApplicableRules(form, "Decision");
         const decisions = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
-            .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), {
-                "enrolmentDecisions": [],
-                "encounterDecisions": [],
-                "registrationDecisions": []
-            });
+            .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), defaultDecisions);
         General.logDebug("RuleEvaluationService", decisions);
         return decisions;
     }
@@ -115,6 +116,7 @@ class RuleEvaluationService extends BaseService {
     }
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
+        if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const applicableRules = RuleRegistry.getRulesFor(formElementGroup.form.uuid, "ViewFilter");
         const additionalRules = this.getService(RuleService).getApplicableRules(formElementGroup.form, "ViewFilter");
         if (_.isEmpty(additionalRules.concat(applicableRules))) return formElementGroup.getFormElements()
