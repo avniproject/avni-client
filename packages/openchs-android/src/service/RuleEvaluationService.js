@@ -2,48 +2,95 @@ import Service from "../framework/bean/Service";
 import _ from 'lodash';
 import BaseService from "./BaseService";
 import {
-    Encounter,
-    Individual,
-    ProgramEncounter,
-    ProgramEnrolment,
     EntityRule,
     FormElementStatus,
-    Observation
+    Observation,
+    Encounter,
+    ProgramEncounter,
+    ProgramEnrolment
 } from "openchs-models";
 import {
     encounterDecision,
     programEncounterDecision,
     programEnrolmentDecision,
     individualRegistrationDecision,
-    familyRegistrationDecision
+    familyRegistrationDecision,
+    RuleRegistry
 } from "openchs-health-modules";
 import ConceptService from "./ConceptService";
-import IndividualService from "./IndividualService";
-import IndividualEncounterService from "./IndividualEncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
+import RuleDependency from "../../../openchs-models/src/RuleDependency";
+import Rule from "../../../openchs-models/src/Rule";
+import Form from "../../../openchs-models/src/application/Form";
+import Decision from "../../../openchs-models/src/Decision";
+import FormMappingService from "./FormMappingService";
+import General from "../utility/General";
+import RuleService from "./RuleService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
     constructor(db, context) {
         super(db, context);
+        this.getEntityDecision = this.getEntityDecision.bind(this);
     }
 
     init() {
+        console.log(RuleRegistry);
         this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
             ['Family', new EntityRule(familyRegistrationDecision)],
             ['Encounter', new EntityRule(encounterDecision)],
             ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)],
-            ['ProgramEncounter', new EntityRule(programEncounterDecision)],
+            ['ProgramEncounter', new EntityRule(programEncounterDecision)],]);
 
+        this.entityDecisionRulesMap = new Map([['Individual', this.getRegistrationDecisions.bind(this)],
+            ['Encounter', this.getEncounterDecisions.bind(this)],
+            ['ProgramEnrolment', this.getProgramEnrolmentDecisions.bind(this)],
+            ['ProgramEncounter', this.getProgramEncounterDecisions.bind(this)],
         ]);
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);
         });
+        this.formMappingService = this.getService(FormMappingService);
+    }
+
+    getEntityDecision(form, entity, context) {
+        if ([form, entity].some(_.isEmpty)) return;
+        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Decision");
+        const additionalRules = this.getService(RuleService).getApplicableRules(form, "Decision");
+        let sortBy = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
+        const decisions = sortBy
+            .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), {
+                "enrolmentDecisions": [],
+                "encounterDecisions": [],
+                "registrationDecisions": []
+            });
+        General.logDebug("RuleEvaluationService", decisions);
+        return decisions;
+    }
+
+    getRegistrationDecisions(individual, context) {
+        const form = this.formMappingService.findRegistrationForm(individual);
+        return this.getEntityDecision(form, individual, context);
+    }
+
+    getEncounterDecisions(encounter, context) {
+        const form = this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name);
+        return this.getEntityDecision(form, encounter, context);
+    }
+
+    getProgramEnrolmentDecisions(programEnrolment, context) {
+        const form = this.formMappingService.findFormForProgramEnrolment(programEnrolment.program);
+        return this.getEntityDecision(form, programEnrolment, context);
+    }
+
+    getProgramEncounterDecisions(programEncounter, context) {
+        const form = this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name);
+        return this.getEntityDecision(form, programEncounter, context);
     }
 
     getDecisions(entity, entityName, context) {
-        return this.entityRulesMap.get(entityName).getDecisions(entity, context);
+        return this.entityDecisionRulesMap.get(entityName)(entity, context);
     }
 
     getEnrolmentSummary(entity, entityName, context) {

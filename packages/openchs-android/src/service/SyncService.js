@@ -12,6 +12,7 @@ import AuthService from "./AuthService";
 import {UserInfo} from "openchs-models";
 import UserInfoService from "./UserInfoService";
 import FakeDataService from './FakeDataService';
+import RuleEvaluationService from "./RuleEvaluationService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -27,6 +28,7 @@ class SyncService extends BaseService {
         this.messageService = this.getService(MessageService);
         this.authService = this.getService(AuthService);
         this.userInfoService = this.getService(UserInfoService);
+        this.ruleEvaluationService = this.getService(RuleEvaluationService);
     }
 
     authenticate() {

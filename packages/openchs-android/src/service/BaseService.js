@@ -30,6 +30,11 @@ class BaseService {
         return this.db.objects(schema);
     }
 
+    findOnly(schema) {
+        const all = this.findAll(schema);
+        return _.isEmpty(all) ? all : all[0];
+    }
+
     findByUUID(uuid, schema) {
         if (_.isEmpty(uuid)) throw Error("UUID is empty or null");
         if (_.isNil(schema)) schema = this.getSchema();

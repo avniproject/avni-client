@@ -1,8 +1,9 @@
 import {malariaPrescriptionMessage} from "./malariaMedication";
 import OPDFormHandler from "./formFilters/OPDFormHandler";
-import {FormElementsStatusHelper, RuleCondition} from "rules-config/rules";
 import * as treatmentByComplaintAndCode from "./outpatientTreatments.json";
 import _ from 'lodash';
+
+import {FormElementsStatusHelper, RuleCondition} from "rules-config/rules";
 
 
 const weightRangesToCode = [

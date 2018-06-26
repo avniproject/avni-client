@@ -53,7 +53,8 @@
     "realm": "^2.0.12",
     "redux": "3.6.0",
     "stacktrace-js": "2.0.0",
-    "transducers-js": "0.4.174"
+    "transducers-js": "0.4.174",
+    "rules-config": "github:openchs/rules-config#build"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",

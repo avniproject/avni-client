@@ -5,9 +5,18 @@ import c from '../common';
 import EnrolmentFormHandler from "./formFilters/EnrolmentFormHandler";
 import {FormElementsStatusHelper} from "rules-config/rules";
 import {generateRecommendations, generateReasonsForRecommendations} from './recommendations';
+import {RuleFactory} from 'rules-config/rules';
 import {immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";
 
+const MotherEnrolmentDecision = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Decision");
+
+@MotherEnrolmentDecision("b5882c41-1123-460d-b7e8-62d2585a510a", "Mother Program Enrolment Decision", 1.0, {})
+class MotherProgramEnrolmentDecisions {
+    static exec(enrolment, decisions, context, today) {
+        return getDecisions(enrolment, context, today);
+    }
+}
 
 export function getNextScheduledVisits(enrolment, config, today) {
     return nextScheduledVisits(enrolment, today);

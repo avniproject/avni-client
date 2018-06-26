@@ -3,6 +3,7 @@ import Service from "../framework/bean/Service";
 import {FormMapping, Form, EncounterType} from "openchs-models";
 import _ from 'lodash';
 import FormQueryResult from "./FormQueryResult";
+import EntityService from "./EntityService";
 
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
@@ -61,6 +62,10 @@ class FormMappingService extends BaseService {
     allFormMappings() {
         const formMappings = this.db.objects(this.getSchema());
         return new FormQueryResult(formMappings);
+    }
+
+    findRegistrationForm() {
+        return this.findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
     }
 
     findFormForCancellingEncounterType(encounterType, program) {

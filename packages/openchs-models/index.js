@@ -50,6 +50,8 @@ import IndividualRelationGenderMapping from "./src/relationship/IndividualRelati
 import IndividualRelationshipType from "./src/relationship/IndividualRelationshipType"
 import IndividualRelationship from "./src/relationship/IndividualRelationship"
 import IndividualRelative from "./src/relationship/IndividualRelative"
+import Rule from "./src/Rule";
+import RuleDependency from "./src/RuleDependency";
 
 export {
     Form,
@@ -104,5 +106,7 @@ export {
     IndividualRelationGenderMapping,
     IndividualRelationshipType,
     IndividualRelationship,
-    IndividualRelative
+    IndividualRelative,
+    Rule,
+    RuleDependency
 };

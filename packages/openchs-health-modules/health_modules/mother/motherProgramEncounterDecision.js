@@ -6,7 +6,7 @@ import ANCFormhandler from "./formFilters/ANCFormHandler";
 import ANCLabTestResultsFormHandler from "./formFilters/ANCLabTestResultsFormHandler";
 import PNCFormHandler from "./formFilters/PNCFormHandler";
 import AbortionFormhandler from "./formFilters/AbortionFormHandler";
-import {FormElementsStatusHelper} from "rules-config/rules";
+import {RuleFactory} from 'rules-config/rules';
 import DeliveryFormHandler from "./formFilters/DeliveryFormHandler";
 import {generateRecommendations, generateReasonsForRecommendations} from './recommendations';
 import generateTreatment from "./treatment";
@@ -14,6 +14,16 @@ import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
 import generateHighRiskConditionAdvice, {getHighRiskConditionsInDeliveryEncounter} from "./highRisk";
 import {gestationalAgeCategoryAsOn} from "./calculations";
+import {FormElementsStatusHelper} from "rules-config/rules";
+
+const ANCFormDecision = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "Decision");
+
+@ANCFormDecision("9b3b65f7-e740-487f-b770-eb1558a7ed93", "All ANC Form Decisions", 1.0)
+class AllANCFormDecision {
+    static exec(programEncounter, decisions, context, today) {
+        return getDecisions(programEncounter, today);
+    }
+}
 
 function AdviceBuilder(type, prefixValue) {
     this.values = [];

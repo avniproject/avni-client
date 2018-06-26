@@ -24,8 +24,12 @@ import IndividualRelation from "./relationship/IndividualRelation";
 import IndividualRelationship from "./relationship/IndividualRelationship";
 import IndividualRelationshipType from "./relationship/IndividualRelationshipType";
 import IndividualRelationGenderMapping from "./relationship/IndividualRelationGenderMapping";
+import Rule from "./Rule";
+import RuleDependency from "./RuleDependency";
 
 class EntityMetaData {
+    static rule = {entityName: "Rule", entityClass: Rule, resourceName: "rule", type: "reference", nameTranslated: false};
+    static ruleDependency = {entityName: "RuleDependency", entityClass: RuleDependency, resourceName: "ruleDependency", type: "reference", nameTranslated: false};
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
     static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference", nameTranslated: false};
     static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "reference", nameTranslated: true};
@@ -79,6 +83,8 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
+            EntityMetaData.rule,
+            EntityMetaData.ruleDependency,
             EntityMetaData.individualRelationshipType,
             EntityMetaData.individualRelationGenderMapping,
             EntityMetaData.individualRelation,

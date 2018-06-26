@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import BaseEntity from './BaseEntity';
 import General from "./utility/General";
+import RuleDependency from "./RuleDependency";
 
 class EntityRule {
     constructor(ruleFile) {
