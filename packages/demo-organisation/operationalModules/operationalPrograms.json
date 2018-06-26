@@ -1,0 +1,29 @@
+{
+  "organisationName": "demo",
+  "operationalPrograms": [
+    {
+      "uuid": "71d74e6d-ef14-4705-90e0-ecfbc6cd790b",
+      "name": "Mother",
+      "program": {
+        "uuid": "076ddb2d-a499-4314-af95-4178553d279b",
+        "comment": "Mother"
+      }
+    },
+    {
+      "uuid": "dc6053d9-bfa6-4c1c-b2e2-04a6a9f32bb6",
+      "name": "Child",
+      "program": {
+        "uuid": "352d906c-b386-496c-ba23-91b1468a5613",
+        "comment": "Child"
+      }
+    },
+    {
+      "uuid": "5b90c10b-86dd-4954-b5da-397e0aa087d6",
+      "name": "Adolescent",
+      "program": {
+        "uuid": "215f4795-7d46-4617-95dd-52343f945a0f",
+        "comment": "Adolescent"
+      }
+    }
+  ]
+}

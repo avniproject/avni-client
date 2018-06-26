@@ -1,5 +1,0 @@
-{
-  "organisationName": "demo",
-  "encounterTypes": ["Outpatient", "Delivery", "Abortion", "Child PNC", "ANC", "ANC Lab Test Results", "PNC", "Annual Visit", "Quarterly Visit", "Half-Yearly Visit", "Monthly Visit","Dropout Home Visit", "Dropout Followup Visit", "Birth", "Anthropometry Assessment"],
-  "programs": ["Mother", "Child", "Adolescent"]
-}
