@@ -323,6 +323,14 @@ const getFormElementsStatuses = (encounter, formElementGroup) => {
 };
 
 const EncounterDecisions = RuleFactory("e1472f56-c057-4aea-9f46-0decd9d068fe", "Decision");
+const EncounterViewFilter = RuleFactory("e1472f56-c057-4aea-9f46-0decd9d068fe", "ViewFilter");
+
+@EncounterViewFilter("22dbbe66-a864-4699-8c24-8cfeaafe73bc", "Encounter form filter", 1.0)
+class EncounterFormFilter {
+    static exec(encounter, formElementGroup) {
+        return getFormElementsStatuses(encounter, formElementGroup);
+    }
+}
 
 @EncounterDecisions("9626b9bd-c9dc-40f2-886d-9574fd944e4b", "All Encounter Decision", 1.0, {})
 class EncounterDecision {

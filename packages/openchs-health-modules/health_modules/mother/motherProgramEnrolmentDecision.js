@@ -10,11 +10,19 @@ import {immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";
 
 const MotherEnrolmentDecision = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Decision");
+const MotherEnrolmentFormFilter = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "ViewFilter");
 
 @MotherEnrolmentDecision("b5882c41-1123-460d-b7e8-62d2585a510a", "Mother Program Enrolment Decision", 1.0, {})
 class MotherProgramEnrolmentDecisions {
     static exec(enrolment, decisions, context, today) {
         return getDecisions(enrolment, context, today);
+    }
+}
+
+@MotherEnrolmentFormFilter("1ca6aa7f-9379-45c8-8fde-5885f6f22cab", "Mother Enrolment Form filter", 1.0, {})
+class MotherEnrolmentFormViewFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
     }
 }
 

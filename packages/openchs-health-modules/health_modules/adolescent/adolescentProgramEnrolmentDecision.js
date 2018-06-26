@@ -5,6 +5,15 @@ import C from "../common";
 
 const EnrolmentDecisions = RuleFactory("32b3555a-7fe9-4246-a470-21ab2d2954e2", "Decision");
 
+const EnrolmentViewFilters = RuleFactory("32b3555a-7fe9-4246-a470-21ab2d2954e2", "ViewFilter");
+
+@EnrolmentViewFilters("cfaf14ea-6c8c-4909-a808-bdef784747e2", "ALl Enrolment Filters", 1.0, {})
+class EnrolmentFilter {
+    static exec(enrolment, formElementGroup) {
+        return getFormElementsStatuses(enrolment, formElementGroup);
+    }
+}
+
 @EnrolmentDecisions("703ad40c-7e68-488c-9c85-e169e7fa1b21", "ALl Enrolment Decisions", 1.0, {})
 class EnrolmentDecision {
     static exec(enrolment, decisions, context, today) {

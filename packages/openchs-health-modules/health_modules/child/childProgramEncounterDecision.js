@@ -10,6 +10,31 @@ const ChildPNC = RuleFactory("e09dddeb-ed72-40c4-ae8d-112d8893f18b", "Decision")
 const Birth = RuleFactory("901e2f48-2fb8-402b-9073-ee2fac33fce4", "Decision");
 const Anthro = RuleFactory("d062907a-690c-44ca-b699-f8b2f688b075", "Decision");
 
+const ChildPNCFilter = RuleFactory("e09dddeb-ed72-40c4-ae8d-112d8893f18b", "ViewFilter");
+const BirthFilter = RuleFactory("901e2f48-2fb8-402b-9073-ee2fac33fce4", "ViewFilter");
+const AnthroFilter = RuleFactory("d062907a-690c-44ca-b699-f8b2f688b075", "ViewFilter");
+
+@ChildPNCFilter("c3e255cc-a531-4a71-a75b-d309bfb49411", "Child PNC Form Filter", 1.0, {})
+class ChildPNCFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup);
+    }
+}
+
+@BirthFilter("07e15e19-8492-4768-9254-9c996a003aa0", "Child Birth Form Filter", 1.0, {})
+class ChildBirthFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    }
+}
+
+@AnthroFilter("091b9a99-fb24-4609-8da4-48ca64040605", "Child Antrho Form Filter", 1.0, {})
+class ChildAnthroFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    }
+}
+
 @ChildPNC("b090eb6d-0acb-4089-8ec0-9fbd63117010", "All Child PNC Encounter Decisions", 1.0, {})
 class ChildPNCDecisions {
     static exec(programEncounter, decisions, context, today) {

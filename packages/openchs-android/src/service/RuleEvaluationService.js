@@ -57,8 +57,7 @@ class RuleEvaluationService extends BaseService {
         if ([form, entity].some(_.isEmpty)) return;
         const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Decision");
         const additionalRules = this.getService(RuleService).getApplicableRules(form, "Decision");
-        let sortBy = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
-        const decisions = sortBy
+        const decisions = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
             .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), {
                 "enrolmentDecisions": [],
                 "encounterDecisions": [],
@@ -116,8 +115,15 @@ class RuleEvaluationService extends BaseService {
     }
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
-        let fn = this.entityRulesMap.get(entityName).getFormElementsStatuses;
-        return fn && fn(entity, formElementGroup) || formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+        const applicableRules = RuleRegistry.getRulesFor(formElementGroup.form.uuid, "ViewFilter");
+        const additionalRules = this.getService(RuleService).getApplicableRules(formElementGroup.form.uuid, "ViewFilter");
+        if (_.isEmpty(additionalRules.concat(applicableRules))) return formElementGroup.getFormElements()
+            .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+        return [..._.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+            .map(r => r.fn.exec(entity, formElementGroup, new Date()))
+            .reduce((all, curr) => all.concat(curr), [])
+            .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
+            .values()];
     }
 
     runOnAll() {

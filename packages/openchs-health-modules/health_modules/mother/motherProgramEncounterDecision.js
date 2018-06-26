@@ -20,6 +20,39 @@ const ANCFormDecision = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "Dec
 const PNCFormDecision = RuleFactory("78b1400e-8100-4ba6-b78e-fef580f7fb77", "Decision");
 const AbortionDecision = RuleFactory("32428a7e-d553-4172-b697-e8df3bbfb61d", "Decision");
 const DeliveryDecision = RuleFactory("cc6a3c6a-c3cc-488d-a46c-d9d538fcc9c2", "Decision");
+const ANCFormFilters = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "ViewFilter");
+const PNCFormFilters = RuleFactory("78b1400e-8100-4ba6-b78e-fef580f7fb77", "ViewFilter");
+const AbortionFormFilters = RuleFactory("32428a7e-d553-4172-b697-e8df3bbfb61d", "ViewFilter");
+const DeliveryFormFilters = RuleFactory("cc6a3c6a-c3cc-488d-a46c-d9d538fcc9c2", "ViewFilter");
+
+
+@ANCFormFilters("8b320b90-4a00-4bca-9709-acbf1d6b1359", "All ANC Form Filters", 1.0, {})
+class ANCFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    }
+}
+
+@PNCFormFilters("db907bf6-5bd4-463d-9ae6-5f3eacc8c29a", "All PNC Form Filters", 1.0, {})
+class PNCFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    }
+}
+
+@AbortionFormFilters("26856d5f-ca57-4e19-a16a-f1466b21b2d6", "All Abortion Form Filters", 1.0, {})
+class AbortionFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    }
+}
+
+@DeliveryFormFilters("a0ef845f-cad5-4255-b24e-88cbb9006356", "All Delivery Form Filters", 1.0, {})
+class DeliveryFormFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return getFormElementsStatuses(programEncounter, formElementGroup, today);
+    }
+}
 
 @ANCFormDecision("9b3b65f7-e740-487f-b770-eb1558a7ed93", "All ANC Form Decisions", 1.0)
 class AllANCFormDecision {
