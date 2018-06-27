@@ -119,11 +119,12 @@ class RuleEvaluationService extends BaseService {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const applicableRules = RuleRegistry.getRulesFor(formElementGroup.form.uuid, "ViewFilter");
         const additionalRules = this.getService(RuleService).getApplicableRules(formElementGroup.form, "ViewFilter");
-        if (_.isEmpty(additionalRules.concat(applicableRules))) return formElementGroup.getFormElements()
+        const defaultFormElementStatus = formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+        if (_.isEmpty(additionalRules.concat(applicableRules))) return defaultFormElementStatus;
         return [..._.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
             .map(r => r.fn.exec(entity, formElementGroup, new Date()))
-            .reduce((all, curr) => all.concat(curr), [])
+            .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
             .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
             .values()];
     }
