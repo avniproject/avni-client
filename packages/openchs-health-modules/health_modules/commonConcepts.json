@@ -1368,5 +1368,14 @@
     "uuid": "8f975508-8179-450b-9a27-d11b7818677b",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
     "dataType": "NA"
+  },
+  {
+    "name": "Government Hospital",
+    "uuid": "df6303d5-0b78-48e0-8a3c-1a7fec61a9f1"
+  },
+  {
+    "name": "Doctor",
+    "uuid": "062071e7-85a9-4da0-9d59-c27b00e53a60",
+    "dataType": "NA"
   }
 ]
