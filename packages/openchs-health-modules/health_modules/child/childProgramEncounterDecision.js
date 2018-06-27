@@ -5,6 +5,8 @@ import _ from "lodash";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateHighRiskConditionAdvice from "./highRisk";
 import {getDecisions as anthropometricDecisions} from "./anthropometricDecision"
+import {FormElementStatusBuilder} from "rules-config";
+import FormElementStatus from "../../../openchs-models/src/application/FormElementStatus";
 
 const ChildPNC = RuleFactory("e09dddeb-ed72-40c4-ae8d-112d8893f18b", "Decision");
 const Birth = RuleFactory("901e2f48-2fb8-402b-9073-ee2fac33fce4", "Decision");
@@ -119,4 +121,37 @@ const encounterTypeHandlerMap = new Map([
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
     return FormElementsStatusHelper.getFormElementsStatuses(handler, programEncounter, formElementGroup, today);
+}
+
+
+class ChildHomeVisitHandler {
+    whatElseDidFeedYourChild(programEncounter, formElement) {
+        const statusBuilder = this._statusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEncounter("Have you fed your child any of the following?")
+            .containsAnswerConceptName("Other");
+        return statusBuilder.build();
+    }
+
+    whatElseDidFeedYourChild(programEncounter, formElement) {
+        const statusBuilder = this._statusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.valueInEncounter("Have you fed your child any of the following?")
+            .containsAnswerConceptName("Other");
+        return statusBuilder.build();
+    }
+
+    _statusBuilder(programEncounter, formElement) {
+        return new FormElementStatusBuilder({
+            programEncounter: programEncounter,
+            formElement: formElement
+        });
+    }
+}
+
+const HomeVisitFilter = RuleFactory("35aa9007-fe7a-4a59-b985-0a1c038df889", "ViewFilter");
+
+@HomeVisitFilter("11a9fd8b-7234-4fc2-a9be-1895c6783778", "Child Home Visit Filter", 100.0, {})
+class ChildHomeVisitFilter {
+    static exec(programEncounter, formElementGroup, today) {
+        return FormElementsStatusHelper.getFormElementsStatuses(new ChildHomeVisitHandler(), programEncounter, formElementGroup, today)
+    }
 }
