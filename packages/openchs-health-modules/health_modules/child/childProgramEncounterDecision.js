@@ -350,6 +350,17 @@ class ChildHomeVisitFilter {
         return statusBuilder.build();
     }
 
+    childPostNatalDiscussionTopicsLbw(programEncounter, formElement) {
+        const statusBuilder = this._statusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.ageInMonths.is.lessThan(3);
+        return statusBuilder.build();
+    }
+
+    childPostNatalDiscussionTopics(programEncounter, formElement) {
+        const statusBuilder = this._statusBuilder(programEncounter, formElement);
+        statusBuilder.show().when.ageInMonths.is.greaterThanOrEqualTo(3);
+        return statusBuilder.build();
+    }
 
     _statusBuilder(programEncounter, formElement) {
         return new FormElementStatusBuilder({
