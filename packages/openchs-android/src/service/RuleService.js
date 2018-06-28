@@ -25,7 +25,9 @@ class RuleService extends BaseService {
         const rules = this.db.objects(Rule.schema.name)
             .filtered(`form.uuid=$0 and type=$1`, form.uuid, type)
             .map(_.identity);
-        return _.defaults(rules, []).map(ar => ({...ar, fn: this.allRules[ar.fnName]}));
+        return _.defaults(rules, [])
+            .filter(ar => _.isFunction(this.allRules[ar.fnName]) && _.isFunction(this.allRules[ar.fnName].exec))
+            .map(ar => ({...ar, fn: this.allRules[ar.fnName]}));
     }
 
 }
