@@ -32,7 +32,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, true);
                 };
-                const headerMessage = `${this.I18n.t(state.enrolment.program.name)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
+                const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
@@ -49,7 +49,7 @@ class ProgramFormComponent extends AbstractComponent {
         return (<CHSContainer theme={themes}>
             <CHSContent ref="scroll">
                 <AppHeader
-                    title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.name})}
+                    title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.displayName})}
                     func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>

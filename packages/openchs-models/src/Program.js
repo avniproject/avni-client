@@ -1,5 +1,6 @@
 import ReferenceEntity from "./ReferenceEntity";
 import _ from 'lodash';
+import General from "./utility/General";
 
 class Program extends ReferenceEntity {
     static schema = {
@@ -8,14 +9,20 @@ class Program extends ReferenceEntity {
         properties: {
             uuid: 'string',
             name: 'string',
+            operationalProgramName: {type: 'string', optional: true},
+            displayName: 'string',
             colour: 'string'
         }
     };
 
-    static fromResource(resource) {
-        const program =  ReferenceEntity.fromResource(resource, new Program());
-        program.uuid = resource.programUUID;
-        program.colour = _.isNil(resource.colour)? Program.randomColour() : resource.colour;
+    static fromResource(operationalProgram) {
+        const program =  new Program();
+        program.uuid = operationalProgram.programUUID;
+        program.name = operationalProgram.programName;
+        program.operationalProgramName = operationalProgram.name;
+        program.colour = _.isNil(operationalProgram.colour)? Program.randomColour() : operationalProgram.colour;
+        program.displayName = _.isEmpty(program.operationalProgramName) ? program.name : program.operationalProgramName;
+
         return program;
     }
 
@@ -24,11 +31,11 @@ class Program extends ReferenceEntity {
     }
 
     clone() {
-        return super.clone(new Program());
+        return General.assignFields(this,super.clone(new Program()),['operationalProgramName','displayName']);
     }
 
     static addTranslation(program, messageService) {
-        messageService.addTranslation('en', program.name, program.name);
+        messageService.addTranslation('en', program.displayName, program.displayName);
     }
 }
 

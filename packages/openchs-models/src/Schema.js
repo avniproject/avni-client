@@ -40,7 +40,7 @@ import RuleDependency from "./RuleDependency";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping, IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule],
-    schemaVersion: 63,
+    schemaVersion: 64,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -156,6 +156,24 @@ export default {
         }
         if (oldDB.schemaVersion < 55) {
             _.forEach(newDB.objects('EncounterType'), (fm) => fm.voided = false);
+        }
+        if (oldDB.schemaVersion < 64) {
+            _.forEach(newDB.objects('EncounterType'), (et) => {
+                if (_.isEmpty(et.operationalEncounterTypeName)) {
+                    et.operationalEncounterTypeName = et.name;
+                }
+                if (_.isEmpty(et.displayName)) {
+                    et.displayName = _.isEmpty(et.operationalEncounterTypeName) ? et.name : et.operationalEncounterTypeName;
+                }
+            });
+            _.forEach(newDB.objects('Program'), (p) => {
+                if (_.isEmpty(p.operationalProgramName)) {
+                    p.operationalProgramName = p.name
+                }
+                if (_.isEmpty(p.displayName)) {
+                    p.displayName = _.isEmpty(p.operationalProgramName) ? p.name : p.operationalProgramName;
+                }
+            });
         }
     }
 };

@@ -78,7 +78,7 @@ class StartProgramActions {
 
         let encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(enrolment.program);
         newState.encounterTypes = _.map(encounterTypes, (encounterType) => {
-            return {key: encounterType.uuid, label: newState.I18n.t(encounterType.name), data: encounterType, selected: false}});
+            return {key: encounterType.uuid, label: newState.I18n.t(encounterType.displayName), data: encounterType, selected: false}});
 
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 

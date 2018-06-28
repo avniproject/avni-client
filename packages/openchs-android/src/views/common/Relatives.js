@@ -74,7 +74,7 @@ class Relatives extends AbstractComponent {
                       backgroundColor: program.colour,
                       color: Colors.TextOnPrimaryColor,
                       textAlignVertical: 'center'
-                  }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.name)}</Text>
+                  }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
         );
     }
 

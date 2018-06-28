@@ -15,11 +15,13 @@ class EntityTypeSelector extends AbstractComponent {
         selectedEntityType: React.PropTypes.object,
         actions: React.PropTypes.object.isRequired,
         labelKey: React.PropTypes.string.isRequired,
-        onEntityTypeSelectionConfirmed: React.PropTypes.func.isRequired
+        onEntityTypeSelectionConfirmed: React.PropTypes.func.isRequired,
+        getEntityLabel: React.PropTypes.func
     };
 
     constructor(props, context) {
         super(props, context);
+        this.getEntityLabel = _.isFunction(props.getEntityLabel)? props.getEntityLabel : (e)=> e.name;
     }
 
     entityTypeSelectionConfirmed() {
@@ -78,7 +80,7 @@ class EntityTypeSelector extends AbstractComponent {
                             onPress={({value}) => this.dispatchAction(ENTITY_TYPE_SELECTED_ACTION, {value: value})}
                             selectionFn={(entityType) => _.isNil(this.props.selectedEntityType) ? false : this.props.selectedEntityType.uuid === entityType.uuid}
                             labelKey={this.props.labelKey}
-                            labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(entityType.name, entityType))}/>
+                            labelValuePairs={this.props.entityTypes.map((entityType) => new RadioLabelValue(this.getEntityLabel(entityType), entityType))}/>
                         <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginTop: 10}}>
                             {this.renderButton(() => this.cancelSelection(), 'cancel')}
                             {this.renderButton(() => this.entityTypeSelectionConfirmed(), 'proceed')}

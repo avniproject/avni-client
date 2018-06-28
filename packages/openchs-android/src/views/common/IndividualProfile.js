@@ -86,6 +86,7 @@ class IndividualProfile extends AbstractComponent {
                     <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState}
                                         selectedEntityType={this.state.entity.program}
                                         actions={Actions} labelKey='selectProgram'
+                                        getEntityLabel={(program)=> program.displayName }
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
                     <View style={{justifyContent: 'center', alignSelf: 'center'}}>
                         <Icon name='person-pin' style={{

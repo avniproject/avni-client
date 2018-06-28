@@ -70,7 +70,7 @@ class IndividualDetails extends AbstractComponent {
 
     render() {
         const badges = this.props.individual.enrolments.map(({program}, idx) =>
-            <Badge key={idx} style={{backgroundColor: program.color}}>{program.name}</Badge>);
+            <Badge key={idx} style={{backgroundColor: program.color}}>{program.displayName}</Badge>);
         return (
             <TouchableNativeFeedback
                 onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid)}

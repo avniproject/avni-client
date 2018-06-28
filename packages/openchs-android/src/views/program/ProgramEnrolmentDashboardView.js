@@ -162,6 +162,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes}
                                         labelKey='followupTypes'
+                                        getEntityLabel={(encounterType)=> encounterType.displayName }
                                         selectedEntityType={programEncounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
 
@@ -170,6 +171,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         flowState={encounterTypeState.flowState}
                                         entityTypes={encounterTypeState.entityTypes}
                                         labelKey='followupTypes'
+                                        getEntityLabel={(program)=> program.displayName }
                                         selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View>

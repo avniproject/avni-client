@@ -54,7 +54,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                         paddingHorizontal:4,
                         backgroundColor: program.colour,
                         color: Colors.TextOnPrimaryColor,
-                    }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.name)}</Text>
+                    }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
         );
     }
 

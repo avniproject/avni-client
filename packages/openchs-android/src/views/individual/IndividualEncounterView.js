@@ -40,7 +40,7 @@ class IndividualEncounterView extends AbstractComponent {
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
-                const headerMessage = `${this.I18n.t(newState.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
+                const headerMessage = `${this.I18n.t(newState.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(newState.encounter.encounterType, Form.formTypes.Encounter);
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, newState.encounter, Actions.SAVE, headerMessage, form);
@@ -65,7 +65,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.name)}
+                    <AppHeader title={this.I18n.t(this.state.encounter.encounterType.displayName)}
                                func={() => this.previous()}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    onCollapse={this.scrollToTop}

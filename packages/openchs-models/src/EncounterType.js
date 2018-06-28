@@ -8,6 +8,8 @@ class EncounterType extends ReferenceEntity {
         properties: {
             uuid: 'string',
             name: 'string',
+            operationalEncounterTypeName: {type: 'string', optional: true},
+            displayName: 'string',
             voided: { type: 'bool', default: false }
         }
     };
@@ -19,15 +21,18 @@ class EncounterType extends ReferenceEntity {
         return encounterType;
     }
 
-    static fromResource(resource) {
-        let entity = ReferenceEntity.fromResource(resource, new EncounterType());
-        entity.uuid = resource.encounterTypeUUID;
-        entity.voided = !!resource.encounterTypeVoided;
-        return entity;
+    static fromResource(operationalEncounterType) {
+        const encounterType = new EncounterType();
+        encounterType.name = operationalEncounterType.encounterTypeName;
+        encounterType.uuid = operationalEncounterType.encounterTypeUUID;
+        encounterType.voided = !!operationalEncounterType.encounterTypeVoided;
+        encounterType.operationalEncounterTypeName = operationalEncounterType.name;
+        encounterType.displayName = _.isEmpty(encounterType.operationalEncounterTypeName) ? encounterType.name : encounterType.operationalEncounterTypeName;
+        return encounterType;
     }
 
     clone() {
-        return super.clone(new EncounterType());
+        return General.assignFields(this,super.clone(new EncounterType()),['operationalEncounterTypeName','displayName']);
     }
 }
 

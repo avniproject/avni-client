@@ -54,7 +54,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 TypedTransition.from(this).to(IndividualEncounterView);
             },
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
-                const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
+                const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType);
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage, form);
@@ -68,7 +68,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent>
                     <AppHeader
-                        title={`${this.I18n.t(this.state.encounter.encounterType.name)} - ${this.I18n.t('enterData')}`}/>
+                        title={`${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}

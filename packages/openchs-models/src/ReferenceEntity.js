@@ -7,6 +7,7 @@ class ReferenceEntity extends BaseEntity{
     }
 
     clone(newEntity) {
+        // newEntity = _.isNil(newEntity)? new this.constructor(): newEntity;
         newEntity.uuid = this.uuid;
         newEntity.name = this.name;
         return newEntity;

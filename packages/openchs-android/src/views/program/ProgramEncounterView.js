@@ -53,7 +53,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid, state.programEncounter.programEnrolment.uuid, true);
                 };
-                const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.name)}, ${this.I18n.t(state.programEncounter.encounterType.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
+                const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.displayName)}, ${this.I18n.t(state.programEncounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
