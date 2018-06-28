@@ -121,6 +121,9 @@ openlocation_apk: ##
 
 
 # <env>
+clean_packager_cache:
+	watchman watch-del-all && rm -rf $TMPDIR/react-*
+
 clean_env:  ## 
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-health-modules/node_modules
