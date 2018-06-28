@@ -1,5 +1,10 @@
 [
   {
+    "name": "NA",
+    "uuid": "4d476011-7fc4-432b-98c0-9f6f1847cf39",
+    "dataType": "NA"
+  },
+  {
     "name": "Hepatitis B Positive",
     "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c"
   },
@@ -1382,5 +1387,11 @@
     "name": "Hospital",
     "uuid": "8359bf16-d329-4752-927c-24a9364f12bf",
     "dataType": "NA"
+  },
+  {
+    "name": "Placeholder for counselling form element",
+    "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+    "dataType": "Coded",
+    "answers": []
   }
 ]
