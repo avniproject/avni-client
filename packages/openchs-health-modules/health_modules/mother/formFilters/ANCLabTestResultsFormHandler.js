@@ -7,7 +7,7 @@ class ANCLabTestResultsFormHandler {
     preFilter(programEncounter) {
         let lmp = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
         let td = _.get(programEncounter, "encounterDateTime", new Date());
-        this.gestationalAge = FormElementsStatusHelper.weeksBetween(td, lmp);
+        this._gestationalAge = FormElementsStatusHelper.weeksBetween(td, lmp);
     }
 
     vdrl(programEncounter, formElement) {
@@ -67,8 +67,8 @@ class ANCLabTestResultsFormHandler {
     get currentTrimester() {
         return [...TRIMESTER_MAPPING.keys()]
             .find((trimester) =>
-                this.gestationalAge <= TRIMESTER_MAPPING.get(trimester).to &&
-                this.gestationalAge >= TRIMESTER_MAPPING.get(trimester).from);
+                this._gestationalAge <= TRIMESTER_MAPPING.get(trimester).to &&
+                this._gestationalAge >= TRIMESTER_MAPPING.get(trimester).from);
     }
 }
 

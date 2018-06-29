@@ -9,7 +9,7 @@ class ANCFormHandler {
     preFilter(programEncounter, formElement, today) {
         let lmp = programEncounter.programEnrolment.getObservationValue('Last menstrual period');
         let td = _.get(programEncounter, "encounterDateTime", new Date());
-        this.gestationalAge = FormElementsStatusHelper.weeksBetween(td, lmp);
+        this._gestationalAge = FormElementsStatusHelper.weeksBetween(td, lmp);
     }
 
     haveYouEnrolledInAnyGovernmentScheme(programEncounter, formElement) {
@@ -86,19 +86,19 @@ class ANCFormHandler {
 
     fundalHeight(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).is.greaterThanOrEqualTo(12);
+        statusBuilder.show().whenItem(this._gestationalAge).is.greaterThanOrEqualTo(12);
         return statusBuilder.build();
     }
 
     fundalHeightFromPubicSymphysis(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).is.greaterThanOrEqualTo(24);
+        statusBuilder.show().whenItem(this._gestationalAge).is.greaterThanOrEqualTo(24);
         return statusBuilder.build();
     }
 
     abdominalGirth(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).greaterThan(30);
+        statusBuilder.show().whenItem(this._gestationalAge).greaterThan(30);
         return statusBuilder.build();
     }
 
@@ -106,23 +106,23 @@ class ANCFormHandler {
         const primiStatus = this._formStatusBuilder(programEncounter, formElement);
         const nonPrimiStatus = this._formStatusBuilder(programEncounter, formElement);
 
-        primiStatus.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(22).and
+        primiStatus.show().whenItem(this._gestationalAge).greaterThanOrEqualTo(22).and
             .when.valueInEnrolment("Gravida").is.equals(1);
 
-        nonPrimiStatus.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(18).and
+        nonPrimiStatus.show().whenItem(this._gestationalAge).greaterThanOrEqualTo(18).and
             .when.valueInEnrolment("Gravida").is.greaterThan(1);
         return primiStatus.build().or(nonPrimiStatus.build());
     }
 
     foetalHeartSound(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(28);
+        statusBuilder.show().whenItem(this._gestationalAge).greaterThanOrEqualTo(28);
         return statusBuilder.build();
     }
 
     foetalHeartRate(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(28);
+        statusBuilder.show().whenItem(this._gestationalAge).greaterThanOrEqualTo(28);
         return statusBuilder.build();
     }
 
@@ -136,7 +136,7 @@ class ANCFormHandler {
 
     usgDatingScanDone(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().whenItem(this.gestationalAge).greaterThanOrEqualTo(7).and.lessThanOrEqualTo(28);
+        statusBuilder.show().whenItem(this._gestationalAge).greaterThanOrEqualTo(7).and.lessThanOrEqualTo(28);
         return statusBuilder.build();
     }
 
@@ -223,7 +223,7 @@ class ANCFormHandler {
     }
 
     validOnceAfter(programEncounter, formElement, conceptName, weeks) {
-        let visibility = this.gestationalAge > weeks && _.isNil(programEncounter.findObservationInEntireEnrolment(conceptName));
+        let visibility = this._gestationalAge > weeks && _.isNil(programEncounter.findObservationInEntireEnrolment(conceptName));
         return new FormElementStatus(formElement.uuid, visibility);
     }
 
@@ -244,8 +244,8 @@ class ANCFormHandler {
     get currentTrimester() {
         return [...TRIMESTER_MAPPING.keys()]
             .find((trimester) =>
-                this.gestationalAge <= TRIMESTER_MAPPING.get(trimester).to &&
-                this.gestationalAge >= TRIMESTER_MAPPING.get(trimester).from);
+                this._gestationalAge <= TRIMESTER_MAPPING.get(trimester).to &&
+                this._gestationalAge >= TRIMESTER_MAPPING.get(trimester).from);
     }
 
     _isInCurrentTrimester(trimesters) {
