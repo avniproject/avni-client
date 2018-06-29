@@ -19,7 +19,7 @@ endef
 # <clean>
 clean: clean_env ## 
 # </clean>
-
+renew_env: clean_all deps
 # <deps>
 deps: build_env ##
 
@@ -128,6 +128,11 @@ clean_env:  ##
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-models/node_modules
+
+clean_all:  clean_env
+	rm -rf packages/openchs-android/package-lock.json
+	rm -rf packages/openchs-health-modules/package-lock.json
+	rm -rf packages/openchs-models/package-lock.json
 
 setup_env: ## 
 	npm install -g jest@20.0.1
