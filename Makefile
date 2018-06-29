@@ -96,7 +96,10 @@ deploy: ## Deploy apk to bintray
 get_db: ## Get realmdb and copy to ../
 	mkdir -p ../db; adb pull /data/data/com.openchsclient/files/default.realm ../db
 
-open_db: get_db ## Open realmdb in Realm Browser
+rm_db:
+	rm -rf ../db
+
+open_db: rm_db get_db ## Open realmdb in Realm Browser
 	open ../db/default.realm
 # </db>
 

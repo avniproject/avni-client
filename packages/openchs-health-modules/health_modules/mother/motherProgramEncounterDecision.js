@@ -339,5 +339,5 @@ const encounterTypeHandlerMap = new Map([
 
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {
     let handler = encounterTypeHandlerMap.get(programEncounter.encounterType.name);
-    return FormElementsStatusHelper.getFormElementsStatuses(handler, programEncounter, formElementGroup, today);
+    return FormElementsStatusHelper.getFormElementsStatusesWithoutDefaults(handler, programEncounter, formElementGroup, today);
 }

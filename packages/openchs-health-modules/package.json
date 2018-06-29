@@ -23,7 +23,7 @@
     "@babel/polyfill": "7.0.0-beta.35",
     "lodash": "4.14.0",
     "moment": "2.18.1",
-    "rules-config": "github:openchs/rules-config#5a3eb0a15abef67b42a0925d5d18c68d41ab6bc1"
+    "rules-config": "github:openchs/rules-config#a75c9d6d310307eb38f6f96249fdee87427b5009"
   },
   "devDependencies": {
     "amazon-cognito-identity-js": "1.28.0",
