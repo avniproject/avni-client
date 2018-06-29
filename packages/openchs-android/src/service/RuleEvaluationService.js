@@ -42,10 +42,11 @@ class RuleEvaluationService extends BaseService {
             ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)],
             ['ProgramEncounter', new EntityRule(programEncounterDecision)],]);
 
-        this.entityDecisionRulesMap = new Map([['Individual', this.getRegistrationDecisions.bind(this)],
-            ['Encounter', this.getEncounterDecisions.bind(this)],
-            ['ProgramEnrolment', this.getProgramEnrolmentDecisions.bind(this)],
-            ['ProgramEncounter', this.getProgramEncounterDecisions.bind(this)],
+        this.entityFormMap = new Map([
+            ['Individual', (individual) => this.formMappingService.findRegistrationForm(individual)],
+            ['Encounter', (encounter) => this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name)],
+            ['ProgramEnrolment', (programEnrolment) => this.formMappingService.findFormForProgramEnrolment(programEnrolment.program)],
+            ['ProgramEncounter', (programEncounter) => this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name)],
         ]);
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);
@@ -68,28 +69,9 @@ class RuleEvaluationService extends BaseService {
         return decisions;
     }
 
-    getRegistrationDecisions(individual, context) {
-        const form = this.formMappingService.findRegistrationForm(individual);
-        return this.getEntityDecision(form, individual, context);
-    }
-
-    getEncounterDecisions(encounter, context) {
-        const form = this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name);
-        return this.getEntityDecision(form, encounter, context);
-    }
-
-    getProgramEnrolmentDecisions(programEnrolment, context) {
-        const form = this.formMappingService.findFormForProgramEnrolment(programEnrolment.program);
-        return this.getEntityDecision(form, programEnrolment, context);
-    }
-
-    getProgramEncounterDecisions(programEncounter, context) {
-        const form = this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name);
-        return this.getEntityDecision(form, programEncounter, context);
-    }
-
     getDecisions(entity, entityName, context) {
-        return this.entityDecisionRulesMap.get(entityName)(entity, context);
+        const form = this.entityFormMap.get(entityName)(entity);
+        return this.getEntityDecision(form, entity, context);
     }
 
     getEnrolmentSummary(entity, entityName, context) {
@@ -108,7 +90,15 @@ class RuleEvaluationService extends BaseService {
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
-        return this.entityRulesMap.get(entityName).getNextScheduledVisits(entity, visitScheduleConfig);
+        const defaultVistSchedule = [];
+        const form = this.entityFormMap.get(entityName)(entity);
+        if ([entity, form].some(_.isEmpty)) return defaultVistSchedule;
+        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "VisitSchedule");
+        const additionalRules = this.getService(RuleService).getApplicableRules(form, "VisitSchedule");
+        const nextVisits = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+            .reduce((schedule, rule) => rule.fn.exec(entity, schedule, visitScheduleConfig), defaultVistSchedule);
+        General.logDebug("RuleEvaluationService", nextVisits);
+        return nextVisits;
     }
 
     getChecklists(enrolment) {

@@ -64,4 +64,13 @@ const getNextScheduledVisits = function (programEnrolment, config, today, curren
     return scheduleBuilder.getAll();
 };
 
+const AdolscentEnrolmentVisitSchedule = RuleFactory("32b3555a-7fe9-4246-a470-21ab2d2954e2", "VisitSchedule");
+
+@AdolscentEnrolmentVisitSchedule("9b1d79e4-fa15-406b-8410-1f46dc64613f", "Adolescent Enrolment Visit Schedule", 1.0, {})
+class AdolVisitSchedule {
+    static exec(enrolment, schedule, visitScheduleConfig) {
+        return getNextScheduledVisits(enrolment, visitScheduleConfig);
+    }
+}
+
 export {getDecisions, getNextScheduledVisits, getFormElementsStatuses};
