@@ -162,6 +162,10 @@ run_app_staging_dev:
 # sometimes there are errors for which we need to run the following to get the exact problem
 run_app_debug: setup_hosts  ## 
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
+
+open_app_bundle:
+	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ../temp/output.txt
+	vi ../temp/output.txt
 # </app>
 
 
