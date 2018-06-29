@@ -757,7 +757,8 @@
     "dataType": "Coded",
     "answers": [
       {
-        "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3"
+        "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
+        "abnormal": true
       },
       {
         "uuid": "c66ef660-ded1-439a-8255-917ecf0e61a1"

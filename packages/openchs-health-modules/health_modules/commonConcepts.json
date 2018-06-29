@@ -1315,10 +1315,12 @@
         "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f"
       },
       {
-        "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657"
+        "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657",
+        "abnormal": true
       },
       {
-        "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90"
+        "uuid": "48d13717-d2d4-450e-bb9c-59976237cd90",
+        "abnormal": true
       }
     ]
   },
@@ -1393,5 +1395,20 @@
     "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
     "dataType": "Coded",
     "answers": []
+  },
+  {
+    "name": "Within 1 hour",
+    "uuid": "c85afc9a-7b61-4be2-98a0-adbfde065b73",
+    "dataType": "NA"
+  },
+  {
+    "name": "Within 24 hours",
+    "uuid": "e87f1249-2a4e-4b4a-8ebd-233d04ee4274",
+    "dataType": "NA"
+  },
+  {
+    "name": "After a day",
+    "uuid": "3b80c10a-dfc1-4323-bb0d-4ee590b0089e",
+    "dataType": "NA"
   }
 ]
