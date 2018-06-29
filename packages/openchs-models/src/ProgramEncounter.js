@@ -51,7 +51,9 @@ class ProgramEncounter extends AbstractEncounter {
             resource.maxVisitDateTime = moment(this.maxVisitDateTime).format();
         if (!_.isNil(this.cancelDateTime))
             resource.cancelDateTime = moment(this.cancelDateTime).format();
-        resource.cancelObservations = _.map(this.cancelObservations, (obs) => { return obs.toResource});
+        resource.cancelObservations = _.map(this.cancelObservations, (obs) => {
+            return obs.toResource
+        });
         return resource;
     }
 
@@ -101,6 +103,10 @@ class ProgramEncounter extends AbstractEncounter {
         programEncounter.programEnrolment = programEnrolment;
         programEncounter.encounterDateTime = null;
         return programEncounter;
+    }
+
+    getAllScheduledVisits() {
+        return this.programEnrolment.getAllScheduledVisits(this);
     }
 
     updateSchedule(scheduledVisit) {

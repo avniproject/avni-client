@@ -163,7 +163,9 @@ class ProgramEnrolment extends BaseEntity {
                 }
             })
             .filter((observation) => observation.obs)
-            .map((observation) => {return {encounterDateTime: observation.encounterDateTime, obs: observation.obs.getValue()}})
+            .map((observation) => {
+                return {encounterDateTime: observation.encounterDateTime, obs: observation.obs.getValue()}
+            })
             .value();
     }
 
@@ -210,14 +212,14 @@ class ProgramEnrolment extends BaseEntity {
         return this._getEncounters(removeCancelledEncounters).value();
     }
 
-    findObservationInEntireEnrolment(conceptName, currentEncounter, latest=false) {
+    findObservationInEntireEnrolment(conceptName, currentEncounter, latest = false) {
         let encounters = _.chain(this.getEncounters())
             .filter((enc) => currentEncounter ? enc.uuid !== currentEncounter.uuid : true)
             .concat(currentEncounter)
             .compact()
             .sortBy((enc) => enc.encounterDateTime)
             .value();
-        encounters = latest? _.reverse(encounters): encounters;
+        encounters = latest ? _.reverse(encounters) : encounters;
 
         return this._findObservationFromEntireEnrolment(conceptName, encounters, true);
     }
@@ -313,12 +315,26 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     scheduledEncounters() {
-        return _.filter(this.encounters, (encounter) => !encounter.encounterDateTime && _.isNil(encounter.cancelDateTime));
+        return _.filter(this.getEncounters(true), (encounter) => !encounter.encounterDateTime && _.isNil(encounter.cancelDateTime));
     }
 
     scheduledEncountersOfType(encounterTypeName) {
         return this.scheduledEncounters()
             .filter((scheduledEncounter) => scheduledEncounter.encounterType.name === encounterTypeName);
+    }
+
+    getAllScheduledVisits(currentEncounter) {
+        return _.defaults(this.scheduledEncounters(true), [])
+            .filter(encounter => encounter.uuid !== currentEncounter.uuid)
+            .map(_.identity)
+            .map(({uuid, name, encounterType, earliestVisitDateTime, maxVisitDateTime}) => ({
+                    name: name,
+                    encounterType: encounterType.name,
+                    earliestDate: earliestVisitDateTime,
+                    maxDate: maxVisitDateTime,
+                    uuid: uuid
+                }
+            ));
     }
 
     addObservation(observation) {

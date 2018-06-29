@@ -95,9 +95,10 @@ class RuleEvaluationService extends BaseService {
         if ([entity, form].some(_.isEmpty)) return defaultVistSchedule;
         const applicableRules = RuleRegistry.getRulesFor(form.uuid, "VisitSchedule");
         const additionalRules = this.getService(RuleService).getApplicableRules(form, "VisitSchedule");
+        const scheduledVisits = entity.getAllScheduledVisits(entity);
         const nextVisits = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
-            .reduce((schedule, rule) => rule.fn.exec(entity, schedule, visitScheduleConfig), defaultVistSchedule);
-        General.logDebug("RuleEvaluationService", nextVisits);
+            .reduce((schedule, rule) => rule.fn.exec(entity, schedule, visitScheduleConfig), scheduledVisits);
+        General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
         return nextVisits;
     }
 
