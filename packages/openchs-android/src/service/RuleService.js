@@ -23,7 +23,7 @@ class RuleService extends BaseService {
     getApplicableRules(form, type) {
         General.logDebug("RuleService", `Getting Rules of Type ${type} for Form - ${form.name} ${form.uuid}`);
         const rules = this.db.objects(Rule.schema.name)
-            .filtered(`form.uuid=$0 and type=$1`, form.uuid, type)
+            .filtered(`voided = false and form.uuid=$0 and type=$1`, form.uuid, type)
             .map(_.identity);
         return _.defaults(rules, [])
             .filter(ar => _.isFunction(this.allRules[ar.fnName]) && _.isFunction(this.allRules[ar.fnName].exec))

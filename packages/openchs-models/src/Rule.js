@@ -14,6 +14,7 @@ class Rule extends ReferenceEntity {
             name: 'string',
             fnName: 'string',
             executionOrder: 'double',
+            voided: {type: 'bool', default: false},
             data: {type: 'string', optional: true}
         }
     };
@@ -28,6 +29,7 @@ class Rule extends ReferenceEntity {
         const rule = General.assignFields(resource, new Rule(), ['uuid', 'name', 'type', 'fnName', 'executionOrder']);
         rule.data = JSON.stringify(resource['data']);
         rule.form = entityService.findByUUID(ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
+        rule.voided = resource['voided'] || false;
         return rule;
     }
 
