@@ -117,8 +117,8 @@ class ProgramEncounter extends AbstractEncounter {
         return this.programEnrolment.findObservationInEntireEnrolment(conceptName);
     }
 
-    findLatestObservationInEntireEnrolment(conceptName) {
-        return this.programEnrolment.findLatestObservationInEntireEnrolment(conceptName);
+    findLatestObservationInEntireEnrolment(conceptName, currentEncounter) {
+        return this.programEnrolment.findLatestObservationInEntireEnrolment(conceptName, currentEncounter);
     }
 
     observationExistsInEntireEnrolment(conceptName) {
