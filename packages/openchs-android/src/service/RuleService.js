@@ -18,6 +18,7 @@ class RuleService extends BaseService {
         let rulesConfig = undefined;
         eval(RuleDependency.getCode(ruleDependency));
         this.allRules = {...rulesConfig};
+        General.logDebug("RuleService", "\n>>>>>>>>>RULES LOADED<<<<<<<<<\n")
     }
 
     getApplicableRules(form, type) {
