@@ -2703,38 +2703,6 @@
     ]
   },
   {
-    "name": "Pedal Edema",
-    "uuid": "b441c480-1a19-4ad0-9d0a-196485aacf12",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Present",
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-        "abnormal": true
-      },
-      {
-        "name": "Absent",
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-      }
-    ]
-  },
-  {
-    "name": "Pallor",
-    "uuid": "226f8715-563b-4a8b-8afa-f75cce2767af",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Present",
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
-        "abnormal": true
-      },
-      {
-        "name": "Absent",
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-      }
-    ]
-  },
-  {
     "name": "Has she been having convulsions?",
     "uuid": "4236230c-d109-4409-9acf-2925388ebad5",
     "dataType": "Coded",

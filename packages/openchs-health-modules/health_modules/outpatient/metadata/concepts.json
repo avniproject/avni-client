@@ -150,36 +150,6 @@
     "unit": "mm Hg"
   },
   {
-    "name": "Pallor",
-    "uuid": "226f8715-563b-4a8b-8afa-f75cce2767af",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Present",
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
-      },
-      {
-        "name": "Absent",
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-      }
-    ]
-  },
-  {
-    "name": "Pedal Edema",
-    "uuid": "b441c480-1a19-4ad0-9d0a-196485aacf12",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Present",
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
-      },
-      {
-        "name": "Absent",
-        "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
-      }
-    ]
-  },
-  {
     "name": "Skin Condition",
     "uuid": "bff2c24c-32d2-4400-a691-4f43fa59090a",
     "dataType": "Coded",
