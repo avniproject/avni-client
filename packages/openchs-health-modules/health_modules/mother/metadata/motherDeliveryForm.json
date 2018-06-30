@@ -31,7 +31,7 @@
             "name": "Date of discharge"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Date of delivery",

@@ -38,7 +38,8 @@ export class ConceptAnswer {
 
 export default class Concept {
     static StandardConcepts = {
-        OtherConceptUUID: '05ea583c-51d2-412d-ad00-06c432ffe538'
+        OtherConceptUUID: '05ea583c-51d2-412d-ad00-06c432ffe538',
+        NoneConceptUUID: 'ebda5e05-a995-43ca-ad1a-30af3b937539'
     };
 
     static schema = {
@@ -189,7 +190,7 @@ export default class Concept {
 
     getAnswers() {
         return _.sortBy(this.answers, (answer) => {
-            return answer.concept.uuid === Concept.StandardConcepts.OtherConceptUUID ? 99999 : answer.answerOrder;
+            return _.indexOf([Concept.StandardConcepts.OtherConceptUUID, Concept.StandardConcepts.NoneConceptUUID], answer.concept.uuid) !== -1 ? 99999 : answer.answerOrder;
         }).filter((ans)=> !ans.voided);
     }
 
