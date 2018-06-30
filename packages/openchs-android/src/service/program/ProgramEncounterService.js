@@ -39,6 +39,27 @@ class ProgramEncounterService extends BaseService {
         db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
     }
 
+    saveScheduledVisit(enrolment, nextScheduledVisit, db) {
+        const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+        if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
+
+        let encounterToSchedule;
+        if (nextScheduledVisit.uuid) {
+            encounterToSchedule = this.findByUUID(nextScheduledVisit.uuid, ProgramEncounter.schema.name);
+            encounterToSchedule.encounterType = encounterType;
+        }
+        if (!encounterToSchedule) {
+            encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+        }
+
+        encounterToSchedule.updateSchedule(nextScheduledVisit);
+        this._saveEncounter(encounterToSchedule, db);
+    }
+
+    saveScheduledVisits(enrolment, nextScheduledVisits, db) {
+        return nextScheduledVisits.map(nSV => this.saveScheduledVisit(enrolment, nSV, db));
+    }
+
     saveOrUpdate(programEncounter, nextScheduledVisits) {
         General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${programEncounter.uuid}`);
         ObservationsHolder.convertObsForSave(programEncounter.observations);
@@ -47,23 +68,7 @@ class ProgramEncounterService extends BaseService {
         const db = this.db;
         this.db.write(() => {
             this._saveEncounter(programEncounter, db);
-
-            nextScheduledVisits.forEach((nextScheduledVisit) => {
-                const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
-                if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
-
-                let encounterToSchedule;
-                if (nextScheduledVisit.uuid) {
-                    encounterToSchedule = this.findByUUID(nextScheduledVisit.uuid, ProgramEncounter.schema.name);
-                    encounterToSchedule.encounterType = encounterType;
-                }
-                if (!encounterToSchedule) {
-                    encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEncounter.programEnrolment);
-                }
-
-                encounterToSchedule.updateSchedule(nextScheduledVisit);
-                this._saveEncounter(encounterToSchedule, db);
-            });
+            this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db);
         });
         return programEncounter;
     }

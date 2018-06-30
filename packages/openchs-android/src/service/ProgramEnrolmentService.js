@@ -1,7 +1,9 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {ProgramEnrolment, Individual, EntityQueue, ProgramEncounter,
-ObservationsHolder, EncounterType, Checklist, ChecklistItem} from "openchs-models";
+import {
+    ProgramEnrolment, Individual, EntityQueue, ProgramEncounter,
+    ObservationsHolder, EncounterType, Checklist, ChecklistItem
+} from "openchs-models";
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
@@ -25,7 +27,10 @@ class ProgramEnrolmentService extends BaseService {
         const db = this.db;
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
-            db.create(ProgramEnrolment.schema.name, {uuid: programEnrolment.uuid, observations: programEnrolment.observations}, true);
+            db.create(ProgramEnrolment.schema.name, {
+                uuid: programEnrolment.uuid,
+                observations: programEnrolment.observations
+            }, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }
@@ -33,22 +38,13 @@ class ProgramEnrolmentService extends BaseService {
     enrol(programEnrolment, checklists, nextScheduledVisits) {
         const db = this.db;
         const entityQueueItems = [];
+        const programEncounterService = this.getService(ProgramEncounterService);
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
-
-            nextScheduledVisits.forEach((nextScheduledVisit) => {
-                const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
-                if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for an encounter type=${nextScheduledVisit.encounterType}, but it doesn't exist`);
-
-                var programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, programEnrolment);
-                programEncounter.updateSchedule(nextScheduledVisit);
-                programEnrolment.addEncounter(programEncounter);
-
-                entityQueueItems.push(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
-            });
+            programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db);
             General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');
 
             checklists.forEach((checklist) => {
