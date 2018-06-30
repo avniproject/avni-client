@@ -1,5 +1,6 @@
 import {assert} from 'chai';
 import Concept from "../src/Concept";
+import _ from 'lodash';
 
 describe('ConceptTest', () => {
     let createNumericConcept = function (lowAbsolute, hiAbsolute, lowNormal, hiNormal) {
@@ -16,13 +17,24 @@ describe('ConceptTest', () => {
         const concept = new Concept();
         concept.datatype = Concept.dataType.Coded;
         concept.answers = [
-            {concept:
-            { uuid: '5a738df9-b09a-4e7d-b683-189a9cdabcad', name: 'Pregnancy Induced Hypertension', datatype: 'NA'},
-        abnormal: true },
-            {concept:
-            { uuid: '2f819f63-2a99-4719-a0c5-49e1386194a0', name: 'Underweight', datatype: 'NA'},
-        abnormal: false }
-
+            {
+                concept:
+                    {uuid: '5a738df9-b09a-4e7d-b683-189a9cdabcad', name: 'Pregnancy Induced Hypertension', datatype: 'NA'},
+                answerOrder: 1,
+                abnormal: true
+            },
+            {
+                concept:
+                    {uuid: Concept.StandardConcepts.OtherConceptUUID, name: 'Other', datatype: 'NA'},
+                answerOrder: 2,
+                abnormal: true
+            },
+            {
+                concept:
+                    {uuid: '2f819f63-2a99-4719-a0c5-49e1386194a0', name: 'Underweight', datatype: 'NA'},
+                answerOrder: 3,
+                abnormal: false
+            }
         ];
         return concept;
     };
@@ -47,13 +59,13 @@ describe('ConceptTest', () => {
     });
 
     it("isAbnormal shows abnormal when ranges provided", () => {
-       const concept = createNumericConcept(10, 20, 5, 50);
-       assert.isTrue(concept.isAbnormal(4));
-       assert.isFalse(concept.isAbnormal(5));
-       assert.isFalse(concept.isAbnormal(6));
-       assert.isFalse(concept.isAbnormal(49));
-       assert.isFalse(concept.isAbnormal(50));
-       assert.isTrue(concept.isAbnormal(51));
+        const concept = createNumericConcept(10, 20, 5, 50);
+        assert.isTrue(concept.isAbnormal(4));
+        assert.isFalse(concept.isAbnormal(5));
+        assert.isFalse(concept.isAbnormal(6));
+        assert.isFalse(concept.isAbnormal(49));
+        assert.isFalse(concept.isAbnormal(50));
+        assert.isTrue(concept.isAbnormal(51));
     });
 
     it("isAbnormal shows abnormal when ranges partially provided", () => {
@@ -76,8 +88,7 @@ describe('ConceptTest', () => {
     });
 
     it("isAbnormal shows abnormal for coded concept observation when answer is abnormal", () => {
-        let concept;
-        concept = createCodedConcept();
+        let concept = createCodedConcept();
         assert.isTrue(concept.isAbnormal(['5a738df9-b09a-4e7d-b683-189a9cdabcad']));
         assert.isFalse(concept.isAbnormal(['2f819f63-2a99-4719-a0c5-49e1386194a0']));
         assert.isTrue(concept.isAbnormal(['2f819f63-2a99-4719-a0c5-49e1386194a0', '5a738df9-b09a-4e7d-b683-189a9cdabcad']));
@@ -85,4 +96,10 @@ describe('ConceptTest', () => {
         assert.isFalse(concept.isAbnormal('2f819f63-2a99-4719-a0c5-49e1386194a0'));
     });
 
+    it('other should be the last answer', function () {
+        let concept = createCodedConcept();
+        let lastConceptAnswer = _.last(concept.getAnswers());
+        let otherConceptUUID = Concept.StandardConcepts.OtherConceptUUID;
+        assert.equal(lastConceptAnswer.concept.uuid, otherConceptUUID);
+    });
 });

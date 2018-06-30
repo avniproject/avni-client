@@ -297,11 +297,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Other",
-    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
-    "dataType": "NA"
-  },
-  {
     "name": "Religion",
     "uuid": "c922c13c-1fa2-42dd-a7e8-d234b0324870",
     "dataType": "Coded",

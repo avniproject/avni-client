@@ -37,6 +37,10 @@ export class ConceptAnswer {
 }
 
 export default class Concept {
+    static StandardConcepts = {
+        OtherConceptUUID: '05ea583c-51d2-412d-ad00-06c432ffe538'
+    };
+
     static schema = {
         name: 'Concept',
         primaryKey: 'uuid',
@@ -184,7 +188,9 @@ export default class Concept {
     }
 
     getAnswers() {
-        return _.sortBy(this.answers, (answer) => answer.answerOrder).filter((ans)=> !ans.voided);
+        return _.sortBy(this.answers, (answer) => {
+            return answer.concept.uuid === Concept.StandardConcepts.OtherConceptUUID ? 99999 : answer.answerOrder;
+        }).filter((ans)=> !ans.voided);
     }
 
     get translatedFieldValue() {

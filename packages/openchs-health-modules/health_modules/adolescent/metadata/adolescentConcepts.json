@@ -320,11 +320,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Other",
-    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
-    "dataType": "NA"
-  },
-  {
     "name": "Reason for dropping out",
     "uuid": "7f0b8b27-af91-43c8-8b69-49402ba9681c",
     "dataType": "Coded",
@@ -386,11 +381,6 @@
   {
     "name": "Joined other business",
     "uuid": "0647b9f1-ee5f-437e-85c9-abc436e9ea96",
-    "dataType": "NA"
-  },
-  {
-    "name": "Other",
-    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
     "dataType": "NA"
   },
   {
@@ -1011,11 +1001,6 @@
   {
     "name": "Job",
     "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914",
-    "dataType": "NA"
-  },
-  {
-    "name": "Other",
-    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
     "dataType": "NA"
   },
   {
