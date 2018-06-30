@@ -23,7 +23,8 @@ class Rule extends ReferenceEntity {
         Decision: "Decision",
         VisitSchedule: "VisitSchedule",
         ViewFilter: "ViewFilter",
-        Checklists: "Checklists"
+        Checklists: "Checklists",
+        Validation: "Validation"
     };
 
     static fromResource(resource, entityService) {
