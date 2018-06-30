@@ -4,7 +4,7 @@
   "formType": "ProgramEncounterCancellation",
   "formElementGroups": [
     {
-      "uuid": "67c567c1-fbef-4343-a779-d9261d947489",
+      "uuid": "32fb721e-a825-4f94-97af-27894bd39720",
       "name": "Cancel Details",
       "displayOrder": 1,
       "display": "Cancel Details",

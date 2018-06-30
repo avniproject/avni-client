@@ -65,6 +65,8 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo
 	$(call upload,encounterTypes,@health_modules/outpatient/metadata/encounterTypes.json)
 	@echo
+	$(call upload,forms,@health_modules/common/metadata/defaultProgramEncounterCancellationForm.json)
+	@echo
 	$(call upload,forms,@health_modules/outpatient/metadata/encounterForm.json)
 	@echo
 	$(call upload,formMappings,@health_modules/outpatient/metadata/formMappings.json)
