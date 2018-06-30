@@ -10,6 +10,7 @@ import {immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";
 
 const MotherEnrolmentDecision = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Decision");
+const MotherEnrolmentValidation = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Validation");
 const MotherEnrolmentFormFilter = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "ViewFilter");
 
 @MotherEnrolmentDecision("b5882c41-1123-460d-b7e8-62d2585a510a", "Mother Program Enrolment Decision", 1.0, {})
@@ -81,6 +82,13 @@ export function validate(programEnrolment) {
     }
 
     return validationResults;
+}
+
+@MotherEnrolmentValidation("7a759faf-27f2-421b-9aa1-fc6ec29a106a", "Mother Enrolment Validation Default", 1.0)
+class MotherEnrolmentValidationErrors {
+    static exec(programEnrolment, validationErrors) {
+        return validate(programEnrolment);
+    }
 }
 
 export function getChecklists(programEnrolment, today) {

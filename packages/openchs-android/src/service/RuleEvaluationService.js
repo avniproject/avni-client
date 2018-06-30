@@ -86,7 +86,14 @@ class RuleEvaluationService extends BaseService {
     }
 
     validateAgainstRule(entity, form, entityName) {
-        return this.entityRulesMap.get(entityName).validate(entity, form);
+        const defaultValidationErrors = [];
+        if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
+        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Validation");
+        const additionalRules = this.getService(RuleService).getApplicableRules(form, "Validation");
+        const validationErrors = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+            .reduce((validationErrors, rule) => rule.fn.exec(entity, validationErrors), defaultValidationErrors);
+        General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
+        return validationErrors;
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
