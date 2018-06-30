@@ -1,4 +1,5 @@
 import _ from "lodash";
+import General from "../utility/General";
 
 class FormQueryResult {
     constructor(queryResult) {
@@ -7,13 +8,13 @@ class FormQueryResult {
 
     forEncounterType(encounterType) {
         this.encounterTypeFilter = true;
-        this.formMappings = _.filter(this.formMappings, (formMapping) => formMapping.observationsTypeEntityUUID === null || formMapping.observationsTypeEntityUUID === encounterType.uuid);
+        this.formMappings = _.filter(this.formMappings, (formMapping) => formMapping.observationsTypeEntityUUID === encounterType.uuid);
         return this;
     }
 
     forProgram(program) {
         this.programFilter = true;
-        this.formMappings = _.filter(this.formMappings, (formMapping) => _.isNil(formMapping.entityUUID) || formMapping.entityUUID === program.uuid);
+        this.formMappings = _.filter(this.formMappings, (formMapping) => formMapping.entityUUID === program.uuid);
         return this;
     }
 

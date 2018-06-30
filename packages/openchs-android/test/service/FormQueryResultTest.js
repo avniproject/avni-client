@@ -23,7 +23,6 @@ describe("FormQueryResult", () => {
         let bProgramEncounterForm = createForm('ProgramEncounter');
         let aProgramExitForm = createForm('ProgramExit');
         let aProgramEncounterCancelForm = createForm('ProgramEncounterCancel');
-        let defaultProgramEncounterCancelForm = createForm('ProgramEncounterCancel');
 
         formMappings = [
             FormMapping.create("a", defaultEncounterForm, null, null),
@@ -31,8 +30,7 @@ describe("FormQueryResult", () => {
             FormMapping.create("c", aProgramEncounterForm, program.uuid, 'firstEncounterTypeUUID'),
             FormMapping.create("d", bProgramEncounterForm, program.uuid, 'secondEncounterTypeUUID'),
             FormMapping.create("e", aProgramExitForm, program.uuid, null),
-            FormMapping.create("f", aProgramEncounterCancelForm, program.uuid, 'firstEncounterTypeUUID'),
-            FormMapping.create("g", defaultProgramEncounterCancelForm, null, null),
+            FormMapping.create("f", aProgramEncounterCancelForm, program.uuid, 'firstEncounterTypeUUID')
         ];
     });
 
@@ -54,6 +52,6 @@ describe("FormQueryResult", () => {
 
     it("can retrieve the program encounter cancel form", () => {
         assert.equal(new FormQueryResult(formMappings).forProgram({uuid: program.uuid}).forFormType('ProgramEncounterCancel').forEncounterType({uuid: 'firstEncounterTypeUUID'}).bestMatch().uuid, 'f');
-        assert.equal(new FormQueryResult(formMappings).forProgram({uuid: program.uuid}).forFormType('ProgramEncounterCancel').forEncounterType({uuid: 'secondEncounterTypeUUID'}).bestMatch().uuid, 'g');
+        assert.equal(new FormQueryResult(formMappings).forProgram({uuid: program.uuid}).forFormType('ProgramEncounterCancel').forEncounterType({uuid: 'secondEncounterTypeUUID'}).bestMatch(), undefined);
     });
 });

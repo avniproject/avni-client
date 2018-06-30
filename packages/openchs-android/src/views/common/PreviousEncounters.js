@@ -11,7 +11,7 @@ import ObservationsSectionTitle from "../common/ObservationsSectionTitle";
 import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
 import FormMappingService from "../../service/FormMappingService";
-import {Form} from 'openchs-models';
+import EncounterService from "../../service/EncounterService";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -38,7 +38,8 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     cancelVisitAction(encounter) {
-        if (encounter.isCancellable()) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter));
+        const encounterService = this.context.getService(EncounterService);
+        if (encounterService.isEncounterTypeCancellable(encounter)) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter));
     }
 
     encounterActions(encounter) {

@@ -75,7 +75,7 @@ class FormMappingService extends BaseService {
             .forEncounterType(encounterType)
             .forProgram(program)
             .bestMatch();
-        return matchingFormMapping && matchingFormMapping.form;
+        return _.isNil(matchingFormMapping) ? null : matchingFormMapping.form;
     }
 }
 
