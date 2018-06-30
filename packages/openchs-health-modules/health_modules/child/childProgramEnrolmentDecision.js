@@ -3,6 +3,7 @@ import {FormElementsStatusHelper, RuleFactory} from "rules-config/rules";
 import ExitFormHandler from "./formFilters/ProgramExitFormHandler";
 
 const EnrolmentDecisions = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "Decision");
+const EnrolmentChecklists = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "Checklists");
 const EnrolmentFilters = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "ViewFilter");
 
 
@@ -32,6 +33,14 @@ const getFormElementsStatuses = (programExit, formElementGroup) => {
     let handler = new ExitFormHandler();
     return FormElementsStatusHelper.getFormElementsStatuses(handler, programExit, formElementGroup);
 };
+
+
+@EnrolmentChecklists("5cd0bf6d-1e62-499b-80f4-c72538992abb", "Child vaccination schedule", 1.0)
+class ChildVaccinationChecklist {
+    static exec(enrolment, checklists = []) {
+        return checklists.concat([childVaccinationSchedule.getVaccSchedule(enrolment)]);
+    }
+}
 
 export {
     getDecisions,

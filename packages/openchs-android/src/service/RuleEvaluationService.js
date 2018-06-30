@@ -103,7 +103,15 @@ class RuleEvaluationService extends BaseService {
     }
 
     getChecklists(enrolment) {
-        return this.entityRulesMap.get('ProgramEnrolment').getChecklists(enrolment);
+        const defaultChecklists = [];
+        const form = this.entityFormMap.get("ProgramEnrolment")(enrolment);
+        if ([enrolment, form].some(_.isEmpty)) return defaultChecklists;
+        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Checklists");
+        const additionalRules = this.getService(RuleService).getApplicableRules(form, "Checklists");
+        const allChecklists = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+            .reduce((checklists, rule) => rule.fn.exec(enrolment, checklists), defaultChecklists);
+        General.logDebug("RuleEvaluationService - Checklists", allChecklists);
+        return allChecklists;
     }
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
