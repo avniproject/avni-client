@@ -18,18 +18,21 @@
             "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": false,
+          "voided": true
         },
         {
           "name": "Birth Defects",
           "uuid": "0e656272-03c2-41a9-8935-60444909082f",
           "keyValues": [],
+          "type": "MultiSelect",
           "concept": {
             "uuid": "408ce177-eac2-4103-8b5e-3f8bc67bea2b",
             "name": "Birth Defects"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": false,
+          "voided": true
         },
         {
           "name": "Registration at",
@@ -41,7 +44,8 @@
             "name": "Registration at"
           },
           "displayOrder": 3,
-          "mandatory": false
+          "mandatory": false,
+          "voided": true
         }
       ]
     }
