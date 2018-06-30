@@ -22,7 +22,8 @@ class Rule extends ReferenceEntity {
     static types = {
         Decision: "Decision",
         VisitSchedule: "VisitSchedule",
-        ViewFilter: "ViewFilter"
+        ViewFilter: "ViewFilter",
+        Checklists: "Checklists"
     };
 
     static fromResource(resource, entityService) {
