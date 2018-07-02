@@ -13,7 +13,7 @@ export class ConceptAnswer {
         properties: {
             uuid: 'string',
             concept: 'Concept',
-            answerOrder: 'int',
+            answerOrder: 'double',
             abnormal: 'bool',
             unique: 'bool',
             voided: {type: 'bool', default: false}
