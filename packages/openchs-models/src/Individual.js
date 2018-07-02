@@ -5,6 +5,7 @@ import Gender from "./Gender";
 import General from "./utility/General";
 import BaseEntity from "./BaseEntity";
 import ProgramEnrolment from "./ProgramEnrolment";
+import IndividualRelationship from "./relationship/IndividualRelationship";
 import Encounter from "./Encounter";
 import Duration from "./Duration";
 import _ from "lodash";
@@ -27,7 +28,8 @@ class Individual extends BaseEntity {
             lowestAddressLevel: 'AddressLevel',
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
-            observations: {type: 'list', objectType: 'Observation'}
+            observations: {type: 'list', objectType: 'Observation'},
+            relationships: {type: 'list', objectType: 'IndividualRelationship'}
         }
     };
 
@@ -48,6 +50,7 @@ class Individual extends BaseEntity {
         individual.observations = [];
         individual.encounters = [];
         individual.enrolments = [];
+        individual.relationships = [];
         individual.lowestAddressLevel = AddressLevel.create("", "", 0, undefined, "");
         return individual;
     }
@@ -103,16 +106,22 @@ class Individual extends BaseEntity {
     }
 
     static merge = (childEntityClass) =>
-        BaseEntity.mergeOn(new Map([[ProgramEnrolment, 'enrolments'], [Encounter, "encounters"]]).get(childEntityClass));
+        BaseEntity.mergeOn(new Map([
+            [ProgramEnrolment, 'enrolments'],
+            [Encounter, "encounters"],
+            [IndividualRelationship, 'relationships']
+        ]).get(childEntityClass));
 
     static associateChild(child, childEntityClass, childResource, entityService) {
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualUUID"), Individual.schema.name);
-        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters"]);
+        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters", "relationships"]);
 
         if (childEntityClass === ProgramEnrolment)
             BaseEntity.addNewChild(child, individual.enrolments);
         else if (childEntityClass === Encounter)
             BaseEntity.addNewChild(child, individual.encounters);
+        else if (childEntityClass === IndividualRelationship)
+            BaseEntity.addNewChild(child, individual.relationships);
         else
             throw `${childEntityClass.name} not support by ${Individual.nameString}`;
 
@@ -305,6 +314,13 @@ class Individual extends BaseEntity {
     addEnrolment(programEnrolment) {
         if (!_.some(this.enrolments, (x) => x.uuid === programEnrolment.uuid)) {
             this.enrolments.push(programEnrolment);
+        }
+    }
+
+    addRelationship(relationship) {
+        if (!_.some(this.relationships, (x) => x.uuid === relationship.uuid)) {
+            this.relationships = _.isEmpty(this.relationships) ? [] : this.relationships;
+            this.relationships.push(relationship);
         }
     }
 

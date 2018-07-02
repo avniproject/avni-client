@@ -16,12 +16,12 @@ class IndividualRelationshipService extends BaseService {
     }
 
     getRelatives(individual) {
-        const relationshipsWithIndividual =  this.db.objects(IndividualRelationship.schema.name).filtered(`voided = false AND (individualA.uuid="${individual.uuid}" OR individualB.uuid="${individual.uuid}")`);
+        const relationshipsWithIndividual = this.db.objects(IndividualRelationship.schema.name).filtered(`voided = false AND (individualA.uuid="${individual.uuid}" OR individualB.uuid="${individual.uuid}")`);
         const relatives = [];
         relationshipsWithIndividual.forEach((relationship) => {
-            if(relationship.individualA.uuid === individual.uuid){
+            if (relationship.individualA.uuid === individual.uuid) {
                 relatives.push(new IndividualRelative(individual, relationship.individualB, relationship.relationship.individualBIsToARelation, relationship.uuid));
-            }else {
+            } else {
                 relatives.push(new IndividualRelative(individual, relationship.individualA, relationship.relationship.individualAIsToBRelation, relationship.uuid));
             }
         });
@@ -47,8 +47,10 @@ class IndividualRelationshipService extends BaseService {
 
     saveOrUpdate(relationship) {
         const db = this.db;
-        this.db.write(()=> {
-            db.create(IndividualRelationship.schema.name, relationship, true);
+        this.db.write(() => {
+            const savedRelationShip = db.create(IndividualRelationship.schema.name, relationship, true);
+            relationship.individualB.addRelationship(savedRelationShip);
+            relationship.individualA.addRelationship(savedRelationShip);
             db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
             General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
         });
