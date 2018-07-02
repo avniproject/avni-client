@@ -25,6 +25,7 @@ import Colors from "./primitives/Colors";
 import MessageService from "../service/MessageService";
 import AuthenticationError from "../service/AuthenticationError";
 import AuthService from "../service/AuthService";
+import RuleService from "../service/RuleService";
 
 const {width, height} = Dimensions.get('window');
 
@@ -102,6 +103,7 @@ class MenuView extends AbstractComponent {
         this.context.getService(RuleEvaluationService).init();
         this.context.getService(ProgramConfigService).init();
         this.context.getService(MessageService).init();
+        this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
         this.setState({syncing: false, error: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
@@ -119,7 +121,7 @@ class MenuView extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            Alert.alert(this.I18n.t("syncError"), error.message , [{
+            Alert.alert(this.I18n.t("syncError"), error.message, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
                 },
