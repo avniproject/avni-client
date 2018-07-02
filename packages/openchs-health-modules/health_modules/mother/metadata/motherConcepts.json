@@ -3163,6 +3163,11 @@
         "abnormal": true
       },
       {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "abnormal": true
+      },
+      {
         "name": "No problem",
         "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
         "unique": true
@@ -3170,7 +3175,17 @@
     ]
   },
   {
-    "name": "How is the Cesarean incision area",
+    "name": "Other breast problems",
+    "uuid": "8cbd5ba9-c6ee-4d27-94ed-280bd88ae990",
+    "dataType": "Text"
+  },
+  {
+    "name": "Discharge from wound",
+    "uuid": "17c81370-0f1d-4cbb-ae30-0f0f6a4a0197",
+    "dataType": "NA"
+  },
+  {
+    "name": "How is the incision area",
     "uuid": "a70eb606-3155-49f1-b2b4-6bc858ea6d31",
     "dataType": "Coded",
     "answers": [
@@ -3187,6 +3202,11 @@
       {
         "name": "Filled with pus",
         "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5",
+        "abnormal": true
+      },
+      {
+        "name": "Discharge from wound",
+        "uuid": "17c81370-0f1d-4cbb-ae30-0f0f6a4a0197",
         "abnormal": true
       },
       {
