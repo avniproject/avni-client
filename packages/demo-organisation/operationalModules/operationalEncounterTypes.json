@@ -19,10 +19,10 @@
     },
     {
       "uuid": "82d5058e-f0ef-43a7-b3b2-6ac00751ef82",
-      "name": "ANC Lab Test Results",
+      "name": "Lab Tests",
       "encounterType": {
         "uuid": "63486b57-67b9-4236-b36c-e7bbe5ac0411",
-        "comment": "ANC Lab Test Results"
+        "comment": "Lab Tests"
       }
     },
     {
