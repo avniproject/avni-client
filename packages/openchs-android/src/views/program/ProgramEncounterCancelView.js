@@ -17,6 +17,7 @@ import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
+import EncounterService from "../../service/EncounterService";
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -52,7 +53,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 };
                 const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.displayName)}, ${this.I18n.t(state.programEncounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForCancellingEncounterType(this.state.programEncounter.encounterType);
+                const form = formMappingService.findFormForCancellingEncounterType(this.state.programEncounter.encounterType, this.state.programEncounter.programEnrolment.program);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
             },
             movedNext: this.scrollToTop
@@ -77,7 +78,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                             actions={Actions}
                             validationResults={this.state.validationResults}
                             filteredFormElements={this.state.filteredFormElements}
-                            formElementsUserState={this.props.state.formElementsUserState}
+                            formElementsUserState={this.state.formElementsUserState}
                         />
                         <WizardButtons previous={{
                             func: () => this.previous(),
