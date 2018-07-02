@@ -741,12 +741,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Blurring of vision",
-    "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
     "name": "White Discharge",
     "uuid": "1ff880ff-477d-4519-a664-a612a393dd60",
     "abnormal": true,
@@ -770,7 +764,7 @@
     "dataType": "NA"
   },
   {
-    "name": "PV bleeding",
+    "name": "Per vaginal bleeding",
     "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
     "abnormal": true,
     "dataType": "NA"
@@ -1317,7 +1311,7 @@
         "abnormal": true
       },
       {
-        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c",
         "abnormal": true
       },
       {
@@ -1862,7 +1856,7 @@
       },
       {
         "abnormal": true,
-        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9"
+        "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c"
       },
       {
         "abnormal": true,
@@ -2082,7 +2076,7 @@
         "abnormal": true
       },
       {
-        "uuid": "81671303-a09c-425f-aa4c-bdafd2de37d9",
+        "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c",
         "abnormal": true
       },
       {
@@ -3270,10 +3264,6 @@
     "lowNormal": 21
   },
   {
-    "name": "Per vaginal bleeding",
-    "uuid": "6471787c-fd94-4231-8d22-90b53bd28788"
-  },
-  {
     "name": "Abortion complaints",
     "uuid": "fc1346b0-57fe-4a84-8d95-f4461d60176f",
     "dataType": "Coded",
@@ -3285,7 +3275,7 @@
       },
       {
         "name": "Per vaginal bleeding",
-        "uuid": "6471787c-fd94-4231-8d22-90b53bd28788",
+        "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
         "abnormal": true
       },
       {
