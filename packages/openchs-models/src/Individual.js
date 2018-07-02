@@ -335,6 +335,10 @@ class Individual extends BaseEntity {
         return _.isEmpty(observationForConcept) ? observationForConcept : observationForConcept.getValue();
     }
 
+    getRelationships() {
+        return _.filter(this.relationships, (v) => !v.voided);
+    }
+
 
     getPreviousEnrolment(programName, enrolmentUUID) {
         const chronologicalEnrolments = this.chronologicalEnrolments;
