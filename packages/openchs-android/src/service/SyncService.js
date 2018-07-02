@@ -48,8 +48,7 @@ class SyncService extends BaseService {
             .then(() => this.getUserInfo())
             .then(() => this.pushTxData(allTxEntityMetaData.slice()))
             .then(() => this.getData(allReferenceDataMetaData))
-            .then(() => this.getData(allTxEntityMetaData))
-            .then(() => this.getService(RuleService).init());
+            .then(() => this.getData(allTxEntityMetaData));
     }
 
     getUserInfo() {
