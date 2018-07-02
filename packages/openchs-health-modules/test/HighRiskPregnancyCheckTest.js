@@ -75,7 +75,7 @@ describe('High Risk Pregnancy Determination', () => {
             });
 
             it("Shouldn't mark high risk if vaginal bleeding is present", () => {
-                enrolment.setObservation("Pregnancy complications", ["PV bleeding"]);
+                enrolment.setObservation("Pregnancy complications", ["Per vaginal bleeding"]);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                 const complications = C.findValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
@@ -214,7 +214,7 @@ describe('High Risk Pregnancy Determination', () => {
             });
 
             it("Should mark high risk if vaginal bleeding is present", () => {
-                programEncounter.setObservation("Pregnancy complications", ["PV bleeding"]);
+                programEncounter.setObservation("Pregnancy complications", ["Per vaginal bleeding"]);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
                 const complications = C.findValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;

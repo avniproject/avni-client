@@ -226,7 +226,7 @@ export function getDecisions(programEncounter, today) {
         function manageVaginalBleeding() {
             let pregnancyComplaints = getObservationValueFromEntireEnrolment("Pregnancy complications");
             var vaginalBleeding = pregnancyComplaints && pregnancyComplaints
-                .indexOf("PV bleeding") >= 0;
+                .indexOf("Per vaginal bleeding") >= 0;
             if (vaginalBleeding && pregnancyPeriodInWeeks > 20) {
                 addComplication('Ante Partum hemorrhage (APH)');
             } else if (vaginalBleeding && pregnancyPeriodInWeeks <= 20) {

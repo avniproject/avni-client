@@ -23,7 +23,7 @@ class ANCFormHandler {
             ['Excessive vomiting and inability to consume anything orally', [1,2]],
             ["Difficulty breathing", [2, 3]],
             ["Fever", []],
-            ["Blurring of vision", [2, 3]],
+            ["Blurred vision", [2, 3]],
             ["Severe headache", [2, 3]],
             ["PV leaking", [2, 3]]]);
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);

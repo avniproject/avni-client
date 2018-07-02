@@ -5,8 +5,8 @@ import {
 } from "./utils";
 
 const highRisk = (enrolment, encounter, today = new Date()) => {
-    const pregnancyComplications = ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurring of vision",
-        "Decreased Foetal movements", "PV bleeding", "PV leaking", "Morning Sickness", "Difficulty breathing", "Severe headache"];
+    const pregnancyComplications = ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurred vision",
+        "Decreased Foetal movements", "Per vaginal bleeding", "PV leaking", "Morning Sickness", "Difficulty breathing", "Severe headache"];
     const highRiskBuilder = new ComplicationsBuilder({
         programEnrolment: enrolment,
         programEncounter: encounter,
