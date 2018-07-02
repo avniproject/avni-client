@@ -36,8 +36,9 @@ class ObservationsHolderActions {
     static toggleMultiSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
-        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
         return newState;
@@ -46,8 +47,9 @@ class ObservationsHolderActions {
     static toggleSingleSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);
-        ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResult(validationResult);
         return newState;
