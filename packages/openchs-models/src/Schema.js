@@ -175,5 +175,12 @@ export default {
                 }
             });
         }
+        if (oldDB.schemaVersion < 66) {
+            const oldConceptAnswers = oldDB.objects('ConceptAnswer');
+            const conceptAnswers = newDB.objects('ConceptAnswer');
+            for (let i = 0; i < oldConceptAnswers.length; i++) {
+                conceptAnswers[i].answerOrder = oldConceptAnswers[i].answerOrder;
+            }
+        }
     }
 };
