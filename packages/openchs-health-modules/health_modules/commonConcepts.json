@@ -678,6 +678,9 @@
       },
       {
         "uuid": "bbbcef7d-45d4-4dee-b04f-3a954a3bb768"
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
       }
     ]
   },
@@ -727,6 +730,11 @@
         "uuid": "83acb3d2-752e-4758-949e-48cc2d5e58cf"
       }
     ]
+  },
+  {
+    "uuid": "ba04b615-f4af-4b5e-87aa-1ce70f28a1b1",
+    "name": "Daily",
+    "dataType": "NA"
   },
   {
     "name": "Identification number",
