@@ -69,7 +69,7 @@ class FormElement {
     }
 
     isSingleSelect() {
-        return this.type === "SingleSelect";
+        return this.type === "SingleSelect" || _.isEmpty(this.type);
     }
 
     get truthDisplayValue() {
@@ -173,18 +173,18 @@ class FormElement {
         if (_.isNil(conflict)) {
             return new ValidationResult(true, this.uuid, null);
         }
-        return new ValidationResult(false, this.uuid, 'uniqueAnswerConflict', { answer: conflict.concept.name });
+        return new ValidationResult(false, this.uuid, 'uniqueAnswerConflict', {answer: conflict.concept.name});
     }
 
     _getSelectedAnswers(value) {
-        return value.isMultipleCoded? value.getValue(): value;
+        return value.isMultipleCoded ? value.getValue() : value;
     }
 
     getUniqueAnswerConflict(selectedUUIDs) {
         const conceptAnswers = this.getAnswers();
-        const selectedConceptAnswers = _.map(selectedUUIDs, (UUID)=> _.find(conceptAnswers, (it)=> it.concept.uuid === UUID));
-        const firstUniqueAnswer = _.find(selectedConceptAnswers, (conceptAnswer)=> _.get(conceptAnswer,'unique'));
-        if(selectedUUIDs.length > 1 && !_.isNil(firstUniqueAnswer)){
+        const selectedConceptAnswers = _.map(selectedUUIDs, (UUID) => _.find(conceptAnswers, (it) => it.concept.uuid === UUID));
+        const firstUniqueAnswer = _.find(selectedConceptAnswers, (conceptAnswer) => _.get(conceptAnswer, 'unique'));
+        if (selectedUUIDs.length > 1 && !_.isNil(firstUniqueAnswer)) {
             return firstUniqueAnswer;
         }
     }
