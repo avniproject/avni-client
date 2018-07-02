@@ -3528,5 +3528,50 @@
     "uuid": "4e49b82f-8526-4b33-8fee-e235188af02d",
     "dataType": "Numeric",
     "unit": "week(s)"
+  },
+  {
+    "uuid": "5e792921-ce4f-4627-a978-7b35df8541dd",
+    "name": "Name of test 1",
+    "dataType": "Text"
+  },
+  {
+    "name": "Date of test 1",
+    "uuid": "5e4a7467-8b93-4865-a3e4-a7b99a1f79eb",
+    "dataType": "Date"
+  },
+  {
+    "uuid": "8b6a4aba-eff1-4c80-bbc6-da851053d56f",
+    "name": "Results of test 1",
+    "dataType": "Text"
+  },
+  {
+    "uuid": "b1bdd11c-b27f-4a12-91a8-5ea3fbbc0e16",
+    "name": "Name of test 2",
+    "dataType": "Text"
+  },
+  {
+    "name": "Date of test 2",
+    "uuid": "60675b11-85a4-41a4-98de-2eb5bc741e06",
+    "dataType": "Date"
+  },
+  {
+    "uuid": "95e1d089-fe86-449b-8ae4-8fbce0a43580",
+    "name": "Results of test 2",
+    "dataType": "Text"
+  },
+  {
+    "uuid": "03449827-f582-4082-b4eb-dad0d33691bd",
+    "name": "Name of test 3",
+    "dataType": "Text"
+  },
+  {
+    "name": "Date of test 3",
+    "uuid": "54817722-281b-4458-ba01-bf67db7c93a8",
+    "dataType": "Date"
+  },
+  {
+    "uuid": "aab92297-7313-4830-b8d2-b53a9accc745",
+    "name": "Results of test 3",
+    "dataType": "Text"
   }
 ]
