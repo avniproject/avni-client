@@ -142,13 +142,23 @@
           "mandatory": true
         },
         {
-          "name": "How is the Cesarean incision area",
+          "name": "Other breast related problems",
+          "uuid": "b7faa7e3-f518-4cf0-8bbc-c10bb49c0b4b",
+          "keyValues": [],
+          "concept": {
+            "uuid": "8cbd5ba9-c6ee-4d27-94ed-280bd88ae990"
+          },
+          "displayOrder": 5.5,
+          "mandatory": true
+        },
+        {
+          "name": "How is the incision area",
           "uuid": "827f5d7c-e0fa-4725-91dd-a7a93149b1ad",
           "keyValues": [],
           "type": "MultiSelect",
           "concept": {
             "uuid": "a70eb606-3155-49f1-b2b4-6bc858ea6d31",
-            "name": "How is the Cesarean incision area"
+            "name": "How is the incision area"
           },
           "displayOrder": 6,
           "mandatory": false

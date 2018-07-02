@@ -18,6 +18,12 @@ class PNCFormHandler {
         statusBuilder.show().when.valueInEntireEnrolment("Date of delivery").asDaysSince.is.greaterThanOrEqualTo(60);
         return statusBuilder.build();
     }
+
+    otherBreastRelatedProblems(programEncounter, formElement){
+        const statusBuilder = new FormElementStatusBuilder({programEncounter: programEncounter, formElement: formElement});
+        statusBuilder.show().when.valueInEncounter("Any breast problems").containsAnswerConceptName("Other");
+        return statusBuilder.build();
+    }
 }
 
 export default PNCFormHandler;
