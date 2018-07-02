@@ -106,7 +106,7 @@ class SystemRecommendationView extends AbstractComponent {
                             </View>
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
-                            <ChecklistDisplay checklists={this.props.checklists} editable={false}/>
+                            {/*<ChecklistDisplay checklists={this.props.checklists} editable={false}/>*/}
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                            next={{
                                                func: () => this.save(),

@@ -52,6 +52,7 @@ import IndividualRelationship from "./src/relationship/IndividualRelationship"
 import IndividualRelative from "./src/relationship/IndividualRelative"
 import Rule from "./src/Rule";
 import RuleDependency from "./src/RuleDependency";
+import ChecklistItemStatus from "./src/ChecklistItemStatus";
 
 export {
     Form,
@@ -108,5 +109,6 @@ export {
     IndividualRelationship,
     IndividualRelative,
     Rule,
-    RuleDependency
+    RuleDependency,
+    ChecklistItemStatus
 };
