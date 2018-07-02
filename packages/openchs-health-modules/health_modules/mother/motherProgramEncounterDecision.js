@@ -133,7 +133,7 @@ export function getDecisions(programEncounter, today) {
         return decisions;
     }
 
-    if (['ANC', 'ANC Lab Test Results'].includes(programEncounter.encounterType.name)) {
+    if (['ANC', 'Lab Tests'].includes(programEncounter.encounterType.name)) {
 
         let decisions = [];
         let enrolmentDecisions = [];
@@ -331,7 +331,7 @@ export function getNextScheduledVisits(programEncounter, config, today) {
 
 const encounterTypeHandlerMap = new Map([
     ['ANC', new ANCFormhandler()],
-    ['ANC Lab Test Results', new ANCLabTestResultsFormHandler()],
+    ['Lab Tests', new ANCLabTestResultsFormHandler()],
     ['PNC', new PNCFormHandler()],
     ['Delivery', new DeliveryFormHandler()],
     ['Abortion', new AbortionFormhandler()]
