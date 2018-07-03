@@ -5,6 +5,7 @@ import ExitFormHandler from "./formFilters/ProgramExitFormHandler";
 const EnrolmentDecisions = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "Decision");
 const EnrolmentChecklists = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "Checklists");
 const EnrolmentFilters = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "ViewFilter");
+const ChildProgramExit = RuleFactory("67165f46-890d-4747-ba9a-dbaa0cfa5353", "ViewFilter");
 
 
 @EnrolmentDecisions("91c75af8-3449-4532-b258-323332de5fcd", "All Enrolment Decisions", 1.0, {})
@@ -18,6 +19,13 @@ class Enrolment {
 class EnrolmentFormFilter {
     static exec(programEnrolment, formElementGroup) {
         return getFormElementsStatuses(programEnrolment, formElementGroup);
+    }
+}
+
+@ChildProgramExit("9c275d3a-c850-4d6e-aa62-58520b747f59", "Child Program exit filters", 1.0)
+class ChildProgramExitFilter {
+    static exec(programExit, formElementGroup) {
+        return getFormElementsStatuses(programExit, formElementGroup);
     }
 }
 
