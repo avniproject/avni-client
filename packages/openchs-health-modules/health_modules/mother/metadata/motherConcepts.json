@@ -1447,6 +1447,11 @@
     "dataType": "Coded",
     "answers": [
       {
+        "comment": "Child born Underweight",
+        "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
+        "abnormal": true
+      },
+      {
         "comment": "Low BMI",
         "uuid": "1faa1253-e4dd-48f1-aea2-c231390f9530",
         "abnormal": true
