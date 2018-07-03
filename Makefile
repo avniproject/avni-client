@@ -120,6 +120,9 @@ local_deploy_apk: ##
 
 openlocation_apk: ## 
 	open packages/openchs-android/android/app/build/outputs/apk
+
+scp_apk:
+	scp packages/openchs-android/android/app/build/outputs/apk/app-release.apk $(host):~/Downloads/
 # </apk>
 
 
