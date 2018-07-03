@@ -1145,5 +1145,10 @@
     "name": "Meconium not passed for more than 48 hours after birth",
     "uuid": "b2837699-5590-47e5-9489-856d185e86df",
     "dataType": "NA"
+  },
+  {
+    "name": "Other Birth Defects",
+    "uuid": "58d9b2d8-1d91-4935-9a55-f35a66964db1",
+    "dataType": "Text"
   }
 ]

@@ -10,6 +10,14 @@ class BirthFormHandler {
         return statusBuilder.build();
     }
 
+    otherBirthDefects(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({
+            programEncounter: programEncounter,
+            formElement: formElement
+        });
+        statusBuilder.show().when.valueInEncounter("Birth Defects").containsAnswerConceptName("Other");
+        return statusBuilder.build();
+    }
 }
 
 export default BirthFormHandler;
