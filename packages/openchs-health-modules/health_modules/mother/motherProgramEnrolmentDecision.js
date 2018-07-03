@@ -8,10 +8,12 @@ import {generateRecommendations, generateReasonsForRecommendations} from './reco
 import {RuleFactory} from 'rules-config/rules';
 import {immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";
+import {FormElementStatusBuilder} from "rules-config/rules";
 
 const MotherEnrolmentDecision = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Decision");
 const MotherEnrolmentValidation = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Validation");
 const MotherEnrolmentFormFilter = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "ViewFilter");
+const MotherExitFormFilter = RuleFactory("e57e2f11-6684-456a-bd00-6511d9b06eaa", "ViewFilter");
 
 @MotherEnrolmentDecision("b5882c41-1123-460d-b7e8-62d2585a510a", "Mother Program Enrolment Decision", 1.0, {})
 class MotherProgramEnrolmentDecisions {
@@ -24,6 +26,44 @@ class MotherProgramEnrolmentDecisions {
 class MotherEnrolmentFormViewFilter {
     static exec(programEnrolment, formElementGroup, today) {
         return getFormElementsStatuses(programEnrolment, formElementGroup, today);
+    }
+}
+
+@MotherExitFormFilter("739ea783-3350-4e73-b389-28f76d668b36", "Mother Exit Form filter", 1.0, {})
+class MotherExitFormViewFilter {
+    dateOfDeath(programExit, formElement) {
+        const statusBuilder = this._getStatusBuilder(programExit, formElement);
+        statusBuilder.show().when.valueInExit("Mother exit reason").containsAnswerConceptName("Death");
+        return statusBuilder.build();
+    }
+
+    deathOccurredAfterHowManyDaysOfDelivery(programExit, formElement) {
+        const statusBuilder = this._getStatusBuilder(programExit, formElement);
+        statusBuilder.show().when.valueInExit("Mother exit reason").containsAnswerConceptName("Death");
+        return statusBuilder.build();
+    }
+
+    causeOfDeath(programExit, formElement) {
+        const statusBuilder = this._getStatusBuilder(programExit, formElement);
+        statusBuilder.show().when.valueInExit("Mother exit reason").containsAnswerConceptName("Death");
+        return statusBuilder.build();
+    }
+
+    placeOfDeath(programExit, formElement) {
+        const statusBuilder = this._getStatusBuilder(programExit, formElement);
+        statusBuilder.show().when.valueInExit("Mother exit reason").containsAnswerConceptName("Death");
+        return statusBuilder.build();
+    }
+
+    _getStatusBuilder(programExit, formElement) {
+        return new FormElementStatusBuilder({
+            programEnrolment: programExit,
+            formElement
+        });
+    }
+
+    static exec(programEnrolment, formElementGroup, today) {
+        return FormElementsStatusHelper.getFormElementsStatuses(new MotherExitFormViewFilter(), programEnrolment, formElementGroup)
     }
 }
 
