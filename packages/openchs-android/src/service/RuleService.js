@@ -15,8 +15,12 @@ class RuleService extends BaseService {
     init() {
         const ruleDependency = this.findOnly(RuleDependency.schema.name);
         if (!ruleDependency) return;
+        /**********/
+        /*variables used inside the eval*/
         let rulesConfig = undefined;
+        let CHSLogger = console.log;
         eval(RuleDependency.getCode(ruleDependency));
+        /**********/
         this.allRules = {...rulesConfig};
         General.logDebug("RuleService", "\n>>>>>>>>>RULES LOADED<<<<<<<<<\n")
     }
