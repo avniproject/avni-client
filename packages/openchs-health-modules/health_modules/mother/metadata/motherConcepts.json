@@ -5,6 +5,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Child born Underweight",
+    "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
+    "dataType": "NA"
+  },
+  {
     "name": "Keep the baby warm",
     "uuid": "d53ccfbc-f5fd-4225-9b28-1736ec6c50b5",
     "dataType": "NA"
@@ -1997,11 +2002,6 @@
         "abnormal": true
       }
     ]
-  },
-  {
-    "name": "Child born Underweight",
-    "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
-    "dataType": "NA"
   },
   {
     "name": "Refer to the hospital immediately for",
