@@ -6,3 +6,4 @@ export * as programEnrolmentDecision from "./health_modules/programEnrolmentDeci
 export * as programEncounterDecision from "./health_modules/programEncounterDecision";
 export customMessages from "./health_modules/customMessages.json";
 export * from 'rules-config/rules';
+export * as C from './health_modules/common.js';
