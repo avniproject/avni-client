@@ -77,7 +77,15 @@ class EntityMetaData {
     }
 
     static individualRelationship() {
-        return {entityName: "IndividualRelationship", entityClass: IndividualRelationship, resourceName: "individualRelationship", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", nameTranslated: false};
+        return {
+            entityName: "IndividualRelationship",
+            entityClass: IndividualRelationship,
+            resourceName: "individualRelationship",
+            resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified",
+            type: "tx",
+            nameTranslated: false,
+            parent: EntityMetaData.individual
+        };
     }
 
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.

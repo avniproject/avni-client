@@ -112,7 +112,17 @@ class Individual extends BaseEntity {
             [IndividualRelationship, 'relationships']
         ]).get(childEntityClass));
 
+    static associateRelationship(child, childEntityClass, childResource, entityService) {
+        var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualAUUID"), Individual.schema.name);
+        individual = General.pick(individual, ["uuid"], ["enrolments", "encounters", "relationships"]);
+        BaseEntity.addNewChild(child, individual.relationships);
+        return individual;
+    }
+
     static associateChild(child, childEntityClass, childResource, entityService) {
+        if (childEntityClass === IndividualRelationship) {
+            return Individual.associateRelationship(child, childEntityClass, childResource, entityService);
+        }
         var individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "individualUUID"), Individual.schema.name);
         individual = General.pick(individual, ["uuid"], ["enrolments", "encounters", "relationships"]);
 
@@ -120,8 +130,6 @@ class Individual extends BaseEntity {
             BaseEntity.addNewChild(child, individual.enrolments);
         else if (childEntityClass === Encounter)
             BaseEntity.addNewChild(child, individual.encounters);
-        else if (childEntityClass === IndividualRelationship)
-            BaseEntity.addNewChild(child, individual.relationships);
         else
             throw `${childEntityClass.name} not support by ${Individual.nameString}`;
 

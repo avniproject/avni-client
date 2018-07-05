@@ -130,8 +130,7 @@ class General {
         const picked = _.pick(from, attributes);
         if (!_.isNil(listAttributes)) {
             listAttributes.forEach((listAttribute) => {
-                picked[listAttribute] = [];
-                from[listAttribute].forEach((item) => picked[listAttribute].push(item));
+                picked[listAttribute] = [...from[listAttribute]];
             });
         }
         return picked;
