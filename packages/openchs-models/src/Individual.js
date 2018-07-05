@@ -347,6 +347,11 @@ class Individual extends BaseEntity {
         return _.filter(this.relationships, (v) => !v.voided);
     }
 
+    get children() {
+        return _.filter(this.getRelationships(), (relation) => {
+            return relation.relationship.individualAIsToBRelation.name == 'mother'
+        }).map((relation) => relation.individualB);
+    }
 
     getPreviousEnrolment(programName, enrolmentUUID) {
         const chronologicalEnrolments = this.chronologicalEnrolments;
