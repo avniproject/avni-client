@@ -125,6 +125,9 @@ function C() {
             _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
                     _.isEmpty(value); 
 
+    this.getYoungestChild = (individual) => {
+        return _.last(_.sortBy(individual.children, (child) => child.dateOfBirth));
+    }
 }
 
 module.exports = new C();
