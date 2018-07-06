@@ -139,30 +139,20 @@ class RuleEvaluationService extends BaseService {
         const conceptService = this.getService(ConceptService);
         const programEnrolmentService = this.getService(ProgramEnrolmentService);
         const programEncounterService = this.getService(ProgramEncounterService);
+        const saveEntityOfType = {
+            "ProgramEnrolment": (enrolment, nextScheduledVisits) =>
+                programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment), nextScheduledVisits),
+            "ProgramEncounter": () => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
+        };
         ["ProgramEnrolment", "ProgramEncounter"].map((schema) => {
             let allEntities = this.getAll(schema).map((entity) => entity.cloneForEdit());
             allEntities.forEach((entity) => {
                 const decisions = this.getDecisions(entity, schema);
                 const nextScheduledVisits = this.getNextScheduledVisits(entity, schema);
-                switch (schema) {
-                    case "ProgramEnrolment": {
-                        conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
-                        conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
-                        const checklists = this.getChecklists(entity);
-                        programEnrolmentService.enrol(entity, checklists, nextScheduledVisits);
-                        break;
-                    }
-                    case "ProgramEncounter": {
-                        conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
-                        conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
-                        programEncounterService.saveOrUpdate(entity, nextScheduledVisits);
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
+                conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
+                saveEntityOfType[schema](entity, nextScheduledVisits);
             });
-
         });
     }
 }
