@@ -27,10 +27,16 @@ class PreviousEncounters extends AbstractComponent {
     editEncounter(encounter) {
         encounter = encounter.cloneForEdit();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        if (encounter.getName() === 'Encounter')
+        if (encounter.getName() === 'Encounter') {
             CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter);
-        else
+        }
+        else if (encounter.isCancelled()) {
+            CHSNavigator.navigateToProgramEncounterCancelView(this, encounter);
+        }
+        else {
             CHSNavigator.navigateToProgramEncounterView(this, encounter);
+        }
+
     }
 
     cancelEncounter(encounter) {
@@ -43,7 +49,7 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     encounterActions(encounter) {
-        return encounter.isCancelled() ? [] : [new ContextAction('edit', () => this.editEncounter(encounter))];
+        return [new ContextAction('edit', () => this.editEncounter(encounter))];
     }
 
     getTitle(encounter) {
@@ -75,7 +81,7 @@ class PreviousEncounters extends AbstractComponent {
                         primaryAction={this.cancelVisitAction(encounter)}
                         title={this.getTitle(encounter)}/>
                     <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
-                        this.props.formType)} observations={encounter.observations}/>
+                        this.props.formType)} observations={encounter.getObservations()}/>
                 </View>}
             />);
         return (
