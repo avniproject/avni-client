@@ -15,6 +15,8 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import FormMappingService from "../../service/FormMappingService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -50,7 +52,9 @@ class IndividualRegisterFormView extends AbstractComponent {
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}
-                                          actions={Actions} validationResults={this.state.validationResults}
+                                          actions={Actions}
+                                          filteredFormElements={this.state.filteredFormElements}
+                                          validationResults={this.state.validationResults}
                                           formElementsUserState={this.state.formElementsUserState}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{

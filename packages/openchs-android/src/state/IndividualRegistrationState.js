@@ -35,6 +35,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.age = this.age;
         newState.ageProvidedInYears = this.ageProvidedInYears;
         newState.form = this.form;
+        newState.filteredFormElements = this.filteredFormElements;
         super.clone(newState);
         return newState;
     }
@@ -60,7 +61,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     validateEntityAgainstRule(ruleService) {
         let validateAgainstRule = ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
-        
+
         return validateAgainstRule;
     }
 
