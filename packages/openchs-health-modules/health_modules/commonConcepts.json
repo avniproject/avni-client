@@ -761,7 +761,16 @@
     "uuid": "739f9a56-c02c-4f81-927b-69842d78c1e8",
     "dataType": "Coded",
     "answers": [
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "comment": "Other"
+      }
     ]
+  },
+  {
+    "name": "Other reason for cancelling",
+    "uuid": "f23251e2-68c6-447b-84c2-285d61e95f0f",
+    "dataType": "Text"
   },
   {
     "name": "Fasting blood glucose",

@@ -18,6 +18,17 @@
           },
           "displayOrder": 1,
           "mandatory": true
+        },
+        {
+          "name": "Other reason",
+          "uuid": "1a04eae4-cb00-4cf9-ae7a-fd080ad637f9",
+          "keyValues": [],
+          "concept": {
+            "uuid":"f23251e2-68c6-447b-84c2-285d61e95f0f",
+            "comment":"Other reason for cancelling"
+          },
+          "displayOrder": 2,
+          "mandatory": true
         }
       ]
     }
