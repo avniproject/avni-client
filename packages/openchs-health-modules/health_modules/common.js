@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
+import getZScore from './child/zScoreCalculator';
 
 function C() {
 
@@ -127,6 +128,12 @@ function C() {
 
     this.getYoungestChild = (individual) => {
         return _.last(_.sortBy(individual.children, (child) => child.dateOfBirth));
+    }
+
+    this.getZScoreFromEncounter = (programEncounter) => {
+        const weight = programEncounter.getObservationValue("Weight");
+        const height = programEncounter.getObservationValue("Height");
+        return getZScore(programEncounter.programEnrolment.individual, programEncounter.encounterDateTime, weight, height);
     }
 }
 
