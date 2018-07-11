@@ -4,8 +4,6 @@ import {AbstractEncounter, ObservationsHolder} from "openchs-models";
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 import {Encounter} from "openchs-models";
-import {ProgramEncounter} from "../../../openchs-models";
-import ProgramConfig from "../../../openchs-models/src/ProgramConfig";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements) {
@@ -26,7 +24,7 @@ class EncounterActionState extends AbstractDataEntryState {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();
         newState.previousEncountersDisplayed = this.previousEncountersDisplayed;
-        if (newState.previousEncountersDisplayed) {
+        if(newState.previousEncountersDisplayed){
             newState.previousEncounters = this.previousEncounters;
         }
         super.clone(newState);
@@ -58,10 +56,6 @@ class EncounterActionState extends AbstractDataEntryState {
 
     validateEntity() {
         return this.encounter.validate();
-    }
-
-    getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, {});
     }
 }
 
