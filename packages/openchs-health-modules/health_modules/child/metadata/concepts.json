@@ -978,17 +978,17 @@
     ]
   },
   {
-    "name": "Proper micturation",
+    "name": "Proper urination",
     "uuid": "23d4fd31-1868-4605-a310-8e7a295cd37f",
     "dataType": "NA"
   },
   {
-    "name": "No micturation",
+    "name": "No urination",
     "uuid": "874d4998-85f8-45a9-ba81-1e187a6b3278",
     "dataType": "NA"
   },
   {
-    "name": "Difficulty in micturation",
+    "name": "Difficulty in urination",
     "uuid": "c97a10fb-10ac-421e-a352-3244ef1753a7",
     "dataType": "NA"
   },
@@ -998,16 +998,16 @@
     "dataType": "Coded",
     "answers": [
       {
-        "name": "Proper micturation",
+        "name": "Proper urination",
         "uuid": "23d4fd31-1868-4605-a310-8e7a295cd37f"
       },
       {
-        "name": "No micturation",
+        "name": "No urination",
         "uuid": "874d4998-85f8-45a9-ba81-1e187a6b3278",
         "abnormal": true
       },
       {
-        "name": "Difficulty in micturation",
+        "name": "Difficulty in urination",
         "uuid": "c97a10fb-10ac-421e-a352-3244ef1753a7",
         "abnormal": true
       }

@@ -58,7 +58,7 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
 
     referralAdvice.addComplication("Child PNC urination related complaints")
         .when.encounterType.equals("Child PNC")
-        .when.valueInEncounter("Child PNC urination related complaints").containsAnswerConceptName("No micturation", "Difficulty in micturation");
+        .when.valueInEncounter("Child PNC urination related complaints").containsAnswerConceptName("No urination", "Difficulty in urination");
 
     referralAdvice.addComplication("Child PNC stool related complaints")
         .when.encounterType.equals("Child PNC")
