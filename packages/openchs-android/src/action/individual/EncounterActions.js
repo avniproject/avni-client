@@ -24,7 +24,7 @@ export class EncounterActions {
         }
 
         const form = context.get(FormMappingService)
-            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
+                            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
@@ -59,7 +59,7 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(IndividualEncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits);
+        context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
         action.cb();
         return state;
     }
