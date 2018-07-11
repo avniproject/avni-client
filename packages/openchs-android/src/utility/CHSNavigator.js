@@ -26,7 +26,10 @@ import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 
 class CHSNavigator {
     static navigateToLoginView(source, allowSkipLogin, backFunction) {
-        TypedTransition.from(source).with({allowSkipLogin: allowSkipLogin, backFunction: backFunction}).to(LoginView, true, _.isNil(backFunction));
+        TypedTransition.from(source).with({
+            allowSkipLogin: allowSkipLogin,
+            backFunction: backFunction
+        }).to(LoginView, true, _.isNil(backFunction));
     }
 
     static navigateToLandingView(source, replace, props) {
@@ -73,7 +76,10 @@ class CHSNavigator {
     }
 
     static navigateToIndividualRegistrationDetails(source, individual, backFunction) {
-        TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
+        TypedTransition.from(source).with({
+            individualUUID: individual.uuid,
+            backFunction: backFunction
+        }).to(IndividualRegistrationDetailView);
     }
 
     static navigateToIndividualRegisterView(source, individualUUID) {
@@ -91,11 +97,11 @@ class CHSNavigator {
         }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, nextScheduledVisits) {
         const onSaveCallback = (source) => {
             TypedTransition.from(source).popToBookmark();
         };
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form);
+        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, nextScheduledVisits, form);
     }
 
     static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form) {
@@ -144,7 +150,10 @@ class CHSNavigator {
     }
 
     static navigateToAddRelativeView(source, individual, onSaveCallback) {
-        TypedTransition.from(source).with({individual: individual, onSaveCallback: onSaveCallback}).to(IndividualAddRelativeView, true);
+        TypedTransition.from(source).with({
+            individual: individual,
+            onSaveCallback: onSaveCallback
+        }).to(IndividualAddRelativeView, true);
     }
 
     static navigateToFamilyDashboardView(source, familyUUID) {

@@ -276,6 +276,33 @@ class Individual extends BaseEntity {
             this.encounters.push(encounter);
     }
 
+    _getEncounters() {
+        return _.chain(this.encounters)
+            .sortBy((encounter) => moment().diff(encounter.encounterDateTime));
+    }
+
+    getEncounters() {
+        return this._getEncounters().value();
+    }
+
+    scheduledEncounters() {
+        return _.filter(this.getEncounters(), (encounter) => !encounter.encounterDateTime);
+    }
+
+    getAllScheduledVisits(currentEncounter) {
+        return _.defaults(this.scheduledEncounters(), [])
+            .filter(encounter => encounter.uuid !== currentEncounter.uuid)
+            .map(_.identity)
+            .map(({uuid, name, encounterType, earliestVisitDateTime, maxVisitDateTime}) => ({
+                    name: name,
+                    encounterType: encounterType.name,
+                    earliestDate: earliestVisitDateTime,
+                    maxDate: maxVisitDateTime,
+                    uuid: uuid
+                }
+            ));
+    }
+
 
     cloneForEdit() {
         const individual = new Individual();

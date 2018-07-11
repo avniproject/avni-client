@@ -6,6 +6,7 @@ import ValidationResult from "./application/ValidationResult";
 import G from "./utility/General";
 import moment from "moment";
 import EncounterType from "./EncounterType";
+import ProgramEncounter from "./ProgramEncounter";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -14,8 +15,10 @@ class Encounter extends AbstractEncounter {
         properties: {
             uuid: 'string',
             encounterType: 'EncounterType',
-            encounterDateTime: 'date',
+            encounterDateTime: {type: 'date', optional: true},
             individual: 'Individual',
+            earliestVisitDateTime: {type: 'date', optional: true},
+            maxVisitDateTime: {type: 'date', optional: true},
             observations: {type: 'list', objectType: 'Observation'}
         }
     };
@@ -41,6 +44,32 @@ class Encounter extends AbstractEncounter {
         resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["individualUUID"] = this.individual.uuid;
         return resource;
+    }
+
+    static createEmptyInstance() {
+        const encounter = new Encounter();
+        encounter.uuid = G.randomUUID();
+        encounter.observations = [];
+        encounter.encounterDateTime = new Date();
+        return encounter;
+    }
+
+    updateSchedule(scheduledVisit) {
+        this.earliestVisitDateTime = scheduledVisit.earliestDate;
+        this.maxVisitDateTime = scheduledVisit.maxDate;
+        this.name = scheduledVisit.name;
+    }
+
+    static createScheduledEncounter(encounterType, individual) {
+        const encounter = Encounter.createEmptyInstance();
+        encounter.encounterType = encounterType;
+        encounter.individual = individual;
+        encounter.encounterDateTime = null;
+        return encounter;
+    }
+
+    getAllScheduledVisits(currentEncounter) {
+        return this.individual.getAllScheduledVisits(currentEncounter);
     }
 
     cloneForEdit() {
