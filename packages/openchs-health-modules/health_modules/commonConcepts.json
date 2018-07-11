@@ -1456,5 +1456,10 @@
         "uuid": "10885638-561a-42b6-8b24-8daa01864c89"
       }
     ]
+  },
+  {
+    "name": "Other symptoms",
+    "uuid": "35690fc1-c7ee-4126-a814-48a95bad485c",
+    "dataType": "Text"
   }
 ]
