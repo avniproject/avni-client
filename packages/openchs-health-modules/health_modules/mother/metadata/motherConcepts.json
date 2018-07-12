@@ -895,9 +895,8 @@
     "dataType": "NA"
   },
   {
-    "name": "PPH",
+    "name": "PPH (postpartum haemorrhage)",
     "uuid": "4ed8b24e-e031-4289-9c1e-70bde07a80a4",
-    "abnormal": true,
     "dataType": "NA"
   },
   {
