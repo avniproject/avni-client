@@ -194,6 +194,10 @@ deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refd
 	cd packages/demo-organisation && make deploy
 # </metadata>
 
+staging-apk: release-staging
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
+
 uat-apk: release-uat
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
