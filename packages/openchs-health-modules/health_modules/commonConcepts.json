@@ -1306,12 +1306,12 @@
     "dataType": "NA"
   },
   {
-    "name": "Term",
+    "name": "Term (37 -38 weeks)",
     "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f",
     "dataType": "NA"
   },
   {
-    "name": "Preterm",
+    "name": "Preterm (<28 weeks)",
     "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657",
     "dataType": "NA"
   },
