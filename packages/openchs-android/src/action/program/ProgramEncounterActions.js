@@ -32,7 +32,9 @@ class ProgramEncounterActions {
             throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType}`);
         }
 
-        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
+            return o.displayOrder
+        }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             throw new Error("No form element group with visible form element");
@@ -66,6 +68,9 @@ class ProgramEncounterActions {
         const newState = state.clone();
         newState.programEncounter.encounterDateTime = action.value;
         newState.handleValidationResults(newState.programEncounter.validate());
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         return newState;
     }
 }
