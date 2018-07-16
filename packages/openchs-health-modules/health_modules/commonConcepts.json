@@ -1306,12 +1306,12 @@
     "dataType": "NA"
   },
   {
-    "name": "Term",
+    "name": "Term (37 -38 weeks)",
     "uuid": "61612a0b-72db-46a8-97d5-d9994d86118f",
     "dataType": "NA"
   },
   {
-    "name": "Preterm",
+    "name": "Preterm (<28 weeks)",
     "uuid": "a382978b-6ae5-4320-8873-7ee80d8c0657",
     "dataType": "NA"
   },
@@ -1371,13 +1371,12 @@
         "name": "No",
         "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
       }
-
     ]
   },
   {
     "uuid": "36525e7b-575f-4b34-aae8-9a031adb84eb",
     "name": "Mother's Name",
-    "dataType":"Text",
+    "dataType": "Text",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
@@ -1461,5 +1460,113 @@
     "name": "Other symptoms",
     "uuid": "35690fc1-c7ee-4126-a814-48a95bad485c",
     "dataType": "Text"
+  },
+  {
+    "name": "Father's Name",
+    "uuid": "cc4e6c8f-99ea-4d47-a672-a6e5b513806d",
+    "dataType": "Text",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "APL",
+    "uuid": "36008c2c-7748-426d-9784-ffc5a267db07",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "BPL",
+    "uuid": "5c9f10e3-3e20-4a3b-a971-f43b40dd017c",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Antyodaya",
+    "uuid": "eace7aa2-8444-4c43-b5aa-8b5ec0b19a20",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Ration Card",
+    "dataType": "Coded",
+    "uuid": "a2d43918-721e-4dbe-9cc9-8363cafa6962",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "answers": [
+      {
+        "name": "APL",
+        "uuid": "36008c2c-7748-426d-9784-ffc5a267db07"
+      },
+      {
+        "name": "BPL",
+        "uuid": "5c9f10e3-3e20-4a3b-a971-f43b40dd017c"
+      },
+      {
+        "name": "Antyodaya",
+        "uuid": "eace7aa2-8444-4c43-b5aa-8b5ec0b19a20"
+      },
+      {
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
+  },
+  {
+    "name": "Literate",
+    "uuid": "13ca5a58-9aa3-4c84-a0f5-1cae268fa4bd",
+    "dataType": "NA"
+  },
+  {
+    "name": "Secondary",
+    "uuid": "e117bee2-f823-4e46-803f-1667c4c3e7cf",
+    "dataType": "NA"
+  },
+  {
+    "name": "Graduate",
+    "uuid": "ca03f17e-07bb-440b-a9e3-f8fdfe0b9389",
+    "dataType": "NA"
+  },
+  {
+    "name": "Post Graduate",
+    "uuid": "b54ddb89-e686-4576-a5e2-5ac2999cd2c7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Uneducated",
+    "uuid": "516640f1-df7f-4746-b71a-0698e8ac29e3",
+    "dataType": "NA"
+  },
+  {
+    "name": "Primary",
+    "uuid": "8fd06d73-aba5-40fe-a92d-32b6bba2e1bd",
+    "dataType": "NA"
+  },
+  {
+    "name": "Education Level",
+    "uuid": "ffd6b888-b2b5-4fcb-82fc-1f81c4c5e620",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Literate",
+        "uuid": "13ca5a58-9aa3-4c84-a0f5-1cae268fa4bd"
+      },
+      {
+        "name": "Secondary",
+        "uuid": "e117bee2-f823-4e46-803f-1667c4c3e7cf"
+      },
+      {
+        "name": "Graduate",
+        "uuid": "ca03f17e-07bb-440b-a9e3-f8fdfe0b9389"
+      },
+      {
+        "name": "Post Graduate",
+        "uuid": "b54ddb89-e686-4576-a5e2-5ac2999cd2c7"
+      },
+      {
+        "name": "Uneducated",
+        "uuid": "516640f1-df7f-4746-b71a-0698e8ac29e3"
+      },
+      {
+        "name": "Primary",
+        "uuid": "8fd06d73-aba5-40fe-a92d-32b6bba2e1bd"
+      }
+    ]
   }
 ]
