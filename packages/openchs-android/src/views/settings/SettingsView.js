@@ -14,6 +14,9 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import I18n from 'react-native-i18n';
+import {Schema}  from 'openchs-models';
+import config from 'react-native-config';
+import {color} from "../primitives/MaterialDesign";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -47,7 +50,16 @@ class SettingsView extends AbstractComponent {
                             selectionFn={(logLevel) => this.state.settings.logLevel === logLevel}
                             validationError={null}
                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+
+                        <View style={Styles.listContainer}>
+                            <Text style={Styles.textList}>Server: <Text style={{color: 'black',fontSize:Styles.normalTextSize}}>{this.state.serverURL}</Text></Text>
+                            <Text style={Styles.textList}>Database Schema : <Text style={{color: 'black',fontSize:Styles.normalTextSize}}>{Schema.schemaVersion}</Text></Text>
+                            <Text style={Styles.textList}>BuildVersion: <Text style={{color: 'black',fontSize:Styles.normalTextSize}}>{config.BUILD_VERSION}</Text></Text>
+                        </View>
+
                     </View>
+
+
                 </CHSContent>
             </CHSContainer>
         );

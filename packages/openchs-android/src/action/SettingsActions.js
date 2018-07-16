@@ -12,11 +12,13 @@ class SettingsActions {
         const userInfo = context.get(UserInfoService).getUserInfo();
         const localeMappings = context.get(EntityService).getAll(LocaleMapping.schema.name);
         const validationResults = settings.validate();
+        const serverURL = settings.serverURL;
         return {
             settings: settings,
             localeMappings: localeMappings,
             validationResults: validationResults,
-            userInfo: userInfo
+            userInfo: userInfo,
+            serverURL: serverURL,
         };
     }
 

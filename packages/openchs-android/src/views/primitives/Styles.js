@@ -1,3 +1,6 @@
+import Distances from "./Distances";
+import Colors from "./Colors";
+
 class Styles {
 }
 
@@ -251,5 +254,32 @@ Styles.basicSecondaryButtonView = {
     justifyContent: 'center',
     paddingHorizontal: 4
 };
+
+Styles.listContainer= {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: Colors.InputBorderNormal,
+    paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+    paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+    marginTop:Styles.VerticalSpacingDisplaySections,
+    marginBottom: Styles.VerticalSpacingDisplaySections
+}
+
+Styles.textList = {
+    flex:1,
+    fontSize: Styles.smallTextSize,
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    color: Styles.greyText,
+    lineHeight: Styles.normalTextSize + 8,
+    marginVertical: 8
+}
+
+// Styles.textListHead = {
+//     fontSize: Styles.normalTextSize,
+//     fontWeight: 'bold',
+//     color: Styles.greyText,
+//     lineHeight: Styles.normalTextSize + 8,
+// }
 
 export default Styles;
