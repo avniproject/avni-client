@@ -165,6 +165,7 @@
   "OnlyLettersAndSpaces": "Required only letters and spaces",
   "Hospital": "Hospital",
   "Required10Digits": "Required 10 digits",
+  "Required1Digit": "Required single digit",
   "uniqueAnswerConflict": "'{{answer}}' cannot be selected with other answers",
   "familyRegistration": "Family Registration",
   "withHighRiskMember": "member at risk",
