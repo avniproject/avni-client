@@ -35,9 +35,6 @@ class RuleService extends BaseService {
         const rules = this.db.objects(Rule.schema.name)
             .filtered(`voided = false and form.uuid=$0 and type=$1`, form.uuid, type)
             .map(_.identity);
-        if(rules.length == 0) {
-            General.logDebug("RuleService", `No Rules of Type ${type} for Form - ${form.name} ${form.uuid} exists`);
-        }
         return _.defaults(rules, [])
             .filter(ar => _.isFunction(this.allRules[ar.fnName]) && _.isFunction(this.allRules[ar.fnName].exec))
             .map(ar => ({...ar, fn: this.allRules[ar.fnName]}));
