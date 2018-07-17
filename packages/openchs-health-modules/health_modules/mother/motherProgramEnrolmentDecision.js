@@ -72,7 +72,7 @@ export function getNextScheduledVisits(enrolment, config, today) {
 }
 
 export function getDecisions(enrolment, context, today) {
-    if (context.usage === ProgramEnrolmentState.UsageKeys.Exit)
+    if (context.usage === 'Exit')
         return {enrolmentDecisions: [], encounterDecisions: []};
 
     let decisions = [];
