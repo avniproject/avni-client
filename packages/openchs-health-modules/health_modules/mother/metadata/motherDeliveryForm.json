@@ -76,13 +76,13 @@
           "mandatory": true
         },
         {
-          "name": "Delivery Outcome",
+          "name": "Pregnancy outcome",
           "uuid": "14ebb121-7602-4644-81b3-6e171cea19ab",
           "keyValues": [],
           "type": "SingleSelect",
           "concept": {
             "uuid": "36b7b1a8-d191-4bbe-ad3c-0e25a48334e0",
-            "name": "Delivery Outcome"
+            "name": "Pregnancy outcome"
           },
           "displayOrder": 3,
           "mandatory": true
