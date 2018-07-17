@@ -5,7 +5,7 @@
   "deleteConfirmation": "Do you want to delete all saved sessions?",
   "validationResult": "Validation Error",
   "numericValueValidation": "Is not a valid number",
-  "emptyValidationMessge": "There is no value specified",
+  "emptyValidationMessage": "There is no value specified",
   "enrolmentDateBeforeRegistrationDate": "Enrolment date cannot be before registration date",
   "exitDateBeforeEnrolmentDate": "Exit date cannot be before enrolment date",
   "encounterDateBeforeRegistrationDate": "Encounter date cannot be before registration date",
