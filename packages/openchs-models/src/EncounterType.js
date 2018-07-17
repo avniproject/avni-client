@@ -1,5 +1,6 @@
 import ReferenceEntity from "./ReferenceEntity";
 import General from "./utility/General";
+import _ from 'lodash';
 
 class EncounterType extends ReferenceEntity {
     static schema = {
