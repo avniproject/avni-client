@@ -9,7 +9,6 @@ import {RuleFactory} from 'rules-config/rules';
 import {immediateReferralAdvice} from './referral';
 import {getHighRiskConditionsInEnrolment} from "./highRisk";
 import {FormElementStatusBuilder} from "rules-config/rules";
-import ProgramEnrolmentState from "../../../openchs-android/src/action/program/ProgramEnrolmentState";
 
 const MotherEnrolmentDecision = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Decision");
 const MotherEnrolmentValidation = RuleFactory("026e2f5c-8670-4e4b-9a54-cb03bbf3093d", "Validation");
@@ -18,7 +17,7 @@ const MotherExitFormFilter = RuleFactory("e57e2f11-6684-456a-bd00-6511d9b06eaa",
 
 @MotherEnrolmentDecision("b5882c41-1123-460d-b7e8-62d2585a510a", "Mother Program Enrolment Decision", 1.0, {})
 class MotherProgramEnrolmentDecisions {
-    static exec(enrolment, decisions, context=ProgramEnrolmentState.UsageKeys, today) {
+    static exec(enrolment, decisions, context={}, today) {
         return getDecisions(enrolment, context, today);
     }
 }
