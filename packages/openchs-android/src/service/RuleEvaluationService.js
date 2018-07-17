@@ -142,7 +142,7 @@ class RuleEvaluationService extends BaseService {
         const saveEntityOfType = {
             "ProgramEnrolment": (enrolment, nextScheduledVisits) =>
                 programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment), nextScheduledVisits),
-            "ProgramEncounter": () => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
+            "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
         };
         ["ProgramEnrolment", "ProgramEncounter"].map((schema) => {
             let allEntities = this.getAll(schema).map((entity) => entity.cloneForEdit());
