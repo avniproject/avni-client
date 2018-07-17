@@ -541,13 +541,16 @@ describe('High Risk Pregnancy Determination', () => {
     });
 
     describe("Under/Old Age Pregnancy", () => {
+        let context;
         const setDOBTo = (age) => {
             referenceDate = new Date(2017, 6, 6);
             dob = moment(referenceDate).subtract(age, 'years').toDate();
             programEncounter = new ProgramEncounter("ANC", referenceDate);
             enrolment = new ProgramEnrolment('Mother', [programEncounter], dob);
+            enrolment.enrolmentDateTime = referenceDate;
             programEncounter.programEnrolment = enrolment;
             enrolment.setObservation('Last menstrual period', moment(referenceDate).subtract(20, "weeks").toDate());
+            context = {usage: 'NonExit', programEnrolment: enrolment};
         };
 
         it("Shouldn't mark high risk if age is 18", () => {
@@ -559,7 +562,7 @@ describe('High Risk Pregnancy Determination', () => {
 
         it("Shouldn't mark high risk if age is equal to 30", () => {
             setDOBTo(30);
-            const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
+            const decisions = motherEnrolmentDecision.getDecisions(enrolment, context, referenceDate).enrolmentDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.be.empty;
         });

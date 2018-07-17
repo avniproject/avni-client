@@ -77,7 +77,7 @@ export function getDecisions(enrolment, context, today) {
 
     let decisions = [];
 
-    _addItems(decisions, programDecision.getDecisions(enrolment, today))
+    _addItems(decisions, programDecision.getDecisions(enrolment, today));
     _addItem(decisions, getHighRiskConditionsInEnrolment(enrolment));
     _addItem(decisions, generateRecommendations(enrolment));
     _addItems(decisions, generateReasonsForRecommendations(enrolment));

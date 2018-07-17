@@ -76,7 +76,9 @@ describe("Malaria medications", () => {
             encounter.observations.push(weightObs);
             encounter.observations.push(paracheckObs);
 
-            encounter.individual.dateOfBirth = moment().subtract(16, 'years').toDate();
+            let now = moment();
+            encounter.encounterDateTime = now.toDate();
+            encounter.individual.dateOfBirth = now.subtract(16, 'years').toDate();
 
             let prescriptions = prescription(encounter);
             let primaquine = _.find(prescriptions, (pres) => pres.medicine === 'Primaquine Tablets');
@@ -181,7 +183,9 @@ describe("Malaria medications", () => {
             encounter.observations.push(weightObs);
             encounter.observations.push(paracheckObs);
 
-            encounter.individual.dateOfBirth = moment().subtract(16, 'years').toDate();
+            let now = moment();
+            encounter.encounterDateTime = now.toDate();
+            encounter.individual.dateOfBirth = now.subtract(16, 'years').toDate();
 
             let prescriptions = prescription(encounter);
             let act = _.find(prescriptions, (pres) => pres.medicine === 'ACT');
