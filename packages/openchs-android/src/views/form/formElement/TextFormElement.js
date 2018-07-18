@@ -1,9 +1,11 @@
 import {TextInput, View} from "react-native";
+import { Text } from 'native-base';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Styles from "../../primitives/Styles";
+import Colors from "../../primitives/Colors";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -17,7 +19,20 @@ class TextFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    render() {
+    renderReadOnly() {
+        return (<View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
+            {this.label}
+            <Text style={[{
+                flex: 1,
+                marginVertical: 0,
+                paddingVertical: 5
+            }, Styles.formBodyText, { color: Colors.InputNormal }]}>
+                {_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}
+            </Text>
+        </View>);
+    }
+
+    renderWritable() {
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
@@ -25,6 +40,10 @@ class TextFormElement extends AbstractFormElement {
                            value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);
+    }
+
+    render() {
+        return this.props.element.editable === false ? this.renderReadOnly() : this.renderWritable();
     }
 
     onInputChange(text) {
