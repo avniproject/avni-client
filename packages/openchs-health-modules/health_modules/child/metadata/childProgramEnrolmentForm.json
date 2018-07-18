@@ -46,6 +46,35 @@
           "displayOrder": 3,
           "mandatory": false,
           "voided": true
+        },
+        {
+          "name": "Are you registering child at birth?",
+          "uuid": "7770dcf2-c2c4-4161-b442-c779ab9725e2",
+          "keyValues": [],
+          "concept": {
+            "uuid": "1ae1338b-fa7f-40c0-b11a-232531eb5919",
+            "comment": "Registration at child birth"
+          },
+          "displayOrder": 4,
+          "mandatory": true
+        },
+        {
+          "uuid": "148d49f3-84ca-4d5d-b89b-7dd8b7d7a902",
+          "name": "Provide current weight",
+          "concept": {
+            "uuid": "75b1656e-2777-4753-9612-ce03a766a5e1"
+          },
+          "displayOrder": 5,
+          "mandatory": true
+        },
+        {
+          "uuid": "f5a4cf17-0b36-41e4-a3b9-6019d67bc7ae",
+          "name": "Provide birth weight",
+          "concept": {
+            "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
+          },
+          "displayOrder": 6,
+          "mandatory": true
         }
       ]
     }
