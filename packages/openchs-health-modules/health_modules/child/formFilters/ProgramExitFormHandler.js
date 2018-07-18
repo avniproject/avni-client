@@ -20,6 +20,18 @@ export default class ProgramExitFormHandler {
         return statusBuilder.build();
     }
 
+    provideBirthWeight(programEnrolment, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment('Registration at child birth').is.yes;
+        return statusBuilder.build();
+    }
+
+    provideCurrentWeight(programEnrolment, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment('Registration at child birth').is.no;
+        return statusBuilder.build();
+    }
+
     _getStatusBuilder(programExit, formElement) {
         return new FormElementStatusBuilder({
             programEnrolment: programExit,

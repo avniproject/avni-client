@@ -627,8 +627,8 @@
         "name": "Other"
       },
       {
-        "uuid":"ebda5e05-a995-43ca-ad1a-30af3b937539",
-        "comment":"None",
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+        "comment": "None",
         "unique": true
       }
     ]
@@ -1155,5 +1155,20 @@
     "name": "Other Birth Defects",
     "uuid": "58d9b2d8-1d91-4935-9a55-f35a66964db1",
     "dataType": "Text"
+  },
+  {
+    "uuid": "1ae1338b-fa7f-40c0-b11a-232531eb5919",
+    "name": "Registration at child birth",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      },
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      }
+    ]
   }
 ]
