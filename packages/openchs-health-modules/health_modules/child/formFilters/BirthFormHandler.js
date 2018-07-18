@@ -18,6 +18,12 @@ class BirthFormHandler {
         statusBuilder.show().when.valueInEncounter("Birth Defects").containsAnswerConceptName("Other");
         return statusBuilder.build();
     }
+
+    birthWeight(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEnrolment('Birth Weight').is.not.defined;
+        return statusBuilder.build();
+    }
 }
 
 export default BirthFormHandler;
