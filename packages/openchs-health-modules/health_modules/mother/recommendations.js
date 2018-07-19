@@ -82,7 +82,7 @@ const institutionalDeliveryReasons = (enrolment, encounter) => {
     reasonsBuilder.addComplication("Hypertension").when.valueInEncounter("Diastolic").greaterThanOrEqualTo(90);
     reasonsBuilder.addComplication("Abnormal Urine Albumin").when.valueInEncounter("Urine Albumin").containsAnyAnswerConceptName("Trace", "+1", "+2", "+3", "+4");
     reasonsBuilder.addComplication("Abnormal Urine Sugar").when.valueInEncounter("Urine Sugar").containsAnyAnswerConceptName("Trace", "+1", "+2", "+3", "+4");
-    reasonsBuilder.addComplication("USG Scanning Report - Number of foetus").when.valueInEncounter("USG Scanning Report - Number of foetus").containsAnyAnswerConceptName("Two", "Three", "More than three");
+    reasonsBuilder.addComplication("Multiple foetuses").when.valueInEncounter("USG Scanning Report - Number of foetus").containsAnyAnswerConceptName("Two", "Three", "More than three");
     reasonsBuilder.addComplication("USG Scanning Report - Liquour").when.valueInEncounter("USG Scanning Report - Liquour").containsAnyAnswerConceptName("Increased", "Decreased");
     reasonsBuilder.addComplication("USG Scanning Report - Placenta Previa").when.valueInEncounter("USG Scanning Report - Placenta Previa").containsAnyAnswerConceptName("Previa");
     reasonsBuilder.addComplication("Foetal presentation").when.valueInEncounter("Foetal presentation").containsAnyAnswerConceptName("Transverse", "Breech");
@@ -108,7 +108,7 @@ const institutionalANCReasons = (enrolment, encounter) => {
     reasonsBuilder.addComplication("Hypertension").when.valueInEncounter("Diastolic").greaterThanOrEqualTo(90);
     reasonsBuilder.addComplication("Abnormal Urine Albumin").when.valueInEncounter("Urine Albumin").containsAnyAnswerConceptName("Trace", "+1", "+2", "+3", "+4");
     reasonsBuilder.addComplication("Abnormal Urine Sugar").when.valueInEncounter("Urine Sugar").containsAnyAnswerConceptName("Trace", "+1", "+2", "+3", "+4");
-    reasonsBuilder.addComplication("USG Scanning Report - Number of foetus").when.valueInEncounter("USG Scanning Report - Number of foetus").containsAnyAnswerConceptName("One", "Two", "Three", "More than three");
+    reasonsBuilder.addComplication("Multiple foetuses").when.valueInEncounter("USG Scanning Report - Number of foetus").containsAnyAnswerConceptName("Two", "Three", "More than three");
     reasonsBuilder.addComplication("USG Scanning Report - Liquour").when.valueInEncounter("USG Scanning Report - Liquour").containsAnyAnswerConceptName("Increased", "Decreased");
     reasonsBuilder.addComplication("USG Scanning Report - Placenta Previa").when.valueInEncounter("USG Scanning Report - Placenta Previa").containsAnyAnswerConceptName("Previa");
     reasonsBuilder.addComplication("Foetal presentation").when.valueInEncounter("Foetal presentation").containsAnyAnswerConceptName("Transverse", "Breech");
@@ -124,4 +124,4 @@ const generateReasonsForRecommendations = (enrolment, encounter) => {
     return [institutionalDeliveryReasons(enrolment, encounter), institutionalANCReasons(enrolment, encounter)];
 };
 
-export { generateRecommendations, generateReasonsForRecommendations };
+export {generateRecommendations, generateReasonsForRecommendations};
