@@ -16,11 +16,11 @@ const treatment = (enrolment, encounter, today) => {
     treatmentBuilder.addComplication("Folic acid (1 OD)")
         .whenItem(trimester).equals(1);
 
-    treatmentBuilder.addComplication("Ferrous Sulphate (100mg)")
+    treatmentBuilder.addComplication("Ferrous Sulphate (100mg) 1 OD")
         .when.valueInEncounter("Hb").greaterThanOrEqualTo(11)
         .and.whenItem(trimester).equalsOneOf(2, 3);
 
-    treatmentBuilder.addComplication("Ferrous Sulphate (200mg)")
+    treatmentBuilder.addComplication("Ferrous Sulphate (200mg) 1 OD")
         .when.valueInEncounter("Hb").greaterThanOrEqualTo(8)
         .and.when.valueInEncounter("Hb").lessThan(11)
         .and.whenItem(trimester).equalsOneOf(2, 3);
