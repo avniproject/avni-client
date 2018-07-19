@@ -80,7 +80,7 @@ class RuleEvaluationService extends BaseService {
         let summaryWithObservations = [];
         summary.forEach((summaryElement) => {
             let concept = conceptService.conceptFor(summaryElement.name);
-            summaryWithObservations.push(Observation.create(concept, concept.getValueWrapperFor(summaryElement.value)));
+            summaryWithObservations.push(Observation.create(concept, concept.getValueWrapperFor(summaryElement.value), summaryElement.abnormal));
         });
         return summaryWithObservations;
     }
