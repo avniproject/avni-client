@@ -121,7 +121,7 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
 
     if (!isPostDelivery) {
         summary.push({name: 'Last menstrual period', value: lmpDate});
-        summary.push({name: 'Gestational Age', value: gestationalAge});
+        summary.push({name: 'Gestational Age', value: gestationalAge, abnormal: gestationalAge > 42});
         summary.push({
             name: 'Estimated Date of Delivery',
             value: programEnrolment.getObservationValue('Estimated Date of Delivery')
