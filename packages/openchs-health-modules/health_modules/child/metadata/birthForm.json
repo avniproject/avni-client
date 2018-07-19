@@ -18,7 +18,8 @@
             "name": "Place of birth",
             "uuid": "fc3f9353-3cf3-426c-91fa-96e5900fd8af"
           },
-          "displayOrder": 1
+          "displayOrder": 1,
+          "mandatory": true
         },
         {
           "name": "Birth weight",
@@ -28,7 +29,8 @@
             "name": "Birth Weight",
             "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
           },
-          "displayOrder": 2
+          "displayOrder": 2,
+          "mandatory": true
         },
         {
           "name": "Gestational age category at birth",
