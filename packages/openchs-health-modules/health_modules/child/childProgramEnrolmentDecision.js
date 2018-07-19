@@ -1,6 +1,7 @@
 import childVaccinationSchedule from './childVaccSchedule';
 import {FormElementsStatusHelper, RuleFactory} from "rules-config/rules";
 import ExitFormHandler from "./formFilters/ProgramExitFormHandler";
+import {FormElementStatusBuilder} from "rules-config";
 
 const EnrolmentDecisions = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "Decision");
 const EnrolmentChecklists = RuleFactory("1608c2c0-0334-41a6-aab0-5c61ea1eb069", "Checklists");
@@ -17,8 +18,27 @@ class Enrolment {
 
 @EnrolmentFilters("43860e9e-a419-435d-a4e9-e4a1961071c4", "All Enrolment Filters", 1.0, {})
 class EnrolmentFormFilter {
+    provideBirthWeight(programEnrolment, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment('Registration at child birth').is.yes;
+        return statusBuilder.build();
+    }
+
+    provideCurrentWeight(programEnrolment, formElement) {
+        const statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment('Registration at child birth').is.no;
+        return statusBuilder.build();
+    }
+
+    _getStatusBuilder(programEnrolment, formElement) {
+        return new FormElementStatusBuilder({
+            programEnrolment,
+            formElement
+        });
+    }
+
     static exec(programEnrolment, formElementGroup) {
-        return getFormElementsStatuses(programEnrolment, formElementGroup);
+        return FormElementsStatusHelper.getFormElementsStatuses(new EnrolmentFormFilter(), programEnrolment, formElementGroup);
     }
 }
 
@@ -70,7 +90,7 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     return summary;
 };
 
-const summaryForObservation = function(conceptName, programEnrolment, summary) {
+const summaryForObservation = function (conceptName, programEnrolment, summary) {
     let observationValue = programEnrolment.getObservationValue(conceptName);
     if (observationValue)
         summary.push({name: conceptName, value: observationValue});
