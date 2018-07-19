@@ -260,8 +260,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 11)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg) 1 OD");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg) 1 OD");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -270,11 +270,11 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 12)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg) 1 OD");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg) 1 OD");
         });
 
-        it("Ferrous Sulphate (200mg) is advised for the last 2 trimesters and when 8g/dl<=Hb<11g/dl", () => {
+        it("Ferrous Sulphate (200mg) 1 OD is advised for the last 2 trimesters and when 8g/dl<=Hb<11g/dl", () => {
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(13, "w").toDate())
                 .build();
@@ -282,8 +282,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg) 1 OD");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg) 1 OD");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(29, "w").toDate())
@@ -292,8 +292,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
+            assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg) 1 OD");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg) 1 OD");
         });
 
 
@@ -305,8 +305,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg) 1 OD");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg) 1 OD");
 
             enrolment = new EnrolmentFiller(programData, individual, new Date())
                 .forConcept("Last menstrual period", moment().subtract(12, "w").toDate())
@@ -315,8 +315,8 @@ describe("Mother Program ANC", () => {
                 .forConcept("Hb", 8)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg)");
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg)");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (100mg) 1 OD");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Treatment"), "Ferrous Sulphate (200mg) 1 OD");
         });
 
         it("Calcium isn't advised in the first trimester of pregnancy", () => {
