@@ -187,12 +187,12 @@ export function getDecisions(programEncounter, today) {
             const urineAlbumin = getObservationValue('Urine Albumin');
             const obsHistory = getObservationValueFromEntireEnrolment('Obstetrics history');
 
-            const mildPreEclempsiaUrineAlbuminValues = ['Trace', '+1', '+2'];
-            const severePreEclempsiaUrineAlbuminValues = ['+3', '+4'];
+            const mildPreEclampsiaUrineAlbuminValues = ['Trace', '+1', '+2'];
+            const severePreEclampsiaUrineAlbuminValues = ['+3', '+4'];
 
             const isBloodPressureHigh = (systolic >= 140) || (diastolic >= 90); //can go in high risk category
-            const urineAlbuminIsMild = C.contains(mildPreEclempsiaUrineAlbuminValues, urineAlbumin);
-            const urineAlbuminIsSevere = C.contains(severePreEclempsiaUrineAlbuminValues, urineAlbumin);
+            const urineAlbuminIsMild = C.contains(mildPreEclampsiaUrineAlbuminValues, urineAlbumin);
+            const urineAlbuminIsSevere = C.contains(severePreEclampsiaUrineAlbuminValues, urineAlbumin);
             const obsHistoryOfPregnancyInducedHypertension = C.contains(obsHistory, 'Pregnancy induced hypertension');
             const hasConvulsions = getObservationValue('Has she been having convulsions?') === "Present"; //will be identified in hospital
             let highRiskConditions = getObservationValueFromEntireEnrolment('High Risk Conditions');

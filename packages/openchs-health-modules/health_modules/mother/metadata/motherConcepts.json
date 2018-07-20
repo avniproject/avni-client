@@ -3529,7 +3529,7 @@
     ]
   },
   {
-    "name": "Gestational age - Doctor's estimate",
+    "name": "Estimated gestational age",
     "uuid": "4e49b82f-8526-4b33-8fee-e235188af02d",
     "dataType": "Numeric",
     "unit": "week(s)"
