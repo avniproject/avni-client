@@ -1568,5 +1568,26 @@
         "uuid": "8fd06d73-aba5-40fe-a92d-32b6bba2e1bd"
       }
     ]
+  },
+  {
+    "name": "mother",
+    "uuid": "2d46ae95-1920-4f74-b8e4-86a68183f6fc",
+    "dataType": "NA"
+  },
+  {
+    "name": "father",
+    "uuid": "95f7b3ad-9a0e-4202-ac44-19e78672b7dc",
+    "dataType": "NA"
+  },
+  {
+    "name": "grandfather",
+    "uuid": "cdad78c8-af9b-4e6c-b5d4-d54c2cc1b33e",
+    "dataType": "NA"
+  },
+  {
+    "name": "grandmother",
+    "uuid": "afdd2740-c46a-4414-8e17-31414b40128a",
+    "dataType": "NA"
   }
+
 ]
