@@ -1588,6 +1588,15 @@
     "name": "grandmother",
     "uuid": "afdd2740-c46a-4414-8e17-31414b40128a",
     "dataType": "NA"
+  },
+  {
+    "uuid": "72fd70f8-65ae-4ac4-8339-6faf455e04f5",
+    "name": "Away from village",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "64f8a277-cd87-4e98-8667-c40f54c76cf6",
+    "name": "Sick",
+    "dataType": "NA"
   }
-
 ]
