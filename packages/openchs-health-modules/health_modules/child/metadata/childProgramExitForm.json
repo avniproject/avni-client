@@ -54,7 +54,19 @@
           },
           "displayOrder": 4,
           "mandatory": false
+        },
+        {
+          "name": "Other reason (Please specify)",
+          "uuid": "cc9ab419-4f09-4812-8292-151f008c6e32",
+          "keyValues": [],
+          "concept": {
+            "name": "Other reason for Program exit",
+            "uuid": "d91a3041-3c1b-440d-9c54-a3c40b6dbff5"
+          },
+          "displayOrder": 5,
+          "mandatory": true
         }
+
       ]
     }
   ]

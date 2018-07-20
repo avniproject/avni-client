@@ -258,6 +258,10 @@
       {
         "name": "Completion",
         "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "name": "Other"
       }
     ]
   },
