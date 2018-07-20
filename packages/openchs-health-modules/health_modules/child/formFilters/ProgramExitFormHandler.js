@@ -20,6 +20,13 @@ export default class ProgramExitFormHandler {
         return statusBuilder.build();
     }
 
+    otherReasonPleaseSpecify(programExit, formElement) {
+        const statusBuilder = this._getStatusBuilder(programExit, formElement);
+        console.log('came to otherReasonPleaseSpecify');
+        statusBuilder.show().when.valueInExit("Reason for child exit").containsAnswerConceptName("Other");
+        return statusBuilder.build();
+    }
+
 
     _getStatusBuilder(programExit, formElement) {
         return new FormElementStatusBuilder({
