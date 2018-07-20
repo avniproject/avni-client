@@ -89,7 +89,7 @@
   "registrationDate": "रजिस्ट्रेशन तारीख",
   "Yes": "हाँ",
   "notEnrolledInAnyProgram": "किसी प्रोग्राम में एनरोल नहीं",
-  "vaccinations": "Vaccinations",
+  "vaccinations": "टीकाकरण",
   "checklists": "चेकलिस्ट",
   "userId": "यूज़र आईडी",
   "password": "पासवर्ड",
@@ -360,5 +360,18 @@
   "Is there any developmental delay or disability seen?": "कोई विकास देरी या विकलांगता",
   "Is baby exclusively breastfeeding": "क्या बच्चा विशेष रूप से स्तनपान कर रहा है",
   "Chronic Illness": "लंबी बीमारी",
-  "Scheduled": "निर्धारित"
+  "scheduled": "निर्धारित",
+  "Away from village": "गांव से बाहर",
+  "Sick": "बीमार",
+  "Other reason": "अन्य वजह",
+  "Cancel reason": "विजिट रद्द करने का कारण",
+  "Cancel Details": "रद्दीकरण विवरण",
+  "Shifted to other geographical area": "अन्य भौगोलिक क्षेत्र में स्थानांतरित",
+  "Death": "मृत्यु",
+  "Date of Death": "मृत्यु तिथि",
+  "Cause of Death" : "मृत्यु का कारण",
+  "Place of Death": "मृत्यु की जगह",
+  "Completion": "समापन",
+  "Reason for exit": "प्रोग्राम बाहर निकलने का कारण",
+  "Growth Chart": "विकास चार्ट"
 }

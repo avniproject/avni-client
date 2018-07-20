@@ -77,7 +77,7 @@ class ProgramActionsView extends AbstractComponent {
                     :
                     <View/>}
                 {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.goToView(button),
-                    Styles.basicPrimaryButtonView, button.label, Colors.TextOnPrimaryColor, index))}
+                    Styles.basicPrimaryButtonView, this.I18n.t(button.label), Colors.TextOnPrimaryColor, index))}
             </View>
         );
     }

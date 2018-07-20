@@ -6,7 +6,7 @@ const filters = RuleFactory("aac5c57a-aa01-49bb-ad20-70536dd2907f", "ViewFilter"
 class CancellationFormFilters {
 
     otherReason(programEncounter, formElement) {
-        const cancelReasonObs = _.find(programEncounter.cancelObservations, { concept: { name: 'Visit cancel reason' } });
+        const cancelReasonObs = programEncounter.findCancelEncounterObservation('Visit cancel reason');
         const answer = cancelReasonObs && cancelReasonObs.getReadableValue();
         return new FormElementStatus(formElement.uuid, answer === 'Other');
     }
