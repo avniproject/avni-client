@@ -1120,5 +1120,24 @@
     "Used Mitra Helpline": "મિત્ર હેલ્પલાઇન નો ઉપયોગ",
     "Are you satisfied with the counseling service provided through helpline?": "શું તમે હેલ્પલાઇન દ્વારા પૂરી પાડવામાં આવતી સલાહ સેવાથી સંતુષ્ટ છો?",
     "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ"
+  },
+  "hi_IN": {
+    "Nayak": "नायक",
+    "Ahirwar": "अहिरवार",
+    "Vishwakarma": "विश्वकर्मा",
+    "Labour": "मजदूरी",
+    "Farming": "खेती",
+    "Job": "नौकरी ",
+    "Business": "व्यापार",
+    "Don't know": "पता नहीं",
+    "Housework": "घर का काम",
+    "Literate": "साक्षर",
+    "Secondary": "माध्यमिक",
+    "Graduate": "स्नातक",
+    "Post Graduate": "स्नातकोत्तर",
+    "Uneducated": "अशिक्षित",
+    "Primary": "प्राथमिक",
+    "Phulwari": "फुलवारी",
+    "Basic Details": "मूल विवरण"
   }
 }
