@@ -100,7 +100,7 @@ class RuleEvaluationService extends BaseService {
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
         const defaultVistSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
-        if ([entity, form].some(_.isEmpty)) return defaultVistSchedule;
+        if ([entity, form, _.get(entity, 'getAllScheduledVisits')].some(_.isEmpty)) return defaultVistSchedule;
         const applicableRules = RuleRegistry.getRulesFor(form.uuid, "VisitSchedule");
         const additionalRules = this.getService(RuleService).getApplicableRules(form, "VisitSchedule");
         const scheduledVisits = entity.getAllScheduledVisits(entity);
