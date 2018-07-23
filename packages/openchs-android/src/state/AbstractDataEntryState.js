@@ -170,6 +170,10 @@ class AbstractDataEntryState {
     hasNoFormElements() {
         return _.isEmpty(this.filteredFormElements);
     }
+
+    getNextScheduledVisits(ruleService, context) {
+        return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+    }
 }
 
 export default AbstractDataEntryState;
