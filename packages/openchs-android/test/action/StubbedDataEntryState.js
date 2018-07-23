@@ -26,6 +26,10 @@ class StubbedDataEntryState extends AbstractDataEntryState {
     getEntityType() {
         return 'Foo';
     }
+
+    getNextScheduledVisits(){
+        return [];
+    }
 }
 
 export default StubbedDataEntryState;
