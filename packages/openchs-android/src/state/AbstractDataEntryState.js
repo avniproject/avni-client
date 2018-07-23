@@ -168,7 +168,7 @@ class AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return _.isEmpty(ruleService) ? null : ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+        return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
     }
 }
 

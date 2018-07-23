@@ -13,6 +13,10 @@ class StubbedRuleEvaluationService {
         if (formElementGroup) return formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
         return [];
     }
+
+    getNextScheduledVisits() {
+        return null;
+    }
 }
 
 export default StubbedRuleEvaluationService;
