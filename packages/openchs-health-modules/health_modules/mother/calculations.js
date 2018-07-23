@@ -1,5 +1,6 @@
 import C from "../common";
 import _ from "lodash";
+import moment from 'moment';
 
 const lmp = (programEnrolment) => {
     return programEnrolment.getObservationValue('Last menstrual period');
@@ -21,4 +22,13 @@ const estimatedDateOfDelivery = (programEnrolment) => {
     return C.addDays(C.addMonths(lmp(programEnrolment), 9), 7);
 };
 
-export {gestationalAgeAsOn, gestationalAgeCategoryAsOn, estimatedDateOfDelivery};
+const gestationalAgeAsOfToday = (estimatedGestationalAgeInWeeks, estimatedOnDate, today) => {
+    return moment(today).diff(estimatedOnDate, 'weeks') + estimatedGestationalAgeInWeeks;
+};
+
+const eddBasedOnGestationalAge = (estimatedGestationalAgeInWeeks, estimatedOnDate) => {
+    let edd = moment(estimatedOnDate).add(40 - estimatedGestationalAgeInWeeks, 'weeks');
+    return edd.toDate();
+};
+
+export {gestationalAgeAsOn, gestationalAgeCategoryAsOn, estimatedDateOfDelivery, gestationalAgeAsOfToday, eddBasedOnGestationalAge};

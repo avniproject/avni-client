@@ -63,6 +63,10 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [..._.get(programConfig, "visitSchedule", [])]
             .map(k => Object.assign({}, k)));
     }
+
+    getEffectiveDataEntryDate() {
+        return this.programEncounter.encounterDateTime;
+    }
 }
 
 export default ProgramEncounterState;
