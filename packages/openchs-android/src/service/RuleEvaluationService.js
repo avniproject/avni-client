@@ -62,9 +62,7 @@ class RuleEvaluationService extends BaseService {
             "registrationDecisions": []
         };
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
-        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Decision");
-        const additionalRules = this.getService(RuleService).getApplicableRules(form, "Decision");
-        const decisions = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+        const decisions = this.getAllRuleItemsFor(form, "Decision")
             .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), defaultDecisions);
         General.logDebug("RuleEvaluationService", decisions);
         return decisions;
@@ -89,9 +87,7 @@ class RuleEvaluationService extends BaseService {
     validateAgainstRule(entity, form, entityName) {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
-        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Validation");
-        const additionalRules = this.getService(RuleService).getApplicableRules(form, "Validation");
-        const validationErrors = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+        const validationErrors = this.getAllRuleItemsFor(form, "Validation")
             .reduce((validationErrors, rule) => rule.fn.exec(entity, validationErrors), defaultValidationErrors);
         General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
         return validationErrors;
@@ -101,10 +97,8 @@ class RuleEvaluationService extends BaseService {
         const defaultVistSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
         if ([entity, form, _.get(entity, 'getAllScheduledVisits')].some(_.isEmpty)) return defaultVistSchedule;
-        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "VisitSchedule");
-        const additionalRules = this.getService(RuleService).getApplicableRules(form, "VisitSchedule");
         const scheduledVisits = entity.getAllScheduledVisits(entity);
-        const nextVisits = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+        const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule")
             .reduce((schedule, rule) => rule.fn.exec(entity, schedule, visitScheduleConfig), scheduledVisits);
         General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
         return nextVisits;
@@ -114,9 +108,7 @@ class RuleEvaluationService extends BaseService {
         const defaultChecklists = [];
         const form = this.entityFormMap.get("ProgramEnrolment")(enrolment);
         if ([enrolment, form].some(_.isEmpty)) return defaultChecklists;
-        const applicableRules = RuleRegistry.getRulesFor(form.uuid, "Checklists");
-        const additionalRules = this.getService(RuleService).getApplicableRules(form, "Checklists");
-        const allChecklists = _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+        const allChecklists = this.getAllRuleItemsFor(form, "Checklists")
             .reduce((checklists, rule) => rule.fn.exec(enrolment, checklists), defaultChecklists);
         General.logDebug("RuleEvaluationService - Checklists", allChecklists);
         return allChecklists;
@@ -124,16 +116,21 @@ class RuleEvaluationService extends BaseService {
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
-        const applicableRules = RuleRegistry.getRulesFor(formElementGroup.form.uuid, "ViewFilter");
-        const additionalRules = this.getService(RuleService).getApplicableRules(formElementGroup.form, "ViewFilter");
+        const allRules = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter");
         const defaultFormElementStatus = formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
-        if (_.isEmpty(additionalRules.concat(applicableRules))) return defaultFormElementStatus;
-        return [..._.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder)
+        if (_.isEmpty(allRules)) return defaultFormElementStatus;
+        return [...allRules
             .map(r => r.fn.exec(entity, formElementGroup, new Date()))
             .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
             .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
             .values()];
+    }
+
+    getAllRuleItemsFor(form, type) {
+        const applicableRules = RuleRegistry.getRulesFor(form.uuid, type);
+        const additionalRules = this.getService(RuleService).getApplicableRules(form, type);
+        return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
 
     runOnAll() {
