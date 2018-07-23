@@ -130,10 +130,6 @@ class AbstractDataEntryState {
         return null;
     }
 
-    getNextScheduledVisits(ruleService, context) {
-        return null;
-    }
-
     validateEntity() {
         throw Error('Should be overridden');
     }
@@ -172,7 +168,7 @@ class AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+        return _.isEmpty(ruleService) ? null : ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
     }
 }
 
