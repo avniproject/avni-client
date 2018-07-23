@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {ObservationsHolder, ProgramEncounter} from "openchs-models";
+import {ObservationsHolder, Form} from "openchs-models";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter, filteredFormElements) {
@@ -13,7 +13,7 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     getEntityType() {
-        return ProgramEncounter.schema.name;
+        return Form.formTypes.ProgramEncounterCancellation;
     }
 
     static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements) {
@@ -22,8 +22,7 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     clone() {
-        let programEncounterCancelState = new ProgramEncounterCancelState(this.formElementGroup, this.wizard.clone(), this.programEncounter.cloneForEdit(), this.filteredFormElements);
-        return programEncounterCancelState;
+        return new ProgramEncounterCancelState(this.formElementGroup, this.wizard.clone(), this.programEncounter.cloneForEdit(), this.filteredFormElements);
     }
 
     get observationsHolder() {
