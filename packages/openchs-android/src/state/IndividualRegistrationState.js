@@ -60,9 +60,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        let validateAgainstRule = ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
-
-        return validateAgainstRule;
+        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
     }
 
     executeRule(ruleService, context) {
@@ -70,6 +68,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         context.get(ConceptService).addDecisions(this.individual.observations, decisions.registrationDecisions);
 
         return decisions;
+    }
+
+    getEffectiveDataEntryDate() {
+        return this.individual.registrationDate;
     }
 }
 

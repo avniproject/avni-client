@@ -32,6 +32,10 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     validateEntity() {
         return [];
     }
+
+    getEffectiveDataEntryDate() {
+        return this.programEncounter.cancelDateTime;
+    }
 }
 
 export default ProgramEncounterCancelState;

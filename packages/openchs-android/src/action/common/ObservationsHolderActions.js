@@ -62,7 +62,7 @@ class ObservationsHolderActions {
             dateValue = action.value;
         } else {
             const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
-            dateValue = duration.dateInPastBasedOnToday();
+            dateValue = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
             newState.formElementsUserState[action.formElement.uuid] = {durationUnit: action.duration.durationUnit};
         }
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, dateValue);

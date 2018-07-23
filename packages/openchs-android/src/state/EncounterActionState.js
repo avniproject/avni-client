@@ -57,6 +57,10 @@ class EncounterActionState extends AbstractDataEntryState {
     validateEntity() {
         return this.encounter.validate();
     }
+
+    getEffectiveDataEntryDate() {
+        return this.encounter.encounterDateTime;
+    }
 }
 
 export default EncounterActionState;

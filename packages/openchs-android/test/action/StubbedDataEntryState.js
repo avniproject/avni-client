@@ -27,8 +27,12 @@ class StubbedDataEntryState extends AbstractDataEntryState {
         return 'Foo';
     }
 
-    getNextScheduledVisits(){
+    getNextScheduledVisits() {
         return [];
+    }
+
+    getEffectiveDataEntryDate() {
+        return new Date();
     }
 }
 

@@ -1,5 +1,6 @@
 import C from '../common';
 import _ from "lodash";
+import {gestationalAgeAsOfToday} from './calculations';
 import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
 
 const getNextScheduledVisits = require('./motherVisitSchedule').getNextScheduledVisits;
@@ -49,7 +50,7 @@ const getDecisions = function (programEnrolment, today, programEncounter) {
         if (programEnrolment.getObservationValue('Gravida') >= 5)
             addIfNotExists('Grand Multipara');
 
-        if (programEnrolment.getObservationValue('Gravida') == 1)
+        if (programEnrolment.getObservationValue('Gravida') === 1)
             addIfNotExists('Primigravida');
     }
 
@@ -114,14 +115,20 @@ const getEnrolmentSummary = function (programEnrolment, context, today) {
     let summary = [];
     const lmpDate = programEnrolment.getObservationValue('Last menstrual period');
     let daysFromLMP = C.getDays(lmpDate, today);
-    let gestationalAge = _.floor(daysFromLMP / 7, 0);
+    let estimatedGestationalAgeWithDate = programEnrolment.findObservationValueInEntireEnrolment('Gestational age', false);
+    let gestationalAge;
+    if (_.isNil(estimatedGestationalAgeWithDate)) {
+        gestationalAge = _.floor(daysFromLMP / 7, 0);
+    } else {
+        gestationalAge = gestationalAgeAsOfToday(estimatedGestationalAgeWithDate.value, estimatedGestationalAgeWithDate.date, today);
+    }
 
     const postDeliveryEncounterTypes = ["Delivery", "PNC"];
     const isPostDelivery = programEnrolment.hasAnyOfEncounterTypes(postDeliveryEncounterTypes);
 
     if (!isPostDelivery) {
         summary.push({name: 'Last menstrual period', value: lmpDate});
-        summary.push({name: 'Gestational Age', value: gestationalAge, abnormal: gestationalAge > 42});
+        summary.push({name: 'Current gestational age', value: gestationalAge, abnormal: gestationalAge > 42});
         summary.push({
             name: 'Estimated Date of Delivery',
             value: programEnrolment.getObservationValue('Estimated Date of Delivery')

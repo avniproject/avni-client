@@ -13,13 +13,14 @@ import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
 import generateHighRiskConditionAdvice, {getHighRiskConditionsInDeliveryEncounter} from "./highRisk";
-import {gestationalAgeCategoryAsOn} from "./calculations";
+import {gestationalAgeCategoryAsOn, eddBasedOnGestationalAge} from "./calculations";
 import {FormElementsStatusHelper} from "rules-config/rules";
 
 const ANCFormDecision = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "Decision");
 const PNCFormDecision = RuleFactory("78b1400e-8100-4ba6-b78e-fef580f7fb77", "Decision");
 const AbortionDecision = RuleFactory("32428a7e-d553-4172-b697-e8df3bbfb61d", "Decision");
 const DeliveryDecision = RuleFactory("cc6a3c6a-c3cc-488d-a46c-d9d538fcc9c2", "Decision");
+const LabTestsDecision = RuleFactory("9ed7e0a9-6122-41ee-8413-1cef6792e2c6", "Decision");
 const ANCFormFilters = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "ViewFilter");
 const PNCFormFilters = RuleFactory("78b1400e-8100-4ba6-b78e-fef580f7fb77", "ViewFilter");
 const AbortionFormFilters = RuleFactory("32428a7e-d553-4172-b697-e8df3bbfb61d", "ViewFilter");
@@ -77,6 +78,13 @@ class AllAbortionFormDecision {
 
 @DeliveryDecision("06b9f646-33d9-4462-8a51-c922fe7d2ef3", "All Delivery Form Decisions", 1.0)
 class AllDeliveryFormDecision {
+    static exec(programEncounter, decisions, context, today) {
+        return getDecisions(programEncounter, today);
+    }
+}
+
+@LabTestsDecision("cc983f4f-4a10-4559-97f1-fbeeaec04449", "Lab Tests Form Decisions", 1.0)
+class ANCLabTestDecision {
     static exec(programEncounter, decisions, context, today) {
         return getDecisions(programEncounter, today);
     }
@@ -154,6 +162,7 @@ export function getDecisions(programEncounter, today) {
         analyseConvulsions();
         analyseAbdominalExamination();
         analyseOtherRisks();
+        determineDurationOfPregnancy();
 
         function addComplicationsObservation() {
             decisions.push({name: 'High Risk Conditions', value: []})
@@ -283,6 +292,13 @@ export function getDecisions(programEncounter, today) {
             }
             if (foetalMovements === 'Reduced') {
                 addComplication('Foetal movements reduced');
+            }
+        }
+
+        function determineDurationOfPregnancy() {
+            let estimatedGestationalAge = programEncounter.getObservationReadableValue('Gestational age');
+            if (!_.isNil(estimatedGestationalAge)) {
+                enrolmentDecisions.push({name: "Estimated Date of Delivery", value: eddBasedOnGestationalAge(estimatedGestationalAge, programEncounter.encounterDateTime)});
             }
         }
 

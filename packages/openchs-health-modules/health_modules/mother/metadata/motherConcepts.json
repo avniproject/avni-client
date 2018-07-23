@@ -933,8 +933,14 @@
     "dataType": "NA"
   },
   {
-    "name": "Gestational Age",
+    "name": "Gestational age",
     "uuid": "4b7fcf0b-3ecb-49fe-882d-959b58e7229d",
+    "dataType": "Numeric",
+    "unit": "week(s)"
+  },
+  {
+    "name": "Current gestational age",
+    "uuid": "4e49b82f-8526-4b33-8fee-e235188af02d",
     "dataType": "Numeric",
     "unit": "week(s)"
   },
@@ -3527,12 +3533,6 @@
         "uuid": "d56700ea-fac8-4255-8403-7f8f3b755335"
       }
     ]
-  },
-  {
-    "name": "Estimated gestational age",
-    "uuid": "4e49b82f-8526-4b33-8fee-e235188af02d",
-    "dataType": "Numeric",
-    "unit": "week(s)"
   },
   {
     "uuid": "5e792921-ce4f-4627-a978-7b35df8541dd",

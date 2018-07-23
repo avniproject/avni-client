@@ -212,6 +212,15 @@ class ProgramEnrolment extends BaseEntity {
         return this._getEncounters(removeCancelledEncounters).value();
     }
 
+    findObservationValueInEntireEnrolment(conceptName, checkInEnrolment) {
+        let encounters = _.reverse(this.getEncounters(true));
+        let observationWithDate = this._findObservationWithDateFromEntireEnrolment(conceptName, encounters, checkInEnrolment);
+        if (_.isNil(observationWithDate.observation)) {
+            observationWithDate = {observation: this.findObservation(conceptName), date: this.enrolmentDateTime};
+        }
+        return _.isNil(observationWithDate.observation) ? undefined : {value: observationWithDate.observation.getReadableValue(), date: observationWithDate.date};
+    }
+
     findObservationInEntireEnrolment(conceptName, currentEncounter, latest = false) {
         let encounters = _.chain(this.getEncounters())
             .filter((enc) => currentEncounter ? enc.uuid !== currentEncounter.uuid : true)
@@ -306,16 +315,22 @@ class ProgramEnrolment extends BaseEntity {
 
 
     _findObservationFromEntireEnrolment(conceptName, encounters, checkInEnrolment = true) {
-        var observation;
-        for (var i = 0; i < encounters.length; i++) {
+        return this._findObservationWithDateFromEntireEnrolment(conceptName, encounters, checkInEnrolment).observation;
+    }
+
+    _findObservationWithDateFromEntireEnrolment(conceptName, encounters, checkInEnrolment = true) {
+        let observation;
+        let encounter;
+        for (let i = 0; i < encounters.length; i++) {
+            encounter = encounters[i];
             observation = encounters[i].findObservation(conceptName);
             if (!_.isNil(observation)) break;
         }
 
         if (_.isNil(observation) && checkInEnrolment)
-            return this.findObservation(conceptName);
+            return {observation: this.findObservation(conceptName), date: this.enrolmentDateTime};
 
-        return observation;
+        return {observation: observation, date: encounter.encounterDateTime};
     }
 
     getObservationReadableValueInEntireEnrolment(conceptName, programEncounter) {

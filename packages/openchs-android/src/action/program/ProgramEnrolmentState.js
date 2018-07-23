@@ -93,6 +93,10 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     static isInitialised(programEnrolmentState) {
         return !_.isNil(programEnrolmentState.enrolment);
     }
+
+    getEffectiveDataEntryDate() {
+        return this.enrolment.enrolmentDateTime;
+    }
 }
 
 export default ProgramEnrolmentState;

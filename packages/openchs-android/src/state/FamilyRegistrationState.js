@@ -53,9 +53,11 @@ class FamilyRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        let validateAgainstRule = ruleService.validateAgainstRule(this.family, this.formElementGroup.form, 'Family');
-        
-        return validateAgainstRule;
+        return ruleService.validateAgainstRule(this.family, this.formElementGroup.form, 'Family');
+    }
+
+    getEffectiveDataEntryDate() {
+        return this.family.registrationDate;
     }
 }
 
