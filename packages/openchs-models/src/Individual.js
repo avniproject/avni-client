@@ -347,9 +347,13 @@ class Individual extends BaseEntity {
         return _.filter(this.relationships, (v) => !v.voided);
     }
 
-    get children() {
+    getRelative(relationName, inverse = false) {
+        return _.head(this.getRelatives(relationName, inverse));
+    }
+
+    getRelatives(relationName, inverse = false) {
         return _.filter(this.getRelationships(), (relation) => {
-            return relation.relationship.individualAIsToBRelation.name == 'mother'
+            return inverse ? relation.relationship.individualAIsToBRelation.name === relationName : relation.relationship.individualBIsToARelation.name === relationName;
         }).map((relation) => relation.individualB);
     }
 
