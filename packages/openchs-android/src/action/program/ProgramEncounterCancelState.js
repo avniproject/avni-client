@@ -36,6 +36,10 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     getEffectiveDataEntryDate() {
         return this.programEncounter.cancelDateTime;
     }
+
+    getNextScheduledVisits(ruleService, context) {
+        return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+    }
 }
 
 export default ProgramEncounterCancelState;
