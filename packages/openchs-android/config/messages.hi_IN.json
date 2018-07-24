@@ -374,5 +374,7 @@
   "Completion": "समापन",
   "Reason for exit": "प्रोग्राम बाहर निकलने का कारण",
   "Growth Chart": "विकास चार्ट",
-  "Other reason (Please specify)": "अन्य कारण (कृपया दर्ज करें)"
+  "Other reason (Please specify)": "अन्य कारण (कृपया दर्ज करें)",
+  "Vaccination Schedule": "टीकाकरण चेकलिस्ट",
+  "checklistPreview": "यह {{name}} तैयार करेगा और इसकी आगामी वस्तु {{date}} को होना चाहिए"
 }
