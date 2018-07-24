@@ -46,7 +46,7 @@ class ProgramEncounterCancelActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, []);
+        context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
 
         action.cb();
         return newState;
