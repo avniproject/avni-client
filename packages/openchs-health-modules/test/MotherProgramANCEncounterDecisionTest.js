@@ -15,6 +15,7 @@ const motherEncounterDecision = require('../health_modules/mother/motherProgramE
 const C = require('../health_modules/common');
 
 describe("Mother Program ANC", () => {
+    let refDate = moment('2018-01-01');
     let programData, enrolment, individual, decisions;
 
 
@@ -428,203 +429,57 @@ describe("Mother Program ANC", () => {
             });
         });
 
-        it("is generated if mother gains more than 1 KG in 1st trimester", () => {
-            const lmp = moment().subtract(13, "w").toDate();
-            const encounter1DateTime = moment().subtract(10, "w").toDate();
+        it("is generated if mother gains more than 2 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
                 .build();
             let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
                 .forConcept("Weight", 55)
                 .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 57)
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 3)
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
             assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
-        it("is not generated if mother gains less than equal to 1 KG in 1st trimester", () => {
-            const lmp = moment().subtract(13, "w").toDate();
-            const encounter1DateTime = moment().subtract(10, "w").toDate();
+        it("is generated if mother gains less than 1.7 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
                 .build();
             let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
                 .forConcept("Weight", 55)
                 .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 1.5)
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
-
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 55.5)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains more than 6 KGs in 2nd trimester", () => {
-            const lmp = moment().subtract(32, "w").toDate();
-            const encounter1DateTime = moment().subtract(14, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 62)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
             assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
-        it("is not generated if mother gains 5-6 KGs in 2nd trimester", () => {
-            const lmp = moment().subtract(32, "w").toDate();
-            const encounter1DateTime = moment().subtract(14, "w").toDate();
+        it("is not generated if mother gains between 1.7...2 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
                 .build();
             let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
                 .forConcept("Weight", 55)
                 .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 60)
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 1.8)
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains less than 5 KGs in 2nd trimester", () => {
-            const lmp = moment().subtract(32, "w").toDate();
-            const encounter1DateTime = moment().subtract(14, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains more than 3 KGs within 2nd trimester", () => {
-            const lmp = moment().subtract(25, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 60)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
-        });
-
-        it("is not generated if mother gains 2-3 KGs within 2nd trimester", () => {
-            const lmp = moment().subtract(25, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 58)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains less than 2 KGs within 2nd trimester", () => {
-            const lmp = moment().subtract(25, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains less than 2 KGs within 3rd trimester", () => {
-            const lmp = moment().subtract(35, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains more than 3 KGs within 3rd trimester", () => {
-            const lmp = moment().subtract(35, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 59)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
-        });
-
-        it("is not generated if mother gains 2-3 KGs within 3rd trimester", () => {
-            const lmp = moment().subtract(35, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 58)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
             assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
         });
 
@@ -912,205 +767,58 @@ describe("Mother Program ANC", () => {
             assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Pallor Present");
         });
 
-
-        it("is added if mother gains more than 1 KG in 1st trimester", () => {
-            const lmp = moment().subtract(13, "w").toDate();
-            const encounter1DateTime = moment().subtract(10, "w").toDate();
+        it("is generated if mother gains more than 2 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
                 .build();
             let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
                 .forConcept("Weight", 55)
                 .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 57)
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 3)
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
             assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
-        it("is not added if mother gains less than equal to 1 KG in 1st trimester", () => {
-            const lmp = moment().subtract(13, "w").toDate();
-            const encounter1DateTime = moment().subtract(10, "w").toDate();
+        it("is generated if mother gains less than 1.7 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
                 .build();
             let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
                 .forConcept("Weight", 55)
                 .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 1.5)
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
-
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 55.5)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
-        });
-
-        it("is generated if mother gains more than 6 KGs in 2nd trimester", () => {
-            const lmp = moment().subtract(32, "w").toDate();
-            const encounter1DateTime = moment().subtract(14, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 62)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
             assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
-        it("is not generated if mother gains 5-6 KGs in 2nd trimester", () => {
-            const lmp = moment().subtract(32, "w").toDate();
-            const encounter1DateTime = moment().subtract(14, "w").toDate();
+        it("is not generated if mother gains between 1.7...2 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
             enrolment = new EnrolmentFiller(programData, individual, lmp)
                 .forConcept("Last menstrual period", lmp)
                 .build();
             let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
                 .forConcept("Weight", 55)
                 .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 60)
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 1.8)
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
-        });
-
-        it("is generated if mother gains less than 5 KGs in 2nd trimester", () => {
-            const lmp = moment().subtract(32, "w").toDate();
-            const encounter1DateTime = moment().subtract(14, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains more than 3 KGs within 2nd trimester", () => {
-            const lmp = moment().subtract(25, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 60)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
-        });
-
-        it("is not generated if mother gains 2-3 KGs within 2nd trimester", () => {
-            const lmp = moment().subtract(25, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 58)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
-        });
-
-        it("is generated if mother gains less than 2 KGs within 2nd trimester", () => {
-            const lmp = moment().subtract(25, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains less than 2 KGs within 3rd trimester", () => {
-            const lmp = moment().subtract(35, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 56)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
-        });
-
-        it("is generated if mother gains more than 3 KGs within 3rd trimester", () => {
-            const lmp = moment().subtract(35, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 59)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
-        });
-
-        it("is not generated if mother gains 2-3 KGs within 3rd trimester", () => {
-            const lmp = moment().subtract(35, "w").toDate();
-            const encounter1DateTime = moment().subtract(4, "w").toDate();
-            enrolment = new EnrolmentFiller(programData, individual, lmp)
-                .forConcept("Last menstrual period", lmp)
-                .build();
-            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
-                .forConcept("Weight", 55)
-                .build();
-            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forConcept("Weight", 58)
-                .build();
-            enrolment.encounters = [anc1Encounter, anc2Encounter];
-            decisions = motherEncounterDecision.getDecisions(anc2Encounter, new Date());
-            assert.isEmpty(C.findValue(decisions.encounterDecisions, "High Risk Conditions"));
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular weight gain");
         });
 
         ["Flat", "Retracted"].forEach((nippleState) => {
