@@ -1602,7 +1602,7 @@
   {
     "name": "Other reason for Program exit",
     "uuid": "d91a3041-3c1b-440d-9c54-a3c40b6dbff5",
-    "dataType": "Text"
+    "dataType": "Text",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
-
 ]

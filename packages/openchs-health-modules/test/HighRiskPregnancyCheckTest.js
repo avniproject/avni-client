@@ -560,12 +560,14 @@ describe('High Risk Pregnancy Determination', () => {
             expect(complicationValues).to.be.empty;
         });
 
+        /*
         it("Shouldn't mark high risk if age is equal to 30", () => {
             setDOBTo(30);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, context, referenceDate).enrolmentDecisions;
             const complicationValues = C.findValue(decisions, 'High Risk Conditions');
             expect(complicationValues).to.be.empty;
         });
+        */
 
         it("Should mark high risk if age is less than 18", () => {
             setDOBTo(15);
