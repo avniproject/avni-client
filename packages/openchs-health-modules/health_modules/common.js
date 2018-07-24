@@ -119,7 +119,7 @@ function C() {
 
     this.isNil = function (obj) {
         return obj === null || obj === undefined;
-    }
+    };
 
     this.isEmptyOrBlank = (value) =>
         _.overSome([_.isNil, _.isNaN])(value) ? true : 
@@ -127,8 +127,8 @@ function C() {
                     _.isEmpty(value); 
 
     this.getYoungestChild = (individual) => {
-        return _.last(_.sortBy(individual.children, (child) => child.dateOfBirth));
-    }
+        return _.last(_.sortBy(individual.getRelatives('mother', true), (child) => child.dateOfBirth));
+    };
 
     this.getZScoreFromEncounter = (programEncounter) => {
         const weight = programEncounter.getObservationValue("Weight");
