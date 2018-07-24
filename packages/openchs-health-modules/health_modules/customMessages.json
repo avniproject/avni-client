@@ -1145,6 +1145,10 @@
     "Uneducated": "अशिक्षित",
     "Primary": "प्राथमिक",
     "Phulwari": "फुलवारी",
-    "Basic Details": "मूल विवरण"
+    "Basic Details": "मूल विवरण",
+    "Any owned land?": "जमीन मालिकी?",
+    "Land possession": "ज़मीन की मालिकी",
+    "Day of month for growth monitoring visit": "विकास निगरानी विजिट के लिए महीने का दिन",
+    "Growth monitoring visit": "विकास निगरानी विजिट"
   }
 }
