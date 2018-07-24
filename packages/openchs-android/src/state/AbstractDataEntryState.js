@@ -169,7 +169,7 @@ class AbstractDataEntryState {
 
 
     getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+        return null;
     }
 
     getEffectiveDataEntryDate() {
