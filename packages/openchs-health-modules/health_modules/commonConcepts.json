@@ -5,6 +5,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Normal",
+    "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+    "dataType": "NA"
+  },
+  {
     "name": "Hepatitis B Positive",
     "uuid": "f9b654e6-628b-4bbf-b3ee-2adc5ab7ea1c"
   },
@@ -1737,10 +1742,5 @@
         "abnormal": true
       }
     ]
-  },
-  {
-    "name": "Normal",
-    "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
-    "dataType": "NA"
   }
 ]
