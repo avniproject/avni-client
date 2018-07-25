@@ -6,18 +6,16 @@
  */
 import C from '../common';
 
-import weightForAgeScoresGirls from './anthropometricReference/wfa_girls_0_5_zscores';
-import weightForAgeScoresBoys from './anthropometricReference/wfa_boys_0_5_zscores';
+import weightForAgeScoresGirls from './anthropometry/wfa_girls';
+import weightForAgeScoresBoys from './anthropometry/wfa_boys';
 
-import heightForAgeScoresGirls0_2 from  './anthropometricReference/lhfa_girls_0_2_zscores';
-import heightForAgeScoresBoys0_2 from  './anthropometricReference/lhfa_boys_0_2_zscores';
-import heightForAgeScoresGirls2_5 from  './anthropometricReference/lhfa_girls_2_5_zscores';
-import heightForAgeScoresBoys2_5 from  './anthropometricReference/lhfa_boys_2_5_zscores';
+import heightForAgeScoresGirls from  './anthropometry/lhfa_girls';
+import heightForAgeScoresBoys from  './anthropometry/lhfa_boys';
 
-import weightForHeightScoresGirls0_2 from  './anthropometricReference/wfl_girls_0_2_zscores';
-import weightForHeightScoresBoys0_2 from  './anthropometricReference/wfl_boys_0_2_zscores';
-import weightForHeightScoresGirls2_5 from './anthropometricReference/wfh_girls_2_5_zscores';
-import weightForHeightScoresBoys2_5 from  './anthropometricReference/wfh_boys_2_5_zscores';
+import weightForHeightScoresGirls from  './anthropometry/wflh_girls';
+import weightForHeightScoresBoys from  './anthropometry/wflh_boys';
+
+
 
 function Decision(name, value) {
     this.name = name;
@@ -173,4 +171,5 @@ var getDecisions = function (observationsHolder, individual, today) {
     }
 };
 
-export {getDecisions};
+export {
+    getDecisions};

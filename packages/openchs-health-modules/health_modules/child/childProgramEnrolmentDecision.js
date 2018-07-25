@@ -85,15 +85,28 @@ class ChildVaccinationChecklist {
 const getEnrolmentSummary = function (programEnrolment, context, today) {
     let summary = [];
     summaryForObservation("Weight for age z-score", programEnrolment, summary);
+    summaryForObservation("Weight for age Grade", programEnrolment, summary);
+    summaryForObservation("Weight for age Status", programEnrolment, summary);
+
     summaryForObservation("Height for age z-score", programEnrolment, summary);
+    summaryForObservation("Height for age Grade", programEnrolment, summary);
+    summaryForObservation("Height for age Status", programEnrolment, summary);
+
     summaryForObservation("Weight for height z-score", programEnrolment, summary);
+    summaryForObservation("Weight for Height Status", programEnrolment, summary);
+
     return summary;
 };
 
+
 const summaryForObservation = function (conceptName, programEnrolment, summary) {
-    let observationValue = programEnrolment.getObservationValue(conceptName);
-    if (observationValue)
-        summary.push({name: conceptName, value: observationValue});
+
+    let observationValue = programEnrolment.findLatestObservationInEntireEnrolment(conceptName);
+
+    if (!_.isNil(observationValue)) {
+        summary.push({name: conceptName, value: observationValue.getValue()});
+    }
+
 };
 
 export {

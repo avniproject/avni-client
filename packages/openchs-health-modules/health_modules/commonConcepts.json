@@ -1604,5 +1604,138 @@
     "uuid": "d91a3041-3c1b-440d-9c54-a3c40b6dbff5",
     "dataType": "Text",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Severely Underweight",
+    "uuid": "29295fb9-9ed3-44b0-8e94-f1822b46a851",
+    "dataType": "NA"
+  },
+  {
+    "name": "Moderately Underweight",
+    "uuid": "e422d466-f7a5-408e-b79a-d9f177ab8c5c",
+    "dataType": "NA"
+  },
+  {
+    "name": "Stunted",
+    "uuid": "a479eac6-bb14-47e2-a9a6-76f2839ace32",
+    "dataType": "NA"
+  },
+  {
+    "name": "Severely stunted",
+    "uuid": "b2ecbfc6-6403-4812-8fd0-3376e2dd173f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Possible risk of overweight",
+    "uuid": "f9525016-c15c-41ef-8438-43dc18ae7fa7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Overweight",
+    "uuid": "74481c32-e400-4103-b656-b4f52e517fdd",
+    "dataType": "NA"
+  },
+  {
+    "name": "Obese",
+    "uuid": "c7512031-62fb-4bbc-b793-7fde56d45883",
+    "dataType": "NA"
+  },
+  {
+    "name": "Wasted",
+    "uuid": "01927145-9b54-4c6f-815b-b6c405de207a",
+    "dataType": "NA"
+  },
+  {
+    "name": "Severely wasted",
+    "uuid": "03629146-7282-4ee6-85c5-fc04b8a6406f",
+    "dataType": "NA"
+  },
+  {
+    "name": "Weight for age Grade",
+    "uuid": "10d6ef42-2db4-4af9-951d-75b8942690a1",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Height for age Status",
+    "uuid": "b1d2ec00-9ad0-408e-b1f2-e73e7e2e63d1",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Normal",
+        "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
+      },
+      {
+        "name": "Stunted",
+        "uuid": "a479eac6-bb14-47e2-a9a6-76f2839ace32",
+        "abnormal": true
+      },
+      {
+        "name": "Severely stunted",
+        "uuid": "b2ecbfc6-6403-4812-8fd0-3376e2dd173f",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Height for age Grade",
+    "uuid": "d3c6de74-dd39-4dd6-a4e0-7cd5b7966de9",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Weight for age Status",
+    "uuid": "ff4eb1f3-2a19-4337-95a0-27cb2ff5cea3",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Normal",
+        "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
+      },
+      {
+        "name": "Moderately Underweight",
+        "uuid": "e422d466-f7a5-408e-b79a-d9f177ab8c5c",
+        "abnormal": true
+      },
+      {
+        "name": "Severely Underweight",
+        "uuid": "29295fb9-9ed3-44b0-8e94-f1822b46a851",
+        "abnormal": true
+      }
+    ]
+  },
+  {
+    "name": "Weight for Height Status",
+    "uuid": "7a2ee364-2fe8-4d48-9304-cb4ebc7e3144",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Normal",
+        "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
+      },
+      {
+        "name": "Possible risk of overweight",
+        "uuid": "f9525016-c15c-41ef-8438-43dc18ae7fa7",
+        "abnormal": true
+      },
+      {
+        "name": "Overweight",
+        "uuid": "74481c32-e400-4103-b656-b4f52e517fdd",
+        "abnormal": true
+      },
+      {
+        "name": "Obese",
+        "uuid": "c7512031-62fb-4bbc-b793-7fde56d45883",
+        "abnormal": true
+      },
+      {
+        "name": "Wasted",
+        "uuid": "01927145-9b54-4c6f-815b-b6c405de207a",
+        "abnormal": true
+      },
+      {
+        "name": "Severely wasted",
+        "uuid": "03629146-7282-4ee6-85c5-fc04b8a6406f",
+        "abnormal": true
+      }
+    ]
   }
 ]

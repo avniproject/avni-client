@@ -1,7 +1,73 @@
 import zScores from "./zScoreCalculator";
 import {RuleFactory} from 'rules-config/rules';
+import weightForAgeScoresGirls from './anthropometry/wfa_girls';
+import weightForAgeScoresBoys from './anthropometry/wfa_boys';
+import _ from "lodash";
+import C from "../common";
 
 const AnthropometryDecision = RuleFactory("d062907a-690c-44ca-b699-f8b2f688b075", "Decision");
+
+const  zScoreGradeStatusMappingWeightForAge = {
+        '1': 'Normal',
+        '1': 'Normal',
+        '1': 'Normal',
+        '1': 'Normal',
+        '1': 'Normal',
+        '2': 'Underweight',
+        '3': 'Severely Underweight'
+};
+
+const zScoreGradeStatusMappingHeightForAge = {
+    '1': 'Normal',
+    '1': 'Normal',
+    '1': 'Normal',
+    '1': 'Normal',
+    '1': 'Normal',
+    '2': 'Stunted',
+    '3': 'Severely stunted'
+};
+
+const zScoreGradeStatusMappingWeightForHeight = new Map([
+    ["Obese",{from:3, to: 10}],
+    ["Overweight",{from:2, to: 3}],
+    ["Possible risk of overweight",{from:1, to: 2}],
+    ["Normal",{from:-1, to: 1}],
+    ["Wasted",{from:-2, to: -1}],
+    ["Severely wasted",{from:-10, to: -1}]
+    ]
+);
+
+
+
+const weightForHeightStatus = function(zScore) {
+    let statusFound = [...zScoreGradeStatusMappingWeightForHeight.keys()]
+        .find((status) =>
+            zScore <= zScoreGradeStatusMappingWeightForHeight.get(status).to &&
+           zScore >= zScoreGradeStatusMappingWeightForHeight.get(status).from);
+    return statusFound;
+}
+
+
+
+
+const getGradeforZscore = (zScore) =>{
+    let grade
+    if(zScore<=-3)
+    {
+        grade = 3;
+    }
+    else if(zScore>-3 && zScore<-2)
+    {
+        grade = 2;
+    }
+    else if(zScore>=-2)
+    {
+        grade = 1;
+    }
+
+    return grade;
+
+}
 
 
 const addIfRequired = (decisions, name, value) => {
@@ -19,9 +85,28 @@ const getDecisions = (programEncounter) => {
     const weight = findObs(programEncounter, "Weight");
     const height = findObs(programEncounter, "Height");
     const zScoresForChild = zScores(programEncounter.programEnrolment.individual, programEncounter.encounterDateTime, weight, height);
+
+    var Gender = _.get(programEncounter.programEnrolment.individual, "gender.name");
+
+    var wfaGrade = getGradeforZscore(zScoresForChild.wfa);
+    var wfaStatus = zScoreGradeStatusMappingWeightForAge[wfaGrade];
+
+    var hfaGrade = getGradeforZscore(zScoresForChild.hfa);
+    var hfaStatus = zScoreGradeStatusMappingHeightForAge[hfaGrade];
+
+     var wfhStatus = weightForHeightStatus(zScoresForChild.wfh);
+     console.log("wfh status: "+wfhStatus+", wfhzscore:"+zScoresForChild.wfh);
+
     addIfRequired(decisions.encounterDecisions, "Weight for age z-score", zScoresForChild.wfa);
+    addIfRequired(decisions.encounterDecisions, "Weight for age Grade", wfaGrade);
+    addIfRequired(decisions.encounterDecisions, "Weight for age Status", [wfaStatus]);
+
     addIfRequired(decisions.encounterDecisions, "Height for age z-score", zScoresForChild.hfa);
+    addIfRequired(decisions.encounterDecisions, "Height for age Grade", hfaGrade);
+    addIfRequired(decisions.encounterDecisions, "Height for age Status", [hfaStatus]);
+
     addIfRequired(decisions.encounterDecisions, "Weight for height z-score", zScoresForChild.wfh);
+    addIfRequired(decisions.encounterDecisions, "Weight for Height Status", [wfhStatus]);
 
     return decisions;
 };
@@ -60,5 +145,6 @@ class WeightForHeightZScore {
         return decisions;
     }
 }
+
 
 export {getDecisions};

@@ -83,7 +83,7 @@ describe("zScoreCalculator", () => {
             assert.equal(zScore(individual, today, 0, 84.2).hfa, 3);
         });
 
-        it("calculates weight for height     z-scores for boys and girls between 0 and 5", () => {
+        it("calculates weight for height z-scores for boys and girls between 0 and 5", () => {
             let today = new Date();
             individual.dateOfBirth = moment(today).subtract(23, 'months').toDate();
             individual.gender = male;
@@ -99,13 +99,13 @@ describe("zScoreCalculator", () => {
 
             individual.gender = female;
             individual.dateOfBirth = moment(today).subtract(35, 'months').toDate();
-            assert.equal(zScore(individual, today, 6.2, 68.5).wfh, -2.9);
-            assert.equal(zScore(individual, today, 6.7, 68.5).wfh, -2);
-            assert.equal(zScore(individual, today, 7.3, 68.5).wfh, -1);
-            assert.equal(zScore(individual, today, 8, 68.5).wfh, 0);
-            assert.equal(zScore(individual, today, 8.8, 68.5).wfh, 1);
-            assert.equal(zScore(individual, today, 9.7, 68.5).wfh, 2);
-            assert.equal(zScore(individual, today, 10.7, 68.5).wfh, 3);
+            assert.equal(zScore(individual, today, 6.2, 68.5).wfh, -2.7);
+            assert.equal(zScore(individual, today, 6.7, 68.5).wfh, -1.8);
+            assert.equal(zScore(individual, today, 7.3, 68.5).wfh, -0.8);
+            assert.equal(zScore(individual, today, 8, 68.5).wfh, 0.2);
+            assert.equal(zScore(individual, today, 8.8, 68.5).wfh, 1.2);
+            assert.equal(zScore(individual, today, 9.7, 68.5).wfh, 2.2);
+            assert.equal(zScore(individual, today, 10.7, 68.5).wfh, 3.2);
         });
 
         it("does not calculate weight for age or weight for height if weight does not exist or is 0", () => {
