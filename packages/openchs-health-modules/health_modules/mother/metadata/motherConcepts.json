@@ -562,11 +562,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Normal",
-    "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
-    "dataType": "NA"
-  },
-  {
     "name": "Indurated",
     "uuid": "40c79aa5-2f83-4a2e-a5fd-8f490e42e25d",
     "abnormal": true,

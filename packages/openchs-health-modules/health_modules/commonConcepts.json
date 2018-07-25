@@ -1737,5 +1737,10 @@
         "abnormal": true
       }
     ]
+  },
+  {
+    "name": "Normal",
+    "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
+    "dataType": "NA"
   }
 ]
