@@ -40,7 +40,6 @@ import RuleDependency from "./RuleDependency";
 
 export default {
     //order is important, should be arranged according to the dependency
-
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping, IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus],
     schemaVersion: 69,
     migration: function (oldDB, newDB) {
