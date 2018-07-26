@@ -16,13 +16,12 @@ let routes, beans, reduxStore, db = undefined;
 export default class App extends Component {
     constructor(props, context) {
         super(props, context);
-        ErrorHandler.set((error, stacktrace) => {
-            this.setState({error, stacktrace});
-        });
+        this.handleError = this.handleError.bind(this);
+        ErrorHandler.set(this.handleError);
         if (db === undefined) {
             db = new Realm(Schema);
             beans = BeanRegistry.init(db, this);
-            reduxStore = AppStore.create(beans);
+            reduxStore = AppStore.create(beans, this.handleError);
             routes = PathRegistry.routes();
             const entitySyncStatusService = beans.get(EntitySyncStatusService);
             entitySyncStatusService.setup(EntityMetaData.model());
@@ -36,6 +35,10 @@ export default class App extends Component {
         getDB: React.PropTypes.func.isRequired,
         getStore: React.PropTypes.func.isRequired,
     };
+
+    handleError(error, stacktrace) {
+        this.setState({error, stacktrace});
+    }
 
     getChildContext = () => ({
         getDB: () => db,
