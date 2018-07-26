@@ -1,0 +1,27 @@
+{
+  "name": "Checklist Form",
+  "uuid": "9f198079-3f50-4a91-86c9-365545ebf5a7",
+  "formType": "ChecklistItem",
+  "userUUID": "5fed2907-df3a-4867-aef5-c87f4c78a31a",
+  "formElementGroups": [
+    {
+      "uuid": "bde3c62e-0729-40e2-a77f-66408788077e",
+      "name": "Checklist",
+      "displayOrder": 1,
+      "display": "Checklist",
+      "formElements": [
+        {
+          "name": "Height",
+          "uuid": "61ad021f-c0f3-46de-ad2b-310ba812f695",
+          "keyValues": [],
+          "concept": {
+            "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
+            "name": "Height"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    }
+  ]
+}

@@ -67,6 +67,7 @@ const getFormElementsStatuses = (programExit, formElementGroup) => {
 class ChildVaccinationChecklist {
     static exec(enrolment, checklists = []) {
         const items = ["BCG", "OPV 0"].map(i => ({
+            formUUID: "9f198079-3f50-4a91-86c9-365545ebf5a7",
             conceptName: i,
             states: {
                 "good": {from: {"week": 1}, to: {"week": 2}, color: 'yellow'},

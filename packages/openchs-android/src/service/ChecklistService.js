@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {Checklist, ChecklistItem, EntityQueue, StringKeyNumericValue, ChecklistItemStatus} from "openchs-models";
+import {Checklist, ChecklistItem, EntityQueue, StringKeyNumericValue, ChecklistItemStatus, Form} from "openchs-models";
 import _ from 'lodash';
 import ConceptService from "./ConceptService";
 import General from "../utility/General";
@@ -29,6 +29,7 @@ class ChecklistService extends BaseService {
         const checklistItems = checklist.items.map((item) => {
             const checklistItem = ChecklistItem.create();
             checklistItem.checklist = savedChecklist;
+            checklistItem.form = this.findByUUID(item.formUUID, Form.schema.name);
             checklistItem.concept = conceptService.getConceptByName(item.conceptName);
             checklistItem.stateConfig = _.map(item.states, (val, key) => {
                 const checklistItemStatus = ChecklistItemStatus.create();

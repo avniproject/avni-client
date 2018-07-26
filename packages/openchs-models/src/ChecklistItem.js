@@ -2,8 +2,10 @@ import _ from "lodash";
 import General from "./utility/General";
 import ResourceUtil from "./utility/ResourceUtil";
 import Checklist from './Checklist';
+import Form from './application/Form';
 import Concept from './Concept';
 import ChecklistItemStatus from "./ChecklistItemStatus";
+import ObservationsHolder from "./ObservationsHolder";
 
 class ChecklistItem {
     static schema = {
@@ -14,6 +16,8 @@ class ChecklistItem {
             concept: 'Concept',
             stateConfig: {type: 'list', objectType: 'ChecklistItemStatus'},
             completionDate: {type: 'date', optional: true},
+            form: {type: 'Form', optional: true},
+            observations: {type: 'list', objectType: 'Observation'},
             checklist: 'Checklist'
         }
     };
@@ -21,17 +25,20 @@ class ChecklistItem {
     static create() {
         const checklistItem = new ChecklistItem();
         checklistItem.uuid = General.randomUUID();
+        checklistItem.observations = [];
         return checklistItem;
     }
 
     static fromResource(checklistItemResource, entityService) {
         const checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistUUID"), Checklist.schema.name);
+        const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "formUUID"), Form.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
 
-        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['completionDate']);
+        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['completionDate'], ['observations']);
         checklistItem.stateConfig = _.get(checklistItemResource, "checklistItemStatus", [])
             .map(itemStatus => ChecklistItemStatus.fromResource(itemStatus, entityService));
         checklistItem.checklist = checklist;
+        checklistItem.form = form;
         checklistItem.concept = concept;
         return checklistItem;
     }
@@ -42,6 +49,11 @@ class ChecklistItem {
         resource["checklistUUID"] = this.checklist.uuid;
         resource["conceptUUID"] = this.concept.uuid;
         resource["status"] = this.stateConfig.map(sc => sc.toResource);
+        resource["formUUID"] = _.get(this.form, 'uuid', null);
+        resource["observations"] = [];
+        this.observations.forEach((obs) => {
+            resource["observations"].push(obs.toResource);
+        });
         return resource;
     }
 
@@ -51,6 +63,8 @@ class ChecklistItem {
         checklistItem.concept = this.concept;
         checklistItem.completionDate = this.completionDate;
         checklistItem.stateConfig = this.stateConfig;
+        checklistItem.form = this.form;
+        checklistItem.observations = ObservationsHolder.clone(this.observations);
         return checklistItem;
     }
 
