@@ -54,7 +54,7 @@ const getDecisions = function (programEnrolment, today) {
 };
 
 const getChecklists = function (programEnrolment, today) {
-    return [childVaccinationSchedule.getVaccSchedule(programEnrolment)];
+    return [childVaccinationSchedule.getVaccinationSchedule(programEnrolment)];
 };
 
 const getFormElementsStatuses = (programExit, formElementGroup) => {

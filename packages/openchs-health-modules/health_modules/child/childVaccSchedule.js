@@ -1,6 +1,6 @@
 import C from '../common';
 
-var getVaccSchedule = function (programEnrolment) {
+var getVaccScheduleOld = function (programEnrolment) {
     const vaccScheduleItems = [];
     const dateOfBirth = programEnrolment.individual.dateOfBirth;
 
@@ -40,4 +40,14 @@ var getVaccSchedule = function (programEnrolment) {
     return {name: 'Vaccination Schedule', items: vaccScheduleItems, baseDate: dateOfBirth};
 };
 
-export default {getVaccSchedule};
+const getVaccinationSchedule = function (programEnrolment) {
+    const dateOfBirth = programEnrolment.individual.dateOfBirth;
+    const bcg = {
+        conceptName: "BCG",
+        states: {good: {from: {days: 0}, to: {days: 15}}},
+        bad: {from: {days: 15}, to: {days: 20}}
+    };
+
+    return {name: 'Vaccination Schedule', items: [bcg], baseDate: dateOfBirth}
+};
+export default {getVaccinationSchedule};

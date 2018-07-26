@@ -13,6 +13,7 @@ class ChecklistItem {
             uuid: 'string',
             concept: 'Concept',
             stateConfig: {type: 'list', objectType: 'ChecklistItemStatus'},
+            completionDate: {type: 'date', optional: true},
             checklist: 'Checklist'
         }
     };
@@ -27,7 +28,9 @@ class ChecklistItem {
         const checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistUUID"), Checklist.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
 
-        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['dueDate', 'maxDate', 'completionDate']);
+        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['completionDate']);
+        checklistItem.stateConfig = _.get(checklistItemResource, "checklistItemStatus", [])
+            .map(itemStatus => ChecklistItemStatus.fromResource(itemStatus, entityService));
         checklistItem.checklist = checklist;
         checklistItem.concept = concept;
         return checklistItem;
@@ -35,11 +38,10 @@ class ChecklistItem {
 
     get toResource() {
         const resource = _.pick(this, ["uuid", "name"]);
-        resource["dueDate"] = General.isoFormat(this.dueDate);
-        resource["maxDate"] = General.isoFormat(this.maxDate);
         resource["completionDate"] = General.isoFormat(this.completionDate);
         resource["checklistUUID"] = this.checklist.uuid;
         resource["conceptUUID"] = this.concept.uuid;
+        resource["status"] = this.stateConfig.map(sc => sc.toResource);
         return resource;
     }
 
@@ -47,9 +49,8 @@ class ChecklistItem {
         const checklistItem = new ChecklistItem();
         checklistItem.uuid = this.uuid;
         checklistItem.concept = this.concept;
-        checklistItem.dueDate = this.dueDate;
-        checklistItem.maxDate = this.maxDate;
         checklistItem.completionDate = this.completionDate;
+        checklistItem.stateConfig = this.stateConfig;
         return checklistItem;
     }
 
