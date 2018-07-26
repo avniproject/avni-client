@@ -30,7 +30,7 @@
             "name": "Weight"
           },
           "displayOrder": 2,
-          "mandatory": false
+          "mandatory": true
         }
       ]
     }
