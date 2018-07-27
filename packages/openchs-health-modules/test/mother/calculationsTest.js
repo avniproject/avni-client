@@ -54,6 +54,11 @@ describe("Calculations Test", () => {
         let estimatedGestationalAgeInWeeks = 16;
         let estimatedOnDate = new Date(2018, 5, 22);
         let today = new Date(2018, 6, 22);
-        expect(gestationalAgeAsOfToday(16, estimatedOnDate, today)).is.equal(20);
+        expect(gestationalAgeAsOfToday(estimatedGestationalAgeInWeeks, estimatedOnDate, today)).is.equal(20);
+
+        estimatedGestationalAgeInWeeks = 40;
+        estimatedOnDate = new Date(2018, 6, 27);
+        today = new Date(2018, 6, 27);
+        expect(gestationalAgeAsOfToday(estimatedGestationalAgeInWeeks, estimatedOnDate, today)).is.equal(40);
     });
 });

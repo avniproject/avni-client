@@ -21,7 +21,11 @@ class EncounterService extends BaseService {
             General.logDebug('EncounterService.isEncounterTypeCancellable', `No form associated with ET=${encounter.encounterType.uuid} and Program=${encounter.programEnrolment.program.uuid}`);
             return false;
         }
-        return encounter.isCancellable();
+        let cancellable = encounter.isCancellable();
+        if (!cancellable) {
+            General.logDebug('EncounterService.isEncounterTypeCancellable', `${encounter.encounterType.name}, ${encounter.programEnrolment.program.name}, Not Cancellable because of encounter`);
+        }
+        return cancellable;
     }
 }
 
