@@ -324,13 +324,12 @@ class ProgramEnrolment extends BaseEntity {
         for (let i = 0; i < encounters.length; i++) {
             encounter = encounters[i];
             observation = encounters[i].findObservation(conceptName);
-            if (!_.isNil(observation)) break;
+            if (!_.isNil(observation))
+                return {observation: observation, date: encounter.encounterDateTime};
         }
 
-        if (_.isNil(observation) && checkInEnrolment)
-            return {observation: this.findObservation(conceptName), date: this.enrolmentDateTime};
-
-        return {observation: observation, date: encounter.encounterDateTime};
+        if (checkInEnrolment) return {observation: this.findObservation(conceptName), date: this.enrolmentDateTime};
+        return {};
     }
 
     getObservationReadableValueInEntireEnrolment(conceptName, programEncounter) {
