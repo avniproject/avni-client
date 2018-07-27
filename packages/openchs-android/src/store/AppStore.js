@@ -4,16 +4,16 @@ import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
 
 class AppStore {
-    static create(beans) {
+    static create(beans, errorCallback) {
         const combinedReducers = this.createCombinedReducer(beans);
         return __DEV__?
             createStore(combinedReducers):
-            createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler)));
+            createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler, errorCallback)));
     }
 
-    static errorHandler(error, getState, lastAction, dispatch) {
+    static errorHandler(error, errorCallback, getState, lastAction, dispatch) {
         General.logError('AppStore', 'Posting error');
-        ErrorHandler.postError(error, true);
+        ErrorHandler.postError(error, true, errorCallback);
         General.logError('AppStore', 'Posted error');
     }
 
@@ -22,14 +22,14 @@ class AppStore {
         return combineReducers(reducers);
     }
 
-    static middlewareFactory(errorHandler) {
+    static middlewareFactory(errorHandler, errorCallback) {
         return function (store) {
             return function (next) {
                 return function (action) {
                     try {
                         return next(action);
                     } catch (err) {
-                        errorHandler(err, store.getState, action, store.dispatch);
+                        errorHandler(err, errorCallback, store.getState, action, store.dispatch);
                         return err;
                     }
                 };
