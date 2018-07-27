@@ -27,24 +27,25 @@ const zScoreGradeStatusMappingHeightForAge = {
     '3': 'Severely stunted'
 };
 
-const zScoreGradeStatusMappingWeightForHeight = new Map([
-    ["Obese",{from:3, to: 10}],
-    ["Overweight",{from:2, to: 3}],
-    ["Possible risk of overweight",{from:1, to: 2}],
-    ["Normal",{from:-1, to: 1}],
-    ["Wasted",{from:-2, to: -1}],
-    ["Severely wasted",{from:-10, to: -1}]
-    ]
-);
+//ordered map
+//KEY:status, value: max z-score for the particular satatus
+
+const zScoreGradeStatusMappingWeightForHeight = [
+    ["Severely wasted", -3],
+    ["Wasted", -2],
+    ["Normal", 1],
+    ["Possible risk of overweight", 2],
+    ["Overweight", 3],
+    ["Obese", Infinity],
+];
 
 
 
 const weightForHeightStatus = function(zScore) {
-    let statusFound = [...zScoreGradeStatusMappingWeightForHeight.keys()]
-        .find((status) =>
-            zScore <= zScoreGradeStatusMappingWeightForHeight.get(status).to &&
-           zScore >= zScoreGradeStatusMappingWeightForHeight.get(status).from);
-    return statusFound;
+    let found = _.find(zScoreGradeStatusMappingWeightForHeight, function(currentStatus){
+        return zScore <= currentStatus[1];
+    });
+    return found && found[0];
 }
 
 
