@@ -100,14 +100,14 @@ const getDecisions = (programEncounter) => {
 
     addIfRequired(decisions.encounterDecisions, "Weight for age z-score", zScoresForChild.wfa);
     addIfRequired(decisions.encounterDecisions, "Weight for age Grade", wfaGrade);
-    addIfRequired(decisions.encounterDecisions, "Weight for age Status", [wfaStatus]);
+    addIfRequired(decisions.encounterDecisions, "Weight for age Status", wfaStatus? [wfaStatus]: []);
 
     addIfRequired(decisions.encounterDecisions, "Height for age z-score", zScoresForChild.hfa);
     addIfRequired(decisions.encounterDecisions, "Height for age Grade", hfaGrade);
-    addIfRequired(decisions.encounterDecisions, "Height for age Status", [hfaStatus]);
+    addIfRequired(decisions.encounterDecisions, "Height for age Status", hfaStatus? [hfaStatus]: []);
 
     addIfRequired(decisions.encounterDecisions, "Weight for height z-score", zScoresForChild.wfh);
-    addIfRequired(decisions.encounterDecisions, "Weight for Height Status", [wfhStatus]);
+    addIfRequired(decisions.encounterDecisions, "Weight for Height Status", wfhStatus? [wfhStatus]: []);
 
     return decisions;
 };
