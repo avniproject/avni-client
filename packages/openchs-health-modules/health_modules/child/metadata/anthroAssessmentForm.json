@@ -19,7 +19,7 @@
             "name": "Height"
           },
           "displayOrder": 1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Weight",
