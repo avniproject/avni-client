@@ -110,7 +110,7 @@
         {
           "name": "Birth defects",
           "uuid": "6985bbf7-0f97-40a8-8c06-875e31631bc6",
-          "type": "SingleSelect",
+          "type": "MultiSelect",
           "concept": {
             "name": "Birth Defects",
             "uuid": "408ce177-eac2-4103-8b5e-3f8bc67bea2b"
