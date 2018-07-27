@@ -151,7 +151,9 @@
   "relationshipAlreadyRecorded": "सापेक्ष आधीच रेकॉर्ड",
   "selfRelationshipNotAllowed": "स्वत: नाते मान्य नाही",
   "deleteRelativeNoticeTitle": "संबंधित हटवायचे?",
-  "deleteRelativeConfirmationMessage": "हे {{individualA}} आणि {{individualB}} मधील संबंध हटवेल."
+  "deleteRelativeConfirmationMessage": "हे {{individualA}} आणि {{individualB}} मधील संबंध हटवेल.",
+
+  "Program exit": "प्रोग्रामच्या बाहेर"
 
 }
 

@@ -83,7 +83,7 @@
   "newGeneralVisit": "सामान्य विजिट",
   "edit": "(बदलें)",
   "cancelled": "(रद्द)",
-  "exitProgram": "प्रोग्राम से बहार करें",
+  "exitProgram": "प्रोग्राम से बाहर करें",
   "encounterDate": "विजिट तारीख",
   "visitDetails": "विजिट विवरण",
   "registrationDate": "रजिस्ट्रेशन तारीख",
@@ -376,5 +376,6 @@
   "Growth Chart": "विकास चार्ट",
   "Other reason (Please specify)": "अन्य कारण (कृपया दर्ज करें)",
   "Vaccination Schedule": "टीकाकरण चेकलिस्ट",
-  "checklistPreview": "यह {{name}} तैयार करेगा और इसकी आगामी वस्तु {{date}} को होना चाहिए"
+  "checklistPreview": "यह {{name}} तैयार करेगा और इसकी आगामी वस्तु {{date}} को होना चाहिए",
+  "Program exit": "प्रोग्राम से बाहर"
 }
