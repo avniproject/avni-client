@@ -1757,5 +1757,25 @@
     "uuid": "9fad61f4-56b4-4ae8-8500-1012fe26eefd",
     "dataType": "NA",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Economic Status",
+    "uuid": "add96a34-28b6-41ec-8d1b-d3b7e4eb9810",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Orange Card",
+        "uuid": "0c34051e-0b85-4500-bda9-3a546535a2e3"
+      },
+      {
+        "name": "White Card",
+        "uuid": "fe27e743-351f-47a2-b9cb-ba51df771de7"
+      },
+      {
+        "name": "Yellow Card",
+        "uuid": "60d82d04-3d65-4be1-88c4-176b6f9d2381"
+      }
+    ],
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
 ]
