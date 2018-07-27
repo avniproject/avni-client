@@ -66,7 +66,7 @@ const getFormElementsStatuses = (programExit, formElementGroup) => {
 @EnrolmentChecklists("5cd0bf6d-1e62-499b-80f4-c72538992abb", "Child vaccination schedule", 1.0)
 class ChildVaccinationChecklist {
     static exec(enrolment, checklists = []) {
-        return checklists.concat([childVaccinationSchedule.getVaccSchedule(enrolment)]);
+        return [];
     }
 }
 
