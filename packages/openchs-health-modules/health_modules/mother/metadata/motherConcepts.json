@@ -764,6 +764,12 @@
     "dataType": "NA"
   },
   {
+    "name": "[DEPRECATED] Per vaginal bleeding",
+    "uuid": "6471787c-fd94-4231-8d22-90b53bd28788",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
     "name": "Per vaginal bleeding",
     "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
     "abnormal": true,
