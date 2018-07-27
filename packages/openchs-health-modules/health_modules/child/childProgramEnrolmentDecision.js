@@ -70,8 +70,10 @@ class ChildVaccinationChecklist {
             formUUID: "9f198079-3f50-4a91-86c9-365545ebf5a7",
             conceptName: i,
             states: {
+                "not now": {from: {"week": 0}, to: {"week": 1}, color: 'red'},
                 "good": {from: {"week": 1}, to: {"week": 2}, color: 'yellow'},
-                "v.good": {from: {"week": 2}, to: {"week": 3}, color: 'green'}
+                "v.good": {from: {"week": 2}, to: {"week": 3}, color: 'green'},
+                "always": {from: {"week": 3}, to: {"year": 13}, color: 'blue'}
             }
         }));
         const checklist = {

@@ -18,6 +18,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import Styles from "../primitives/Styles";
+import ChecklistDisplay from "./ChecklistDisplay";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -60,12 +61,12 @@ class ChecklistView extends AbstractComponent {
             Alert.alert("Unsaved Changes", "Do you want to save before exiting? ", [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                }
+                    }
                 },
                 {
                     text: this.I18n.t('no'), onPress: () => {
-                    TypedTransition.from(this).goBack();
-                }
+                        TypedTransition.from(this).goBack();
+                    }
                 }
             ]);
             return true;
@@ -77,46 +78,16 @@ class ChecklistView extends AbstractComponent {
 
     render() {
         General.logDebug('ChecklistView', this.props.enrolmentUUID);
+        const checklists = this.state.checklists.map((checklist, idx) => <ChecklistDisplay key={idx}
+                                                                                           onSave={this.save.bind(this)}
+                                                                                           data={checklist}/>);
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>
                 <CHSContent>
                     {this.showToast()}
-                    <AppHeader func={() => this.goBack()} title={`${this.state.checklists[0].programEnrolment.individual.nameString} - ${this.I18n.t('checklists')}`}/>
-                    {this.state.checklists.map((checklist, index) => {
-                        return (
-                            <View style={{
-                                marginHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge),
-                                backgroundColor: Styles.whiteColor,
-                                borderRadius: 5,
-                                flexDirection: 'column',
-                                flexWrap: "nowrap",
-                                paddingHorizontal: DGS.resizeWidth(13)
-                            }} key={`c${index}`}>
-                                <Text style={{fontSize: Fonts.Large}}>{checklist.name}</Text>
-                                {checklist.groupedItems().map((itemGroup, itemGroupIndex) => {
-                                    const duration = Duration.durationBetween(checklist.baseDate, itemGroup[0].dueDate);
-                                    return <View key={`c${index}-clig${itemGroupIndex}`} style={{marginTop: DGS.resizeHeight(10)}}>
-                                        <Text style={{fontSize: Fonts.Medium}}>{duration.toUnicodeString(this.I18n)}</Text>
-                                        <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-                                            {itemGroup.map((checklistItem, checklistItemIndex) => {
-                                                const actionObject = {checklistName: checklist.name, checklistItemName: checklistItem.concept.name};
-                                                return <ChecklistItemDisplay checklistItem={checklistItem}
-                                                                             key={`c${index}-clig${itemGroupIndex}-cli${checklistItemIndex}`}
-                                                                             completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
-                                                                             validationResult={ChecklistActions.getValidationResult(index, checklistItem.concept.name, this.state)}
-                                                                             actionObject={actionObject}
-                                                />
-                                            })}
-                                        </View>
-                                    </View>
-                                })}
-                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginVertical: DGS.resizeHeight(10)}}>
-                                    <Button primary style={{flex: 0.3}} onPress={() => {
-                                        this.save()
-                                    }}>{this.I18n.t('save')}</Button>
-                                </View>
-                            </View>);
-                    })}
+                    <AppHeader func={() => this.goBack()}
+                               title={`${this.state.checklists[0].programEnrolment.individual.nameString} - ${this.I18n.t('checklists')}`}/>
+                    {checklists}
                 </CHSContent>
             </CHSContainer>
         );

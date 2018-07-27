@@ -1,45 +1,54 @@
-import {View} from "react-native";
 import React from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text} from "native-base";
+import {View} from "react-native";
+import {Button, Text} from "native-base";
+import {Duration} from "openchs-models";
+import DGS from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
+import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
+import Styles from "../primitives/Styles";
+import _ from 'lodash';
+
+export default ({data, onSave}) => (
+    <View style={{
+        marginHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge),
+        backgroundColor: Styles.whiteColor,
+        borderRadius: 5,
+        flexDirection: 'column',
+        flexWrap: "nowrap",
+        paddingHorizontal: DGS.resizeWidth(13)
+    }}>
+        <Text style={{fontSize: Fonts.Large}}>{data.name}</Text>
+        {Object.entries(data.groupedItems()).map(([state, items], idx) =>
+            <View key={idx}
+                  style={{marginTop: DGS.resizeHeight(10)}}>
+                <Text
+                    style={{fontSize: Fonts.Medium}}>{_.startCase(state)}</Text>
+                <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start'
+                }}>
+                    {items.map((item, idx) =>
+                        <ChecklistItemDisplay
+                            key={idx}
+                            checklistItem={item}
+                            completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
+                            validationResult={undefined}
+                            actionObject={{
+                                checklistName: item.checklist.name,
+                                checklistItemName: item.concept.name
+                            }}/>)}
+                </View>
+            </View>)}
+        <View style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            marginVertical: DGS.resizeHeight(10)
+        }}>
+            <Button primary style={{flex: 0.3}} onPress={onSave}>Save</Button>
+        </View>
+    </View>);
+import Distances from "../primitives/Distances";
+
 import ChecklistItemDisplay from "./ChecklistItemDisplay";
-import General from "../../utility/General";
-
-class ChecklistDisplay extends AbstractComponent {
-    static propTypes = {
-        checklists: React.PropTypes.array.isRequired,
-        editable: React.PropTypes.bool,
-        style: React.PropTypes.object
-    };
-
-    constructor(props, context) {
-        super(props, context);
-    }
-
-    isEditable() {
-        return this.props.editable !== false;
-    }
-
-    render() {
-        if (this.props.checklists.length === 0) return <View/>;
-
-        return (
-            <View style={this.appendedStyle()}>
-                {this.props.checklists.map((checklist, checklistIndex) => {
-                    const upcomingItems = checklist.upcomingItems();
-                    return upcomingItems.length > 0? <View key={`c${checklistIndex}`}>
-                        <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('checklistPreview', {name: checklist.name, date: General.formatDate(upcomingItems[0][0].dueDate)})}</Text>
-                        <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
-                            {upcomingItems[0].map((checklistItem, checklistItemIndex) =>
-                                <ChecklistItemDisplay checklistItem={checklistItem} key={`c${checklistIndex}-cli${checklistItemIndex}`} style={{marginLeft: 10}} editable={this.isEditable()}/>
-                            )}
-                        </View>
-                    </View>: <View key={`c${checklistIndex}`}/>;
-                })}
-            </View>
-        );
-    }
-}
-
-export default ChecklistDisplay;

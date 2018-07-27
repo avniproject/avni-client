@@ -1,5 +1,14 @@
 import C from '../common';
 
+const makeState = (name, from, to, unit, color) => {
+    const states = {
+        "Not Now": {from: {"week": 0}, to: {"week": 1}, color: 'red'},
+        "good": {from: {"week": 1}, to: {"week": 2}, color: 'yellow'},
+        "v.good": {from: {"week": 2}, to: {"week": 3}, color: 'green'},
+        "always": {from: {"week": 3}, to: {"year": 13}, color: 'blue'}
+    };
+};
+
 var getVaccScheduleOld = function (programEnrolment) {
     const vaccScheduleItems = [];
     const dateOfBirth = programEnrolment.individual.dateOfBirth;

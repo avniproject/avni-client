@@ -42,9 +42,13 @@ import _ from 'lodash';
 import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
 import {StartProgramActions, StartProgramActionsMap} from "../action/program/StartProgramActions";
 import {LoginActions, LoginActionsMap} from "../action/LoginActions";
-import {ProgramEncounterCancelActions, ProgramEncounterCancelActionsMap} from "../action/program/ProgramEncounterCancelActions";
+import {
+    ProgramEncounterCancelActions,
+    ProgramEncounterCancelActionsMap
+} from "../action/program/ProgramEncounterCancelActions";
 import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
 import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../action/individual/IndividualAddRelativeActions';
+import  {ChecklistItemActions, ChecklistItemActionNames, ChecklistItemActionMap} from '../action/program/ChecklistItemActions';
 
 
 export default class Reducers {
@@ -71,6 +75,7 @@ export default class Reducers {
         loginActions: 'loginActions',
         familyRegister: "familyRegister",
         individualAddRelative: "individualAddRelative",
+        checklistItem: "checklistItem",
     };
 
     static createReducers(beanStore) {
@@ -97,6 +102,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualAddRelative] = Reducers._add(IndividualAddRelativeActionsMap, IndividualAddRelativeActions, beanStore);
+        reducerMap[Reducers.reducerKeys.checklistItem] = Reducers._add(ChecklistItemActionMap, ChecklistItemActions, beanStore);
         return reducerMap;
     };
 

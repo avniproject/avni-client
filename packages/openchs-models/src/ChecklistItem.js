@@ -64,8 +64,13 @@ class ChecklistItem {
         checklistItem.completionDate = this.completionDate;
         checklistItem.stateConfig = this.stateConfig;
         checklistItem.form = this.form;
+        checklistItem.checklist = this.checklist;
         checklistItem.observations = ObservationsHolder.clone(this.observations);
         return checklistItem;
+    }
+
+    validate() {
+        return null;
     }
 
     get isStillDue() {
@@ -99,12 +104,25 @@ class ChecklistItem {
         }
     }
 
+    get applicableState() {
+        const baseDate = this.checklist.baseDate;
+        return this.completed ? ChecklistItemStatus.completed : _.defaultTo(this.stateConfig.find(status => status.isApplicable(baseDate)), ChecklistItemStatus.na);
+    }
+
+    get applicableStateName() {
+        return this.applicableState.state;
+    }
+
     isNotDueOn(date) {
         return General.dateAIsBeforeB(date, this.dueDate);
     }
 
     isAfterMaxDate(date) {
         return General.dateAIsAfterB(date, this.maxDate);
+    }
+
+    get maxDate() {
+        return this.completed ? this.completionDate : this.applicableState.maxDate(this.checklist.baseDate);
     }
 }
 

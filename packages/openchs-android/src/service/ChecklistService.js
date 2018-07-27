@@ -4,6 +4,7 @@ import {Checklist, ChecklistItem, EntityQueue, StringKeyNumericValue, ChecklistI
 import _ from 'lodash';
 import ConceptService from "./ConceptService";
 import General from "../utility/General";
+import {ObservationsHolder} from "../../../openchs-models";
 
 @Service("ChecklistService")
 class ChecklistService extends BaseService {
@@ -14,6 +15,11 @@ class ChecklistService extends BaseService {
 
     getSchema() {
         return ChecklistService.schema.name;
+    }
+
+    saveChecklistItem(checklistItem) {
+        ObservationsHolder.convertObsForSave(checklistItem.observations);
+        return super.saveOrUpdate(checklistItem, ChecklistItem.schema.name);
     }
 
     saveOrUpdate(programEnrolment, checklist, db = this.db) {

@@ -95,7 +95,10 @@ class Checklist extends BaseEntity {
     }
 
     groupedItems() {
-        return _.values(_.groupBy(_.sortBy(this.items, (item) => item.dueDate), (item) => item.dueDate));
+        return this.items.reduce((acc, item) => {
+            acc[item.applicableStateName] = _.get(acc, item.getApplicableState, []).concat([item]);
+            return acc;
+        }, {});
     }
 
     addItem(item) {

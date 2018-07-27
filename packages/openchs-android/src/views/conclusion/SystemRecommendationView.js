@@ -15,7 +15,6 @@ import Distances from "../primitives/Distances";
 import Observations from "../common/Observations";
 import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
-import ChecklistDisplay from "../program/ChecklistDisplay";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import {Individual} from "openchs-models";
@@ -61,18 +60,20 @@ class SystemRecommendationView extends AbstractComponent {
         TypedTransition.from(this).goBack();
     }
 
-    profile(){
+    profile() {
         return (this.props.individual instanceof Individual) ?
             <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
-                           individual={this.props.individual} style={{
-            backgroundColor: Colors.GreyContentBackground,
-            paddingHorizontal: 24,
-            paddingBottom: 12}}/> :
-            <FamilyProfile viewContext={FamilyProfile.viewContext.Wizard}
-                               family={this.props.individual} style={{
+                               individual={this.props.individual} style={{
                 backgroundColor: Colors.GreyContentBackground,
                 paddingHorizontal: 24,
-                paddingBottom: 12}}/>
+                paddingBottom: 12
+            }}/> :
+            <FamilyProfile viewContext={FamilyProfile.viewContext.Wizard}
+                           family={this.props.individual} style={{
+                backgroundColor: Colors.GreyContentBackground,
+                paddingHorizontal: 24,
+                paddingBottom: 12
+            }}/>
 
 
     }
@@ -106,7 +107,6 @@ class SystemRecommendationView extends AbstractComponent {
                             </View>
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
-                            {/*<ChecklistDisplay checklists={this.props.checklists} editable={false}/>*/}
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                            next={{
                                                func: () => this.save(),
