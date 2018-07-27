@@ -429,7 +429,7 @@ describe("Mother Program ANC", () => {
             });
         });
 
-        it("is generated if mother gains more than 2 KGs in 4 weeks", () => {
+        it("is not generated if mother gains more than 2 KGs but less than 3 in 4 weeks", () => {
             const lmp = refDate.subtract(32, "w").toDate();
             const encounter1DateTime = moment(lmp).add(14, "w").toDate();
             const encounter2DateTime = moment(lmp).add(18, "w").toDate();
@@ -444,7 +444,25 @@ describe("Mother Program ANC", () => {
                 .build();
             enrolment.encounters = [anc1Encounter, anc2Encounter];
             decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
-            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
+            assert.notInclude(C.findValue(decisions.encounterDecisions, "Refer to the hospital for"), "Irregular weight gain");
+        });
+
+        it("is generated if mother gains more than 3 KGs in 4 weeks", () => {
+            const lmp = refDate.subtract(32, "w").toDate();
+            const encounter1DateTime = moment(lmp).add(14, "w").toDate();
+            const encounter2DateTime = moment(lmp).add(18, "w").toDate();
+            enrolment = new EnrolmentFiller(programData, individual, lmp)
+                .forConcept("Last menstrual period", lmp)
+                .build();
+            let anc1Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter1DateTime)
+                .forConcept("Weight", 55)
+                .build();
+            let anc2Encounter = new EncounterFiller(programData, enrolment, "ANC", encounter2DateTime)
+                .forConcept("Weight", 55 + 3)
+                .build();
+            enrolment.encounters = [anc1Encounter, anc2Encounter];
+            decisions = motherEncounterDecision.getDecisions(anc2Encounter, encounter2DateTime);
+            assert.include(C.findValue(decisions.encounterDecisions, "Refer to the hospital immediately for"), "Irregular weight gain");
         });
 
         it("is generated if mother gains less than 1.7 KGs in 4 weeks", () => {

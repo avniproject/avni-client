@@ -34,9 +34,9 @@ const eddBasedOnGestationalAge = (estimatedGestationalAgeInWeeks, estimatedOnDat
 };
 
 const TRIMESTER_MAPPING = new Map([
-    [1, { from: 0, to: 12 }],
-    [2, { from: 13, to: 28 }],
-    [3, { from: 29, to: 40 }]
+    [1, {from: 0, to: 12}],
+    [2, {from: 13, to: 28}],
+    [3, {from: 29, to: 40}]
 ]);
 
 const currentTrimester = (enrolment, toDate = new Date()) => [...TRIMESTER_MAPPING.keys()]
@@ -50,7 +50,7 @@ const get1stEncounterAfter1stTrimester = (enrolment) => {
         .filter((en) => currentTrimester(enrolment, en.encounterDateTime) > 1)
         .sortBy('encounterDateTime')
         .first();
-}
+};
 
 const getWeightGainRange = (enrolment, currentEncounter) => {
     const baseEncounter = get1stEncounterAfter1stTrimester(enrolment);
@@ -61,22 +61,32 @@ const getWeightGainRange = (enrolment, currentEncounter) => {
     const noOfWeeksBetween = C.weeksBetween(currentEncounter.encounterDateTime, baseEncounter.encounterDateTime);
     const minWeightGain = noOfWeeksBetween * 1.7 / 4;
     const maxWeightGain = noOfWeeksBetween * 2 / 4;
+    const absoluteWeightGain = noOfWeeksBetween * 3 / 4;
     const min = baseWeight + minWeightGain;
     const max = baseWeight + maxWeightGain;
-    return { min, max };
-}
+    const absoluteMax = baseWeight + absoluteWeightGain;
+    return {min, max, absoluteMax};
+};
 
 const isNormalWeightGain = (enrolment, currentEncounter) => {
-    const { min, max } = getWeightGainRange(enrolment, currentEncounter);
+    const {min, max} = getWeightGainRange(enrolment, currentEncounter);
     const currentWeight = currentEncounter && currentEncounter.getObservationValue("Weight");
     if (_.some([min, max, currentWeight], _.isNil)) {
         return true;
     }
     return min <= currentWeight && currentWeight <= max;
-}
+};
 
+const isAbsoluteMaxWeightGain = (enrolment, currentEncounter) => {
+    const {absoluteMax} = getWeightGainRange(enrolment, currentEncounter);
+    const currentWeight = currentEncounter && currentEncounter.getObservationValue("Weight");
+    if (_.some([absoluteMax, currentWeight], _.isNil)) {
+        return false;
+    }
+    return currentWeight >= absoluteMax;
+};
 const isBelowNormalWeightGain = (enrolment, currentEncounter) => {
-    const { min } = getWeightGainRange(enrolment, currentEncounter);
+    const {min} = getWeightGainRange(enrolment, currentEncounter);
     const currentWeight = currentEncounter && currentEncounter.getObservationValue("Weight");
     if (_.some([min, currentWeight], _.isNil)) {
         return true;
@@ -92,6 +102,7 @@ export {
     eddBasedOnGestationalAge,
     isNormalWeightGain,
     isBelowNormalWeightGain,
+    isAbsoluteMaxWeightGain,
     currentTrimester,
     gestationalAge
 };

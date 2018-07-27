@@ -4,6 +4,7 @@ import {
     isNormalWeightGain
 } from "./utils";
 import _ from "lodash";
+import {isBelowNormalWeightGain, isAbsoluteMaxWeightGain} from "./calculations";
 
 const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
     const referralAdvice = new ComplicationsBuilder({
@@ -26,6 +27,9 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
         referralAdvice.addComplication(complication)
             .when.valueInEncounter("Pregnancy complications").containsAnswerConceptName(complication);
     });
+
+    referralAdvice.addComplication("Irregular weight gain")
+        .whenItem(isAbsoluteMaxWeightGain(enrolment, encounter, today)).is.truthy;
 
     referralAdvice.addComplication("Convulsions")
         .when.valueInEncounter("Has she been having convulsions?").containsAnswerConceptName("Present");
@@ -161,7 +165,7 @@ const referralAdvice = (enrolment, encounter, today = new Date()) => {
     });
 
     referralAdvice.addComplication("Irregular weight gain")
-        .whenItem(isNormalWeightGain(enrolment, encounter, today)).is.not.truthy;
+        .whenItem(isBelowNormalWeightGain(enrolment, encounter, today)).is.truthy;
 
     referralAdvice.addComplication("Irregular fundal height increase")
         .whenItem(gestationalAge(enrolment, today)).greaterThan(24)
