@@ -74,7 +74,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getChecklists(ruleService, context) {
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
-            return ruleService.getChecklists(this.enrolment);
+            const ruleChecklists = ruleService.getChecklists(this.enrolment);
+            return this.enrolment.createChecklists(ruleChecklists, context.get(ConceptService));
         } else {
             return null;
         }

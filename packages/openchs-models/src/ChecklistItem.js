@@ -3,7 +3,6 @@ import General from "./utility/General";
 import ResourceUtil from "./utility/ResourceUtil";
 import Checklist from './Checklist';
 import Concept from './Concept';
-import ChecklistItemStatus from "./ChecklistItemStatus";
 
 class ChecklistItem {
     static schema = {
@@ -12,9 +11,18 @@ class ChecklistItem {
         properties: {
             uuid: 'string',
             concept: 'Concept',
-            stateConfig: {type: 'list', objectType: 'ChecklistItemStatus'},
+            dueDate: 'date',
+            maxDate: {type: 'date', optional: true},
+            completionDate: {type: 'date', optional: true},
             checklist: 'Checklist'
         }
+    };
+
+    static status = {
+        Upcoming: 'Upcoming',
+        PastDue: 'PastDue',
+        Expired: 'Expired',
+        Completed: 'Completed'
     };
 
     static create() {

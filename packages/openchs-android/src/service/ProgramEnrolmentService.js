@@ -7,7 +7,6 @@ import {
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
-import ChecklistService from "./ChecklistService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -47,12 +46,22 @@ class ProgramEnrolmentService extends BaseService {
             General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
             programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db);
             General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');
-            const checklistService = this.getService(ChecklistService);
-            checklists
-                .map((checklist) => checklistService.saveOrUpdate(programEnrolment, checklist, db))
-                .reduce((acc, v) => acc.concat(v), [])
-                .forEach((eq) => entityQueueItems.push(eq));
 
+            checklists.forEach((checklist) => {
+                if (_.isNil(programEnrolment.findChecklist(checklist.name))) {
+                    checklist.baseDate = checklist.baseDate || new Date();
+
+                    const savedChecklist = db.create(Checklist.schema.name, checklist, true);
+                    entityQueueItems.push(EntityQueue.create(savedChecklist, Checklist.schema.name));
+                    savedChecklist.items.forEach((item) => {
+                        item.checklist = savedChecklist;
+                        entityQueueItems.push(EntityQueue.create(item, ChecklistItem.schema.name));
+                    });
+
+                    programEnrolment.checklists.push(savedChecklist);
+                    savedChecklist.programEnrolment = programEnrolment;
+                }
+            });
             General.logDebug('ProgramEnrolmentService', 'Checklist added to ProgramEnrolment');
 
             const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
