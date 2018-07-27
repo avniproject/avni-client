@@ -1,5 +1,5 @@
 {
-  "catchment": 9,
+  "catchment": 1,
   "serverURL": "http://192.168.56.1:8021",
   "logLevel": 3,
   "locale": "en"
