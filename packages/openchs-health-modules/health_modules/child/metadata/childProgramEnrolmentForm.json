@@ -74,7 +74,7 @@
             "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
           },
           "displayOrder": 6,
-          "mandatory": true
+          "mandatory": false
         }
       ]
     }
