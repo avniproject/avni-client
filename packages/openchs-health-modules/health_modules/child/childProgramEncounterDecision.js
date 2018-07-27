@@ -74,7 +74,9 @@ export function getDecisions(programEncounter, today) {
 
         return {
             enrolmentDecisions: [],
-            encounterDecisions: decisions.concat(anthropometricDecisions(programEncounter).encounterDecisions)
+            encounterDecisions: programEncounter.encounterType.name !== 'Birth' ?
+                                    decisions.concat(anthropometricDecisions(programEncounter).encounterDecisions)
+                                    : decisions
         }
     }
     else if (programEncounter.encounterType.name === 'Anthropometry Assessment') {
