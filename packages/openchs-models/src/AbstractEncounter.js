@@ -8,7 +8,8 @@ import ResourceUtil from "./utility/ResourceUtil";
 
 class AbstractEncounter extends BaseEntity {
     static fieldKeys = {
-        ENCOUNTER_DATE_TIME: 'ENCOUNTER_DATE_TIME'
+        ENCOUNTER_DATE_TIME: 'ENCOUNTER_DATE_TIME',
+        COMPLETION_DATE: 'COMPLETION_DATE'
     };
 
     validate() {

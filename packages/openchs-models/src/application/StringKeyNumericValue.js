@@ -14,6 +14,12 @@ class StringKeyNumericValue {
         return stringKeyNumericValue;
     }
 
+    get toResource() {
+        const resource = {};
+        resource[this.key] = this.value;
+        return resource;
+    }
+
     getValue() {
 
     }

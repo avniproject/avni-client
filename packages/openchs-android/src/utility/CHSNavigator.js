@@ -22,6 +22,7 @@ import ProgramEncounterCancelView from "../views/program/ProgramEncounterCancelV
 import IndividualSearchView from "../views/individual/IndividualSearchView";
 import IndividualAddRelativeView from "../views/individual/IndividualAddRelativeView";
 import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
+import ChecklistItemView from "../views/program/ChecklistItemView";
 
 
 class CHSNavigator {
@@ -66,6 +67,10 @@ class CHSNavigator {
 
     static navigateToProgramEncounterView(source, programEncounter) {
         TypedTransition.from(source).with({programEncounter: programEncounter}).to(ProgramEncounterView);
+    }
+
+    static navigateToChecklistItemView(source, checklistItem) {
+        TypedTransition.from(source).with({checklistItem: checklistItem}).to(ChecklistItemView);
     }
 
     static navigateToProgramEncounterCancelView(source, programEncounter) {

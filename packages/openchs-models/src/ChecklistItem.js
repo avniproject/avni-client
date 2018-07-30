@@ -2,8 +2,10 @@ import _ from "lodash";
 import General from "./utility/General";
 import ResourceUtil from "./utility/ResourceUtil";
 import Checklist from './Checklist';
+import Form from './application/Form';
 import Concept from './Concept';
 import ChecklistItemStatus from "./ChecklistItemStatus";
+import ObservationsHolder from "./ObservationsHolder";
 
 class ChecklistItem {
     static schema = {
@@ -13,6 +15,9 @@ class ChecklistItem {
             uuid: 'string',
             concept: 'Concept',
             stateConfig: {type: 'list', objectType: 'ChecklistItemStatus'},
+            completionDate: {type: 'date', optional: true},
+            form: {type: 'Form', optional: true},
+            observations: {type: 'list', objectType: 'Observation'},
             checklist: 'Checklist'
         }
     };
@@ -20,26 +25,35 @@ class ChecklistItem {
     static create() {
         const checklistItem = new ChecklistItem();
         checklistItem.uuid = General.randomUUID();
+        checklistItem.observations = [];
         return checklistItem;
     }
 
     static fromResource(checklistItemResource, entityService) {
         const checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistUUID"), Checklist.schema.name);
+        const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "formUUID"), Form.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
 
-        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['dueDate', 'maxDate', 'completionDate']);
+        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid", "name"], ['completionDate'], ['observations']);
+        checklistItem.stateConfig = _.get(checklistItemResource, "checklistItemStatus", [])
+            .map(itemStatus => ChecklistItemStatus.fromResource(itemStatus, entityService));
         checklistItem.checklist = checklist;
+        checklistItem.form = form;
         checklistItem.concept = concept;
         return checklistItem;
     }
 
     get toResource() {
         const resource = _.pick(this, ["uuid", "name"]);
-        resource["dueDate"] = General.isoFormat(this.dueDate);
-        resource["maxDate"] = General.isoFormat(this.maxDate);
         resource["completionDate"] = General.isoFormat(this.completionDate);
         resource["checklistUUID"] = this.checklist.uuid;
         resource["conceptUUID"] = this.concept.uuid;
+        resource["status"] = this.stateConfig.map(sc => sc.toResource);
+        resource["formUUID"] = _.get(this.form, 'uuid', null);
+        resource["observations"] = [];
+        this.observations.forEach((obs) => {
+            resource["observations"].push(obs.toResource);
+        });
         return resource;
     }
 
@@ -47,10 +61,16 @@ class ChecklistItem {
         const checklistItem = new ChecklistItem();
         checklistItem.uuid = this.uuid;
         checklistItem.concept = this.concept;
-        checklistItem.dueDate = this.dueDate;
-        checklistItem.maxDate = this.maxDate;
         checklistItem.completionDate = this.completionDate;
+        checklistItem.stateConfig = this.stateConfig;
+        checklistItem.form = this.form;
+        checklistItem.checklist = this.checklist;
+        checklistItem.observations = ObservationsHolder.clone(this.observations);
         return checklistItem;
+    }
+
+    validate() {
+        return null;
     }
 
     get isStillDue() {
@@ -84,12 +104,25 @@ class ChecklistItem {
         }
     }
 
+    get applicableState() {
+        const baseDate = this.checklist.baseDate;
+        return this.completed ? ChecklistItemStatus.completed : _.defaultTo(this.stateConfig.find(status => status.isApplicable(baseDate)), ChecklistItemStatus.na);
+    }
+
+    get applicableStateName() {
+        return this.applicableState.state;
+    }
+
     isNotDueOn(date) {
         return General.dateAIsBeforeB(date, this.dueDate);
     }
 
     isAfterMaxDate(date) {
         return General.dateAIsAfterB(date, this.maxDate);
+    }
+
+    get maxDate() {
+        return this.completed ? this.completionDate : this.applicableState.maxDate(this.checklist.baseDate);
     }
 }
 

@@ -114,7 +114,8 @@ class Form {
         ProgramEncounter: 'ProgramEncounter',
         ProgramEnrolment: 'ProgramEnrolment',
         ProgramExit: 'ProgramExit',
-        ProgramEncounterCancellation: 'ProgramEncounterCancellation'
+        ProgramEncounterCancellation: 'ProgramEncounterCancellation',
+        ChecklistItem: 'ChecklistItem',
     };
 }
 
