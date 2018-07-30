@@ -25,12 +25,16 @@ class IndividualNameFormElement extends AbstractComponent {
                                  element={new StaticFormElement('firstName', true)}
                                  validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.FIRST_NAME)}
                                  value={new PrimitiveValue(this.props.state.individual.firstName)}
-                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                 multiline={false}
+                />
                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_LAST_NAME}
                                  element={new StaticFormElement('lastName', true)}
                                  validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.LAST_NAME)}
                                  value={new PrimitiveValue(this.props.state.individual.lastName)}
-                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                 multiline={false}
+                />
             </View>
         );
     }

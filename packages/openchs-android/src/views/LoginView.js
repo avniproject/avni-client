@@ -120,14 +120,16 @@ class LoginView extends AbstractComponent {
                                              actionName={Actions.ON_USER_ID_CHANGE} validationResult={null}
                                              value={new PrimitiveValue(this.state.userId)}
                                              style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                             multiline={false}
                                 // autoFocus={true}
                             />
                             <TextFormElement element={new StaticFormElement('password')}
                                              secureTextEntry={!this.state.showPassword}
                                              actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
                                              style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                             value={new PrimitiveValue(this.state.password)}/>
-
+                                             value={new PrimitiveValue(this.state.password)}
+                                             multiline={false}
+                            />
                             <View style={{
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
