@@ -440,7 +440,8 @@
     "answers": [
       {
         "name": "Umbilical cord is infected",
-        "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077"
+        "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077",
+        "abnormal": true
       },
       {
         "name": "Blue/pale",
