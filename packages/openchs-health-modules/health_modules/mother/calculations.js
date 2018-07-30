@@ -36,7 +36,7 @@ const eddBasedOnGestationalAge = (estimatedGestationalAgeInWeeks, estimatedOnDat
 const TRIMESTER_MAPPING = new Map([
     [1, {from: 0, to: 12}],
     [2, {from: 13, to: 28}],
-    [3, {from: 29, to: 40}]
+    [3, {from: 29, to: Infinity}]
 ]);
 
 const currentTrimester = (enrolment, toDate = new Date()) => [...TRIMESTER_MAPPING.keys()]
@@ -89,7 +89,7 @@ const isBelowNormalWeightGain = (enrolment, currentEncounter) => {
     const {min} = getWeightGainRange(enrolment, currentEncounter);
     const currentWeight = currentEncounter && currentEncounter.getObservationValue("Weight");
     if (_.some([min, currentWeight], _.isNil)) {
-        return true;
+        return false;
     }
     return currentWeight < min;
 };
