@@ -1186,12 +1186,6 @@
     ]
   },
   {
-    "name": "Foetal Heart Rate",
-    "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
-    "dataType": "Numeric",
-    "unit": "bpm"
-  },
-  {
     "name": "Flat Nipples",
     "uuid": "9ba87237-ea3f-42f4-9bac-99fa5fcc9abc",
     "dataType": "NA"
@@ -2822,7 +2816,9 @@
     "name": "Foetal Heart Rate",
     "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
     "dataType": "Numeric",
-    "unit": "bpm"
+    "unit": "bpm",
+    "lowNormal": 120,
+    "highNormal": 160
   },
   {
     "name": "Systolic",
