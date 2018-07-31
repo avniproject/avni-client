@@ -1,0 +1,17 @@
+{
+  "name": "utilities",
+  "description": "General utilities",
+  "version": "0.0.1",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenCHS/openchs-client.git"
+  },
+  "scripts": {
+    "start": "node translation.js"
+  },
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "lodash": "4.14.0"
+  }
+}
