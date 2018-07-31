@@ -23,6 +23,7 @@ export class ProgramEnrolmentActions {
             let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
             let programEnrolmentState = new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment, filteredElements);
+            programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
             return programEnrolmentState;
         }
