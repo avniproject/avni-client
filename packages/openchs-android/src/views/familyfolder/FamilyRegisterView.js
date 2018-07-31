@@ -75,7 +75,7 @@ class FamilyRegisterView extends AbstractComponent {
                             value={new PrimitiveValue(this.state.family.typeOfFamily)}
                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.TYPE_OF_FAMILY)}
-
+                            multiline={false}
                         />
                         <TextFormElement
                             element={new StaticFormElement('Household Number', true)}
@@ -83,6 +83,7 @@ class FamilyRegisterView extends AbstractComponent {
                             value={new PrimitiveValue(this.state.family.householdNumber)}
                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.HOUSEHOLD_NUMBER)}
+                            multiline={false}
                         />
                         <IndividualFormElement
                             individualNameValue={_.isNil(this.state.family.headOfFamily.name) ? "" : this.state.family.headOfFamily.name}
@@ -90,7 +91,6 @@ class FamilyRegisterView extends AbstractComponent {
                             inputChangeActionName={Actions.REGISTRATION_ENTER_HEAD_OF_FAMILY}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.HEAD_OF_FAMILY)}
                             searchHeaderMessage={headOfFamilySearchHeaderMessage}
-
                         />
 
                         <WizardButtons

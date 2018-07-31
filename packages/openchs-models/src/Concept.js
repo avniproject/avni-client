@@ -66,6 +66,7 @@ export default class Concept {
         Numeric: 'Numeric',
         Boolean: 'Boolean',
         Text: 'Text',
+        Notes: 'Notes',
         NA: 'NA'
     };
 

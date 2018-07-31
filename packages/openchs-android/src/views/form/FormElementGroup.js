@@ -74,12 +74,13 @@ class FormElementGroup extends AbstractComponent {
                                 endEditingActionName={this.props.actions["PRIMITIVE_VALUE_END_EDITING"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}/>, idx);
-                        } else if (formElement.concept.datatype === Concept.dataType.Text) {
+                        } else if (formElement.concept.datatype === Concept.dataType.Text || formElement.concept.datatype === Concept.dataType.Notes) {
                             return this.wrap(<TextFormElement
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
+                                multiline={formElement.concept.datatype !== Concept.dataType.Text}
                             />, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectFormElement key={idx}

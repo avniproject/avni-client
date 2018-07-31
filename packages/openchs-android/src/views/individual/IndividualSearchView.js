@@ -49,9 +49,9 @@ class IndividualSearchView extends AbstractComponent {
                 <CHSContent>
                     {this.props.showHeader? <AppHeader title={ this.props.headerMessage ? this.props.headerMessage : this.I18n.t("search")}/> : <View/>}
                 <View style={{marginTop: Styles.ContentDistanceFromEdge, paddingHorizontal: Styles.ContentDistanceFromEdge, flexDirection: 'column'}}>
-                    <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)}/>
-                    <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')} value={new PrimitiveValue(this.state.searchCriteria.age)}/>
-                    <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA} element={new StaticFormElement('obsKeyword')} value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}/>
+                    <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA} element={new StaticFormElement('name')} value={new PrimitiveValue(this.state.searchCriteria.name)} multiline={false}/>
+                    <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')} value={new PrimitiveValue(this.state.searchCriteria.age)} multiline={false}/>
+                    <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA} element={new StaticFormElement('obsKeyword')} value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)} multiline={false}/>
                     <AddressLevels multiSelect={true}
                                    selectedAddressLevels={this.state.searchCriteria.lowestAddressLevels}
                                    actionName={Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL}
