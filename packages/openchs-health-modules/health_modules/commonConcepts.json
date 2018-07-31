@@ -1445,7 +1445,8 @@
     "answers": [
       {
         "name": "Present",
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+        "abnormal": true
       },
       {
         "name": "Absent",
