@@ -39,6 +39,7 @@ class TextFormElement extends AbstractFormElement {
                 {this.label}
                 <TextInput {...this.props} style={Styles.formBodyText} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
                            value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} multiline={true} numberOfLines={this.props.multiline ? 4 : 1}/>
+
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);
     }

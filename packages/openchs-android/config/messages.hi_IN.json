@@ -31,7 +31,6 @@
   "encounterDateBeforeRegistrationDate": "विजिट तारिख रजिस्ट्रेशन तारिख से पहले",
   "encounterDateNotInBetweenEnrolmentAndExitDate": "विजिट तारिख एनरोलमेंट तारिख और विजिट तारिख के बीच में नहीं",
   "registrationBeforeDateOfBirth": "रजिसस्ट्रेशन तारिख जन्म तिथि से पहले",
-  "dateOfBirthCannotBeInFuture": "जन्म तिथि भविष्य में",
   "ageTooHigh": "120 से जयादा उम्र",
   "syncError": "सिंक में गड़बड़",
   "locale": "भाषा",

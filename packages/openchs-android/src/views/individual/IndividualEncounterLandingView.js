@@ -88,6 +88,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                           validationResults={this.state.validationResults}
                                           filteredFormElements={this.state.filteredFormElements}
                                           formElementsUserState={this.state.formElementsUserState}
+                                          dataEntryDate={this.state.encounter.encounterDateTime}
                         />
                         <WizardButtons next={{
                             func: () => this.next(),

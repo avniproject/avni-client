@@ -37,7 +37,6 @@
 
   "numberAboveHiAbsolute": "{{limit}} અથવા {{limit}} કરતાં ઓછી હોવી જોઈએ",
   "numberBelowLowAbsolute": "{{limit}} અથવા {{limit}} થી વધુ હોવો જોઈએ",
-  "dateOfBirthCannotBeInFuture": "જન્મ તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
 
   "syncError": "સમન્વયન નિષ્ફળ થયું",
   "syncData": "સમન્વય ડેટા",

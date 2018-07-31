@@ -51,7 +51,8 @@ class FamilyRegisterFormView extends AbstractComponent {
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.family.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions} validationResults={this.state.validationResults}
-                                          formElementsUserState={this.state.formElementsUserState}/>
+                                          formElementsUserState={this.state.formElementsUserState}
+                                          dataEntryDate={this.state.family.registrationDate}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{
                                            func: () => FamilyRegisterViewsMixin.next(this),

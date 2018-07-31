@@ -18,13 +18,8 @@ describe('DurationTest', () => {
     });
 
     it('fromToday', () => {
-        assert.equal(Duration.fromToday(Duration.Month, new Date(2017, 3, 1), new Date(2017, 5, 7)).durationValue, 2);
-        assert.equal(Duration.fromToday(Duration.Week, new Date(2017, 3, 1), new Date(2017, 5, 7)).durationValue, 9);
-    });
-
-    it('basedOnToday', () => {
-        const duration = Duration.basedOnToday(new Date(2017, 5, 10), Duration.Day, new Date(2017, 5, 13));
-        assert.equal(duration.durationValue, 3);
+        assert.equal(Duration.fromDataEntryDate(Duration.Month, new Date(2017, 3, 1), new Date(2017, 5, 7)).durationValue, 2);
+        assert.equal(Duration.fromDataEntryDate(Duration.Week, new Date(2017, 3, 1), new Date(2017, 5, 7)).durationValue, 9);
     });
 
     it('Duration between', () => {

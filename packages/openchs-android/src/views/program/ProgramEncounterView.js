@@ -88,7 +88,9 @@ class ProgramEncounterView extends AbstractComponent {
                             actions={Actions}
                             validationResults={this.state.validationResults}
                             filteredFormElements={this.state.filteredFormElements}
-                            formElementsUserState={this.state.formElementsUserState}/>
+                            formElementsUserState={this.state.formElementsUserState}
+                            dataEntryDate={this.state.programEncounter.encounterDateTime}
+                        />
                         <WizardButtons previous={{
                             func: () => this.previous(),
                             visible: !this.state.wizard.isFirstPage(),

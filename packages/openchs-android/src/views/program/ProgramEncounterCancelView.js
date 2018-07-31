@@ -79,6 +79,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                             validationResults={this.state.validationResults}
                             filteredFormElements={this.state.filteredFormElements}
                             formElementsUserState={this.state.formElementsUserState}
+                            dataEntryDate={this.state.programEncounter.cancelDateTime}
                         />
                         <WizardButtons previous={{
                             func: () => this.previous(),

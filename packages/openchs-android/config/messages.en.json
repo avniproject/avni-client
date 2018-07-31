@@ -13,7 +13,6 @@
   "registrationBeforeDateOfBirth": "Registration cannot be before date of birth",
   "numberAboveHiAbsolute": "Should be {{limit}}, or less than {{limit}}",
   "numberBelowLowAbsolute": "Should be {{limit}}, or more than {{limit}}",
-  "dateOfBirthCannotBeInFuture": "The date of birth cannot be in future",
   "ageTooHigh": "Age is person is above 120 years",
   "syncError": "Sync Failed",
   "tryAgain": "Try Again",

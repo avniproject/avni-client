@@ -31,7 +31,6 @@
   "encounterDateBeforeRegistrationDate": "भेटण्याची तारीख हि रजिसस्ट्रेशन तारखेच्या आधी येत नाही",
   "encounterDateNotInBetweenEnrolmentAndExitDate": "भेटण्याची तारीख हि इंरोलमेंट तारीख आणि निर्गमन तारखेच्या मध्ये नसते",
   "registrationBeforeDateOfBirth": "रजिसस्ट्रेशन हे जन्म तारखेच्या आधी नसते",
-  "dateOfBirthCannotBeInFuture": "जन्म तारीख हि भविष्यात असू शकत नाही",
   "ageTooHigh": "120 वर्षाच्या वर असणारी व्यक्ती",
   "syncError": "अयशस्वी समक्रमण",
   "serverURL": "सर्वरचा यु.आर.एल",

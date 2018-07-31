@@ -16,7 +16,7 @@ export class EncounterActions {
         if (!action.encounter.encounterType) return state;
 
         const individualEncounterService = context.get(IndividualEncounterService);
-        var encounter = individualEncounterService.findByUUID(action.encounter.uuid);
+        let encounter = individualEncounterService.findByUUID(action.encounter.uuid);
         const isNewEncounter = _.isNil(encounter);
         if (isNewEncounter) {
             encounter = action.encounter;
@@ -27,7 +27,9 @@ export class EncounterActions {
                             .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
-        return EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
+        let encounterActionState = EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
+        encounterActionState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
+        return encounterActionState;
     }
 
     static onNext(state, action, context) {

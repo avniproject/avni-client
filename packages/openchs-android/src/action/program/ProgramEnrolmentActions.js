@@ -22,7 +22,9 @@ export class ProgramEnrolmentActions {
             const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
             let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
-            return new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment, filteredElements);
+            let programEnrolmentState = new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment, filteredElements);
+            programEnrolmentState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
+            return programEnrolmentState;
         }
         else {
             return state.clone();
