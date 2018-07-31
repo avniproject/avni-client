@@ -17,7 +17,7 @@
           "type":"MultiSelect",
           "concept":{
             "uuid": "fc1346b0-57fe-4a84-8d95-f4461d60176f",
-            "name":"Abortion complaints"
+            "comment":"Abortion complaints"
           },
           "displayOrder":0,
           "mandatory": false
