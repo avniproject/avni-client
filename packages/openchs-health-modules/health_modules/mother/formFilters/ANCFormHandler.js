@@ -1,6 +1,7 @@
 import _ from "lodash";
 import C from "../../common";
 import {FormElementsStatusHelper, FormElementStatusBuilder, FormElementStatus} from "rules-config/rules";
+import VaccinationFilters from "./VaccinationFilters";
 
 //any gestaional age beyond 28 weeks is 3rd trimester
 export const TRIMESTER_MAPPING = new Map([[1, {from: 0, to: 12}], [2, {from: 13, to: 28}], [3, {from: 29, to: Infinity}]]);
@@ -180,30 +181,13 @@ class ANCFormHandler {
     }
 
     tt1Date(programEncounter, formElement) {
-        const neverExisted = this._formStatusBuilder(programEncounter, formElement);
-        const existsInCurrentEncounter = this._existsInCurrentEncounter(programEncounter, formElement, 'TT1 Date');
-        neverExisted.show()
-            .when.valueInEntireEnrolment('TT1 Date').is.notDefined;
-
-        return neverExisted.build().or(existsInCurrentEncounter);
+        return VaccinationFilters.tt1Date(programEncounter, formElement);
     }
-
+    tt2Date(programEncounter, formElement) {
+        return VaccinationFilters.tt2Date(programEncounter, formElement);
+    }
     ttBoosterDate(programEncounter, formElement) {
-        return this.validOnceAfter(programEncounter, formElement, 'TT Booster Date', 12);
-    }
-
-    tt2Date(programEncounter, formElement, today) {
-        const neverExisted = this._formStatusBuilder(programEncounter, formElement);
-        const existsInCurrentEncounter = this._existsInCurrentEncounter(programEncounter, formElement, 'TT2 Date');
-        
-        neverExisted.show()
-            .when.valueInEntireEnrolment('TT1 Date').is.defined.and
-            .when.valueInEntireEnrolment('TT2 Date').is.notDefined.and
-            .when.valueInEntireEnrolment('TT1 Date').matchesFn((tt1Date) => {
-                const TT2ToBeShownAfter = C.addWeeks(tt1Date, 4);
-                return C.isBefore(TT2ToBeShownAfter, today);
-            });
-        return neverExisted.build().or(existsInCurrentEncounter);
+        return VaccinationFilters.ttBoosterDate(programEncounter, formElement);
     }
 
     bmi(programEncounter, formElement, today) {
@@ -220,11 +204,6 @@ class ANCFormHandler {
 
     _existsInCurrentEncounter(programEncounter, formElement, conceptName) {
         const visibility = !_.isNil(programEncounter.findObservation(conceptName));
-        return new FormElementStatus(formElement.uuid, visibility);
-    }
-
-    validOnceAfter(programEncounter, formElement, conceptName, weeks) {
-        let visibility = this._gestationalAge > weeks && _.isNil(programEncounter.findObservationInEntireEnrolment(conceptName));
         return new FormElementStatus(formElement.uuid, visibility);
     }
 
