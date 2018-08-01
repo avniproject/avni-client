@@ -512,23 +512,23 @@
           "mandatory": false
         },
         {
-          "name": "TT Booster Date",
-          "uuid": "4fa32ede-c17d-4e0e-b8bc-2d5ced4b2dab",
-          "keyValues": [],
-          "concept": {
-            "uuid": "e1b7ce95-8c73-46fa-8354-19a14f5ca17f",
-            "name": "TT Booster Date"
-          },
-          "displayOrder": 2,
-          "mandatory": false
-        },
-        {
           "name": "TT2 Date",
           "uuid": "6cf6bb59-08bb-4a78-9bfd-d82727f7e2b8",
           "keyValues": [],
           "concept": {
             "uuid": "57f66ff5-e050-4a72-ad03-94d99dad4630",
             "name": "TT2 Date"
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "TT Booster Date",
+          "uuid": "4fa32ede-c17d-4e0e-b8bc-2d5ced4b2dab",
+          "keyValues": [],
+          "concept": {
+            "uuid": "e1b7ce95-8c73-46fa-8354-19a14f5ca17f",
+            "name": "TT Booster Date"
           },
           "displayOrder": 3,
           "mandatory": false
