@@ -147,6 +147,7 @@ class Individual extends BaseEntity {
     }
 
     getDisplayAge(i18n) {
+        //Keeping date of birth to be always entered and displayed as per the current date. It would be perhaps more error prone for users to put themselves in the past and enter age as of that date
         const ageInYears = this.getAgeInYears();
         if (ageInYears < 1) {
             let ageInWeeks = moment().diff(this.dateOfBirth, 'weeks');
@@ -202,8 +203,6 @@ class Individual extends BaseEntity {
     validateDateOfBirth() {
         if (_.isNil(this.dateOfBirth)) {
             return ValidationResult.failure(Individual.validationKeys.DOB, "emptyValidationMessage");
-        } else if (General.dateAIsAfterB(this.dateOfBirth, new Date())) {
-            return ValidationResult.failure(Individual.validationKeys.DOB, "dateOfBirthCannotBeInFuture");
         } else if (this.getAgeInYears() > 120) {
             return ValidationResult.failure(Individual.validationKeys.DOB, "ageTooHigh");
         } else if (this.isRegistrationBeforeDateOfBirth) {

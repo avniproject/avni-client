@@ -468,15 +468,18 @@
     "answers": [
       {
         "name": "Positive for PF",
-        "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7"
+        "uuid": "ed305c6f-3986-4346-9ae3-e21cbe0b55f7",
+        "abnormal": true
       },
       {
         "name": "Positive for PF and PV",
-        "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea"
+        "uuid": "9387a474-72ca-48b6-a608-bd3657c5d1ea",
+        "abnormal": true
       },
       {
         "name": "Positive for PV",
-        "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b"
+        "uuid": "662c40a4-2694-4b10-9388-1ddb2c53886b",
+        "abnormal": true
       },
       {
         "name": "Negative",
@@ -1445,7 +1448,8 @@
     "answers": [
       {
         "name": "Present",
-        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757"
+        "uuid": "57b51d52-981f-4af2-b133-aeffa6d00757",
+        "abnormal": true
       },
       {
         "name": "Absent",

@@ -77,21 +77,13 @@ class Duration {
         return new Duration(value, this.durationUnit);
     }
 
-    static fromToday(durationUnit, date, today) {
-        today = today ? today : new Date();
-        const durationValue = moment(today).diff(date, durationUnit);
+    static fromDataEntryDate(durationUnit, date, dataEntryDate) {
+        const durationValue = moment(dataEntryDate).diff(date, durationUnit);
         return new Duration(durationValue, durationUnit);
     }
 
-    dateInPastBasedOnToday(today) {
-        today = today ? today : new Date();
-        return moment(today).subtract(this.durationValue, this.durationUnit).toDate();
-    }
-
-    static basedOnToday(date, durationUnit, today) {
-        today = today ? today : new Date();
-        const durationValue = moment(today).diff(date, durationUnit);
-        return new Duration(durationValue, durationUnit);
+    dateInPastBasedOnToday(asPerDate) {
+        return moment(asPerDate).subtract(this.durationValue, this.durationUnit).toDate();
     }
 }
 

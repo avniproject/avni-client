@@ -27,7 +27,8 @@ class FormElementGroup extends AbstractComponent {
         observationHolder: React.PropTypes.object.isRequired,
         actions: React.PropTypes.object.isRequired,
         validationResults: React.PropTypes.array.isRequired,
-        formElementsUserState: React.PropTypes.object
+        formElementsUserState: React.PropTypes.object,
+        dataEntryDate: React.PropTypes.object.isRequired
     };
 
     constructor(props, context) {
@@ -44,11 +45,10 @@ class FormElementGroup extends AbstractComponent {
             return new Duration(null, formElement.durationOptions[0]);
         } else {
             const date = observation.getValueWrapper().getValue();
-            //TODO discuss with Vivek if this is a fix in alignment with design
             if (_.isNil(formElementUserState)) {
-                return Duration.fromToday(formElement.durationOptions[0], date);
+                return Duration.fromDataEntryDate(formElement.durationOptions[0], date, this.props.dataEntryDate);
             } else {
-                return Duration.fromToday(formElementUserState.durationUnit, date);
+                return Duration.fromDataEntryDate(formElementUserState.durationUnit, date, this.props.dataEntryDate);
             }
         }
     }

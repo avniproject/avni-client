@@ -97,7 +97,7 @@
   },
   {
     "uuid": "49350a36-a442-47d2-bf96-2ecbe8fd1cc5",
-    "name": "Young child",
+    "name": "Youngest child Less than 1 Year Old",
     "abnormal": true,
     "dataType": "NA"
   },
@@ -1184,12 +1184,6 @@
         "abnormal": true
       }
     ]
-  },
-  {
-    "name": "Foetal Heart Rate",
-    "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
-    "dataType": "Numeric",
-    "unit": "bpm"
   },
   {
     "name": "Flat Nipples",
@@ -2822,7 +2816,9 @@
     "name": "Foetal Heart Rate",
     "uuid": "77ee9c20-d074-4cbe-a5bd-a1ca9d6ecce9",
     "dataType": "Numeric",
-    "unit": "bpm"
+    "unit": "bpm",
+    "lowNormal": 120,
+    "highNormal": 160
   },
   {
     "name": "Systolic",

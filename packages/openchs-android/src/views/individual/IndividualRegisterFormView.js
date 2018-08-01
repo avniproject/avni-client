@@ -55,7 +55,9 @@ class IndividualRegisterFormView extends AbstractComponent {
                                           actions={Actions}
                                           filteredFormElements={this.state.filteredFormElements}
                                           validationResults={this.state.validationResults}
-                                          formElementsUserState={this.state.formElementsUserState}/>
+                                          formElementsUserState={this.state.formElementsUserState}
+                                          dataEntryDate={this.state.individual.registrationDate}
+                        />
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{
                                            func: () => IndividualRegisterViewsMixin.next(this),

@@ -68,7 +68,7 @@ const addRoutineEncounter = (programEncounter, scheduleBuilder) => {
 };
 
 const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
-    const dateTimeToUse = programEncounter.encounterDateTime || new Date();
+    const dateTimeToUse = programEncounter.encounterDateTime;
     const enrolment = programEncounter.programEnrolment;
     const scheduledDropoutVisit = enrolment.scheduledEncountersOfType("Dropout Home Visit");
     if (!_.isEmpty(scheduledDropoutVisit)) return;
@@ -82,7 +82,7 @@ const addDropoutHomeVisits = (programEncounter, scheduleBuilder) => {
 };
 
 const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
-    const dateTimeToUse = programEncounter.encounterDateTime || new Date();
+    const dateTimeToUse = programEncounter.encounterDateTime;
     const enrolment = programEncounter.programEnrolment;
     const scheduledDropoutVisit = enrolment.scheduledEncountersOfType("Dropout Followup Visit");
     if (!_.isEmpty(scheduledDropoutVisit)) return;
@@ -106,8 +106,8 @@ const addDropoutFollowUpVisits = (programEncounter, scheduleBuilder) => {
         .and.whenItem(programEncounter.programEnrolment.getEncounters(true)
         .filter((encounter) => encounter.encounterType.name === "Dropout Followup Visit").length).lessThanOrEqualTo(5);
 
-    let schoolRestartDate = moment().month(5).date(1).hour(0).minute(0).second(0);
-    schoolRestartDate = schoolRestartDate < moment() ? schoolRestartDate.add(12, 'months').toDate()
+    let schoolRestartDate = moment(programEncounter.encounterDateTime).month(5).date(1).hour(0).minute(0).second(0);
+    schoolRestartDate = schoolRestartDate < moment(programEncounter.encounterDateTime) ? schoolRestartDate.add(12, 'months').toDate()
         : schoolRestartDate.toDate();
     scheduleBuilder.add({
             name: "Dropout Followup Visit",
