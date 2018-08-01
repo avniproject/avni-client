@@ -5,6 +5,7 @@ import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {ProgramEncounter} from "openchs-models";
+import EntityService from "../../service/EntityService";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -13,25 +14,25 @@ class ProgramEncounterCancelActions {
 
     static filterFormElements(formElementGroup, context, programEncounter) {
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(programEncounter, ProgramEncounter.schema.name, formElementGroup);
-        let filteredElements = formElementGroup.filterElements(formElementStatuses);
-        return filteredElements;
+        return formElementGroup.filterElements(formElementStatuses);
     };
 
     static onLoad(state, action, context) {
-        const form = context.get(FormMappingService).findFormForCancellingEncounterType(action.programEncounter.encounterType, action.programEncounter.programEnrolment.program);
+        let programEncounter = context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name);
+        programEncounter = programEncounter.cloneForEdit();
+        const form = context.get(FormMappingService).findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program);
 
         if (_.isNil(form)) {
-            throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType}`);
+            throw new Error(`No form setup for EncounterType: ${programEncounter.encounterType}`);
         }
-        const programEncounter = action.programEncounter.cloneForEdit();
-        programEncounter.cancelDateTime = new Date();
 
-        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, action.programEncounter).length != 0);
+        programEncounter.cancelDateTime = new Date();
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, programEncounter).length !== 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             throw new Error("No form element group with visible form element");
         }
-        let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.programEncounter);
+        let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, programEncounter);
 
         return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements);
     }

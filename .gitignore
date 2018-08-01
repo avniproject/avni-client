@@ -77,3 +77,4 @@ gradlew.bat
 .settings/
 packages/openchs-android/.env.devs.*
 packages/openchs-health-modules/package.json.lerna_backup
+packages/utilities/t9n-candidates.json
