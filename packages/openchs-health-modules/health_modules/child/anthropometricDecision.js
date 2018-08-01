@@ -7,21 +7,13 @@ import C from "../common";
 
 const AnthropometryDecision = RuleFactory("d062907a-690c-44ca-b699-f8b2f688b075", "Decision");
 
-const  zScoreGradeStatusMappingWeightForAge = {
-        '1': 'Normal',
-        '1': 'Normal',
-        '1': 'Normal',
-        '1': 'Normal',
-        '1': 'Normal',
-        '2': 'Underweight',
-        '3': 'Severely Underweight'
+const zScoreGradeStatusMappingWeightForAge = {
+    '1': 'Normal',
+    '2': 'Underweight',
+    '3': 'Severely Underweight'
 };
 
 const zScoreGradeStatusMappingHeightForAge = {
-    '1': 'Normal',
-    '1': 'Normal',
-    '1': 'Normal',
-    '1': 'Normal',
     '1': 'Normal',
     '2': 'Stunted',
     '3': 'Severely stunted'
@@ -40,29 +32,23 @@ const zScoreGradeStatusMappingWeightForHeight = [
 ];
 
 
-
-const weightForHeightStatus = function(zScore) {
-    let found = _.find(zScoreGradeStatusMappingWeightForHeight, function(currentStatus){
+const weightForHeightStatus = function (zScore) {
+    let found = _.find(zScoreGradeStatusMappingWeightForHeight, function (currentStatus) {
         return zScore <= currentStatus[1];
     });
     return found && found[0];
 }
 
 
-
-
-const getGradeforZscore = (zScore) =>{
-    let grade
-    if(zScore<=-3)
-    {
+const getGradeforZscore = (zScore) => {
+    let grade;
+    if (zScore <= -3) {
         grade = 3;
     }
-    else if(zScore>-3 && zScore<-2)
-    {
+    else if (zScore > -3 && zScore < -2) {
         grade = 2;
     }
-    else if(zScore>=-2)
-    {
+    else if (zScore >= -2) {
         grade = 1;
     }
 
@@ -95,19 +81,19 @@ const getDecisions = (programEncounter) => {
     var hfaGrade = getGradeforZscore(zScoresForChild.hfa);
     var hfaStatus = zScoreGradeStatusMappingHeightForAge[hfaGrade];
 
-     var wfhStatus = weightForHeightStatus(zScoresForChild.wfh);
-     console.log("wfh status: "+wfhStatus+", wfhzscore:"+zScoresForChild.wfh);
+    var wfhStatus = weightForHeightStatus(zScoresForChild.wfh);
+    console.log("wfh status: " + wfhStatus + ", wfhzscore:" + zScoresForChild.wfh);
 
     addIfRequired(decisions.encounterDecisions, "Weight for age z-score", zScoresForChild.wfa);
     addIfRequired(decisions.encounterDecisions, "Weight for age Grade", wfaGrade);
-    addIfRequired(decisions.encounterDecisions, "Weight for age Status", wfaStatus? [wfaStatus]: []);
+    addIfRequired(decisions.encounterDecisions, "Weight for age Status", wfaStatus ? [wfaStatus] : []);
 
     addIfRequired(decisions.encounterDecisions, "Height for age z-score", zScoresForChild.hfa);
     addIfRequired(decisions.encounterDecisions, "Height for age Grade", hfaGrade);
-    addIfRequired(decisions.encounterDecisions, "Height for age Status", hfaStatus? [hfaStatus]: []);
+    addIfRequired(decisions.encounterDecisions, "Height for age Status", hfaStatus ? [hfaStatus] : []);
 
     addIfRequired(decisions.encounterDecisions, "Weight for height z-score", zScoresForChild.wfh);
-    addIfRequired(decisions.encounterDecisions, "Weight for Height Status", wfhStatus? [wfhStatus]: []);
+    addIfRequired(decisions.encounterDecisions, "Weight for Height Status", wfhStatus ? [wfhStatus] : []);
 
     return decisions;
 };
