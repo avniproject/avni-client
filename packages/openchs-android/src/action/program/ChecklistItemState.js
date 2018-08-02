@@ -1,6 +1,7 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import {AbstractEncounter, ObservationsHolder, ChecklistItem} from "openchs-models";
+import ProgramEnrolmentState from "./ProgramEnrolmentState";
 
 
 class ChecklistItemState extends AbstractDataEntryState {
@@ -48,6 +49,10 @@ class ChecklistItemState extends AbstractDataEntryState {
 
     getNextScheduledVisits(ruleService, context) {
         return null;
+    }
+
+    getChecklists(ruleService, context) {
+        return ruleService.getChecklists(this.checklistItem, this.getEntityType());
     }
 
     getEffectiveDataEntryDate() {

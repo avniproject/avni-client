@@ -26,8 +26,11 @@ import IndividualRelationshipType from "./relationship/IndividualRelationshipTyp
 import IndividualRelationGenderMapping from "./relationship/IndividualRelationGenderMapping";
 import Rule from "./Rule";
 import RuleDependency from "./RuleDependency";
+import ChecklistItemDetail from "./ChecklistItemDetail";
+import ChecklistDetail from "./ChecklistDetail";
 
 class EntityMetaData {
+    static checklistDetail = {entityName: "ChecklistDetail", entityClass: ChecklistDetail, resourceName: "checklistDetail", type: "reference", nameTranslated: false};
     static rule = {entityName: "Rule", entityClass: Rule, resourceName: "rule", type: "reference", nameTranslated: false};
     static ruleDependency = {entityName: "RuleDependency", entityClass: RuleDependency, resourceName: "ruleDependency", type: "reference", nameTranslated: false};
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
@@ -44,6 +47,16 @@ class EntityMetaData {
     static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "tx"};
 
+    static checklistItemDetail() {
+        return {
+            entityName: "ChecklistItemDetail",
+            entityClass: ChecklistItemDetail,
+            resourceName: "checklistItemDetail",
+            type: "reference",
+            nameTranslated: false,
+            parent: EntityMetaData.checklistDetail
+        }
+    };
     static encounter() {
         return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
     };
@@ -91,6 +104,8 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
+            EntityMetaData.checklistItemDetail(),
+            EntityMetaData.checklistDetail,
             EntityMetaData.rule,
             EntityMetaData.ruleDependency,
             EntityMetaData.individualRelationshipType,

@@ -65,24 +65,17 @@ const getFormElementsStatuses = (programExit, formElementGroup) => {
 
 @EnrolmentChecklists("5cd0bf6d-1e62-499b-80f4-c72538992abb", "Child vaccination schedule", 1.0)
 class ChildVaccinationChecklist {
-    static exec(enrolment, checklists = []) {
-
-        const items = ["BCG", "OPV 0"].map(i => ({
-            formUUID: "9f198079-3f50-4a91-86c9-365545ebf5a7",
-            conceptName: i,
-            states: {
-                "not now": {from: {"week": 0}, to: {"week": 1}, color: 'red'},
-                "good": {from: {"week": 1}, to: {"week": 2}, color: 'yellow'},
-                "v.good": {from: {"week": 2}, to: {"week": 3}, color: 'green'},
-                "always": {from: {"week": 3}, to: {"year": 13}, color: 'blue'}
-            }
-        }));
-        const checklist = {
-            name: 'Vaccination Schedule',
-            items: items,
-            baseDate: enrolment.individual.dateOfBirth
+    static exec(enrolment, checklists = [], checklistDetails) {
+        let vaccination = checklistDetails.find(cd => cd.name === 'Vaccination');
+        if (_.isNil(vaccination)) return checklists;
+        const vaccinationList = {
+            baseDate: enrolment.individual.dateOfBirth,
+            detailUUID: vaccination.uuid,
+            items: vaccination.items.map(vi => ({
+                detailUUID: vi.uuid
+            }))
         };
-        return checklists.concat([checklist]);
+        return checklists.concat([vaccinationList]);
     }
 }
 

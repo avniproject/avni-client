@@ -4,6 +4,7 @@ import General from "./utility/General";
 import ProgramEnrolment from './ProgramEnrolment';
 import BaseEntity from "./BaseEntity";
 import ChecklistItem from "./ChecklistItem";
+import ChecklistDetail from "./ChecklistDetail";
 
 class Checklist extends BaseEntity {
     static schema = {
@@ -11,7 +12,7 @@ class Checklist extends BaseEntity {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
-            name: 'string',
+            detail: 'ChecklistDetail',
             baseDate: 'date',
             items: {type: 'list', objectType: 'ChecklistItem'},
             programEnrolment: 'ProgramEnrolment'
@@ -27,15 +28,18 @@ class Checklist extends BaseEntity {
 
     static fromResource(checklistResource, entityService) {
         const programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistResource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        const checklist = General.assignFields(checklistResource, new Checklist(), ["uuid", "name"], ["baseDate"]);
+        const checklist = General.assignFields(checklistResource, new Checklist(), ["uuid"], ["baseDate"]);
+        const checklistDetail = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistResource, "checklistDetailUUID"), ChecklistDetail.schema.name);
         checklist.programEnrolment = programEnrolment;
+        checklist.detail = checklistDetail;
         return checklist;
     }
 
     get toResource() {
-        const resource = _.pick(this, ["uuid", "name"]);
+        const resource = _.pick(this, ["uuid"]);
         resource["baseDate"] = General.isoFormat(this.baseDate);
         resource["programEnrolmentUUID"] = this.programEnrolment.uuid;
+        resource["checklistDetailUUID"] = this.detail.uuid;
         return resource;
     }
 
@@ -56,9 +60,9 @@ class Checklist extends BaseEntity {
     clone() {
         const checklist = new Checklist();
         checklist.uuid = this.uuid;
-        checklist.name = this.name;
         checklist.programEnrolment = this.programEnrolment;
         checklist.baseDate = this.baseDate;
+        checklist.detail = this.detail;
         checklist.items = [];
         this.items.forEach((checklistItem) => {
             checklist.items.push(checklistItem.clone());

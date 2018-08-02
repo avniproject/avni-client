@@ -1,10 +1,20 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {Checklist, ChecklistItem, EntityQueue, StringKeyNumericValue, ChecklistItemStatus, Form} from "openchs-models";
+import {
+    Checklist,
+    ChecklistItem,
+    EntityQueue,
+    StringKeyNumericValue,
+    ChecklistItemStatus,
+    Form,
+    ChecklistItemDetail,
+    ChecklistDetail,
+    ObservationsHolder,
+    EntitySyncStatus
+} from "openchs-models";
 import _ from 'lodash';
 import ConceptService from "./ConceptService";
 import General from "../utility/General";
-import {ObservationsHolder} from "../../../openchs-models";
 
 @Service("ChecklistService")
 class ChecklistService extends BaseService {
@@ -24,34 +34,22 @@ class ChecklistService extends BaseService {
 
     saveOrUpdate(programEnrolment, checklist, db = this.db) {
         const entityQueueItems = [];
-        // if (!_.isNil(programEnrolment.findChecklist(checklist.name))) return entityQueueItems;
-        const conceptService = this.getService(ConceptService);
         let checklistToBeCreated = Checklist.create();
-        checklistToBeCreated.baseDate = checklist.baseDate || new Date();
-        checklistToBeCreated.name = checklist.name;
+        checklistToBeCreated.uuid = _.isNil(checklist.uuid) ? checklistToBeCreated.uuid : checklist.uuid;
+        checklistToBeCreated.baseDate = checklist.baseDate;
+        let checklistDetail = this.findByUUID(checklist.detailUUID, ChecklistDetail.schema.name);
+        checklistToBeCreated.detail = checklistDetail;
         const savedChecklist = db.create(Checklist.schema.name, checklistToBeCreated, true);
-        General.logDebug("ChecklistService - Checklist", savedChecklist);
         entityQueueItems.push(EntityQueue.create(savedChecklist, Checklist.schema.name));
         const checklistItems = checklist.items.map((item) => {
             const checklistItem = ChecklistItem.create();
+            checklistItem.uuid = _.isNil(item.uuid) ? checklistItem.uuid : checklist.uuid;
             checklistItem.checklist = savedChecklist;
-            checklistItem.form = this.findByUUID(item.formUUID, Form.schema.name);
-            checklistItem.concept = conceptService.getConceptByName(item.conceptName);
-            checklistItem.stateConfig = _.map(item.states, (val, key) => {
-                const checklistItemStatus = ChecklistItemStatus.create();
-                checklistItemStatus.state = key;
-                checklistItemStatus.from.key = Object.keys(val.from).find((fk) => ChecklistItemStatus.VALID_KEYS.indexOf(fk) > -1);
-                checklistItemStatus.from.value = val.from[checklistItemStatus.from.key];
-                checklistItemStatus.to.key = Object.keys(val.to).find((fk) => ChecklistItemStatus.VALID_KEYS.indexOf(fk) > -1);
-                checklistItemStatus.to.value = val.to[checklistItemStatus.to.key];
-                checklistItemStatus.color = val.color;
-                return db.create(ChecklistItemStatus.schema.name, checklistItemStatus);
-            });
+            checklistItem.detail = this.findByUUID(item.detailUUID, ChecklistItemDetail.schema.name);
             const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem);
             entityQueueItems.push(EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
             return savedChecklistItem;
         });
-        General.logDebug("ChecklistService - Items To be Mapped", checklistItems);
         checklistItems.forEach(ci => savedChecklist.items.push(ci));
         programEnrolment.checklists.push(savedChecklist);
         savedChecklist.programEnrolment = programEnrolment;

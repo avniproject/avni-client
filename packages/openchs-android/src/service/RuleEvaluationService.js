@@ -27,6 +27,7 @@ import Decision from "../../../openchs-models/src/Decision";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
 import RuleService from "./RuleService";
+import ChecklistDetail from "../../../openchs-models/src/ChecklistDetail";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -47,6 +48,7 @@ class RuleEvaluationService extends BaseService {
             ['Encounter', (encounter) => this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name)],
             ['ProgramEnrolment', (programEnrolment) => this.formMappingService.findFormForProgramEnrolment(programEnrolment.program)],
             ['ProgramEncounter', (programEncounter) => this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name)],
+            ['ChecklistItem', (checklistItem) => checklistItem.detail.form],
             ['ProgramEncounterCancellation', (programEncounter) => this.formMappingService.findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program)],
         ]);
         this.entityRulesMap.forEach((entityRule, key) => {
@@ -104,12 +106,13 @@ class RuleEvaluationService extends BaseService {
         return nextVisits;
     }
 
-    getChecklists(enrolment) {
+    getChecklists(entity, entityName) {
         const defaultChecklists = [];
-        const form = this.entityFormMap.get("ProgramEnrolment")(enrolment);
-        if ([enrolment, form].some(_.isEmpty)) return defaultChecklists;
+        const form = this.entityFormMap.get(entityName)(entity);
+        const allChecklistDetails = this.findAll(ChecklistDetail.schema.name);
+        if ([entity, form, allChecklistDetails].some(_.isEmpty)) return defaultChecklists;
         const allChecklists = this.getAllRuleItemsFor(form, "Checklists")
-            .reduce((checklists, rule) => rule.fn.exec(enrolment, checklists), defaultChecklists);
+            .reduce((checklists, rule) => rule.fn.exec(entity, checklists, allChecklistDetails), defaultChecklists);
         General.logDebug("RuleEvaluationService - Checklists", allChecklists);
         return allChecklists;
     }

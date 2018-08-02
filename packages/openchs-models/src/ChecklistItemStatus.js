@@ -6,42 +6,22 @@ import moment from 'moment';
 class ChecklistItemStatus {
     static schema = {
         name: 'ChecklistItemStatus',
-        primaryKey: 'uuid',
         properties: {
-            uuid: 'string',
             state: 'string',
             from: 'StringKeyNumericValue',
             to: 'StringKeyNumericValue',
-            color: {type: 'string', default: 'yellow'}
+            color: {type: 'string', default: 'yellow'},
+            displayOrder: 'double'
         }
     };
 
     static fromResource(resource, entityService) {
-        const checklistItemStatus = General.assignFields(resource, new ChecklistItemStatus(), ['uuid', 'state', 'color']);
+        const checklistItemStatus = General.assignFields(resource, new ChecklistItemStatus(), ['state', 'color', 'displayOrder']);
         const [toK, toV] = Object.entries(resource["to"])[0];
         const [fromK, fromV] = Object.entries(resource["from"])[0];
         checklistItemStatus.to = StringKeyNumericValue.fromResource(toK, toV);
         checklistItemStatus.from = StringKeyNumericValue.fromResource(fromK, fromV);
         return checklistItemStatus;
-    }
-
-    static create() {
-        let checklistItemStatus = new ChecklistItemStatus();
-        checklistItemStatus.uuid = General.randomUUID();
-        checklistItemStatus.color = 'yellow';
-        checklistItemStatus.from = new StringKeyNumericValue();
-        checklistItemStatus.to = new StringKeyNumericValue();
-        return checklistItemStatus;
-    }
-
-    get toResource() {
-        return {
-            state: this.state,
-            from: this.from.toResource,
-            to: this.to.toResource,
-            color: this.color,
-            uuid: this.uuid
-        };
     }
 
     isApplicable(baseDate) {

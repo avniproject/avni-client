@@ -49,7 +49,7 @@ class ProgramEnrolmentService extends BaseService {
             General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');
             const checklistService = this.getService(ChecklistService);
             checklists
-                .map((checklist) => checklistService.saveOrUpdate(programEnrolment, checklist, db))
+                .map((checklist) => checklistService.saveOrUpdate.bind(this)(programEnrolment, checklist, db))
                 .reduce((acc, v) => acc.concat(v), [])
                 .forEach((eq) => entityQueueItems.push(eq));
 
