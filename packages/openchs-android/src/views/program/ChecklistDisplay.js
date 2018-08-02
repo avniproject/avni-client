@@ -44,11 +44,4 @@ export default ({data, onSave}) => (
                             }}/>)}
                 </View>
             </View>)}
-        <View style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            marginVertical: DGS.resizeHeight(10)
-        }}>
-            <Button primary style={{flex: 0.3}} onPress={onSave}>Save</Button>
-        </View>
     </View>);

@@ -52,10 +52,6 @@ class ChecklistView extends AbstractComponent {
         BackAndroid.removeEventListener('hardwareBackPress', this.backFunction);
     }
 
-    save() {
-        this.dispatchAction(Actions.SAVE);
-    }
-
     goBack() {
         if (this.state.promptForSave) {
             Alert.alert("Unsaved Changes", "Do you want to save before exiting? ", [
@@ -79,7 +75,6 @@ class ChecklistView extends AbstractComponent {
     render() {
         General.logDebug('ChecklistView', this.props.enrolmentUUID);
         const checklists = this.state.checklists.map((checklist, idx) => <ChecklistDisplay key={idx}
-                                                                                           onSave={this.save.bind(this)}
                                                                                            data={checklist}/>);
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.BlackBackground}}>

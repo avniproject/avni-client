@@ -31,7 +31,7 @@ class ChecklistItem {
     static fromResource(checklistItemResource, entityService) {
         const checklist = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistUUID"), Checklist.schema.name);
         const checklistItemDetail = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistItemDetailUUID"), ChecklistItemDetail.schema.name);
-        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid"], ['completionDate'], ['observations']);
+        const checklistItem = General.assignFields(checklistItemResource, new ChecklistItem(), ["uuid"], ['completionDate'], ['observations'], entityService);
         checklistItem.checklist = checklist;
         checklistItem.detail = checklistItemDetail;
         return checklistItem;
@@ -96,7 +96,7 @@ class ChecklistItem {
 
     get applicableState() {
         const baseDate = this.checklist.baseDate;
-        return this.completed ? ChecklistItemStatus.completed : _.defaultTo(this.detail.stateConfig.find(status => status.isApplicable(baseDate)), ChecklistItemStatus.na);
+        return this.completed ? ChecklistItemStatus.completed : this.detail.stateConfig.find(status => status.isApplicable(baseDate));
     }
 
     get applicableStateName() {

@@ -99,8 +99,11 @@ class Checklist extends BaseEntity {
     }
 
     groupedItems() {
-        return this.items.reduce((acc, item) => {
-            acc[item.applicableStateName] = _.get(acc, item.applicableState, []).concat([item]);
+        return this.items.map(item => {
+            console.log(item.detail.concept.name, item.applicableState);
+            return item;
+        }).filter(item => !_.isNil(item.applicableState)).reduce((acc, item) => {
+            acc[item.applicableStateName] = _.get(acc, item.applicableStateName, []).concat([item]);
             return acc;
         }, {});
     }

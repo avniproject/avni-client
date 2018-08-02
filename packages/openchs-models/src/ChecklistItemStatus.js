@@ -25,8 +25,8 @@ class ChecklistItemStatus {
     }
 
     isApplicable(baseDate) {
-        const currentDate = moment().startOf("day");
-        const minDate = moment(baseDate).add(this.from.value, this.from.key).endOf("day");
+        const currentDate = moment();
+        const minDate = moment(baseDate).add(this.from.value, this.from.key).startOf("day");
         const maxDate = moment(baseDate).add(this.to.value, this.to.key).endOf("day");
         return currentDate.isBetween(minDate, maxDate);
     }
