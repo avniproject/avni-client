@@ -63,35 +63,8 @@ class ChecklistItem {
         return null;
     }
 
-    get isStillDue() {
-        return General.dateIsAfterToday(this.dueDate);
-    }
-
     get completed() {
         return !_.isNil(this.completionDate);
-    }
-
-    get expired() {
-        return General.dateAIsAfterB(new Date(), this.maxDate);
-    }
-
-    get status() {
-        if (this.completed) return ChecklistItem.status.Completed;
-        else if (this.isStillDue) return ChecklistItem.detail.status.Upcoming;
-        else if (this.expired) return ChecklistItem.detail.status.Expired;
-        return ChecklistItem.status.PastDue;
-    }
-
-    getStatusMessage(I18n) {
-        if (this.completed) {
-            return I18n.t('completed', {completedOn: General.formatDate(this.completionDate)});
-        } else if (this.isStillDue) {
-            return I18n.t('dueOn', {dueOn: General.formatDate(this.dueDate)});
-        } else if (this.expired) {
-            return I18n.t('expired');
-        } else {
-            return I18n.t('missedDueDate', {dueOn: General.formatDate(this.dueDate)});
-        }
     }
 
     get applicableState() {
@@ -101,14 +74,6 @@ class ChecklistItem {
 
     get applicableStateName() {
         return this.applicableState.state;
-    }
-
-    isNotDueOn(date) {
-        return General.dateAIsBeforeB(date, this.dueDate);
-    }
-
-    isAfterMaxDate(date) {
-        return General.dateAIsAfterB(date, this.maxDate);
     }
 
     setCompletionDate(date = new Date()) {

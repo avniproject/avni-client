@@ -24,10 +24,6 @@ class ChecklistItemDisplay extends AbstractComponent {
         this.completeChecklistItem = this.completeChecklistItem.bind(this);
     }
 
-    isEditable() {
-        return this.props.editable !== false;
-    }
-
     completeChecklistItem(checklistItem) {
         return () => CHSNavigator.navigateToChecklistItemView(this, checklistItem);
     }

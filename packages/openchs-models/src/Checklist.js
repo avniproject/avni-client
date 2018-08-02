@@ -70,32 +70,9 @@ class Checklist extends BaseEntity {
         return checklist;
     }
 
-    getChecklistItem(name) {
-        return _.find(this.items, (item) => item.concept.name === name);
-    }
-
-    addChecklistItems(expectedChecklist, conceptFinder) {
-        expectedChecklist.items.forEach((expectedItem) => {
-            var checklistItem = this.getChecklistItem(expectedItem.name);
-            if (_.isNil(checklistItem)) {
-                checklistItem = ChecklistItem.create();
-                const concept = conceptFinder.getConceptByName(expectedItem.name);
-                if (_.isNil(concept)) throw Error(`Concept with name: ${expectedItem.name} not found`);
-                checklistItem.concept = concept;
-                this.items.push(checklistItem);
-            }
-            checklistItem.dueDate = expectedItem.dueDate;
-            checklistItem.maxDate = expectedItem.maxDate;
-        });
-    }
-
     setCompletionDate(checklistItemName, value) {
         const checklistItem = this.getChecklistItem(checklistItemName);
         checklistItem.completionDate = value;
-    }
-
-    upcomingItems() {
-        return _.values(_.groupBy(_.sortBy(_.filter(this.items, (item) => item.isStillDue), (item) => item.dueDate), (item) => item.dueDate));
     }
 
     groupedItems() {

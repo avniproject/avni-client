@@ -992,13 +992,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Pulse", 59)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular pulse");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Low Pulse");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Pulse", 101)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular pulse");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "High Pulse");
 
         });
 
@@ -1007,13 +1007,13 @@ describe("Mother Program ANC", () => {
                 .forConcept("Respiratory Rate", 11)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Low Respiratory Rate");
 
             ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
                 .forConcept("Respiratory Rate", 21)
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
-            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "Irregular Respiratory Rate");
+            assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), "High Respiratory Rate");
 
         });
 

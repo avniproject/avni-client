@@ -12,20 +12,6 @@ import EntityFactory from "./EntityFactory";
 import PrimitiveValue from "../src/observation/PrimitiveValue";
 
 describe('ProgramEnrolmentTest', () => {
-    it('mergeChecklists', () => {
-        const enrolment = ProgramEnrolment.createEmptyInstance();
-        const expectedChecklists = [{
-            name: 'Vaccination',
-            items: [{name: 'A1', dueDate: new Date(), maxDate: new Date()}]
-        }];
-        const checklists = enrolment.createChecklists(expectedChecklists, {
-            getConceptByName: () => {
-                return {name: 'A1'}
-            }
-        });
-        assert.equal(checklists.length, 1);
-    });
-
     it('getEncounters', () => {
         const enrolment = ProgramEnrolment.createEmptyInstance();
 

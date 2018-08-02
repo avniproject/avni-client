@@ -181,24 +181,8 @@ class ProgramEnrolment extends BaseEntity {
         _.each(programEncounters, (programEncounter) => this.addEncounter(programEncounter))
     }
 
-    createChecklists(expectedChecklists, conceptFinder) {
-        const checklists = [];
-        expectedChecklists.forEach((expectedChecklist) => {
-            const checklist = Checklist.create();
-            checklist.name = expectedChecklist.name;
-            checklist.baseDate = expectedChecklist.baseDate;
-            checklist.addChecklistItems(expectedChecklist, conceptFinder);
-            checklists.push(checklist);
-        });
-        return checklists;
-    }
-
     get hasChecklist() {
         return 0 !== this.checklists.length;
-    }
-
-    findChecklist(name) {
-        return _.find(this.checklists, (checklist) => checklist.name === name);
     }
 
     _getEncounters(removeCancelledEncounters) {
