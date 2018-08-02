@@ -22,7 +22,7 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
 
     if (_.isEmpty(encounter)) return referralAdvice.getComplications();
 
-    ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurred vision",
+    ["Excessive vomiting and inability to consume anything orally in last 24 hours", "Severe Abdominal Pain", "Blurred vision",
         "Decreased Foetal movements", "Per vaginal bleeding", "PV leaking"].forEach((complication) => {
         referralAdvice.addComplication(complication)
             .when.valueInEncounter("Pregnancy complications").containsAnswerConceptName(complication);

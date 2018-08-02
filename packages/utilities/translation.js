@@ -22,8 +22,9 @@ let alreadyTranslatedKeys = Object.keys(alreadyTranslated.hi_IN);
 let candidateNames = candidates.map(function (candidate) {
     return candidate.name;
 });
-let difference = _.difference(candidateNames, alreadyTranslatedKeys);
-console.log(`Data based label keys, not translated in Hindi: ${difference.length}\n`);
-difference.forEach(function (item) {
+candidateNames = _.difference(candidateNames, alreadyTranslatedKeys);
+candidateNames = _.difference(candidateNames, hiCoreKeys);
+console.log(`Data based label keys, not translated in Hindi: ${candidateNames.length}\n`);
+candidateNames.forEach(function (item) {
     console.log(item);
 });

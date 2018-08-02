@@ -10,7 +10,7 @@ const treatment = (enrolment, encounter, today) => {
         complicationsConcept: 'Treatment'
     });
     treatmentBuilder.addComplication("Doxinate 1 OD/BD for 10 Days").when
-        .valueInEncounter("Pregnancy complications").containsAnyAnswerConceptName("Morning Sickness", "Excessive vomiting and inability to consume anything orally")
+        .valueInEncounter("Pregnancy complications").containsAnyAnswerConceptName("Morning Sickness", "Excessive vomiting and inability to consume anything orally in last 24 hours")
         .and.whenItem(trimester).lessThan(3);
 
     treatmentBuilder.addComplication("Folic acid (1 OD)")

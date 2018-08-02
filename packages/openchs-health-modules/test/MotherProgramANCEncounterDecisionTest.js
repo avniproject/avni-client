@@ -219,7 +219,7 @@ describe("Mother Program ANC", () => {
                 .forConcept("Last menstrual period", moment().subtract(16, "w").toDate())
                 .build();
             let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
-                .forMultiCoded("Pregnancy complications", ["Excessive vomiting and inability to consume anything orally"])
+                .forMultiCoded("Pregnancy complications", ["Excessive vomiting and inability to consume anything orally in last 24 hours"])
                 .build();
             decisions = motherEncounterDecision.getDecisions(ancEncounter, new Date());
             assert.include(C.findValue(decisions.encounterDecisions, "Treatment"), "Doxinate 1 OD/BD for 10 Days");
@@ -392,7 +392,7 @@ describe("Mother Program ANC", () => {
     });
 
     describe("Referral", () => {
-        ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurred vision",
+        ["Excessive vomiting and inability to consume anything orally in last 24 hours", "Severe Abdominal Pain", "Blurred vision",
             "Decreased Foetal movements", "Per vaginal bleeding", "PV leaking"].forEach((complication) => {
             it(`is generated if ${complication}`, () => {
                 let ancEncounter = new EncounterFiller(programData, enrolment, "ANC", new Date())
@@ -756,7 +756,7 @@ describe("Mother Program ANC", () => {
 
     describe("High Risk Condition", () => {
 
-        ["Excessive vomiting and inability to consume anything orally", "Severe Abdominal Pain", "Blurred vision",
+        ["Excessive vomiting and inability to consume anything orally in last 24 hours", "Severe Abdominal Pain", "Blurred vision",
             "Decreased Foetal movements", "Per vaginal bleeding", "PV leaking", "Morning Sickness", "Difficulty breathing", "Severe headache"]
             .forEach((complication) => {
                 it(`is added if mother has ${complication}`, () => {
