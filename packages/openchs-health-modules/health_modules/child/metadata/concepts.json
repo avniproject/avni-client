@@ -747,26 +747,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Pulse <60 or > 100 bpm",
-    "uuid": "0b396169-2110-41c3-936d-499687f24d25",
-    "dataType": "NA"
-  },
-  {
-    "name": "Low Temperature",
-    "uuid": "15f3e8c9-b39e-4617-b54e-6a425d8fa9a2",
-    "dataType": "NA"
-  },
-  {
-    "name": "High Temperature",
-    "uuid": "eb1ec712-8a28-4511-ba59-4254ad301700",
-    "dataType": "NA"
-  },
-  {
-    "name": "Respiratory Rate <30 or > 60 bpm",
-    "uuid": "6b329b8c-04b7-4cdd-90ea-1cd79dbd014b",
-    "dataType": "NA"
-  },
-  {
     "name": "Icterus present",
     "uuid": "bab23da4-603e-4f9e-a823-90cc785d8f2f",
     "dataType": "NA"

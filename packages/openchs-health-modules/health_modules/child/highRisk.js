@@ -20,14 +20,16 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
         .when.valueInEncounter("Colour of child").containsAnswerConceptName("Blue/pale")
 
     highRiskBuilder.addComplication("Reflex Absent")
-        .when.valueInEncounter("Reflex").containsAnswerConceptName("Absent")
+        .when.valueInEncounter("Reflex").containsAnswerConceptName("Absent");
 
     highRiskBuilder.addComplication("Muscle tone Absent/Flexed arms and legs")
         .when.valueInEncounter("Muscle tone").containsAnyAnswerConceptName("Absent", "Flexed arms and legs");
 
-    highRiskBuilder.addComplication("Pulse <60 or > 100 bpm")
-        .when.valueInEncounter("Child Pulse").lessThan(60)
-        .or.when.valueInEncounter("Child Pulse").greaterThan(100);
+    highRiskBuilder.addComplication("Low Pulse")
+        .when.valueInEncounter("Child Pulse").lessThan(60);
+
+    highRiskBuilder.addComplication("High Pulse")
+        .when.valueInEncounter("Child Pulse").greaterThan(100);
 
     highRiskBuilder.addComplication("Low Temperature")
         .when.valueInEncounter("Child Temperature").lessThan(97.5);
@@ -35,9 +37,11 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
     highRiskBuilder.addComplication("High Temperature")
         .when.valueInEncounter("Child Temperature").greaterThan(99.5);
 
-    highRiskBuilder.addComplication("Respiratory Rate <30 or > 60 bpm")
-        .when.valueInEncounter("Child Respiratory Rate").lessThan(30)
-        .or.when.valueInEncounter("Child Respiratory Rate").greaterThan(60);
+    highRiskBuilder.addComplication("Low Respiratory Rate")
+        .when.valueInEncounter("Child Respiratory Rate").lessThan(30);
+
+    highRiskBuilder.addComplication("High Respiratory Rate")
+        .when.valueInEncounter("Child Respiratory Rate").greaterThan(60);
 
     highRiskBuilder.addComplication("Icterus present")
         .when.valueInEncounter("Jaundice (Icterus)").containsAnswerConceptName("Present");

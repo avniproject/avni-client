@@ -132,13 +132,17 @@ const pncReferralAdvice = (referralAdviceObj) => {
         .when.valueInEncounter("Post-Partum Depression Symptoms")
         .containsAnyAnswerConceptName("Insomnia", "Irritability", "Loss of appetite", "Weakness");
 
-    referralAdviceObj.addComplication("Irregular pulse")
-        .when.valueInEncounter("Pulse").is.lessThan(60)
-        .or.when.valueInEncounter("Pulse").is.greaterThan(100);
+    referralAdviceObj.addComplication("Low Pulse")
+        .when.valueInEncounter("Pulse").is.lessThan(60);
 
-    referralAdviceObj.addComplication("Irregular Respiratory Rate")
-        .when.valueInEncounter("Respiratory Rate").is.lessThan(12)
-        .or.when.valueInEncounter("Respiratory Rate").is.greaterThan(20);
+    referralAdviceObj.addComplication("High Pulse")
+        .when.valueInEncounter("Pulse").is.greaterThan(100);
+
+    referralAdviceObj.addComplication("Low Respiratory Rate")
+        .when.valueInEncounter("Respiratory Rate").is.lessThan(12);
+
+    referralAdviceObj.addComplication("High Respiratory Rate")
+        .when.valueInEncounter("Respiratory Rate").is.greaterThan(20);
 
     referralAdviceObj.addComplication("Not using contraceptives")
         .valueInEncounter("Is the mother using any contraceptive method?")

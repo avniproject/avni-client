@@ -51,13 +51,17 @@ const highRisk = (enrolment, encounter, today = new Date()) => {
         .when.valueInEncounter("Foetal Heart Rate").is.lessThan(120)
         .or.when.valueInEncounter("Foetal Heart Rate").is.greaterThan(160);
 
-    highRiskBuilder.addComplication("Irregular pulse")
-        .when.valueInEncounter("Pulse").is.lessThan(60)
-        .or.when.valueInEncounter("Pulse").is.greaterThan(100);
+    highRiskBuilder.addComplication("Low Pulse")
+        .when.valueInEncounter("Pulse").is.lessThan(60);
 
-    highRiskBuilder.addComplication("Irregular Respiratory Rate")
-        .when.valueInEncounter("Respiratory Rate").is.lessThan(12)
-        .or.when.valueInEncounter("Respiratory Rate").is.greaterThan(20);
+    highRiskBuilder.addComplication("High Pulse")
+        .when.valueInEncounter("Pulse").is.greaterThan(100);
+
+    highRiskBuilder.addComplication("Low Respiratory Rate")
+        .when.valueInEncounter("Respiratory Rate").is.lessThan(12);
+
+    highRiskBuilder.addComplication("High Respiratory Rate")
+        .when.valueInEncounter("Respiratory Rate").is.greaterThan(20);
 
     highRiskBuilder.addComplication("High blood sugar")
         .when.valueInEncounter("Blood Sugar").is.greaterThanOrEqualTo(140);
