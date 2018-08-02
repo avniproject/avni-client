@@ -98,6 +98,8 @@ dev_deploy_metadata: ## Upload metadata to server
 
 	$(call upload,concepts,@health_modules/child/metadata/concepts.json)
 	@echo
+	$(call upload,concepts,@health_modules/child/metadata/vaccinationConcepts.json)
+	@echo
 	$(call upload,programs,@health_modules/child/metadata/childProgram.json)
 	@echo
 	$(call upload,encounterTypes,@health_modules/child/metadata/encounterTypes.json)
@@ -113,8 +115,6 @@ dev_deploy_metadata: ## Upload metadata to server
 	$(call upload,forms,@health_modules/child/metadata/anthroAssessmentForm.json)
 	@echo
 	$(call upload,formMappings,@health_modules/child/metadata/formMappings.json)
-	@echo
-	$(call upload,forms,@health_modules/child/metadata/checklistForm.json)
 	@echo
 
 	$(call upload,programs,@health_modules/adolescent/metadata/adolescentProgram.json)
