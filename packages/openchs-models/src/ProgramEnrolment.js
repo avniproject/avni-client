@@ -381,7 +381,7 @@ class ProgramEnrolment extends BaseEntity {
     numberOfEncountersOfType(encounterTypeName) {
         return _.countBy(this.encounters, (encounter) => {
             return encounter.encounterType.name === encounterTypeName;
-        });
+        }).true;
     }
 
     hasEncounter(encounterTypeName, encounterName) {

@@ -101,8 +101,9 @@ class AbstractDataEntryState {
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
         } else {
             this.moveNext();
-            ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
+            const formElementStatuses = ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
             this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
+            this.observationsHolder.updatePrimitiveObs(this.filteredFormElements, formElementStatuses);
             if (this.hasNoFormElements()) {
                 General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);

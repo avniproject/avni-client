@@ -557,7 +557,7 @@
     "Diet Advice Donts": "आहार विषयक माहिती व सल्ला- हे करू नये\n✘ गरोदरपणात तंबाखु, गुटखा, सुपारी,खर्रा  खाऊ नये.\n✘ गरोदरपणात ताडी, गोर्गा किंवा दारू पिऊ नये.\n✘ गरोदरपणात अति प्रमाणात चहा पिऊ नये. यांमुळे शरीरात आयरन चे शोषण होत नाही.",
     "Doxinate 1 OD/BD for 10 Days": "Doxinate ची एक गोळी दिवसातून एक किंवा दोन वेळा, १० दिवसांकरिता द्यावी",
     "Epilepsy": "फीट/झटक्याची बिमारी",
-    "Excessive vomiting and inability to consume anything orally": "खूप जास्ती उलट्या होतात व तोंडावाटे काहीही खाऊ शकत नाही",
+    "Excessive vomiting and inability to consume anything orally in last 24 hours": "खूप जास्ती उलट्या होतात व तोंडावाटे काहीही खाऊ शकत नाही",
     "Family history": "कौटुंबिक इतिहास",
     "Ferrous Sulphate (100mg)": "Ferrous Sulphate (100mg) ४ थ्या महिन्यापासून ते ९ महिने पर्यंत",
     "Ferrous Sulphate (200mg)": "Ferrous Sulphate (200mg) ४ थ्या महिन्यापासून ते ९ महिने पर्यंत",
@@ -754,7 +754,10 @@
     "Counselling for feeding your child frequently": "Counselling Advice for feeding your child frequently throughout the day",
     "Child PNC Discussion items": "Postnatal care for child\n• Care of newborn baby\n• Care of LBW baby (if applicable)\n• Care of premature baby (if applicable)\n• Breastfeeding\n• Immunizations",
     "Intervention Area": "Intervention Area",
-    "Villages": "Villages"
+    "Villages": "Villages",
+    "ANC discussion item 1": "• Normal symptoms of pregnancy\n• Pregnancy complications and danger signs",
+    "ANC discussion item 2": "• Family issues\n• Medication/Supplementation",
+    "ANC discussion item 3": "• Breastfeeding\n• Breast examination\n• Family planning"
   },
   "gu_IN": {
     "Intervention Area": "ઇંટરવેંશન એરિયા",
@@ -1296,7 +1299,7 @@
     "Morning Sickness": "मॉर्निंग सिकनेस",
     "Moderate ankle, body or face swelling": "एड़ी, शरीर या चेहरे पे मध्यम सूजन",
     "Dizziness": "चक्कर आना",
-    "Excessive vomiting and inability to consume anything orally": "पिछले 24 घंटे में लगातार उल्टी होना",
+    "Excessive vomiting and inability to consume anything orally in last 24 hours": "पिछले 24 घंटे में लगातार उल्टी होना",
     "Pain on urination": "पेशाब करने में दर्द और मुश्किल होना",
     "Excess fatigue": "अतिरिक्त थकान",
     "Painful or difficult urination": "पेशाब करने में दर्द और मुश्किल होना",
