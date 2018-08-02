@@ -95,18 +95,21 @@ const isBelowNormalWeightGain = (enrolment, currentEncounter) => {
 };
 
 const getOldestObsBeforeCurrentEncounter = (currentEncounter, conceptName) => {
-    const { programEnrolment } = currentEncounter;
+    const {programEnrolment} = currentEncounter;
     const oldestEncounter = _.sortBy(programEnrolment.encounters, 'encounterDateTime')
         .filter(encounter => encounter.encounterDateTime <= currentEncounter.encounterDateTime)
-        .find(encounter => !_.isNil(encounter.getObservationValue(conceptName)));
+        .find(encounter => encounter.hasObservation(conceptName));
+    let oldestAbstractEncounter = oldestEncounter;
+    if (_.isNil(oldestEncounter) && programEnrolment.hasObservation(conceptName)) {
+        oldestAbstractEncounter = programEnrolment;
+    }
+    const value = oldestAbstractEncounter && oldestAbstractEncounter.getObservationReadableValue(conceptName);
 
-    const value = oldestEncounter && oldestEncounter.getObservationReadableValue(conceptName);
-
-    if (currentEncounter.uuid !== _.get(oldestEncounter, 'uuid')) {
+    if (currentEncounter.uuid !== _.get(oldestAbstractEncounter, 'uuid')) {
         return value;
     }
     return undefined;
-}
+};
 
 export {
     gestationalAgeAsOn,

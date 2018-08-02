@@ -414,6 +414,10 @@ class ProgramEnrolment extends BaseEntity {
         return _.isNil(observationValue) ? undefined : observationValue.getReadableValue();
     }
 
+    hasObservation(conceptName) {
+        return !_.isNil(this.getObservationValue(conceptName));
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,
