@@ -37,7 +37,7 @@ class ChecklistService extends BaseService {
         let checklistToBeCreated = Checklist.create();
         checklistToBeCreated.uuid = _.isNil(checklist.uuid) ? checklistToBeCreated.uuid : checklist.uuid;
         checklistToBeCreated.baseDate = checklist.baseDate;
-        let checklistDetail = this.findByUUID(checklist.detailUUID, ChecklistDetail.schema.name);
+        let checklistDetail = this.findByUUID(checklist.detail.uuid, ChecklistDetail.schema.name);
         checklistToBeCreated.detail = checklistDetail;
         const savedChecklist = db.create(Checklist.schema.name, checklistToBeCreated, true);
         entityQueueItems.push(EntityQueue.create(savedChecklist, Checklist.schema.name));
@@ -45,13 +45,13 @@ class ChecklistService extends BaseService {
             const checklistItem = ChecklistItem.create();
             checklistItem.uuid = _.isNil(item.uuid) ? checklistItem.uuid : checklist.uuid;
             checklistItem.checklist = savedChecklist;
-            checklistItem.detail = this.findByUUID(item.detailUUID, ChecklistItemDetail.schema.name);
+            checklistItem.detail = this.findByUUID(item.detail.uuid, ChecklistItemDetail.schema.name);
             const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem);
             entityQueueItems.push(EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
             return savedChecklistItem;
         });
         checklistItems.forEach(ci => savedChecklist.items.push(ci));
-        programEnrolment.checklists.push(savedChecklist);
+        programEnrolment.addChecklist(savedChecklist);
         savedChecklist.programEnrolment = programEnrolment;
         return entityQueueItems;
     }

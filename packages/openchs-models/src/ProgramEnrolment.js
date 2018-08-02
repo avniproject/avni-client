@@ -106,6 +106,10 @@ class ProgramEnrolment extends BaseEntity {
         return programEnrolment;
     }
 
+    getChecklists() {
+        return _.isEmpty(this.checklists) ? [] : this.checklists;
+    }
+
     cloneForEdit() {
         const programEnrolment = new ProgramEnrolment();
         programEnrolment.uuid = this.uuid;
@@ -117,12 +121,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.observations = ObservationsHolder.clone(this.observations);
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = this.encounters;
-        programEnrolment.checklists = [];
-        this.checklists.forEach((x) => {
-            const checklist = new Checklist();
-            checklist.uuid = x.uuid;
-            programEnrolment.checklists.push(checklist);
-        });
+        programEnrolment.checklists = this.checklists;
         return programEnrolment;
     }
 
@@ -218,7 +217,10 @@ class ProgramEnrolment extends BaseEntity {
         if (_.isNil(observationWithDate.observation)) {
             observationWithDate = {observation: this.findObservation(conceptName), date: this.enrolmentDateTime};
         }
-        return _.isNil(observationWithDate.observation) ? undefined : {value: observationWithDate.observation.getReadableValue(), date: observationWithDate.date};
+        return _.isNil(observationWithDate.observation) ? undefined : {
+            value: observationWithDate.observation.getReadableValue(),
+            date: observationWithDate.date
+        };
     }
 
     findObservationInEntireEnrolment(conceptName, currentEncounter, latest = false) {
@@ -343,6 +345,12 @@ class ProgramEnrolment extends BaseEntity {
 
     findExitObservation(conceptName) {
         return _.find(this.programExitObservations, (observation) => observation.concept.name === conceptName);
+    }
+
+    addChecklist(checklist) {
+        this.checklists = this.getChecklists()
+            .filter(c => c.uuid !== checklist.uuid)
+            .concat([checklist]);
     }
 
     scheduledEncounters() {

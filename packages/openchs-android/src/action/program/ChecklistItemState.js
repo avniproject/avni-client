@@ -52,7 +52,7 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     getChecklists(ruleService, context) {
-        return ruleService.getChecklists(this.checklistItem, this.getEntityType());
+        return ruleService.getChecklists(this.checklistItem, this.getEntityType(), [this.checklistItem.checklist]);
     }
 
     getEffectiveDataEntryDate() {

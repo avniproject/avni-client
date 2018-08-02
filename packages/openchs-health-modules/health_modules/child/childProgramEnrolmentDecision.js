@@ -68,11 +68,13 @@ class ChildVaccinationChecklist {
     static exec(enrolment, checklists = [], checklistDetails) {
         let vaccination = checklistDetails.find(cd => cd.name === 'Vaccination');
         if (_.isNil(vaccination)) return checklists;
+        const existingChecklist = checklists.find(c => c.detail.uuid === vaccination.uuid);
+        if (!_.isNil(existingChecklist)) return checklists;
         const vaccinationList = {
             baseDate: enrolment.individual.dateOfBirth,
-            detailUUID: vaccination.uuid,
+            detail: {uuid: vaccination.uuid},
             items: vaccination.items.map(vi => ({
-                detailUUID: vi.uuid
+                detail: {uuid: vi.uuid}
             }))
         };
         return checklists.concat([vaccinationList]);
