@@ -52,8 +52,8 @@ class ChecklistItemView extends AbstractComponent {
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.checklistItem.checklist.programEnrolment.individual.uuid, state.checklistItem.checklist.programEnrolment.uuid, true);
                 };
-                const headerMessage = `${this.I18n.t(state.checklistItem.checklist.programEnrolment.program.displayName)}, ${this.I18n.t(state.checklistItem.checklist.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.checklistItem.checklist.programEnrolment.individual, state.checklistItem.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, state.checklistItem.form);
+                const headerMessage = `${this.I18n.t(state.checklistItem.checklist.programEnrolment.program.displayName)}, ${this.I18n.t(state.checklistItem.checklist.detail.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.checklistItem.checklist.programEnrolment.individual, state.checklistItem.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, state.checklistItem.detail.form);
             },
             movedNext: this.scrollToTop
         });
@@ -83,6 +83,7 @@ class ChecklistItemView extends AbstractComponent {
                             observationHolder={new ObservationsHolder(this.state.checklistItem.observations)}
                             group={this.state.formElementGroup}
                             actions={Actions}
+                            dataEntryDate={this.state.checklistItem.completionDate}
                             validationResults={this.state.validationResults}
                             filteredFormElements={this.state.filteredFormElements}
                             formElementsUserState={this.state.formElementsUserState}/>

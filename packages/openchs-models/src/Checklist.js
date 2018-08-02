@@ -100,7 +100,7 @@ class Checklist extends BaseEntity {
 
     groupedItems() {
         return this.items.reduce((acc, item) => {
-            acc[item.applicableStateName] = _.get(acc, item.getApplicableState, []).concat([item]);
+            acc[item.applicableStateName] = _.get(acc, item.applicableState, []).concat([item]);
             return acc;
         }, {});
     }

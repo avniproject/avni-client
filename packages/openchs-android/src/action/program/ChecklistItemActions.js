@@ -17,7 +17,7 @@ class ChecklistItemActions {
     };
 
     static onLoad(state, action, context) {
-        const form = action.checklistItem.form;
+        const form = action.checklistItem.detail.form;
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder

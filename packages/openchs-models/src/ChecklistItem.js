@@ -77,8 +77,8 @@ class ChecklistItem {
 
     get status() {
         if (this.completed) return ChecklistItem.status.Completed;
-        else if (this.isStillDue) return ChecklistItem.status.Upcoming;
-        else if (this.expired) return ChecklistItem.status.Expired;
+        else if (this.isStillDue) return ChecklistItem.detail.status.Upcoming;
+        else if (this.expired) return ChecklistItem.detail.status.Expired;
         return ChecklistItem.status.PastDue;
     }
 
@@ -96,7 +96,7 @@ class ChecklistItem {
 
     get applicableState() {
         const baseDate = this.checklist.baseDate;
-        return this.completed ? ChecklistItemStatus.completed : _.defaultTo(this.stateConfig.find(status => status.isApplicable(baseDate)), ChecklistItemStatus.na);
+        return this.completed ? ChecklistItemStatus.completed : _.defaultTo(this.detail.stateConfig.find(status => status.isApplicable(baseDate)), ChecklistItemStatus.na);
     }
 
     get applicableStateName() {
@@ -109,6 +109,10 @@ class ChecklistItem {
 
     isAfterMaxDate(date) {
         return General.dateAIsAfterB(date, this.maxDate);
+    }
+
+    setCompletionDate(date = new Date()) {
+        this.completionDate = date;
     }
 
     get maxDate() {

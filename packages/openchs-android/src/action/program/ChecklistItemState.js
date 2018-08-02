@@ -7,7 +7,8 @@ import ProgramEnrolmentState from "./ProgramEnrolmentState";
 class ChecklistItemState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, checklistItem, filteredFormElements) {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements);
-        this.checklistItem = checklistItem;
+        this.checklistItem = checklistItem.clone();
+        this.checklistItem.setCompletionDate();
     }
 
     getEntity() {

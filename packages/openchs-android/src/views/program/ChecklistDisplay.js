@@ -7,6 +7,9 @@ import Fonts from "../primitives/Fonts";
 import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
 import Styles from "../primitives/Styles";
 import _ from 'lodash';
+import Distances from "../primitives/Distances";
+import ChecklistItemDisplay from "./ChecklistItemDisplay";
+
 
 export default ({data, onSave}) => (
     <View style={{
@@ -37,7 +40,7 @@ export default ({data, onSave}) => (
                             validationResult={undefined}
                             actionObject={{
                                 checklistName: item.checklist.name,
-                                checklistItemName: item.concept.name
+                                checklistItemName: item.detail.concept.name
                             }}/>)}
                 </View>
             </View>)}
@@ -49,6 +52,3 @@ export default ({data, onSave}) => (
             <Button primary style={{flex: 0.3}} onPress={onSave}>Save</Button>
         </View>
     </View>);
-import Distances from "../primitives/Distances";
-
-import ChecklistItemDisplay from "./ChecklistItemDisplay";

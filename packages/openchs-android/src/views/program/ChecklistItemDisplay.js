@@ -52,7 +52,7 @@ class ChecklistItemDisplay extends AbstractComponent {
                 <View style={{flexDirection: 'column', alignItems: 'center'}}
                       onPress={this.completeChecklistItem(this.props.checklistItem)}>
                     <Text style={{fontSize: Fonts.Normal}}
-                          onPress={this.completeChecklistItem(this.props.checklistItem)}>{this.I18n.t(this.props.checklistItem.concept.name)}</Text>
+                          onPress={this.completeChecklistItem(this.props.checklistItem)}>{this.I18n.t(this.props.checklistItem.detail.concept.name)}</Text>
                     <Text style={{fontSize: Fonts.Normal}}
                           onPress={this.completeChecklistItem(this.props.checklistItem)}>{_.startCase(statusText)}</Text>
                     <Text style={{fontSize: Fonts.Normal}}
