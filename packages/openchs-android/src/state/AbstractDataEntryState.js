@@ -87,7 +87,7 @@ class AbstractDataEntryState {
         this.handleValidationResults(allValidationResults);
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
-        } else if (this.wizard.isLastPage() && !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
+        } else if (this.wizard.isLastPage() || !ValidationResult.hasNonRuleValidationError(this.validationResults)) {
             this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
             const validationResults = this.validateEntityAgainstRule(ruleService);
