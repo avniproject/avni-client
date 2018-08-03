@@ -127,9 +127,9 @@ android {
 
         release {
 
-            storeFile file('openchs-release-key.keystore')
+            storeFile file("${System.getenv("KEY_STORE_PREFIX")?:""}openchs-release-key.keystore")
             storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias "openchs-release-key"
+            keyAlias "${System.getenv("KEY_STORE_PREFIX")?:""}openchs-release-key"
             keyPassword System.getenv("KEY_PASSWORD")
         }
     }
