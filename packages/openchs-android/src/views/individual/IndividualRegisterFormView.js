@@ -33,21 +33,23 @@ class IndividualRegisterFormView extends AbstractComponent {
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {
-                if (newState.wizard.isFirstPage())
+                if (newState.wizard.isFirstPage()) {
                     TypedTransition.from(this).goBack();
+                }
+                this.scrollToTop();
             }
         });
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return !nextState.wizard.isNonFormPage()
+        return !nextState.wizard.isNonFormPage();
     }
 
     render() {
         General.logDebug(this.viewName(), `render`);
         return (
             <CHSContainer theme={themes}>
-                <CHSContent>
+                <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}

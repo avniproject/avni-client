@@ -49,7 +49,7 @@ class IndividualRegisterView extends AbstractComponent {
         General.logDebug(this.viewName(), `render`);
         return (
             <CHSContainer theme={themes}>
-                <CHSContent>
+                <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t('registration')}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,

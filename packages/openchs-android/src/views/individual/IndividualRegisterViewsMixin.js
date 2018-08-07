@@ -10,6 +10,9 @@ import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardV
 
 class IndividualRegisterViewsMixin {
     static next(view) {
+        if (view.scrollToTop)
+            view.scrollToTop();
+
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors) => {
                 const onSaveCallback = (source) => {
