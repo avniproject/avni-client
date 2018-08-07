@@ -1,3 +1,4 @@
+import * as LoadAndForget from './formFilters/cancelFormFilters';
 import {FormElementsStatusHelper} from "rules-config/rules";
 import RoutineEncounterHandler from "./formFilters/RoutineEncounterHandler";
 import DropoutEncounterFormHandler from "./formFilters/DropoutEncounterFormHandler";
