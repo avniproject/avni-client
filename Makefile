@@ -118,7 +118,7 @@ uninstall_apk: ##
 	adb uninstall com.openchsclient
 
 install_apk: ##
-	adb install packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+	adb install packages/openchs-android/android/app/build/outputs/apk/app-x86-release.apk
 	adb shell am start -n com.openchsclient/com.openchsclient.MainActivity
 
 reinstall_apk: uninstall_apk install_apk ##
