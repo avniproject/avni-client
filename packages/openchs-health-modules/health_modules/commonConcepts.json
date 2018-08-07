@@ -1567,7 +1567,7 @@
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
-    "name": "Education Level",
+    "name": "Mother's education Level",
     "uuid": "ffd6b888-b2b5-4fcb-82fc-1f81c4c5e620",
     "dataType": "Coded",
     "answers": [
