@@ -191,8 +191,12 @@ class General {
     }
 
     static log(source, message, level) {
-        if (level >= General.getCurrentLogLevel()) {
-            console.log(`[${source}][${_.findKey(General.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
+        try {
+            if (level >= General.getCurrentLogLevel()) {
+                console.log(`[${source}][${_.findKey(General.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
+            }
+        } catch (e) {
+            General.log('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
         }
     }
 
@@ -222,6 +226,11 @@ class General {
         return _.overSome([_.isNil, _.isNaN])(value) ? true : 
             _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
                     _.isEmpty(value);
+    }
+
+    static dlog(str,...values) {
+        console.log(_.pad(str, 40, '-'));
+        console.log(...values);
     }
 }
 
