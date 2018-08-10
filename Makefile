@@ -175,6 +175,12 @@ run_app: setup_hosts ##
 run_app_staging_dev:
 	cd packages/openchs-android && ENVFILE=.env.staging.dev react-native run-android
 
+run_app_live:
+	cd packages/openchs-android && ENVFILE=.env.live react-native run-android
+
+open_app_bundle:
+	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ../temp/output.txt
+	vi ../temp/output.txt
 # sometimes there are errors for which we need to run the following to get the exact problem
 run_app_debug: setup_hosts  ##
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace

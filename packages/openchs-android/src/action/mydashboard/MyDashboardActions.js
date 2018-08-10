@@ -36,10 +36,10 @@ class MyDashboardActions {
                 },
                 ...results[addressLevel.uuid],
             };
-            existingResultForAddress.visits.scheduled.count += _.get(individualsWithScheduledVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.overdue.count += _.get(individualsWithOverdueVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.completedVisits.count += _.get(individualsWithCompletedVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.highRisk.count += _.get(highRiskPatients, addressLevel.uuid, []).length;
+            existingResultForAddress.visits.scheduled.count = _.get(individualsWithScheduledVisits, addressLevel.uuid, []).length;
+            existingResultForAddress.visits.overdue.count = _.get(individualsWithOverdueVisits, addressLevel.uuid, []).length;
+            existingResultForAddress.visits.completedVisits.count = _.get(individualsWithCompletedVisits, addressLevel.uuid, []).length;
+            existingResultForAddress.visits.highRisk.count = _.get(highRiskPatients, addressLevel.uuid, []).length;
             results[addressLevel.uuid] = existingResultForAddress;
         });
         return {...state, visits: results};
@@ -53,7 +53,7 @@ class MyDashboardActions {
             ["completedVisits", individualService.allCompletedVisitsIn],
             ["highRisk", individualService.allHighRiskPatients]
         ]);
-        const allIndividuals = methodMap.get(action.listType)(action.address, new Date(), new Date())
+        const allIndividuals = methodMap.get(action.listType)(action.address)
             .map(({uuid}) => individualService.findByUUID(uuid));
         const individuals = [...state.individuals.data,
             ...allIndividuals];
