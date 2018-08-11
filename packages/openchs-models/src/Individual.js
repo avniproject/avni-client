@@ -368,6 +368,22 @@ class Individual extends BaseEntity {
     get chronologicalEnrolments() {
         return _.sortBy(this.enrolments, (enrolment) => enrolment.encounterDateTime);
     }
+
+    toJSON() {
+        return {
+            uuid: this.uuid,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            enrolments: this.enrolments,
+            dateOfBirth: this.dateOfBirth,
+            gender: this.gender,
+            registrationDate: this.registrationDate,
+            lowestAddressLevel: this.lowestAddressLevel,
+            encounters: this.encounters,
+            observations: this.observations,
+            relationships: this.relationships
+        };
+    }
 }
 
 export default Individual;

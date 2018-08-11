@@ -4,6 +4,8 @@ import {EntityQueue, IndividualRelationship} from "openchs-models";
 import IndividualRelationshipTypeService from "./IndividualRelationshipTypeService";
 import General from "../../utility/General";
 import IndividualRelative from "../../../../openchs-models/src/relationship/IndividualRelative";
+import EntityService from "../EntityService";
+import Individual from "../../../../openchs-models/src/Individual";
 
 @Service("individualRelationshipService")
 class IndividualRelationshipService extends BaseService {
@@ -44,13 +46,14 @@ class IndividualRelationshipService extends BaseService {
         this.saveOrUpdate(relationship);
     }
 
-
     saveOrUpdate(relationship) {
         const db = this.db;
         this.db.write(() => {
-            const savedRelationShip = db.create(IndividualRelationship.schema.name, relationship, true);
-            relationship.individualB.addRelationship(savedRelationShip);
-            relationship.individualA.addRelationship(savedRelationShip);
+            const savedRelationship = db.create(IndividualRelationship.schema.name, relationship, true);
+            let individualA = this.getService(EntityService).findByUUID(relationship.individualA.uuid, Individual.schema.name);
+            let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
+            individualA.addRelationship(savedRelationship);
+            individualB.addRelationship(savedRelationship);
             db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
             General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
         });

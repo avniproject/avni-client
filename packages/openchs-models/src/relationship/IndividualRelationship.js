@@ -59,7 +59,7 @@ class IndividualRelationship extends BaseEntity {
     static create(individualRelative, relationshipType) {
         const individualRelationship = IndividualRelationship.createEmptyInstance();
         individualRelationship.relationship = relationshipType;
-        if(individualRelative.relation.uuid === relationshipType.individualBIsToARelation.uuid){
+        if (individualRelative.relation.uuid === relationshipType.individualBIsToARelation.uuid) {
             individualRelationship.individualA = individualRelative.individual;
             individualRelationship.individualB = individualRelative.relative;
         } else {
@@ -68,8 +68,6 @@ class IndividualRelationship extends BaseEntity {
         }
         return individualRelationship;
     }
-
-
 
     cloneForEdit() {
         const individualRelationship = new IndividualRelationship();
@@ -83,6 +81,18 @@ class IndividualRelationship extends BaseEntity {
         return individualRelationship;
     }
 
+    toJSON() {
+        return {
+            uuid: this.uuid,
+            relationship: this.relationship,
+            individualAUuid: this.individualA.uuid,
+            individualBUuid: this.individualB.uuid,
+            enterDateTime: this.enterDateTime,
+            exitDateTime: this.exitDateTime,
+            exitObservations: this.exitObservations,
+            voided: this.voided
+        };
+    }
 }
 
 export default IndividualRelationship;

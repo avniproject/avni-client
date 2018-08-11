@@ -11,10 +11,10 @@ import _ from "lodash";
 export class IndividualAddRelativeActions {
     static getInitialState(context) {
         const relations = context.get(EntityService).getAll(IndividualRelation.schema.name);
-        return {relations: relations, individualRelative : IndividualRelative.createEmptyInstance(), validationResults: []};
+        return {relations: relations, individualRelative: IndividualRelative.createEmptyInstance(), validationResults: []};
     }
 
-    static clone(state){
+    static clone(state) {
         const newState = {};
         newState.relations = state.relations;
         newState.individualRelative = state.individualRelative.cloneForEdit();
@@ -50,8 +50,7 @@ export class IndividualAddRelativeActions {
     static selectRelative(state, action, context) {
         const newState = IndividualAddRelativeActions.clone(state);
         newState.individualRelative.relative = action.value;
-        const possibleRelationsWithRelative = context.get(IndividualRelationGenderMappingService).getRelationsForGender(newState.individualRelative.relative.gender);
-        newState.relations = possibleRelationsWithRelative;
+        newState.relations = context.get(IndividualRelationGenderMappingService).getRelationsForGender(newState.individualRelative.relative.gender);
         IndividualAddRelativeActions.handleValidationResult(newState, newState.individualRelative.validateRelative());
         return newState;
     }
@@ -69,7 +68,7 @@ export class IndividualAddRelativeActions {
         const existingRelatives = context.get(IndividualRelationshipService).getRelatives(newState.individualRelative.individual);
         const validationResults = newState.individualRelative.validate(existingRelatives);
         IndividualAddRelativeActions.handleValidationResults(newState, validationResults);
-        if(_.isEmpty(newState.validationResults)){
+        if (_.isEmpty(newState.validationResults)) {
             context.get(IndividualRelationshipService).addRelative(newState.individualRelative);
             action.cb();
         }
