@@ -46,6 +46,8 @@ class ChecklistService extends BaseService {
                 uuid: item.uuid,
                 checklist: savedChecklist,
                 detail: this.findByUUID(item.detail.uuid, ChecklistItemDetail.schema.name)
+                //Need to update observation.
+                //No straight forward solution available right now.
             });
             const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem, true);
             entityQueueItems.push(EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
