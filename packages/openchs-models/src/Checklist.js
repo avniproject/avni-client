@@ -85,6 +85,16 @@ class Checklist extends BaseEntity {
     addItem(item) {
         this.items.push(item);
     }
+
+    print() {
+        return `Checklist{
+        uuid=${this.uuid},
+        detail=${this.detail.print()},
+        baseDate=${General.isoFormat(this.baseDate)},
+        items=[${_.map(this.items, i=>i.print())}],
+        programEnrolment=${this.programEnrolment.print()}
+        }`;
+    }
 }
 
 export default Checklist;

@@ -83,6 +83,10 @@ class ChecklistItem {
     get maxDate() {
         return this.completed ? this.completionDate : this.applicableState.maxDate(this.checklist.baseDate);
     }
+
+    print(){
+        return `ChecklistItem{uuid=${this.uuid}}`;
+    }
 }
 
 export default ChecklistItem;
