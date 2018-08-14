@@ -138,6 +138,10 @@ dev_deploy_metadata: ## Upload metadata to server
 	$(call upload,formMappings,@health_modules/adolescent/metadata/formMappings.json)
 	@echo
 
+	$(call upload,forms,@health_modules/child/metadata/checklistForm.json)
+	@echo
+	$(call upload,checklistDetail,@health_modules/child/metadata/checklist.json)
+	@echo
 	date
 
 
