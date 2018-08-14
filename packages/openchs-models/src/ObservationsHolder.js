@@ -73,11 +73,7 @@ class ObservationsHolder {
     }
 
     static clone(observations) {
-        const newObservations = [];
-        observations.forEach((observation) => {
-            newObservations.push(observation.cloneForEdit());
-        });
-        return newObservations;
+        return _.map(observations, o => o.cloneForEdit());
     }
 
     static convertObsForSave(observations) {

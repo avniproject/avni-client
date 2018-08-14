@@ -63,10 +63,7 @@ class Checklist extends BaseEntity {
         checklist.programEnrolment = this.programEnrolment;
         checklist.baseDate = this.baseDate;
         checklist.detail = this.detail;
-        checklist.items = [];
-        this.items.forEach((checklistItem) => {
-            checklist.items.push(checklistItem.clone());
-        });
+        checklist.items = _.map(this.items, item => item.clone());
         return checklist;
     }
 
