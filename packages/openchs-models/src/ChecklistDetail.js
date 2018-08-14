@@ -32,6 +32,14 @@ class ChecklistDetail extends BaseEntity {
             throw `${childEntityClass.name} not support by ${ChecklistDetail.name}`;
         return checklistDetail;
     }
+
+    print() {
+        return `ChecklistDetail{
+            uuid=${this.uuid},
+            name=${this.name},
+            items=${this.items}
+        }`;
+    }
 }
 
 export default ChecklistDetail;
