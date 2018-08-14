@@ -21,11 +21,8 @@ class ChecklistItem {
         }
     };
 
-    static create() {
-        const checklistItem = new ChecklistItem();
-        checklistItem.uuid = General.randomUUID();
-        checklistItem.observations = [];
-        return checklistItem;
+    static create({uuid = General.randomUUID(), observations = [], checklist, detail}) {
+        return Object.assign(new ChecklistItem(), {uuid, observations, checklist, detail});
     }
 
     static fromResource(checklistItemResource, entityService) {

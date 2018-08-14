@@ -42,11 +42,12 @@ class ChecklistService extends BaseService {
         const savedChecklist = db.create(Checklist.schema.name, checklistToBeCreated, true);
         entityQueueItems.push(EntityQueue.create(savedChecklist, Checklist.schema.name));
         const checklistItems = checklist.items.map((item) => {
-            const checklistItem = ChecklistItem.create();
-            checklistItem.uuid = _.isNil(item.uuid) ? checklistItem.uuid : checklist.uuid;
-            checklistItem.checklist = savedChecklist;
-            checklistItem.detail = this.findByUUID(item.detail.uuid, ChecklistItemDetail.schema.name);
-            const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem);
+            const checklistItem = ChecklistItem.create({
+                uuid: item.uuid,
+                checklist: savedChecklist,
+                detail: this.findByUUID(item.detail.uuid, ChecklistItemDetail.schema.name)
+            });
+            const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem, true);
             entityQueueItems.push(EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
             return savedChecklistItem;
         });

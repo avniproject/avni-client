@@ -121,7 +121,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.observations = ObservationsHolder.clone(this.observations);
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = this.encounters;
-        programEnrolment.checklists = this.checklists;
+        programEnrolment.checklists = _.map(this.checklists,list=>list.clone());
         return programEnrolment;
     }
 
