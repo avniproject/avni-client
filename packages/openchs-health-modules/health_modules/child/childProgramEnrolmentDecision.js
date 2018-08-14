@@ -54,7 +54,7 @@ const getDecisions = function (programEnrolment, today) {
 };
 
 const getChecklists = function (programEnrolment, today) {
-    return [childVaccinationSchedule.getVaccinationSchedule(programEnrolment)];
+    return [];
 };
 
 const getFormElementsStatuses = (programExit, formElementGroup) => {
@@ -66,6 +66,20 @@ const getFormElementsStatuses = (programExit, formElementGroup) => {
 @EnrolmentChecklists("5cd0bf6d-1e62-499b-80f4-c72538992abb", "Child vaccination schedule", 1.0)
 class ChildVaccinationChecklist {
     static exec(enrolment, checklists = [], checklistDetails) {
+        const vaccinationDetails = checklistDetails.find(cd => cd.name === 'Vaccination' && cd.uuid === '28442845-242b-46de-964f-e9e4c9311975');
+        if (vaccinationDetails === undefined) return checklists;
+        const vaccinationList = {
+            baseDate: enrolment.individual.dateOfBirth,
+            detail: {uuid: vaccinationDetails.uuid},
+            items: vaccinationDetails.items.map(vi => ({
+                detail: {uuid: vi.uuid}
+            }))
+        };
+        const noVaccinationList = _.every(checklists, list => list.detail.uuid !== vaccinationDetails.uuid);
+        const creationPhase = _.isEmpty(enrolment.getChecklists());
+        if (noVaccinationList && creationPhase) {
+            checklists.push(vaccinationList);
+        }
         return checklists;
     }
 }
