@@ -186,14 +186,11 @@ export default {
             }
         }
 
-        if (oldDB.schemaVersion < 72) {
-            const oldChecklists = oldDB.objects('Checklist');
-            const oldChecklistItems = oldDB.objects('ChecklistItem');
-
-            newDB.write(() => {
-                newDB.delete(oldChecklistItems);
-                newDB.delete(oldChecklists)
-            });
+        if (oldDB.schemaVersion < 73) {
+            const oldChecklists = newDB.objects('Checklist');
+            const oldChecklistItems = newDB.objects('ChecklistItem');
+            newDB.delete(oldChecklistItems);
+            newDB.delete(oldChecklists)
         }
     }
 };
