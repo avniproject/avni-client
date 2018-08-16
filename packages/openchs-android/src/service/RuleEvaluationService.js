@@ -111,7 +111,7 @@ class RuleEvaluationService extends BaseService {
         const allChecklistDetails = this.findAll(ChecklistDetail.schema.name);
         if ([entity, form, allChecklistDetails].some(_.isEmpty)) return defaultChecklists;
         const allChecklists = this.getAllRuleItemsFor(form, "Checklists")
-            .reduce((checklists, rule) => rule.fn.exec(entity, checklists, allChecklistDetails), defaultChecklists);
+            .reduce((checklists, rule) => rule.fn.exec(entity, allChecklistDetails), defaultChecklists);
         // General.logDebug("RuleEvaluationService - Checklists", allChecklists);
         return allChecklists;
     }

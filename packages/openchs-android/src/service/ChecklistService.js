@@ -34,6 +34,12 @@ class ChecklistService extends BaseService {
 
     saveOrUpdate(programEnrolment, checklist, db = this.db) {
         const entityQueueItems = [];
+        let existingChecklist = programEnrolment.getChecklists().find(c => c.detail.uuid === checklist.detail.uuid);
+        if (!_.isNil(existingChecklist)) {
+            existingChecklist.baseDate = checklist.baseDate;
+            entityQueueItems.push(EntityQueue.create(existingChecklist, Checklist.schema.name));
+            return entityQueueItems;
+        }
         let checklistToBeCreated = Checklist.create();
         checklistToBeCreated.uuid = _.isNil(checklist.uuid) ? checklistToBeCreated.uuid : checklist.uuid;
         checklistToBeCreated.baseDate = checklist.baseDate;

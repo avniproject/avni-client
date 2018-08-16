@@ -1850,16 +1850,5 @@
     "name": "Low Temperature",
     "uuid": "15f3e8c9-b39e-4617-b54e-6a425d8fa9a2",
     "dataType": "NA"
-  },
-  {
-    "name": "Administered by",
-    "uuid": "4c98684a-47ef-4e1e-9dc9-2e603f7b6361",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
-        "comment": "Other"
-      }
-    ]
   }
 ]
