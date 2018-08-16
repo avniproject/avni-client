@@ -22,6 +22,7 @@ class ProgramEnrolmentService extends BaseService {
     static convertObsForSave(programEnrolment) {
         ObservationsHolder.convertObsForSave(programEnrolment.observations);
         ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
+        _.forEach(programEnrolment.checklists, c => _.forEach(c.items, i => ObservationsHolder.convertObsForSave(i.observations)));
     }
 
     updateObservations(programEnrolment) {
