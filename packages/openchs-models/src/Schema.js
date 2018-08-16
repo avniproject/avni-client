@@ -43,7 +43,7 @@ import RuleDependency from "./RuleDependency";
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual, ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus, EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval, VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping, IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus, ChecklistDetail, ChecklistItemDetail],
-    schemaVersion: 72,
+    schemaVersion: 73,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -184,6 +184,16 @@ export default {
             for (let i = 0; i < oldConceptAnswers.length; i++) {
                 conceptAnswers[i].answerOrder = oldConceptAnswers[i].answerOrder;
             }
+        }
+
+        if (oldDB.schemaVersion < 72) {
+            const oldChecklists = oldDB.objects('Checklist');
+            const oldChecklistItems = oldDB.objects('ChecklistItem');
+
+            newDB.write(() => {
+                newDB.delete(oldChecklistItems);
+                newDB.delete(oldChecklists)
+            });
         }
     }
 };
