@@ -82,11 +82,11 @@ class EntityMetaData {
     };
 
     static checklist() {
-        return {entityName: "Checklist", entityClass: Checklist, resourceName: "checklist", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+        return {entityName: "Checklist", entityClass: Checklist, resourceName: "txNewChecklistEntity", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
     }
 
     static checklistItem() {
-        return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "checklistItem", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
+        return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "txNewChecklistItemEntity", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
     }
 
     static individualRelationship() {
