@@ -29,7 +29,10 @@ class ChecklistService extends BaseService {
 
     saveChecklistItem(checklistItem) {
         ObservationsHolder.convertObsForSave(checklistItem.observations);
-        return super.saveOrUpdate(checklistItem, ChecklistItem.schema.name);
+        const savedChecklistItem = super.saveOrUpdate(checklistItem, ChecklistItem.schema.name);
+        const savedEntityQueueItem = EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name);
+        super.saveOrUpdate(savedEntityQueueItem, EntityQueue.schema.name);
+        return savedChecklistItem;
     }
 
     saveOrUpdate(programEnrolment, checklist, db = this.db) {
