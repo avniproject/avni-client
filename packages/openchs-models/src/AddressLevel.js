@@ -64,7 +64,7 @@ class AddressLevel extends BaseEntity {
     }
 
     cloneForReference() {
-        return AddressLevel.create({uuid: this.uuid, title: this.name});
+        return AddressLevel.create({...this, title: this.name});
     }
 
     get translatedFieldValue() {
