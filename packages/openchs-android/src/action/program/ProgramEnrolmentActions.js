@@ -80,7 +80,8 @@ const actions = {
     NEXT: 'PEA.NEXT',
     PREVIOUS: 'PEA.PREVIOUS',
     SAVE: 'PEA.SAVE',
-    DURATION_CHANGE: 'PEA.DURATION_CHANGE'
+    DURATION_CHANGE: 'PEA.DURATION_CHANGE',
+    DATE_DURATION_CHANGE: 'PEA.DATE_DURATION_CHANGE'
 };
 
 export default new Map([
@@ -92,6 +93,7 @@ export default new Map([
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
+    [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
     [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious],
     [actions.SAVE, ProgramEnrolmentActions.onSave]

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import MultipleCodedValues from "./observation/MultipleCodedValues";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import PrimitiveValue from "./observation/PrimitiveValue";
+import Duration from "./Duration";
 
 export class ConceptAnswer {
     static schema = {
@@ -180,6 +181,8 @@ export default class Concept {
     getValueWrapperFor(value) {
         if (this.isCodedConcept()) {
             return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value);
+        } else if (this.isDurationConcept()) {
+            return new Duration(value._durationValue, value.durationUnit);
         } else {
             return new PrimitiveValue(value, this.datatype);
         }
@@ -189,10 +192,14 @@ export default class Concept {
         return this.datatype === Concept.dataType.Coded;
     }
 
+    isDurationConcept() {
+        return this.datatype === Concept.dataType.Duration;
+    }
+
     getAnswers() {
         return _.sortBy(this.answers, (answer) => {
             return _.indexOf([Concept.StandardConcepts.OtherConceptUUID, Concept.StandardConcepts.NoneConceptUUID], answer.concept.uuid) !== -1 ? 99999 : answer.answerOrder;
-        }).filter((ans)=> !ans.voided);
+        }).filter((ans) => !ans.voided);
     }
 
     get translatedFieldValue() {

@@ -24,7 +24,7 @@ export class EncounterActions {
         }
 
         const form = context.get(FormMappingService)
-                            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
+            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         let encounterActionState = EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
@@ -76,6 +76,7 @@ const individualEncounterViewActions = {
     TOGGLE_SINGLESELECT_ANSWER: "EA.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'EA.PRIMITIVE_VALUE_CHANGE',
     PRIMITIVE_VALUE_END_EDITING: 'EA.PRIMITIVE_VALUE_END_EDITING',
+    DATE_DURATION_CHANGE: 'EA.DATE_DURATION_CHANGE',
     DURATION_CHANGE: 'EA.DURATION_CHANGE',
     ON_LOAD: 'EA.ON_LOAD',
     TOGGLE_SHOWING_PREVIOUS_ENCOUNTER: 'EA.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER',
@@ -89,6 +90,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [individualEncounterViewActions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [individualEncounterViewActions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
+    [individualEncounterViewActions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [individualEncounterViewActions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
     [individualEncounterViewActions.ON_ENCOUNTER_LANDING_LOAD, EncounterActions.onEncounterLandingViewLoad],

@@ -42,8 +42,8 @@ class Observation {
             return _.join(valueWrapper.getValue().map((value) => {
                 return i18n.t(conceptService.getConceptByUUID(value).name);
             }), ', ');
-        } else if (observation.concept.datatype === Concept.dataType.Boolean) {
-            return i18n.t(_.toString(valueWrapper.getValue()));
+        } else if (observation.concept.datatype === Concept.dataType.Duration) {
+            return _.toString(valueWrapper.toString(i18n));
         } else {
             const unit = _.defaultTo(observation.concept.unit, "");
             return _.toString(`${valueWrapper.getValue()} ${unit}`);
@@ -73,8 +73,11 @@ class Observation {
 
     getValueWrapper() {
         if (_.isString(this.valueJSON)) {
-            let answer = JSON.parse(this.valueJSON).answer;
-            return this.concept.getValueWrapperFor(answer);
+            let valueParsed = JSON.parse(this.valueJSON);
+            if (this.concept.isCodedConcept()) {
+                valueParsed = valueParsed.answer;
+            }
+            return this.concept.getValueWrapperFor(valueParsed);
         }
         else return this.valueJSON;
     }

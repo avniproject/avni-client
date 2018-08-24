@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import moment from "moment";
+import SingleCodedValue from "./observation/SingleCodedValue";
 
 class Duration {
     static inDay(value) {
@@ -26,7 +27,7 @@ class Duration {
     static durationBetween(dateA, dateB) {
         const diff = moment(dateB).diff(dateA, 'months', true);
         if (diff >= 1) {
-            return new Duration(Math.round(diff*2)/2, Duration.Month); // round to nearest .5
+            return new Duration(Math.round(diff * 2) / 2, Duration.Month); // round to nearest .5
         } else {
             return new Duration(moment(dateB).diff(dateA, 'days'), Duration.Day);
         }
@@ -54,12 +55,17 @@ class Duration {
         return i18n ? `${this.durationValueAsString} ${i18n.t(durationUnitText.toLowerCase())}` : `${this.durationValueAsString} ${this.durationUnit}`;
     }
 
+    getValue() {
+        return {value: this.durationValue, unit: this.durationUnit};
+    }
+
     toUnicodeString(i18n) {
         return this.toString(i18n).replace('.5', '\u00BD');
     }
 
     get isEmpty() {
-        return _.isNil(this._durationValue);
+        console.log(this._durationValue);
+        return _.isNil(this._durationValue) || _.isEmpty(this._durationValue);
     }
 
     get inYears() {
@@ -80,6 +86,10 @@ class Duration {
     static fromDataEntryDate(durationUnit, date, dataEntryDate) {
         const durationValue = moment(dataEntryDate).diff(date, durationUnit);
         return new Duration(durationValue, durationUnit);
+    }
+
+    cloneForEdit() {
+        return new Duration(this.durationValue, this.durationUnit);
     }
 
     dateInPastBasedOnToday(asPerDate) {

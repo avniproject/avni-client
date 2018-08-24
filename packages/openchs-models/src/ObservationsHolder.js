@@ -42,7 +42,7 @@ class ObservationsHolder {
             let value = _.find(formElementStatuses, (formElementStatus) => {
                 return fe.uuid === formElementStatus.uuid;
             }).value;
-            if(!_.isNil(value)){
+            if (!_.isNil(value)) {
                 this.addOrUpdatePrimitiveObs(fe.concept, value);
             }
         })
@@ -66,6 +66,17 @@ class ObservationsHolder {
             }
             return observation;
         }
+    }
+
+    updateDurationValue(concept, duration) {
+        let observation = this.getObservation(concept);
+        if (!_.isEmpty(observation)) {
+            _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);
+            if (duration.isEmpty) return null;
+        }
+        observation = Observation.create(concept, duration);
+        this.observations.push(observation);
+        return observation;
     }
 
     toggleMultiSelectAnswer(concept, answerUUID) {

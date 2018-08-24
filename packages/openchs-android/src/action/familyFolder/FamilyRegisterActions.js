@@ -102,7 +102,7 @@ export default new Map([
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsUpdateValue],
-    [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
+    [actions.DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.SAVE, FamilyRegisterActions.onSave],
 ]);
 

@@ -27,7 +27,9 @@ class ProgramEncounterCancelActions {
         }
 
         programEncounter.cancelDateTime = new Date();
-        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function(o){return o.displayOrder}]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, programEncounter).length !== 0);
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
+            return o.displayOrder
+        }]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, programEncounter).length !== 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             throw new Error("No form element group with visible form element");
@@ -60,6 +62,7 @@ const ProgramEncounterCancelActionsNames = {
     TOGGLE_SINGLESELECT_ANSWER: "ProgramEncounterCancelActions.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'ProgramEncounterCancelActions.PRIMITIVE_VALUE_CHANGE',
     PRIMITIVE_VALUE_END_EDITING: 'ProgramEncounterCancelActions.PRIMITIVE_VALUE_END_EDITING',
+    DATE_DURATION_CHANGE: 'ProgramEncounterCancelActions.DATE_DURATION_CHANGE',
     DURATION_CHANGE: 'ProgramEncounterCancelActions.DURATION_CHANGE',
     PREVIOUS: 'ProgramEncounterCancelActions.PREVIOUS',
     NEXT: 'ProgramEncounterCancelActions.NEXT',
@@ -72,6 +75,7 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [ProgramEncounterCancelActionsNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [ProgramEncounterCancelActionsNames.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
+    [ProgramEncounterCancelActionsNames.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [ProgramEncounterCancelActionsNames.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [ProgramEncounterCancelActionsNames.NEXT, ProgramEncounterCancelActions.onNext],
     [ProgramEncounterCancelActionsNames.PREVIOUS, ProgramEncounterCancelActions.onPrevious],

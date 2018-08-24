@@ -55,7 +55,7 @@ class ObservationsHolderActions {
         return newState;
     }
 
-    static onDurationChange(state, action, context) {
+    static onDateDurationChange(state, action, context) {
         const newState = state.clone();
         let dateValue;
         if (_.isNil(action.duration)) {
@@ -72,6 +72,18 @@ class ObservationsHolderActions {
         const validationResult = action.formElement.validate(dateValue);
         newState.handleValidationResult(validationResult);
 
+        return newState;
+    }
+
+    static onDurationChange(state, action, context) {
+        const newState = state.clone();
+        const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
+        const observation = newState.observationsHolder.updateDurationValue(action.formElement.concept, duration);
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
+        newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
+        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
+        newState.handleValidationResult(validationResult);
         return newState;
     }
 }
