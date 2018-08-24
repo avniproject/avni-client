@@ -1,14 +1,19 @@
 import _ from "lodash";
 import Concept from "../Concept";
 import moment from "moment";
+import General from "../utility/General";
 
 class PrimitiveValue {
     constructor(value, datatype) {
+        this.datatype = datatype;
         this.answer = this.valueFromString(value, datatype);
     }
 
     asDisplayDate() {
-        return moment(this.answer).format('DD-MMM-YYYY');
+        const format = (this.datatype === Concept.dataType.DateTime) && !(General.hoursAndMinutesOfDateAreZero(this.answer)) 
+            ? "DD-MMM-YYYY HH:mm" 
+            : "DD-MMM-YYYY";
+        return moment(this.answer).format(format);
     }
 
     getValue() {
@@ -28,7 +33,7 @@ class PrimitiveValue {
     valueFromString(string, datatype) {
         if (datatype === Concept.dataType.Numeric && !_.endsWith(string,'.')) {
             return _.toNumber(string);
-        } else if (datatype === Concept.dataType.Date) {
+        } else if (datatype === Concept.dataType.Date || datatype === Concept.dataType.DateTime) {
             return new Date(Date.parse(string));
         }
         return string;

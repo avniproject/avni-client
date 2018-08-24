@@ -18,7 +18,6 @@ import {
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
-import General from "../../utility/General";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -106,12 +105,17 @@ class FormElementGroup extends AbstractComponent {
                                                               actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                               dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                               validationResult={validationResult}/>, idx);
+                        }  else if (formElement.concept.datatype === Concept.dataType.DateTime) {
+                            return this.wrap(<DateFormElement key={idx}
+                                                              element={formElement}
+                                                              actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                                              dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                                              validationResult={validationResult}/>, idx);
                         } else if (!_.isNil(formElement.durationOptions)) {
                             return this.wrap(<DurationDateFormElement key={idx} label={formElement.name}
                                                                       actionName={this.props.actions["DURATION_CHANGE"]}
                                                                       durationOptions={formElement.durationOptions}
                                                                       duration={this.getDuration(formElement.concept, this.props.formElementsUserState[formElement.uuid], formElement)}
-                                                                      noDateMessageKey='chooseADate'
                                                                       dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                                       validationResult={validationResult}
                                                                       element={formElement}/>, idx);

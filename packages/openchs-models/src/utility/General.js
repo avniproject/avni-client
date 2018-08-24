@@ -60,6 +60,10 @@ class General {
         return `${day}-${month}-${date.getFullYear()} ${hour}:${min}:${sec}`;
     }
 
+    static hoursAndMinutesOfDateAreZero(date) {
+        return date && date.getMinutes() === 0 && date.getHours() === 0;
+    }
+
     static formatDate(date) {
         return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
     }

@@ -1,9 +1,8 @@
-import {DatePickerAndroid, View} from "react-native";
+import {DatePickerAndroid, TimePickerAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
-import DynamicGlobalStyles from "./DynamicGlobalStyles";
 import Colors from "./Colors";
 import General from "../../utility/General";
 import {Button, Icon} from "native-base";
@@ -16,11 +15,14 @@ class DatePicker extends AbstractComponent {
         validationResult: React.PropTypes.object,
         actionName: React.PropTypes.string.isRequired,
         actionObject: React.PropTypes.object.isRequired,
-        noDateMessageKey: React.PropTypes.string
+        pickTime: React.PropTypes.bool
     };
 
     constructor(props, context) {
         super(props, context);
+        this.pickTime = _.isBoolean(props.pickTime) ? props.pickTime : false;
+        this.noDateMessageKey = this.pickTime ? "chooseDateAndTime" : "chooseADate";
+        this.showTimePicker = this.showTimePicker.bind(this);
     }
 
     render() {
@@ -28,9 +30,9 @@ class DatePicker extends AbstractComponent {
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showPicker.bind(this, {date: date})}
+                    <Text onPress={this.showDatePicker.bind(this, {date: date})}
                         style={[{fontSize: Fonts.Large, color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError}]}>
-                            {this.dateDisplay(this.props.dateValue, this.props.noDateMessageKey)}
+                            {this.dateDisplay(this.props.dateValue)}
                     </Text>
                     { _.isNil(this.props.dateValue) ?
                         <View/>
@@ -47,14 +49,29 @@ class DatePicker extends AbstractComponent {
         );
     }
 
-    dateDisplay(date, defaultMessageKey) {
-        return _.isNil(date) ? this.I18n.t(defaultMessageKey ? defaultMessageKey : "chooseADate") : General.formatDate(date);
+    dateDisplay(date) {
+        return _.isNil(date)
+        ? this.I18n.t(this.noDateMessageKey)
+        : (this.pickTime && !(General.hoursAndMinutesOfDateAreZero(date)))
+            ? General.formatDateTime(date)
+            : General.formatDate(date);
     }
 
-    async showPicker(options) {
+    async showDatePicker(options) {
         const {action, year, month, day} = await DatePickerAndroid.open(options);
         if (action !== DatePickerAndroid.dismissedAction) {
             this.props.actionObject.value = new Date(year, month, day);
+            if(this.pickTime) {
+              this.showTimePicker(this.props.actionObject.value);
+            }
+            this.dispatchAction(this.props.actionName, this.props.actionObject);
+        }
+    }
+
+    async showTimePicker(date) {
+        const { action, hour, minute } = await TimePickerAndroid.open({});
+        if (action !== TimePickerAndroid.dismissedAction) {
+            this.props.actionObject.value = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute, 0, 0);
             this.dispatchAction(this.props.actionName, this.props.actionObject);
         }
     }
