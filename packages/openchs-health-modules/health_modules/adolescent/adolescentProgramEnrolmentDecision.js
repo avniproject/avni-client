@@ -6,9 +6,17 @@ import C from "../common";
 const EnrolmentDecisions = RuleFactory("32b3555a-7fe9-4246-a470-21ab2d2954e2", "Decision");
 
 const EnrolmentViewFilters = RuleFactory("32b3555a-7fe9-4246-a470-21ab2d2954e2", "ViewFilter");
+const ExitFilters = RuleFactory('5f8dc84d-90ff-46ca-9a56-169bd778687f', 'ViewFilter');
 
 @EnrolmentViewFilters("cfaf14ea-6c8c-4909-a808-bdef784747e2", "ALl Enrolment Filters", 1.0, {})
 class EnrolmentFilter {
+    static exec(enrolment, formElementGroup) {
+        return getFormElementsStatuses(enrolment, formElementGroup);
+    }
+}
+
+@ExitFilters('f0b042a5-4232-46cb-b5c3-b320fc0fce48', 'Adolescent exit form filters', 1, {})
+class ExitFilter {
     static exec(enrolment, formElementGroup) {
         return getFormElementsStatuses(enrolment, formElementGroup);
     }
