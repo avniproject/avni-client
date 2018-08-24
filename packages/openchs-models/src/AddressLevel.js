@@ -2,25 +2,27 @@ import BaseEntity from "./BaseEntity";
 import ResourceUtil from "./utility/ResourceUtil";
 import General from "./utility/General";
 
-export class ParentLocation extends BaseEntity {
+export class LocationMapping extends BaseEntity {
     static schema = {
-        name: "ParentLocation",
+        name: "LocationMapping",
         primaryKey: 'uuid',
         properties: {
             uuid: "string",
-            location: 'AddressLevel',
+            parent: 'AddressLevel',
+            child: 'AddressLevel',
             voided: {type: 'bool', default: false}
         }
     };
 
-    static create({uuid, location, voided}) {
-        return Object.assign(new ParentLocation(), {uuid, location, voided});
+    static create({uuid, parent, child, voided}) {
+        return Object.assign(new LocationMapping(), {uuid, parent, child, voided});
     }
 
     static fromResource(resource, entityService) {
-        return ParentLocation.create({
+        return LocationMapping.create({
             uuid: resource.uuid,
-            location: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "parentLocationUUID"), AddressLevel.schema.name),
+            parent: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "parentLocationUUID"), AddressLevel.schema.name),
+            child: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "locationUUID"), AddressLevel.schema.name),
             voided: !!resource.voided
         });
     }
@@ -35,12 +37,12 @@ class AddressLevel extends BaseEntity {
             name: "string",
             level: "int",
             type: {type: 'string', optional: true},
-            parentLocations: {type: 'list', objectType: 'ParentLocation'}
+            locationMappings: {type: 'list', objectType: 'LocationMapping'}
         }
     };
 
-    static create({uuid, title, level, type, parentLocations = []}) {
-        return Object.assign(new AddressLevel(), {uuid, name: title, level, type, parentLocations});
+    static create({uuid, title, level, type, locationMappings = []}) {
+        return Object.assign(new AddressLevel(), {uuid, name: title, level, type, locationMappings});
     }
 
     static fromResource(resource) {
@@ -48,19 +50,19 @@ class AddressLevel extends BaseEntity {
     }
 
     static associateChild(child, childEntityClass, childResource, entityService) {
-        if (childEntityClass !== ParentLocation) {
+        if (childEntityClass !== LocationMapping) {
             throw `${childEntityClass.name} not support by ${AddressLevel.schema.name}.associateChild()`;
         }
         let location = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "locationUUID"), AddressLevel.schema.name);
-        location = General.pick(location, ["uuid"], ["parentLocations"]);
-        BaseEntity.addNewChild(child, location.parentLocations);
+        location = General.pick(location, ["uuid"], ["locationMappings"]);
+        BaseEntity.addNewChild(child, location.locationMappings);
         return location;
     }
 
-    static merge = () => BaseEntity.mergeOn('parentLocations');
+    static merge = () => BaseEntity.mergeOn('locationMappings');
 
     getParentLocations() {
-        return _.filter(this.parentLocations, parentLocation => !parentLocation.voided).map(parentLocation => parentLocation.location);
+        return _.filter(this.locationMappings, locationMapping => !locationMapping.voided).map(locationMapping => locationMapping.parent);
     }
 
     cloneForReference() {

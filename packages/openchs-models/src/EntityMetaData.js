@@ -1,6 +1,6 @@
 import Concept, {ConceptAnswer} from "./Concept";
 import Gender from "./Gender";
-import AddressLevel, {ParentLocation} from "./AddressLevel";
+import AddressLevel, {LocationMapping} from "./AddressLevel";
 import Individual from "./Individual";
 import AllSchema from "./Schema";
 import _ from "lodash";
@@ -101,10 +101,10 @@ class EntityMetaData {
         };
     }
 
-    static parentAddressLevel() {
+    static locationMapping() {
         return {
-            entityName: "ParentLocation",
-            entityClass: ParentLocation,
+            entityName: "LocationMapping",
+            entityClass: LocationMapping,
             resourceName: "locationMapping",
             type: "reference",
             parent: EntityMetaData.addressLevel,
@@ -128,7 +128,7 @@ class EntityMetaData {
             EntityMetaData.formElementGroup(),
             EntityMetaData.form,
 
-            EntityMetaData.parentAddressLevel(),
+            EntityMetaData.locationMapping(),
             EntityMetaData.addressLevel,
             EntityMetaData.encounterType,
             EntityMetaData.program,
