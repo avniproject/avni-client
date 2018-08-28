@@ -47,4 +47,5 @@ describe('General', () => {
         expect(isEmptyOrBlank(false)).to.be.false; 
         expect(isEmptyOrBlank(true)).to.be.false; 
     });
+
 });
