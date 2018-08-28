@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Ganiyari Hospital",
+    "uuid": "7c370cea-99a0-4a62-bfb7-903e0807a58f"
+  },
+  {
+    "name": "Jinjgaon PHC",
+    "uuid": "0f7aa2d4-2d30-45a1-afdb-a9580068feee",
+    "locationUUID": "fb8da154-410f-4d99-9ab9-49e61d938c9b"
+  },
+  {
+    "name": "Jinjgaon Subcentre",
+    "uuid": "a82a7f5f-19d0-4b82-a4c6-f3d05edc188b",
+    "locationUUID": "fb8da154-410f-4d99-9ab9-49e61d938c9b"
+  },
+  {
+    "name": "Gurnoor Subcentre",
+    "uuid": "9d7b3362-6ec8-424f-ad28-462778f6ecb7",
+    "locationUUID": "9c6dc329-846b-4460-819a-7f3e9cb29e27"
+  },
+  {
+    "name": "Marampalli Subcentre",
+    "uuid": "28c91cb5-b064-4dd8-8ffb-412dd6d6a946",
+    "locationUUID": "9c6dc329-846b-4460-819a-7f3e9cb29e27"
+  }
+]
