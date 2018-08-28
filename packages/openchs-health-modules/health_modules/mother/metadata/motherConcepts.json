@@ -5,6 +5,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Young child",
+    "uuid": "c815f770-0bea-41a2-8169-2ae6ed433a95",
+    "dataType": "NA"
+  },
+  {
     "name": "Child born Underweight",
     "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",
     "dataType": "NA"
@@ -1447,6 +1452,11 @@
     "uuid": "f34f974b-47b0-424d-ae97-d479c80efa49",
     "dataType": "Coded",
     "answers": [
+      {
+        "comment": "Young child",
+        "uuid": "c815f770-0bea-41a2-8169-2ae6ed433a95",
+        "abnormal": true
+      },
       {
         "comment": "Child born Underweight",
         "uuid": "6914364e-6627-46bf-94c4-574d051e7fb4",

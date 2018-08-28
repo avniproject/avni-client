@@ -120,7 +120,7 @@ class FormElementGroup extends AbstractComponent {
                                                               actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                               dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                               validationResult={validationResult}/>, idx);
-                        } else if (formElement.concept.datatype === Concept.dataType.DateTime && !_.isNil(formElement.durationOptions)) {
+                        } else if (formElement.concept.datatype === Concept.dataType.Date && !_.isNil(formElement.durationOptions)) {
                             return this.wrap(<DurationDateFormElement key={idx} label={formElement.name}
                                                                       actionName={this.props.actions["DATE_DURATION_CHANGE"]}
                                                                       durationOptions={formElement.durationOptions}
