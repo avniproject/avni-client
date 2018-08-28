@@ -10,18 +10,15 @@ class DeliveryFormHandler {
         return statusBuilder.build();
     }
 
-    deliveryOutcome(programEncounter, formElement) {
+    pregnancyOutcome(programEncounter, formElement) {
         const statusBuilder = new FormElementStatusBuilder({
             programEncounter: programEncounter,
             formElement: formElement
         });
         statusBuilder.skipAnswers("Live birth and Still birth")
-            .when.valueInEncounter("Number of babies").not.greaterThan(1);
-
-        let builtStatus = statusBuilder.build();
-        const answersToSkip = builtStatus.answersToSkip;
-        return new FormElementStatus(builtStatus.uuid, answersToSkip.length < formElement.concept.answers.length,
-            undefined, answersToSkip);
+            .when.valueInEncounter("Number of babies").lessThanOrEqualTo(1);
+        statusBuilder.show().whenItem(true).is.truthy;
+        return statusBuilder.build();
     }
 
     numberOfStillBornBabies(programEncounter, formElement) {
