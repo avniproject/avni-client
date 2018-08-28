@@ -19,6 +19,7 @@ import Concept, {ConceptAnswer} from "./src/Concept";
 import ConfigFile from "./src/ConfigFile";
 import Decision from "./src/Decision";
 import Duration from "./src/Duration";
+import CompositeDuration from "./src/CompositeDuration";
 import Encounter from "./src/Encounter";
 import EncounterType from "./src/EncounterType";
 import EntityMetaData from "./src/EntityMetaData";
@@ -114,5 +115,6 @@ export {
     RuleDependency,
     ChecklistItemStatus,
     ChecklistItemDetail,
-    ChecklistDetail
+    ChecklistDetail,
+    CompositeDuration
 };

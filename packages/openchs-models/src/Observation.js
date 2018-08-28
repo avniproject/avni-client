@@ -34,7 +34,7 @@ class Observation {
     static valueAsString(observation, conceptService, i18n) {
         const valueWrapper = observation.getValueWrapper();
 
-        if (observation.concept.datatype === Concept.dataType.Date) {
+        if (observation.concept.datatype === Concept.dataType.Date || observation.concept.datatype === Concept.dataType.DateTime) {
             return valueWrapper.asDisplayDate();
         } else if (valueWrapper.isSingleCoded) {
             return i18n.t(conceptService.getConceptByUUID(valueWrapper.getConceptUUID()).name);

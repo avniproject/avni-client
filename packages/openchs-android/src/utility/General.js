@@ -58,8 +58,19 @@ class General {
         return `${day}-${month}-${date.getFullYear()} ${hour}:${min}:${sec}`;
     }
 
+    static hoursAndMinutesOfDateAreZero(date) {
+        return date.getMinutes() === 0 && date.getHours() === 0;
+    }
+
     static formatDate(date) {
         return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
+    }
+
+    static formatDateTime(date) {
+      const hour = General.toTwoChars(date.getHours());
+      const minutes = General.toTwoChars(date.getMinutes());
+
+      return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
     }
 
     static isoFormat(date) {

@@ -14,7 +14,6 @@ class DurationDateFormElement extends AbstractFormElement {
         label: React.PropTypes.string.isRequired,
         actionName: React.PropTypes.string.isRequired,
         duration: React.PropTypes.object.isRequired,
-        noDateMessageKey: React.PropTypes.string.isRequired,
         durationOptions: React.PropTypes.array.isRequired,
         validationResult: React.PropTypes.object,
         element: React.PropTypes.object.isRequired,
@@ -44,7 +43,7 @@ class DurationDateFormElement extends AbstractFormElement {
                         <Text style={DGS.formElementLabel}>{`${this.I18n.t("enterDate")}: `}</Text>
                         <View style={{paddingHorizontal:5}}>
                             <DatePicker actionName={this.props.actionName} actionObject={{formElement: this.props.element}} validationResult={this.props.validationResult}
-                                        dateValue={this.props.dateValue.getValue()} noDateMessageKey={this.props.noDateMessageKey}/>
+                                        dateValue={this.props.dateValue.getValue()} />
                         </View>
                     </View>
                 </View>

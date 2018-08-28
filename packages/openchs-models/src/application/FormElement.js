@@ -84,8 +84,7 @@ class FormElement {
 
     validate(value) {
         const failure = new ValidationResult(false, this.uuid);
-        if (this.mandatory &&
-            ((_.isEmpty(_.toString(value))))) {
+        if (this.mandatory && _.isEmpty(_.toString(value))) {
             failure.messageKey = 'emptyValidationMessage';
         }
         else if (this.concept.datatype === Concept.dataType.Numeric && isNaN(value)) {
@@ -104,6 +103,10 @@ class FormElement {
         }
         else if (this.isMultiSelect() && !_.isEmpty(value)) {
             return this._validateMultiSelect(value);
+        }
+        else if (this.concept.datatype === Concept.dataType.DateTime 
+            && General.hoursAndMinutesOfDateAreZero(value)) {
+          failure.messageKey = "timeValueValidation";
         }
         else {
             return new ValidationResult(true, this.uuid, null);
@@ -149,7 +152,7 @@ class FormElement {
 
     get editable() {
         const editable = this.recordByKey('editable');
-        return _.isNil(editable) ? true : editable.getValue() === 'true';
+        return _.isNil(editable) ? true : editable.getValue();
     }
 
     matches(elementNameOrUUID) {

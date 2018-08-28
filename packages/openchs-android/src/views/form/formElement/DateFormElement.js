@@ -6,6 +6,7 @@ import DatePicker from "../../primitives/DatePicker";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
+import {Concept} from "openchs-models";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -21,6 +22,7 @@ class DateFormElement extends AbstractFormElement {
     }
 
     render() {
+        const concept = this.props.element.concept;
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
                 {this.label}
@@ -33,6 +35,7 @@ class DateFormElement extends AbstractFormElement {
                          }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
                         <DatePicker dateValue={this.props.dateValue.getValue()}
                                     validationResult={this.props.validationResult}
+                                    pickTime={concept && concept.datatype === Concept.dataType.DateTime}
                                     actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
 }
             </View>);

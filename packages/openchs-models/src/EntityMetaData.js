@@ -1,6 +1,6 @@
 import Concept, {ConceptAnswer} from "./Concept";
 import Gender from "./Gender";
-import AddressLevel from "./AddressLevel";
+import AddressLevel, {LocationMapping} from "./AddressLevel";
 import Individual from "./Individual";
 import AllSchema from "./Schema";
 import _ from "lodash";
@@ -35,7 +35,7 @@ class EntityMetaData {
     static ruleDependency = {entityName: "RuleDependency", entityClass: RuleDependency, resourceName: "ruleDependency", type: "reference", nameTranslated: false};
     static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
     static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference", nameTranslated: false};
-    static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "addressLevel", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "reference", nameTranslated: true};
+    static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "locations", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "reference", nameTranslated: true};
     static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "operationalEncounterType", type: "reference", nameTranslated: true};
     static program = {entityName: "Program", entityClass: Program, resourceName: "operationalProgram", type: "reference", nameTranslated: true};
     static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
@@ -101,6 +101,17 @@ class EntityMetaData {
         };
     }
 
+    static locationMapping() {
+        return {
+            entityName: "LocationMapping",
+            entityClass: LocationMapping,
+            resourceName: "locationMapping",
+            type: "reference",
+            parent: EntityMetaData.addressLevel,
+            nameTranslated: false
+        };
+    }
+
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
@@ -117,6 +128,7 @@ class EntityMetaData {
             EntityMetaData.formElementGroup(),
             EntityMetaData.form,
 
+            EntityMetaData.locationMapping(),
             EntityMetaData.addressLevel,
             EntityMetaData.encounterType,
             EntityMetaData.program,

@@ -21,14 +21,15 @@
     "coverage": "istanbul cover --report lcov _mocha --require $(find ./src/test -name '*Test.js')"
   },
   "dependencies": {
-    "lodash": "4.14.0",
-    "moment": "2.18.1"
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2"
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
     "babel-jest": "20.0.1",
     "babel-plugin-transform-class-properties": "6.24.1",
-    "babel-preset-env": "1.6.1",
+    "babel-preset-env": "^1.7.0",
     "chai": "4.1.2",
     "jest": "20.0.1"
   }

@@ -63,6 +63,7 @@ export default class Concept {
 
     static dataType = {
         Date: 'Date',
+        DateTime: 'DateTime',
         Duration: 'Duration',
         Coded: 'Coded',
         Numeric: 'Numeric',

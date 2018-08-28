@@ -79,6 +79,10 @@ class SyncService extends BaseService {
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
+        //most openchs-models are designed to have oneToMany relations
+        //Each model has a static method `associateChild` implemented in manyToOne fashion
+        //`<A Model>.associateChild()` method takes childInformation, finds the parent, assigns the child to the parent and returns the parent
+        //`<A Model>.associateChild()` called many times as many children
         if (!_.isEmpty(entityMetaData.parent)) {
             const parentEntities = _.zip(entityResources, entities)
                 .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, entityService));

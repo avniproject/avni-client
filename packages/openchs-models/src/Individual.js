@@ -51,7 +51,7 @@ class Individual extends BaseEntity {
         individual.encounters = [];
         individual.enrolments = [];
         individual.relationships = [];
-        individual.lowestAddressLevel = AddressLevel.create("", "", 0, undefined, "");
+        individual.lowestAddressLevel = AddressLevel.create({uuid: "", title: "", level: 0, type: ""});
         return individual;
     }
 

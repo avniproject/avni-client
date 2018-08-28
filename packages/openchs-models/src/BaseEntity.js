@@ -18,21 +18,17 @@ class BaseEntity {
     }
 
     static addNewChild(newChild, existingChildren) {
-        const existing = existingChildren.some((child) => {
-            return newChild.uuid === child.uuid;
-        });
-        if (!existing)
+        if (!BaseEntity.collectionHasEntity(existingChildren, newChild)) {
             existingChildren.push(newChild);
+        }
     }
 
     static collectionHasEntity(collection, entity) {
-        return _.some(collection, (item) => item.uuid === entity.uuid);
+        return _.some(collection, item => item.uuid === entity.uuid);
     }
 
     static removeFromCollection(collection, entity) {
-        _.remove(collection, function (item) {
-            return item.uuid === entity.uuid;
-        });
+        _.remove(collection, item => item.uuid === entity.uuid);
     }
 
     equals(other) {
