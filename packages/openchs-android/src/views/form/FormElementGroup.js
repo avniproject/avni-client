@@ -20,6 +20,7 @@ import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
 import General from "../../utility/General";
 import DurationFormElement from "./formElement/DurationFormElement";
+import CompositeDuration from "../../../../openchs-models/src/CompositeDuration";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -40,12 +41,20 @@ class FormElementGroup extends AbstractComponent {
         return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}} key={idx}>{x}</View>;
     }
 
+    getCompositeDuration(concept, formElement) {
+        const observation = this.props.observationHolder.findObservation(concept);
+        const durationOptions = formElement.durationOptions;
+        if (_.isNil(observation)) {
+            return CompositeDuration.fromOpts(durationOptions);
+        } else {
+            return observation.getValueWrapper();
+        }
+    }
+
     getDuration(concept, formElementUserState, formElement) {
         const observation = this.props.observationHolder.findObservation(concept);
         if (_.isNil(observation)) {
             return new Duration(null, formElement.durationOptions[0]);
-        } else if (concept.datatype === Concept.dataType.Duration) {
-            return observation.getValueWrapper();
         }
         else {
             const date = observation.getValueWrapper().getValue();
@@ -116,10 +125,8 @@ class FormElementGroup extends AbstractComponent {
                         } else if (formElement.concept.datatype === Concept.dataType.Duration && !_.isNil(formElement.durationOptions)) {
                             return this.wrap(<DurationFormElement key={idx} label={formElement.name}
                                                                   actionName={this.props.actions["DURATION_CHANGE"]}
-                                                                  durationOptions={formElement.durationOptions}
-                                                                  duration={this.getDuration(formElement.concept, this.props.formElementsUserState[formElement.uuid], formElement)}
+                                                                  compositeDuration={this.getCompositeDuration(formElement.concept, formElement)}
                                                                   noDateMessageKey='chooseADate'
-                                                                  dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                                   validationResult={validationResult}
                                                                   element={formElement}/>, idx);
                         }

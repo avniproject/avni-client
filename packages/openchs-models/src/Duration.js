@@ -11,6 +11,8 @@ class Duration {
         return new Duration(value, Duration.Week);
     }
 
+    static Hour = "hours";
+    static Minute = "minutes";
     static Day = "days";
     static Week = "weeks";
     static Month = "months";
@@ -64,7 +66,6 @@ class Duration {
     }
 
     get isEmpty() {
-        console.log(this._durationValue);
         return _.isNil(this._durationValue) || _.isEmpty(this._durationValue);
     }
 
@@ -95,6 +96,15 @@ class Duration {
     dateInPastBasedOnToday(asPerDate) {
         return moment(asPerDate).subtract(this.durationValue, this.durationUnit).toDate();
     }
+
+    get toResource() {
+        return {_durationValue: this.durationValue, durationUnit: this.durationUnit};
+    }
+
+    static fromObs(obs) {
+        return new Duration(obs._durationValue, obs.durationUnit);
+    }
+
 }
 
 export default Duration;

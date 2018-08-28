@@ -42,7 +42,7 @@ class Observation {
             return _.join(valueWrapper.getValue().map((value) => {
                 return i18n.t(conceptService.getConceptByUUID(value).name);
             }), ', ');
-        } else if (observation.concept.datatype === Concept.dataType.Duration) {
+        } else if (observation.concept.isDurationConcept()) {
             return _.toString(valueWrapper.toString(i18n));
         } else {
             const unit = _.defaultTo(observation.concept.unit, "");
@@ -74,12 +74,14 @@ class Observation {
     getValueWrapper() {
         if (_.isString(this.valueJSON)) {
             let valueParsed = JSON.parse(this.valueJSON);
-            if (this.concept.isCodedConcept()) {
+            if (this.concept.isDurationConcept()) {
+                valueParsed = valueParsed.durations;
+            } else {
                 valueParsed = valueParsed.answer;
             }
             return this.concept.getValueWrapperFor(valueParsed);
         }
-        else return this.valueJSON;
+        return this.valueJSON;
     }
 
     get toResource() {
@@ -96,13 +98,15 @@ class Observation {
 
     getReadableValue() {
         let value = this.getValue();
-        if (!_.isNil(value) && this.concept.datatype === Concept.dataType.Coded) {
-            switch (typeof value) {
-                case "string":
-                    return this.concept.answers.find((conceptAnswer) => conceptAnswer.concept.uuid === value).name;
-                case "object":
-                    return value.map((answerUUID) =>
-                        this.concept.answers.find((ca) => ca.concept.uuid === answerUUID).name);
+        if (!_.isNil(value)) {
+            if (this.concept.isCodedConcept()) {
+                switch (typeof value) {
+                    case "string":
+                        return this.concept.answers.find((conceptAnswer) => conceptAnswer.concept.uuid === value).name;
+                    case "object":
+                        return value.map((answerUUID) =>
+                            this.concept.answers.find((ca) => ca.concept.uuid === answerUUID).name);
+                }
             }
         }
         return value;

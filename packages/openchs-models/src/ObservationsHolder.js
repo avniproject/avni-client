@@ -68,7 +68,7 @@ class ObservationsHolder {
         }
     }
 
-    updateDurationValue(concept, duration) {
+    updateCompositeDurationValue(concept, duration) {
         let observation = this.getObservation(concept);
         if (!_.isEmpty(observation)) {
             _.remove(this.observations, (obs) => obs.concept.uuid === observation.concept.uuid);

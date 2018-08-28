@@ -28,6 +28,8 @@
   "serverURL": "Server URL",
   "catchmentId": "Catchment Id",
   "locale": "Language",
+  "minutes": "Minute(s)",
+  "hours": "Hour(s)",
   "months": "Months",
   "month": "Month",
   "years": "Years",

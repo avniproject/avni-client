@@ -6,6 +6,7 @@ import MultipleCodedValues from "./observation/MultipleCodedValues";
 import SingleCodedValue from "./observation/SingleCodedValue";
 import PrimitiveValue from "./observation/PrimitiveValue";
 import Duration from "./Duration";
+import CompositeDuration from "./CompositeDuration";
 
 export class ConceptAnswer {
     static schema = {
@@ -178,13 +179,13 @@ export default class Concept {
         return _.find(this.answers, (conceptAnswer) => conceptAnswer.concept.name === name);
     }
 
-    getValueWrapperFor(value) {
+    getValueWrapperFor(obsValue) {
         if (this.isCodedConcept()) {
-            return _.isArray(value) ? new MultipleCodedValues(value) : new SingleCodedValue(value);
+            return _.isArray(obsValue) ? new MultipleCodedValues(obsValue) : new SingleCodedValue(obsValue);
         } else if (this.isDurationConcept()) {
-            return new Duration(value._durationValue, value.durationUnit);
+            return CompositeDuration.fromObs(obsValue);
         } else {
-            return new PrimitiveValue(value, this.datatype);
+            return new PrimitiveValue(obsValue, this.datatype);
         }
     }
 
