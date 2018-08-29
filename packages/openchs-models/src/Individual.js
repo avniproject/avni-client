@@ -26,6 +26,7 @@ class Individual extends BaseEntity {
             gender: 'Gender',
             registrationDate: "date",
             lowestAddressLevel: 'AddressLevel',
+            voided: { type: 'bool', default: false },
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
             observations: {type: 'list', objectType: 'Observation'},
@@ -56,7 +57,7 @@ class Individual extends BaseEntity {
     }
 
     get toResource() {
-        const resource = _.pick(this, ["uuid", "firstName", "lastName", "dateOfBirthVerified"]);
+        const resource = _.pick(this, ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"]);
         resource.dateOfBirth = moment(this.dateOfBirth).format('YYYY-MM-DD');
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
@@ -84,16 +85,18 @@ class Individual extends BaseEntity {
     }
 
     static fromResource(individualResource, entityService) {
+        console.log('Individual.fromResource called', JSON.stringify(individualResource));
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
 
-        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "firstName", "lastName", "dateOfBirthVerified"], ["dateOfBirth", 'registrationDate'], ["observations"], entityService);
+        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"], ["dateOfBirth", 'registrationDate'], ["observations"], entityService);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
         individual.name = `${individual.firstName} ${individual.lastName}`;
 
+        console.log('Individual.fromResource will return', JSON.stringify(individual.voided));
         return individual;
     }
 
@@ -285,6 +288,7 @@ class Individual extends BaseEntity {
         individual.dateOfBirth = this.dateOfBirth;
         individual.registrationDate = this.registrationDate;
         individual.dateOfBirthVerified = this.dateOfBirthVerified;
+        individual.voided = this.voided;
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForReference();
         individual.observations = ObservationsHolder.clone(this.observations);

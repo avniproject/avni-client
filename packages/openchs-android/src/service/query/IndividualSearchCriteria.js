@@ -25,6 +25,8 @@ class IndividualSearchCriteria {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
 
+        criteria.push("(voided=false)");
+
         if (!_.isEmpty(this.obsKeyword)) {
             let trimmedKeyword = this.obsKeyword.trim();
             criteria.push(`(observations.valueJSON contains[c] "${trimmedKeyword}" OR enrolments.observations.valueJSON contains[c] "${trimmedKeyword}")`);

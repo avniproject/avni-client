@@ -43,6 +43,13 @@ export class IndividualProfileActions {
     static programSelectionConfirmed(state, action) {
         return state.clone().entityTypeSelectionConfirmed(action);
     }
+
+    static voidIndividual(state, action, beans) {
+        console.log("voidIndividual action.value", action.individualUUID);
+        const individualService = beans.get(IndividualService);
+        individualService.voidIndividual(action.individualUUID);
+        return state.clone();
+    }
 }
 
 const actions = {
@@ -51,7 +58,8 @@ const actions = {
     ENTITY_TYPE_SELECTED: "IPA.ENTITY_TYPE_SELECTED",
     CANCELLED_ENTITY_TYPE_SELECTION: "IPA.CANCELLED_ENTITY_TYPE_SELECTION",
     ENTITY_TYPE_SELECTION_CONFIRMED: "IPA.ENTITY_TYPE_SELECTION_CONFIRMED",
-    VIEW_GENERAL_HISTORY: "IPA.VIEW_GENERAL_HISTORY"
+    VIEW_GENERAL_HISTORY: "IPA.VIEW_GENERAL_HISTORY",
+    VOID_INDIVIDUAL: "IPA.VOID_INDIVIDUAL"
 };
 
 export default new Map([
@@ -59,7 +67,8 @@ export default new Map([
     [actions.LAUNCH_CHOOSE_ENTITY_TYPE, IndividualProfileActions.launchChooseProgram],
     [actions.ENTITY_TYPE_SELECTED, IndividualProfileActions.selectedProgram],
     [actions.CANCELLED_ENTITY_TYPE_SELECTION, IndividualProfileActions.cancelledProgramSelection],
-    [actions.ENTITY_TYPE_SELECTION_CONFIRMED, IndividualProfileActions.programSelectionConfirmed]
+    [actions.ENTITY_TYPE_SELECTION_CONFIRMED, IndividualProfileActions.programSelectionConfirmed],
+    [actions.VOID_INDIVIDUAL, IndividualProfileActions.voidIndividual]
 ]);
 
 export {actions as Actions};
