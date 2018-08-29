@@ -91,7 +91,6 @@
           "name": "Number of babies",
           "uuid": "1e5583d4-24f0-4a45-b712-f753eb48c8f9",
           "keyValues": [],
-          "type": "Numeric",
           "concept": {
             "uuid": "884cd2fb-1e50-4a2e-a9ae-2b90d4a78ede",
             "name": "Number of babies"
