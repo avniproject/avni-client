@@ -82,7 +82,14 @@ class IndividualSearchResultsView extends AbstractComponent {
                                 alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
                             <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
                                   <View style={{ flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
-                                      <Text style={Styles.textStyle}>{item.name}</Text>
+                                      <Text style={Styles.textStyle}>
+                                        {item.name}
+                                        {item.voided &&
+                                            <Text style={{color: Styles.redColor}}>
+                                                {` ${this.I18n.t("voidedLabel")}`}
+                                            </Text>
+                                        }
+                                      </Text>
                                       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
                                         <Text style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
                                         <Text style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
