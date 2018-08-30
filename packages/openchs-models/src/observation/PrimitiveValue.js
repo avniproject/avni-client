@@ -10,7 +10,7 @@ class PrimitiveValue {
     }
 
     asDisplayDate() {
-        const format = (this.datatype === Concept.dataType.DateTime) && !(General.hoursAndMinutesOfDateAreZero(this.answer)) 
+        const format = !(General.hoursAndMinutesOfDateAreZero(this.answer)) 
             ? "DD-MMM-YYYY HH:mm" 
             : "DD-MMM-YYYY";
         return moment(this.answer).format(format);
