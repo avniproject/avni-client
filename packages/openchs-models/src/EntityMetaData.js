@@ -108,7 +108,8 @@ class EntityMetaData {
             resourceName: "locationMapping",
             type: "reference",
             parent: EntityMetaData.addressLevel,
-            nameTranslated: false
+            nameTranslated: false,
+            resourceSearchFilterURL: "byCatchmentAndLastModified"
         };
     }
 
