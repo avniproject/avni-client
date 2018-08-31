@@ -30,17 +30,17 @@ describe("Calculations Test", () => {
         enrolment = new EnrolmentFiller(programData, mother, new Date())
             .forConcept("Last menstrual period", moment().subtract(36, 'weeks').toDate())
             .build();
-        expect(gestationalAgeCategoryAsOn(new Date(), enrolment)).to.equal('Preterm');
+        expect(gestationalAgeCategoryAsOn(new Date(), enrolment)).to.equal('Preterm (<28 weeks)');
 
         enrolment = new EnrolmentFiller(programData, mother, new Date())
             .forConcept("Last menstrual period", moment().subtract(37, 'weeks').toDate())
             .build();
-        expect(gestationalAgeCategoryAsOn(new Date(), enrolment)).to.equal('Preterm');
+        expect(gestationalAgeCategoryAsOn(new Date(), enrolment)).to.equal('Preterm (<28 weeks)');
 
         enrolment = new EnrolmentFiller(programData, mother, new Date())
             .forConcept("Last menstrual period", moment().subtract(38, 'weeks').toDate())
             .build();
-        expect(gestationalAgeCategoryAsOn(new Date(), enrolment)).to.equal('Term');
+        expect(gestationalAgeCategoryAsOn(new Date(), enrolment)).to.equal('Term (37 -38 weeks)');
     });
 
     it('Should get edd based on gestational age', function () {
