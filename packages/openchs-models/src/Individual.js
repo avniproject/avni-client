@@ -90,7 +90,12 @@ class Individual extends BaseEntity {
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
 
 
-        const individual = General.assignFields(individualResource, new Individual(), ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"], ["dateOfBirth", 'registrationDate'], ["observations"], entityService);
+        const individual = General.assignFields(individualResource, 
+            new Individual(), 
+            ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"], 
+            ["dateOfBirth", 'registrationDate'], 
+            ["observations"], 
+            entityService);
 
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
