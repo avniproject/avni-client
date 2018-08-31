@@ -62,7 +62,7 @@ test: test-models test-health-modules test-android  ##
 
 # <release>
 release: ##
-	rm packages/openchs-android/android/app/build/outputs/apk/*.apk
+	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
 
 release-demo: ##
