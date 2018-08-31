@@ -16,8 +16,8 @@ const gestationalAgeAsOn = (date, programEnrolment) => {
 const gestationalAgeCategoryAsOn = (date, programEnrolment) => {
     const gestationalAge = gestationalAgeAsOn(date, programEnrolment);
     if (gestationalAge < 36) return "Very preterm";
-    if (gestationalAge < 38) return "Preterm";
-    return "Term";
+    if (gestationalAge < 38) return "Preterm (<28 weeks)";
+    return "Term (37 -38 weeks)";
 };
 
 const estimatedDateOfDelivery = (programEnrolment) => {
