@@ -1,4 +1,4 @@
-import {View, TouchableNativeFeedback} from "react-native";
+import {View, TouchableNativeFeedback, Alert} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -113,6 +113,10 @@ class IndividualProfile extends AbstractComponent {
                         {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
+                        {this.props.viewContext === IndividualProfile.viewContext.Individual &&
+                            !this.props.individual.voided && 
+                            this.renderProfileActionButton('delete', 'voidIndividual', () => this.voidIndividual())
+                        }
                     </View>
                 </View>
 
@@ -141,6 +145,29 @@ class IndividualProfile extends AbstractComponent {
 
     launchChooseProgram() {
         this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
+    }
+
+    voidIndividual() {
+        Alert.alert(
+            this.I18n.t('voidIndividualConfirmationTitle'),
+            this.I18n.t('voidIndividualConfirmationMessage'),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                        this.dispatchAction(Actions.VOID_INDIVIDUAL, 
+                            { 
+                                individualUUID: this.props.individual.uuid,
+                                cb: () => {}
+                            },
+                        );
+                    }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {},
+                    style: 'cancel'
+                }
+            ]
+        )
     }
 
     viewGeneralHistory() {

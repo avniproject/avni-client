@@ -1,4 +1,4 @@
-import {Button, View} from "react-native";
+import {Alert, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -43,9 +43,14 @@ class IndividualAddRelativeView extends AbstractComponent {
     }
 
     save() {
-        this.dispatchAction(Actions.SAVE, {
-            cb: () => this.props.onSaveCallback(this),
-        });
+        if (this.props.individual.voided) {
+            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
+                this.I18n.t("voidedIndividualAlertMessage"));
+        } else {
+            this.dispatchAction(Actions.SAVE, {
+                cb: () => this.props.onSaveCallback(this),
+            });
+        }
     }
 
 

@@ -173,5 +173,12 @@
   "selfRelationshipNotAllowed": "Self relationship not allowed",
   "deleteRelativeNoticeTitle": "Delete a relative?",
   "deleteRelativeConfirmationMessage": "This will remove relationship between {{individualA}} and {{individualB}}",
-  "familyCountInThisCategory": "Total Families in this category : {{count}}"
+  "familyCountInThisCategory": "Total Families in this category : {{count}}",
+  "voidIndividualConfirmationTitle": "Void this individual?",
+  "voidIndividualConfirmationMessage": "This individual will be voided",
+  "includeVoided": "Include voided",
+  "voidedIndividualAlertTitle": "Voided Individual",
+  "voidedIndividualAlertMessage": "Changes can not be made to voided individual",
+  "thisIndividualHasBeenVoided": "THIS INDIVIDUAL HAS BEEN VOIDED",
+  "voidedLabel": "(VOIDED)"
 }
