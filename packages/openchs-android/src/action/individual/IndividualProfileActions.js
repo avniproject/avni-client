@@ -45,9 +45,9 @@ export class IndividualProfileActions {
     }
 
     static voidIndividual(state, action, beans) {
-        console.log("voidIndividual action.value", action.individualUUID);
         const individualService = beans.get(IndividualService);
         individualService.voidIndividual(action.individualUUID);
+        action.cb();
         return state.clone();
     }
 }

@@ -113,7 +113,10 @@ class IndividualProfile extends AbstractComponent {
                         {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
-                        {this.renderProfileActionButton('delete', 'voidIndividual', () => this.voidIndividual())}
+                        {this.props.viewContext === IndividualProfile.viewContext.Individual &&
+                            !this.props.individual.voided && 
+                            this.renderProfileActionButton('delete', 'voidIndividual', () => this.voidIndividual())
+                        }
                     </View>
                 </View>
 
@@ -151,7 +154,12 @@ class IndividualProfile extends AbstractComponent {
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(Actions.VOID_INDIVIDUAL, { individualUUID: this.props.individual.uuid })
+                        this.dispatchAction(Actions.VOID_INDIVIDUAL, 
+                            { 
+                                individualUUID: this.props.individual.uuid,
+                                cb: () => {}
+                            },
+                        );
                     }
                 },
                 {

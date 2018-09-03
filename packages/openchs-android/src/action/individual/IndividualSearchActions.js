@@ -24,6 +24,12 @@ export class IndividualSearchActions {
         return newState;
     };
 
+    static enterVoidedCriteria = function (state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addVoidedCriteria(action.value);
+        return newState;
+    };
+
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
         newState.searchCriteria.toggleLowestAddress(action.value);
@@ -46,6 +52,7 @@ const individualSearchActions = {
     ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
+    ENTER_VOIDED_CRITERIA: "ENTER_VOIDED_CRITERIA",
     TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
     SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS"
 };
@@ -54,6 +61,7 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_NAME_CRITERIA, IndividualSearchActions.enterNameCriteria],
     [individualSearchActions.ENTER_AGE_CRITERIA, IndividualSearchActions.enterAgeCriteria],
     [individualSearchActions.ENTER_OBS_CRITERIA, IndividualSearchActions.enterObsCriteria],
+    [individualSearchActions.ENTER_VOIDED_CRITERIA, IndividualSearchActions.enterVoidedCriteria],
     [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
     [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria]
 ]);

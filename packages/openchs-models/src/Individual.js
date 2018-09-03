@@ -53,6 +53,7 @@ class Individual extends BaseEntity {
         individual.enrolments = [];
         individual.relationships = [];
         individual.lowestAddressLevel = AddressLevel.create({uuid: "", title: "", level: 0, type: ""});
+        individual.voided = false;
         return individual;
     }
 
@@ -85,23 +86,17 @@ class Individual extends BaseEntity {
     }
 
     static fromResource(individualResource, entityService) {
-        console.log('Individual.fromResource called', JSON.stringify(individualResource));
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
-
-
         const individual = General.assignFields(individualResource, 
             new Individual(), 
             ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"], 
             ["dateOfBirth", 'registrationDate'], 
             ["observations"], 
             entityService);
-
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
         individual.name = `${individual.firstName} ${individual.lastName}`;
-
-        console.log('Individual.fromResource will return', JSON.stringify(individual.voided));
         return individual;
     }
 

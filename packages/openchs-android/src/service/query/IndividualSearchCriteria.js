@@ -5,6 +5,7 @@ import {BaseEntity} from 'openchs-models';
 class IndividualSearchCriteria {
     //to be made configurable perhaps later
     static ageBufferForSearchInYears = 4;
+    includeVoided = false;
 
     static empty(){
         let individualSearchCriteria = new IndividualSearchCriteria();
@@ -25,7 +26,7 @@ class IndividualSearchCriteria {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
 
-        criteria.push("(voided=false)");
+        criteria.push(`(voided=${this.includeVoided})`);
 
         if (!_.isEmpty(this.obsKeyword)) {
             let trimmedKeyword = this.obsKeyword.trim();
@@ -53,6 +54,10 @@ class IndividualSearchCriteria {
         this.obsKeyword = obsKeyword;
     }
 
+    addVoidedCriteria(includeVoided) {
+        this.includeVoided = includeVoided;
+    }
+
     toggleLowestAddress(lowestAddress) {
         if (BaseEntity.collectionHasEntity(this.lowestAddressLevels, lowestAddress))
             BaseEntity.removeFromCollection(this.lowestAddressLevels, lowestAddress);
@@ -76,6 +81,7 @@ class IndividualSearchCriteria {
         individualSearchCriteria.name = this.name;
         individualSearchCriteria.ageInYears = this.ageInYears;
         individualSearchCriteria.obsKeyword = this.obsKeyword;
+        individualSearchCriteria.includeVoided = this.includeVoided;
         return individualSearchCriteria;
     }
 }
