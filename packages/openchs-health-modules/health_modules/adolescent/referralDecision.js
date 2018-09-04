@@ -84,7 +84,7 @@ const referralDecisions = (existingDecisions, programEncounter) => {
     complicationsBuilder.addComplication("Severe malnourishment").when
         .valueInEncounter("BMI").lessThanOrEqualTo(14.5);
     complicationsBuilder.addComplication("Sickle Cell Anemia").when
-        .valueInEncounter("Sickling Test Result").containsAnyAnswerConceptName("Disease", "Trait");
+        .valueInLastEncounter("Sickling Test Result", RoutineEncounterHandler.visits.ANNUAL).containsAnyAnswerConceptName("Disease");
     complicationsBuilder.addComplication("Self Addiction").when
         .valueInEncounter("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both");
 
