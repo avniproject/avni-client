@@ -115,7 +115,7 @@ class IndividualProfile extends AbstractComponent {
                         {this.renderViewEnrolmentsIfNecessary()}
                         {this.props.viewContext === IndividualProfile.viewContext.Individual &&
                             !this.props.individual.voided && 
-                            this.renderProfileActionButton('delete', 'voidIndividual', () => this.voidIndividual())
+                            this.renderProfileActionButton('delete', 'void', () => this.voidIndividual())
                         }
                     </View>
                 </View>

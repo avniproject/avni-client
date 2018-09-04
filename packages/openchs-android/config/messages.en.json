@@ -180,5 +180,6 @@
   "voidedIndividualAlertTitle": "Voided Individual",
   "voidedIndividualAlertMessage": "Changes can not be made to voided individual",
   "thisIndividualHasBeenVoided": "THIS INDIVIDUAL HAS BEEN VOIDED",
-  "voidedLabel": "(VOIDED)"
+  "voidedLabel": "(VOIDED)",
+  "void": "Void"
 }
