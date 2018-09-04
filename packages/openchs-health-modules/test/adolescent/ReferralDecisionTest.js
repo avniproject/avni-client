@@ -259,13 +259,14 @@ describe("Referral Decision Test", () => {
         assert.include(decisionsToRefer, "Severe Anemia");
     });
 
-    it("Generate referral advice if Sickle cell disease", () => {
+    it("Generate referral advice if Sickle cell disease in previous Annual encounter", () => {
         const encounterDecisions = {encounterDecisions: [{name: "BMI", value: 14}]};
         let individual = EntityFactory.createIndividual("Test Dude");
         individual.gender = Gender.create("Male");
         let enrolment = EntityFactory.createEnrolment({individual: individual, program: programData});
 
         let previousEncounter = new EncounterFiller(programData, enrolment, "Annual Visit", moment("1995-12-25", "YYYY-MM-DD").toDate())
+            .forSingleCoded("Sickling Test Result", "Disease")
             .forMultiCoded("Refer to hospital for", ["Physical defect", "Yellowish discharge from penis/vagina"])
             .build();
 
@@ -403,11 +404,11 @@ describe("Referral Decision Test", () => {
 
         let decisions = referralDecisions(encounterDecisions, currentEncounter).encounterDecisions;
         let decisionsToRefer = C.findValue(decisions, "Refer to hospital for");
-        assert.lengthOf(decisionsToRefer, 3);
+        assert.lengthOf(decisionsToRefer, 2);
         assert.notInclude(decisionsToRefer, "Physical defect");
         assert.notInclude(decisionsToRefer, "Yellowish discharge from penis/vagina");
         assert.include(decisionsToRefer, "Menstrual Disorder");
         assert.include(decisionsToRefer, "Self Addiction");
-        assert.include(decisionsToRefer, "Sickle Cell Anemia");
+        assert.notInclude(decisionsToRefer, "Sickle Cell Anemia");
     });
 });

@@ -730,7 +730,7 @@ export default class RoutineEncounterHandler {
 
     _applicableForSickleCellAnemiaCounselling(programEncounter) {
         return new RuleCondition({programEncounter: programEncounter})
-            .when.valueInLastEncounter("Sickling Test Result").containsAnyAnswerConceptName("Trait", "Disease")
+            .when.valueInLastEncounter("Sickling Test Result", RoutineEncounterHandler.visits.ANNUAL).containsAnyAnswerConceptName("Trait", "Disease")
             .or.when.valueInLastEncounter("Counselling for Sickle Cell Anemia Done", RoutineEncounterHandler.visits.MONTHLY)
             .containsAnswerConceptName("No")
             .matches();
