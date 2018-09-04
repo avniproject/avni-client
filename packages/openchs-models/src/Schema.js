@@ -49,7 +49,7 @@ export default {
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
         ChecklistDetail, ChecklistItemDetail],
-    schemaVersion: 75,
+    schemaVersion: 76,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -199,5 +199,12 @@ export default {
             newDB.delete(oldChecklists)
         }
 
+        if (oldDB.schemaVersion < 76) {
+            const oldAddressLevels = oldDB.objects('AddressLevel');
+            const addressLevels = newDB.objects('AddressLevel');
+            for (let i = 0; i < oldAddressLevels.length; i++) {
+                addressLevels[i].level = oldAddressLevels[i].level;
+            }
+        }
     }
 };

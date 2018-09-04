@@ -35,7 +35,7 @@ class AddressLevel extends BaseEntity {
         properties: {
             uuid: "string",
             name: "string",
-            level: "int",
+            level: "double",
             type: {type: 'string', optional: true},
             locationMappings: {type: 'list', objectType: 'LocationMapping'}
         }
