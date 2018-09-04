@@ -17,7 +17,6 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
-import Distances from "../primitives/Distances";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -46,10 +45,6 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const container = {
-            paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-            flex: 1
-        };
 
         return (
             <CHSContainer theme={themes}>
