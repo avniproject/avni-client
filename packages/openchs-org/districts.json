@@ -1,0 +1,198 @@
+[
+  {
+    "uuid": "111cfc45-469e-44b3-a9ad-e7723efef736",
+    "name": "Hailakandi",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "09c8e650-e1eb-4ead-9e45-8e7885eca0a6",
+    "name": "Kamrup Metro",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "e387540b-96a2-42ac-aa3a-66a208f4d4b8",
+    "name": "Dima Hasao",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "22201239-0871-433b-babd-5ded1d233546",
+    "name": "Dhubri",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "62406310-d329-41d0-b653-da97f880a4c3",
+    "name": "Dhemaji",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd",
+    "name": "Golaghat",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947",
+    "name": "Barpeta",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9",
+    "name": "Baksa",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "e2560aa9-8c63-4504-830d-f0f7dcedfb06",
+    "name": "Karimganj",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0",
+    "name": "Karbi Anglong",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "d7598f8a-549e-4884-95ba-77b5ca35871d",
+    "name": "Darrang",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "4cf76c9a-38f1-4db9-b601-95ca8bf00bec",
+    "name": "Udalguri",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2",
+    "name": "Sonitpur",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "f4a129f6-b1cb-4fd5-b1f9-868988f85c5c",
+    "name": "Morigaon",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648",
+    "name": "Cachar",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "fc8d9183-4267-4c6d-810c-f066443421e7",
+    "name": "District",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54",
+    "name": "Sivasagar",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb",
+    "name": "Lakhimpur",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a",
+    "name": "Dibrugarh",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08",
+    "name": "Nagaon",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "f24a40d0-6b86-4308-8218-d26c11f4ab98",
+    "name": "Chirang",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "340aac87-44c1-42fa-a160-28d9946876f2",
+    "name": "Jorhat",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "27e402c5-9646-4c3f-aa9f-64facf40e7f9",
+    "name": "Bongaigaon",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3",
+    "name": "Goalpara",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "14185471-9c9a-4ebe-b9ad-ccbf73f9aade",
+    "name": "Kokrajhar",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9",
+    "name": "Tinsukia",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "46217658-90bf-4458-9a10-6b4aa96d91a8",
+    "name": "Nalbari",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  },
+  {
+    "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be",
+    "name": "Kamrup Rural",
+    "level": 4,
+    "type": "District",
+    "parents": []
+  }
+]

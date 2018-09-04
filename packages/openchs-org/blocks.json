@@ -1,0 +1,1949 @@
+[
+  {
+    "uuid": "f648d594-dd08-46c0-88d1-4b229a8be3a8",
+    "name": "Naharani",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "3e32130a-7631-4f66-bd21-1bc5f76a5067",
+    "name": "Ketetong Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9"
+      }
+    ]
+  },
+  {
+    "uuid": "aba17498-5a1f-4133-8640-c89f3223e8d7",
+    "name": "Kamalpur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "7234be2a-cddb-43eb-8ad3-3632b747e32b",
+    "name": "Halakura",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "f27ec304-f53a-4193-bd6c-2c4d35f5949f",
+    "name": "Chowkihola",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "4002f1de-452b-4108-acbb-f0279ac381ef",
+    "name": "Dhakuakhana Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb"
+      }
+    ]
+  },
+  {
+    "uuid": "723143b3-2374-4480-990f-f0ff9cbd3e8c",
+    "name": "Biswanath Chariali Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "db2771a9-42af-4b1d-a6d0-8f4eda4fa135",
+    "name": "Boithalangso",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "c3f196ec-d590-4f44-87fa-013310c87217",
+    "name": "Rampur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "6fe4311e-e571-4f29-b35e-30649950d5c6",
+    "name": "Dagaon",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "400f51a2-cadf-4a50-86ec-4651e59f31e8",
+    "name": "Dotma",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "14185471-9c9a-4ebe-b9ad-ccbf73f9aade"
+      }
+    ]
+  },
+  {
+    "uuid": "32bc0fb0-8784-4059-8f8e-083e8cd4c939",
+    "name": "Samaguri",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "12645829-ecc5-4cb3-9cd6-28274bd0eacf",
+    "name": "Jonai Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "62406310-d329-41d0-b653-da97f880a4c3"
+      }
+    ]
+  },
+  {
+    "uuid": "e73c2f6a-5ac7-49ad-872c-2983f2e29af1",
+    "name": "Zirikindeng",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "6db638a8-76a8-44ee-b84e-fd7ff145a9df",
+    "name": "Dhubri Urban Unit",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "485bb121-0e2a-4e29-98d6-e0bb2e68411f",
+    "name": "Barapujia",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "b3d279b7-c89a-4182-be57-11e5cd2d8aeb",
+    "name": "Khowang",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "778d400c-f5f0-49f2-98bc-d2426c2bb5d1",
+    "name": "Dhirenpara Zone",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8e650-e1eb-4ead-9e45-8e7885eca0a6"
+      }
+    ]
+  },
+  {
+    "uuid": "435bb6fc-ea3a-45fa-8cee-2f14d700cd28",
+    "name": "Gogamukh",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "62406310-d329-41d0-b653-da97f880a4c3"
+      }
+    ]
+  },
+  {
+    "uuid": "c2003fc8-bfae-4654-9196-2343dc55c1a8",
+    "name": "Geleky Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "e105d98d-3bef-41f8-8bac-ea5da31ee060",
+    "name": "Nawboicha Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb"
+      }
+    ]
+  },
+  {
+    "uuid": "4fce5d1b-baa7-4a4c-a6c3-c4186333700f",
+    "name": "Gunjung Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e387540b-96a2-42ac-aa3a-66a208f4d4b8"
+      }
+    ]
+  },
+  {
+    "uuid": "07bf0421-72c8-4286-b4e7-6075158c403e",
+    "name": "Kalgachia",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "76fe261e-5f8c-4ac1-b98b-f4cc5c34a765",
+    "name": "Sonai",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "bf6096f2-1b78-4257-b05f-6ba6d40ed794",
+    "name": "Ballamguri",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f24a40d0-6b86-4308-8218-d26c11f4ab98"
+      }
+    ]
+  },
+  {
+    "uuid": "ed6f81c4-0fb3-410a-9ee3-46681d8677de",
+    "name": "Katlicherra Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "111cfc45-469e-44b3-a9ad-e7723efef736"
+      }
+    ]
+  },
+  {
+    "uuid": "442555dd-366d-4b17-aced-c7056aa11048",
+    "name": "Bihdia Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "e681dcb5-a68f-4e21-966a-309334dc2dea",
+    "name": "Kamarkuchi Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "46217658-90bf-4458-9a10-6b4aa96d91a8"
+      }
+    ]
+  },
+  {
+    "uuid": "5a73c25f-856a-4ad3-af56-77135e4cd1c3",
+    "name": "Kakopather Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9"
+      }
+    ]
+  },
+  {
+    "uuid": "a298d89c-a9d0-4877-983f-15c517ab3937",
+    "name": "Jugijan",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "1154db50-0de1-42d6-b35e-d2bce78325de",
+    "name": "Bokajan",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "40b302f7-d608-4f77-bde5-dd4933bdf246",
+    "name": "Matia Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3"
+      }
+    ]
+  },
+  {
+    "uuid": "122ebb19-8fb1-4e30-aabf-9d9a5d08beeb",
+    "name": "Ketetong",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9"
+      }
+    ]
+  },
+  {
+    "uuid": "d9524b80-284f-4cc7-a90c-7546af3bdec9",
+    "name": "Kaloogaon Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "b1b850c8-bd1d-4c93-9534-e17d8fe7bfd8",
+    "name": "Nakachari Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "2bc1a8d3-a77a-4825-8d9f-acf3aa30d581",
+    "name": "Chenga",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "1b634742-666f-4c9e-a936-5309cd7133d2",
+    "name": "Nilambazar Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e2560aa9-8c63-4504-830d-f0f7dcedfb06"
+      }
+    ]
+  },
+  {
+    "uuid": "99685ce0-c988-4852-ad42-90da95c196c7",
+    "name": "Dhubri Urban",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "bcad0b49-5975-4568-82e0-eca22949cd36",
+    "name": "R K Nagar",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e2560aa9-8c63-4504-830d-f0f7dcedfb06"
+      }
+    ]
+  },
+  {
+    "uuid": "6953e840-9338-4e71-99ef-726151a701d5",
+    "name": "Srijangram Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "27e402c5-9646-4c3f-aa9f-64facf40e7f9"
+      }
+    ]
+  },
+  {
+    "uuid": "36b93983-ca0d-45de-800b-36d39e80a734",
+    "name": "Barpeta Road",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "1b29f3fc-f559-45c7-881d-a8917a445af5",
+    "name": "Lakhipur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "000dd396-b9d5-4400-8dfe-332af9a1440c",
+    "name": "Dhing",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "7a144353-587e-46fd-bf49-96f8290fed9a",
+    "name": "Lala",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "111cfc45-469e-44b3-a9ad-e7723efef736"
+      }
+    ]
+  },
+  {
+    "uuid": "5ead8829-0fdf-431c-b8ba-43c42c928e34",
+    "name": "Boginodi Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb"
+      }
+    ]
+  },
+  {
+    "uuid": "6d11a3ab-7095-4e56-9531-ebda1acde5b4",
+    "name": "Missamora Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd"
+      }
+    ]
+  },
+  {
+    "uuid": "3ecec3fd-5de5-4223-af92-eea97731347d",
+    "name": "Dholai",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "8e17f682-c0e4-4c8e-b1a2-b769db03ce92",
+    "name": "Dhemaji Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "62406310-d329-41d0-b653-da97f880a4c3"
+      }
+    ]
+  },
+  {
+    "uuid": "f98872eb-bdc9-4639-8073-f9483e40ff94",
+    "name": "Dhekiajuli Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "2e6d2938-3093-4504-ab2b-7761b66ee8f9",
+    "name": "Boko Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "2ca71d44-217e-472d-b70a-843162638ea7",
+    "name": "East Zone",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8e650-e1eb-4ead-9e45-8e7885eca0a6"
+      }
+    ]
+  },
+  {
+    "uuid": "f4a67c57-a4e5-4762-aa02-22be89b4ada9",
+    "name": "Demow Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "92e241f1-a296-4af2-a29e-d3fcba7f0880",
+    "name": "Sissiborgaon Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "62406310-d329-41d0-b653-da97f880a4c3"
+      }
+    ]
+  },
+  {
+    "uuid": "15182e7b-f7ac-403e-a937-f784d7b973e3",
+    "name": "Tezpur Urban",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "911591a8-cd1b-429b-aa47-43df88eb297d",
+    "name": "Rongchongi",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "ff370344-6f16-4a8b-a86f-90f716c19db5",
+    "name": "Titabar Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "16c144e7-d244-4f93-b866-773abf682aa9",
+    "name": "Simonabasti",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "afbbd9fb-1cdd-4a2d-884a-05f735997dee",
+    "name": "Nagarbera Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "444ae066-7d21-4a09-97ca-59381bd2f8c9",
+    "name": "Langting Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e387540b-96a2-42ac-aa3a-66a208f4d4b8"
+      }
+    ]
+  },
+  {
+    "uuid": "2b69c001-da98-43e0-ad35-610cd157cef0",
+    "name": "Girishganj",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e2560aa9-8c63-4504-830d-f0f7dcedfb06"
+      }
+    ]
+  },
+  {
+    "uuid": "d1fc0659-ed25-4ad0-9447-9e785259648e",
+    "name": "Barbaruah",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "10896163-799e-45e7-9f99-38969234adbd",
+    "name": "Uparhali Bphc/ U&C Goswami Phc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "56a12684-0ba3-45b5-b355-4315b206b674",
+    "name": "Sapekhati Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "50a55e81-a0d7-4483-ad8a-741bcf4b21a9",
+    "name": "Bihpuria Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb"
+      }
+    ]
+  },
+  {
+    "uuid": "f5725910-504d-45b1-aaba-8f871d1fa7a9",
+    "name": "Panitola",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "232fdc36-a0dc-4f36-a8e6-3d9d8b2df5e1",
+    "name": "Sarupathar",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd"
+      }
+    ]
+  },
+  {
+    "uuid": "56057f58-fac0-4b10-825f-723d6a77c4ee",
+    "name": "Hajo",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "b66f0fd9-5318-4f86-8c40-653995077285",
+    "name": "Bhurbandha",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f4a129f6-b1cb-4fd5-b1f9-868988f85c5c"
+      }
+    ]
+  },
+  {
+    "uuid": "8c60104a-3377-40ae-86e5-b87d0d6437e1",
+    "name": "Jalah",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9"
+      }
+    ]
+  },
+  {
+    "uuid": "f29ed0ab-d9f3-41ef-837f-832cf4f78efc",
+    "name": "Biswanathchariali",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "03d333e6-b377-45bb-a30a-9ed468398ed6",
+    "name": "Kamalabari Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "2a6ec767-dd49-4e0d-9eb1-c2725daa5013",
+    "name": "Dhalpur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb"
+      }
+    ]
+  },
+  {
+    "uuid": "a3c68177-7eae-46a6-a6c3-8c52d121894b",
+    "name": "Sarupather Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd"
+      }
+    ]
+  },
+  {
+    "uuid": "96890933-1eee-4b75-ba14-af2831c0c287",
+    "name": "Agia Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3"
+      }
+    ]
+  },
+  {
+    "uuid": "826e18ed-ded2-40f4-994b-80ef36c00610",
+    "name": "Baghchung Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "23fdb634-e8da-4a20-9830-f2e1256714a0",
+    "name": "Lanka Bphc/Derapather Sd",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "91913fef-77f1-46fd-816b-f6fb94d02473",
+    "name": "Gaurisagar Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "a02b3317-adf0-409b-858f-6c344c41d94d",
+    "name": "Goalpara Urban",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3"
+      }
+    ]
+  },
+  {
+    "uuid": "841ae7f0-5c5a-4a4c-86d7-deb85a8c8f1f",
+    "name": "Tihu Reporting Unit",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "46217658-90bf-4458-9a10-6b4aa96d91a8"
+      }
+    ]
+  },
+  {
+    "uuid": "cded3fd9-b50a-4302-80d9-60891c22c703",
+    "name": "Uparhali Bphc/ Palasbari Phc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "2b8f3add-e2d2-417a-b5f3-4a81b30e01c1",
+    "name": "Balajan",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "14185471-9c9a-4ebe-b9ad-ccbf73f9aade"
+      }
+    ]
+  },
+  {
+    "uuid": "55501c37-1922-4af9-b7fb-5ecde034fc7c",
+    "name": "North Guwahati",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "6c9a7b44-4163-47c6-a4cc-fe4d1c6e7545",
+    "name": "Lanka Bphc/Lanka Phc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "91592588-15dd-4c67-aa7b-ae181fdc9f83",
+    "name": "Kharupetia",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "d7598f8a-549e-4884-95ba-77b5ca35871d"
+      }
+    ]
+  },
+  {
+    "uuid": "d146fa88-3436-4cef-9187-b536df272a02",
+    "name": "Singimari",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "b663a300-57ba-42ea-97d5-0980ec01170f",
+    "name": "Gazarikandi",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "ba2c8bb7-7c69-4123-83cc-59801b5b9e91",
+    "name": "Buragohaithan",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "1962756b-1202-46c5-b471-99d822f993ed",
+    "name": "Sonapur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8e650-e1eb-4ead-9e45-8e7885eca0a6"
+      }
+    ]
+  },
+  {
+    "uuid": "282eccc4-0c94-4026-b080-af93098e9318",
+    "name": "Kachugaon",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "14185471-9c9a-4ebe-b9ad-ccbf73f9aade"
+      }
+    ]
+  },
+  {
+    "uuid": "c6358562-920a-4bc7-8d96-183354cfd68f",
+    "name": "Na-Sadiya Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9"
+      }
+    ]
+  },
+  {
+    "uuid": "f390faf3-6988-4e2a-a964-848a22ab6c36",
+    "name": "Rangapara Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "3f9ab779-e740-4765-afea-2c385c160227",
+    "name": "Manikpur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "27e402c5-9646-4c3f-aa9f-64facf40e7f9"
+      }
+    ]
+  },
+  {
+    "uuid": "86971eb6-445a-4742-bc74-73fdbe98ab3c",
+    "name": "Behalli Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "b862a8eb-08c3-497a-8b79-277b2270e6a7",
+    "name": "Kakopathar Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9"
+      }
+    ]
+  },
+  {
+    "uuid": "2a9084ca-af57-49cd-844e-83d25842e2e3",
+    "name": "Rampur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "ca7f18c4-d2e9-46e4-94f9-c384964103bc",
+    "name": "Mukalmua Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "46217658-90bf-4458-9a10-6b4aa96d91a8"
+      }
+    ]
+  },
+  {
+    "uuid": "73ffc71d-75ce-495d-bbc3-d52c4a69def6",
+    "name": "Donkamokam",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "3f0641d5-23e0-49db-8170-c1d88c91e016",
+    "name": "Bengenagarah",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "62406310-d329-41d0-b653-da97f880a4c3"
+      }
+    ]
+  },
+  {
+    "uuid": "a8d8d878-61df-4d05-a79c-51ec21c8632d",
+    "name": "Bhawanipur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "caf07cb6-0c96-4523-8eee-3e81d054951d",
+    "name": "Barbaruah Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "92ba4937-bdaf-4684-8620-46513fc62a2d",
+    "name": "Kachuadam",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e2560aa9-8c63-4504-830d-f0f7dcedfb06"
+      }
+    ]
+  },
+  {
+    "uuid": "29480c0c-b52d-4aae-aafd-277b38b7afba",
+    "name": "Bihaguri BPhc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "db2e0626-a150-4941-a1fc-ce7a6935f9d3",
+    "name": "Lakhipur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3"
+      }
+    ]
+  },
+  {
+    "uuid": "143c01a7-cc31-4320-b4dd-10ec88452293",
+    "name": "Umpanai",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "de9e8ba7-00bc-459f-aabf-33897ed4c495",
+    "name": "Barama Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9"
+      }
+    ]
+  },
+  {
+    "uuid": "076e8272-cfab-49b5-ab75-77528691a9eb",
+    "name": "Rangjuli Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3"
+      }
+    ]
+  },
+  {
+    "uuid": "f1b4ab51-819f-4660-a8ac-c668346cb24c",
+    "name": "Chapar",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "4ab774be-077c-4c1f-81e2-4990f98dd7b9",
+    "name": "Balipara",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "452f1e22-fc41-42a0-a9b9-795a9147f1ae",
+    "name": "Block",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "fc8d9183-4267-4c6d-810c-f066443421e7"
+      }
+    ]
+  },
+  {
+    "uuid": "813e5f7a-533f-4fb1-b58c-c9d7f8e51b25",
+    "name": "Biswanath Chariali",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "05cdd67a-dab9-420e-8db0-8a29ec40f720",
+    "name": "Bikrampur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "4bf89f06-6f8d-4474-9820-2fc62e05c265",
+    "name": "Mornai Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab14f8b5-5ce2-464b-979e-9d7c5d71adc3"
+      }
+    ]
+  },
+  {
+    "uuid": "6b970b05-ecf1-4ce5-bcd8-967dbb4e1e0c",
+    "name": "Capital Zone",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8e650-e1eb-4ead-9e45-8e7885eca0a6"
+      }
+    ]
+  },
+  {
+    "uuid": "67df2811-d635-4eb8-a875-8f4c5037ecce",
+    "name": "Bokakhat",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd"
+      }
+    ]
+  },
+  {
+    "uuid": "dfa197ff-d4d2-4f74-841d-1a876feac31f",
+    "name": "Golakganj",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "a82b7d0d-8c14-4e92-b822-6ede2c21a816",
+    "name": "Patsaku Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "1a9d7c64-ca9d-4871-b346-e3c70b1cd89f",
+    "name": "Tamulpur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9"
+      }
+    ]
+  },
+  {
+    "uuid": "fd738d5e-52a7-457c-9555-77b31439fad9",
+    "name": "Raniganj BPhc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "7cf0d44f-54b2-4719-a359-1293f61d0aa8",
+    "name": "West Zone",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8e650-e1eb-4ead-9e45-8e7885eca0a6"
+      }
+    ]
+  },
+  {
+    "uuid": "4321fe4d-e71d-4a76-a819-e76ec1da67ee",
+    "name": "Bhogamukh Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "8969e238-221c-4047-9d00-c38a187bfe3c",
+    "name": "Algapur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "111cfc45-469e-44b3-a9ad-e7723efef736"
+      }
+    ]
+  },
+  {
+    "uuid": "67243e72-6523-4cf0-8668-645ff3b2994f",
+    "name": "Boitamari Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "27e402c5-9646-4c3f-aa9f-64facf40e7f9"
+      }
+    ]
+  },
+  {
+    "uuid": "b7beef54-48fa-41f6-914d-ff7ac06ad733",
+    "name": "Ghograpar",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "46217658-90bf-4458-9a10-6b4aa96d91a8"
+      }
+    ]
+  },
+  {
+    "uuid": "d2d4e2a3-8af8-4831-9b2e-4f3b3da07dc9",
+    "name": "Patharkandi Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e2560aa9-8c63-4504-830d-f0f7dcedfb06"
+      }
+    ]
+  },
+  {
+    "uuid": "e3b6a5f2-361e-461a-a58f-c139167b116b",
+    "name": "Howraghat",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "85c2f016-e866-4d96-9890-7f2ae86eacb4",
+    "name": "Khelua Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "38718c9d-4a47-44e8-95ff-f41971e21534",
+    "name": "Gohpur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "0a2d2cee-ce1f-453a-a8a5-100235cefdf3",
+    "name": "Patharighat",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "d7598f8a-549e-4884-95ba-77b5ca35871d"
+      }
+    ]
+  },
+  {
+    "uuid": "434e3099-75f8-4346-8dea-16268df26e3a",
+    "name": "Lanka Bphc/Kaki Mphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "0f5f9b94-1261-4433-9cc4-24107e8d3a5e",
+    "name": "Udalguri Block",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "4cf76c9a-38f1-4db9-b601-95ca8bf00bec"
+      }
+    ]
+  },
+  {
+    "uuid": "e246159a-a0a6-4ff4-bb2b-bf980f5bc813",
+    "name": "Jorhat Uhc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "a8f85f49-890d-477d-abfc-e663ff098dc3",
+    "name": "Nagaon Block",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "a4614be8-20be-4d59-91d6-05e547ea0f90",
+    "name": "Uparhali Bphc/ Uparhali Phc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "bcf616aa-844b-4013-b324-f2015d0b7b93",
+    "name": "Lanka Bphc/Fultoli Mphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "0ca489b8-12f0-4aca-a53a-8c40c6984cd3",
+    "name": "Manja",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "72311e87-82b4-4bf9-b068-3b24fad903d0"
+      }
+    ]
+  },
+  {
+    "uuid": "0b768abb-13cf-4d5d-ba70-f4c7428272c5",
+    "name": "Lahowal",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "70655ed4-0920-4bb7-9f78-a64a592cf549",
+    "name": "Lanka Bphc/Kapashbari Sd",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "966168d4-f21b-433d-b5f6-d3b23544d637",
+    "name": "Nizkaurbaha",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9"
+      }
+    ]
+  },
+  {
+    "uuid": "c5ee4d42-6d86-4d9e-a84a-cb3f1dd1f297",
+    "name": "Dibrugarh Urban",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "ade2a09a-4716-4ccd-9dd7-183d5eff9a28",
+    "name": "Tengakhat",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "3224e712-da3c-4631-aef7-bbbcbb0c771a"
+      }
+    ]
+  },
+  {
+    "uuid": "5af2af0b-6a6f-4c2a-ac9f-8ead3709c206",
+    "name": "Sipajhar",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "d7598f8a-549e-4884-95ba-77b5ca35871d"
+      }
+    ]
+  },
+  {
+    "uuid": "ec37142d-e5d9-4d0f-8f38-3f9c5afc18dc",
+    "name": "Jakhalabandha",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "702bfedc-3be6-4058-b700-7e10c2b98797",
+    "name": "Jaljali",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "d7598f8a-549e-4884-95ba-77b5ca35871d"
+      }
+    ]
+  },
+  {
+    "uuid": "0fe18231-6ae9-4095-8143-4cd04e3e107d",
+    "name": "Kakojan Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "6174b21a-8573-4219-a737-f47b75236dea",
+    "name": "Kalinagar Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "111cfc45-469e-44b3-a9ad-e7723efef736"
+      }
+    ]
+  },
+  {
+    "uuid": "994b966a-ff26-41c7-9f71-9ae53ca671c1",
+    "name": "Sidli Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f24a40d0-6b86-4308-8218-d26c11f4ab98"
+      }
+    ]
+  },
+  {
+    "uuid": "1a2fade8-d47a-43fa-97ac-00d6cf20a659",
+    "name": "Kathiatoli",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "66d4c58d-dac4-449a-b09c-edea7e70cb08"
+      }
+    ]
+  },
+  {
+    "uuid": "f5215fe9-5052-47f7-9aaa-a579f763a227",
+    "name": "Charingia Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd"
+      }
+    ]
+  },
+  {
+    "uuid": "7cf4fe22-b00c-4719-b19e-6f9726952ffc",
+    "name": "Azara Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "6fef82f7-1ed5-49cd-ad80-75bac6e7baaf",
+    "name": "Harinagar",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "54cab42b-6bef-41ad-9b6e-8186ac824b90",
+    "name": "Morabazar Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "5a8b4076-67f7-46cc-a9dc-b8876667be54"
+      }
+    ]
+  },
+  {
+    "uuid": "576c416e-a0e6-4492-9dc2-f660c772247d",
+    "name": "Sualkuchi",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "550b63de-e905-4d06-8285-88b074031962",
+    "name": "Mushalpur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9"
+      }
+    ]
+  },
+  {
+    "uuid": "d9e97492-dbd5-406a-b091-9e638573fe7f",
+    "name": "Golagaon",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "6f1f9c44-52a7-4b65-a93b-7d644e63b2e9"
+      }
+    ]
+  },
+  {
+    "uuid": "d00884cc-ffd9-446a-b2c5-1ee8b446b7c7",
+    "name": "Gossaigaon",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "14185471-9c9a-4ebe-b9ad-ccbf73f9aade"
+      }
+    ]
+  },
+  {
+    "uuid": "1697c639-a0c2-43cc-a788-5bf3b580335c",
+    "name": "Laharighat",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f4a129f6-b1cb-4fd5-b1f9-868988f85c5c"
+      }
+    ]
+  },
+  {
+    "uuid": "8ed0bd52-c3bb-4ea4-b7f7-618954103fd8",
+    "name": "Jalalpur",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "a8816ef6-5752-45f4-b650-bd7e888fd066",
+    "name": "Mandia",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "7298583c-8fac-4030-8985-20005c61d3c6",
+    "name": "Mahur Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "e387540b-96a2-42ac-aa3a-66a208f4d4b8"
+      }
+    ]
+  },
+  {
+    "uuid": "6c24d261-5164-44c5-9da5-e4a448491172",
+    "name": "Bongaigaon Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "27e402c5-9646-4c3f-aa9f-64facf40e7f9"
+      }
+    ]
+  },
+  {
+    "uuid": "574594de-8f52-4925-83bd-f763fb507770",
+    "name": "Nityananda",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f237e4e0-b7b5-4fab-9abf-c7c39f196947"
+      }
+    ]
+  },
+  {
+    "uuid": "c8458c24-4bbf-49d4-8941-ce4bd021e9f0",
+    "name": "Dharmasala Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "44be1d71-8b62-48d3-b1f4-f0a3f25cb85c",
+    "name": "Orang",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "4cf76c9a-38f1-4db9-b601-95ca8bf00bec"
+      }
+    ]
+  },
+  {
+    "uuid": "c3f29663-0eff-486a-ac0b-d949884d0b76",
+    "name": "Hapjan Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ec96631e-ca39-48a2-bdd9-8e0996357ae9"
+      }
+    ]
+  },
+  {
+    "uuid": "4befddfb-5e14-4e45-a45b-88ba5f9e4a78",
+    "name": "Jhargaon",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f4a129f6-b1cb-4fd5-b1f9-868988f85c5c"
+      }
+    ]
+  },
+  {
+    "uuid": "da0c1e3c-e6ab-4745-838c-cfe57267b486",
+    "name": "Uparhali Bphc/ Moniari Tiniali Phc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "50090022-3be4-49ac-9faa-395c84aad7c4",
+    "name": "Khoirabari",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "4cf76c9a-38f1-4db9-b601-95ca8bf00bec"
+      }
+    ]
+  },
+  {
+    "uuid": "90fe191c-1aee-425b-b858-c8fe8fdef58d",
+    "name": "Chamata",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "46217658-90bf-4458-9a10-6b4aa96d91a8"
+      }
+    ]
+  },
+  {
+    "uuid": "ea4062f7-ff35-441e-afd3-6af3609b56a1",
+    "name": "Solmora Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "340aac87-44c1-42fa-a160-28d9946876f2"
+      }
+    ]
+  },
+  {
+    "uuid": "46b127d4-2c7c-4cd0-8040-766e75931292",
+    "name": "Kamarbondha Ali",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "f776868a-baf7-4b89-ad79-ac101ba467bd"
+      }
+    ]
+  },
+  {
+    "uuid": "8caa2963-0d44-4ca1-86fb-fb037810cf96",
+    "name": "Borkhola",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  },
+  {
+    "uuid": "dcf1604c-cbac-4930-b226-71a7c32060e8",
+    "name": "Chhaygaon",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "123d9521-f35d-4f5a-8a35-3b2f8364418d",
+    "name": "South Salmara",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "22201239-0871-433b-babd-5ded1d233546"
+      }
+    ]
+  },
+  {
+    "uuid": "8c6942b6-b2ee-41b7-9ca4-2e26d59e17cc",
+    "name": "North Jamuguri",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "026ca1ae-dcd3-404f-a35b-b4f47f0bb2b2"
+      }
+    ]
+  },
+  {
+    "uuid": "42a04f35-be36-4ccf-9a61-c803c34f35e0",
+    "name": "Ghilamora Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "ab8a35d7-c503-4e50-ab38-a00d0ebf97eb"
+      }
+    ]
+  },
+  {
+    "uuid": "f005957c-242b-4273-8ae0-0d99705fb996",
+    "name": "Rangia Bphc",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "09c8581f-8823-46a3-931f-bccc2bcd57be"
+      }
+    ]
+  },
+  {
+    "uuid": "24c6e5e4-6adc-4d15-ab70-c2272c7ca755",
+    "name": "Udharbond",
+    "level": 3,
+    "type": "Block",
+    "parents": [
+      {
+        "uuid": "37457ff8-4bd9-4571-a5a3-e21fa71f3648"
+      }
+    ]
+  }
+]
