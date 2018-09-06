@@ -72,6 +72,20 @@ class General {
         return `${date.getFullYear()}-${General.toTwoChars(date.getMonth() + 1)}-${General.toTwoChars(date.getDate())}`;
     }
 
+    static toISOFormatTime(hour, minute){
+        return moment({hour: hour, minute:minute}).format("HH:mm");
+    }
+
+    static toDisplayTime(isoFormatTime){
+        const time = this.toTimeObject(isoFormatTime);
+        return moment(time).format("LT");
+    }
+
+    static toTimeObject(isoFormatTime) {
+        const timeArray = _.split(isoFormatTime, ':');
+        return {hour: _.toInteger(timeArray[0]), minute: _.toInteger(timeArray[1])};
+    }
+
     static toTwoChars(number) {
         return `${number}`.length === 1 ? `0${number}` : `${number}`;
     }

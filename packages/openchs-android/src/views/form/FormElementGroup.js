@@ -6,6 +6,7 @@ import SingleSelectFormElement from './formElement/SingleSelectFormElement';
 import NumericFormElement from './formElement/NumericFormElement';
 import TextFormElement from './formElement/TextFormElement';
 import DateFormElement from './formElement/DateFormElement';
+import TimeFormElement from './formElement/TimeFormElement';
 import _ from "lodash";
 import {
     Concept,
@@ -128,6 +129,12 @@ class FormElementGroup extends AbstractComponent {
                                                                       dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                                       validationResult={validationResult}
                                                                       element={formElement}/>, idx);
+                        } else if (formElement.concept.datatype === Concept.dataType.Time) {
+                            return this.wrap(<TimeFormElement key={idx}
+                                                              element={formElement}
+                                                              actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                                              timeValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                                              validationResult={validationResult}/>, idx);
                         } else if (formElement.concept.datatype === Concept.dataType.Duration && !_.isNil(formElement.durationOptions)) {
                             return this.wrap(<DurationFormElement key={idx} label={formElement.name}
                                                                   actionName={this.props.actions["DURATION_CHANGE"]}

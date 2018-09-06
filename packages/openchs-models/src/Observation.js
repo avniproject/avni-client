@@ -36,6 +36,8 @@ class Observation {
 
         if (observation.concept.datatype === Concept.dataType.Date || observation.concept.datatype === Concept.dataType.DateTime) {
             return valueWrapper.asDisplayDate();
+        } else if(observation.concept.datatype === Concept.dataType.Time){
+            return valueWrapper.asDisplayTime();
         } else if (valueWrapper.isSingleCoded) {
             return i18n.t(conceptService.getConceptByUUID(valueWrapper.getConceptUUID()).name);
         } else if (valueWrapper.isMultipleCoded) {

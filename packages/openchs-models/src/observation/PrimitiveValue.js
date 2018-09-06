@@ -16,6 +16,10 @@ class PrimitiveValue {
         return moment(this.answer).format(format);
     }
 
+    asDisplayTime() {
+        return General.toDisplayTime(this.answer);
+    }
+
     getValue() {
         return this.answer;
     }
