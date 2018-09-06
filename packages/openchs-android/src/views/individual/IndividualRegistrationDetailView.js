@@ -1,4 +1,4 @@
-import {View, Alert} from "react-native";
+import {View, Alert, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -12,6 +12,7 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
+import Fonts from "../primitives/Fonts";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Relatives from "../common/Relatives";
 import ContextAction from "../viewmodel/ContextAction";
@@ -95,6 +96,12 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                     <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual} programsAvailable={this.state.programsAvailable}/>
 
                     <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor, paddingHorizontal:8}}>
+                        {this.state.individual.voided &&
+                            <Text style={{
+                                fontSize: Fonts.Large,
+                                color: Styles.redColor
+                            }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
+                        }
                         <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
                         {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     </Card>

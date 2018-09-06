@@ -209,6 +209,13 @@ class IndividualService extends BaseService {
     totalHighRisk(program, addressLevel) {
         return this.highRiskPatients(program, addressLevel).length;
     }
+
+    voidIndividual(individualUUID) {
+        const individual = this.findByUUID(individualUUID);
+        individualClone = individual.cloneForEdit()
+        individualClone.voided = true;
+        this.register(individualClone);
+    }
 }
 
 export default IndividualService;

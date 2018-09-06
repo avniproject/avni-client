@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from "react";
-import {View} from "react-native";
+import {View, Alert} from "react-native";
 import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
@@ -47,13 +47,18 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     save() {
-        this.dispatchAction(this.props.saveActionName, {
-            decisions: this.props.decisions,
-            checklists: this.props.checklists,
-            nextScheduledVisits: this.props.nextScheduledVisits,
-            cb: () => this.props.onSaveCallback(this),
-            error: (message) => this.showError(message)
-        });
+        if (this.props.individual.voided) {
+            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"), 
+                this.I18n.t("voidedIndividualAlertMessage"));
+        } else {
+            this.dispatchAction(this.props.saveActionName, {
+                decisions: this.props.decisions,
+                checklists: this.props.checklists,
+                nextScheduledVisits: this.props.nextScheduledVisits,
+                cb: () => this.props.onSaveCallback(this),
+                error: (message) => this.showError(message)
+            });
+        }
     }
 
     previous() {

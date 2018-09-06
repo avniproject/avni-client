@@ -186,6 +186,12 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             backgroundColor: Styles.whiteColor
                         }}>
                             <View style={{marginHorizontal: 8}}>
+                                {this.state.enrolment.individual.voided &&
+                                    <Text style={{
+                                        fontSize: Fonts.Large,
+                                        color: Styles.redColor
+                                    }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
+                                }
                                 <Text style={{
                                     fontSize: Fonts.Large,
                                     color: Colors.InputNormal

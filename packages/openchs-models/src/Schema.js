@@ -199,6 +199,11 @@ export default {
             newDB.delete(oldChecklists)
         }
 
+        if (oldDB.schemaVersion < 74) {
+            _.forEach(newDB.objects('Individual'), 
+                (individual) => individual.voided = false);
+        }
+
         if (oldDB.schemaVersion < 76) {
             const oldAddressLevels = oldDB.objects('AddressLevel');
             const addressLevels = newDB.objects('AddressLevel');
