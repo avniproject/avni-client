@@ -39,25 +39,42 @@ class ProgramEncounterService extends BaseService {
         db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
     }
 
-    saveScheduledVisit(enrolment, nextScheduledVisit, db) {
-        const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
-        if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
+    saveScheduledVisit(enrolment, nextScheduledVisit, db, schedulerDate) {
 
-        let encounterToSchedule;
-        if (nextScheduledVisit.uuid) {
-            encounterToSchedule = this.findByUUID(nextScheduledVisit.uuid, ProgramEncounter.schema.name);
-            encounterToSchedule.encounterType = encounterType;
+        let completedEncounterOfTypeAfterDate = enrolment.completedScheduledEncountersOfTypeAfterDate(nextScheduledVisit.encounterType,schedulerDate);
+        let scheduledEncounterOfType = enrolment.scheduledEncountersOfType(nextScheduledVisit.encounterType);
+
+        if(!_.isEmpty(completedEncounterOfTypeAfterDate))
+        {
+            return;
         }
-        if (!encounterToSchedule) {
-            encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+        else if(!_.isEmpty(scheduledEncounterOfType))
+        {
+            _.forEach(scheduledEncounterOfType, v=>{
+                v.updateSchedule(nextScheduledVisit);
+                this._saveEncounter(v, db);
+            });
+        }
+        else if(_.isEmpty(scheduledEncounterOfType))
+        {
+            const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
+            if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
+            let encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+            encounterToSchedule.updateSchedule(nextScheduledVisit);
+            this._saveEncounter(encounterToSchedule, db);
+            return;
+        }
+        else
+        {
+            return;
         }
 
-        encounterToSchedule.updateSchedule(nextScheduledVisit);
-        this._saveEncounter(encounterToSchedule, db);
-    }
+      }
 
-    saveScheduledVisits(enrolment, nextScheduledVisits, db) {
-        return nextScheduledVisits.map(nSV => this.saveScheduledVisit(enrolment, nSV, db));
+    saveScheduledVisits(enrolment, nextScheduledVisits, db, schedulerDate) {
+        return nextScheduledVisits.map(nSV =>{
+            return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
+        });
     }
 
     saveOrUpdate(programEncounter, nextScheduledVisits) {
@@ -68,7 +85,7 @@ class ProgramEncounterService extends BaseService {
         const db = this.db;
         this.db.write(() => {
             this._saveEncounter(programEncounter, db);
-            this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db);
+            this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db, programEncounter.encounterDateTime);
         });
         return programEncounter;
     }

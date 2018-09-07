@@ -46,7 +46,7 @@ class ProgramEnrolmentService extends BaseService {
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
-            programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db);
+            programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db, programEnrolment.enrolmentDateTime);
             General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');
             const checklistService = this.getService(ChecklistService);
             checklists
