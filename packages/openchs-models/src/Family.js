@@ -38,7 +38,7 @@ class Family extends BaseEntity {
         const family = new Family();
         family.uuid = General.randomUUID();
         family.registrationDate = new Date();
-        family.lowestAddressLevel = AddressLevel.create({uuid: "", title: "", level: 0, type: ""});
+        family.lowestAddressLevel = AddressLevel.create({uuid: "", title: "", level: 0, typeString: ""});
         family.headOfFamily = Individual.createEmptyInstance();
         family.members = [];
         family.observations = [];
