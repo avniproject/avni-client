@@ -1,4 +1,4 @@
-import {TimePickerAndroid, View} from "react-native";
+import {TimePickerAndroid, View, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
