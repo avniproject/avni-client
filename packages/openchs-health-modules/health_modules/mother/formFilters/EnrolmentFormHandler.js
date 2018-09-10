@@ -11,6 +11,12 @@ export default class EnrolmentFormHandler {
             new FormElementStatus(formElement.uuid, true, calculations.estimatedDateOfDelivery(programEnrolment));
     }
 
+    obstetricsHistory(programEnrolment, formElement){
+        let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
+        statusBuilder.show().when.valueInEnrolment("Gravida").is.greaterThan(1);
+        return statusBuilder.build();
+    }
+
     otherObstetricsHistory(programEnrolment, formElement) {
         let statusBuilder = this._getStatusBuilder(programEnrolment, formElement);
         statusBuilder.show().when.valueInEnrolment("Obstetrics history").containsAnswerConceptName("Other");
