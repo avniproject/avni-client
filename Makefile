@@ -110,7 +110,14 @@ rm_db:
 	rm -rf ../db
 
 open_db: rm_db get_db ## Open realmdb in Realm Browser
+	$(if $(shell command -v xdg-open 2> /dev/null),make xdg-opendb,make mac-opendb)
+
+mac-opendb:
 	open ../db/default.realm
+
+xdg-opendb:
+	xdg-open ../db/default.realm >/dev/null 2>&1
+
 # </db>
 
 
