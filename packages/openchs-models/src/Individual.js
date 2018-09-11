@@ -189,6 +189,10 @@ class Individual extends BaseEntity {
         return this.getAgeIn("years")(asOnDate, precise);
     }
 
+    getAgeInDays(asOnDate, precise) {
+        return this.getAgeIn("days")(asOnDate, precise);
+    }
+
     toSummaryString() {
         return `${this.name}, Age: ${this.getAge().toString()}, ${this.gender.name}`;
     }
