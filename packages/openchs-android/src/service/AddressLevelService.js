@@ -27,6 +27,11 @@ class AddressLevelService extends BaseService {
         return [...this.findAllByCriteria(`level = ${level}`, this.getSchema()).map(_.identity)];
     }
 
+    getAllAtLevelWithParent(level, parentUUID) {
+        return [...this.findAllByCriteria(`level = ${level} AND locationMappings.parent = '${parentUUID}'`,
+            this.getSchema()).map(_.identity)];
+    }
+
     highestLevel() {
         const maxLevel = this.maxLevel();
         return this.getAllAtLevel(maxLevel);
@@ -51,6 +56,7 @@ class AddressLevelService extends BaseService {
     }
 
     getChildrenParent(parentUUID) {
+        if (_.isNil(parentUUID)) return [];
         return [...this.findAllByCriteria(`locationMappings.parent.uuid = '${parentUUID}'`, this.getSchema())
             .map(_.identity)];
     }

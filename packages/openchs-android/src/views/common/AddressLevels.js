@@ -31,14 +31,11 @@ class AddressLevels extends AbstractComponent {
         return new AddressLevelsState(highestAddressLevels);
     }
 
-    selectAddressLevel(state, levelType, selectedLevel, exclusive = false) {
-        const addressLevelsState = state.data.selectLevel(levelType, selectedLevel, exclusive);
-        const selectedLevels = addressLevelsState.selectedAddresses;
-        const data = selectedLevels
-            .reduce((finalState, l) => finalState.addLevels(this.addressLevelService.getChildrenParent(l.uuid))
-                    .addLevels(this.addressLevelService.getAllAtLevel(l.level)),
-                new AddressLevelsState(selectedLevels))
-            .defaultTo(this.defaultState());
+    selectAddressLevel(state, levelType, selectedLevelUUID, exclusive = false) {
+        const selectedLevel = this.addressLevelService.findByUUID(selectedLevelUUID, this.addressLevelService.getSchema());
+        const newLevels = this.addressLevelService.getChildrenParent(selectedLevelUUID);
+        const data = exclusive ? state.data.selectLevel(levelType, selectedLevel, newLevels) :
+            state.data.addLevel(levelType, selectedLevel, newLevels);
         const onLowest = !_.isEmpty(data.lowestSelectedAddresses)
             && this.addressLevelService.minLevel() === data.lowestSelectedAddresses[0].level;
         return {
