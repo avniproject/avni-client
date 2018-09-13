@@ -13,8 +13,20 @@ class AddressLevelsActions {
     }
 
     static onLoad(state, action, context) {
-        return {data: AddressLevelsActions._defaultState(state, action, context)};
-
+        const addressLevelState = AddressLevelsActions._defaultState(state, action, context);
+        if (_.isNil(action.selectedLowestLevel)) {
+            return {data: addressLevelState};
+        }
+        const lowestSelectedLevel = action.selectedLowestLevel;
+        const addressLevelService = context.get(AddressLevelService);
+        const parentList = addressLevelService.getParentsOfLeaf(lowestSelectedLevel).concat([lowestSelectedLevel]);
+        return parentList.reduce((acc, parent) =>
+            AddressLevelsActions.selectAddressLevel(acc,
+                {
+                    levelType: parent.type,
+                    selectedLevel: parent.uuid,
+                    exclusive: true
+                }, context), {data: addressLevelState});
     }
 
     static selectAddressLevel(state, action, context) {
@@ -37,11 +49,13 @@ class AddressLevelsActions {
 
 const actions = {
     ON_LOAD: "AL.ON_LOAD",
-    ON_SELECT: "AL.ON_LEVEL_SELECT"
+    ON_SELECT: "AL.ON_LEVEL_SELECT",
+    RESET: "AL.RESET"
 };
 
 const actionMap = new Map([
     [actions.ON_LOAD, AddressLevelsActions.onLoad],
+    [actions.RESET, AddressLevelsActions.onLoad],
     [actions.ON_SELECT, AddressLevelsActions.selectAddressLevel],
 ]);
 

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, BackAndroid, Navigator} from 'react-native';
+import {BackAndroid, Navigator, View} from 'react-native';
 // import {Navigator} from 'react-native-deprecated-custom-components';
 
 export default class Router extends Component {
@@ -61,9 +61,17 @@ export default class Router extends Component {
         return route.isTyped ? <Element {...route.queryParams}/> : <Element params={route.queryParams}/>;
     }
 
+    willFocus(route) {
+        const element = this.state.routes[route.path];
+        if (!_.isNil(element)) {
+            this.state.routes[route.path].willFocus();
+        }
+    }
+
     render() {
         return (
             <Navigator
+                onWillFocus={(route) => this.willFocus(route)}
                 initialRoute={this.props.initialRoute}
                 renderScene={this.renderScene}
                 configureScene={this.configureScene}

@@ -32,8 +32,31 @@ class AddressLevelService extends BaseService {
         return this.getAllAtLevel(maxLevel);
     }
 
+    isRoot(parent) {
+        return parent.level === this.maxLevel();
+    }
+
+    lowestLevelAmongst(addressLevels) {
+        return _.minBy([...addressLevels], al => al.level);
+    }
+
+    getParentsOfLeaf(leaf) {
+        if (this.isRoot(leaf)) {
+            return [];
+        } else {
+            const parents = leaf.locationMappings.map(lm => lm.parent);
+            let lowestLevelParent = this.lowestLevelAmongst(parents);
+            return this.getParentsOfLeaf(lowestLevelParent).concat([lowestLevelParent]);
+        }
+    }
+
     getChildrenParent(parentUUID) {
         return [...this.findAllByCriteria(`locationMappings.parent.uuid = '${parentUUID}'`, this.getSchema())
+            .map(_.identity)];
+    }
+
+    getParentsChild(childUUID) {
+        return [...this.findAllByCriteria(`locationMappings.child.uuid = '${childUUID}'`, this.getSchema())
             .map(_.identity)];
     }
 

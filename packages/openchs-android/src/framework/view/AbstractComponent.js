@@ -20,6 +20,9 @@ class AbstractComponent extends Component {
         this.scrollToTop = this.scrollToTop.bind(this);
     }
 
+    static willFocus(){
+        console.log("IN FOCUS YO");
+    }
     static styles = StyleSheet.create({
         spinner: {
             justifyContent: 'center',

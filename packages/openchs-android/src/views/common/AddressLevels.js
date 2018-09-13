@@ -2,10 +2,7 @@ import React from "react";
 import _ from 'lodash';
 import {View, Text} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Colors from "../primitives/Colors";
 import Reducers from "../../reducer";
-import Fonts from "../primitives/Fonts";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import General from "../../utility/General";
 import AddressLevel from "./AddressLevel";
 import {Actions} from '../../action/common/AddressLevelsActions';
@@ -27,11 +24,13 @@ class AddressLevels extends AbstractComponent {
     }
 
     componentDidMount() {
-        this.dispatchAction(Actions.ON_LOAD, {});
+        const selectedLowestLevel = this.props.selectedLowestLevel;
+        const exists = !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid);
+        this.dispatchAction(Actions.ON_LOAD, {selectedLowestLevel: exists ? selectedLowestLevel : undefined});
     }
 
     _invokeCallbacks() {
-        if(_.isFunction(this.props.onSelect)){
+        if (_.isFunction(this.props.onSelect)) {
             this.props.onSelect(this.state.data.lowestSelectedAddresses);
         }
         if (this.state.onLowest && _.isFunction(this.props.onLowestLevel)) {

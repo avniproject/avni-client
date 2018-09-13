@@ -5,6 +5,7 @@ import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import AddressLevels from "../common/AddressLevels";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
+import {Actions as AddressLevelActions} from "../../action/common/AddressLevelsActions";
 import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
@@ -61,6 +62,7 @@ class IndividualRegisterView extends AbstractComponent {
                         <DateOfBirthAndAgeFormElement state={this.state}/>
                         <GenderFormElement state={this.state}/>
                         <AddressLevels
+                            selectedLowestLevel={this.state.individual.lowestAddressLevel}
                             multiSelect={false}
                             validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}

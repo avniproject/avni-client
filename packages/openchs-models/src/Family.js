@@ -138,7 +138,7 @@ class Family extends BaseEntity {
         family.typeOfFamily = this.typeOfFamily;
         family.householdNumber = this.householdNumber;
         family.members = this.members;
-        family.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : this.lowestAddressLevel.cloneForReference();
+        family.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : {...this.lowestAddressLevel};
         family.observations = ObservationsHolder.clone(this.observations);
         return family;
     }

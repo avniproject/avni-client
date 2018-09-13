@@ -26,7 +26,7 @@ class Individual extends BaseEntity {
             gender: 'Gender',
             registrationDate: "date",
             lowestAddressLevel: 'AddressLevel',
-            voided: { type: 'bool', default: false },
+            voided: {type: 'bool', default: false},
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
             observations: {type: 'list', objectType: 'Observation'},
@@ -88,11 +88,11 @@ class Individual extends BaseEntity {
     static fromResource(individualResource, entityService) {
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
-        const individual = General.assignFields(individualResource, 
-            new Individual(), 
-            ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"], 
-            ["dateOfBirth", 'registrationDate'], 
-            ["observations"], 
+        const individual = General.assignFields(individualResource,
+            new Individual(),
+            ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"],
+            ["dateOfBirth", 'registrationDate'],
+            ["observations"],
             entityService);
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;

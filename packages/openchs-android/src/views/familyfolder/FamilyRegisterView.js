@@ -20,6 +20,7 @@ import TextFormElement from "../form/formElement/TextFormElement";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import FamilyRegisterViewsMixin from "./FamilyRegisterViewsMixin";
+import {Actions as AddressLevelActions} from "../../action/common/AddressLevelsActions";
 
 @Path('/familyRegister')
 class FamilyRegisterView extends AbstractComponent {
