@@ -11,10 +11,6 @@ import AddressLevel from "./AddressLevel";
 import {Actions} from '../../action/common/AddressLevelsActions';
 
 class AddressLevels extends AbstractComponent {
-    static defaultProps = {
-        onSelect: _.noop,
-        onLowestLevel: _.noop
-    };
     static propTypes = {
         multiSelect: React.PropTypes.bool,
         onSelect: React.PropTypes.func,
