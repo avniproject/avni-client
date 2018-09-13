@@ -20,9 +20,18 @@ class AbstractComponent extends Component {
         this.scrollToTop = this.scrollToTop.bind(this);
     }
 
-    static willFocus(){
-        console.log("IN FOCUS YO");
+    changeFocus() {
+        General.logDebug("AbstractComponent", "CHANGE FOCUS");
     }
+
+    willFocus() {
+        General.logDebug("AbstractComponent", "WILL FOCUS");
+    }
+
+    didFocus() {
+        General.logDebug("AbstractComponent", "DID FOCUS");
+    }
+
     static styles = StyleSheet.create({
         spinner: {
             justifyContent: 'center',
@@ -40,7 +49,7 @@ class AbstractComponent extends Component {
         return this.context.getStore().dispatch({"type": action, ...params});
     }
 
-    dispatchFn(fn){
+    dispatchFn(fn) {
         return this.context.getStore().dispatch(fn);
     }
 

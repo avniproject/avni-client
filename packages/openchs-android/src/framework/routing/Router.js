@@ -24,7 +24,7 @@ export default class Router extends Component {
             }
         });
         this.state = {routes};
-
+        this.routeElementMap = {};
         this.renderScene = this.renderScene.bind(this);
     }
 
@@ -58,13 +58,30 @@ export default class Router extends Component {
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
         const Element = this.state.routes[route.path];
-        return route.isTyped ? <Element {...route.queryParams}/> : <Element params={route.queryParams}/>;
+        const element = route.isTyped ? <Element {...route.queryParams} ref={(child) => {this.routeElementMap[route.path] = child;}}/> :
+            <Element ref={(child) => {this.routeElementMap[route.path] = child;}} params={route.queryParams}/>;
+        this.willChangeFocus(route);
+        return element;
+    }
+
+    willChangeFocus(route){
+        const element = this.routeElementMap[route.path];
+        if (!_.isNil(element) && _.isFunction(element.changeFocus)) {
+            element.changeFocus();
+        }
     }
 
     willFocus(route) {
-        const element = this.state.routes[route.path];
-        if (!_.isNil(element)) {
-            this.state.routes[route.path].willFocus();
+        const element = this.routeElementMap[route.path];
+        if (!_.isNil(element) && _.isFunction(element.willFocus)) {
+            element.willFocus();
+        }
+    }
+
+    didFocus(route) {
+        const element = this.routeElementMap[route.path];
+        if (!_.isNil(element) && _.isFunction(element.didFocus)) {
+            element.didFocus();
         }
     }
 
@@ -72,6 +89,7 @@ export default class Router extends Component {
         return (
             <Navigator
                 onWillFocus={(route) => this.willFocus(route)}
+                onDidFocus={(route) => this.didFocus(route)}
                 initialRoute={this.props.initialRoute}
                 renderScene={this.renderScene}
                 configureScene={this.configureScene}
