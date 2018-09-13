@@ -85,7 +85,8 @@ const actions = {
     PRIMITIVE_VALUE_CHANGE: 'FAMILY_REGISTRATION_PRIMITIVE_VALUE_CHANGE',
     PRIMITIVE_VALUE_END_EDITING: 'FAMILY_REGISTRATION_PRIMITIVE_VALUE_END_EDITING',
     DURATION_CHANGE: 'FAMILY_REGISTRATION_DURATION_CHANGE',
-    SAVE: 'FRA.SAVE'
+    SAVE: 'FRA.SAVE',
+    RESET: 'FRA.RESET'
 };
 
 export default new Map([
@@ -104,6 +105,7 @@ export default new Map([
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.SAVE, FamilyRegisterActions.onSave],
+    [actions.RESET, FamilyRegisterActions.onLoad],
 ]);
 
 export {actions as Actions};

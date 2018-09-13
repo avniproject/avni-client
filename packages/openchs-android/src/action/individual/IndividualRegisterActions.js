@@ -126,7 +126,8 @@ const actions = {
     PRIMITIVE_VALUE_END_EDITING: '84f511d9-acf0-412d-951b-4226f7c6cf47',
     DATE_DURATION_CHANGE: '17e164f5-756d-4fe5-b3e4-41dad53abb53',
     DURATION_CHANGE: 'b1136ef7-202b-4a41-8b82-5603a4f90000',
-    SAVE: 'IRA.SAVE'
+    SAVE: 'IRA.SAVE',
+    RESET: 'IRA.RESET',
 };
 
 export default new Map([
@@ -149,6 +150,7 @@ export default new Map([
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, IndividualRegisterActions.onSave],
+    [actions.RESET, IndividualRegisterActions.onLoad],
 ]);
 
 export {actions as Actions};

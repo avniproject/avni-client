@@ -48,8 +48,12 @@ export class IndividualSearchActions {
         return newState;
     };
 
-    static getInitialState(context) {
-        return {searchCriteria: IndividualSearchCriteria.empty()};
+    static getInitialState(state) {
+        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false};
+    }
+
+    static reset(state) {
+        return {...IndividualSearchActions.getInitialState(), refreshed: true};
     }
 }
 
@@ -59,7 +63,8 @@ const individualSearchActions = {
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
     ENTER_VOIDED_CRITERIA: "ENTER_VOIDED_CRITERIA",
     TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
-    SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS"
+    SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS",
+    RESET: "ISA.RESET"
 };
 
 const individualSearchActionsMap = new Map([
@@ -68,7 +73,8 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_OBS_CRITERIA, IndividualSearchActions.enterObsCriteria],
     [individualSearchActions.ENTER_VOIDED_CRITERIA, IndividualSearchActions.enterVoidedCriteria],
     [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
-    [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria]
+    [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria],
+    [individualSearchActions.RESET, IndividualSearchActions.reset]
 ]);
 
 export {

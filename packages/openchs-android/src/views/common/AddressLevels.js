@@ -60,7 +60,7 @@ class AddressLevels extends AbstractComponent {
             this.selectAddressLevel(acc, parent.type, parent.uuid, true), {data: addressLevelState});
     }
 
-    componentDidMount() {
+    componentWillMount() {
         const selectedLowestLevel = this.props.selectedLowestLevel;
         const exists = !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid);
         const newState = this.onLoad(exists ? selectedLowestLevel : undefined);
