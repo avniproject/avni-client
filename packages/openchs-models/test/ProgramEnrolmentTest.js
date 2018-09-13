@@ -6,7 +6,8 @@ import ProgramEncounter from "../src/ProgramEncounter";
 import SingleCodedValue from "../src/observation/SingleCodedValue";
 import Observation from "../src/Observation";
 import Concept from "../src/Concept";
-import RoutineEncounterHandler from "../../openchs-health-modules/health_modules/adolescent/formFilters/RoutineEncounterHandler";
+import RoutineEncounterHandler
+    from "../../openchs-health-modules/health_modules/adolescent/formFilters/RoutineEncounterHandler";
 import EncounterType from "../src/EncounterType";
 import EntityFactory from "./EntityFactory";
 import PrimitiveValue from "../src/observation/PrimitiveValue";
@@ -41,6 +42,18 @@ describe('ProgramEnrolmentTest', () => {
             expect(heights).to.deep.include({encounterDateTime: encounter1.encounterDateTime, obs: 100})
             expect(heights).to.deep.include({encounterDateTime: encounter2.encounterDateTime, obs: 101})
         });
+    });
+
+    describe("completedScheduledEncountersOfTypeAfterDate", () => {
+        xit("return completed visit if a scheduled visit after done", () => {
+            const enrolment = ProgramEnrolment.createEmptyInstance();
+            const encounter1 = createScheduleEncounter(new Date(2018, 9, 1), "Anthro", new Date(2018, 9, 2));
+            enrolment.addEncounters(encounter1);
+
+            const existingEncounters = enrolment.completedScheduledEncountersOfTypeAfterDate("Antrho", new Date(2018, 8, 1));
+            expect(existingEncounters).to.be.an('array').with.lengthOf(1);
+        });
+
     });
 
     describe("lastFulfilledEncounter", () => {
@@ -157,5 +170,14 @@ describe('ProgramEnrolmentTest', () => {
         encounter.encounterDateTime = date;
         if (!_.isEmpty(name)) encounter.encounterType = EncounterType.create(name);
         return encounter;
+    }
+
+    function createScheduleEncounter(encounterDate, name, scheduleDate) {
+        const scheduleEncounter = ProgramEncounter.createEmptyInstance();
+        scheduleEncounter.encounterDateTime = encounterDate;
+        scheduleEncounter.earliestVisitDateTime = scheduleDate;
+        if (!_.isEmpty(name)) scheduleEncounter.encounterType = EncounterType.create(name);
+        return scheduleEncounter;
+
     }
 });

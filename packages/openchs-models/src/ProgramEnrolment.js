@@ -342,10 +342,15 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     completedScheduledEncountersOfTypeAfterDate(encounterTypeName, date) {
+        console.log("encounterTypeName",encounterTypeName," | Date",date);
+
         const filtered = this.getEncounters(true).filter((completedEncounter) => {
+            console.log("to be filtered-uuid:",completedEncounter.uuid," | encounteDate",completedEncounter.encounterDateTime,"- Earliest Visit:",completedEncounter.earliestVisitDateTime);
             return completedEncounter.encounterType.name === encounterTypeName &&
-                !_.isNil(completedEncounter.encounterDateTime) && completedEncounter.earliestVisitDateTime >= moment(date).startOf("day");
+                !_.isNil(completedEncounter.encounterDateTime) && moment(completedEncounter.earliestVisitDateTime).isAfter(date);
         });
+
+        console.log("filtered encounters",JSON.stringify(filtered));
         return filtered;
     }
 

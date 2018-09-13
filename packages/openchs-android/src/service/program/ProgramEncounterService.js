@@ -45,11 +45,12 @@ class ProgramEncounterService extends BaseService {
         let scheduledEncounterOfType = enrolment.scheduledEncountersOfType(nextScheduledVisit.encounterType);
 
         if(!_.isEmpty(completedEncounterOfTypeAfterDate))
-        {
+        {   console.log("completedEncounter after date exist",JSON.stringify(nextScheduledVisit));
             return;
         }
         else if(!_.isEmpty(scheduledEncounterOfType))
         {
+            console.log("update schedule , not complted exist");
             _.forEach(scheduledEncounterOfType, v=>{
                 v.updateSchedule(nextScheduledVisit);
                 this._saveEncounter(v, db);
@@ -57,15 +58,12 @@ class ProgramEncounterService extends BaseService {
         }
         else if(_.isEmpty(scheduledEncounterOfType))
         {
+            console.log("new visit to be created");
             const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
             let encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
             encounterToSchedule.updateSchedule(nextScheduledVisit);
             this._saveEncounter(encounterToSchedule, db);
-            return;
-        }
-        else
-        {
             return;
         }
 
