@@ -89,7 +89,7 @@ class AddressLevels extends AbstractComponent {
                 multiSelect={this.props.multiSelect}
                 levels={levels}/>);
         return (
-            <View>
+            <View key={this.props.key}>
                 {addressLevels}
             </View>
         );

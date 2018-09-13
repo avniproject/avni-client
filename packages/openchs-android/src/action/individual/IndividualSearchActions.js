@@ -53,7 +53,7 @@ export class IndividualSearchActions {
     }
 
     static reset(state) {
-        return {...IndividualSearchActions.getInitialState(), refreshed: true};
+        return {...IndividualSearchActions.getInitialState(), key: Math.random()};
     }
 }
 

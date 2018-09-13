@@ -66,7 +66,7 @@ class IndividualSearchView extends AbstractComponent {
                                          value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                          multiline={false}/>
                         <AddressLevels
-                            refresh={this.state.refreshed}
+                            key={this.state.key}
                             onSelect={(selectedAddressLevels) =>
                                 this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: selectedAddressLevels})
                             }
