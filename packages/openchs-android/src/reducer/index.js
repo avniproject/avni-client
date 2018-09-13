@@ -36,7 +36,6 @@ import {
     IndividualRegistrationDetailsActionsMap
 } from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
-import {AddressLevelsActions, Actions, AddressLevelActionMap} from '../action/common/AddressLevelsActions';
 import {ChecklistActions, ChecklistActionsMap} from '../action/program/ChecklistActions';
 import _ from 'lodash';
 import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
@@ -86,7 +85,6 @@ export default class Reducers {
         const reducerMap = {};
         reducerMap[Reducers.reducerKeys.checklist] = Reducers._add(ChecklistActionsMap, ChecklistActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualSearch] = Reducers._add(IndividualSearchActionsMap, IndividualSearchActions, beanStore);
-        reducerMap[Reducers.reducerKeys.addressLevels] = Reducers._add(AddressLevelActionMap, AddressLevelsActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegister] = Reducers._add(IndividualRegisterActionMap, IndividualRegisterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);

@@ -7,7 +7,6 @@ import Fonts from "../primitives/Fonts";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
-import {Actions, AddressLevelsActions, AddressLevelActionMap} from '../../action/common/AddressLevelsActions';
 
 class AddressLevel extends AbstractComponent {
     static propTypes = {

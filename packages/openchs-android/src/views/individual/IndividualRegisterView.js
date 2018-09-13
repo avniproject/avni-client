@@ -5,7 +5,6 @@ import Path from "../../framework/routing/Path";
 import themes from "../primitives/themes";
 import AddressLevels from "../common/AddressLevels";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
-import {Actions as AddressLevelActions} from "../../action/common/AddressLevelsActions";
 import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
