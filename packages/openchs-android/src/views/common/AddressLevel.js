@@ -14,7 +14,8 @@ class AddressLevel extends AbstractComponent {
         multiSelect: React.PropTypes.bool,
         levelType: React.PropTypes.string,
         validationError: React.PropTypes.object,
-        mandatory: React.PropTypes.bool
+        mandatory: React.PropTypes.bool,
+        onToggle: React.PropTypes.func
     };
 
     viewName() {
@@ -23,20 +24,6 @@ class AddressLevel extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.inputTextStyle = {fontSize: Fonts.Large, marginLeft: 11, color: Colors.InputNormal};
-        this.toggleAddressLevelSelection = this.toggleAddressLevelSelection.bind(this);
-    }
-
-    toggleAddressLevelSelection(addressLevelUuid, levelType) {
-        this.dispatchFn((dispatch) => {
-            dispatch({
-                type: Actions.ON_SELECT,
-                selectedLevel: addressLevelUuid,
-                levelType: levelType,
-                exclusive: !this.props.multiSelect
-            });
-            setTimeout(() => this.props.onSelect(), 400);
-        });
     }
 
     render() {
@@ -50,7 +37,7 @@ class AddressLevel extends AbstractComponent {
                     marginBottom: Styles.VerticalSpacingBetweenFormElements
                 }}
                 inPairs={true}
-                onPress={({label, value}) => this.toggleAddressLevelSelection(value, this.props.levelType)}
+                onPress={({label, value}) => this.props.onToggle(value)}
                 selectionFn={(selectedUUID) => this.props.levels.some(l => l.uuid === selectedUUID && l.isSelected)}
                 labelKey={this.props.levelType}
                 mandatory={this.props.mandatory}

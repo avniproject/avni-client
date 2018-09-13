@@ -2,10 +2,10 @@ import React from "react";
 import _ from 'lodash';
 import {View, Text} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Reducers from "../../reducer";
 import General from "../../utility/General";
 import AddressLevel from "./AddressLevel";
-import {Actions} from '../../action/common/AddressLevelsActions';
+import AddressLevelService from "../../service/AddressLevelService";
+import AddressLevelsState from "../../action/common/AddressLevelsState";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -20,21 +20,60 @@ class AddressLevels extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.addressLevels);
+        super(props, context);
+        this.addressLevelService = context.getService(AddressLevelService);
+        this.state = {data: new AddressLevelsState()};
+    }
+
+    defaultState() {
+        const highestAddressLevels = this.addressLevelService.highestLevel();
+        return new AddressLevelsState(highestAddressLevels);
+    }
+
+    selectAddressLevel(state, levelType, selectedLevel, exclusive = false) {
+        const addressLevelsState = state.data.selectLevel(levelType, selectedLevel, exclusive);
+        const selectedLevels = addressLevelsState.selectedAddresses;
+        let data = selectedLevels
+            .reduce((finalState, l) => finalState.addLevels(this.addressLevelService.getChildrenParent(l.uuid)),
+                new AddressLevelsState(selectedLevels))
+            .defaultTo(this.defaultState());
+        let onLowest = !_.isEmpty(data.lowestSelectedAddresses)
+            && this.addressLevelService.minLevel() === data.lowestSelectedAddresses[0].level;
+        return {
+            data: data,
+            onLowest: onLowest
+        };
+    }
+
+    onSelect(levelType, selectedLevel, exclusive = false) {
+        const newState = this.selectAddressLevel(this.state, levelType, selectedLevel, exclusive);
+        this.setState(newState);
+        this._invokeCallbacks(newState);
+    }
+
+    onLoad(lowestSelectedLevel) {
+        const addressLevelState = this.defaultState();
+        if (_.isNil(lowestSelectedLevel)) {
+            return {data: addressLevelState};
+        }
+        const parentList = this.addressLevelService.getParentsOfLeaf(lowestSelectedLevel).concat([lowestSelectedLevel]);
+        return parentList.reduce((acc, parent) =>
+            this.selectAddressLevel(acc, parent.type, parent.uuid, true), {data: addressLevelState});
     }
 
     componentDidMount() {
         const selectedLowestLevel = this.props.selectedLowestLevel;
         const exists = !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid);
-        this.dispatchAction(Actions.ON_LOAD, {selectedLowestLevel: exists ? selectedLowestLevel : undefined});
+        const newState = this.onLoad(exists ? selectedLowestLevel : undefined);
+        this.setState(newState);
     }
 
-    _invokeCallbacks() {
+    _invokeCallbacks(newState) {
         if (_.isFunction(this.props.onSelect)) {
-            this.props.onSelect(this.state.data.lowestSelectedAddresses);
+            this.props.onSelect(newState.data.lowestSelectedAddresses);
         }
-        if (this.state.onLowest && _.isFunction(this.props.onLowestLevel)) {
-            this.props.onLowestLevel(this.state.data.lowestSelectedAddresses);
+        if (newState.onLowest && _.isFunction(this.props.onLowestLevel)) {
+            this.props.onLowestLevel(newState.data.lowestSelectedAddresses);
         }
     }
 
@@ -43,6 +82,7 @@ class AddressLevels extends AbstractComponent {
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
             <AddressLevel
                 onSelect={() => this._invokeCallbacks()}
+                onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
                 key={idx}
                 validationError={this.props.validationError}
                 levelType={levelType}
