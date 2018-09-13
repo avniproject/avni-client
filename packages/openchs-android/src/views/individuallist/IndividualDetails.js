@@ -12,6 +12,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
         address: React.PropTypes.object,
+        backFunction: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -73,7 +74,7 @@ class IndividualDetails extends AbstractComponent {
             <Badge key={idx} style={{backgroundColor: program.color}}>{program.displayName}</Badge>);
         return (
             <TouchableNativeFeedback
-                onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid)}
+                onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid, "", false, this.props.backFunction)}
                 background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={IndividualDetails.styles.container}>
                     <View style={IndividualDetails.styles.nameContainer}>

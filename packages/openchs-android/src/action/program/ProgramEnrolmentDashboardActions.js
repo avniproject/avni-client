@@ -52,7 +52,8 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onLoad(state, action, context) {
-        const newState = ProgramEnrolmentDashboardActions.getInitialState();
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        ProgramEnrolmentDashboardActions._updateStateWithBackFunction(action, newState, state);
         const entityService = context.get(EntityService);
         const ruleService = context.get(RuleEvaluationService);
         if (_.isNil(action.enrolmentUUID)) {
@@ -69,7 +70,15 @@ class ProgramEnrolmentDashboardActions {
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 
-    //Program Encounter Type
+    static _updateStateWithBackFunction(action, newState, state) {
+        if (!_.isNil(action.backFunction)) {
+            newState.backFunction = action.backFunction;
+        } else if (!_.isNil(state.backFunction)) {
+            newState.backFunction = state.backFunction;
+        }
+    }
+
+//Program Encounter Type
     static launchChooseProgramEncounterType(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.programEncounterTypeState.launchChooseEntityType();

@@ -35,7 +35,8 @@ import _ from "lodash";
 class ProgramEnrolmentDashboardView extends AbstractComponent {
     static propTypes = {
         enrolmentUUID: React.PropTypes.string,
-        individualUUID: React.PropTypes.string.isRequired
+        individualUUID: React.PropTypes.string.isRequired,
+        backFunction: React.PropTypes.func
     };
 
     viewName() {
@@ -57,11 +58,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     dispatchOnLoad() {
         setTimeout(() => this.dispatchAction(Actions.ON_LOAD, this.props), 200);
-    }
-
-    componentWillUnmount() {
-        this.dispatchAction(Actions.RESET);
-        super.componentWillUnmount();
     }
 
     componentWillReceiveProps() {
@@ -154,7 +150,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
-
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
@@ -175,7 +170,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View>
-                        <AppHeader title={this.I18n.t('individualDashboard')}/>
+                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.state.backFunction}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
                                            viewContext={IndividualProfile.viewContext.Program}
                                            programsAvailable={this.state.programsAvailable}/>

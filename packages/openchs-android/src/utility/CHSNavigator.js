@@ -41,7 +41,7 @@ class CHSNavigator {
         }).to(ProgramEnrolmentView, true);
     }
 
-    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard) {
+    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn) {
         const from = TypedTransition.from(source);
         if (isFromWizard) {
             from.wizardCompleted([SystemRecommendationView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
@@ -49,7 +49,7 @@ class CHSNavigator {
                 enrolmentUUID: selectedEnrolmentUUID
             }, true);
         } else {
-            from.with({individualUUID: individualUUID}).to(ProgramEnrolmentDashboardView, true);
+            from.with({individualUUID: individualUUID, backFunction: backFn}).to(ProgramEnrolmentDashboardView, true);
         }
     }
 

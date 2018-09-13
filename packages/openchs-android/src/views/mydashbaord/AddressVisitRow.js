@@ -12,6 +12,7 @@ class AddressVisitRow extends AbstractComponent {
     static propTypes = {
         address: React.PropTypes.object,
         visits: React.PropTypes.object,
+        backFunction: React.PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -24,11 +25,12 @@ class AddressVisitRow extends AbstractComponent {
         }
     });
 
-    onPressHandler(address, title, count) {
+    onPressHandler(address, title, count, backFunction) {
         return () => TypedTransition.from(this).with({
             address: address,
             listType: title,
-            total: count
+            total: count,
+            backFunction: backFunction
         }).to(IndividualList);
     }
 
@@ -36,7 +38,7 @@ class AddressVisitRow extends AbstractComponent {
         const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) =>
             (<TitleNumberBlock key={idx}
                          highlight={numberObj.abnormal}
-                         onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count)}
+                         onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count, this.props.backFunction)}
                          title={_.has(numberObj, "label") ? numberObj.label : title}
                          number={numberObj.count}/>));
         return (

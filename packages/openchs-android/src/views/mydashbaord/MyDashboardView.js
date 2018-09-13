@@ -39,6 +39,11 @@ class MyDashboardView extends AbstractComponent {
         super.componentWillMount();
     }
 
+    onBackCallback() {
+        this.dispatchAction(Actions.ON_LOAD);
+        this.goBack();
+    }
+
     render() {
         const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
         return (
@@ -51,7 +56,9 @@ class MyDashboardView extends AbstractComponent {
                                   removeClippedSubviews={true}
                                   renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}
                                   renderRow={(rowData) => <AddressVisitRow address={rowData.address}
-                                                                           visits={rowData.visits}/>}/>
+                                                                           visits={rowData.visits}
+                                                                           backFunction={() => this.onBackCallback()}
+                                  />}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

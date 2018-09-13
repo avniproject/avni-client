@@ -19,7 +19,8 @@ import General from "../../utility/General";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
-    static propTypes = {};
+    static propTypes = {
+    };
 
     viewName() {
         return "IndividualList";
@@ -43,6 +44,12 @@ class IndividualList extends AbstractComponent {
         }
     });
 
+    onBackCallback() {
+        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
+        this.goBack();
+    }
+
+
     componentWillMount() {
         General.logDebug("IndividualList", "Component Will Mount");
         this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
@@ -56,12 +63,14 @@ class IndividualList extends AbstractComponent {
     }
 
     render() {
+        General.logDebug(this.viewName(), 'render');
         const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
         const visitType = this.I18n.t(this.props.params.listType);
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
-                    title={`${this.props.params.address.name} - ${visitType}`}/>
+                    title={`${this.props.params.address.name} - ${visitType}`}
+                    func={this.props.params.backFunction}/>
                 <CHSContent>
                     <ListView
                         style={IndividualList.styles.container}
@@ -69,11 +78,11 @@ class IndividualList extends AbstractComponent {
                         enableEmptySections={true}
                         renderHeader={() => (
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
-                                {`${this.I18n.t("patientCountForVisitType", {visitType: visitType, count: this.props.params.total})}`}
+                                {`${this.I18n.t("patientCountForVisitType", {visitType: visitType, count: this.state.individuals.data.length})}`}
                             </Text>)}
                         removeClippedSubviews={true}
                         dataSource={dataSource}
-                        renderRow={(individual) => <IndividualDetails individual={individual}/>}/>
+                        renderRow={(individual) => <IndividualDetails individual={individual} backFunction={() => this.onBackCallback()}/>}/>
                 </CHSContent>
             </CHSContainer>
         );

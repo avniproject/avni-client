@@ -55,12 +55,10 @@ class MyDashboardActions {
         ]);
         const allIndividuals = methodMap.get(action.listType)(action.address)
             .map(({uuid}) => individualService.findByUUID(uuid));
-        const individuals = [...state.individuals.data,
-            ...allIndividuals];
         return {
             ...state,
             individuals: {
-                data: individuals,
+                data: [...allIndividuals],
             }
         };
     }
