@@ -350,7 +350,6 @@ class ProgramEnrolment extends BaseEntity {
                 !_.isNil(completedEncounter.encounterDateTime) && moment(completedEncounter.earliestVisitDateTime).isAfter(date);
         });
 
-        console.log("filtered encounters",JSON.stringify(filtered));
         return filtered;
     }
 
@@ -393,8 +392,9 @@ class ProgramEnrolment extends BaseEntity {
         return !_.isNil(this.findEncounter(encounterTypeName, encounterName));
     }
 
-    hasEncounterOfType = (encounterTypeName) =>
-        !_.isNil(this.encounters.find(encounter => encounter.encounterType.name === encounterTypeName));
+    hasEncounterOfType(encounterTypeName) {
+        return !_.isNil(this.encounters.find(encounter => encounter.encounterType.name === encounterTypeName));
+    }
 
     hasAnyOfEncounterTypes(encounterTypeNames = []) {
         return encounterTypeNames.some(this.hasEncounterOfType);

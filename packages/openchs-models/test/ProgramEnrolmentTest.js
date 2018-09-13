@@ -45,12 +45,12 @@ describe('ProgramEnrolmentTest', () => {
     });
 
     describe("completedScheduledEncountersOfTypeAfterDate", () => {
-        xit("return completed visit if a scheduled visit after done", () => {
+        it("return completed visit if a scheduled visit after done", () => {
             const enrolment = ProgramEnrolment.createEmptyInstance();
             const encounter1 = createScheduleEncounter(new Date(2018, 9, 1), "Anthro", new Date(2018, 9, 2));
             enrolment.addEncounters(encounter1);
 
-            const existingEncounters = enrolment.completedScheduledEncountersOfTypeAfterDate("Antrho", new Date(2018, 8, 1));
+            const existingEncounters = enrolment.completedScheduledEncountersOfTypeAfterDate("Anthro", new Date(2018, 8, 1));
             expect(existingEncounters).to.be.an('array').with.lengthOf(1);
         });
 
