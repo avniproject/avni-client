@@ -61,11 +61,12 @@ class IndividualRegisterView extends AbstractComponent {
                         <DateOfBirthAndAgeFormElement state={this.state}/>
                         <GenderFormElement state={this.state}/>
                         <AddressLevels
-                            selectedAddressLevels={_.isNil(this.state.individual.lowestAddressLevel) ? [] : [this.state.individual.lowestAddressLevel]}
-                            multiSelect={false} actionName={Actions.REGISTRATION_ENTER_ADDRESS_LEVEL}
+                            multiSelect={false}
                             validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                             mandatory={true}
+                            onLowestLevel={(lowestSelectedAddresses) =>
+                                this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: lowestSelectedAddresses[0]})}
                         />
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>

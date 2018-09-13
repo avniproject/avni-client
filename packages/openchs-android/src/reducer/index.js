@@ -36,7 +36,7 @@ import {
     IndividualRegistrationDetailsActionsMap
 } from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
-import {AddressLevelActions} from '../action/AddressLevelActions';
+import {AddressLevelsActions, Actions, AddressLevelActionMap} from '../action/common/AddressLevelsActions';
 import {ChecklistActions, ChecklistActionsMap} from '../action/program/ChecklistActions';
 import _ from 'lodash';
 import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
@@ -48,7 +48,11 @@ import {
 } from "../action/program/ProgramEncounterCancelActions";
 import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
 import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../action/individual/IndividualAddRelativeActions';
-import  {ChecklistItemActions, ChecklistItemActionNames, ChecklistItemActionMap} from '../action/program/ChecklistItemActions';
+import {
+    ChecklistItemActions,
+    ChecklistItemActionNames,
+    ChecklistItemActionMap
+} from '../action/program/ChecklistItemActions';
 
 
 export default class Reducers {
@@ -82,7 +86,7 @@ export default class Reducers {
         const reducerMap = {};
         reducerMap[Reducers.reducerKeys.checklist] = Reducers._add(ChecklistActionsMap, ChecklistActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualSearch] = Reducers._add(IndividualSearchActionsMap, IndividualSearchActions, beanStore);
-        reducerMap[Reducers.reducerKeys.addressLevels] = Reducers._add(new Map([]), AddressLevelActions, beanStore);
+        reducerMap[Reducers.reducerKeys.addressLevels] = Reducers._add(AddressLevelActionMap, AddressLevelsActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualRegister] = Reducers._add(IndividualRegisterActionMap, IndividualRegisterActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);

@@ -34,7 +34,11 @@ class AbstractComponent extends Component {
     dispatchAction(action, params) {
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(action)}`);
-        this.context.getStore().dispatch({"type": action, ...params});
+        return this.context.getStore().dispatch({"type": action, ...params});
+    }
+
+    dispatchFn(fn){
+        return this.context.getStore().dispatch(fn);
     }
 
     getContextState(param) {
@@ -46,7 +50,7 @@ class AbstractComponent extends Component {
             [
                 {
                     text: this.I18n.t('ok'), onPress: () => {
-                }
+                    }
                 },
             ]
         );

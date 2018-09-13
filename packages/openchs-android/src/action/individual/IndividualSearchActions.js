@@ -1,5 +1,6 @@
 import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
+import AddressLevelService from "../../service/AddressLevelService";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -32,7 +33,11 @@ export class IndividualSearchActions {
 
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
-        newState.searchCriteria.toggleLowestAddress(action.value);
+        const addressLevelService = beans.get(AddressLevelService);
+        const lowestSelectedAddressLevels = action.values;
+        const lowestAddressLevels = lowestSelectedAddressLevels
+            .reduce((acc, parent) => acc.concat(addressLevelService.getLeavesOfParent(parent)), []);
+        newState.searchCriteria.toggleLowestAddresses(lowestAddressLevels);
         return newState;
     };
 

@@ -6,7 +6,6 @@ import GlobalStyles from "../primitives/GlobalStyles";
 import {Icon} from "native-base";
 import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
-import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -75,43 +74,67 @@ class IndividualSearchResultsView extends AbstractComponent {
                               dataSource={dataSource}
                               style={{backgroundColor: Styles.greyBackground}}
                               renderRow={(item) =>
-                    <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
-                                                   background={this.background()}>
-                        <View>
-                            <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
-                                alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
-                            <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
-                                  <View style={{ flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
-                                      <Text style={Styles.textStyle}>
-                                        {item.name}
-                                        {item.voided &&
-                                            <Text style={{color: Styles.redColor}}>
-                                                {` ${this.I18n.t("voidedLabel")}`}
-                                            </Text>
-                                        }
-                                      </Text>
-                                      <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                                        <Text style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
-                                        <Text style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
+                                  <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
+                                                           background={this.background()}>
+                                      <View>
+                                          <View style={{
+                                              flexDirection: 'row',
+                                              flexWrap: 'nowrap',
+                                              alignItems: 'center',
+                                              alignSelf: 'center',
+                                              height: 86,
+                                              paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
+                                          }}>
+                                              <Icon name='person-pin' style={{
+                                                  color: Colors.AccentColor,
+                                                  fontSize: 56,
+                                                  paddingRight: 16
+                                              }}/>
+                                              <View
+                                                  style={{flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
+                                                  <Text style={Styles.textStyle}>
+                                                      {item.name}
+                                                      {item.voided &&
+                                                      <Text style={{color: Styles.redColor}}>
+                                                          {` ${this.I18n.t("voidedLabel")}`}
+                                                      </Text>
+                                                      }
+                                                  </Text>
+                                                  <View style={{
+                                                      flexDirection: 'row',
+                                                      justifyContent: 'flex-start',
+                                                      alignItems: 'flex-start'
+                                                  }}>
+                                                      <Text
+                                                          style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
+                                                      <Text
+                                                          style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
+                                                  </View>
+                                              </View>
+                                              <View style={{
+                                                  flexDirection: 'column',
+                                                  justifyContent: 'center',
+                                                  alignItems: 'flex-end',
+                                                  flex: 1
+                                              }}>
+                                                  <View style={{justifyContent: 'flex-end'}}>
+                                                      <Text
+                                                          style={Styles.textStyle}>{this.I18n.t(item.lowestAddressLevel.name)}</Text>
+                                                  </View>
+                                                  <View style={{
+                                                      flexDirection: 'row',
+                                                      justifyContent: 'flex-end'
+                                                  }}>
+                                                      {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                                                  </View>
+                                              </View>
+                                          </View>
+                                          <View style={{
+                                              borderBottomColor: Colors.GreyBackground,
+                                              borderBottomWidth: 1,
+                                          }}/>
                                       </View>
-                                  </View>
-                                  <View style={{
-                                      flexDirection: 'column',
-                                      justifyContent: 'center',
-                                      alignItems: 'flex-end',
-                                      flex: 1
-                                  }}>
-                                      <View style={{justifyContent: 'flex-end'}}>
-                                          <Text style={Styles.textStyle}>{this.I18n.t(item.lowestAddressLevel.name)}</Text>
-                                      </View>
-                                      <View style={{ justifyContent: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                      {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
-                                      </View>
-                                  </View>
-                              </View>
-                            <View style={{borderBottomColor: Colors.GreyBackground, borderBottomWidth: 1,}}/>
-                        </View>
-                    </TouchableNativeFeedback>
+                                  </TouchableNativeFeedback>
                               }>
 
                     </ListView>

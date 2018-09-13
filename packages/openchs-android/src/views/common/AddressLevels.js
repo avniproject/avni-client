@@ -1,19 +1,25 @@
 import React from "react";
+import _ from 'lodash';
+import {View, Text} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Reducers from "../../reducer";
 import Fonts from "../primitives/Fonts";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import General from "../../utility/General";
+import AddressLevel from "./AddressLevel";
+import {Actions} from '../../action/common/AddressLevelsActions';
 
 class AddressLevels extends AbstractComponent {
+    static defaultProps = {
+        onSelect: _.noop,
+        onLowestLevel: _.noop
+    };
     static propTypes = {
-        multiSelect: React.PropTypes.bool.isRequired,
-        selectedAddressLevels: React.PropTypes.array.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        validationError: React.PropTypes.object,
-        style: React.PropTypes.object,
-        mandatory: React.PropTypes.bool
+        multiSelect: React.PropTypes.bool,
+        onSelect: React.PropTypes.func,
+        onLowestLevel: React.PropTypes.func,
+        validationError: React.PropTypes.object
     };
 
     viewName() {
@@ -22,37 +28,35 @@ class AddressLevels extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.addressLevels);
-        this.inputTextStyle = {fontSize: Fonts.Large, marginLeft: 11, color: Colors.InputNormal};
     }
 
-    toggleAddressLevelSelection(addressLevelUuid) {
-        const selectedAddressLevel = this.state.addressLevels.addressLevels.find((al) => al.uuid === addressLevelUuid);
-        return this.dispatchAction(this.props.actionName, {value: selectedAddressLevel});
+    componentDidMount() {
+        this.dispatchAction(Actions.ON_LOAD, {});
     }
 
-    refreshState() {
-        this.setState({addressLevels: this.getContextState("addressLevels")});
+    _invokeCallbacks() {
+        if(_.isFunction(this.props.onSelect)){
+            this.props.onSelect(this.state.data.lowestSelectedAddresses);
+        }
+        if (this.state.onLowest && _.isFunction(this.props.onLowestLevel)) {
+            this.props.onLowestLevel(this.state.data.lowestSelectedAddresses);
+        }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return !General.areEqualShallow(nextProps.selectedAddressLevels,this.props.selectedAddressLevels) ||
-            !General.areEqualShallow(nextProps.validationError,this.props.validationError) ||
-            !General.areEqualShallow(nextState, this.state);
-    }
     render() {
         General.logDebug(this.viewName(), 'render');
-        const valueLabelPairs = this.state.addressLevels.addressLevels.map(({uuid, name}) => new RadioLabelValue(name, uuid));
-        return (
-            <RadioGroup
-                multiSelect={this.props.multiSelect}
-                style={this.props.style}
-                inPairs={true}
-                onPress={({label, value}) => this.toggleAddressLevelSelection(value)}
-                selectionFn={(addressLevel) => this.props.selectedAddressLevels.some((al) => al.uuid === addressLevel)}
-                labelKey={`${this.state.addressLevels.catchmentType}`}
-                mandatory={this.props.mandatory}
+        let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
+            <AddressLevel
+                onSelect={() => this._invokeCallbacks()}
+                key={idx}
                 validationError={this.props.validationError}
-                labelValuePairs={valueLabelPairs}/>
+                levelType={levelType}
+                multiSelect={this.props.multiSelect}
+                levels={levels}/>);
+        return (
+            <View>
+                {addressLevels}
+            </View>
         );
     }
 }

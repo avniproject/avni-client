@@ -7,7 +7,7 @@ class IndividualSearchCriteria {
     static ageBufferForSearchInYears = 4;
     includeVoided = false;
 
-    static empty(){
+    static empty() {
         let individualSearchCriteria = new IndividualSearchCriteria();
         individualSearchCriteria.lowestAddressLevels = [];
         return individualSearchCriteria;
@@ -19,7 +19,9 @@ class IndividualSearchCriteria {
             _.chain(this.name)
                 .split(' ')
                 .map((token) => token.trim()).filter((token) => !_.isEmpty(token))
-                .forEach((token) => {criteria.push(`name CONTAINS[c] "${token}"` )}).value();
+                .forEach((token) => {
+                    criteria.push(`name CONTAINS[c] "${token}"`)
+                }).value();
         }
 
         if (!_.isEmpty(this.ageInYears)) {
@@ -35,8 +37,9 @@ class IndividualSearchCriteria {
 
         if (this.lowestAddressLevels.length !== 0) {
             let addressLevelCriteria = [];
-            this.lowestAddressLevels.forEach((addressLevel) =>
-            {addressLevelCriteria.push(`lowestAddressLevel.uuid == "${addressLevel.uuid}"`)});
+            this.lowestAddressLevels.forEach((addressLevel) => {
+                addressLevelCriteria.push(`lowestAddressLevel.uuid == "${addressLevel.uuid}"`)
+            });
             criteria.push("( " + addressLevelCriteria.join(" OR ") + ")");
         }
         return criteria.join(" AND ");
@@ -63,6 +66,10 @@ class IndividualSearchCriteria {
             BaseEntity.removeFromCollection(this.lowestAddressLevels, lowestAddress);
         else
             this.lowestAddressLevels.push(lowestAddress);
+    }
+
+    toggleLowestAddresses(lowestAddresses) {
+        this.lowestAddressLevels = lowestAddresses;
     }
 
     getMaxDateOfBirth() {
