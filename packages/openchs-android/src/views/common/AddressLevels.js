@@ -12,7 +12,8 @@ class AddressLevels extends AbstractComponent {
         multiSelect: React.PropTypes.bool,
         onSelect: React.PropTypes.func,
         onLowestLevel: React.PropTypes.func,
-        validationError: React.PropTypes.object
+        validationError: React.PropTypes.object,
+        mandatory: React.PropTypes.bool
     };
 
     viewName() {
@@ -33,11 +34,12 @@ class AddressLevels extends AbstractComponent {
     selectAddressLevel(state, levelType, selectedLevel, exclusive = false) {
         const addressLevelsState = state.data.selectLevel(levelType, selectedLevel, exclusive);
         const selectedLevels = addressLevelsState.selectedAddresses;
-        let data = selectedLevels
-            .reduce((finalState, l) => finalState.addLevels(this.addressLevelService.getChildrenParent(l.uuid)),
+        const data = selectedLevels
+            .reduce((finalState, l) => finalState.addLevels(this.addressLevelService.getChildrenParent(l.uuid))
+                    .addLevels(this.addressLevelService.getAllAtLevel(l.level)),
                 new AddressLevelsState(selectedLevels))
             .defaultTo(this.defaultState());
-        let onLowest = !_.isEmpty(data.lowestSelectedAddresses)
+        const onLowest = !_.isEmpty(data.lowestSelectedAddresses)
             && this.addressLevelService.minLevel() === data.lowestSelectedAddresses[0].level;
         return {
             data: data,
@@ -81,6 +83,7 @@ class AddressLevels extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
             <AddressLevel
+                mandatory={this.props.mandatory}
                 onSelect={() => this._invokeCallbacks()}
                 onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
                 key={idx}

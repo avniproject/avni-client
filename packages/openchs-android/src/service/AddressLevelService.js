@@ -55,11 +55,6 @@ class AddressLevelService extends BaseService {
             .map(_.identity)];
     }
 
-    getParentsChild(childUUID) {
-        return [...this.findAllByCriteria(`locationMappings.child.uuid = '${childUUID}'`, this.getSchema())
-            .map(_.identity)];
-    }
-
     isLeaf(child) {
         return child.level === this.minLevel();
     }
