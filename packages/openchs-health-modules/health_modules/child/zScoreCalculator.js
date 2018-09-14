@@ -6,21 +6,27 @@ import hfa_girls from "./anthropometry/lhfa_girls";
 import wfh_boys from "./anthropometry/wflh_boys";
 import wfh_girls from "./anthropometry/wflh_girls";
 
+const anthropometricReference = {
+    wfa: {Male: wfa_boys, Female: wfa_girls},
+    hfa: {Male: hfa_boys, Female: hfa_girls},
+    wfh: {Male: wfh_boys, Female: wfh_girls}
+};
+
 const roundedHeight = (num) =>{
     return Math.round(num*2)/2;
 };
 
-const getWfaReference = (anthropometricReference, gender, ageInMonths) => {
+const getWfaReference = (gender, ageInMonths) => {
     let wfaReference = _.get(anthropometricReference, ["wfa", gender]);
     return _.find(wfaReference, (item) => item.Month === ageInMonths);
 }
 
-const getWfhReference = (anthropometricReference, gender, height) => {
+const getWfhReference = (gender, height) => {
     let wfhReference = _.get(anthropometricReference, ["wfh", gender]);
     return _.find(wfhReference,(item) => item.x === roundedHeight(height));
 }
 
-const getHfaReference = (anthropometricReference, gender, ageInMonths) => {
+const getHfaReference = (gender, ageInMonths) => {
     let heightForAgeReference = _.get(anthropometricReference, ["hfa", gender]);
     return _.find(heightForAgeReference, (item) => item.Month === ageInMonths);
 }
@@ -41,15 +47,11 @@ const calculate = (value, reference) => {
 };
 
 const calculateZScore = (gender, ageInMonths, weight, height) => {
-    const anthropometricReference = {
-        wfa: {Male: wfa_boys, Female: wfa_girls},
-        hfa: {Male: hfa_boys, Female: hfa_girls},
-        wfh: {Male: wfh_boys, Female: wfh_girls}
-    };
+    let wfaReference = getWfaReference(gender, ageInMonths);
+    let hfaReference = getHfaReference(gender, ageInMonths);
+    let wfhReference = getWfhReference(gender, height);
 
-    let wfaReference = getWfaReference(anthropometricReference, gender, ageInMonths);
-    let hfaReference = getHfaReference(anthropometricReference, gender, ageInMonths);
-    let wfhReference = getWfhReference(anthropometricReference, gender, height);
+    //console.log(`weight ${weight} wfa ${JSON.stringify(wfaReference)}`);
     
     return {
         wfa: calculate(weight, wfaReference),
@@ -62,7 +64,21 @@ const zScore = (individual, asOnDate, weight, height) => {
     let ageInMonths = individual.getAgeInMonths(asOnDate);
     let gender = _.get(individual, "gender.name");
 
+    //console.log(`ageInMonths ${ageInMonths} gender ${gender}`);
+
     return calculateZScore(gender, ageInMonths, weight, height);
 };
 
-export default zScore;
+const projectedSD2NegForWeight = (individual, asOnDate) => {
+    let age = individual.getAgeInMonths(asOnDate, true);
+    let decimalPortion = age % 1;
+    let ageInMonths = individual.getAgeInMonths(asOnDate);
+    let gender = _.get(individual, "gender.name");
+    let wfa = getWfaReference(gender, ageInMonths);
+    let nextMonthWfa = getWfaReference(gender, ageInMonths + 1);
+    let sD2negDelta = nextMonthWfa.SD2neg - wfa.SD2neg;
+    let projectedSD2Neg = wfa.SD2neg + (decimalPortion * sD2negDelta);
+    return projectedSD2Neg;
+}
+
+export {zScore as default, projectedSD2NegForWeight};

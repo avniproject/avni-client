@@ -1,8 +1,9 @@
-import zScores from "./zScoreCalculator";
+import zScores, {projectedSD2NegForWeight} from "./zScoreCalculator";
 import {RuleFactory} from 'rules-config/rules';
 import weightForAgeScoresGirls from './anthropometry/wfa_girls';
 import weightForAgeScoresBoys from './anthropometry/wfa_boys';
 import _ from "lodash";
+import moment from "moment";
 import C from "../common";
 
 const AnthropometryDecision = RuleFactory("d062907a-690c-44ca-b699-f8b2f688b075", "Decision");
@@ -68,12 +69,15 @@ const findObs = (programEncounter, conceptName) => {
 };
 
 const getDecisions = (programEncounter) => {
+    const currentEncounterDateTime = programEncounter.encounterDateTime;
+    const individual = programEncounter.programEnrolment.individual;
+    
+    // console.log(`dob ${individual.dateOfBirth} eDT ${currentEncounterDateTime}`);
+    
     const decisions = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
     const weight = findObs(programEncounter, "Weight");
     const height = findObs(programEncounter, "Height");
-    const zScoresForChild = zScores(programEncounter.programEnrolment.individual, programEncounter.encounterDateTime, weight, height);
-
-    var Gender = _.get(programEncounter.programEnrolment.individual, "gender.name");
+    const zScoresForChild = zScores(individual, currentEncounterDateTime, weight, height);
 
     var wfaGrade = getGradeforZscore(zScoresForChild.wfa);
     var wfaStatus = zScoreGradeStatusMappingWeightForAge[wfaGrade];
@@ -82,7 +86,41 @@ const getDecisions = (programEncounter) => {
     var hfaStatus = zScoreGradeStatusMappingHeightForAge[hfaGrade];
 
     var wfhStatus = weightForHeightStatus(zScoresForChild.wfh);
-    console.log("wfh status: " + wfhStatus + ", wfhzscore:" + zScoresForChild.wfh);
+
+    const sd2Neg = projectedSD2NegForWeight(individual, currentEncounterDateTime);
+    const observations = programEncounter.programEnrolment.getObservationsForConceptName("Weight");
+    const observationsSorted = _.orderBy(observations, 
+        encounter => moment(encounter.encounterDateTime).unix(),
+        ["desc"]
+    );
+
+    const pastObservation = _.find(observationsSorted, observation => 
+        moment(currentEncounterDateTime).diff(moment(observation.encounterDateTime), "months", true) >= 3.0
+    );
+
+    let falteringStatus, allObservationsInLastThreeMonths, falteringInPast;
+    
+    if(pastObservation) {
+        allObservationsInLastThreeMonths = _.filter(observationsSorted, o => 
+            moment(o.encounterDateTime).isSameOrAfter(moment(pastObservation.encounterDateTime)) &&
+                moment(o.encounterDateTime).isBefore(moment(currentEncounterDateTime))
+        );
+        falteringInPast = _.every(allObservationsInLastThreeMonths, o =>
+            o.obs < projectedSD2NegForWeight(individual, o.encounterDateTime)
+        );
+        falteringStatus = falteringInPast && weight < sd2Neg ? "Yes": "No";
+    } else {
+        falteringStatus = "No";
+    }
+
+    addIfRequired(decisions.encounterDecisions, "Growth Faltering Status", [falteringStatus]);
+
+    // console.log(`pastObservation ${JSON.stringify(pastObservation)}
+    //             allObservationsInLastThreeMonths ${JSON.stringify(allObservationsInLastThreeMonths)} 
+    //             falteringInPast ${falteringInPast}
+    //             weight ${weight}
+    //             sd2Neg ${sd2Neg}
+    //             falteringStatus ${falteringStatus}`);
 
     addIfRequired(decisions.encounterDecisions, "Weight for age z-score", zScoresForChild.wfa);
     addIfRequired(decisions.encounterDecisions, "Weight for age Grade", wfaGrade);

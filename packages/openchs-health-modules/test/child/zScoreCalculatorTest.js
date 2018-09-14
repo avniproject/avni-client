@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import zScore from "../../health_modules/child/zScoreCalculator";
+import zScore, {projectedSD2NegForWeight} from "../../health_modules/child/zScoreCalculator";
 import {Gender, Individual} from "openchs-models";
 import moment from "moment";
 
@@ -141,6 +141,13 @@ describe("zScoreCalculator", () => {
             assert.isDefined(zScore(individual, today, 8, null).wfa);
             assert.isUndefined(zScore(individual, today, 8, null).hfa);
             assert.isUndefined(zScore(individual, today, 8, null).wfh);
+        });
+
+        it("calculates projected SD2Neg for weight", () => {
+            let encounterDate = new Date(2018, 9, 10);
+            individual.dateOfBirth = moment(encounterDate).subtract(6, "months").subtract(8, "days").toDate();
+            let actual = projectedSD2NegForWeight(individual, encounterDate);
+            assert.approximately(actual, 6.47, 0.01);
         });
     });
 });

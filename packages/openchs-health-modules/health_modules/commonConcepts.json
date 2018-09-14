@@ -1872,5 +1872,20 @@
     "name":"Forceps delivery",
     "uuid": "045bb6bd-2c56-4f25-8a44-46d74a119d5d",
     "dataType":"NA"
+  },
+  {
+    "name": "Growth Faltering Status",
+    "uuid": "a5067bcc-d333-4c80-a0f2-d61df9d210d3",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
   }
 ]

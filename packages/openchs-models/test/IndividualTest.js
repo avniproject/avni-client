@@ -68,10 +68,4 @@ describe('IndividualTest', () => {
         assert.equal(individual.getPreviousEnrolment('FooProgram', programEnrolment1.uuid), null);
         assert.equal(individual.getPreviousEnrolment('BarProgram', programEnrolment2.uuid), null);
     });
-
-    it('getAgeInDays', () => {
-        var individual = new Individual();
-        individual.dateOfBirth = "1986-06-22";
-        assert.equal(individual.getAgeInDays("1986-07-31"), 39);
-    });
 });

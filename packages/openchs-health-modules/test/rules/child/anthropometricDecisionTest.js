@@ -1,4 +1,5 @@
-import {expect, assert} from "chai";
+import {assert} from "chai";
+import _ from "lodash";
 
 import {
     Concept, Gender, Observation, PrimitiveValue, ProgramEncounter,
@@ -49,6 +50,58 @@ describe("Anthropometric Decisions", () => {
         assert.equal(C.findValue(decisions, "Weight for age z-score"), -0.1);
         assert.equal(C.findValue(decisions, "Height for age z-score"), 0);
         assert.equal(C.findValue(decisions, "Weight for height z-score"), 0.2);
+    });
+
+    it("calculates growth faltering status", () => {
+        let decisions;
+        let enrolment = ProgramEnrolment.createEmptyInstance();
+        boy.dateOfBirth = new Date("January 19, 2018");
+        enrolment.individual = boy;
+
+        let [firstEncounter, secondEncounter, thirdEncounter, fourthEncounter] = 
+            _.times(4, () => ProgramEncounter.createEmptyInstance());
+        let encounters = [firstEncounter, secondEncounter, thirdEncounter, fourthEncounter];
+        encounters.forEach(e => e.programEnrolment = enrolment);
+        
+        firstEncounter.encounterDateTime = moment(boy.dateOfBirth)
+            .add(2, "months")
+            .add(0, "days")
+            .toDate();
+        firstEncounter.observations.push(
+            Observation.create(weightConcept, new PrimitiveValue(4.4, Concept.dataType.Numeric))
+        );
+        enrolment.addEncounter(firstEncounter);
+        assert.equal(_.first(C.findValue(getDecisions(firstEncounter).encounterDecisions, "Growth Faltering Status")), "No");
+
+        secondEncounter.encounterDateTime = moment(boy.dateOfBirth)
+            .add(4, "months")
+            .add(0, "days")
+            .toDate();
+        secondEncounter.observations.push(
+            Observation.create(weightConcept, new PrimitiveValue(5.4, Concept.dataType.Numeric))
+        );
+        enrolment.addEncounter(secondEncounter);
+        assert.equal(_.first(C.findValue(getDecisions(secondEncounter).encounterDecisions, "Growth Faltering Status")), "No");
+
+        thirdEncounter.encounterDateTime = moment(boy.dateOfBirth)
+            .add(5, "months")
+            .add(2, "days")
+            .toDate();
+        thirdEncounter.observations.push(
+            Observation.create(weightConcept, new PrimitiveValue(5.8, Concept.dataType.Numeric))
+        );
+        enrolment.addEncounter(thirdEncounter);
+        assert.equal(_.first(C.findValue(getDecisions(thirdEncounter).encounterDecisions, "Growth Faltering Status")), "No");
+
+        fourthEncounter.encounterDateTime = moment(boy.dateOfBirth)
+            .add(7, "months")
+            .add(2, "days")
+            .toDate();
+        fourthEncounter.observations.push(
+            Observation.create(weightConcept, new PrimitiveValue(6.3, Concept.dataType.Numeric))
+        );
+        enrolment.addEncounter(fourthEncounter);
+        assert.equal(_.first(C.findValue(getDecisions(fourthEncounter).encounterDecisions, "Growth Faltering Status")), "Yes");
     });
 
     it("does not calculate if values not available", () => {
