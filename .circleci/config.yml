@@ -103,7 +103,7 @@ jobs:
         environment:
           - TERM: dumb
           - ENVFILE: .env.staging
-          - GRADLE_OPTS: "-Xmx250m -Xms250m"
+          - GRADLE_OPTS: "-Xmx512m -Xms512m"
 
 
     working_directory: ~/openchs-client
@@ -180,7 +180,7 @@ jobs:
           environment:
             - TERM: dumb
             - ENVFILE: .env.live
-            - GRADLE_OPTS: "-Xmx250m -Xms250m"
+            - GRADLE_OPTS: "-Xmx512m -Xms512m"
 
 
       working_directory: ~/openchs-client

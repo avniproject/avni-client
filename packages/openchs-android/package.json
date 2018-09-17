@@ -52,7 +52,6 @@
     "react-native-vector-icons": "4.3.0",
     "realm": "2.0.12",
     "redux": "3.6.0",
-    "redux-thunk": "^2.3.0",
     "stacktrace-js": "2.0.0",
     "transducers-js": "0.4.174"
   },
