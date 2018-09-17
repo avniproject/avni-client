@@ -224,7 +224,7 @@ class IndividualService extends BaseService {
 
     voidIndividual(individualUUID) {
         const individual = this.findByUUID(individualUUID);
-        individualClone = individual.cloneForEdit()
+        let individualClone = individual.cloneForEdit();
         individualClone.voided = true;
         this.register(individualClone);
     }
