@@ -98,22 +98,17 @@ const getDecisions = (programEncounter) => {
         moment(currentEncounterDateTime).diff(moment(observation.encounterDateTime), "months", true) >= 3.0
     );
 
-    let falteringStatus, allObservationsInLastThreeMonths, falteringInPast;
-    
     if(pastObservation) {
-        allObservationsInLastThreeMonths = _.filter(observationsSorted, o => 
-            moment(o.encounterDateTime).isSameOrAfter(moment(pastObservation.encounterDateTime)) &&
-                moment(o.encounterDateTime).isBefore(moment(currentEncounterDateTime))
-        );
-        falteringInPast = _.every(allObservationsInLastThreeMonths, o =>
-            o.obs < projectedSD2NegForWeight(individual, o.encounterDateTime)
-        );
-        falteringStatus = falteringInPast && weight < sd2Neg ? "Yes": "No";
+        const pastSD2Neg = projectedSD2NegForWeight(individual, pastObservation.encounterDateTime);
+        const pastWeight = pastObservation.obs
+        const falteringInPast = pastWeight < pastSD2Neg;
+        const falteringStatus = falteringInPast && weight < sd2Neg ? "Yes": "No";
+        addIfRequired(decisions.encounterDecisions, "Growth Faltering Status", [falteringStatus]);
     } else {
-        falteringStatus = "No";
+        const falteringStatus = "No";
+        addIfRequired(decisions.encounterDecisions, "Growth Faltering Status", [falteringStatus]);
     }
-
-    addIfRequired(decisions.encounterDecisions, "Growth Faltering Status", [falteringStatus]);
+    
 
     // console.log(`pastObservation ${JSON.stringify(pastObservation)}
     //             allObservationsInLastThreeMonths ${JSON.stringify(allObservationsInLastThreeMonths)} 

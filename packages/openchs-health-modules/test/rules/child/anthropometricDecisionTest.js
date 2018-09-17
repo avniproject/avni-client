@@ -63,42 +63,46 @@ describe("Anthropometric Decisions", () => {
         let encounters = [firstEncounter, secondEncounter, thirdEncounter, fourthEncounter];
         encounters.forEach(e => e.programEnrolment = enrolment);
         
+        let sd2Neg = 4.3;
         firstEncounter.encounterDateTime = moment(boy.dateOfBirth)
             .add(2, "months")
             .add(0, "days")
             .toDate();
         firstEncounter.observations.push(
-            Observation.create(weightConcept, new PrimitiveValue(4.4, Concept.dataType.Numeric))
+            Observation.create(weightConcept, new PrimitiveValue(sd2Neg + 0.1, Concept.dataType.Numeric))
         );
         enrolment.addEncounter(firstEncounter);
         assert.equal(_.first(C.findValue(getDecisions(firstEncounter).encounterDecisions, "Growth Faltering Status")), "No");
 
+        sd2Neg = 5.6;
         secondEncounter.encounterDateTime = moment(boy.dateOfBirth)
             .add(4, "months")
-            .add(0, "days")
+            .add(4, "days")
             .toDate();
         secondEncounter.observations.push(
-            Observation.create(weightConcept, new PrimitiveValue(5.4, Concept.dataType.Numeric))
+            Observation.create(weightConcept, new PrimitiveValue(sd2Neg - 0.2, Concept.dataType.Numeric))
         );
         enrolment.addEncounter(secondEncounter);
         assert.equal(_.first(C.findValue(getDecisions(secondEncounter).encounterDecisions, "Growth Faltering Status")), "No");
 
+        sd2Neg = 6;
         thirdEncounter.encounterDateTime = moment(boy.dateOfBirth)
             .add(5, "months")
             .add(2, "days")
             .toDate();
         thirdEncounter.observations.push(
-            Observation.create(weightConcept, new PrimitiveValue(5.8, Concept.dataType.Numeric))
+            Observation.create(weightConcept, new PrimitiveValue(sd2Neg + 0.2, Concept.dataType.Numeric))
         );
         enrolment.addEncounter(thirdEncounter);
         assert.equal(_.first(C.findValue(getDecisions(thirdEncounter).encounterDecisions, "Growth Faltering Status")), "No");
 
+        sd2Neg = 6.7;
         fourthEncounter.encounterDateTime = moment(boy.dateOfBirth)
             .add(7, "months")
-            .add(2, "days")
+            .add(8, "days")
             .toDate();
         fourthEncounter.observations.push(
-            Observation.create(weightConcept, new PrimitiveValue(6.3, Concept.dataType.Numeric))
+            Observation.create(weightConcept, new PrimitiveValue(sd2Neg - 0.1, Concept.dataType.Numeric))
         );
         enrolment.addEncounter(fourthEncounter);
         assert.equal(_.first(C.findValue(getDecisions(fourthEncounter).encounterDecisions, "Growth Faltering Status")), "Yes");
