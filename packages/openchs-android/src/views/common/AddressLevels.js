@@ -46,8 +46,9 @@ class AddressLevels extends AbstractComponent {
 
     onSelect(levelType, selectedLevel, exclusive = false) {
         const newState = this.selectAddressLevel(this.state, levelType, selectedLevel, exclusive);
+        const oldState = this.state;
         this.setState(newState);
-        this._invokeCallbacks(newState);
+        this._invokeCallbacks(oldState, newState);
     }
 
     onLoad(lowestSelectedLevel) {
@@ -67,11 +68,11 @@ class AddressLevels extends AbstractComponent {
         this.setState(newState);
     }
 
-    _invokeCallbacks(newState) {
+    _invokeCallbacks(oldState, newState) {
         if (_.isFunction(this.props.onSelect)) {
             this.props.onSelect(newState.data.lowestSelectedAddresses);
         }
-        if (newState.onLowest && _.isFunction(this.props.onLowestLevel)) {
+        if ((oldState.onLowest || newState.onLowest) && _.isFunction(this.props.onLowestLevel)) {
             this.props.onLowestLevel(newState.data.lowestSelectedAddresses);
         }
     }
@@ -81,7 +82,6 @@ class AddressLevels extends AbstractComponent {
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
             <AddressLevel
                 mandatory={this.props.mandatory}
-                onSelect={() => this._invokeCallbacks()}
                 onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
                 key={idx}
                 validationError={this.props.validationError}
