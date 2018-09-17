@@ -1,11 +1,11 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Individual, EntityQueue, Program, ObservationsHolder} from "openchs-models";
+import {EntityQueue, ObservationsHolder, Program} from "openchs-models";
 import _ from 'lodash';
 import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
 import moment from 'moment';
 import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
-import General from "../utility/General";
+import Individual from "openchs-models/src/Individual";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -15,6 +15,7 @@ class IndividualService extends BaseService {
         this.allCompletedVisitsIn = this.allCompletedVisitsIn.bind(this);
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
+        this.allIn = this.allIn.bind(this);
     }
 
     getSchema() {
@@ -48,6 +49,17 @@ class IndividualService extends BaseService {
     _uniqIndividualsFrom(individuals, individual) {
         individuals.has(individual.uuid) || individuals.set(individual.uuid, individual);
         return individuals;
+    }
+
+    allIn(addressLevel) {
+        return [...this.db.objects(Individual.schema.name)
+            .filtered('voided = false ' +
+                (_.isNil(addressLevel) ? '' : 'AND lowestAddressLevel.uuid = $0'),
+                (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+            .map(({uuid, lowestAddressLevel}) => ({uuid: uuid, addressUUID: lowestAddressLevel.uuid}))
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
+            .map(_.identity);
     }
 
     allScheduledVisitsIn(addressLevel) {

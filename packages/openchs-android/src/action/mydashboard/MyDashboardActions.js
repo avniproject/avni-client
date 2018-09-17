@@ -23,7 +23,7 @@ class MyDashboardActions {
         const individualsWithScheduledVisits = _.groupBy(individualService.allScheduledVisitsIn(), 'addressUUID');
         const individualsWithOverdueVisits = _.groupBy(individualService.allOverdueVisitsIn(), 'addressUUID');
         const individualsWithCompletedVisits = _.groupBy(individualService.allCompletedVisitsIn(), 'addressUUID');
-        const highRiskPatients = _.groupBy(individualService.allHighRiskPatients(), 'addressUUID');
+        const allIndividuals = _.groupBy(individualService.allIn(), 'addressUUID');
         allAddressLevels.map((addressLevel) => {
             const address = nameAndID(addressLevel);
             let existingResultForAddress = {
@@ -32,14 +32,14 @@ class MyDashboardActions {
                     scheduled: {count: 0, abnormal: false},
                     overdue: {count: 0, abnormal: false},
                     completedVisits: {count: 0, abnormal: false},
-                    highRisk: {count: 0, abnormal: true}
+                    total: {count: 0, abnormal: true}
                 },
                 ...results[addressLevel.uuid],
             };
             existingResultForAddress.visits.scheduled.count = _.get(individualsWithScheduledVisits, addressLevel.uuid, []).length;
             existingResultForAddress.visits.overdue.count = _.get(individualsWithOverdueVisits, addressLevel.uuid, []).length;
             existingResultForAddress.visits.completedVisits.count = _.get(individualsWithCompletedVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.highRisk.count = _.get(highRiskPatients, addressLevel.uuid, []).length;
+            existingResultForAddress.visits.total.count = _.get(allIndividuals, addressLevel.uuid, []).length;
             results[addressLevel.uuid] = existingResultForAddress;
         });
         return {...state, visits: results};
@@ -51,7 +51,7 @@ class MyDashboardActions {
             ["scheduled", individualService.allScheduledVisitsIn],
             ["overdue", individualService.allOverdueVisitsIn],
             ["completedVisits", individualService.allCompletedVisitsIn],
-            ["highRisk", individualService.allHighRiskPatients]
+            ["total", individualService.allIn]
         ]);
         const allIndividuals = methodMap.get(action.listType)(action.address)
             .map(({uuid}) => individualService.findByUUID(uuid));
