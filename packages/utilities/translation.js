@@ -6,7 +6,10 @@ let alreadyTranslatedGuKeys = Object.keys(require('../openchs-android/config/mes
 let alreadyTranslatedHiKeys = Object.keys(require('../openchs-android/config/messages.hi_IN'));
 let alreadyTranslatedMrCoreKeys = Object.keys(require('../openchs-android/config/messages.mr_IN'));
 
-coreLabelKeys = coreLabelKeys.concat(Object.keys(require('../openchs-android/config/messages.en')));
+
+const alreadyTranslatedEngKeys = Object.keys(require('../openchs-android/config/messages.en'));
+const engKeyValues = require('../openchs-android/config/messages.en');
+coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedEngKeys);
 coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedGuKeys);
 coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedHiKeys);
 coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedMrCoreKeys);
@@ -14,7 +17,10 @@ coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedMrCoreKeys);
 const deDupedLabelKeys = _.uniq(coreLabelKeys);
 console.log(`Messages key present as core label key, but not in Gujarati.\n${_.difference(deDupedLabelKeys, alreadyTranslatedGuKeys)}\n\n`);
 console.log(`Messages key present as core label key, but not in Hindi.\n${_.difference(deDupedLabelKeys, alreadyTranslatedHiKeys)}\n\n`);
-console.log(`Messages key present as core label key, but not in Marathi.\n${_.difference(deDupedLabelKeys, alreadyTranslatedMrCoreKeys)}\n\n`);
+console.log(`Messages key present as core label key, but not in Marathi.\n`);
+_.difference(deDupedLabelKeys, alreadyTranslatedMrCoreKeys).map(function (candidate){
+    return console.log(engKeyValues[candidate]);
+});
 
 let candidates = require('./t9n-candidates.json');
 let alreadyTranslatedCustom = require('../openchs-health-modules/health_modules/customMessages.json');
@@ -24,7 +30,7 @@ let candidateNames = candidates.map(function (candidate) {
 });
 candidateNames = _.difference(candidateNames, alreadyTranslatedCustomKeys);
 candidateNames = _.difference(candidateNames, alreadyTranslatedMrCoreKeys);
-console.log(`Data based label keys, not translated in Hindi: ${candidateNames.length}\n`);
+console.log(`Data based label keys, not translated in  Marathi: ${candidateNames.length}\n`);
 candidateNames.forEach(function (item) {
     console.log(item);
 });
