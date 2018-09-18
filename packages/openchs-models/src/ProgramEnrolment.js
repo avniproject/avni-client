@@ -393,7 +393,7 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     hasAnyOfEncounterTypes(encounterTypeNames = []) {
-        return encounterTypeNames.some(this.hasEncounterOfType);
+        return encounterTypeNames.some(it => this.hasEncounterOfType(it));
     }
 
     //get has been taken by the prototype
