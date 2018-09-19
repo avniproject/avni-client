@@ -14,8 +14,6 @@ help:
 # </makefile>
 
 
-#port=443
-#server=https://staging.openchs.org
 port:= $(if $(port),$(port),8021)
 server:= $(if $(server),$(server),http://localhost)
 

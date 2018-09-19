@@ -65,9 +65,6 @@ release: ##
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
 
-release-demo: ##
-	ENVFILE=.env.demo make release
-
 release-vivek: ##
 	ENVFILE=.env.devs.vivek make release
 
@@ -76,9 +73,6 @@ release-live: ##
 
 release-staging: ##
 	ENVFILE=.env.staging make release
-
-release-uat: ##
-	ENVFILE=.env.uat make release
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
@@ -211,9 +205,9 @@ deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 	cd packages/openchs-org && make deploy_locations
 
-deploy_metadata_live:
-	cd packages/openchs-health-modules && make deploy_metadata poolId=$(STAGING_USER_POOL_ID) clientId=$(STAGING_APP_CLIENT_ID) username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
-#	cd packages/openchs-health-modules && make auth poolId=$(STAGING_USER_POOL_ID) clientId=$(STAGING_APP_CLIENT_ID) username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+deploy_metadata_staging:
+	cd packages/openchs-health-modules && make deploy poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=https://staging.openchs.org port=443 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+	cd packages/openchs-org && make deploy_locations poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=https://staging.openchs.org port=443 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
 
 deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
 	cd packages/demo-organisation && make deploy
