@@ -177,6 +177,9 @@ run_app: setup_hosts ##
 run_app_staging_dev:
 	cd packages/openchs-android && ENVFILE=.env.staging.dev react-native run-android
 
+run_app_staging:
+	cd packages/openchs-android && ENVFILE=.env.staging react-native run-android
+
 run_app_live:
 	cd packages/openchs-android && ENVFILE=.env.live react-native run-android
 
