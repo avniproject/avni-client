@@ -188,7 +188,8 @@
       },
       {
         "name": "No problem",
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
       }
     ]
   },
@@ -216,7 +217,8 @@
       },
       {
         "name": "No problem",
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
       }
     ]
   },
@@ -258,23 +260,28 @@
     "answers": [
       {
         "name": "Chest indrawing",
-        "uuid": "4ac39842-039b-45de-a50d-7b31e51c9850"
+        "uuid": "4ac39842-039b-45de-a50d-7b31e51c9850",
+        "abnormal": true
       },
       {
         "name": "Breathing too fast",
-        "uuid": "2a68f048-bb8c-404f-9a51-7b2d46806d1f"
+        "uuid": "2a68f048-bb8c-404f-9a51-7b2d46806d1f",
+        "abnormal": true
       },
       {
         "name": "Breathing too slow",
-        "uuid": "e0422b25-f656-4e97-92ab-2db9aef28e8c"
+        "uuid": "e0422b25-f656-4e97-92ab-2db9aef28e8c",
+        "abnormal": true
       },
       {
         "name": "Grunting noises while breathing",
-        "uuid": "5414e490-3bdd-4551-81d1-0ce69cb7580d"
+        "uuid": "5414e490-3bdd-4551-81d1-0ce69cb7580d",
+        "abnormal": true
       },
       {
         "name": "No problem",
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
       }
     ]
   },
@@ -355,7 +362,8 @@
       },
       {
         "name": "No problem",
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9"
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
       }
     ]
   },
@@ -802,7 +810,8 @@
       },
       {
         "name": "None",
-        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+        "unique": true
       }
     ]
   },
@@ -905,7 +914,8 @@
       },
       {
         "name": "None",
-        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+        "unique": true
       }
     ]
   },
@@ -951,7 +961,8 @@
       },
       {
         "name": "None",
-        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+        "unique": true
       }
     ]
   },
@@ -997,7 +1008,8 @@
       },
       {
         "name": "None",
-        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
+        "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+        "unique": true
       }
     ]
   },
