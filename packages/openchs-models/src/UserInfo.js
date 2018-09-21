@@ -6,7 +6,6 @@ class UserInfo {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
-            catchmentType: "string",
             organisationName: "string"
         }
     };
@@ -14,7 +13,6 @@ class UserInfo {
     static fromResource(resource) {
         let userInfo = new UserInfo();
         userInfo.uuid = UserInfo.UUID;
-        userInfo.catchmentType = resource.catchmentType;
         userInfo.organisationName = resource.organisationName;
         return userInfo;
     }
@@ -22,15 +20,12 @@ class UserInfo {
     clone() {
         let userInfo = new UserInfo();
         userInfo.uuid = this.uuid;
-        userInfo.catchmentType = this.catchmentType;
         userInfo.organisationName = this.organisationName;
         return userInfo;
     }
 
     static createEmptyInstance() {
-        let userInfo = new UserInfo();
-        userInfo.catchmentType = "Villages";
-        return userInfo;
+        return new UserInfo();
     }
 
 }

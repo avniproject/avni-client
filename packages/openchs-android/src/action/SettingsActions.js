@@ -59,12 +59,6 @@ class SettingsActions {
         }, context);
     }
 
-    static onCatchmentChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {
-            settings.catchment = SettingsActions.toNumber(action.value)
-        }, context);
-    }
-
     static onLogLevelChange(state, action, context) {
         return SettingsActions._updateSettingAndSave(state, (settings) => {
             settings.logLevel = _.toNumber(action.value)
@@ -75,14 +69,12 @@ class SettingsActions {
 const SettingsActionsNames = {
     ON_SERVER_URL_CHANGE: 'S.ON_SERVER_URL_CHANGE',
     ON_LOCALE_CHANGE: 'S.ON_LOCALE_CHANGE',
-    ON_CATCHMENT_CHANGE: 'S.ON_CATCHMENT_CHANGE',
     ON_LOG_LEVEL_CHANGE: 'S.ON_LOG_LEVEL_CHANGE'
 };
 
 const SettingsActionsMap = new Map([
     [SettingsActionsNames.ON_SERVER_URL_CHANGE, SettingsActions.onServerURLChange],
     [SettingsActionsNames.ON_LOCALE_CHANGE, SettingsActions.onLocaleChange],
-    [SettingsActionsNames.ON_CATCHMENT_CHANGE, SettingsActions.onCatchmentChange],
     [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange]
 ]);
 

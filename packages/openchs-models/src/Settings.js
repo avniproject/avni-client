@@ -12,7 +12,6 @@ class Settings {
         properties: {
             uuid: 'string',
             serverURL: 'string',
-            catchment: 'int',
             locale: {"type": "LocaleMapping"},
             logLevel: 'int',
             poolId: 'string',
@@ -24,7 +23,6 @@ class Settings {
         const settings = new Settings();
         settings.uuid = this.uuid;
         settings.serverURL = this.serverURL;
-        settings.catchment = this.catchment;
         settings.locale = this.locale;
         settings.logLevel = this.logLevel;
         settings.poolId = this.poolId;
@@ -34,13 +32,11 @@ class Settings {
 
     validate() {
         let validationResults = new ValidationResults([
-            ValidationResult.successful('catchment'),
             ValidationResult.successful('serverURL'),
             ValidationResult.successful('locale'),
             ValidationResult.successful('logLevel')]);
 
         if (_.isEmpty(this.serverURL)) validationResults.addOrReplace(ValidationResult.failureForEmpty("serverURL"));
-        if (!General.isNumeric(this.catchment)) validationResults.addOrReplace(ValidationResult.failureForNumeric('catchment'));
         if (_.isEmpty(this.locale)) validationResults.addOrReplace(ValidationResult.failureForEmpty("locale"));
         if (!General.isNumeric(this.logLevel)) validationResults.addOrReplace(ValidationResult.failureForNumeric('logLevel'));
 

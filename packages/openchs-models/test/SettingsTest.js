@@ -8,7 +8,6 @@ describe('Settings', () => {
         Object.assign(settings, {
             uuid: '54bee5ab-3b5b-43ce-872e-5036a26d8751',
             serverURL: 'http://localhost:8000',
-            catchment: 1,
             logLevel: 1,
             locale: 'en',
         });
@@ -17,9 +16,7 @@ describe('Settings', () => {
         assert.isFalse(validationResult.hasValidationError());
 
 
-        validationResult = _.merge(settings, {catchment: 'a'}).validate();
         assert.isTrue(validationResult.hasValidationError());
-        assert.isFalse(validationResult.resultFor('catchment').success);
         assert.isTrue(validationResult.resultFor('logLevel').success);
         assert.isTrue(validationResult.resultFor('serverURL').success);
 

@@ -7,7 +7,7 @@ class StubbedUserInfoService extends StubbedBaseService {
     }
 
     getUserInfo() {
-        return {catchmentType: "", organisationName: ""};
+        return {organisationName: ""};
     }
 }
 

@@ -53,7 +53,7 @@ class SyncService extends BaseService {
 
     getUserInfo() {
         const settings = this.settingsService.getSettings();
-        return this.conventionalRestClient.getUserInfo(settings.catchment, this.persistUserInfo.bind(this));
+        return this.conventionalRestClient.getUserInfo(this.persistUserInfo.bind(this));
     }
 
     persistUserInfo(userInfoResource) {

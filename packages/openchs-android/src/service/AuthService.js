@@ -31,8 +31,7 @@ class AuthService extends BaseService {
     authenticate(userId, password) {
         let settingsService = this.settingsService;
         const authenticateAndUpdateUserSettings = (userId, password, settings) =>
-            this._authenticate(userId, password, settings)
-                .then((status) => this._updateUserSettings(status));
+            this._authenticate(userId, password, settings);
 
         return Promise.resolve(settingsService.getSettings())
             .then(() => this._updateCognitoPoolSettingsFromServer())
@@ -61,7 +60,6 @@ class AuthService extends BaseService {
                             return;
                         } else {
                             const jwtToken = session.getIdToken().getJwtToken();
-                            authService._updateUserSettings({token: jwtToken});
                             resolve(jwtToken);
                             return;
                         }
@@ -212,24 +210,6 @@ class AuthService extends BaseService {
             return this._updateCognitoPoolSettingsFromServer().then((updatedSettings) => updatedSettings);
         }
         return Promise.resolve(settings);
-    }
-
-    _updateUserSettings(status) {
-        if (!status.token) return status;
-
-        const detailsFromToken = JSON.parse(base64.decode(status.token.split('.')[1]));
-
-        const settings = this.settingsService.getSettings();
-        let modifications = {};
-        modifications.catchment = _.toNumber(detailsFromToken['custom:catchmentId']);
-        // if (modifications.catchment !== settings.catchment) {
-        //     General.logInfo("AuthService", "Catchment change detected. Deleting all data");
-        //     this._deleteData();
-        // }
-        const newSettings = Object.assign({}, settings, modifications);
-        this.settingsService.saveOrUpdate(newSettings);
-
-        return status;
     }
 
     _updateCognitoPoolSettingsFromServer() {

@@ -27,7 +27,6 @@ class SettingsService extends BaseService {
                 settings.uuid = Settings.UUID;
                 settings.password = "";
                 settings.logLevel = InitialSettings.logLevel;
-                settings.catchment = InitialSettings.catchment;
                 settings.serverURL = Config.SERVER_URL;
                 settings.poolId = "";
                 settings.clientId = Config.CLIENT_ID || "";

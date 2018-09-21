@@ -14,10 +14,10 @@ class ConventionalRestClient {
             .join("&");
     }
 
-    getUserInfo(catchmentId, persistFn) {
+    getUserInfo(persistFn) {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
-        return getJSON(`${serverURL}/userInfo?catchmentId=${catchmentId}`, this.token).then(persistFn);
+        return getJSON(`${serverURL}/userInfo`, this.token).then(persistFn);
     }
 
     postAllEntities(allEntities, onCompleteOfIndividualPost) {
@@ -43,7 +43,6 @@ class ConventionalRestClient {
         let settings = this.settingsService.getSettings();
         const urlParts = [settings.serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
         const params = (page, size) => this.makeParams({
-            catchmentId: settings.catchment,
             lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
             size: size,
             page: page
