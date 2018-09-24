@@ -13,6 +13,8 @@ import CHSContent from "../common/CHSContent";
 import AddressVisitRow from './AddressVisitRow';
 import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
+import FunctionalHeader from "../common/FunctionalHeader";
+import DatePicker from "../primitives/DatePicker";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -46,9 +48,17 @@ class MyDashboardView extends AbstractComponent {
 
     render() {
         const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
+        const date = this.state.date;
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('myDashboard')}/>
+                <FunctionalHeader title={this.I18n.t('myDashboard')}>
+                    <DatePicker
+                        nonRemovable={true}
+                        actionName={Actions.ON_DATE}
+                        actionObject={date}
+                        pickTime={false}
+                        dateValue={date.value}/>
+                </FunctionalHeader>
                 <CHSContent>
                     <View style={MyDashboardView.styles.container}>
                         <ListView dataSource={dataSource}

@@ -6,7 +6,7 @@ import EncounterType from "../../../../openchs-models/src/EncounterType";
 
 class MyDashboardActions {
     static getInitialState() {
-        return {visits: {}, individuals: {data: []}};
+        return {visits: {}, individuals: {data: []}, date: {value: new Date()}};
     }
 
 
@@ -20,10 +20,10 @@ class MyDashboardActions {
         const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
         const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
-        const individualsWithScheduledVisits = _.groupBy(individualService.allScheduledVisitsIn(), 'addressUUID');
-        const individualsWithOverdueVisits = _.groupBy(individualService.allOverdueVisitsIn(), 'addressUUID');
-        const individualsWithCompletedVisits = _.groupBy(individualService.allCompletedVisitsIn(), 'addressUUID');
-        const allIndividuals = _.groupBy(individualService.allIn(), 'addressUUID');
+        const individualsWithScheduledVisits = _.groupBy(individualService.allScheduledVisitsIn(state.date.value), 'addressUUID');
+        const individualsWithOverdueVisits = _.groupBy(individualService.allOverdueVisitsIn(state.date.value), 'addressUUID');
+        const individualsWithCompletedVisits = _.groupBy(individualService.allCompletedVisitsIn(state.date.value), 'addressUUID');
+        const allIndividuals = _.groupBy(individualService.allIn(state.date.value), 'addressUUID');
         allAddressLevels.map((addressLevel) => {
             const address = nameAndID(addressLevel);
             let existingResultForAddress = {
@@ -53,7 +53,7 @@ class MyDashboardActions {
             ["completedVisits", individualService.allCompletedVisitsIn],
             ["total", individualService.allIn]
         ]);
-        const allIndividuals = methodMap.get(action.listType)(action.address)
+        const allIndividuals = methodMap.get(action.listType)(state.date.value, action.address)
             .map(({uuid}) => individualService.findByUUID(uuid));
         return {
             ...state,
@@ -62,6 +62,11 @@ class MyDashboardActions {
             }
         };
     }
+
+    static onDate(state, action, context) {
+        return MyDashboardActions.onLoad({...state, date: {value: action.value}}, action, context);
+    }
+
 
     static resetList(state, action, context) {
         return {
@@ -78,10 +83,12 @@ const MyDashboardPrefix = "MyD";
 const MyDashboardActionNames = {
     ON_LOAD: `${MyDashboardPrefix}.ON_LOAD`,
     ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`,
-    RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`
+    RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`,
+    ON_DATE: `${MyDashboardPrefix}.ON_DATE`
 };
 
 const MyDashboardActionsMap = new Map([
+    [MyDashboardActionNames.ON_DATE, MyDashboardActions.onDate],
     [MyDashboardActionNames.ON_LOAD, MyDashboardActions.onLoad],
     [MyDashboardActionNames.ON_LIST_LOAD, MyDashboardActions.onListLoad],
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],

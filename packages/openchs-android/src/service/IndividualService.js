@@ -51,7 +51,7 @@ class IndividualService extends BaseService {
         return individuals;
     }
 
-    allIn(addressLevel) {
+    allIn(ignored, addressLevel) {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ' +
                 (_.isNil(addressLevel) ? '' : 'AND lowestAddressLevel.uuid = $0'),
@@ -62,17 +62,17 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    allScheduledVisitsIn(addressLevel) {
-        const todayMidnight = moment().endOf('day').toDate();
-        const todayMorning = moment().startOf('day').toDate();
+    allScheduledVisitsIn(date, addressLevel) {
+        const dateMidnight = moment(date).endOf('day').toDate();
+        const dateMorning = moment(date).startOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('earliestVisitDateTime <= $0 ' +
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
                 'AND cancelDateTime = null ' +
                 (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $2'),
-                todayMidnight,
-                todayMorning,
+                dateMidnight,
+                dateMorning,
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -111,14 +111,14 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(addressLevel) {
-        const todayMorning = moment().startOf('day').toDate();
+    allOverdueVisitsIn(date, addressLevel) {
+        const dateMorning = moment(date).startOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
                 (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $1'),
-                todayMorning,
+                dateMorning,
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -150,9 +150,9 @@ class IndividualService extends BaseService {
         return this.overdueVisits(program, addressLevel, encounterType).length;
     }
 
-    allCompletedVisitsIn(addressLevel) {
-        let fromDate = moment().startOf('day').toDate();
-        let tillDate = moment().endOf('day').toDate();
+    allCompletedVisitsIn(date, addressLevel) {
+        let fromDate = moment(date).startOf('day').toDate();
+        let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('encounterDateTime <= $0 ' +
                 'AND encounterDateTime >= $1 ' +
