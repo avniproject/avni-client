@@ -224,3 +224,6 @@ uat-apk: release-uat
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
 
+screencap:
+	mkdir -p ./tmp/
+	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png

@@ -20,6 +20,7 @@ import TextFormElement from "../form/formElement/TextFormElement";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import FamilyRegisterViewsMixin from "./FamilyRegisterViewsMixin";
+import Styles from "../primitives/Styles";
 
 @Path('/familyRegister')
 class FamilyRegisterView extends AbstractComponent {
@@ -66,14 +67,13 @@ class FamilyRegisterView extends AbstractComponent {
                             multiSelect={false}
                             onLowestLevel={(lowestAddressLevel) => this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: lowestAddressLevel[0]})}
                             validationError={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.LOWEST_ADDRESS_LEVEL)}
-                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                             mandatory={true}
                         />
                         <TextFormElement
                             element={new StaticFormElement('Type of Family', true)}
                             actionName={Actions.REGISTRATION_ENTER_TYPE_OF_FAMILY}
                             value={new PrimitiveValue(this.state.family.typeOfFamily)}
-                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                            style={Styles.simpleTextFormElement}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.TYPE_OF_FAMILY)}
                             multiline={false}
                         />
@@ -81,7 +81,7 @@ class FamilyRegisterView extends AbstractComponent {
                             element={new StaticFormElement('Household Number', true)}
                             actionName={Actions.REGISTRATION_ENTER_HOUSEHOLD_NUMBER}
                             value={new PrimitiveValue(this.state.family.householdNumber)}
-                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                            style={Styles.simpleTextFormElement}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.HOUSEHOLD_NUMBER)}
                             multiline={false}
                         />

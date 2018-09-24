@@ -64,7 +64,6 @@ class IndividualRegisterView extends AbstractComponent {
                             selectedLowestLevel={this.state.individual.lowestAddressLevel}
                             multiSelect={false}
                             validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
-                            style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                             mandatory={true}
                             onLowestLevel={(lowestSelectedAddresses) =>
                                 this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: lowestSelectedAddresses[0]})}

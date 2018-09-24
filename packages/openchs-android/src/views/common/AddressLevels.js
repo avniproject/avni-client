@@ -1,11 +1,15 @@
 import React from "react";
 import _ from 'lodash';
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
 import AddressLevel from "./AddressLevel";
 import AddressLevelService from "../../service/AddressLevelService";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
+import Styles from "../primitives/Styles";
+import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
+import {Text} from "native-base";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -13,7 +17,7 @@ class AddressLevels extends AbstractComponent {
         onSelect: React.PropTypes.func,
         onLowestLevel: React.PropTypes.func,
         validationError: React.PropTypes.object,
-        mandatory: React.PropTypes.bool
+        mandatory: React.PropTypes.bool,
     };
 
     viewName() {
@@ -79,9 +83,9 @@ class AddressLevels extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
             <AddressLevel
-                mandatory={this.props.mandatory}
                 onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
                 key={idx}
                 validationError={this.props.validationError}
@@ -89,8 +93,20 @@ class AddressLevels extends AbstractComponent {
                 multiSelect={this.props.multiSelect}
                 levels={levels}/>);
         return (
-            <View key={this.props.key}>
-                {addressLevels}
+            <View key={this.props.key} style={{
+                marginTop: Styles.VerticalSpacingBetweenFormElements,
+                marginBottom: Styles.VerticalSpacingBetweenFormElements,
+            }}>
+                <Text style={Styles.formLabel}>{this.I18n.t('Address')}{mandatoryText}</Text>
+                <View style={{
+                    borderWidth: 1,
+                    borderStyle: 'dashed',
+                    borderColor: Colors.InputBorderNormal,
+                    paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                    // paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+                }}>
+                    {addressLevels}
+                </View>
             </View>
         );
     }

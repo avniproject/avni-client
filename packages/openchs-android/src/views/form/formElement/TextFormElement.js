@@ -1,5 +1,5 @@
 import {TextInput, View} from "react-native";
-import { Text } from 'native-base';
+import {Text} from 'native-base';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
@@ -13,7 +13,11 @@ class TextFormElement extends AbstractFormElement {
         actionName: React.PropTypes.string.isRequired,
         value: React.PropTypes.object,
         validationResult: React.PropTypes.object,
-        multiline: React.PropTypes.bool.isRequired
+        multiline: React.PropTypes.bool.isRequired,
+        extraStyle: React.PropTypes.object
+    };
+    static defaultProps = {
+        style: {}
     };
 
     constructor(props, context) {
@@ -37,8 +41,8 @@ class TextFormElement extends AbstractFormElement {
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
-                <TextInput {...this.props} style={Styles.formBodyText} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
-                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} multiline={true} numberOfLines={this.props.multiline ? 4 : 1}/>
+                <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
+                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} multiline={false} numberOfLines={this.props.multiline ? 4 : 1}/>
 
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);

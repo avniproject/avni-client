@@ -22,6 +22,7 @@ Styles.ContentDistanceFromEdge = 24;
 Styles.ContainerHorizontalDistanceFromEdge = 14;
 Styles.ContentDistanceWithinContainer = 10;
 Styles.VerticalSpacingBetweenFormElements = 20;
+Styles.VerticalSpacingBetweenInGroupFormElements = 4;
 Styles.VerticalSpacingDisplaySections = 16;
 Styles.VerticalSpacingBetweenOptionItems = 20;
 
@@ -106,6 +107,11 @@ Styles.formBodyText = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
+};
+
+Styles.simpleTextFormElement = {
+    paddingTop: 0,
+    marginBottom: 20
 };
 
 Styles.tableColumnContent = {

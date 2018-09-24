@@ -22,6 +22,7 @@ export class RadioLabelValue {
 class RadioGroup extends AbstractComponent {
     static defaultProps = {
         style: {},
+        borderStyle: {},
         inPairs: false,
         multiSelect: false,
     };
@@ -33,6 +34,7 @@ class RadioGroup extends AbstractComponent {
         selectionFn: React.PropTypes.func.isRequired,
         validationError: React.PropTypes.object,
         style: React.PropTypes.object,
+        borderStyle: React.PropTypes.object,
         mandatory: React.PropTypes.bool,
         inPairs: React.PropTypes.bool,
         multiSelect: React.PropTypes.bool,
@@ -76,13 +78,13 @@ class RadioGroup extends AbstractComponent {
             <View style={this.appendedStyle({})}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 {this.props.labelValuePairs.length > 0 ?
-                <View style={{
+                <View style={[{
                     borderWidth: 1,
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                     paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                }}>
+                }, this.props.borderStyle]}>
                     {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                 </View> : <View/> }
                 <View style={{backgroundColor: '#ffffff'}}>

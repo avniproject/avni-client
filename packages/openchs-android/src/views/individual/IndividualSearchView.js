@@ -17,6 +17,7 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
+import Distances from "../primitives/Distances";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -58,23 +59,22 @@ class IndividualSearchView extends AbstractComponent {
                     }}>
                         <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                          element={new StaticFormElement('name')}
+                                         style={Styles.simpleTextFormElement}
                                          value={new PrimitiveValue(this.state.searchCriteria.name)} multiline={false}/>
-                        <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA} element={new StaticFormElement('age')}
+                        <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
+                                         element={new StaticFormElement('age')}
+                                         style={Styles.simpleTextFormElement}
                                          value={new PrimitiveValue(this.state.searchCriteria.age)} multiline={false}/>
                         <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                          element={new StaticFormElement('obsKeyword')}
-                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
-                                         multiline={false}/>
+                                         style={Styles.simpleTextFormElement}
+                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)} multiline={false}/>
                         <AddressLevels
                             key={this.state.key}
                             onSelect={(selectedAddressLevels) =>
                                 this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: selectedAddressLevels})
                             }
-                            multiSelect={true}
-                            style={{
-                                marginTop: Styles.VerticalSpacingBetweenFormElements,
-                                marginBottom: Styles.VerticalSpacingBetweenFormElements
-                            }}/>
+                            multiSelect={true}/>
                         <CheckBoxFormElement
                             label={this.I18n.t("includeVoided")}
                             checkBoxText={this.I18n.t("yes")}

@@ -7,6 +7,7 @@ import Fonts from "../primitives/Fonts";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
+import Distances from "../primitives/Distances";
 
 class AddressLevel extends AbstractComponent {
     static propTypes = {
@@ -32,8 +33,11 @@ class AddressLevel extends AbstractComponent {
             <RadioGroup
                 multiSelect={this.props.multiSelect}
                 style={{
-                    marginTop: Styles.VerticalSpacingBetweenFormElements,
-                    marginBottom: Styles.VerticalSpacingBetweenFormElements
+                    marginTop: Styles.VerticalSpacingBetweenInGroupFormElements,
+                    marginBottom: Styles.VerticalSpacingBetweenInGroupFormElements
+                }}
+                borderStyle={{
+                    borderWidth: 0
                 }}
                 inPairs={true}
                 onPress={({label, value}) => this.props.onToggle(value)}
