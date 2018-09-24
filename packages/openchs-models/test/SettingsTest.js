@@ -14,11 +14,7 @@ describe('Settings', () => {
 
         let validationResult = settings.validate();
         assert.isFalse(validationResult.hasValidationError());
-
-
-        assert.isTrue(validationResult.hasValidationError());
         assert.isTrue(validationResult.resultFor('logLevel').success);
         assert.isTrue(validationResult.resultFor('serverURL').success);
-
     });
 });

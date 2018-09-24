@@ -28,7 +28,9 @@ class IndividualSearchCriteria {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
 
-        criteria.push(`(voided=${this.includeVoided})`);
+        if(!this.includeVoided) {
+            criteria.push("(voided=false)");
+        }
 
         if (!_.isEmpty(this.obsKeyword)) {
             let trimmedKeyword = this.obsKeyword.trim();

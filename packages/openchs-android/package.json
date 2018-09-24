@@ -12,7 +12,8 @@
       "<rootDir>/test/**/*Test.js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!react-native|OpenCHSClient)/"
+      "node_modules/(?!react-native|OpenCHSClient)/",
+      "node_modules/(realm)/"
     ],
     "haste": {
       "defaultPlatform": "android",

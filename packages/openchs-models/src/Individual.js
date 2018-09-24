@@ -385,7 +385,8 @@ class Individual extends BaseEntity {
             lowestAddressLevel: this.lowestAddressLevel,
             encounters: this.encounters,
             observations: this.observations,
-            relationships: this.relationships
+            relationships: this.relationships,
+            voided: this.voided
         };
     }
 }
