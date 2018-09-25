@@ -78,6 +78,11 @@ class AddressLevelService extends BaseService {
         }
         return _.flatten(children.map(c => this.getLeavesOfParent(c)));
     }
+
+    getDescendantsOfParent(parentUuid) {
+        const children = this.getChildrenParent(parentUuid);
+        return _.flatten(children.concat(children.map(c => this.getDescendantsOfParent(c.uuid))));
+    }
 }
 
 export default AddressLevelService;

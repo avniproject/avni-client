@@ -37,7 +37,7 @@ class AddressLevels extends AbstractComponent {
 
     selectAddressLevel(state, levelType, selectedLevelUUID, exclusive = false) {
         const selectedLevel = this.addressLevelService.findByUUID(selectedLevelUUID, this.addressLevelService.getSchema());
-        const newLevels = this.addressLevelService.getChildrenParent(selectedLevelUUID);
+        const newLevels = this.addressLevelService.getDescendantsOfParent(selectedLevelUUID);
         const data = exclusive ? state.data.selectLevel(levelType, selectedLevel, newLevels) :
             state.data.addLevel(levelType, selectedLevel, newLevels);
         const onLowest = !_.isEmpty(data.lowestSelectedAddresses)
