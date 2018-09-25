@@ -2,6 +2,9 @@ import BaseEntity from "./BaseEntity";
 import ResourceUtil from "./utility/ResourceUtil";
 import General from "./utility/General";
 
+const PARENT_LOCATION_UUID = "parentLocationUUID";
+const CHILD_LOCATION_UUID = "locationUUID";
+
 export class LocationMapping extends BaseEntity {
     static schema = {
         name: "LocationMapping",
@@ -21,8 +24,8 @@ export class LocationMapping extends BaseEntity {
     static fromResource(resource, entityService) {
         return LocationMapping.create({
             uuid: resource.uuid,
-            parent: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "parentLocationUUID"), AddressLevel.schema.name),
-            child: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "locationUUID"), AddressLevel.schema.name),
+            parent: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, PARENT_LOCATION_UUID), AddressLevel.schema.name),
+            child: entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, CHILD_LOCATION_UUID), AddressLevel.schema.name),
             voided: !!resource.voided
         });
     }
@@ -49,14 +52,18 @@ class AddressLevel extends BaseEntity {
         return AddressLevel.create(resource);
     }
 
-    static associateChild(child, childEntityClass, childResource, entityService) {
-        if (childEntityClass !== LocationMapping) {
-            throw `${childEntityClass.name} not support by ${AddressLevel.schema.name}.associateChild()`;
-        }
-        let location = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(childResource, "locationUUID"), AddressLevel.schema.name);
+    static associateLocationMapping(locationMapping, locationMappingRes, entityService) {
+        let location = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(locationMappingRes, CHILD_LOCATION_UUID), AddressLevel.schema.name);
         location = General.pick(location, ["uuid"], ["locationMappings"]);
-        BaseEntity.addNewChild(child, location.locationMappings);
+        BaseEntity.addNewChild(locationMapping, location.locationMappings);
         return location;
+    }
+
+    static associateChild(child, childEntityClass, childResource, entityService) {
+        if (childEntityClass === LocationMapping) {
+            return AddressLevel.associateLocationMapping(child, childResource, entityService);
+        }
+        throw `${childEntityClass.name} not support by ${AddressLevel.schema.name}.associateChild()`;
     }
 
     static merge = () => BaseEntity.mergeOn('locationMappings');
