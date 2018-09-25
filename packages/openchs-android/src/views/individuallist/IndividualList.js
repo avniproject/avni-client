@@ -1,7 +1,7 @@
 import React from "react";
-import {Text, View, StyleSheet, ListView} from 'react-native';
+import {Text, View, StyleSheet, ListView, TouchableOpacity} from 'react-native';
 import _ from 'lodash';
-import {Header} from 'native-base';
+import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -16,11 +16,11 @@ import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
-    static propTypes = {
-    };
+    static propTypes = {};
 
     viewName() {
         return "IndividualList";
@@ -41,6 +41,24 @@ class IndividualList extends AbstractComponent {
             color: Colors.InputNormal,
             marginTop: DynamicGlobalStyles.resizeHeight(16),
             marginBottom: DynamicGlobalStyles.resizeHeight(16)
+        },
+        filterButton: {
+            alignSelf: 'flex-end'
+        },
+        floatingButton: {
+            position: 'absolute',
+            width: 60,
+            height: 60,
+            alignItems: 'center',
+            justifyContent: 'center',
+            right: 30,
+            bottom: 30,
+            borderRadius: 150,
+            backgroundColor: Colors.AccentColor
+        },
+
+        floatingButtonIcon: {
+            color: Colors.TextOnPrimaryColor
         }
     });
 
@@ -62,6 +80,10 @@ class IndividualList extends AbstractComponent {
         super.componentWillUnmount();
     }
 
+    _onPress() {
+        TypedTransition.from(this).to()
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
@@ -78,11 +100,21 @@ class IndividualList extends AbstractComponent {
                         enableEmptySections={true}
                         renderHeader={() => (
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
-                                {`${this.I18n.t("patientCountForVisitType", {visitType: visitType, count: this.state.individuals.data.length})}`}
+                                {`${this.I18n.t("patientCountForVisitType", {
+                                    visitType: visitType,
+                                    count: this.state.individuals.data.length
+                                })}`}
                             </Text>)}
                         removeClippedSubviews={true}
                         dataSource={dataSource}
-                        renderRow={(individual) => <IndividualDetails individual={individual} backFunction={() => this.onBackCallback()}/>}/>
+                        renderRow={(individual) => <IndividualDetails individual={individual}
+                                                                      backFunction={() => this.onBackCallback()}/>}/>
+                    <TouchableOpacity activeOpacity={0.5}
+                                      onPress={() => this._onPress.bind(this)}
+                                      style={IndividualList.styles.floatingButton}>
+                        <Icon name='filter-list' size={40}
+                              style={IndividualList.styles.floatingButtonIcon}/>
+                    </TouchableOpacity>
                 </CHSContent>
             </CHSContainer>
         );
