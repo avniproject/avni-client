@@ -76,8 +76,8 @@ class AddressLevels extends AbstractComponent {
         if (_.isFunction(this.props.onSelect)) {
             this.props.onSelect(newState.data.lowestSelectedAddresses);
         }
-        if ((oldState.onLowest || newState.onLowest) && _.isFunction(this.props.onLowestLevel)) {
-            this.props.onLowestLevel(newState.data.lowestSelectedAddresses);
+        if (_.isFunction(this.props.onLowestLevel)) {
+            this.props.onLowestLevel(newState.onLowest? newState.data.lowestSelectedAddresses: []);
         }
     }
 

@@ -66,7 +66,7 @@ class IndividualRegisterView extends AbstractComponent {
                             validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
                             mandatory={true}
                             onLowestLevel={(lowestSelectedAddresses) =>
-                                this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: lowestSelectedAddresses[0]})}
+                                this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})}
                         />
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>

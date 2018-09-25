@@ -65,7 +65,7 @@ class FamilyRegisterView extends AbstractComponent {
 
                         <AddressLevels
                             multiSelect={false}
-                            onLowestLevel={(lowestAddressLevel) => this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: lowestAddressLevel[0]})}
+                            onLowestLevel={(lowestAddressLevel) => this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestAddressLevel)})}
                             validationError={AbstractDataEntryState.getValidationError(this.state, Family.validationKeys.LOWEST_ADDRESS_LEVEL)}
                             mandatory={true}
                         />
