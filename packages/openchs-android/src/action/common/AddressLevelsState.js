@@ -50,13 +50,10 @@ class AddressLevelsState {
     }
 
     selectLevel(type, selectedLevel, newLevels = []) {
-        let levelMap = new Map(this.levels);
-        const levels = levelMap.get(type);
-        levelMap.set(type, levels.map(l => ({
-            ...l,
-            isSelected: l.uuid === selectedLevel.uuid ? !l.isSelected : false
-        })));
-        const allCurrentLevels = this._asList(levelMap);
+        const allCurrentLevels = this._asList();
+        allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
+            l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
+        });
         const toRemove = allCurrentLevels.filter(l => l.level < selectedLevel.level);
         return new AddressLevelsState(allCurrentLevels).addLevels(newLevels)
             .removeLevels(toRemove)
