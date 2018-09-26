@@ -18,7 +18,7 @@
  - A running openchs-server (Optional. You can use the staging server - http://staging.openchs.org if you don't want to run this locally)
 
 # Running
- - Ensure that you have CRASHLYTICS_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key.
+ - Ensure that you have BUGSNAG_API_KEY set in your environment variable. Ask one of the existing developers in OpenCHS team to provide you the key.
  - Ensure android device is on and is recognised by adb (adb devices)
  - To run the application `make run_app`
  - In the application set the server url of the config location by going to the settings view.

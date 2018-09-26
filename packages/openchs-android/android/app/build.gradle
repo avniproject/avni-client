@@ -1,22 +1,6 @@
 apply plugin: "com.android.application"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
-buildscript {
-    repositories {
-        maven {
-            url 'https://maven.fabric.io/public'
-        }
-    }
-    dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
-    }
-}
-apply plugin: 'io.fabric'
-
-repositories {
-    maven { url 'https://maven.fabric.io/public' }
-}
-
 import com.android.build.OutputFile
 
 /**
@@ -114,7 +98,9 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
-        manifestPlaceholders = [crashlyticsAPIKey: System.getenv("CRASHLYTICS_API_KEY")?: ""]
+        manifestPlaceholders = [
+            bugsnagAPIKey: System.getenv("BUGSNAG_API_KEY")?: ""
+        ]
     }
     splits {
         abi {
@@ -157,19 +143,16 @@ android {
 }
 
 dependencies {
+    compile project(':bugsnag-react-native')
     compile project(':react-native-charts-wrapper')
     compile project(':react-native-config')
     compile project(':react-native-aws-cognito-js')
     compile project(':react-native-vector-icons')
-    compile project(':react-native-fabric')
     compile project(':react-native-i18n')
     compile project(':realm')
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:23.0.1"
     compile ("com.facebook.react:react-native:0.42.3") { force = true }
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
-        transitive = true;
-    }
 }
 
 // Run this once to be able to run the application with BUCK

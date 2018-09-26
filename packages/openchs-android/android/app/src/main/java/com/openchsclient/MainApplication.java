@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.bugsnag.BugsnagReactNative;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.airlabsinc.RNAWSCognitoPackage;
@@ -15,9 +16,6 @@ import com.facebook.react.shell.MainReactPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
 import com.openchsclient.module.RestartPackage;
 import io.realm.react.RealmReactPackage;
-import com.smixx.fabric.FabricPackage;
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
 import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
@@ -34,8 +32,8 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
-                    new FabricPackage(),
                     new MainReactPackage(),
+                    BugsnagReactNative.getPackage(),
                     new MPAndroidChartPackage(),
                     new ReactNativeConfigPackage(),
                     new RNAWSCognitoPackage(),
@@ -51,7 +49,6 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
-        Fabric.with(this, new Crashlytics());
     }
 
     @Override

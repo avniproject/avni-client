@@ -28,7 +28,6 @@
             </intent-filter>
         </activity>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity"/>
-        <meta-data android:name="io.fabric.ApiKey"
-                   android:value="${crashlyticsAPIKey}"/>
+        <meta-data android:name="com.bugsnag.android.API_KEY" android:value="${bugsnagAPIKey}"/>
     </application>
 </manifest>

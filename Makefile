@@ -81,6 +81,36 @@ release-offline-vivek: ##
 	cd packages/openchs-android/android; ENVFILE=.env.devs.vivek ./gradlew --offline assembleRelease
 # </release>
 
+# <bugsnag>
+generate-sourcemap-for-debug: ## Generates sourcemap for debug version of the app
+	cd packages/openchs-android ; \
+	react-native bundle \
+    --platform android \
+    --dev true \
+    --entry-file index.android.js \
+    --bundle-output android-debug.bundle \
+    --sourcemap-output android-debug.bundle.map
+
+upload-debug-sourcemap: ## Uploads debug sourcemap to Bugsnag
+	bugsnag-sourcemaps upload \
+		--api-key ${BUGSNAG_API_KEY} \
+		--app-version $(shell grep -o "versionCode\s\+\d\+" packages/openchs-android/android/app/build.gradle | awk '{ print $$2 }') \
+		--minified-file packages/openchs-android/android-debug.bundle \
+		--source-map packages/openchs-android/android-debug.bundle.map \
+		--overwrite \
+		--minified-url "http://10.0.3.2:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false"
+
+upload-release-sourcemap: ## Uploads release sourcemap to Bugsnag
+	bugsnag-sourcemaps upload \
+		--api-key ${BUGSNAG_API_KEY} \
+		--app-version $(shell grep -o "versionCode\s\+\d\+" packages/openchs-android/android/app/build.gradle | awk '{ print $$2 }') \
+		--minified-file packages/openchs-android/android/app/build/intermediates/assets/release/index.android.bundle \
+		--source-map packages/openchs-android/android/app/build/generated/sourcemap.js \
+		--overwrite \
+		--minified-url "index.android.bundle" \
+		--upload-sources
+# </bugsnag>
+
 # <log>
 log:  ##
 	adb logcat *:S ReactNative:V ReactNativeJS:V

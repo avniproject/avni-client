@@ -26,6 +26,8 @@
 		6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FFF05AE4806E4237A36107D8 /* libRCTRestart.a */; };
 		1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */; };
 		9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */; };
+		3DDCF0A7128E443987F45403 /* libBugsnagReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 970476CB132D4972A85BB37C /* libBugsnagReactNative.a */; };
+		C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E47E37208FA44B70A06226F0 /* libz.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +153,9 @@
 		52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */ = {isa = PBXFileReference; name = "libRNAWSCognito.a"; path = "libRNAWSCognito.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativeConfig.xcodeproj"; path = "../node_modules/react-native-config/ios/ReactNativeConfig.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */ = {isa = PBXFileReference; name = "libReactNativeConfig.a"; path = "libReactNativeConfig.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		AA4D6F2CE2BB4CA0AEA6AB81 /* BugsnagReactNative.xcodeproj */ = {isa = PBXFileReference; name = "BugsnagReactNative.xcodeproj"; path = "../node_modules/bugsnag-react-native/cocoa/BugsnagReactNative.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		970476CB132D4972A85BB37C /* libBugsnagReactNative.a */ = {isa = PBXFileReference; name = "libBugsnagReactNative.a"; path = "libBugsnagReactNative.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		E47E37208FA44B70A06226F0 /* libz.tbd */ = {isa = PBXFileReference; name = "libz.tbd"; path = "usr/lib/libz.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +185,8 @@
 				6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */,
 				1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */,
 				9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */,
+				3DDCF0A7128E443987F45403 /* libBugsnagReactNative.a in Frameworks */,
+				C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +322,7 @@
 				AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */,
 				7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */,
 				ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */,
+				AA4D6F2CE2BB4CA0AEA6AB81 /* BugsnagReactNative.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -334,6 +342,7 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* OpenCHSClientTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
+				1B94844517A34A7DA228D753 /* Frameworks */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -346,6 +355,15 @@
 				00E356EE1AD99517003FC87E /* OpenCHSClientTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1B94844517A34A7DA228D753 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E47E37208FA44B70A06226F0 /* libz.tbd */,
+			);
+			name = Frameworks;
+			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -648,6 +666,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -664,6 +683,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -689,6 +709,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-aws-cognito-js/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
+					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 				);
 			};
 			name = Debug;
@@ -711,6 +732,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-aws-cognito-js/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
+					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 				);
 			};
 			name = Release;

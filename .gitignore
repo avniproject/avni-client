@@ -33,6 +33,10 @@ project.xcworkspace
 .gradle
 local.properties
 
+# React Native Debug bundles and sourcemaps
+#
+android-debug.bundle*
+
 # node.js
 #
 node_modules/
