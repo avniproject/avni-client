@@ -31,6 +31,7 @@
   "scripts": {
     "start": "node --max-old-space-size=4076 node_modules/react-native/local-cli/cli.js start --reset-cache",
     "test": "jest",
+    "postinstall": "cp patches/react-native-0.42.3-source-map/source-map.js node_modules/react-native/packager/src/Bundler/source-map/source-map.js",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')"
   },
   "dependencies": {

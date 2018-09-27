@@ -14,8 +14,7 @@ export default class ErrorHandler {
         console.log(`[ErrorHandler] IsFatal=${isFatal} ${error}`);
         console.log(JSON.stringify(error));
         error.message = `${isFatal ? 'Fatal' : 'Non-fatal'} error: ${error.message}`;
-        console.log(`[ErrorHandler] Notifying Bugsnag ${error}`);
-        bugsnag.notify(error);
+        
         if (isFatal) {
             StackTrace.fromError(error, {offline: true})
                 .then((x) => {
@@ -23,11 +22,15 @@ export default class ErrorHandler {
                     const frameArray = x.map((row) => Object.defineProperty(row, 'fileName', {
                         value: `${row.fileName}:${row.lineNumber || 0}:${row.columnNumber || 0}`
                     }));
+                    console.log(`[ErrorHandler] Notifying Bugsnag ${error}`);
+                    bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
                     console.log(`[ErrorHandler] Frame array created. Logging Frame array.`);
                     console.log(JSON.stringify(frameArray));
                     console.log(`[ErrorHandler] Restarting app.`);
                     errorCallback(error, JSON.stringify(frameArray));
                 });
+        } else {
+            bugsnag.notify(error);
         }
     }
 }
