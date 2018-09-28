@@ -89,7 +89,7 @@ class MyDashboardView extends AbstractComponent {
                 </FunctionalHeader>
                 <CHSContent>
                     <Modal
-                        animationType={'slide'}
+                        animationType={'none'}
                         transparent={false}
                         visible={this.state.showFilters}
                         onRequestClose={() => this._onClose()}>

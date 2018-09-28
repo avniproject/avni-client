@@ -101,7 +101,7 @@ class IndividualList extends AbstractComponent {
                     func={this.props.params.backFunction}/>
                 <CHSContent>
                     <Modal
-                        animationType={'slide'}
+                        animationType={'none'}
                         transparent={false}
                         visible={this.state.showFilters}
                         onRequestClose={() => this._onClose()}>
@@ -125,13 +125,13 @@ class IndividualList extends AbstractComponent {
                         dataSource={dataSource}
                         renderRow={(individual) => <IndividualDetails individual={individual}
                                                                       backFunction={() => this.onBackCallback()}/>}/>
-                    <TouchableOpacity activeOpacity={0.5}
-                                      onPress={() => this._onPress()}
-                                      style={IndividualList.styles.floatingButton}>
-                        <Icon name='filter-list' size={40}
-                              style={IndividualList.styles.floatingButtonIcon}/>
-                    </TouchableOpacity>
                 </CHSContent>
+                <TouchableOpacity activeOpacity={0.5}
+                                  onPress={() => this._onPress()}
+                                  style={IndividualList.styles.floatingButton}>
+                    <Icon name='filter-list' size={40}
+                          style={IndividualList.styles.floatingButtonIcon}/>
+                </TouchableOpacity>
             </CHSContainer>
         );
     }
