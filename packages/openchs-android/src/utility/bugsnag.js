@@ -6,6 +6,6 @@
 import { Client, Configuration } from 'bugsnag-react-native';
 const configuration = new Configuration();
 configuration.autoNotify = false;
-const client = new Client();
+const client = new Client(configuration);
 //-------------------------------------------------------------------------------------------------
 export default client;
