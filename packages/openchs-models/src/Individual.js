@@ -72,6 +72,14 @@ class Individual extends BaseEntity {
         return resource;
     }
 
+    findObservationAcrossAllEnrolments(conceptName) {
+        return this.enrolments.find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
+    }
+
+    observationExistsAcrossAllEnrolments(conceptName) {
+        return this.enrolments.find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
+    }
+
     static newInstance(uuid, firstName, lastName, dateOfBirth, dateOfBirthVerified, gender, lowestAddressLevel) {
         const individual = new Individual();
         individual.uuid = uuid;

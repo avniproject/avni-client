@@ -38,9 +38,9 @@ describe("FormElementTest", () => {
             let formElementType = formElement.getType();
             assert.equal("SingleSelect", formElementType);
 
-            formElement = EntityFactory.createFormElement("Multi Select Form Element", true, codedConcept, 1, "MultiSelect");
+            formElement = EntityFactory.createFormElement("Multi Select Form Element", true, codedConcept, 1, "SingleSelect");
             formElementType = formElement.getType();
-            assert.equal("MultiSelect", formElementType);
+            assert.equal("SingleSelect", formElementType);
         });
     });
 

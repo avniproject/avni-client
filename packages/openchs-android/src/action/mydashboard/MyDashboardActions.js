@@ -1,17 +1,28 @@
 import EntityService from "../../service/EntityService";
-import {AddressLevel, Program, Individual} from "openchs-models";
+import {AddressLevel} from "openchs-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
-import EncounterType from "../../../../openchs-models/src/EncounterType";
+import FilterService from "../../service/FilterService";
 
 class MyDashboardActions {
     static getInitialState() {
-        return {visits: {}, individuals: {data: []}, date: {value: new Date()}};
+        return {
+            visits: {},
+            individuals: {data: []},
+            date: {value: new Date()},
+            showFilters: false,
+            filters: new Map()
+        };
     }
 
 
     static clone(state) {
         return {};
+    }
+
+    static applyFilters(filters) {
+        return (individuals) => [...filters.values()]
+            .reduce((acc, f) => f.compositeFn(acc), individuals);
     }
 
     static onLoad(state, action, context) {
@@ -20,10 +31,23 @@ class MyDashboardActions {
         const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
         const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
-        const individualsWithScheduledVisits = _.groupBy(individualService.allScheduledVisitsIn(state.date.value), 'addressUUID');
-        const individualsWithOverdueVisits = _.groupBy(individualService.allOverdueVisitsIn(state.date.value), 'addressUUID');
-        const individualsWithCompletedVisits = _.groupBy(individualService.allCompletedVisitsIn(state.date.value), 'addressUUID');
-        const allIndividuals = _.groupBy(individualService.allIn(state.date.value), 'addressUUID');
+        let filters = new Map(state.filters);
+        if (state.filters.size === 0) {
+            const filterService = context.get(FilterService);
+            filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
+        }
+        const [allIndividualsWithScheduledVisits,
+            allIndividualsWithOverDueVisits,
+            allIndividualsWithCompletedVisits,
+            allIndividuals] =
+            [individualService.allScheduledVisitsIn(state.date.value),
+                individualService.allOverdueVisitsIn(state.date.value),
+                individualService.allCompletedVisitsIn(state.date.value),
+                individualService.allIn(state.date.value)].map(MyDashboardActions.applyFilters(filters));
+        const individualsWithScheduledVisits = _.groupBy(allIndividualsWithScheduledVisits, 'addressUUID');
+        const individualsWithOverdueVisits = _.groupBy(allIndividualsWithOverDueVisits, 'addressUUID');
+        const individualsWithCompletedVisits = _.groupBy(allIndividualsWithCompletedVisits, 'addressUUID');
+        const allIndividualsGrouped = _.groupBy(allIndividuals, 'addressUUID');
         allAddressLevels.map((addressLevel) => {
             const address = nameAndID(addressLevel);
             let existingResultForAddress = {
@@ -39,10 +63,11 @@ class MyDashboardActions {
             existingResultForAddress.visits.scheduled.count = _.get(individualsWithScheduledVisits, addressLevel.uuid, []).length;
             existingResultForAddress.visits.overdue.count = _.get(individualsWithOverdueVisits, addressLevel.uuid, []).length;
             existingResultForAddress.visits.completedVisits.count = _.get(individualsWithCompletedVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.total.count = _.get(allIndividuals, addressLevel.uuid, []).length;
+            existingResultForAddress.visits.total.count = _.get(allIndividualsGrouped, addressLevel.uuid, []).length;
             results[addressLevel.uuid] = existingResultForAddress;
         });
-        return {...state, visits: results};
+
+        return {...state, visits: results, filters: filters};
     }
 
     static onListLoad(state, action, context) {
@@ -58,7 +83,7 @@ class MyDashboardActions {
         return {
             ...state,
             individuals: {
-                data: [...allIndividuals],
+                data: MyDashboardActions.applyFilters(state.filters)([...allIndividuals]),
             }
         };
     }
@@ -76,6 +101,14 @@ class MyDashboardActions {
             }
         }
     }
+
+    static onFilters(state) {
+        return {...state, showFilters: !state.showFilters};
+    }
+
+    static addFilter(state, action, context) {
+        return {...state, filters: new Map(state.filters.set(action.filter.label, action.filter))};
+    }
 }
 
 const MyDashboardPrefix = "MyD";
@@ -84,7 +117,9 @@ const MyDashboardActionNames = {
     ON_LOAD: `${MyDashboardPrefix}.ON_LOAD`,
     ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`,
     RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`,
-    ON_DATE: `${MyDashboardPrefix}.ON_DATE`
+    ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
+    ON_FILTERS: `${MyDashboardPrefix}.ON_FILTERS`,
+    ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`
 };
 
 const MyDashboardActionsMap = new Map([
@@ -92,6 +127,8 @@ const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.ON_LOAD, MyDashboardActions.onLoad],
     [MyDashboardActionNames.ON_LIST_LOAD, MyDashboardActions.onListLoad],
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
+    [MyDashboardActionNames.ON_FILTERS, MyDashboardActions.onFilters],
+    [MyDashboardActionNames.ADD_FILTER, MyDashboardActions.addFilter],
 ]);
 
 export {

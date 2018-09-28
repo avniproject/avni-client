@@ -56,7 +56,7 @@ class IndividualService extends BaseService {
             .filtered('voided = false ' +
                 (_.isNil(addressLevel) ? '' : 'AND lowestAddressLevel.uuid = $0'),
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
-            .map(({uuid, lowestAddressLevel}) => ({uuid: uuid, addressUUID: lowestAddressLevel.uuid}))
+            .map((individual) => ({...individual, addressUUID: individual.lowestAddressLevel.uuid}))
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
             .map(_.identity);
@@ -76,7 +76,7 @@ class IndividualService extends BaseService {
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return {uuid: individual.uuid, addressUUID: individual.lowestAddressLevel.uuid};
+                return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -122,7 +122,7 @@ class IndividualService extends BaseService {
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return {uuid: individual.uuid, addressUUID: individual.lowestAddressLevel.uuid};
+                return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -162,7 +162,7 @@ class IndividualService extends BaseService {
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return {uuid: individual.uuid, addressUUID: individual.lowestAddressLevel.uuid};
+                return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -198,7 +198,7 @@ class IndividualService extends BaseService {
         return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
             .some((concept) => !_.isEmpty(enrolment.findObservation(concept))))
             .map((enrolment) => {
-                return {uuid: enrolment.individual.uuid, addressUUID: enrolment.individual.lowestAddressLevel.uuid};
+                return {...enrolment.individual, addressUUID: enrolment.individual.lowestAddressLevel.uuid};
             });
     }
 
@@ -216,6 +216,18 @@ class IndividualService extends BaseService {
         return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
             .some((concept) => !_.isEmpty(enrolment.findObservationInEntireEnrolment(concept))))
             .map((enrolment) => enrolment.individual);
+    }
+
+    atRiskFilter(atRiskConcepts) {
+        return (individuals) => individuals.filter((individual) =>
+            individual.enrolments.some((enrolment) => atRiskConcepts
+                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name))));
+    }
+
+    notAtRiskFilter(atRiskConcepts) {
+        return (individuals) => individuals.filter((individual) =>
+            !individual.enrolments.some((enrolment) => atRiskConcepts
+                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name))));
     }
 
     totalHighRisk(program, addressLevel) {

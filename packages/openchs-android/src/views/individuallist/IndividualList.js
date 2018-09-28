@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, View, StyleSheet, ListView, TouchableOpacity} from 'react-native';
+import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal} from 'react-native';
 import _ from 'lodash';
 import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -17,6 +17,7 @@ import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import Filters from "../filter/Filters";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -81,7 +82,12 @@ class IndividualList extends AbstractComponent {
     }
 
     _onPress() {
-        TypedTransition.from(this).to()
+        this.dispatchAction(Actions.ON_FILTERS);
+    }
+
+    _onClose() {
+        this.dispatchAction(Actions.ON_FILTERS);
+        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
     }
 
     render() {
@@ -94,6 +100,16 @@ class IndividualList extends AbstractComponent {
                     title={`${this.props.params.address.name} - ${visitType}`}
                     func={this.props.params.backFunction}/>
                 <CHSContent>
+                    <Modal
+                        animationType={'slide'}
+                        transparent={false}
+                        visible={this.state.showFilters}
+                        onRequestClose={() => this._onClose()}>
+                        <Filters
+                            applyFn={() => this._onClose()}
+                            filters={this.state.filters}
+                            onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
+                    </Modal>
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
@@ -110,7 +126,7 @@ class IndividualList extends AbstractComponent {
                         renderRow={(individual) => <IndividualDetails individual={individual}
                                                                       backFunction={() => this.onBackCallback()}/>}/>
                     <TouchableOpacity activeOpacity={0.5}
-                                      onPress={() => this._onPress.bind(this)}
+                                      onPress={() => this._onPress()}
                                       style={IndividualList.styles.floatingButton}>
                         <Icon name='filter-list' size={40}
                               style={IndividualList.styles.floatingButtonIcon}/>

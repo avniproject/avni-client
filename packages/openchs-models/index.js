@@ -56,6 +56,9 @@ import RuleDependency from "./src/RuleDependency";
 import ChecklistItemStatus from "./src/ChecklistItemStatus";
 import ChecklistDetail from "./src/ChecklistDetail";
 import ChecklistItemDetail from "./src/ChecklistItemDetail";
+import Filter from "./src/application/Filter";
+import SingleSelectFilter from "./src/application/SingleSelectFilter";
+import MultiSelectFilter from "./src/application/MultiSelectFilter";
 
 export {
     Form,
@@ -116,5 +119,8 @@ export {
     ChecklistItemStatus,
     ChecklistItemDetail,
     ChecklistDetail,
-    CompositeDuration
+    CompositeDuration,
+    Filter,
+    SingleSelectFilter,
+    MultiSelectFilter
 };

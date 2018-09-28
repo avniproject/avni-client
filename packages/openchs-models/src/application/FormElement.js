@@ -52,7 +52,7 @@ class FormElement {
     }
 
     isMultiSelect() {
-        return this.type === "MultiSelect";
+        return this.type === "SingleSelect";
     }
 
     excludedAnswers() {

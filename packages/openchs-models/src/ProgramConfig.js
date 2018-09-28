@@ -4,6 +4,7 @@ import _ from 'lodash';
 import General from "./utility/General";
 import VisitScheduleConfig from "./VisitScheduleConfig";
 import ResourceUtil from "./utility/ResourceUtil";
+import Concept from "./Concept";
 
 class ProgramConfig extends ReferenceEntity {
     static schema = {
@@ -12,6 +13,7 @@ class ProgramConfig extends ReferenceEntity {
         properties: {
             uuid: 'string',
             program: 'Program',
+            atRiskConcepts: {type: 'list', objectType: 'Concept'},
             visitSchedule: {type: 'list', objectType: 'VisitScheduleConfig'}
         }
     };
@@ -21,6 +23,8 @@ class ProgramConfig extends ReferenceEntity {
         programConfig.visitSchedule = _.get(resource, "visitSchedule", [])
             .map(vs => VisitScheduleConfig.fromResource(vs, entityService));
         programConfig.program = entityService.findByUUID(ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
+        const conceptUUIDs = ResourceUtil.getUUIDFor(resource, "conceptUUIDs").split(",");
+        programConfig.atRiskConcepts = conceptUUIDs.map(conceptUUID => entityService.findByUUID(conceptUUID, Concept.schema.name));
         return programConfig;
     }
 

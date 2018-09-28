@@ -121,7 +121,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.observations = ObservationsHolder.clone(this.observations);
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = this.encounters;
-        programEnrolment.checklists = _.map(this.checklists,list=>list.clone());
+        programEnrolment.checklists = _.map(this.checklists, list => list.clone());
         return programEnrolment;
     }
 
@@ -217,6 +217,10 @@ class ProgramEnrolment extends BaseEntity {
         encounters = latest ? _.reverse(encounters) : encounters;
 
         return this._findObservationFromEntireEnrolment(conceptName, encounters, true);
+    }
+
+    observationExistsInEntireEnrolment(conceptName, currentEncounter) {
+        return !_.isEmpty(this.findObservationInEntireEnrolment(conceptName, currentEncounter));
     }
 
     findLatestObservationInEntireEnrolment(conceptName, currentEncounter) {
