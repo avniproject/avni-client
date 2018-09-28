@@ -1,12 +1,12 @@
 import React from "react";
-import {View, StyleSheet, ListView, Text} from 'react-native';
+import {View, StyleSheet, ListView, Text, Modal, TouchableOpacity} from 'react-native';
 import _ from 'lodash';
+import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import themes from "../primitives/themes";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
-import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -15,6 +15,7 @@ import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import FunctionalHeader from "../common/FunctionalHeader";
 import DatePicker from "../primitives/DatePicker";
+import Filters from "../filter/Filters";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -33,6 +34,24 @@ class MyDashboardView extends AbstractComponent {
         container: {
             marginRight: Distances.ScaledContentDistanceFromEdge,
             marginLeft: Distances.ScaledContentDistanceFromEdge
+        },
+        filterButton: {
+            alignSelf: 'flex-end'
+        },
+        floatingButton: {
+            position: 'absolute',
+            width: 60,
+            height: 60,
+            alignItems: 'center',
+            justifyContent: 'center',
+            right: 30,
+            bottom: 30,
+            borderRadius: 150,
+            backgroundColor: Colors.AccentColor
+        },
+
+        floatingButtonIcon: {
+            color: Colors.TextOnPrimaryColor
         }
     });
 
@@ -44,6 +63,15 @@ class MyDashboardView extends AbstractComponent {
     onBackCallback() {
         this.dispatchAction(Actions.ON_LOAD);
         this.goBack();
+    }
+
+    _onPress() {
+        this.dispatchAction(Actions.ON_FILTERS);
+    }
+
+    _onClose() {
+        this.dispatchAction(Actions.ON_FILTERS);
+        this.dispatchAction(Actions.ON_LOAD);
     }
 
     render() {
@@ -60,6 +88,16 @@ class MyDashboardView extends AbstractComponent {
                         dateValue={date.value}/>
                 </FunctionalHeader>
                 <CHSContent>
+                    <Modal
+                        animationType={'slide'}
+                        transparent={false}
+                        visible={this.state.showFilters}
+                        onRequestClose={() => this._onClose()}>
+                        <Filters
+                            applyFn={() => this._onClose()}
+                            filters={this.state.filters}
+                            onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
+                    </Modal>
                     <View style={MyDashboardView.styles.container}>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}
@@ -71,6 +109,12 @@ class MyDashboardView extends AbstractComponent {
                                   />}/>
                     </View>
                 </CHSContent>
+                <TouchableOpacity activeOpacity={0.5}
+                                  onPress={() => this._onPress()}
+                                  style={MyDashboardView.styles.floatingButton}>
+                    <Icon name='filter-list' size={40}
+                          style={MyDashboardView.styles.floatingButtonIcon}/>
+                </TouchableOpacity>
             </CHSContainer>
         );
     }
