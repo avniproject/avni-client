@@ -1187,7 +1187,6 @@
   {
     "name": "Cancer",
     "uuid": "e8480835-eca9-44ff-920c-dd0c909a4492",
-    "abnormal": true,
     "dataType": "NA"
   },
   {
