@@ -1,9 +1,10 @@
 class Filter {
-    constructor(label, type, optsFnMap, options = []) {
+    constructor(label, type, optsFnMap, optsQueryMap, options = []) {
         this.type = type;
         this.label = label;
         this.optsFnMap = optsFnMap;
         this.selectedOptions = options;
+        this.optsQueryMap = optsQueryMap;
     }
 
     selectOption(option) {
@@ -15,11 +16,23 @@ class Filter {
     }
 
     compositeFn(individuals) {
+        if (this.optsFnMap.size === 0) return individuals;
         return this.selectedOptions.map(so => this.optsFnMap.get(so))
             .reduce((acc, fn) => fn(acc), individuals)
     }
 
+    orQuery() {
+        return this.selectedOptions.map(so => this.optsQueryMap.get(so)).join(" OR ");
+    }
+
+    andQuery() {
+        return this.selectedOptions.map(so => this.optsQueryMap.get(so)).join(" AND ");
+    }
+
     get options() {
+        if (this.optsFnMap.size === 0) {
+            return [...this.optsQueryMap.keys()].map((k) => [k, k]);
+        }
         return [...this.optsFnMap.keys()].map((k) => [k, k]);
     }
 

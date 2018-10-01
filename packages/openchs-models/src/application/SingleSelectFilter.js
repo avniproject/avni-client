@@ -1,12 +1,12 @@
 import Filter from "./Filter";
 
 export default class SingleSelectFilter extends Filter {
-    constructor(label, optsFnMap, options) {
-        super(label, Filter.types.SingleSelect, optsFnMap, options);
+    constructor(label, optsFnMap, optsQueryMap, options) {
+        super(label, Filter.types.SingleSelect, optsFnMap, optsQueryMap, options);
     }
 
     selectOption(option) {
-        return new SingleSelectFilter(this.label, this.optsFnMap, this.selectedOptions.indexOf(option) > -1 ? [] : [option]);
+        return new SingleSelectFilter(this.label, this.optsFnMap, this.optsQueryMap, this.selectedOptions.indexOf(option) > -1 ? [] : [option]);
     }
 
     isApplied() {
@@ -18,6 +18,6 @@ export default class SingleSelectFilter extends Filter {
     }
 
     clone() {
-        return new SingleSelectFilter(this.label, this.optsFnMap, this.selectedOptions);
+        return new SingleSelectFilter(this.label, this.optsFnMap, this.optsQueryMap, this.selectedOptions);
     }
 }

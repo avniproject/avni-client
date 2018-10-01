@@ -51,7 +51,7 @@ class IndividualService extends BaseService {
         return individuals;
     }
 
-    allIn(ignored, addressLevel) {
+    allIn(ignored, ignored2, addressLevel) {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ' +
                 (_.isNil(addressLevel) ? '' : 'AND lowestAddressLevel.uuid = $0'),
@@ -62,7 +62,7 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    allScheduledVisitsIn(date, addressLevel) {
+    allScheduledVisitsIn(date, queryAdditions, addressLevel) {
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
@@ -74,6 +74,7 @@ class IndividualService extends BaseService {
                 dateMidnight,
                 dateMorning,
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
@@ -111,7 +112,7 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(date, addressLevel) {
+    allOverdueVisitsIn(date, queryAdditions, addressLevel) {
         const dateMorning = moment(date).startOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
@@ -120,6 +121,7 @@ class IndividualService extends BaseService {
                 (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $1'),
                 dateMorning,
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
@@ -150,7 +152,7 @@ class IndividualService extends BaseService {
         return this.overdueVisits(program, addressLevel, encounterType).length;
     }
 
-    allCompletedVisitsIn(date, addressLevel) {
+    allCompletedVisitsIn(date, queryAdditions, addressLevel) {
         let fromDate = moment(date).startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
@@ -160,6 +162,7 @@ class IndividualService extends BaseService {
                 tillDate,
                 fromDate,
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
@@ -234,9 +237,6 @@ class IndividualService extends BaseService {
         return this.highRiskPatients(program, addressLevel).length;
     }
 
-    filterByEncounterType(encounterType) {
-        return (individuals) => individuals;
-    }
 
     voidIndividual(individualUUID) {
         const individual = this.findByUUID(individualUUID);

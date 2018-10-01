@@ -22,18 +22,16 @@ class FilterService extends BaseService {
         return new SingleSelectFilter("At Risk?",
             new Map([
                 ['Yes', individualService.atRiskFilter(atRiskConcepts)],
-                ['No', individualService.notAtRiskFilter(atRiskConcepts)]]));
+                ['No', individualService.notAtRiskFilter(atRiskConcepts)]]), new Map());
     }
 
     visitType() {
         const programService = this.getService(ProgramService);
         const formMappingService = this.getService(FormMappingService);
-        const individualService = this.getService(IndividualService);
         const encounterTypes = _.flatten(programService.allPrograms()
             .map((program) => formMappingService.findEncounterTypesForProgram(program)));
-        const filterMap = encounterTypes.reduce((acc, et) => acc.set(et.name, individualService
-            .filterByEncounterType(et)), new Map());
-        return new MultiSelectFilter("Visit Type", filterMap);
+        const filterMap = encounterTypes.reduce((acc, et) => acc.set(et.name, ` encounterType.uuid = '${et.uuid}' `), new Map());
+        return new MultiSelectFilter("Visit Type", new Map(), filterMap);
     }
 
     getAllFilters() {

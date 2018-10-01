@@ -25,6 +25,10 @@ class MyDashboardActions {
             .reduce((acc, f) => f.compositeFn(acc), individuals);
     }
 
+    static queryAdditions(filters) {
+        return [...filters.values()].map(f => f.orQuery()).filter((q) => !_.isEmpty(q)).join(" AND ");
+    }
+
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
@@ -36,14 +40,15 @@ class MyDashboardActions {
             const filterService = context.get(FilterService);
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
         }
+        const queryAdditions = MyDashboardActions.queryAdditions(filters);
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
             allIndividualsWithCompletedVisits,
             allIndividuals] =
-            [individualService.allScheduledVisitsIn(state.date.value),
-                individualService.allOverdueVisitsIn(state.date.value),
-                individualService.allCompletedVisitsIn(state.date.value),
-                individualService.allIn(state.date.value)].map(MyDashboardActions.applyFilters(filters));
+            [individualService.allScheduledVisitsIn(state.date.value, queryAdditions),
+                individualService.allOverdueVisitsIn(state.date.value, queryAdditions),
+                individualService.allCompletedVisitsIn(state.date.value, queryAdditions),
+                individualService.allIn(state.date.value, queryAdditions)].map(MyDashboardActions.applyFilters(filters));
         const individualsWithScheduledVisits = _.groupBy(allIndividualsWithScheduledVisits, 'addressUUID');
         const individualsWithOverdueVisits = _.groupBy(allIndividualsWithOverDueVisits, 'addressUUID');
         const individualsWithCompletedVisits = _.groupBy(allIndividualsWithCompletedVisits, 'addressUUID');
@@ -77,7 +82,8 @@ class MyDashboardActions {
             ["completedVisits", individualService.allCompletedVisitsIn],
             ["total", individualService.allIn]
         ]);
-        const allIndividuals = methodMap.get(action.listType)(state.date.value, action.address)
+        const queryAdditions = MyDashboardActions.queryAdditions(state.filters);
+        const allIndividuals = methodMap.get(action.listType)(state.date.value, queryAdditions, action.address)
             .map(({uuid}) => individualService.findByUUID(uuid));
         return {
             ...state,
