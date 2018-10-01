@@ -18,6 +18,7 @@ import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import Filters from "../filter/FiltersView";
+import DashboardFilters from "../mydashbaord/DashboardFilters";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -110,6 +111,7 @@ class IndividualList extends AbstractComponent {
                             filters={this.state.filters}
                             onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
                     </Modal>
+                    <DashboardFilters date={this.state.date} filters={this.state.filters}/>
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
