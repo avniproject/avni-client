@@ -789,9 +789,16 @@
     "dataType": "Text"
   },
   {
-    "name": "Fasting blood glucose",
+    "name": "Fasting blood glucose/sugar",
     "uuid": "76c0bd04-73af-4bdf-846e-f194de5f3fe7",
-    "dataType": "Numeric"
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "lowWarning": 0,
+    "lowNormal": 0,
+    "highNormal": 110,
+    "highWarning": 125,
+    "highAbsolute": 1000,
+    "unit": "mg/dl"
   },
   {
     "name": "Post meal blood glucose",
@@ -803,9 +810,9 @@
     "uuid": "1e2d41a2-5b6a-4ad7-ab91-51d3cdf122bd",
     "dataType": "Numeric",
     "lowAbsolute": 10,
-    "highAbsolute": 120,
     "lowNormal": 50,
     "highNormal": 90,
+    "highAbsolute": 120,
     "unit": "mm Hg"
   },
   {
@@ -1073,11 +1080,6 @@
   {
     "name": "Waist circumference",
     "uuid": "d64aef6f-c81f-4246-b717-ea4c461461c4",
-    "dataType": "Numeric"
-  },
-  {
-    "name": "Fasting blood glucose",
-    "uuid": "76c0bd04-73af-4bdf-846e-f194de5f3fe7",
     "dataType": "Numeric"
   },
   {
