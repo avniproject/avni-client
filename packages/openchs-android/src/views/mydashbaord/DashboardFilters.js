@@ -6,6 +6,7 @@ import Distances from "../primitives/Distances";
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppliedFilters from "../filter/AppliedFilters";
+import Separator from "../primitives/Separator";
 
 export default class DashboardFilters extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -35,7 +36,9 @@ export default class DashboardFilters extends AbstractComponent {
                         pickTime={false}
                         dateValue={this.props.date.value}/>
                 </View>
+                <Separator/>
                 <AppliedFilters filters={this.props.filters}/>
+
             </View>
         );
     }

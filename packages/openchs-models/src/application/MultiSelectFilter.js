@@ -7,9 +7,9 @@ export default class MultiSelectFilter extends Filter {
 
     selectOption(option) {
         if (this.selectedOptions.indexOf(option) > -1) {
-            return new Filter(this.label, this.type, this.optsFnMap, this.selectedOptions.filter(so => so !== option));
+            return new MultiSelectFilter(this.label,this.optsFnMap, this.selectedOptions.filter(so => so !== option));
         }
-        return new Filter(this.label, this.type, this.optsFnMap, [...this.selectedOptions, option]);
+        return new MultiSelectFilter(this.label, this.optsFnMap, [...this.selectedOptions, option]);
     }
 
     isApplied() {

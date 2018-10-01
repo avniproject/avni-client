@@ -17,7 +17,7 @@ import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import Filters from "../filter/Filters";
+import Filters from "../filter/FiltersView";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {

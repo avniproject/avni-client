@@ -5,6 +5,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import SingleSelectFilter from './SingleSelectFilter';
+import MultiSelectFilter from './MultiSelectFilter';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import FilterService from "../../service/FilterService";
 import Filter from "openchs-models/src/application/Filter";
@@ -19,7 +20,8 @@ class FilterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter]]);
+        this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
+            [Filter.types.MultiSelect, MultiSelectFilter]]);
     }
 
     static styles = StyleSheet.create({

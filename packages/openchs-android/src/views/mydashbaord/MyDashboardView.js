@@ -15,7 +15,7 @@ import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import FunctionalHeader from "../common/FunctionalHeader";
 import DatePicker from "../primitives/DatePicker";
-import Filters from "../filter/Filters";
+import Filters from "../filter/FiltersView";
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 

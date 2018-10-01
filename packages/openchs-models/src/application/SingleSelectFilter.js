@@ -6,7 +6,7 @@ export default class SingleSelectFilter extends Filter {
     }
 
     selectOption(option) {
-        return new Filter(this.label, this.type, this.optsFnMap, this.selectedOptions.indexOf(option) > -1 ? [] : [option]);
+        return new SingleSelectFilter(this.label, this.optsFnMap, this.selectedOptions.indexOf(option) > -1 ? [] : [option]);
     }
 
     isApplied() {

@@ -234,6 +234,10 @@ class IndividualService extends BaseService {
         return this.highRiskPatients(program, addressLevel).length;
     }
 
+    filterByEncounterType(encounterType) {
+        return (individuals) => individuals;
+    }
+
     voidIndividual(individualUUID) {
         const individual = this.findByUUID(individualUUID);
         let individualClone = individual.cloneForEdit();
