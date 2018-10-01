@@ -23,9 +23,21 @@ class Filter {
         return [...this.optsFnMap.keys()].map((k) => [k, k]);
     }
 
+    isApplied() {
+        return this.selectedOptions.length > 0;
+    }
+
+    toString() {
+        return `${this.label} - ${this.selectedOptions.join(', ')}`;
+    }
+
     static types = {
         SingleSelect: 'SingleSelect',
         MultiSelect: 'MultiSelect',
+    };
+
+    clone() {
+        return new Filter(this.label, this.type, this.optsFnMap, this.selectedOptions);
     }
 }
 

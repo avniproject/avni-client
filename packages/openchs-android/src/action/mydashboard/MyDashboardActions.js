@@ -31,7 +31,7 @@ class MyDashboardActions {
         const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
         const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
-        let filters = new Map(state.filters);
+        let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
             const filterService = context.get(FilterService);
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
@@ -66,7 +66,6 @@ class MyDashboardActions {
             existingResultForAddress.visits.total.count = _.get(allIndividualsGrouped, addressLevel.uuid, []).length;
             results[addressLevel.uuid] = existingResultForAddress;
         });
-
         return {...state, visits: results, filters: filters};
     }
 
@@ -106,8 +105,13 @@ class MyDashboardActions {
         return {...state, showFilters: !state.showFilters};
     }
 
+    static cloneFilters(filters) {
+        return [...filters.entries()].reduce((acc, [l, f]) => acc.set(l, f.clone()), new Map());
+    }
+
     static addFilter(state, action, context) {
-        return {...state, filters: new Map(state.filters.set(action.filter.label, action.filter))};
+        const newFilters = MyDashboardActions.cloneFilters(state.filters.set(action.filter.label, action.filter));
+        return {...state, filters: newFilters};
     }
 }
 

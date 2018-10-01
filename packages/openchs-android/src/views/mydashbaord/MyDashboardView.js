@@ -16,6 +16,8 @@ import Separator from '../primitives/Separator';
 import FunctionalHeader from "../common/FunctionalHeader";
 import DatePicker from "../primitives/DatePicker";
 import Filters from "../filter/Filters";
+import AppHeader from "../common/AppHeader";
+import DashboardFilters from "./DashboardFilters";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -79,14 +81,7 @@ class MyDashboardView extends AbstractComponent {
         const date = this.state.date;
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <FunctionalHeader title={this.I18n.t('myDashboard')}>
-                    <DatePicker
-                        nonRemovable={true}
-                        actionName={Actions.ON_DATE}
-                        actionObject={date}
-                        pickTime={false}
-                        dateValue={date.value}/>
-                </FunctionalHeader>
+                <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}/>
                 <CHSContent>
                     <Modal
                         animationType={'none'}
@@ -99,6 +94,7 @@ class MyDashboardView extends AbstractComponent {
                             onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
                     </Modal>
                     <View style={MyDashboardView.styles.container}>
+                        <DashboardFilters date={date} filters={this.state.filters}/>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}

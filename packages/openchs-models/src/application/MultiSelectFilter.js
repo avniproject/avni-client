@@ -11,4 +11,16 @@ export default class MultiSelectFilter extends Filter {
         }
         return new Filter(this.label, this.type, this.optsFnMap, [...this.selectedOptions, option]);
     }
+
+    isApplied() {
+        return this.selectedOptions.length > 0;
+    }
+
+    toString() {
+        return `${this.label} - ${this.selectedOptions.join(", ")}`;
+    }
+
+    clone() {
+        return new MultiSelectFilter(this.label, this.optsFnMap, this.selectedOptions);
+    }
 }
