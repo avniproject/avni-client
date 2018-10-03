@@ -24,8 +24,6 @@ export default class ErrorHandler {
                     }));
                     console.log(`[ErrorHandler] Notifying Bugsnag ${error}`);
                     bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
-                    console.log(`[ErrorHandler] Frame array created. Logging Frame array.`);
-                    console.log(JSON.stringify(frameArray));
                     console.log(`[ErrorHandler] Restarting app.`);
                     errorCallback(error, JSON.stringify(frameArray));
                 });

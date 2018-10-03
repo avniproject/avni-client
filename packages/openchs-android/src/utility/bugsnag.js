@@ -6,6 +6,7 @@
 import { Client, Configuration } from 'bugsnag-react-native';
 const configuration = new Configuration();
 configuration.autoNotify = false;
+console.log("Creating new instance of Bugsnag");
 const client = new Client(configuration);
 //-------------------------------------------------------------------------------------------------
 export default client;

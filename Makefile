@@ -93,7 +93,7 @@ generate-sourcemap-for-debug: ## Generates sourcemap for debug version of the ap
 
 upload-debug-sourcemap: ## Uploads debug sourcemap to Bugsnag
 	bugsnag-sourcemaps upload \
-		--api-key ${BUGSNAG_API_KEY} \
+		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
 		--app-version $(shell grep -o "versionCode\s\+\d\+" packages/openchs-android/android/app/build.gradle | awk '{ print $$2 }') \
 		--minified-file packages/openchs-android/android-debug.bundle \
 		--source-map packages/openchs-android/android-debug.bundle.map \
@@ -102,7 +102,7 @@ upload-debug-sourcemap: ## Uploads debug sourcemap to Bugsnag
 
 upload-release-sourcemap: ## Uploads release sourcemap to Bugsnag
 	bugsnag-sourcemaps upload \
-		--api-key ${BUGSNAG_API_KEY} \
+		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
 		--app-version $(shell grep -o "versionCode\s\+\d\+" packages/openchs-android/android/app/build.gradle | awk '{ print $$2 }') \
 		--minified-file packages/openchs-android/android/app/build/intermediates/assets/release/index.android.bundle \
 		--source-map packages/openchs-android/android/app/build/generated/sourcemap.js \
@@ -114,6 +114,9 @@ upload-release-sourcemap: ## Uploads release sourcemap to Bugsnag
 # <log>
 log:  ##
 	adb logcat *:S ReactNative:V ReactNativeJS:V
+
+clear-log: ##
+	adb logcat -c
 # </log>
 
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
@@ -203,6 +206,9 @@ run_packager: ##
 # <app>
 run_app: setup_hosts ##
 	cd packages/openchs-android && react-native run-android
+
+run_app_release: setup_hosts
+	cd packages/openchs-android && react-native run-android --variant=release
 
 run_app_staging_dev:
 	cd packages/openchs-android && ENVFILE=.env.staging.dev react-native run-android

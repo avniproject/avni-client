@@ -99,7 +99,7 @@ android {
             abiFilters "armeabi-v7a", "x86"
         }
         manifestPlaceholders = [
-            bugsnagAPIKey: System.getenv("BUGSNAG_API_KEY")?: ""
+            bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY")?: "dummy"
         ]
     }
     splits {
