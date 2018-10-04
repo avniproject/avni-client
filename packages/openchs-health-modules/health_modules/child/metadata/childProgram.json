@@ -1,5 +1,7 @@
-{
-  "name": "Child",
-  "uuid": "352d906c-b386-496c-ba23-91b1468a5613",
-  "colour": "darkorange"
-}
+[
+  {
+    "name": "Child",
+    "uuid": "352d906c-b386-496c-ba23-91b1468a5613",
+    "colour": "darkorange"
+  }
+]

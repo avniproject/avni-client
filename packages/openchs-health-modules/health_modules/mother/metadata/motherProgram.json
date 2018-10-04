@@ -1,5 +1,7 @@
-{
-  "name": "Mother",
-  "uuid": "076ddb2d-a499-4314-af95-4178553d279b",
-  "colour": "darkmagenta"
-}
+[
+  {
+    "name": "Mother",
+    "uuid": "076ddb2d-a499-4314-af95-4178553d279b",
+    "colour": "darkmagenta"
+  }
+]
