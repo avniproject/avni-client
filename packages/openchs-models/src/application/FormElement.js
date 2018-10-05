@@ -6,6 +6,7 @@ import _ from "lodash";
 import ValidationResult from "./ValidationResult";
 import KeyValue from "./KeyValue";
 import Format from "./Format"
+import Filter from "./Filter";
 
 class FormElement {
     static schema = {
@@ -52,7 +53,7 @@ class FormElement {
     }
 
     isMultiSelect() {
-        return this.type === "SingleSelect";
+        return this.type === Filter.types.MultiSelect;
     }
 
     excludedAnswers() {
@@ -69,7 +70,7 @@ class FormElement {
     }
 
     isSingleSelect() {
-        return this.type === "SingleSelect" || _.isEmpty(this.type);
+        return this.type === Filter.types.SingleSelect || _.isNil(this.type);
     }
 
     get truthDisplayValue() {
