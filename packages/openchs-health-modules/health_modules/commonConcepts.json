@@ -1413,7 +1413,8 @@
   {
     "name": "Doctor",
     "uuid": "062071e7-85a9-4da0-9d59-c27b00e53a60",
-    "dataType": "NA"
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "name": "Hospital",
