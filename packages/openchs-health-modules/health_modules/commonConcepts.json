@@ -2041,7 +2041,13 @@
   {
     "uuid": "f0b5d4fb-c3e2-4342-8105-4904b5da36ec",
     "name": "Never"
+  },
+  {
+    "name": "Self",
+    "uuid": "74466f64-3f7c-4046-aaae-57803cee46b1",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
+
 
 
 
