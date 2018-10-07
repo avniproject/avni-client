@@ -1415,7 +1415,8 @@
   {
     "name": "Doctor",
     "uuid": "062071e7-85a9-4da0-9d59-c27b00e53a60",
-    "dataType": "NA"
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "name": "Hospital",
@@ -1891,6 +1892,94 @@
     ]
   },
   {
+    "name": "Literate without schooling",
+    "uuid": "0225b18a-28be-405b-9f4c-31211e44a765",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "8-10",
+    "uuid": "7d9bc65d-579a-41fa-9fe7-760066718688",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Graduation",
+    "uuid": "826cd288-57b7-492a-8100-ba4b1dd51f10",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Post Graduation and above",
+    "uuid": "fc93ab1d-9b06-434b-b9c5-59497cc754b1",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Illiterate",
+    "uuid": "e7116c89-7fc5-406c-b2ab-c022fd84fb1a",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "1-5",
+    "uuid": "2c9e97a7-93dc-42da-8a15-904eb2aa955b",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "6-7",
+    "uuid": "8be7e045-c0db-4620-b669-7b9e3ae40736",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "11-12",
+    "uuid": "72e29d86-d6f3-4e61-a6c4-a62428a72ed6",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Education",
+    "uuid": "39595a16-a9c6-49a5-a42b-3f462607058c",
+    "dataType": "Coded",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "answers": [
+      {
+        "name": "Illiterate",
+        "uuid": "e7116c89-7fc5-406c-b2ab-c022fd84fb1a"
+      },
+      {
+        "name": "Literate without schooling",
+        "uuid": "0225b18a-28be-405b-9f4c-31211e44a765"
+      },
+      {
+        "name": "1-5",
+        "uuid": "2c9e97a7-93dc-42da-8a15-904eb2aa955b"
+      },
+      {
+        "name": "6-7",
+        "uuid": "8be7e045-c0db-4620-b669-7b9e3ae40736"
+      },
+      {
+        "name": "8-10",
+        "uuid": "7d9bc65d-579a-41fa-9fe7-760066718688"
+      },
+      {
+        "name": "11-12",
+        "uuid": "72e29d86-d6f3-4e61-a6c4-a62428a72ed6"
+      },
+      {
+        "name": "Graduation",
+        "uuid": "826cd288-57b7-492a-8100-ba4b1dd51f10"
+      },
+      {
+        "name": "Post Graduation and above",
+        "uuid": "fc93ab1d-9b06-434b-b9c5-59497cc754b1"
+      }
+    ]
+  },
+  {
     "name": "Referred",
     "uuid": "5e7b72bf-114f-45cf-abcd-11a6d0a67c12",
     "dataType": "Coded",
@@ -1904,6 +1993,94 @@
     ]
   },
   {
+    "name": "Unemployed",
+    "uuid": "71137918-fad5-4e42-98b0-c0475e4a8258",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Farmer",
+    "uuid": "114c7f99-add9-492b-affc-f30265fdc433",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Daily wage labourer",
+    "uuid": "e3c6b515-b308-4a23-9067-7cd00f27bb29",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Skilled manual",
+    "uuid": "06aff130-47ec-48d5-b2b9-b9d6e301c0a6",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Professional/Technical",
+    "uuid": "aab5a52c-38b9-472b-a90e-3e63022c5a96",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Shopkeeper",
+    "uuid": "4c4435af-33be-4c9f-b86e-067da3081a06",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Government Job",
+    "uuid": "95a11c12-8b59-40ff-99c4-e01ad134aa33",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Private Job",
+    "uuid": "ccb99e5b-d75c-40a3-881d-dc27cdc154ed",
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Occupation",
+    "uuid": "cd83afec-d147-42b2-bd50-0ca460dbd55f",
+    "dataType": "Coded",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "answers": [
+      {
+        "name": "Unemployed",
+        "uuid": "71137918-fad5-4e42-98b0-c0475e4a8258"
+      },
+      {
+        "name": "Farmer",
+        "uuid": "114c7f99-add9-492b-affc-f30265fdc433"
+      },
+      {
+        "name": "Daily wage labourer",
+        "uuid": "e3c6b515-b308-4a23-9067-7cd00f27bb29"
+      },
+      {
+        "name": "Skilled manual",
+        "uuid": "06aff130-47ec-48d5-b2b9-b9d6e301c0a6"
+      },
+      {
+        "name": "Professional/Technical",
+        "uuid": "aab5a52c-38b9-472b-a90e-3e63022c5a96"
+      },
+      {
+        "name": "Shopkeeper",
+        "uuid": "4c4435af-33be-4c9f-b86e-067da3081a06"
+      },
+      {
+        "name": "Government Job",
+        "uuid": "95a11c12-8b59-40ff-99c4-e01ad134aa33"
+      },
+      {
+        "name": "Private Job",
+        "uuid": "ccb99e5b-d75c-40a3-881d-dc27cdc154ed"
+      }
+    ]
+  },
+  {
     "name": "District Hospital",
     "uuid": "6e3cb48a-5428-49d3-bccb-6964f958fdf3",
     "dataType": "NA",
@@ -1912,5 +2089,14 @@
   {
     "name": "Community Health Centre",
     "uuid": "ec4fdac4-1786-4e07-97ad-d46172d32f42"
+  },
+  {
+    "uuid": "f0b5d4fb-c3e2-4342-8105-4904b5da36ec",
+    "name": "Never"
+  },
+  {
+    "name": "Self",
+    "uuid": "74466f64-3f7c-4046-aaae-57803cee46b1",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
 ]
