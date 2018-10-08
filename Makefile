@@ -25,6 +25,11 @@ define test
 	cd packages/openchs-$1; npm test
 endef
 
+# <setup>
+build-tools:
+	sdkmanager "build-tools;26.0.3"
+# </setup>
+
 # <clean>
 clean: clean_env ##
 # </clean>
