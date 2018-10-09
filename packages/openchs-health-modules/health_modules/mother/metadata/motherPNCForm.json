@@ -199,6 +199,146 @@
           "mandatory": true
         }
       ]
+    },
+    {
+      "uuid": "1299dc47-a804-4176-9dd6-fa65a177bfa5",
+      "name": "Diet and Rest",
+      "displayOrder": 1,
+      "display": "Diet and Rest",
+      "formElements": [
+        {
+          "name": "Diet advice",
+          "uuid": "55afee91-a15f-48a7-ab49-116b51a831cd",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Rest and sleep advice Dos",
+          "uuid": "71bf6c25-c8a7-4479-8265-f0aa80b9b606",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Rest and sleep advice Donts",
+          "uuid": "71cd83d1-ca13-4be2-807b-5740bcc42ba8",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        },
+        {
+          "name": "Supplementary nutritional therapy advice",
+          "uuid": "23706cd0-0097-4665-b9b1-9b10647a87a4",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 4,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "f00ea0bc-ca88-4c15-85e1-e3b9a7d90946",
+      "name": "Breast Feeding",
+      "displayOrder": 2,
+      "display": "Breast Feeding",
+      "formElements": [
+        {
+          "name": "Breast Feeding advice",
+          "uuid": "9355caa3-2050-4161-a218-cf6f7d06538f",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "041d47a8-282c-4b7c-8f3b-d606268b450c",
+      "name": "Hygiene",
+      "displayOrder": 3,
+      "display": "Hygiene",
+      "formElements": [
+        {
+          "name": "Hygiene advice",
+          "uuid": "eda307c8-8f67-4182-be28-111e81db0c12",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "5c26ca56-8155-433a-b5d5-35f7ae990ec2",
+      "name": "Immunization and Family planning",
+      "displayOrder": 4,
+      "display": "Immunization and Family planning",
+      "formElements": [
+        {
+          "name": "Immunization advice",
+          "uuid": "736a18f7-9ec1-4b13-896b-7d8f03d3d1b7",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Family Planning advice Dos",
+          "uuid": "8521fb49-fdc8-454b-b129-49efcd25c933",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 2,
+          "mandatory": false
+        },
+        {
+          "name": "Family Planning advice Donts",
+          "uuid": "27c08d47-f440-44ee-a6b8-6d673fbd7f20",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4",
+            "comment": "Placeholder for counselling form element"
+          },
+          "displayOrder": 3,
+          "mandatory": false
+        }
+      ]
     }
   ]
 }
