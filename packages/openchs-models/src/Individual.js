@@ -170,6 +170,12 @@ class Individual extends BaseEntity {
         }
     }
 
+    getAgeAndDateOfBirthDisplay(i18n) {
+        if (this.dateOfBirthVerified)
+            return `${this.getDisplayAge(i18n)} (${General.toDisplayDate(this.dateOfBirth)})`;
+        return this.getDisplayAge(i18n);
+    }
+
     getAge(asOnDate) {
         asOnDate = asOnDate || moment();
         if (this.getAgeInYears(asOnDate) > 0) return Duration.inYear(this.getAgeInYears());

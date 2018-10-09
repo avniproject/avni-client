@@ -99,7 +99,7 @@ class IndividualProfile extends AbstractComponent {
                     <Text
                         style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                     <Text
-                        style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getDisplayAge(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                        style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
                         {this.props.viewContext === IndividualProfile.viewContext.Individual ?
                             this.renderProfileActionButton('mode-edit', 'editProfile', () => {
