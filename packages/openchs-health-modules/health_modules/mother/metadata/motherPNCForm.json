@@ -203,7 +203,7 @@
     {
       "uuid": "1299dc47-a804-4176-9dd6-fa65a177bfa5",
       "name": "Diet and Rest",
-      "displayOrder": 1,
+      "displayOrder": 3,
       "display": "Diet and Rest",
       "formElements": [
         {
@@ -259,7 +259,7 @@
     {
       "uuid": "f00ea0bc-ca88-4c15-85e1-e3b9a7d90946",
       "name": "Breast Feeding",
-      "displayOrder": 2,
+      "displayOrder": 4,
       "display": "Breast Feeding",
       "formElements": [
         {
@@ -279,7 +279,7 @@
     {
       "uuid": "041d47a8-282c-4b7c-8f3b-d606268b450c",
       "name": "Hygiene",
-      "displayOrder": 3,
+      "displayOrder": 5,
       "display": "Hygiene",
       "formElements": [
         {
@@ -299,7 +299,7 @@
     {
       "uuid": "5c26ca56-8155-433a-b5d5-35f7ae990ec2",
       "name": "Immunization and Family planning",
-      "displayOrder": 4,
+      "displayOrder": 6,
       "display": "Immunization and Family planning",
       "formElements": [
         {
