@@ -17,7 +17,7 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
-import Distances from "../primitives/Distances";
+import {Badge} from 'native-base';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {

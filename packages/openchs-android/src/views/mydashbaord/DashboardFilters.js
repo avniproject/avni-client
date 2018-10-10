@@ -26,9 +26,8 @@ export default class DashboardFilters extends AbstractComponent {
 
         return (
             <View style={DashboardFilters.styles.container}>
-                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <Text style={{fontSize: 17, color: Colors.DefaultPrimaryColor, fontWeight: 'bold'}}>As On
-                        Date: </Text>
+                <View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: 5}}>
+                    <Text style={{fontSize: 17, color: Colors.DefaultPrimaryColor, fontWeight: 'bold'}}>As On Date: </Text>
                     <DatePicker
                         nonRemovable={true}
                         actionName={Actions.ON_DATE}
@@ -37,8 +36,9 @@ export default class DashboardFilters extends AbstractComponent {
                         dateValue={this.props.date.value}/>
                 </View>
                 <Separator/>
-                <AppliedFilters filters={this.props.filters}/>
-
+                <View style={{marginTop: 5}}>
+                    <AppliedFilters filters={this.props.filters}/>
+                </View>
             </View>
         );
     }

@@ -1,15 +1,13 @@
 import React from "react";
-import {View, StyleSheet, ListView, Text} from 'react-native';
+import {ListView, StyleSheet, Text, View, Dimensions} from 'react-native';
 import {Button} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
-import Separator from '../primitives/Separator';
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import RuleEvaluationService from "../../service/RuleEvaluationService";
-import FilterService from "../../service/FilterService";
 import Filter from "openchs-models/src/application/Filter";
 import Colors from "../primitives/Colors";
+import Styles from "../primitives/Styles";
 
 class FilterView extends AbstractComponent {
     static propTypes = {};
@@ -27,7 +25,9 @@ class FilterView extends AbstractComponent {
     static styles = StyleSheet.create({
         container: {
             marginRight: Distances.ScaledContentDistanceFromEdge,
-            marginLeft: Distances.ScaledContentDistanceFromEdge
+            marginLeft: Distances.ScaledContentDistanceFromEdge,
+            padding: 10,
+            backgroundColor: Styles.whiteColor
         }
     });
 
@@ -47,10 +47,11 @@ class FilterView extends AbstractComponent {
     }
 
     render() {
+        const {width} = Dimensions.get('window');
         const filters = [...this.props.filters.values()].map((f, idx) => this.renderFilter(f, idx));
         return (
-            <View style={FilterView.styles.container}>
-                <Text style={{color: Colors.DefaultPrimaryColor, fontSize: 20}}>Filter Individuals</Text>
+            <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
+                <Text style={{color: Colors.DefaultPrimaryColor, fontSize: 26, marginBottom: 10}}>Filter Individuals</Text>
                 {filters}
                 <Button block onPress={this.props.applyFn}>Apply</Button>
             </View>

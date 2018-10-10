@@ -10,21 +10,15 @@ export default class SingleSelectFilter extends BaseFilter {
         super(props, context);
     }
 
-    componentDidMount() {
-
-    }
-
     render() {
         const filter = this.props.filter;
         const labelValuePairs = filter.options.map(([l, v]) => new RadioLabelValue(l, v));
         return (
-            <View>
                 <RadioGroup labelKey={filter.label}
                             labelValuePairs={labelValuePairs}
                             multiSelect={false}
                             onPress={(rlv) => this.props.onSelect(rlv.value)}
                             selectionFn={(selectedVal) => filter.isSelected(selectedVal)}
-                            mandatory={false}/>
-            </View>);
+                            mandatory={false} inPairs={false}/>);
     }
 }

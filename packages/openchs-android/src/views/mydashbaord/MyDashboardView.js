@@ -1,5 +1,5 @@
 import React from "react";
-import {View, StyleSheet, ListView, Text, Modal, TouchableOpacity} from 'react-native';
+import {ListView, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import _ from 'lodash';
 import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -13,8 +13,6 @@ import CHSContent from "../common/CHSContent";
 import AddressVisitRow from './AddressVisitRow';
 import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
-import FunctionalHeader from "../common/FunctionalHeader";
-import DatePicker from "../primitives/DatePicker";
 import Filters from "../filter/FiltersView";
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
@@ -84,8 +82,8 @@ class MyDashboardView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}/>
                 <CHSContent>
                     <Modal
-                        animationType={'none'}
-                        transparent={false}
+                        animationType={'fade'}
+                        transparent={true}
                         visible={this.state.showFilters}
                         onRequestClose={() => this._onClose()}>
                         <Filters

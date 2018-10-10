@@ -1,17 +1,11 @@
 import React from "react";
-import {View, Text} from 'react-native';
+import {Text, View} from 'react-native';
 import BaseFilter from "./BaseFilter";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
-import General from "../../utility/General";
-
 
 export default class MultiSelectFilter extends BaseFilter {
     constructor(props, context) {
         super(props, context);
-    }
-
-    componentDidMount() {
-
     }
 
     render() {
@@ -24,7 +18,7 @@ export default class MultiSelectFilter extends BaseFilter {
                             multiSelect={true}
                             onPress={(rlv) => this.props.onSelect(rlv.value)}
                             selectionFn={(selectedVal) => filter.isSelected(selectedVal)}
-                            mandatory={false}/>
+                            mandatory={false} inPairs={true}/>
             </View>);
     }
 }
