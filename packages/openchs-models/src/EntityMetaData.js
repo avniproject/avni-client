@@ -45,7 +45,7 @@ class EntityMetaData {
     static individualRelationshipType = {entityName: "IndividualRelationshipType", entityClass: IndividualRelationshipType, resourceName: "individualRelationshipType", type: "reference", nameTranslated: true};
     static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
     static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
-    static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "tx"};
+    static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"};
 
     static checklistItemDetail() {
         return {
@@ -58,11 +58,11 @@ class EntityMetaData {
         }
     };
     static encounter() {
-        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
+        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
     };
 
     static programEnrolment() {
-        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
+        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
     }
 
     static formElement() {
@@ -74,7 +74,7 @@ class EntityMetaData {
     };
 
     static programEncounter() {
-        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
     };
 
     static conceptAnswer() {
@@ -82,11 +82,11 @@ class EntityMetaData {
     };
 
     static checklist() {
-        return {entityName: "Checklist", entityClass: Checklist, resourceName: "txNewChecklistEntity", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+        return {entityName: "Checklist", entityClass: Checklist, resourceName: "txNewChecklistEntity", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
     }
 
     static checklistItem() {
-        return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "txNewChecklistItemEntity", resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
+        return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "txNewChecklistItemEntity", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
     }
 
     static individualRelationship() {
@@ -94,7 +94,6 @@ class EntityMetaData {
             entityName: "IndividualRelationship",
             entityClass: IndividualRelationship,
             resourceName: "individualRelationship",
-            resourceSearchFilterURL: "byIndividualsOfCatchmentAndLastModified",
             type: "tx",
             nameTranslated: false,
             parent: EntityMetaData.individual
@@ -145,7 +144,12 @@ class EntityMetaData {
             EntityMetaData.programEncounter(),
             EntityMetaData.programEnrolment(),
             EntityMetaData.individual
-        ];
+        ].map(it => {
+            if (it.type === 'reference' && _.isNil(it.resourceSearchFilterURL)) {
+                it.resourceSearchFilterURL = 'lastModified';
+            }
+            return it;
+        });
     };
 
     static entitiesLoadedFromServer() {

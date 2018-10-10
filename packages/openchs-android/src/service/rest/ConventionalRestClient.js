@@ -39,16 +39,16 @@ class ConventionalRestClient {
 
     getAllForEntity(entityMetadata, onGetOfAnEntity) {
         const token = this.token;
-        const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? entityMetadata.resourceSearchFilterURL : "lastModified";
+        const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? `search/${entityMetadata.resourceSearchFilterURL}` : '';
         let settings = this.settingsService.getSettings();
-        const urlParts = [settings.serverURL, entityMetadata.resourceName, "search", searchFilter].join('/');
+        const resourceEndpoint = [settings.serverURL, entityMetadata.resourceName, searchFilter].join('/');
         const params = (page, size) => this.makeParams({
             lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
             size: size,
             page: page
         });
         const processResponse = (resp) => _.get(resp, `_embedded.${entityMetadata.resourceName}`, []);
-        const endpoint = (page = 0, size = 100) => `${urlParts}?${params(page, size)}`;
+        const endpoint = (page = 0, size = 100) => `${resourceEndpoint}?${params(page, size)}`;
         return getJSON(endpoint(), token).then((response) => {
             const chainedRequests = new ChainedRequests();
             const resourceMetadata = response["page"];
