@@ -17,7 +17,7 @@ jobs:
 
       - run: sudo apt-get install make
 
-      - run: make deps
+      - run: make clean deps
         no_output_timeout: 15m
 
       - save_cache:
