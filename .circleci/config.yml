@@ -17,7 +17,7 @@ jobs:
 
       - run: sudo apt-get install make
 
-      - run: make deps
+      - run: make clean deps
 
       - save_cache:
           paths:
@@ -50,7 +50,7 @@ jobs:
 
       - run: sudo apt-get install make
 
-      - run: make deps
+      - run: make clean deps
 
       - save_cache:
           paths:
@@ -83,7 +83,7 @@ jobs:
 
       - run: sudo apt-get install make
 
-      - run: make deps
+      - run: make clean deps
 
       - save_cache:
           paths:
@@ -134,7 +134,7 @@ jobs:
 
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
 
-      - run: make deps;
+      - run: make clean deps;
 
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package-lock.json" }}
@@ -211,7 +211,7 @@ jobs:
 
         - run: sudo chmod a+x packages/openchs-android/android/gradlew
 
-        - run: make deps;
+        - run: make clean deps;
 
         - save_cache:
             key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package-lock.json" }}
