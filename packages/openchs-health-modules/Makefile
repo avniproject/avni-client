@@ -34,7 +34,7 @@ auth:
 upload = \
 	curl -X POST $(server):$(port)/$(1) -d $(2)  \
 		-H "Content-Type: application/json"  \
-		-H "ORGANISATION-NAME: OpenCHS"  \
+		-H "USER-NAME: admin"  \
 		-H "AUTH-TOKEN: $(token)"
 
 # <rules>

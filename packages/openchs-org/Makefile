@@ -18,12 +18,11 @@ server:= $(if $(server),$(server),http://localhost)
 server_url:=$(server):$(port)
 
 su:=$(shell id -un)
-org_name=OpenCHS
 
 define _curl
 	curl -X $(1) $(server_url)/$(2) -d $(3)  \
 		-H "Content-Type: application/json"  \
-		-H "ORGANISATION-NAME: $(org_name)"  \
+		-H "USER-NAME: admin"  \
 		$(if $(token),-H "AUTH-TOKEN: $(token)",)
 	@echo
 	@echo
