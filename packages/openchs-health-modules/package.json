@@ -1,22 +1,45 @@
 {
-	"dependencies": {
-		"@babel/polyfill": "7.0.0-beta.35",
-		"amazon-cognito-identity-js": "1.28.0",
-		"babel-cli": "6.26.0",
-		"babel-core": "6.26.0",
-		"babel-jest": "20.0.1",
-		"babel-loader": "7.1.2",
-		"babel-plugin-transform-class-properties": "6.24.1",
-		"babel-plugin-transform-decorators-legacy": "1.3.5",
-		"babel-plugin-transform-es2015-destructuring": "6.23.0",
-		"babel-plugin-transform-export-extensions": "6.22.0",
-		"babel-preset-env": "1.6.1",
-		"chai": "4.1.2",
-		"jest": "20.0.1",
-		"lodash": "4.14.0",
-		"moment": "2.18.1",
-		"rules-config": "github:openchs/rules-config#1efc3783e29b7d8e1b310fe09a0b078ee232b38e",
-		"webpack": "3.5.5",
-		"webpack-node-externals": "1.6.0"
-	}
+  "name": "openchs-health-modules",
+  "version": "0.0.1",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenCHS/lokbiradari-vhw.git"
+  },
+  "license": "AGPL-3.0",
+  "jest": {
+    "testMatch": [
+      "<rootDir>/test/**/*Test.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-native|OpenCHSClient)/"
+    ]
+  },
+  "scripts": {
+    "start": "",
+    "test": "jest --verbose"
+  },
+  "dependencies": {
+    "@babel/polyfill": "7.0.0-beta.35",
+    "lodash": "4.14.0",
+    "moment": "2.18.1",
+    "rules-config": "github:openchs/rules-config#1efc3783e29b7d8e1b310fe09a0b078ee232b38e"
+  },
+  "devDependencies": {
+    "amazon-cognito-identity-js": "1.28.0",
+    "babel-cli": "6.26.0",
+    "babel-core": "6.26.0",
+    "babel-jest": "20.0.1",
+    "babel-loader": "7.1.2",
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-plugin-transform-decorators-legacy": "1.3.5",
+    "babel-plugin-transform-es2015-destructuring": "6.23.0",
+    "babel-plugin-transform-export-extensions": "6.22.0",
+    "babel-preset-env": "1.6.1",
+    "chai": "4.1.2",
+    "jest": "20.0.1",
+    "openchs-models": "0.0.1",
+    "webpack": "3.5.5",
+    "webpack-node-externals": "1.6.0"
+  }
 }
