@@ -256,9 +256,13 @@ workflows:
   version: 2
   test_all:
     jobs:
-      - test_models
-      - test_android
-      - test_health_modules
+      - test_android:
+        requires:
+          - test_models
+      - test_health_modules:
+          requires:
+            - test_models
+            - test_android
       - hold:
           type: approval
           requires:
