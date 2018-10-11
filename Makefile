@@ -197,7 +197,7 @@ setup_env: ##
 
 build_env: ##
 	npm install
-	npm run bootstrap
+	node --max_old_space_size=3000 $(which npm) run bootstrap
 # </env>
 
 
