@@ -670,7 +670,22 @@
     "Very preterm": "खूप आधीच दिवस पूर्ण होण्याआधीच झालेला  प्रसव",
     "Vitals": "वायटल्स",
     "When did breast feeding start?": "बाळास स्तनपान कधी सुरु केले?",
-    "Young child": "सर्वांत छोटे बाळ"
+    "Young child": "सर्वांत छोटे बाळ",
+
+    "Diet and Rest": "आहार व विश्रांती सल्ला",
+    "Breast Feeding": "स्तनपाना विषयीचा सल्ला",
+    "Hygiene": "स्वच्छते विषयीचा सल्ला",
+    "Immunization and Family planning": "लसीकरण व कुटुंब नियोजन सल्ला",
+
+    "Diet advice": "आहार\n✓ संपूर्ण आहार घ्यावा",
+    "Rest and sleep advice Dos": "विश्रांती व झोपेसंबंधित सल्ला- हे करावे\n✓ संपूर्ण झोप व विश्रांती घ्यावी",
+    "Rest and sleep advice Donts": "विश्रांती व झोपेसंबंधित सल्ला- हे करू नये\n✘ डीलेवरी नंतर जड कामे करू नयेत",
+    "Supplementary nutritional therapy advice": "पूरक पोषण उपचार विषयक सल्ला\n✓ आरोग्य सेविका/सेवक किंवा दवाखान्यातून मिळणाऱ्या आयरन व कॅल्शियमच्या गोळ्या डीलेवरी नंतर पहिले ३ महिने रोज आठवणीणे घ्याव्यात",
+    "Breast Feeding advice": "स्तनपाना विषयीचा सल्ला\n✓ पहिले ६ महिने शिशूस केवळ मातेचे दूधाच द्यावे\n✓ स्तनपान करते वेळी योग्य रीतीने बसून स्तनपान करणे अत्यंत आवश्यक आहे",
+    "Hygiene advice": "स्वच्छते विषयीचा सल्ला\n✓ मातेस व शिशूस कुठलेही आजर/संक्रमण होऊ नये म्हणून मातेने स्वच्छतेची काळजी घावी\n✓ मातेने संडास करून आल्यावर संडासची जागा साबणाने धुवून कोरडी करावी\n✓ दररोज आंघोळ करावी\n✓ शिशूस पकडण्या आधी व पकडून झाल्यावर स्वच्छ धुवावेत",
+    "Immunization advice": "लसीकरणाविषयीचा सल्ला\n✓ शिशूचे लसीकरण पूर्ण करावे",
+    "Family Planning advice Dos": "कुटुंब नियोजनाविषयीचा सल्ला- हे करावे\n✓ मातेस दोन बालकांमधील अंतर ठेवण्यासाठी कुटुंब नियोजन पद्धतींचा अवलंब करण्याविषयी सांगावे. यात कंडोम, कॉपर टी, कुटुंब नियोजन च्या गोळ्या इत्यादींचा वापर करण्यास सांगावे",
+    "Family Planning advice Donts": "कुटुंब नियोजनाविषयीचा सल्ला- हे करू नये\n✓ डीलेवरी नंतर ६ आठवडे करिता किंवा पाळीच्या जागेची जखम भरेपर्यंत शारीरिक संबंध टाळावा"
   },
   "en": {
     "maleCannotBePregnant": "Male cannot be pregnant",
@@ -757,7 +772,22 @@
     "Villages": "Villages",
     "ANC discussion item 1": "• Normal symptoms of pregnancy\n• Pregnancy complications and danger signs",
     "ANC discussion item 2": "• Family issues\n• Medication/Supplementation",
-    "ANC discussion item 3": "• Breastfeeding\n• Breast examination\n• Family planning"
+    "ANC discussion item 3": "• Breastfeeding\n• Breast examination\n• Family planning",
+    
+    "Diet and Rest": "Diet and Rest",
+    "Breast Feeding": "Breast Feeding",
+    "Hygiene": "Hygiene",
+    "Immunization and Family planning": "Immunization and Family planning",
+
+    "Diet advice": "Diet\n✓ Complete diet",
+    "Rest and sleep advice Dos": "Rest and sleep DOs\n✓ Enough Rest and sleep",
+    "Rest and sleep advice Donts": "Rest and sleep DONTs\n✘ Avoid heavy physical activities",
+    "Supplementary nutritional therapy advice": "Supplementary nutritional therapy\n✓ Take IFA and Calcium tablets for three months",
+    "Breast Feeding advice": "Breast Feeding\n✓ Exlusive Breast feeding to the baby upto 6 months\n✓ Advise the mother about proper Breast feeding positions",
+    "Hygiene advice": "Hygiene\n✓ Maintain proper hygiene to prevent infection of mother and baby\n✓ Wash the perineum daily and after passing stools\n✓ Take bath daily\n✓ Wash the hands before and after handling the baby, especially after cleaning and before feeding the baby",
+    "Immunization advice": "Immunization\n✓ Complete immunization of the baby",
+    "Family Planning advice Dos": "Family Planning DOs\n✓ Advise the couple on birth spacing or limiting the size of the family",
+    "Family Planning advice Donts": "Family Planning DONTs\n✓ Avoid Sexual intercourse till 6 weeks or till perineal wound heals"
   },
   "gu_IN": {
     "Intervention Area": "ઇંટરવેંશન એરિયા",
