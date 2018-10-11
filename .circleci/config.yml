@@ -256,9 +256,10 @@ workflows:
   version: 2
   test_all:
     jobs:
+      - test_models
       - test_android:
-        requires:
-          - test_models
+          requires:
+            - test_models
       - test_health_modules:
           requires:
             - test_models
