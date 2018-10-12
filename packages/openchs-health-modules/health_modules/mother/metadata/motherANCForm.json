@@ -491,6 +491,16 @@
           },
           "displayOrder": 6,
           "mandatory": false
+        },
+        {
+          "name": "Estimated date of delivery by doctor",
+          "uuid": "691853b9-3634-440d-a4b5-12d0c2020125",
+          "keyValues": [],
+          "concept": {
+            "uuid": "dde911fa-15eb-4564-8deb-bba46e9d3744"
+          },
+          "displayOrder": 7,
+          "mandatory": false
         }
       ]
     },

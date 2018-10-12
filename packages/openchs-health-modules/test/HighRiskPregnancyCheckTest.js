@@ -1,3 +1,5 @@
+import TestHelper from "./TestHelper";
+
 const expect = require('chai').expect;
 const moment = require('moment');
 const assert = require('chai').assert;
@@ -41,14 +43,14 @@ describe('High Risk Pregnancy Determination', () => {
         programEncounter.setObservation("High Risk Conditions", ["Dummy high risk condition"]);
         let decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
 
-        let complications = C.findValue(decisions, "High Risk Conditions");
+        let complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
         expect(complications).to.be.an('array').that.is.empty;
 
         programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
             .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
 
         decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-        complications = C.findValue(decisions, "High Risk Conditions");
+        complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
         expect(complications).to.exist;
         expect(complications).to.be.an('array').to.have.lengthOf(1).that.includes('Essential Hypertension');
     });
@@ -63,21 +65,21 @@ describe('High Risk Pregnancy Determination', () => {
             it("Shouldn't mark high risk if Pregnancy complaints are undefined", () => {
                 enrolment.setObservation("Pregnancy complications", undefined);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.be.an('array').that.is.empty;;
             });
 
             it("Shouldn't mark high risk if Pregnancy complaints are empty", () => {
                 enrolment.setObservation("Pregnancy complications", []);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.be.an('array').that.is.empty;;
             });
 
             it("Shouldn't mark high risk if vaginal bleeding is present", () => {
                 enrolment.setObservation("Pregnancy complications", ["Per vaginal bleeding"]);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
                 expect(complications).to.be.an('array').that.includes('Miscarriage');
             });
@@ -90,7 +92,7 @@ describe('High Risk Pregnancy Determination', () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.be.an('array').that.is.empty;
             });
 
@@ -99,7 +101,7 @@ describe('High Risk Pregnancy Determination', () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
                 expect(complications).to.be.an('array').that.includes('Essential Hypertension');
             });
@@ -108,7 +110,7 @@ describe('High Risk Pregnancy Determination', () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
                 expect(complications).to.be.an('array').that.includes('Essential Hypertension');
             });
@@ -117,7 +119,7 @@ describe('High Risk Pregnancy Determination', () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
                 expect(complications).to.be.an('array').that.includes('Essential Hypertension');
             });
@@ -135,14 +137,14 @@ describe('High Risk Pregnancy Determination', () => {
 
                 it('Should not mark superimposed pre-eclampsia and Hypertension with Absent Urine Albumin and normal BP', () => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, 'High Risk Conditions');
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.is.empty;
                 });
 
                 it('Should not mark superimposed pre-eclampsia and Hypertension with Absent Urine Albumin', () => {
                     programEncounter.setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, 'High Risk Conditions');
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
                     expect(complications).to.be.an('array').that.includes('Essential Hypertension');
                     expect(complications).to.be.an('array').to.not.include('Superimposed Pre-Eclampsia');
@@ -159,7 +161,7 @@ describe('High Risk Pregnancy Determination', () => {
 
                 afterEach(() => {
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, 'High Risk Conditions');
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
                     expect(complications).to.be.an('array').that.includes('Essential Hypertension');
                     expect(complications).to.be.an('array').that.includes('Superimposed Pre-Eclampsia');
@@ -202,21 +204,21 @@ describe('High Risk Pregnancy Determination', () => {
             it("Shouldn't mark high risk if Pregnancy complaints are undefined", () => {
                 programEncounter.setObservation("Pregnancy complications", undefined);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.be.an('array').that.is.empty;
             });
 
             it("Shouldn't mark high risk if Pregnancy complaints are empty", () => {
                 programEncounter.setObservation("Pregnancy complications", []);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.be.an('array').that.is.empty;
             });
 
             it("Should mark high risk if vaginal bleeding is present", () => {
                 programEncounter.setObservation("Pregnancy complications", ["Per vaginal bleeding"]);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.exist;
                 expect(complications).to.be.an('array').that.includes('Ante Partum hemorrhage (APH)');
             });
@@ -228,7 +230,7 @@ describe('High Risk Pregnancy Determination', () => {
                 programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                     .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                 const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                const complications = C.findValue(decisions, "High Risk Conditions");
+                const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                 expect(complications).to.be.an('array').that.is.empty;
             });
 
@@ -241,7 +243,7 @@ describe('High Risk Pregnancy Determination', () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
                     expect(complications).to.be.an('array').that.includes('Pregnancy induced hypertension');
                 });
@@ -250,7 +252,7 @@ describe('High Risk Pregnancy Determination', () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
                     expect(complications).to.be.an('array').that.includes('Pregnancy induced hypertension');
                 });
@@ -259,7 +261,7 @@ describe('High Risk Pregnancy Determination', () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.exist;
                     expect(complications).to.be.an('array').that.includes('Pregnancy induced hypertension');
                 });
@@ -275,7 +277,7 @@ describe('High Risk Pregnancy Determination', () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal - 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.is.empty;
                 });
 
@@ -283,7 +285,7 @@ describe('High Risk Pregnancy Determination', () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal - 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.is.empty;
                 });
 
@@ -291,7 +293,7 @@ describe('High Risk Pregnancy Determination', () => {
                     programEncounter.setObservation(systolicConcept.name, systolicConcept.highNormal + 1)
                         .setObservation(diastolicConcept.name, diastolicConcept.highNormal + 1);
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.is.empty;
                 });
             });
@@ -307,7 +309,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Convulsions", "Present")
                         .setObservation(urineAlbumin.name, 'Absent');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.not.includes('Eclampsia');
 
                 });
@@ -318,7 +320,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, 'Trace');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Eclampsia');
                 });
 
@@ -328,7 +330,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+1');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Eclampsia');
                 });
 
@@ -338,7 +340,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+2');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Eclampsia');
                 });
 
@@ -348,7 +350,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+3');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Eclampsia');
                 });
 
@@ -358,7 +360,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Present")
                         .setObservation(urineAlbumin.name, '+4');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Eclampsia');
                 });
 
@@ -368,7 +370,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, 'Trace');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Mild Pre-Eclampsia');
                 });
 
@@ -378,7 +380,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+1');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Mild Pre-Eclampsia');
                 });
 
@@ -388,7 +390,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+2');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Mild Pre-Eclampsia');
                 });
 
@@ -398,7 +400,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+3');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Severe Pre-Eclampsia');
                 });
 
@@ -408,7 +410,7 @@ describe('High Risk Pregnancy Determination', () => {
                         .setObservation("Has she been having convulsions?", "Absent")
                         .setObservation(urineAlbumin.name, '+4');
                     const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-                    const complications = C.findValue(decisions, "High Risk Conditions");
+                    const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
                     expect(complications).to.be.an('array').that.includes('Severe Pre-Eclampsia');
                 });
             });
@@ -421,14 +423,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't have Anemia if hb is normal", () => {
             programEncounter.setObservation(hb.name, 12);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should have Moderate Anemia if hb is moderately below normal (between 7 and 11)", () => {
             programEncounter.setObservation(hb.name, 7.1);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Moderate Anemia');
         });
@@ -436,7 +438,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should have Severe Anemia if hb is severely below normal", () => {
             programEncounter.setObservation(hb.name, 6.9);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Severe Anemia');
         });
@@ -447,14 +449,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if HIV/AIDS negative", () => {
             programEncounter.setObservation(hiv.name, 'Negative');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if HIV/AIDS Postive", () => {
             programEncounter.setObservation(hiv.name, 'Positive');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('HIV/AIDS Positive');
         });
@@ -465,14 +467,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if VDRL negative", () => {
             programEncounter.setObservation(vdrl.name, 'Negative');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if VDRL Postive", () => {
             programEncounter.setObservation(vdrl.name, 'Positive');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('VDRL Positive');
         });
@@ -481,21 +483,21 @@ describe('High Risk Pregnancy Determination', () => {
     describe("Short Stature", () => {
         it("Shouldn't mark high risk if height is not specified", () => {
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.empty;
         });
 
         it("Shouldn't mark high risk if height is above 145cms", () => {
             enrolment.setObservation(height.name, 151);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.empty;
         });
 
         it("Should mark high risk if height is equal to 145cms", () => {
             enrolment.setObservation(height.name, 145);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Short Stature');
         });
@@ -503,7 +505,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if height is less than 145cms", () => {
             enrolment.setObservation(height.name, 100);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Short Stature');
         });
@@ -512,21 +514,21 @@ describe('High Risk Pregnancy Determination', () => {
     describe("Weight Issues", () => {
         it("Shouldn't mark high risk if weight is not specified", () => {
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Shouldn't mark high risk if weight is above 35Kgs", () => {
             programEncounter.setObservation(weight.name, 36);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if weight is equal to 35Kgs", () => {
             programEncounter.setObservation(weight.name, 35);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Underweight');
         });
@@ -534,7 +536,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if weight is less than 35Kgs", () => {
             programEncounter.setObservation(weight.name, 31);
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Underweight');
         });
@@ -556,7 +558,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if age is 18", () => {
             setDOBTo(18);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.empty;
         });
 
@@ -564,7 +566,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if age is equal to 30", () => {
             setDOBTo(30);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, context, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.empty;
         });
         */
@@ -572,7 +574,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if age is less than 18", () => {
             setDOBTo(15);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Under age pregnancy');
         });
@@ -580,7 +582,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if age is more than 30", () => {
             setDOBTo(32);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Old age pregnancy');
         });
@@ -590,14 +592,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if Sickling test negative", () => {
             enrolment.setObservation(sicklingTest.name, 'Negative');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if Sickling Test Positive", () => {
             enrolment.setObservation(sicklingTest.name, 'Positive');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Sickling Positive');
         });
@@ -607,21 +609,21 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if Hb Electrophoresis AA", () => {
             programEncounter.setObservation(hbE.name, 'AA');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Shouldn't mark high risk if Hb Electrophoresis AS", () => {
             programEncounter.setObservation(hbE.name, 'AS');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if Hb Electrophoresis SS", () => {
             programEncounter.setObservation(hbE.name, 'SS');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Sickle cell disease SS');
         });
@@ -632,14 +634,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if HbsAg Negative", () => {
             programEncounter.setObservation(hbsAg.name, 'Negative');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.be.an('array').that.is.empty;
         });
 
         it("Should mark high risk if HbsAg Positive", () => {
             programEncounter.setObservation(hbsAg.name, 'Positive');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Hepatitis B Positive');
         });
@@ -649,7 +651,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if Intrauterine Growth Retardation in Obstetrics History", () => {
             enrolment.setObservation(obstetricsHistory.name, ['Intrauterine Growth Retardation']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Previous Intrauterine Growth Retardation');
         });
@@ -657,7 +659,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if Previous Still Birth in Obstetrics History", () => {
             enrolment.setObservation(obstetricsHistory.name, ['Still Birth']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Previous Still Birth');
         });
@@ -665,7 +667,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if Intrauterine death in Obstetrics History", () => {
             enrolment.setObservation(obstetricsHistory.name, ['Intrauterine death']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Previous Intrauterine Death');
         });
@@ -673,7 +675,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if Retained Placenta in Obstetrics History", () => {
             enrolment.setObservation(obstetricsHistory.name, ['Retained Placenta']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Previous Retained Placenta');
         });
@@ -681,7 +683,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if 3 or more than 3 spontaneous abortions in Obstetrics History", () => {
             enrolment.setObservation(obstetricsHistory.name, ['3 or more than 3 spontaneous abortions']);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Previous Abortion(s)');
         });
@@ -689,7 +691,7 @@ describe('High Risk Pregnancy Determination', () => {
         it("Should mark high risk if Gravida is more than 5", () => {
             enrolment.setObservation("Gravida", 5);
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, referenceDate).enrolmentDecisions;
-            const complicationValues = C.findValue(decisions, 'High Risk Conditions');
+            const complicationValues = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complicationValues).to.exist;
             expect(complicationValues).to.be.an('array').that.includes('Grand Multipara');
         });
@@ -699,14 +701,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if Paracheck negative", () => {
             programEncounter.setObservation(paracheck.name, 'Negative');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.be.an('array').that.is.empty;
         });
 
         it('Should mark high risk and malaria positive if Paracheck PV', () => {
             programEncounter.setObservation(paracheck.name, 'Positive for PV');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.exist;
             expect(complications).to.be.an('array').that.includes('Malaria');
         });
@@ -714,7 +716,7 @@ describe('High Risk Pregnancy Determination', () => {
         it('Should mark high risk and malaria positive if Paracheck PF', () => {
             programEncounter.setObservation(paracheck.name, 'Positive for PF');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.exist;
             expect(complications).to.be.an('array').that.includes('Malaria');
         });
@@ -722,7 +724,7 @@ describe('High Risk Pregnancy Determination', () => {
         it('Should mark high risk and malaria positive if Paracheck PF and PV', () => {
             programEncounter.setObservation(paracheck.name, 'Positive for PF and PV');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.exist;
             expect(complications).to.be.an('array').that.includes('Malaria');
         });
@@ -733,14 +735,14 @@ describe('High Risk Pregnancy Determination', () => {
         it("Shouldn't mark high risk if Paracheck negative", () => {
             programEncounter.setObservation('Foetal presentation', 'Cephalic');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.be.an('array').that.is.empty;
         });
 
         it('Should mark high risk and malaria positive if Paracheck PV', () => {
             programEncounter.setObservation('Foetal presentation', 'Breech');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.exist;
             expect(complications).to.be.an('array').that.includes('Malpresentation');
         });
@@ -748,7 +750,7 @@ describe('High Risk Pregnancy Determination', () => {
         it('Should mark high risk and malaria positive if Paracheck PF', () => {
             programEncounter.setObservation('Foetal presentation', 'Transverse');
             const decisions = motherEncounterDecision.getDecisions(programEncounter, referenceDate).encounterDecisions;
-            const complications = C.findValue(decisions, 'High Risk Conditions');
+            const complications = TestHelper.findCodedValue(decisions, "High Risk Conditions");
             expect(complications).to.exist;
             expect(complications).to.be.an('array').that.includes('Malpresentation');
         });

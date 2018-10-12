@@ -11,6 +11,7 @@ const assert = require('chai').assert;
 const _ = require('lodash');
 const motherEnrolmentDecision = require('../health_modules/mother/motherProgramEnrolmentDecision');
 const C = require('../health_modules/common');
+import TestHelper from './TestHelper';
 
 describe("Mother Program Enrolment", () => {
     let programData;
@@ -31,7 +32,7 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
         });
 
         it("should be advised if mother's age is more than 30", () => {
@@ -41,7 +42,7 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
         });
 
         it("shouldn't exist if mother's age is between 18 and 30", () => {
@@ -51,7 +52,7 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.notInclude(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
         });
 
         it("should be advised if Blood Group has an Rh Negative factor", () => {
@@ -63,7 +64,7 @@ describe("Mother Program Enrolment", () => {
                     .build();
                 const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
                 const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery", `For Blood Group: ${bloodGroup}`);
+                assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery", `For Blood Group: ${bloodGroup}`);
             });
         });
 
@@ -76,7 +77,7 @@ describe("Mother Program Enrolment", () => {
                     .build();
                 const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
                 const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-                assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.notInclude(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
             });
         });
 
@@ -89,8 +90,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has Heart Disease", () => {
@@ -101,8 +102,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has Diabetes", () => {
@@ -113,8 +114,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has Sickle Cell", () => {
@@ -125,8 +126,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has Epilepsy", () => {
@@ -137,8 +138,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has Renal Disease", () => {
@@ -149,8 +150,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has HIV/AIDS", () => {
@@ -161,8 +162,8 @@ describe("Mother Program Enrolment", () => {
                 .build();
             const enrolment = new EnrolmentFiller(programData, mother, new Date()).build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised if mother has a short stature (height lesser than 145cms)", () => {
@@ -174,7 +175,7 @@ describe("Mother Program Enrolment", () => {
                 .forConcept("Height", 143)
                 .build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
         });
 
         it("should be advised if mother has gravida 1", () => {
@@ -186,7 +187,7 @@ describe("Mother Program Enrolment", () => {
                 .forConcept("Gravida", 1)
                 .build();
             const decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
         });
 
         it("should be advised if age of youngest child less than 1", () => {
@@ -198,15 +199,15 @@ describe("Mother Program Enrolment", () => {
                 .forConcept("Age of youngest child", moment(new Date()).subtract(11, "months").toDate())
                 .build();
             let decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
 
             enrolment = new EnrolmentFiller(programData, mother, new Date())
                 .forConcept("Age of youngest child", moment(new Date()).subtract(14, "months").toDate())
                 .build();
             decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+            assert.notInclude(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+            assert.notInclude(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
         });
 
         it("should be advised in case of past pregnancy complications", () => {
@@ -226,9 +227,9 @@ describe("Mother Program Enrolment", () => {
                     .forMultiCoded("Obstetrics history", [pastComplication])
                     .build();
                 let decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-                assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
+                assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional Delivery");
                 if (ancRequired.indexOf(pastComplication) > -1) {
-                    assert.include(C.findValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
+                    assert.include(TestHelper.findCodedValue(decisions.enrolmentDecisions, "Recommendations"), "Institutional ANC");
                 }
             });
         });

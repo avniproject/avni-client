@@ -28,6 +28,10 @@ const gestationalAgeAsOfToday = (estimatedGestationalAgeInWeeks, estimatedOnDate
     return moment(today).diff(estimatedOnDate, 'weeks') + estimatedGestationalAgeInWeeks;
 };
 
+const gestationalAgeForEDD = (edd, asOfDate) => {
+    return 40 - moment(edd).diff(asOfDate, 'weeks');
+};
+
 const eddBasedOnGestationalAge = (estimatedGestationalAgeInWeeks, estimatedOnDate) => {
     let edd = moment(estimatedOnDate).add(40 - estimatedGestationalAgeInWeeks, 'weeks');
     return edd.toDate();
@@ -122,5 +126,6 @@ export {
     isAbsoluteMaxWeightGain,
     currentTrimester,
     gestationalAge,
-    getOldestObsBeforeCurrentEncounter
+    getOldestObsBeforeCurrentEncounter,
+    gestationalAgeForEDD
 };

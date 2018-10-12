@@ -1939,6 +1939,26 @@
         "abnormal": true,
         "uuid": "8b757ad9-c413-4efa-af54-974f65e727ac",
         "name": "Post abortion complications"
+      },
+      {
+        "uuid": "12c00650-bed6-4242-9c29-4ab7af3676cb",
+        "abnormal": true
+      },
+      {
+        "uuid": "6af88b96-93bd-4283-815b-27bc9afae823",
+        "abnormal": true
+      },
+      {
+        "uuid": "87f387a4-434c-45ee-9cbd-c17b310469a7",
+        "abnormal": true
+      },
+      {
+        "uuid": "878c246d-4d2d-4a59-bcd4-fed33baa7814",
+        "abnormal": false
+      },
+      {
+        "uuid": "489f07e5-d9e1-478a-969d-3acad587a15e",
+        "abnormal": true
       }
     ]
   },
@@ -2157,6 +2177,26 @@
       {
         "uuid": "fd175971-d14e-429b-80ea-4700fa748251",
         "abnormal": true
+      },
+      {
+        "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
+        "abnormal": true
+      },
+      {
+        "uuid": "12c00650-bed6-4242-9c29-4ab7af3676cb",
+        "abnormal": true
+      },
+      {
+        "uuid": "6af88b96-93bd-4283-815b-27bc9afae823",
+        "abnormal": true
+      },
+      {
+        "uuid": "87f387a4-434c-45ee-9cbd-c17b310469a7",
+        "abnormal": true
+      },
+      {
+        "uuid": "878c246d-4d2d-4a59-bcd4-fed33baa7814",
+        "abnormal": false
       }
     ]
   },
