@@ -6,6 +6,7 @@ import {
 import {getDecisions} from "../health_modules/mother/pncEncounterDecision";
 import * as C from "../health_modules/common";
 import EntityFactory from "../../openchs-models/test/EntityFactory";
+import TestHelper from "./TestHelper";
 
 
 describe("PNC encounter decisions", () => {

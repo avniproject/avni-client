@@ -1,6 +1,6 @@
 import {expect, assert} from "chai";
 import EntityFactory from "../../../openchs-models/test/EntityFactory";
-import {gestationalAgeCategoryAsOn, eddBasedOnGestationalAge, gestationalAgeAsOfToday} from "../../health_modules/mother/calculations";
+import {gestationalAgeCategoryAsOn, eddBasedOnGestationalAge, gestationalAgeAsOfToday, gestationalAgeForEDD} from "../../health_modules/mother/calculations";
 import motherConcepts from "../../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../../health_modules/commonConcepts.json";
 import ProgramFactory from "../ref/ProgramFactory";
@@ -60,5 +60,11 @@ describe("Calculations Test", () => {
         estimatedOnDate = new Date(2018, 6, 27);
         today = new Date(2018, 6, 27);
         expect(gestationalAgeAsOfToday(estimatedGestationalAgeInWeeks, estimatedOnDate, today)).is.equal(40);
+    });
+
+    it('Should get gestational age from edd', () => {
+        let edd = new Date(2018, 9, 1);
+        let asOfDate = new Date(2018, 8, 1);
+        expect(gestationalAgeForEDD(edd, asOfDate)).is.equal(36);
     });
 });

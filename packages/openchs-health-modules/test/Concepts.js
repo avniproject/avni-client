@@ -33,3 +33,16 @@ module.exports.findConcept = function (conceptName) {
     return Object.assign(new Concept(), concept);
 };
 
+let findConcept = function (conceptName) {
+    return _.find(IMPORTED_CONCEPTS, (concept) => concept.name === conceptName);
+};
+
+let isAnswerDefinedForCodedConcept = function (conceptName, answerConceptName) {
+    let codedConcept = findConcept(conceptName);
+    let answerConcept = findConcept(answerConceptName);
+    return _.some(codedConcept.answers, (x) => x.uuid === answerConcept.uuid);
+};
+
+module.exports.areAnswersDefinedForCodedConcept = function (codedConceptName, answerConceptNames) {
+    return _.reduce(answerConceptNames, (found, answerConceptName) => found && isAnswerDefinedForCodedConcept(codedConceptName, answerConceptName), true);
+};

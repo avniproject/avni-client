@@ -7,6 +7,7 @@ import enrolmentForm from "../health_modules/child/metadata/childProgramEnrolmen
 import birthForm from "../health_modules/child/metadata/birthForm";
 import EnrolmentFiller from "./ref/EnrolmentFiller";
 import EncounterFiller from "./ref/EncounterFiller";
+import TestHelper from "./TestHelper";
 
 const assert = require('chai').assert;
 const _ = require('lodash');
@@ -50,7 +51,7 @@ describe("Child Program Birth", () => {
             it(`is added if ${risk.concept} is '${risk.value}'`, () => {
                 let birthEncounter = protoBirthEncounter.forSingleCoded(risk.concept, risk.value).build();
                 decisions = childEncounterDecision.getDecisions(birthEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
+                assert.include(TestHelper.findCodedValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
                     `expected high risk conditions to include '${risk.riskName}'`);
             });
 
@@ -68,7 +69,7 @@ describe("Child Program Birth", () => {
             it(`is added if ${risk.concept} is '${risk.value}'`, () => {
                 let birthEncounter = protoBirthEncounter.forConcept(risk.concept, risk.value).build();
                 decisions = childEncounterDecision.getDecisions(birthEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
+                assert.include(TestHelper.findCodedValue(decisions.encounterDecisions, "High Risk Conditions"), risk.riskName,
                     `expected high risk conditions to include '${risk.riskName}'`);
             });
 
@@ -87,7 +88,7 @@ describe("Child Program Birth", () => {
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
                 let birthEncounter = protoBirthEncounter.forSingleCoded(referral.concept, referral.value).build();
                 decisions = childEncounterDecision.getDecisions(birthEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
+                assert.include(TestHelper.findCodedValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
                     `expected to be referred to the hospital immediately for '${referral.complication}'`);
             });
 
@@ -105,7 +106,7 @@ describe("Child Program Birth", () => {
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
                 let birthEncounter = protoBirthEncounter.forConcept(referral.concept, referral.value).build();
                 decisions = childEncounterDecision.getDecisions(birthEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
+                assert.include(TestHelper.findCodedValue(decisions.encounterDecisions, 'Refer to the hospital immediately for'), referral.complication,
                     `expected to be referred to the hospital immediately for '${referral.complication}'`);
             });
 
@@ -120,7 +121,7 @@ describe("Child Program Birth", () => {
             it(`is adviced if '${referral.concept}' is '${referral.value}'`, () => {
                 let birthEncounter = protoBirthEncounter.forSingleCoded(referral.concept, referral.value).build();
                 decisions = childEncounterDecision.getDecisions(birthEncounter, new Date());
-                assert.include(C.findValue(decisions.encounterDecisions, 'Refer to the hospital for'), referral.complication,
+                assert.include(TestHelper.findCodedValue(decisions.encounterDecisions, 'Refer to the hospital for'), referral.complication,
                     `expected to be referred to the hospital for '${referral.complication}'`);
             });
 

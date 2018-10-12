@@ -13,7 +13,7 @@ import generateTreatment from "./treatment";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateInvestigationAdvice from "./investigations";
 import generateHighRiskConditionAdvice, {getHighRiskConditionsInDeliveryEncounter} from "./highRisk";
-import {gestationalAgeCategoryAsOn, eddBasedOnGestationalAge} from "./calculations";
+import {gestationalAgeCategoryAsOn, eddBasedOnGestationalAge, gestationalAgeForEDD} from "./calculations";
 import {FormElementsStatusHelper} from "rules-config/rules";
 
 const ANCFormDecision = RuleFactory("3a95e9b0-731a-4714-ae7c-10e1d03cebfe", "Decision");
@@ -163,6 +163,7 @@ export function getDecisions(programEncounter, today) {
         analyseAbdominalExamination();
         analyseOtherRisks();
         determineDurationOfPregnancy();
+        determineGestationalAge();
 
         function addComplicationsObservation() {
             decisions.push({name: 'High Risk Conditions', value: []})
@@ -299,6 +300,13 @@ export function getDecisions(programEncounter, today) {
             let estimatedGestationalAge = programEncounter.getObservationReadableValue('Gestational age');
             if (!_.isNil(estimatedGestationalAge)) {
                 enrolmentDecisions.push({name: "Estimated Date of Delivery", value: eddBasedOnGestationalAge(estimatedGestationalAge, programEncounter.encounterDateTime)});
+            }
+        }
+
+        function determineGestationalAge() {
+            let estimatedDateOfDelivery = programEncounter.getObservationReadableValue('Estimated date of delivery');
+            if (!_.isNil(estimatedDateOfDelivery)) {
+                enrolmentDecisions.push({name: "Gestational age", value: gestationalAgeForEDD(estimatedDateOfDelivery, programEncounter.encounterDateTime)});
             }
         }
 

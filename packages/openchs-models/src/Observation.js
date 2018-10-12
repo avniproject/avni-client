@@ -98,8 +98,15 @@ class Observation {
                 case "string":
                     return this.concept.answers.find((conceptAnswer) => conceptAnswer.concept.uuid === value).name;
                 case "object":
-                    return value.map((answerUUID) =>
-                        this.concept.answers.find((ca) => ca.concept.uuid === answerUUID).name);
+                    return value.map((answerUUID) => {
+                        let answerConcept = this.concept.answers.find((ca) => ca.concept.uuid === answerUUID);
+                        if (!answerConcept) {
+                            let message = `Assertion error: Unable to find ${answerUUID} in coded concept ${this.concept.name}`;
+                            General.logError('Observation.getReadableValue', message);
+                            throw Error(message);
+                        }
+                        return answerConcept.name;
+                    });
             }
         }
         return value;
