@@ -95,7 +95,7 @@ class AddressLevels extends AbstractComponent {
                 multiSelect={this.props.multiSelect}
                 levels={levels}/>);
         return (
-            <View key={this.props.key} style={{
+            <View style={{
                 marginTop: Styles.VerticalSpacingBetweenFormElements,
                 marginBottom: Styles.VerticalSpacingBetweenFormElements,
             }}>
