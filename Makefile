@@ -139,6 +139,9 @@ deploy: ## Deploy apk to bintray
 get_db: ## Get realmdb and copy to ../
 	mkdir -p ../db; adb pull /data/data/com.openchsclient/files/default.realm ../db
 
+put_db: ## Apply realmdb from ../default.realm
+	adb push ../db/default.realm /data/data/com.openchsclient/files/default.realm
+
 rm_db:
 	rm -rf ../db
 
