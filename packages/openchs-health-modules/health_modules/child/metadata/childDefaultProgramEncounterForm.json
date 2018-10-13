@@ -291,6 +291,101 @@
           "mandatory": true
         }
       ]
+    },
+    {
+      "uuid": "d4db4667-2e87-4929-9de5-921d12196e25",
+      "name": "Baby warming",
+      "display": "Baby warming",
+      "displayOrder": 6,
+      "formElements": [
+        {
+          "name": "Child PNC - Baby warming - Dos",
+          "uuid": "81a8c965-37c8-4d64-8da1-bdac3f098032",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "cddc82ff-89f7-494d-af37-d764d4d3d300",
+      "name": "Breast Feeding",
+      "display": "Breast Feeding",
+      "displayOrder": 7,
+      "formElements": [
+        {
+          "name": "Child PNC - Breastfeeding - Dos",
+          "uuid": "fd5cd4f8-0406-45ca-ae1d-ee285d94e281",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "eb7b004a-f570-495a-a0c3-6ecce0c4de3b",
+      "name": "Hygiene",
+      "display": "Hygiene",
+      "displayOrder": 8,
+      "formElements": [
+        {
+          "name": "Child PNC - Hygiene - Dos",
+          "uuid": "ee520d1f-8d64-4f73-9bec-4ae318f350cf",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "e482f207-a243-47b1-98a1-3bb246ba5a48",
+      "name": "Child's weight",
+      "display": "Child's weight",
+      "displayOrder": 9,
+      "formElements": [
+        {
+          "name": "Child PNC - Weight - Dos",
+          "uuid": "670644a6-4acf-45ee-8bd5-811146ad5d28",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
+    },
+    {
+      "uuid": "1b25d014-f4c3-48cd-ba6b-abb00c186329",
+      "name": "Registration and immunisation",
+      "display": "Registration and immunisation",
+      "displayOrder": 10,
+      "formElements": [
+        {
+          "name": "Child PNC - Registration Immunisation - Dos",
+          "uuid": "77f470aa-4a1a-4297-8f93-c43b2d93e649",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "uuid": "b4e5a662-97bf-4846-b9b7-9baeab4d89c4"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        }
+      ]
     }
   ]
 }
