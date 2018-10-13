@@ -163,7 +163,7 @@ export function getDecisions(programEncounter, today) {
         analyseAbdominalExamination();
         analyseOtherRisks();
         determineDurationOfPregnancy();
-        determineGestationalAge();
+        eddUpdated();
 
         function addComplicationsObservation() {
             decisions.push({name: 'High Risk Conditions', value: []})
@@ -303,9 +303,10 @@ export function getDecisions(programEncounter, today) {
             }
         }
 
-        function determineGestationalAge() {
-            let estimatedDateOfDelivery = programEncounter.getObservationReadableValue('Estimated date of delivery');
+        function eddUpdated() {
+            let estimatedDateOfDelivery = programEncounter.getObservationReadableValue('Estimated Date of Delivery');
             if (!_.isNil(estimatedDateOfDelivery)) {
+                enrolmentDecisions.push({name: "Estimated Date of Delivery", value: estimatedDateOfDelivery});
                 enrolmentDecisions.push({name: "Gestational age", value: gestationalAgeForEDD(estimatedDateOfDelivery, programEncounter.encounterDateTime)});
             }
         }
