@@ -700,7 +700,15 @@
     "Hygiene Donts": "हे करू नये\n✘ शिशूच्या नाळास कोणतेही पदार्थ लाऊ नये",
     "Child's Weight Dos": "हे करावे\n✓ शिशुचे जन्मानंतर लगेच वजन करणे आवश्यक आहे\n✓ शिशुचे जन्मानंतरचे वजन २.५ किलो पेक्षा कमी असल्यास त्या शिशूची अधिक काळजी घेणे अत्यंत आवश्यक आहे",
     "Registration Dos": "हे करावे\n✓ शिशूच्या जन्माची नोंदणी ग्रामपंचायत येथे करावी व जन्माचा दाखला घ्यावा\n✓ अंगणवाडी केंद्रामधून पूरक पोषक आहार मिळविण्याकरिता बाळाच्या जन्माची नोंदणी अंगणवाडीतसुद्धा करावी",
-    "Immunization Dos": "हे करावे\n✓ शिशूस जन्मतःचे लसीकरण करून घावे"
+    "Immunization Dos": "हे करावे\n✓ शिशूस जन्मतःचे लसीकरण करून घावे",
+    "Baby warming": "शिशुस उबदार ठेवण्याविषयीचा सल्ला",
+    "Child PNC - Baby warming - Dos": "हे करावे\n✓ शिशूस उबदार/गरम ठेवावे\n✓ कांगारू मदर केयर",
+    "Child PNC - Breastfeeding - Dos": "हे करावे\n✓ शिशूस जन्मानंतर एका तासाच्या आत स्तनपान सुरु करावे\n✓ पहिले ६ महिने केवळ मातेचे दूधाच द्यावे\n✓ दुध पाजण्याच्या काहीही मर्यादा नाही आहेत. सामान्यतः स्तनपान हे प्रत्येक २ तासांनी करावे व रात्री कमीत कमी दोन वेळा दुध पाजावे",
+    "Child PNC - Hygiene - Dos": "हे करावे\n✓ शिशूची नाळ/मोड्डीचा भाग कोरडा ठेवावा. त्यावर काहीही झाकू नये\n✓ शिशूस शी, लाघवी, रक्त असे काही लागले असल्यास त्वरित पुसून काढावे",
+    "Child's weight": "शिशुच्या वजनाविषयीचा सल्ला",
+    "Child PNC - Weight - Dos": "हे करावे\n✓ शिशुचे जन्मानंतर लगेच वजन करणे आवश्यक आहे\n✓ शिशुचे जन्मानंतरचे वजन २.५ किलो पेक्षा कमी असल्यास त्या शिशूची अधिक काळजी घेणे अत्यंत आवश्यक आहे",
+    "Registration and immunisation": "नोंदणी विषयीचा सल्ला, लसीकरणाविषयीचा सल्ला",
+    "Child PNC - Registration Immunisation - Dos": "हे करावे\n✓ शिशूच्या जन्माची नोंदणी ग्रामपंचायत येथे करावी व जन्माचा दाखला घ्यावा\n✓ अंगणवाडी केंद्रामधून पूरक पोषक आहार मिळविण्याकरिता बाळाच्या जन्माची नोंदणी अंगणवाडीतसुद्धा करावी\n✓ शिशूस जन्मतःचे लसीकरण करून घावे"
   },
   "en": {
     "maleCannotBePregnant": "Male cannot be pregnant",
@@ -817,7 +825,15 @@
     "Hygiene Donts": "Hygiene DONTs\n✘ Don't apply any substance to the umbilical cord",
     "Child's Weight Dos": "Child's weight DOs\n✓ Essential to weigh baby at birth\n✓ If baby weighs less than 2.5 kg, it is essential to take special care of baby",
     "Registration Dos": "Registration DOs\n✓ Birth registration\n✓ Anganwadi registration",
-    "Immunization Dos": "Receive immunization at birth"
+    "Immunization Dos": "Receive immunization at birth",
+    "Baby warming": "Baby warming",
+    "Child PNC - Baby warming - Dos": "Dos\n✓ Keep the child warm\n✓ Kangaroo Mother care: Skin to skin contact with mother and exclusive breast feeding",
+    "Child PNC - Breastfeeding - Dos": "Dos\n✓ Start breastfeeding soon after birth within 1 hour of birth\n✓ First 6 months only Breast feeding\n✓ No limit for breastfeeding. Ideally breast feeding every after 2 hours and minimum 2 feedings during night",
+    "Child PNC - Hygiene - Dos": "Dos\n✓ Keep Umbilical cord dry and uncovered\n✓ Wipe off any meconium or blood from the baby's skin",
+    "Child's weight": "Child's weight",
+    "Child PNC - Weight - Dos": "Dos\n✓ Essential to weigh baby at birth\n✓ If baby weighs less than 2.5 kg, it is essential to take special care of baby",
+    "Registration and immunisation": "Registration and immunisation",
+    "Child PNC - Registration Immunisation - Dos": "Dos\n✓ Birth registration\n✓ Anganwadi registration\n✓ Receive immunization at birth"
   },
   "gu_IN": {
     "Intervention Area": "ઇંટરવેંશન એરિયા",
