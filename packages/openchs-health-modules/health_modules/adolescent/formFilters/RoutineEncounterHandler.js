@@ -698,13 +698,13 @@ export default class RoutineEncounterHandler {
     }
 
     _applicableForAddictionCounselling(programEncounter) {
-        let bothParentsAddicted = new RuleCondition({programEncounter: programEncounter})
-            .when.valueInEncounter("Father's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco")
-            .and.valueInEncounter("Mother's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco")
+        let eitherParentAddicted = new RuleCondition({programEncounter: programEncounter})
+            .when.valueInEncounter("Father's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both")
+            .or.valueInEncounter("Mother's Addiction").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both")
             .matches();
 
         return new RuleCondition({programEncounter: programEncounter})
-            .whenItem(bothParentsAddicted).is.truthy
+            .whenItem(eitherParentAddicted).is.truthy
             .or.when.valueInEncounter("Are friends addicted?").containsAnyAnswerConceptName("Yes")
             .or.when.valueInEncounter("Addiction Details").containsAnyAnswerConceptName("Alcohol", "Tobacco", "Both")
             .or.when.valueInLastEncounter("Counselling for Addiction Done", RoutineEncounterHandler.visits.MONTHLY)
