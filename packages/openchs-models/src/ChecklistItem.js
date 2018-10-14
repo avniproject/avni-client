@@ -69,6 +69,10 @@ class ChecklistItem {
         return this.completed ? ChecklistItemStatus.completed : this.detail.stateConfig.find(status => status.isApplicable(baseDate));
     }
 
+    get editable() {
+        return !this.detail.voided;
+    }
+
     get applicableStateName() {
         return this.applicableState.state;
     }

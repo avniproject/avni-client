@@ -8,6 +8,7 @@ import {Alert, DatePickerAndroid, View, TouchableHighlight} from "react-native";
 import {ChecklistItem} from "openchs-models";
 import _ from "lodash";
 import CHSNavigator from "../../utility/CHSNavigator";
+import ObservationsHolder from "openchs-models/src/ObservationsHolder";
 
 class ChecklistItemDisplay extends AbstractComponent {
     static propTypes = {
@@ -25,7 +26,12 @@ class ChecklistItemDisplay extends AbstractComponent {
     }
 
     completeChecklistItem(checklistItem) {
-        return () => CHSNavigator.navigateToChecklistItemView(this, checklistItem);
+        return () => {
+            if (this.props.checklistItem.editable)
+                CHSNavigator.navigateToChecklistItemView(this, checklistItem);
+            else
+                Alert.alert(this.I18n.t("voidedChecklistItemDetailAlertTitle"), new ObservationsHolder(checklistItem.observations).toString(this.I18n));
+        }
     }
 
     render() {

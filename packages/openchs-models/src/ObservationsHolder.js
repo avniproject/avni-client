@@ -107,6 +107,14 @@ class ObservationsHolder {
         else
             this.observations.push(Observation.create(concept, valueWrapper));
     }
+
+    toString(I18n) {
+        let display = '';
+        this.observations.forEach((obs) => {
+            display += `${I18n.t(obs.concept.name)}: ${obs.getReadableValue()}\n`;
+        });
+        return display;
+    }
 }
 
 export default ObservationsHolder;

@@ -183,5 +183,6 @@
   "voidedIndividualAlertMessage": "Changes can not be made to voided individual",
   "thisIndividualHasBeenVoided": "THIS INDIVIDUAL HAS BEEN VOIDED",
   "voidedLabel": "(VOIDED)",
-  "void": "Void"
+  "void": "Void",
+  "voidedChecklistItemDetailAlertTitle": "Cannot change because it has been discontinued"
 }
