@@ -15,6 +15,21 @@ class ChildPNCFormHandler {
             .or.when.valueInEncounter("Duration in hours between birth and meconium").is.defined;
         return statusBuilder.build();
     }
+
+    whenDidTheChildPassUrineForTheFirstTimeAfterBirth(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child passed urine since birth").is.yes;
+        return statusBuilder.build();
+    }
+
+    whenDidTheChildPassMeconiumForTheFirstTimeAfterBirth(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child passed meconium since birth").is.yes;
+        return statusBuilder.build();
+    }
+
+
+
 }
 
 export default ChildPNCFormHandler;

@@ -48,9 +48,17 @@ const immediateReferralAdvice = (enrolment, encounter, today = new Date()) => {
         .when.encounterType.equals("Child PNC")
         .when.valueInEncounter("Duration in hours between birth and first urination").greaterThan(48);
 
+    referralAdvice.addComplication("Urine not passed since birth")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child passed urine since birth").is.no;
+
     referralAdvice.addComplication("Meconium not passed for more than 48 hours after birth")
         .when.encounterType.equals("Child PNC")
         .when.valueInEncounter("Duration in hours between birth and meconium").greaterThan(48);
+
+    referralAdvice.addComplication("Meconium not passed since birth")
+        .when.encounterType.equals("Child PNC")
+        .when.valueInEncounter("Child passed meconium since birth").is.no;
 
     referralAdvice.addComplication("Child PNC cry related complaints")
         .when.encounterType.equals("Child PNC")

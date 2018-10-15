@@ -11,6 +11,16 @@
       "display": "Recent History",
       "formElements": [
         {
+          "name": "Has the child passed urine since birth?",
+          "uuid": "d1c666b6-8433-4afa-b2f0-264828b2781a",
+          "keyValues": [],
+          "concept": {
+            "uuid": "317ba6a6-d989-45df-82c7-44fc87c0cc32"
+          },
+          "displayOrder":1,
+          "mandatory": true
+        },
+        {
           "name": "When did the child pass urine for the first time after birth?",
           "uuid": "d6b5cb76-843b-48b7-a0f1-645caf9a178e",
           "keyValues": [],
@@ -18,7 +28,17 @@
             "name": "Duration in hours between birth and first urination",
             "uuid": "0a3fb6d3-ea49-4902-95ae-e2514d3739b6"
           },
-          "displayOrder": 1,
+          "displayOrder": 1.1,
+          "mandatory": true
+        },
+        {
+          "name": "Has the child passed meconium since birth?",
+          "uuid": "d15703be-5c42-45ad-bebb-a5a438cf7fb4",
+          "keyValues": [],
+          "concept": {
+            "uuid": "b58f5ae0-36f8-4ab9-8331-5597c71a4efb"
+          },
+          "displayOrder":2 ,
           "mandatory": true
         },
         {
@@ -29,7 +49,7 @@
             "name": "Duration in hours between birth and meconium",
             "uuid": "e7766535-327c-481c-8eb9-bc43cdb2fab5"
           },
-          "displayOrder": 2,
+          "displayOrder": 2.1,
           "mandatory": true
         },
         {
