@@ -488,7 +488,7 @@
     ]
   },
   {
-    "name": "Aadhar ID",
+    "name": "Aadhaar ID",
     "uuid": "43c4860f-fccf-48c9-818a-191bc0f8d0cf",
     "dataType": "Numeric"
   },

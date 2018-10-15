@@ -1,36 +1,46 @@
 const _ = require('lodash');
 const languages = ['en', 'mr_IN', 'gu_IN', 'hi_IN'];
-let coreLabelKeys = [];
+const candidateLanguage = 'hi_IN';
+let allCoreLabelKeys = [];
+let translatedCoreKeys = {};
 
-let alreadyTranslatedGuKeys = Object.keys(require('../openchs-android/config/messages.gu_IN'));
-let alreadyTranslatedHiKeys = Object.keys(require('../openchs-android/config/messages.hi_IN'));
-let alreadyTranslatedMrCoreKeys = Object.keys(require('../openchs-android/config/messages.mr_IN'));
+translatedCoreKeys['gu_IN'] = Object.keys(require('../openchs-android/config/messages.gu_IN'));
+translatedCoreKeys['hi_IN'] = Object.keys(require('../openchs-android/config/messages.hi_IN'));
+translatedCoreKeys['mr_IN'] = Object.keys(require('../openchs-android/config/messages.mr_IN'));
+let coreEnglishTranslations = require('../openchs-android/config/messages.en');
+translatedCoreKeys['en'] = Object.keys(coreEnglishTranslations);
 
-
-const alreadyTranslatedEngKeys = Object.keys(require('../openchs-android/config/messages.en'));
-const engKeyValues = require('../openchs-android/config/messages.en');
-coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedEngKeys);
-coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedGuKeys);
-coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedHiKeys);
-coreLabelKeys = coreLabelKeys.concat(alreadyTranslatedMrCoreKeys);
-
-const deDupedLabelKeys = _.uniq(coreLabelKeys);
-console.log(`Messages key present as core label key, but not in Gujarati.\n${_.difference(deDupedLabelKeys, alreadyTranslatedGuKeys)}\n\n`);
-console.log(`Messages key present as core label key, but not in Hindi.\n${_.difference(deDupedLabelKeys, alreadyTranslatedHiKeys)}\n\n`);
-console.log(`Messages key present as core label key, but not in Marathi.\n`);
-_.difference(deDupedLabelKeys, alreadyTranslatedMrCoreKeys).map(function (candidate){
-    return console.log(engKeyValues[candidate]);
+languages.forEach(language => {
+    allCoreLabelKeys = allCoreLabelKeys.concat(translatedCoreKeys[language])
 });
+allCoreLabelKeys = _.uniq(allCoreLabelKeys);
 
-let candidates = require('./t9n-candidates.json');
-let alreadyTranslatedCustom = require('../openchs-health-modules/health_modules/customMessages.json');
-let alreadyTranslatedCustomKeys = Object.keys(alreadyTranslatedCustom.mr_IN);
-let candidateNames = candidates.map(function (candidate) {
+let candidateKeys = require('./t9n-candidates.json').map(function (candidate) {
     return candidate.name;
 });
-candidateNames = _.difference(candidateNames, alreadyTranslatedCustomKeys);
-candidateNames = _.difference(candidateNames, alreadyTranslatedMrCoreKeys);
-console.log(`Data based label keys, not translated in  Marathi: ${candidateNames.length}\n`);
-candidateNames.forEach(function (item) {
+let customMessages = require('../openchs-health-modules/health_modules/customMessages.json');
+
+let untranslatedCoreKeys = _.difference(allCoreLabelKeys, translatedCoreKeys[candidateLanguage]);
+console.log(`Number of core keys not translated: ${untranslatedCoreKeys.length}\n`);
+untranslatedCoreKeys.forEach(function (item) {
+    console.log(item);
+});
+console.log(`------------ CORRESPONDING ENGLISH ITEMS ---------------------`);
+untranslatedCoreKeys.forEach(function (item) {
+    console.log(coreEnglishTranslations[item]);
+});
+console.log(`------------------------------------------------------------------------------------------------`);
+
+let untranslatedCustomKeys = _.difference(candidateKeys, Object.keys(customMessages[candidateLanguage]));
+untranslatedCustomKeys = _.difference(untranslatedCustomKeys, translatedCoreKeys[candidateLanguage]);
+console.log(`Number of custom keys not translated: ${untranslatedCustomKeys.length}\n`);
+untranslatedCustomKeys.forEach(function (item) {
+    console.log(item);
+});
+console.log(`------------------------------------------------------------------------------------------------`);
+
+let unnecessarilyTranslatedKeys = _.difference(customMessages[candidateLanguage], candidateKeys);
+console.log(`Number of keys not translated but not present: ${unnecessarilyTranslatedKeys.length}\n`);
+unnecessarilyTranslatedKeys.forEach(function (item) {
     console.log(item);
 });
