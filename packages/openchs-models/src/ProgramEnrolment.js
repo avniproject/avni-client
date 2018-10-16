@@ -387,6 +387,15 @@ class ProgramEnrolment extends BaseEntity {
         return encounterTypeNames.some(this.hasEncounterOfType);
     }
 
+    hasEncounterWithObservationValueAfterDate(encounterTypeName,afterDate,conceptName,value){
+        const obsAfterDate =
+            _(this.getEncounters())
+            .filter(en => moment(en.encounterDateTime).isAfter(afterDate))
+            .filter(en => en.encounterType.name === encounterTypeName)
+            .find(en => en.getObservationReadableValue(conceptName) === value);
+        return !_.isNil(obsAfterDate);
+    }
+
     //get has been taken by the prototype
     getObservationValue(conceptName) {
         const observationValue = this.findObservation(conceptName);

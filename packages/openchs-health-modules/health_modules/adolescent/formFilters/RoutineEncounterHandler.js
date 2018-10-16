@@ -2,6 +2,7 @@ import {FormElementStatusBuilder, FormElementStatus, RuleCondition} from "rules-
 import _ from "lodash";
 import EncounterTypeFilter from "./EncounterTypeFilter";
 import C from '../../common';
+import moment from "moment";
 
 export default class RoutineEncounterHandler {
     static get visits() {
@@ -387,18 +388,13 @@ export default class RoutineEncounterHandler {
     }
 
     mhmKitReceived(programEncounter, formElement) {
-        let statusBuilder = new FormElementStatusBuilder({
-            programEncounter: programEncounter,
-            formElement: formElement
-        });
+        let statusBuilder = new FormElementStatusBuilder({programEncounter: programEncounter,formElement: formElement});
+        let afterDate = moment(programEncounter.encounterDateTime).subtract(6,"months").toDate();
+        let mhmKitReceivedStatus = programEncounter.programEnrolment.hasEncounterWithObservationValueAfterDate("Monthly Visit",afterDate,"MHM Kit received","Yes");
+
         statusBuilder.show()
             .latestValueInAllEncounters("Menstruation started").containsAnswerConceptName("Yes")
-            .and
-            .whenItem(new RuleCondition({programEncounter: programEncounter})
-                .whenItem(programEncounter.encounterType.name).equals("Half-Yearly Visit").matches()).is.truthy
-            .or
-            .whenItem(new RuleCondition({programEncounter: programEncounter})
-                .latestValueInPreviousEncounters("MHM Kit received").is.notDefined.matches()).is.truthy;
+            .and.whenItem(mhmKitReceivedStatus).is.not.truthy;
         return statusBuilder.build();
     }
 
