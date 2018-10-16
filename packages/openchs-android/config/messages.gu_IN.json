@@ -4,29 +4,22 @@
   "age": "ઉંમર",
   "obsKeyword": "અન્ય ડેટા",
   "lowestAddressLevel": "ગામ",
-
   "months": "મહિના",
   "month": "માસ",
   "years": "વર્ષો",
   "year": "વર્ષ",
   "date": "તારીખ",
   "days": "દિવસ",
-
-
   "Male": "પુરૂષ",
   "Female": "સ્ત્રી",
   "Other": "અન્ય",
-
   "enrolInSpecificProgram": "{{program}} નોંધણી",
-
   "exitDate": "બહાર નીકળો તારીખ",
   "chooseADate": "તારીખ મૂકો",
-
   "next": "આગળ",
   "previous": "અગાઉના",
   "save": "સાચવો",
   "deleteConfirmation": "શું તમે બધા સાચવેલા સત્રોને કાઢી નાખવા માગો છો?",
-
   "validationResult": "માન્યતા ભૂલ",
   "numericValueValidation": "માન્ય નંબર નથી",
   "emptyValidationMessage": "ત્યાં કોઈ મૂલ્ય સ્પષ્ટ નથી",
@@ -35,10 +28,8 @@
   "encounterDateBeforeRegistrationDate": "મુલાકાતની તારીખ નોંધણી તારીખ પહેલાં ન હોઈ શકે",
   "encounterDateNotInBetweenEnrolmentAndExitDate": "નોંધણી અને બહાર નીકળવાની તારીખો વચ્ચે તારીખની મુલાકાત ન કરો",
   "registrationBeforeDateOfBirth": "નોંધણી જન્મ તારીખ પહેલાં ન હોઈ શકે",
-
   "numberAboveHiAbsolute": "{{limit}} અથવા {{limit}} કરતાં ઓછી હોવી જોઈએ",
   "numberBelowLowAbsolute": "{{limit}} અથવા {{limit}} થી વધુ હોવો જોઈએ",
-
   "syncError": "સમન્વયન નિષ્ફળ થયું",
   "syncData": "સમન્વય ડેટા",
   "syncingData": "સમન્વય ડેટા",
@@ -106,7 +97,6 @@
   "notEnrolledInAnyProgram": "કોઈ પણ પ્રોગ્રામમાં પ્રવેશ નથી",
   "vaccinations": "રસીકરણ",
   "checklists": "ચેકલિસ્ટ્સ",
-
   "completed": "પર પૂર્ણ  {{completedOn}}",
   "dueOn": "આના કારણે {{dueOn}}",
   "expired": "સમાપ્ત થઈ",
@@ -115,7 +105,6 @@
   "askIfNotComplete": "આ ચેકલિસ્ટ આઇટમ પૂર્ણ નથી",
   "isNotDueOn": "{{checklistItemName}} પર હજુ સુધી કારણે નથી {{dueDate}}",
   "isAfterMaxDate": "{{checklistItemName}} મંજૂર મહત્તમ તારીખ {{maxDate}} પછી છે",
-
   "ENCOUNTER_DATE_TIME": "મુલાકાતની તારીખ",
   "enterData": "ડેટા દાખલ કરો",
   "systemRecommendationsTitleForRegistration": "નોંધણી",
@@ -128,20 +117,16 @@
   "Info": "ઇન્ફો",
   "Debug": "ડીઇબગ",
   "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}",
-
   "individualDashboard": "ડેશબોર્ડ",
-
   "systemRecommendations": "સિસ્ટમ ભલામણો",
   "observations": "અવલોકનો",
-
   "deleteSchemaConfirmationMessage": "તમે એવી માહિતી ગુમાવશો જે સમન્વયિત નથી",
   "deleteSchemaNoticeTitle": "ડેટા કાઢી નાખો?",
   "userId": "વપરાશકર્તા ID",
   "password": "પાસવર્ડ",
   "changePassword": "પાસવર્ડ બદલો",
   "logout": "લૉગ આઉટ",
-
-  "cancelVisit" : "મુલાકાત રદ કરો",
+  "cancelVisit": "મુલાકાત રદ કરો",
   "plannedVisits": "આયોજનની મુલાકાત",
   "unplannedVisits": "બિનઆયોજિત મુલાકાત",
   "or": "અથવા",
@@ -175,7 +160,31 @@
   "selfRelationshipNotAllowed": "સ્વયં સંબંધને મંજૂરી નથી",
   "deleteRelativeNoticeTitle": "સંબંધિત કાઢી નાખો?",
   "deleteRelativeConfirmationMessage": "આ {{individualA}} અને {{individualB}} વચ્ચેના સંબંધને રદ્દ કરશે.",
-  "Program exit": "કાર્યક્રમ બહાર"
-
-
+  "Program exit": "કાર્યક્રમ બહાર",
+  "timeValueValidation": "સમય માટે કોઈ મૂલ્ય ઉલ્લેખિત નથી",
+  "ageTooHigh": "ઉંમર એ વ્યક્તિ 120 વર્ષથી ઉપર છે",
+  "minutes": "મિનિટ",
+  "hours": "કલાક",
+  "chooseDateAndTime": "તારીખ અને સમય પસંદ કરો",
+  "chooseATime": "સમય પસંદ કરો",
+  "openCases": "ખોલો",
+  "total": "કુલ",
+  "summary": "સારાંશ",
+  "Not Known Yet": "હજુ સુધી જાણતા નથી",
+  "uniqueAnswerConflict": "{{answer}} અન્ય જવાબો સાથે પસંદ કરી શકાતા નથી",
+  "withHighRiskMember": "જોખમી સભ્ય",
+  "voidIndividualConfirmationTitle": "આ વ્યક્તિને રદ કરો છો?",
+  "voidIndividualConfirmationMessage": "આ વ્યક્તિ રદ થશે",
+  "includeVoided": "રદ કરેલ વ્યક્તિને સામેલ કરો",
+  "voidedIndividualAlertTitle": "રદ કરેલ વ્યક્તિ",
+  "voidedIndividualAlertMessage": "રદ કરેલ વ્યક્તિેમા ફેરફારો કરી શકાતા નથી",
+  "thisIndividualHasBeenVoided": "આ વ્યક્તિ રદ કરવામા આવેલ છે",
+  "voidedLabel": "રદ કરેલ છે",
+  "void": "રદ",
+  "voidedChecklistItemDetailAlertTitle": "બદલી શકાતું નથી કારણ કે તે બંધ કરવામાં આવ્યું છે",
+  "Month": "માસ",
+  "Year": "વર્ષ",
+  "Growth Chart": "વિકાસ ચાર્ટ",
+  "Other reason (Please specify)": "અન્ય કારણ (કૃપા કરીને સ્પષ્ટ કરો)",
+  "Address": "સરનામું"
 }
