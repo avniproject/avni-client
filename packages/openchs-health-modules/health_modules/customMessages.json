@@ -736,6 +736,7 @@
     "false": "false",
     "Required12Digits": "Required 12 digits",
     "Required10Digits": "Required 10 digits",
+    "Required13Digits": "Required 13 digits",
     "Required1Digit": "Required single digit",
     "requiredFormatxxDotx": "Required format XX.X",
     "RequiredPositiveNumbers": "Required positive number",
