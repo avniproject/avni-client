@@ -11,6 +11,26 @@
       "display": "Anthropometry",
       "formElements": [
         {
+          "name": "Skip capturing height",
+          "uuid": "4f6e842e-8556-448b-9ebf-93ad06a333a5",
+          "keyValues": [],
+          "concept": {
+            "uuid": "b26ab849-6550-4245-8637-a9fc7fb4eb60"
+          },
+          "displayOrder": 1,
+          "mandatory": false
+        },
+        {
+          "name": "Reason for skipping height capture.",
+          "uuid": "9ef90251-e2b8-411b-845c-f980d2ca1427",
+          "keyValues": [],
+          "concept": {
+            "uuid": "8d378a39-2030-4cfe-ac4d-c8e97f718b23"
+          },
+          "displayOrder": 1.1,
+          "mandatory": true
+        },
+        {
           "name": "Height",
           "uuid": "219bfbb0-03ff-4be4-a8c1-5eb98ab6fe6c",
           "keyValues": [],
@@ -18,7 +38,7 @@
             "uuid": "d883d5fe-e17d-4136-b989-089fa0295e34",
             "name": "Height"
           },
-          "displayOrder": 1,
+          "displayOrder": 1.2,
           "mandatory": true
         },
         {
