@@ -81,7 +81,7 @@ class Duration {
     }
 
     changeValue(value) {
-        return new Duration(value, this.durationUnit);
+        return new Duration(value.replace(/[^0-9]/g, ''), this.durationUnit);
     }
 
     static fromDataEntryDate(durationUnit, date, dataEntryDate) {
