@@ -199,6 +199,26 @@
     "dataType": "Numeric"
   },
   {
+    "name": "Number of days since child passing greenish stool",
+    "uuid": "26aeaa02-3fdb-4cf5-a6a1-a16e650c1c71",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Number of days since blood in stool",
+    "uuid": "e64a7a27-b93d-404e-8cb1-28a2ea2a1b74",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Number of days since not passing stool",
+    "uuid": "7f169dca-2c2f-473c-a736-b87febd21989",
+    "dataType": "Numeric"
+  },
+  {
+    "name": "Number of days since child cries while passing stool",
+    "uuid": "7879f94b-31a6-4ac1-b307-284322ef5bef",
+    "dataType": "Numeric"
+  },
+  {
     "name": "Any activity problems",
     "uuid": "16dd616a-4fc9-4fcc-8f24-4123a6dcfa21",
     "dataType": "Coded",
@@ -939,6 +959,11 @@
     "name": "Child cries before or while passing stool"
   },
   {
+    "name": "Greenish Stool",
+    "uuid": "5721b5e2-5492-4473-aee6-50b9383c4d41",
+    "dataType": "NA"
+  },
+  {
     "name": "Child PNC stool related complaints",
     "uuid": "bcd4495f-41fa-494b-a5d9-a766c87f37f9",
     "dataType": "Coded",
@@ -956,12 +981,18 @@
       {
         "name": "Not passing stools",
         "uuid": "6481a8c2-fab8-49ad-bb37-d6abb72513ca",
-        "abnormal": true
+        "abnormal": true,
+        "unique": true
       },
       {
         "uuid": "4b26172a-584e-461d-afb6-938eb88391eb",
         "abnormal": true,
         "name": "Child cries before or while passing stool"
+      },
+      {
+        "name": "Greenish Stool",
+        "uuid": "5721b5e2-5492-4473-aee6-50b9383c4d41",
+        "abnormal" : true
       },
       {
         "name": "None",
