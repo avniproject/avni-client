@@ -169,5 +169,7 @@
   "selfRelationshipNotAllowed": "Self relationship not allowed",
   "deleteRelativeNoticeTitle": "Delete a relative?",
   "deleteRelativeConfirmationMessage": "This will remove relationship between {{individualA}} and {{individualB}}",
-  "familyCountInThisCategory": "Total Families in this category : {{count}}"
+  "familyCountInThisCategory": "Total Families in this category : {{count}}",
+  "forceSyncWarning": "Force Sync Warning",
+  "forceSyncWarningMessage": "Are you sure you want to go ahead with this action, this action will cause the Sync to take a long time to finish. It is advisable to only use this action when directed by the support team."
 }
