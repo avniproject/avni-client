@@ -29,6 +29,11 @@ class ChildPNCFormHandler {
     }
 
 
+    whatElseIsTheBabyBeingFed(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Is baby exclusively breastfeeding").is.no;
+        return statusBuilder.build();
+    }
 
 }
 

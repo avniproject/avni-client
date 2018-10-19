@@ -1084,7 +1084,6 @@
     "uuid": "7d7e9ec2-dfd2-4ad3-b78d-0cae5eb26c6b",
     "dataType": "NA"
   },
-
   {
     "name": "Other Birth Defects",
     "uuid": "58d9b2d8-1d91-4935-9a55-f35a66964db1",
@@ -1104,5 +1103,10 @@
         "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70"
       }
     ]
+  },
+  {
+    "uuid": "e97d83a0-0519-4dc3-9673-705b66c95e08",
+    "name": "Other things fed to the baby",
+    "dataType": "Text"
   }
 ]

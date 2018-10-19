@@ -194,6 +194,16 @@
           },
           "displayOrder": 8,
           "mandatory": true
+        },
+        {
+          "name": "What else is the baby being fed?",
+          "uuid": "1bb5e368-fca1-4b8b-8ff7-7b84285509ed",
+          "keyValues": [],
+          "concept": {
+            "uuid": "e97d83a0-0519-4dc3-9673-705b66c95e08"
+          },
+          "displayOrder": 9,
+          "mandatory": false
         }
       ]
     },
