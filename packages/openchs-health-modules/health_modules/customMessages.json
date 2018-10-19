@@ -961,7 +961,9 @@
     "How is the incision area": "चिरा घेतलेला भाग कसा आहे ..?",
     "Is the mother using any contraceptive method?": "आई कुठल्या गर्भनिरोधक पद्धतीचा वापर करत आहे का..?",
     "Type of contraceptive method": "गर्भनिरोधक पद्धतीचा प्रकार",
-    "Availed Government scheme JSY?": "जे.एस.वाय या शासकीय योजनेच्या लाभ मिळाला का..?"
+    "Availed Government scheme JSY?": "जे.एस.वाय या शासकीय योजनेच्या लाभ मिळाला का..?",
+    "Other things fed to the baby": "बाळाला खायला दिलेली इतर गोष्टी",
+    "What else is the baby being fed?": "बाळ काय खात आहे?"
   },
   "en": {
     "maleCannotBePregnant": "Male cannot be pregnant",
