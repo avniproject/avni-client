@@ -139,7 +139,7 @@
           "name": "Stool related complaints",
           "uuid": "6564bc9a-aef4-48cf-b517-69848358f3e0",
           "keyValues": [],
-          "type": "SingleSelect",
+          "type": "MultiSelect",
           "concept": {
             "name": "PNC stool related complaints",
             "uuid": "bcd4495f-41fa-494b-a5d9-a766c87f37f9"
@@ -157,6 +157,54 @@
             "uuid": "0b71db57-0add-4215-b198-0e9773d7da31"
           },
           "displayOrder": 5,
+          "mandatory": false
+        },
+        {
+          "name": "Greenish stool since how many days",
+          "uuid": "f47bde61-d1c3-4910-9263-3f7ff982f989",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Number of days since child passing greenish stool",
+            "uuid": "26aeaa02-3fdb-4cf5-a6a1-a16e650c1c71"
+          },
+          "displayOrder": 5.1,
+          "mandatory": false
+        },
+        {
+          "name": "Blood in stool since how many days",
+          "uuid": "d0bc99af-af04-4a54-9bc5-a2783a783c1a",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Number of days since blood in stool",
+            "uuid": "e64a7a27-b93d-404e-8cb1-28a2ea2a1b74"
+          },
+          "displayOrder": 5.2,
+          "mandatory": false
+        },
+        {
+          "name": "Not passing stools since how many days",
+          "uuid": "2846e0d2-34c6-4a20-a43e-4c11c0e1f351",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Number of days since not passing stool",
+            "uuid": "7f169dca-2c2f-473c-a736-b87febd21989"
+          },
+          "displayOrder": 5.3,
+          "mandatory": false
+        },
+        {
+          "name": "Child cries while passing stool since how many days",
+          "uuid": "ac5162bd-191b-4ff1-8cd2-e4a1603981a7",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "name": "Number of days since child cries while passing stool",
+            "uuid": "7879f94b-31a6-4ac1-b307-284322ef5bef"
+          },
+          "displayOrder": 5.4,
           "mandatory": false
         },
         {

@@ -35,6 +35,35 @@ class ChildPNCFormHandler {
         return statusBuilder.build();
     }
 
+    looseMotionSinceHowManyDays(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child PNC stool related complaints").containsAnswerConceptName("Loose stools");
+        return statusBuilder.build();
+    }
+
+    greenishStoolSinceHowManyDays(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child PNC stool related complaints").containsAnswerConceptName("Greenish Stool");
+        return statusBuilder.build();
+    }
+
+    bloodInStoolSinceHowManyDays(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child PNC stool related complaints").containsAnswerConceptName("Blood in stools");
+        return statusBuilder.build();
+    }
+
+    notPassingStoolsSinceHowManyDays(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child PNC stool related complaints").containsAnswerConceptName("Not passing stools");
+        return statusBuilder.build();
+    }
+    childCriesWhilePassingStoolSinceHowManyDays(programEncounter, formElement) {
+        const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
+        statusBuilder.show().when.valueInEncounter("Child PNC stool related complaints").containsAnswerConceptName("Child cries before or while passing stool");
+        return statusBuilder.build();
+    }
+
 }
 
 export default ChildPNCFormHandler;
