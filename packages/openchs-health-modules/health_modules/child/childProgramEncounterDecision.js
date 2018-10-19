@@ -1,5 +1,6 @@
 import BirthFormHandler from "./formFilters/BirthFormHandler";
 import ChildPNCFormHandler from "./formFilters/ChildPNCFormHandler";
+import ChildAnthropometryFormHandler from "./formFilters/ChildAnthropometryFormHandler";
 import {FormElementsStatusHelper, complicationsBuilder as ComplicationsBuilder, RuleFactory} from "rules-config/rules";
 import _ from "lodash";
 import {immediateReferralAdvice, referralAdvice} from "./referral";
@@ -117,7 +118,8 @@ const recommendations = (enrolment, encounter) => {
 
 const encounterTypeHandlerMap = new Map([
     ['Birth', new BirthFormHandler()],
-    ['Child PNC', new ChildPNCFormHandler()]
+    ['Child PNC', new ChildPNCFormHandler()],
+    ['Anthropometry Assessment',new ChildAnthropometryFormHandler()]
 ]);
 
 export function getFormElementsStatuses(programEncounter, formElementGroup, today) {
