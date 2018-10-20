@@ -12,7 +12,6 @@ class ChildAnthropometryFormHandler {
     }
 
     reasonForSkippingHeightCapture(programEncounter, formElement) {
-        console.log(JSON.stringify(programEncounter.observations));
         const statusBuilder = new FormElementStatusBuilder({
             programEncounter: programEncounter,
             formElement: formElement
