@@ -203,23 +203,20 @@ analyse_crash: ##
 deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 
-deploy_metadata_live:
+deploy_metadata_staging:
 	cd packages/openchs-health-modules && make deploy_metadata poolId=$(STAGING_USER_POOL_ID) clientId=$(STAGING_APP_CLIENT_ID) username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
-#	cd packages/openchs-health-modules && make auth poolId=$(STAGING_USER_POOL_ID) clientId=$(STAGING_APP_CLIENT_ID) username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+
+deploy_metadata_live:
+	cd packages/openchs-health-modules && make deploy_metadata server=https://server.openchs.org port=443 poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
 
 deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
 	cd packages/demo-organisation && make deploy
 # </metadata>
 
-staging-apk: release-staging
+upload-staging-apk: release-staging
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
 
-uat-apk: release-uat
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
-
-prod-apk: release-live
+upload-prod-apk: release-live
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
-

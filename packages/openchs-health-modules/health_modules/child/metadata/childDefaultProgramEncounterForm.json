@@ -157,7 +157,7 @@
             "uuid": "0b71db57-0add-4215-b198-0e9773d7da31"
           },
           "displayOrder": 5,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Greenish stool since how many days",
@@ -169,7 +169,7 @@
             "uuid": "26aeaa02-3fdb-4cf5-a6a1-a16e650c1c71"
           },
           "displayOrder": 5.1,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Blood in stool since how many days",
@@ -181,7 +181,7 @@
             "uuid": "e64a7a27-b93d-404e-8cb1-28a2ea2a1b74"
           },
           "displayOrder": 5.2,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Not passing stools since how many days",
@@ -193,7 +193,7 @@
             "uuid": "7f169dca-2c2f-473c-a736-b87febd21989"
           },
           "displayOrder": 5.3,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Child cries while passing stool since how many days",
@@ -205,7 +205,7 @@
             "uuid": "7879f94b-31a6-4ac1-b307-284322ef5bef"
           },
           "displayOrder": 5.4,
-          "mandatory": false
+          "mandatory": true
         },
         {
           "name": "Activity related complaints",
