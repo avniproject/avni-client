@@ -258,6 +258,10 @@ deploy_metadata_staging:
 	cd packages/openchs-health-modules && make deploy poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=https://staging.openchs.org port=443 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
 	cd packages/openchs-org && make deploy_locations poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=https://staging.openchs.org port=443 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
 
+deploy_metadata_live:
+	cd packages/openchs-health-modules && make deploy poolId=ap-south-1_e1HrpLQnC clientId=4aeeu0e37q1sfsem61qrd0elaq server=https://staging.openchs.org port=443 username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
+	cd packages/openchs-org && make deploy_locations poolId=ap-south-1_e1HrpLQnC clientId=4aeeu0e37q1sfsem61qrd0elaq server=https://staging.openchs.org port=443 username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
+
 deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
 	cd packages/demo-organisation && make deploy
 # </metadata>
@@ -270,11 +274,6 @@ screencap:
 	mkdir -p ./tmp/
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
 
-uat-apk: release-uat
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
-
 prod-apk: release-live
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
-
