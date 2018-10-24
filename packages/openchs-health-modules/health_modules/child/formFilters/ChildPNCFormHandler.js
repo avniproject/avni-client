@@ -2,17 +2,21 @@ import {FormElementStatusBuilder} from "rules-config/rules";
 
 class ChildPNCFormHandler {
 
-    whenDidTheChildPassUrineForTheFirstTimeAfterBirth(programEncounter, formElement) {
+    hasTheChildPassedUrineSinceBirth(programEncounter, formElement) {
         const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
-        statusBuilder.show().when.valueInEntireEnrolment("Duration in hours between birth and first urination").is.notDefined
-            .or.when.valueInEncounter("Duration in hours between birth and first urination").is.defined;
+        statusBuilder.show()
+            .when.valueInEntireEnrolment("Child passed urine since birth").is.notDefined
+            .or.when.valueInLastEncounter("Child passed urine since birth", ["Child PNC"]).is.no
+            .or.when.valueInEncounter("Child passed urine since birth").is.defined;
         return statusBuilder.build();
     }
 
-    whenDidTheChildPassMeconiumForTheFirstTimeAfterBirth(programEncounter, formElement) {
+    hasTheChildPassedMeconiumSinceBirth(programEncounter, formElement) {
         const statusBuilder = new FormElementStatusBuilder({programEncounter, formElement});
-        statusBuilder.show().when.valueInEntireEnrolment("Duration in hours between birth and meconium").is.notDefined
-            .or.when.valueInEncounter("Duration in hours between birth and meconium").is.defined;
+        statusBuilder.show()
+            .when.valueInEntireEnrolment("Child passed meconium since birth").is.notDefined
+            .or.when.valueInLastEncounter("Child passed meconium since birth", ["Child PNC"]).is.no
+            .or.when.valueInEncounter("Child passed meconium since birth").is.defined;
         return statusBuilder.build();
     }
 
