@@ -2,11 +2,10 @@ import _ from "lodash";
 import General from "./utility/General";
 import ResourceUtil from "./utility/ResourceUtil";
 import Checklist from './Checklist';
-import Form from './application/Form';
-import Concept from './Concept';
 import ChecklistItemStatus from "./ChecklistItemStatus";
 import ObservationsHolder from "./ObservationsHolder";
 import ChecklistItemDetail from "./ChecklistItemDetail";
+import moment from 'moment';
 
 class ChecklistItem {
     static schema = {
@@ -66,7 +65,13 @@ class ChecklistItem {
 
     get applicableState() {
         const baseDate = this.checklist.baseDate;
-        return this.completed ? ChecklistItemStatus.completed : this.detail.stateConfig.find(status => status.isApplicable(baseDate));
+
+        if (this.completed) {
+            return ChecklistItemStatus.completed;
+        } else {
+            let nonCompletedState = this.detail.stateConfig.find(status => status.isApplicable(baseDate));
+            return _.isNil(nonCompletedState) ? ChecklistItemStatus.na(moment().diff(baseDate, 'years')) : nonCompletedState;
+        }
     }
 
     get applicableStateName() {

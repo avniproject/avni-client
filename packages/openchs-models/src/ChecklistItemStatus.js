@@ -42,10 +42,13 @@ class ChecklistItemStatus {
         return completed;
     }
 
-    static get na() {
+    static na(years) {
         const na = new ChecklistItemStatus();
+        na.to = {};
+        na.to.key = "year";
+        na.to.value = years;
         na.color = 'grey';
-        na.state = 'NA';
+        na.state = 'Past Expiry';
         return na;
     }
 
