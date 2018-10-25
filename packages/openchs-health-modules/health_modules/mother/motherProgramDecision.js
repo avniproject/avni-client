@@ -105,7 +105,7 @@ const medicalHistoryBasedComplications = (programEnrolment, today, programEncoun
             .when.valueInRegistration("Medical history").containsAnyAnswerConceptName(history);
     });
 
-    complicationsBuilder.addComplication("Young child")
+    complicationsBuilder.addComplication("Youngest child Less than 1 Year Old")
         .when.valueInEnrolment("Age of youngest child").asAge.is.lessThanOrEqualTo(1);
 
     return complicationsBuilder.getComplications();
