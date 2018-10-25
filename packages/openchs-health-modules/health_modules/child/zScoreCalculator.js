@@ -6,6 +6,8 @@ import hfa_girls from "./anthropometry/lhfa_girls";
 import wfh_boys from "./anthropometry/wflh_boys";
 import wfh_girls from "./anthropometry/wflh_girls";
 
+const isPropNil = (o, path) => _.isNil(_.get(o, path));
+
 const anthropometricReference = {
     wfa: {Male: wfa_boys, Female: wfa_girls},
     hfa: {Male: hfa_boys, Female: hfa_girls},
@@ -76,6 +78,9 @@ const projectedSD2NegForWeight = (individual, asOnDate) => {
     let gender = _.get(individual, "gender.name");
     let wfa = getWfaReference(gender, ageInMonths);
     let nextMonthWfa = getWfaReference(gender, ageInMonths + 1);
+    if (isPropNil(nextMonthWfa, 'SD2neg') || isPropNil(wfa, 'SD2neg')) {
+        return;
+    }
     let sD2negDelta = nextMonthWfa.SD2neg - wfa.SD2neg;
     let projectedSD2Neg = wfa.SD2neg + (decimalPortion * sD2negDelta);
     return projectedSD2Neg;

@@ -127,7 +127,7 @@ function C() {
                     _.isEmpty(value); 
 
     this.getYoungestChild = (individual) => {
-        return _.last(_.sortBy(individual.getRelatives('mother', true), (child) => child.dateOfBirth));
+        return _.chain(individual.getRelatives('mother', true)).filter(_.isObject).sortBy('dateOfBirth').last().value();
     };
 
     this.getZScoreFromEncounter = (programEncounter) => {

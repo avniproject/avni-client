@@ -122,7 +122,7 @@ export default class Concept {
         concept.lowNormal = this.lowNormal;
         concept.hiNormal = this.hiNormal;
         concept.hiAbsolute = this.hiAbsolute;
-        concept.answers = this.getAnswers();
+        concept.answers = this.answers || [];
         return concept;
     }
 

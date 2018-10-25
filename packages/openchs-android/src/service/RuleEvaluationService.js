@@ -64,10 +64,14 @@ class RuleEvaluationService extends BaseService {
             "registrationDecisions": []
         };
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
-        const decisions = this.getAllRuleItemsFor(form, "Decision")
+        const decisionsMap = this.getAllRuleItemsFor(form, "Decision")
             .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), defaultDecisions);
-        General.logDebug("RuleEvaluationService", decisions);
-        return decisions;
+        const trimmedDecisions = {};
+        _.forEach(decisionsMap, (decisions, decisionType)=> {
+            trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
+        });
+        General.logDebug("RuleEvaluationService", trimmedDecisions);
+        return trimmedDecisions;
     }
 
     getDecisions(entity, entityName, context) {
@@ -146,7 +150,8 @@ class RuleEvaluationService extends BaseService {
         };
         ["ProgramEnrolment", "ProgramEncounter"].map((schema) => {
             let allEntities = this.getAll(schema).map((entity) => entity.cloneForEdit());
-            allEntities.forEach((entity) => {
+            allEntities.forEach((entity, idx) => {
+                General.logDebug('RuleEvaluationService', `${schema} - Running ${idx+1}/${allEntities.length}`);
                 const decisions = this.getDecisions(entity, schema);
                 const nextScheduledVisits = this.getNextScheduledVisits(entity, schema);
                 conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);

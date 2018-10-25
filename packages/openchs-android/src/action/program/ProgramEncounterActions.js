@@ -29,7 +29,7 @@ class ProgramEncounterActions {
         const form = formMapping && formMapping.form;
 
         if (_.isNil(form)) {
-            throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType}`);
+            throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType.name}`);
         }
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {

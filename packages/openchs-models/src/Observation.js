@@ -110,7 +110,7 @@ class Observation {
                         return value.map((answerUUID) => {
                             let answerConcept = this.concept.answers.find((ca) => ca.concept.uuid === answerUUID);
                             if (!answerConcept) {
-                                let message = `Assertion error: Unable to find ${answerUUID} in coded concept ${this.concept.name}`;
+                                let message = `Assertion error: Unable to find ${answerUUID} in coded concept ${this.concept.uuid}(${this.concept.name})`;
                                 General.logError('Observation.getReadableValue', message);
                                 throw Error(message);
                             }
