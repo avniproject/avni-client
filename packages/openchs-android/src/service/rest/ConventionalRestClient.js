@@ -49,7 +49,7 @@ class ConventionalRestClient {
             page: page
         });
         const processResponse = (resp) => onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
-        const endpoint = (page = 0, size = 100) => `${resourceEndpoint}?${params(page, size)}`;
+        const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
         return getJSON(endpoint(), token).then((response) => {
             const chainedRequests = new ChainedRequests();
             const resourceMetadata = response["page"];

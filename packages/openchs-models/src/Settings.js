@@ -14,6 +14,7 @@ class Settings {
             serverURL: 'string',
             locale: {"type": "LocaleMapping"},
             logLevel: 'int',
+            pageSize: 'int',
             poolId: 'string',
             clientId: 'string'
         }
@@ -27,6 +28,7 @@ class Settings {
         settings.logLevel = this.logLevel;
         settings.poolId = this.poolId;
         settings.clientId = this.clientId;
+        settings.pageSize = this.pageSize;
         return settings;
     }
 

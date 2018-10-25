@@ -22,15 +22,20 @@ class SettingsService extends BaseService {
             });
 
             var settings = this.getSettings();
-            if (_.isNil(settings)) {
+            if (_.isNil(settings) || Config.ENV === 'dev') {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
                 settings.password = "";
                 settings.logLevel = InitialSettings.logLevel;
+                settings.pageSize = InitialSettings.pageSize;
                 settings.serverURL = Config.SERVER_URL;
                 settings.poolId = "";
                 settings.clientId = Config.CLIENT_ID || "";
                 dbInScope.create('Settings', settings, true);
+            }
+
+            if (Config.ENV === 'dev') {
+                settings.logLevel = General.LogLevel.Debug;
             }
 
             if (_.isNil(settings.locale)) {

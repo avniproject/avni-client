@@ -215,7 +215,7 @@ run_packager: ##
 
 # <app>
 run_app: setup_hosts ##
-	cd packages/openchs-android && react-native run-android
+	cd packages/openchs-android && ENVFILE=.env react-native run-android
 
 run_app_release: setup_hosts
 	cd packages/openchs-android && react-native run-android --variant=release
