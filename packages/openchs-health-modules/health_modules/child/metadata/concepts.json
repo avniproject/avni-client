@@ -961,8 +961,8 @@
   {
     "name": "Greenish Stool",
     "uuid": "5721b5e2-5492-4473-aee6-50b9383c4d41",
-    "dataType": "NA"
-
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "name": "Child PNC stool related complaints",
