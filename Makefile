@@ -266,14 +266,14 @@ deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refd
 	cd packages/demo-organisation && make deploy
 # </metadata>
 
-upload-staging-apk:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
-
 screencap:
 	mkdir -p ./tmp/
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
 
-prod-apk: release-live
+upload-staging-apk:
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
+
+upload-prod-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
