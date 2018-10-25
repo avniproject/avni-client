@@ -42,23 +42,24 @@ class ConventionalRestClient {
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? `search/${entityMetadata.resourceSearchFilterURL}` : '';
         let settings = this.settingsService.getSettings();
         const resourceEndpoint = [settings.serverURL, entityMetadata.resourceName, searchFilter].join('/');
+        const loadedSince = entityMetadata.syncStatus.loadedSince;
         const params = (page, size) => this.makeParams({
-            lastModifiedDateTime: moment(entityMetadata.syncStatus.loadedSince).add(1, "ms").toISOString(),
+            lastModifiedDateTime: moment(loadedSince).add(1, "ms").toISOString(),
             size: size,
             page: page
         });
-        const processResponse = (resp) => _.get(resp, `_embedded.${entityMetadata.resourceName}`, []);
+        const processResponse = (resp) => onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
         const endpoint = (page = 0, size = 100) => `${resourceEndpoint}?${params(page, size)}`;
         return getJSON(endpoint(), token).then((response) => {
             const chainedRequests = new ChainedRequests();
             const resourceMetadata = response["page"];
-            let allResourcesForEntity = processResponse(response);
+            processResponse(response);
             _.range(1, resourceMetadata.totalPages, 1)
                 .forEach((pageNumber) => chainedRequests.push(chainedRequests.get(
                     endpoint(pageNumber), token,
-                    (resp) => allResourcesForEntity.push.apply(allResourcesForEntity, processResponse(resp)))));
+                    (resp) => processResponse(resp))));
 
-            return chainedRequests.fire().then(() => onGetOfAnEntity(entityMetadata, allResourcesForEntity));
+            return chainedRequests.fire();
         });
     }
 
