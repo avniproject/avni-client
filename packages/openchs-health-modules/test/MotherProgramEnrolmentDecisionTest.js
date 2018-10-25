@@ -314,13 +314,13 @@ describe("Mother Program Enrolment", () => {
                 .forConcept("Age of youngest child", new Date())
                 .build();
             let decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Young child");
+            assert.include(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Youngest child Less than 1 Year Old");
 
             enrolment = new EnrolmentFiller(programData, mother, new Date())
                 .forConcept("Age of youngest child", moment().subtract(3, "years").toDate())
                 .build();
             decisions = motherEnrolmentDecision.getDecisions(enrolment, {}, new Date());
-            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Young child");
+            assert.notInclude(C.findValue(decisions.enrolmentDecisions, "High Risk Conditions"), "Youngest child Less than 1 Year Old");
         });
 
         it("should be advised if mother has Heart Disease", () => {

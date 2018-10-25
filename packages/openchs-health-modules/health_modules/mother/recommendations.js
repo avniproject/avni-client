@@ -75,7 +75,7 @@ const institutionalDeliveryReasons = (enrolment, encounter) => {
     reasonsBuilder.addComplication("Short Stature").when.valueInEnrolment("Height").is.lessThan(145);
     reasonsBuilder.addComplication("Primigravida").when.valueInEnrolment("Gravida").is.equals(1);
     reasonsBuilder.addComplication("Grand Multipara").when.valueInEnrolment("Gravida").is.greaterThanOrEqualTo(5);
-    reasonsBuilder.addComplication("Young child").when.valueInEnrolment("Age of youngest child").asAge.is.lessThan(1);
+    reasonsBuilder.addComplication("Youngest child Less than 1 Year Old").when.valueInEnrolment("Age of youngest child").asAge.is.lessThan(1);
     reasonsBuilder.addComplication("Obstetrics history").when.valueInEnrolment("Obstetrics history").containsAnyAnswerConceptName(...pastComplications);
     reasonsBuilder.addComplication("Infertility treatment").when.valueInEnrolment("Infertility treatment").is.yes;
     reasonsBuilder.addComplication("Hypertension").when.valueInEncounter("Systolic").greaterThanOrEqualTo(140);
@@ -102,7 +102,7 @@ const institutionalANCReasons = (enrolment, encounter) => {
         complicationsConcept: 'Reason(s) for Institutional ANC'
     });
     reasonsBuilder.addComplication("Medical history").when.valueInRegistration("Medical history").containsAnyAnswerConceptName(...medicalHistory);
-    reasonsBuilder.addComplication("Young child").when.valueInEnrolment("Age of youngest child").asAge.is.lessThan(1);
+    reasonsBuilder.addComplication("Youngest child Less than 1 Year Old").when.valueInEnrolment("Age of youngest child").asAge.is.lessThan(1);
     reasonsBuilder.addComplication("Obstetrics history").when.valueInEnrolment("Obstetrics history").containsAnyAnswerConceptName("3 or more than 3 spontaneous abortions");
     reasonsBuilder.addComplication("Hypertension").when.valueInEncounter("Systolic").greaterThanOrEqualTo(140);
     reasonsBuilder.addComplication("Hypertension").when.valueInEncounter("Diastolic").greaterThanOrEqualTo(90);
