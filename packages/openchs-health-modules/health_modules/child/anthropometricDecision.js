@@ -10,7 +10,7 @@ const AnthropometryDecision = RuleFactory("d062907a-690c-44ca-b699-f8b2f688b075"
 
 const zScoreGradeStatusMappingWeightForAge = {
     '1': 'Normal',
-    '2': 'Underweight',
+    '2': 'Moderately Underweight',
     '3': 'Severely Underweight'
 };
 

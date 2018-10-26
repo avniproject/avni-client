@@ -3,7 +3,7 @@
  *
  *
  *
- */
+ *
 import C from '../common';
 
 import weightForAgeScoresGirls from './anthropometry/wfa_girls';
@@ -80,7 +80,7 @@ var zScoreStatusMappingWeightForHeight = {
  1. null checks
  2. Refactor for - Height will not be calculated everytime. Need to get height from the last encounter that has it
  Same might be true for weight
- */
+
 var getDecisions = function (observationsHolder, individual, today) {
     var dateOfBirth = individual.dateOfBirth;
     var ageInMonths = C.getAgeInMonths(dateOfBirth, today);
@@ -112,7 +112,7 @@ var getDecisions = function (observationsHolder, individual, today) {
     const gradeForWeightForAge = zScoreGradeMappingWeightForAge[weightForAgeZScore];
 
  /*   const bmiForAgeZscore = ageInMonths > 24 ? getZScore(bmiForAgeGenderValues, 'Month', ageInMonths, C.calculateBMI(weight, height, ageInMonths)) : null;
-    const bmiForAgeStatus = bmiForAgeZscore === null ? null : zScoreStatusMappingBMIForAge[bmiForAgeZscore];*/
+    const bmiForAgeStatus = bmiForAgeZscore === null ? null : zScoreStatusMappingBMIForAge[bmiForAgeZscore];
 
     const decisions = [];
     decisions.push(new SingleValueCodedDecision('Weight for age z-score', weightForAgeZScore));
@@ -173,3 +173,4 @@ var getDecisions = function (observationsHolder, individual, today) {
 
 export {
     getDecisions};
+*/
