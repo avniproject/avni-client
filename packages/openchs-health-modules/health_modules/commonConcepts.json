@@ -2098,5 +2098,10 @@
     "name": "Self",
     "uuid": "74466f64-3f7c-4046-aaae-57803cee46b1",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Private hospital",
+    "uuid": "8767f6a6-6ca9-41d1-b60e-2c5addf22168",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
 ]
