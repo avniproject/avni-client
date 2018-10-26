@@ -3,11 +3,9 @@ import bugsnag from './bugsnag';
 
 export default class ErrorHandler {
     static set(errorCallback) {
-        if (!__DEV__) {
             ErrorUtils.setGlobalHandler((error, isFatal) => {
                 ErrorHandler.postError(error, isFatal, errorCallback);
             });
-        }
     }
 
     static postError(error, isFatal, errorCallback) {

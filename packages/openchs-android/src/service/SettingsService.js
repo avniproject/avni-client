@@ -4,7 +4,7 @@ import InitialSettings from '../../config/initialSettings.json';
 import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
 import {Settings, LocaleMapping} from "openchs-models";
-import Config from 'react-native-config'
+import Config from 'react-native-config';
 import _ from 'lodash';
 import ModelGeneral from "../../../openchs-models/src/utility/General";
 
