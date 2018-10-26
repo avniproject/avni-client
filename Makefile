@@ -258,6 +258,10 @@ deploy_metadata_staging:
 	cd packages/openchs-health-modules && make deploy poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=https://staging.openchs.org port=443 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
 	cd packages/openchs-org && make deploy_locations poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=https://staging.openchs.org port=443 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
 
+deploy_metadata_staging_local:
+	cd packages/openchs-health-modules && make deploy poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=http://localhost port=8021 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+	cd packages/openchs-org && make deploy_locations poolId=ap-south-1_tuRfLFpm1 clientId=93kp4dj29cfgnoerdg33iev0v server=http://localhost port=8021 username=admin password=$(STAGING_ADMIN_USER_PASSWORD)
+
 deploy_metadata_live:
 	cd packages/openchs-health-modules && make deploy poolId=ap-south-1_e1HrpLQnC clientId=4aeeu0e37q1sfsem61qrd0elaq server=https://staging.openchs.org port=443 username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
 	cd packages/openchs-org && make deploy_locations poolId=ap-south-1_e1HrpLQnC clientId=4aeeu0e37q1sfsem61qrd0elaq server=https://staging.openchs.org port=443 username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
