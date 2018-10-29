@@ -966,6 +966,7 @@
     "What else is the baby being fed?": "बाळ काय खात आहे?"
   },
   "en": {
+    "empty-formelement-name": "",
     "maleCannotBePregnant": "Male cannot be pregnant",
     "lessThanTenCannotBePregnant": "Less than 10 year old cannot be pregnant",
     "acidityMedsNotToBeGivenToChildren": "Acidity medicine should not be given to children",
@@ -2734,6 +2735,7 @@
     "Weight for height z-score": "ऊंचाई जेड स्कोर के लिए वजन",
     "Weight for age Grade": "आयु ग्रेड के लिए वजन",
     "Weight for age Status": "आयु की स्थिति के लिए वजन",
-    "Weight for age z-score": "आयु जेड स्कोर के लिए वजन"
+    "Weight for age z-score": "आयु जेड स्कोर के लिए वजन",
+    "empty-formelement-name": ""
   }
 }

@@ -119,5 +119,6 @@
   "Other reason (Please specify)": "अन्य कारण (कृपया दर्ज करें)",
   "Vaccination Schedule": "टीकाकरण चेकलिस्ट",
   "checklistPreview": "यह {{name}} तैयार करेगा और इसकी आगामी वस्तु {{date}} को होना चाहिए",
-  "Program exit": "प्रोग्राम से बाहर"
+  "Program exit": "प्रोग्राम से बाहर",
+  "empty-formelement-name": ""
 }

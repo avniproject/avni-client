@@ -190,7 +190,7 @@
   "selfRelationshipNotAllowed": "સ્વયં સંબંધને મંજૂરી નથી",
   "deleteRelativeNoticeTitle": "સંબંધિત કાઢી નાખો?",
   "deleteRelativeConfirmationMessage": "આ {{individualA}} અને {{individualB}} વચ્ચેના સંબંધને રદ્દ કરશે.",
-  "Program exit": "કાર્યક્રમ બહાર"
-
+  "Program exit": "કાર્યક્રમ બહાર",
+  "empty-formelement-name": ""
 
 }
