@@ -73,7 +73,7 @@ class ChecklistItemView extends AbstractComponent {
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
-                                             element={new StaticFormElement('completionDate', true)}
+                                             element={new StaticFormElement('Completion Date', true)}
                                              dateValue={new PrimitiveValue(this.state.checklistItem.completionDate)}
                                              validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
                             :
