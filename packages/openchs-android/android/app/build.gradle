@@ -75,7 +75,7 @@ apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
 
 /**
@@ -92,7 +92,7 @@ android {
         applicationId "com.openchsclient"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 34
+        versionCode 261 //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
         versionName "2.6 - 1"
 
         ndk {
@@ -106,8 +106,9 @@ android {
         abi {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
             include "armeabi-v7a", "x86"
+            universalApk false  // If true, also generate a universal APK. This does not affect generation of separate apk per cpu architecture. This is an add on apk that is generated for upload to other markets, such as APKFiles, which do not support multiple APKs for a single app.
+
         }
     }
     signingConfigs {
