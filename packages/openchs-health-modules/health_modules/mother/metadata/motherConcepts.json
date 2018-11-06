@@ -2503,6 +2503,11 @@
       {
         "name": "During Transportation like in Ambulance etc",
         "uuid": "3b26f408-cbc6-4afc-a5bd-1d4e22ce77a7"
+      },
+      {
+        "uuid": "df6303d5-0b78-48e0-8a3c-1a7fec61a9f1",
+        "comment": "Government Hospital",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       }
     ]
   },
@@ -2532,6 +2537,18 @@
       },
       {
         "uuid": "d3f764e5-938a-42dd-bdef-02614d424f8d"
+      },
+      {
+        "uuid":"062071e7-85a9-4da0-9d59-c27b00e53a60",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
+        "uuid":"f2060c53-4cb4-4b35-9bb6-6f717a8a3f56",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
+        "uuid":"5dcdbebc-913e-46a5-a254-dd38d2956c80",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       }
     ]
   },
