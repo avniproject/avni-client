@@ -8,7 +8,7 @@ class ChecklistItemState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, checklistItem, filteredFormElements) {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements);
         this.checklistItem = checklistItem.clone();
-        this.checklistItem.setCompletionDate();
+        this.checklistItem.setCompletionDate(this.checklistItem.completionDate);
     }
 
     getEntity() {
