@@ -1410,7 +1410,8 @@
   },
   {
     "name": "Government Hospital",
-    "uuid": "df6303d5-0b78-48e0-8a3c-1a7fec61a9f1"
+    "uuid": "df6303d5-0b78-48e0-8a3c-1a7fec61a9f1",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "name": "Doctor",
@@ -1856,7 +1857,7 @@
   },
   {
     "name": "Administered by",
-    "uuid": "b7394f43-b36f-4401-863b-000e49a131ac",
+    "uuid": "4c98684a-47ef-4e1e-9dc9-2e603f7b6361",
     "dataType": "Coded",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
     "answers": [
@@ -1865,6 +1866,12 @@
         "comment": "Other"
       }
     ]
+  },
+  {
+    "name": "Infectious disease",
+    "uuid": "b500ef26-f5ce-475b-be51-acf603636d76",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "dataType": "NA"
   },
   {
     "name": "Symptoms of anaemia",
