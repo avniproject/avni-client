@@ -24,14 +24,15 @@ class ObservationsSectionTitle extends AbstractComponent {
                                         key={idx}/>
         });
         let primaryAction = this.props.primaryAction;
-        let primaryActionButton = primaryAction && <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()}/>
+        let primaryActionButton = primaryAction &&
+            <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()}/>
         return (
             <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
-                <Text style={[Fonts.MediumBold, {marginRight: 10}]}>{this.props.title}</Text>
-                <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'row'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', flex: 4, flexWrap: 'wrap'}}>
+                    <Text style={[Fonts.MediumBold]}>{this.props.title}</Text>
                     {contextActionButtons}
                 </View>
-                <View>
+                <View style={{flexDirection: 'row', alignItems: 'center', flex: 2, justifyContent: 'flex-end'}}>
                     {primaryActionButton}
                 </View>
             </View>
