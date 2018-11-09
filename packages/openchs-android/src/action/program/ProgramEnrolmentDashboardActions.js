@@ -47,7 +47,8 @@ class ProgramEnrolmentDashboardActions {
             programEncounterTypeState: state.programEncounterTypeState.clone(),
             encounterTypeState: state.encounterTypeState.clone(),
             enrolment: state.enrolment,
-            programsAvailable: state.programsAvailable
+            programsAvailable: state.programsAvailable,
+            showAll: state.showAll
         };
     }
 
@@ -66,6 +67,7 @@ class ProgramEnrolmentDashboardActions {
         }
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
+        newState.showAll = false;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
@@ -82,6 +84,12 @@ class ProgramEnrolmentDashboardActions {
     static launchChooseProgramEncounterType(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.programEncounterTypeState.launchChooseEntityType();
+        return newState;
+    }
+    
+    static onShowAll(state) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.showAll = true;
         return newState;
     }
 
@@ -152,14 +160,15 @@ class ProgramEnrolmentDashboardActions {
         return programConfig.findDashboardButtons(program) || [];
     }
 
-    static onProgramChange(state, action, context) {
-        if (action.program.uuid === state.enrolment.program.uuid) return state;
+    static onEnrolmentChange(state, action, context) {
+        if (action.enrolmentUUID === state.enrolment.uuid) return state;
 
         const ruleService = context.get(RuleEvaluationService);
         const newState = ProgramEnrolmentDashboardActions.clone(state);
-        newState.enrolment = state.enrolment.individual.findEnrolmentForProgram(action.program);
+        newState.enrolment = newState.enrolment.individual.findEnrolment(action.enrolmentUUID);
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
-        newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(action.program, context);
+        newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
+        newState.showAll = false;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
@@ -170,8 +179,9 @@ class ProgramEnrolmentDashboardActions {
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
-    ON_PROGRAM_CHANGE: 'PEDA.ON_PROGRAM_CHANGE',
-    RESET: 'PEDA.RESET'
+    ON_ENROLMENT_CHANGE: 'PEDA.ON_ENROLMENT_CHANGE',
+    RESET: 'PEDA.RESET',
+    SHOW_ALL: 'PEDA.SHOW_ALL'
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -180,8 +190,9 @@ const EncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('ENCOUNTE
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
+    [ProgramEnrolmentDashboardActionsNames.SHOW_ALL, ProgramEnrolmentDashboardActions.onShowAll],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
-    [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_CHANGE, ProgramEnrolmentDashboardActions.onProgramChange],
+    [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_CHANGE, ProgramEnrolmentDashboardActions.onEnrolmentChange],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

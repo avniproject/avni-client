@@ -2110,5 +2110,10 @@
     "name": "Private hospital",
     "uuid": "8767f6a6-6ca9-41d1-b60e-2c5addf22168",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Meconium not passed since birth",
+    "uuid": "7d7e9ec2-dfd2-4ad3-b78d-0cae5eb26c6b",
+    "dataType": "NA"
   }
 ]

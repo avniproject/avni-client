@@ -54,7 +54,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                     }}>
                         <PreviousEncounters encounters={this.state.individual.encounters}
                                             formType={Form.formTypes.Encounter}
-                                            style={{marginBottom: 21}}/>
+                                            style={{marginBottom: 21}} onShowAll={() => {}} showAll={false}/>
                     </Card>
                 </CHSContent>
             </CHSContainer>

@@ -191,5 +191,6 @@
   "voidedLabel": "(वॉड है)",
   "void": "वॉड",
   "voidedChecklistItemDetailAlertTitle": "बदल नहीं सकता क्योंकि यह रोका जा चुका है",
-  "Address": "पता"
+  "Address": "पता",
+  "showAllPreviousVisits": "सभी पिछली विज़िट दिखाएं"
 }
