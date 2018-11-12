@@ -2,11 +2,14 @@ import {createStore, combineReducers, applyMiddleware} from 'redux';
 import Reducers from '../reducer';
 import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
+import Config from 'react-native-config';
 
 class AppStore {
     static create(beans, errorCallback) {
         const combinedReducers = this.createCombinedReducer(beans);
-        return createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler, errorCallback)));
+        return Config.ENV === 'dev' ?
+            createStore(combinedReducers) :
+            createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler, errorCallback)));
     }
 
     static errorHandler(error, errorCallback, getState, lastAction, dispatch) {
