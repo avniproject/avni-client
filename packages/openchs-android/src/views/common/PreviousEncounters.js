@@ -15,6 +15,7 @@ import EncounterService from "../../service/EncounterService";
 import {Badge} from "../filter/AppliedFilters";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
+import General from "../../utility/General";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -72,7 +73,7 @@ class PreviousEncounters extends AbstractComponent {
         const scheduledEncounters = _.filter(this.props.encounters, (encounter) => !encounter.encounterDateTime);
         let showingPartial = this.props.showPartial && (this.props.showCount < (this.props.encounters.length - scheduledEncounters.length));
 
-        console.log(`ShowingPartial:${showingPartial}, ShowCount:${this.props.showCount}, Scheduled:${scheduledEncounters.length}, Total:${this.props.encounters.length}`);
+        General.logDebug('PreviousEncounters.render', `ShowingPartial:${showingPartial}, ShowCount:${this.props.showCount}, Scheduled:${scheduledEncounters.length}, Total:${this.props.encounters.length}`);
         if (showingPartial) {
             let chronologicalScheduledEncounters = _.sortBy(scheduledEncounters, (scheduledEncounter) => scheduledEncounter.earliestVisitDateTime);
 
