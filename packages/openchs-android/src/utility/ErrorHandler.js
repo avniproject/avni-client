@@ -1,11 +1,14 @@
 import StackTrace from 'stacktrace-js';
 import bugsnag from './bugsnag';
+import Config from 'react-native-config';
 
 export default class ErrorHandler {
     static set(errorCallback) {
+        if (Config.ENV !== 'dev') {
             ErrorUtils.setGlobalHandler((error, isFatal) => {
                 ErrorHandler.postError(error, isFatal, errorCallback);
             });
+        }
     }
 
     static postError(error, isFatal, errorCallback) {
