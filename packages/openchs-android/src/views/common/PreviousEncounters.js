@@ -1,6 +1,6 @@
-import {View, ListView} from "react-native";
+import {View, ListView, TouchableNativeFeedback} from "react-native";
 import React from "react";
-import {Text} from "native-base";
+import {Text, Button} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import moment from "moment";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -12,12 +12,17 @@ import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
 import FormMappingService from "../../service/FormMappingService";
 import EncounterService from "../../service/EncounterService";
+import {Badge} from "../filter/AppliedFilters";
+import Styles from "../primitives/Styles";
+import Colors from "../primitives/Colors";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
         encounters: React.PropTypes.any.isRequired,
         formType: React.PropTypes.string.isRequired,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        onShowAll: React.PropTypes.func.isRequired,
+        showAll: React.PropTypes.bool.isRequired
     };
 
     constructor(props, context) {
@@ -62,10 +67,25 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     render() {
-        const sortedEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
+        let toDisplayEncounters;
+        let actualEncounters;
+        const numberOfEncountersDisplayedByDefault = 4;
+        if (this.props.showAll) {
+            actualEncounters = _.filter(this.props.encounters, (encounter) => encounter.encounterDateTime);
+            toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
+        } else {
+            const scheduledEncounters = _.filter(this.props.encounters, (encounter) => !encounter.encounterDateTime);
+            let chronologicalScheduledEncounters = _.sortBy(scheduledEncounters, (scheduledEncounter) => scheduledEncounter.earliestVisitDateTime);
+
+            actualEncounters = _.filter(this.props.encounters, (encounter) => encounter.encounterDateTime);
+            const reverseChronologicalActualEncounters = _.sortBy(actualEncounters, (encounter) => encounter.encounterDateTime);
+            const recentActualEncounters = _.slice(_.reverse(reverseChronologicalActualEncounters), 0, numberOfEncountersDisplayedByDefault);
+            toDisplayEncounters = _.sortBy(_.concat(recentActualEncounters, chronologicalScheduledEncounters), (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
+        }
+
         const formMappingService = this.context.getService(FormMappingService);
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sortedEncounters);
-        const renderable = _.isEmpty(sortedEncounters) ? (
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
+        const renderable = _.isEmpty(toDisplayEncounters) ? (
             <View style={[DGS.common.content]}>
                 <Text style={{fontSize: Fonts.Large}}>{this.I18n.t('noEncounters')}</Text>
             </View>) : (
@@ -86,9 +106,14 @@ class PreviousEncounters extends AbstractComponent {
             />);
         return (
             <View>
+                {(this.props.showAll || actualEncounters.length <= numberOfEncountersDisplayedByDefault) ? null :
+                    <Button onPress={() => this.props.onShowAll()} style={[Styles.basicSecondaryButtonView, {alignSelf: 'center'}]} textStyle={{
+                        fontSize: Fonts.Medium,
+                        color: Colors.DarkPrimaryColor
+                    }}>{this.I18n.t('showAllPreviousVisits')}</Button>
+                }
                 {renderable}
             </View>
-
         );
     }
 }

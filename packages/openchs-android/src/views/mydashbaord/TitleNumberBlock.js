@@ -41,10 +41,10 @@ class TitleNumberBlock extends AbstractComponent {
         return (
             <TouchableNativeFeedback onPress={this.props.onPress}>
                 <View style={TitleNumberBlock.styles.container}>
-                    <Text style={[Fonts.typography("paperFontTitle"), textColor, {fontWeight: "400", textAlign: "center"}]}>
+                    <Text style={[Fonts.typography("paperFontBody2"), textColor, {fontWeight: "400", textAlign: "center"}]}>
                         {this.I18n.t(this.props.title)}
                     </Text>
-                    <Text style={[Fonts.typography("paperFontTitle"), textColor]}>
+                    <Text style={[Fonts.typography("paperFontBody2"), textColor]}>
                         {this.props.number}
                     </Text>
                 </View>

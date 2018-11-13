@@ -1112,11 +1112,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Meconium not passed since birth",
-    "uuid": "7d7e9ec2-dfd2-4ad3-b78d-0cae5eb26c6b",
-    "dataType": "NA"
-  },
-  {
     "name": "Other Birth Defects",
     "uuid": "58d9b2d8-1d91-4935-9a55-f35a66964db1",
     "dataType": "Text"
