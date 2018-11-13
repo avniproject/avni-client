@@ -88,10 +88,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         CHSNavigator.navigateToExitProgram(this, enrolmentToBeEdited);
     }
 
-    programSelect(program) {
-        this.dispatchAction(Actions.ON_PROGRAM_CHANGE, {program: program});
+    enrolmentSelect(enrolmentUUID) {
+        this.dispatchAction(Actions.ON_ENROLMENT_CHANGE, {enrolmentUUID: enrolmentUUID});
     }
-
 
     getEnrolmentHeaderMessage(enrolment) {
         return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
@@ -200,7 +199,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     <View style={{justifyContent: 'flex-start', flex: 1}}>
                                         <ProgramList enrolments={enrolments}
                                                      selectedEnrolment={this.state.enrolment}
-                                                     onProgramSelect={(program) => this.programSelect(program)}/>
+                                                     onProgramSelect={(enrolment) => this.enrolmentSelect(enrolment.uuid)}/>
                                     </View>
                                     <ProgramActionsView programDashboardButtons={dashboardButtons}
                                                         enrolment={this.state.enrolment}
@@ -222,7 +221,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                       style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
                                     <PreviousEncounters encounters={this.state.enrolment.encounters}
-                                                        formType={Form.formTypes.ProgramEncounter}/>
+                                                        formType={Form.formTypes.ProgramEncounter} onShowAll={() => this.dispatchAction(Actions.SHOW_ALL)} showAll={this.state.showAll}/>
                                 </View>}
                         </Card>
                     </View>

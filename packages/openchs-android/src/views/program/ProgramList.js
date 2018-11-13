@@ -4,6 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
+import _ from "lodash";
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
@@ -53,16 +54,17 @@ class ProgramList extends AbstractComponent {
     }
 
     render() {
+        const sortedEnrolments = _.sortBy(this.props.enrolments, (enrolment) => enrolment.enrolmentDateTime);
         return (
             <View style={{flexDirection: 'column'}}>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {this.props.enrolments.length === 0 ? <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text> :
-                        this.props.enrolments.map((enrolment) => {
+                    {sortedEnrolments.length === 0 ? <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text> :
+                        sortedEnrolments.map((enrolment) => {
                             const buttonStyle = this.getButtonStyle(enrolment);
                             return <Button key={enrolment.uuid}
                                            style={[ProgramList.style.programButton.self, buttonStyle.self]}
                                            textStyle={buttonStyle.text}
-                                           onPress={() => this.props.onProgramSelect(enrolment.program)}>{this.I18n.t(enrolment.program.displayName)}</Button>
+                                           onPress={() => this.props.onProgramSelect(enrolment)}>{this.I18n.t(enrolment.program.displayName)}</Button>
                         })}
                 </View>
             </View>
