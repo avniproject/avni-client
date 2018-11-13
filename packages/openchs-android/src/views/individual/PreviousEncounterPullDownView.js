@@ -83,7 +83,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                                         backgroundColor: Colors.GreyContentBackground,
                                         paddingBottom: DynamicGlobalStyles.resizeHeight(25)
-                                    }} onShowAll={() => {}} showAll={false}/>
+                                    }} onShowMore={() => {}} showPartial={false}/>
                 <Text style={{height: 11, backgroundColor: Colors.GreyContentBackground}}
                       onPress={this.toggleExpandCollapse}/>
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>

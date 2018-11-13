@@ -24,11 +24,11 @@ class IndividualService extends BaseService {
 
     search(criteria) {
         const filterCriteria = criteria.getFilterCriteria();
-        return _.isEmpty(filterCriteria) ? this.db.objects(Individual.schema.name).slice(0, 100) :
+        return _.isEmpty(filterCriteria) ? this.db.objects(Individual.schema.name).slice(0, 50) :
             this.db.objects(Individual.schema.name)
                 .filtered(filterCriteria,
                     criteria.getMinDateOfBirth(),
-                    criteria.getMaxDateOfBirth()).slice(0, 100);
+                    criteria.getMaxDateOfBirth()).slice(0, 50);
     }
 
     register(individual) {

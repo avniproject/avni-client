@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, ScrollView} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -57,7 +57,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     dispatchOnLoad() {
-        setTimeout(() => this.dispatchAction(Actions.ON_LOAD, this.props), 200);
+        this.dispatchAction(Actions.ON_LOAD, this.props);
     }
 
     componentWillReceiveProps() {
@@ -144,7 +144,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     render() {
-        General.logDebug(this.viewName(), 'render');
+        General.logWarn(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
@@ -156,7 +156,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         flowState={programEncounterTypeState.flowState}
                                         entityTypes={programEncounterTypeState.entityTypes}
                                         labelKey='followupTypes'
-                                        getEntityLabel={(encounterType)=> encounterType.displayName }
+                                        getEntityLabel={(encounterType) => encounterType.displayName}
                                         selectedEntityType={programEncounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
 
@@ -165,7 +165,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                         flowState={encounterTypeState.flowState}
                                         entityTypes={encounterTypeState.entityTypes}
                                         labelKey='followupTypes'
-                                        getEntityLabel={(program)=> program.displayName }
+                                        getEntityLabel={(program) => program.displayName}
                                         selectedEntityType={encounterTypeState.entity.encounterType}
                                         onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
                     <View>
@@ -173,7 +173,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
                                            viewContext={IndividualProfile.viewContext.Program}
                                            programsAvailable={this.state.programsAvailable}/>
-                        <Card style={{
+                        <ScrollView style={{
                             flexDirection: 'column',
                             borderRadius: 5,
                             marginHorizontal: 16,
@@ -181,10 +181,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         }}>
                             <View style={{marginHorizontal: 8}}>
                                 {this.state.enrolment.individual.voided &&
-                                    <Text style={{
-                                        fontSize: Fonts.Large,
-                                        color: Styles.redColor
-                                    }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
+                                <Text style={{
+                                    fontSize: Fonts.Large,
+                                    color: Styles.redColor
+                                }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
                                 }
                                 <Text style={{
                                     fontSize: Fonts.Large,
@@ -221,9 +221,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                       style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
                                     <PreviousEncounters encounters={this.state.enrolment.encounters}
-                                                        formType={Form.formTypes.ProgramEncounter} onShowAll={() => this.dispatchAction(Actions.SHOW_ALL)} showAll={this.state.showAll}/>
+                                                        formType={Form.formTypes.ProgramEncounter} onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
+                                                        showCount={this.state.showCount} showPartial={true}/>
                                 </View>}
-                        </Card>
+                        </ScrollView>
                     </View>
                 </CHSContent>
             </CHSContainer>

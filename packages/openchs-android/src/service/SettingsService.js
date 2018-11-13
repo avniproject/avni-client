@@ -10,6 +10,8 @@ import ModelGeneral from "../../../openchs-models/src/utility/General";
 
 @Service("settingsService")
 class SettingsService extends BaseService {
+    static IncrementalEncounterDisplayCount = 4;
+
     constructor(db, beanStore) {
         super(db, beanStore);
     }

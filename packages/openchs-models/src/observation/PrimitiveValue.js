@@ -5,12 +5,13 @@ import General from "../utility/General";
 
 class PrimitiveValue {
     constructor(value, datatype) {
+        this.value = value;
         this.datatype = datatype;
-        this.answer = this.valueFromString(value, datatype);
+        this.answer = this._valueFromString();
     }
 
     asDisplayDate() {
-        const format = !(General.hoursAndMinutesOfDateAreZero(this.answer)) 
+        const format = !(General.hoursAndMinutesOfDateAreZero(this.answer)) && this.datatype === Concept.dataType.DateTime
             ? "DD-MMM-YYYY HH:mm" 
             : "DD-MMM-YYYY";
         return moment(this.answer).format(format);
@@ -34,17 +35,18 @@ class PrimitiveValue {
         return primitiveValue;
     }
 
-    valueFromString(string, datatype) {
-        if (datatype === Concept.dataType.Numeric && !_.endsWith(string,'.')) {
-            return _.toNumber(string);
-        } else if (datatype === Concept.dataType.Date || datatype === Concept.dataType.DateTime) {
-            return new Date(Date.parse(string));
+    _valueFromString() {
+        if (this.datatype === Concept.dataType.Numeric && !_.endsWith(this.value,'.')) {
+            return _.toNumber(this.value);
+        } else if (this.datatype === Concept.dataType.DateTime) {
+            return new Date(Date.parse(this.value));
+        } else if (this.datatype === Concept.dataType.Date) {
+            let date = new Date(Date.parse(this.value));
+            date.setHours(0, 0, 0, 0);
+            return date;
         }
-        return string;
-    }
 
-    getValue() {
-        return this.answer;
+        return this.value;
     }
 }
 
