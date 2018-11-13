@@ -2115,5 +2115,97 @@
     "name": "Meconium not passed since birth",
     "uuid": "7d7e9ec2-dfd2-4ad3-b78d-0cae5eb26c6b",
     "dataType": "NA"
+  },
+  {
+    "name": "Blue/pale",
+    "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
+    "dataType": "NA"
+  },
+  {
+    "name": "Umbilical cord is infected",
+    "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077",
+    "dataType": "NA"
+  },
+  {
+    "name": "Umbilical redness and or discharge",
+    "uuid": "eb030ccc-865c-43d1-84f1-11c20e7e7fc2",
+    "dataType": "NA"
+  },
+  {
+    "name": "Umbilical Abscess",
+    "uuid": "4cc68725-905b-4f29-800a-5032bc169c4d",
+    "dataType": "NA"
+  },
+  {
+    "name": "Rash",
+    "uuid": "966bf035-b14f-4fd0-8b2d-22798ad330c7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Wrinkled Skin",
+    "uuid": "efe68956-0ff4-4391-af2b-c9e49bb9e97e",
+    "dataType": "NA"
+  },
+  {
+    "name": "Sunken fontanelle",
+    "uuid": "0210eee7-90e8-4c93-bd41-3c8f3dcb95c7",
+    "dataType": "NA"
+  },
+  {
+    "name": "Skin blisters",
+    "uuid": "fdfbfbc8-0a77-4ade-9a26-4203e23c3f82",
+    "dataType": "NA"
+  },
+  {
+    "name": "Child PNC skin problems",
+    "uuid": "36460b33-a6c2-478f-894c-491128aa4ca5",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Umbilical cord is infected",
+        "uuid": "50ad01bb-a93a-4eae-8804-a3b8a5a23077",
+        "abnormal": true
+      },
+      {
+        "name": "Blue/pale",
+        "uuid": "a23bc4b5-b1a5-40ff-b67c-255a0788baf3",
+        "abnormal": true
+      },
+      {
+        "name": "Umbilical redness and or discharge",
+        "uuid": "eb030ccc-865c-43d1-84f1-11c20e7e7fc2",
+        "abnormal": true
+      },
+      {
+        "name": "Umbilical Abscess",
+        "uuid": "4cc68725-905b-4f29-800a-5032bc169c4d",
+        "abnormal": true
+      },
+      {
+        "name": "Rash",
+        "uuid": "966bf035-b14f-4fd0-8b2d-22798ad330c7",
+        "abnormal": true
+      },
+      {
+        "name": "Wrinkled Skin",
+        "uuid": "efe68956-0ff4-4391-af2b-c9e49bb9e97e",
+        "abnormal": true
+      },
+      {
+        "name": "Sunken fontanelle",
+        "uuid": "0210eee7-90e8-4c93-bd41-3c8f3dcb95c7",
+        "abnormal": true
+      },
+      {
+        "name": "Skin blisters",
+        "uuid": "fdfbfbc8-0a77-4ade-9a26-4203e23c3f82",
+        "abnormal": true
+      },
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
+      }
+    ]
   }
 ]
