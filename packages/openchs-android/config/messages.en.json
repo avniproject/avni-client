@@ -179,5 +179,5 @@
   "voidedChecklistItemDetailAlertTitle": "Cannot change because it has been discontinued",
   "forceSyncWarning": "Force Sync Warning",
   "forceSyncWarningMessage": "Are you sure you want to go ahead with this action, this action will cause the Sync to take a long time to finish. It is advisable to only use this action when directed by the support team.",
-  "showAllPreviousVisits": "Show All Previous Visits"
+  "showMoreVisits": "Show More Visits"
 }

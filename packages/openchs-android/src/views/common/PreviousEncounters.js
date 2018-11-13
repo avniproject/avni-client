@@ -21,8 +21,9 @@ class PreviousEncounters extends AbstractComponent {
         encounters: React.PropTypes.any.isRequired,
         formType: React.PropTypes.string.isRequired,
         style: React.PropTypes.object,
-        onShowAll: React.PropTypes.func.isRequired,
-        showAll: React.PropTypes.bool.isRequired
+        onShowMore: React.PropTypes.func.isRequired,
+        showCount: React.PropTypes.number,
+        showPartial: React.PropTypes.bool.isRequired
     };
 
     constructor(props, context) {
@@ -68,19 +69,19 @@ class PreviousEncounters extends AbstractComponent {
 
     render() {
         let toDisplayEncounters;
-        let actualEncounters;
-        const numberOfEncountersDisplayedByDefault = 4;
-        if (this.props.showAll) {
-            actualEncounters = _.filter(this.props.encounters, (encounter) => encounter.encounterDateTime);
-            toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
-        } else {
-            const scheduledEncounters = _.filter(this.props.encounters, (encounter) => !encounter.encounterDateTime);
+        const scheduledEncounters = _.filter(this.props.encounters, (encounter) => !encounter.encounterDateTime);
+        let showingPartial = this.props.showPartial && (this.props.showCount < (this.props.encounters.length - scheduledEncounters.length));
+
+        console.log(`ShowingPartial:${showingPartial}, ShowCount:${this.props.showCount}, Scheduled:${scheduledEncounters.length}, Total:${this.props.encounters.length}`);
+        if (showingPartial) {
             let chronologicalScheduledEncounters = _.sortBy(scheduledEncounters, (scheduledEncounter) => scheduledEncounter.earliestVisitDateTime);
 
-            actualEncounters = _.filter(this.props.encounters, (encounter) => encounter.encounterDateTime);
+            let actualEncounters = _.filter(this.props.encounters, (encounter) => encounter.encounterDateTime);
             const reverseChronologicalActualEncounters = _.sortBy(actualEncounters, (encounter) => encounter.encounterDateTime);
-            const recentActualEncounters = _.slice(_.reverse(reverseChronologicalActualEncounters), 0, numberOfEncountersDisplayedByDefault);
+            const recentActualEncounters = _.slice(_.reverse(reverseChronologicalActualEncounters), 0, this.props.showCount);
             toDisplayEncounters = _.sortBy(_.concat(recentActualEncounters, chronologicalScheduledEncounters), (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
+        } else {
+            toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.earliestVisitDateTime);
         }
 
         const formMappingService = this.context.getService(FormMappingService);
@@ -106,11 +107,11 @@ class PreviousEncounters extends AbstractComponent {
             />);
         return (
             <View>
-                {(this.props.showAll || actualEncounters.length <= numberOfEncountersDisplayedByDefault) ? null :
-                    <Button onPress={() => this.props.onShowAll()} style={[Styles.basicSecondaryButtonView, {alignSelf: 'center'}]} textStyle={{
+                {(showingPartial) ?
+                    <Button onPress={() => this.props.onShowMore()} style={[Styles.basicSecondaryButtonView, {alignSelf: 'center'}]} textStyle={{
                         fontSize: Fonts.Medium,
                         color: Colors.DarkPrimaryColor
-                    }}>{this.I18n.t('showAllPreviousVisits')}</Button>
+                    }}>{this.I18n.t('showMoreVisits')}</Button> : null
                 }
                 {renderable}
             </View>

@@ -10,6 +10,7 @@ import ProgramConfigService from "../../service/ProgramConfigService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Program} from 'openchs-models';
 import ProgramService from "../../service/program/ProgramService";
+import SettingsService from "../../service/SettingsService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -48,7 +49,9 @@ class ProgramEnrolmentDashboardActions {
             encounterTypeState: state.encounterTypeState.clone(),
             enrolment: state.enrolment,
             programsAvailable: state.programsAvailable,
-            showAll: state.showAll
+            showCount: state.showCount,
+            dashboardButtons: state.dashboardButtons,
+            enrolmentSummary: state.enrolmentSummary
         };
     }
 
@@ -67,7 +70,7 @@ class ProgramEnrolmentDashboardActions {
         }
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
-        newState.showAll = false;
+        newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
@@ -87,9 +90,9 @@ class ProgramEnrolmentDashboardActions {
         return newState;
     }
     
-    static onShowAll(state) {
+    static onShowMore(state) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
-        newState.showAll = true;
+        newState.showCount = state.showCount + SettingsService.IncrementalEncounterDisplayCount;
         return newState;
     }
 
@@ -168,7 +171,7 @@ class ProgramEnrolmentDashboardActions {
         newState.enrolment = newState.enrolment.individual.findEnrolment(action.enrolmentUUID);
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
-        newState.showAll = false;
+        newState.showCount = ProgramEnrolmentDashboardActions.IncrementalEncounterDisplayCount;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
@@ -181,7 +184,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
     ON_ENROLMENT_CHANGE: 'PEDA.ON_ENROLMENT_CHANGE',
     RESET: 'PEDA.RESET',
-    SHOW_ALL: 'PEDA.SHOW_ALL'
+    SHOW_MORE: 'PEDA.SHOW_MORE'
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -190,7 +193,7 @@ const EncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('ENCOUNTE
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
-    [ProgramEnrolmentDashboardActionsNames.SHOW_ALL, ProgramEnrolmentDashboardActions.onShowAll],
+    [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_CHANGE, ProgramEnrolmentDashboardActions.onEnrolmentChange],
 
