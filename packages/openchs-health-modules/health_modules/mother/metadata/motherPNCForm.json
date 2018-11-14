@@ -50,7 +50,7 @@
             "uuid": "70d617f9-3c14-4ec2-8d0f-97c837f6ab37"
           },
           "displayOrder": 4,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Pulse",
@@ -60,7 +60,7 @@
             "uuid": "2d3b8f90-6123-4dbf-b866-4f56ac7d24c8"
           },
           "displayOrder": 5,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Hb % Level",
