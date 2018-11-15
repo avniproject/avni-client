@@ -74,7 +74,6 @@ class Checklist extends BaseEntity {
 
     groupedItems() {
         return this.items.filter(item => !_.isNil(item.applicableState)).reduce((acc, item) => {
-            console.log(item.applicableStateName);
             acc[item.applicableStateName] = _.get(acc, item.applicableStateName, []).concat([item]);
             return acc;
         }, {});

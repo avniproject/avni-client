@@ -192,5 +192,6 @@
   "void": "वॉड",
   "voidedChecklistItemDetailAlertTitle": "बदल नहीं सकता क्योंकि यह रोका जा चुका है",
   "Address": "पता",
-  "showMoreVisits": "अधिक विज़िट दिखाएं"
+  "showMoreVisits": "अधिक विज़िट दिखाएं",
+  "empty-formelement-name": "पूरा करने की तारीख"
 }

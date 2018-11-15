@@ -63,15 +63,24 @@ class ChecklistItem {
         return !_.isNil(this.completionDate);
     }
 
+    get firstState() {
+        return this.detail.stateConfig.find(status => status.displayOrder === 1);
+    }
+
     get applicableState() {
         const baseDate = this.checklist.baseDate;
 
         if (this.completed) {
             return ChecklistItemStatus.completed;
-        } else {
-            let nonCompletedState = this.detail.stateConfig.find(status => status.isApplicable(baseDate));
-            return _.isNil(nonCompletedState) ? ChecklistItemStatus.na(moment().diff(baseDate, 'years')) : nonCompletedState;
         }
+        let nonCompletedState = this.detail.stateConfig.find(status => status.isApplicable(baseDate));
+        if (!_.isNil(nonCompletedState)) {
+            return nonCompletedState;
+        }
+
+        if (this.firstState.hasNotStarted(baseDate)) return null;
+
+        return ChecklistItemStatus.na(moment().diff(baseDate, 'years'));
     }
 
     get editable() {
@@ -86,8 +95,8 @@ class ChecklistItem {
         this.completionDate = date;
     }
 
-    get maxDate() {
-        return this.completed ? this.completionDate : this.applicableState.maxDate(this.checklist.baseDate);
+    get statusDate() {
+        return this.completed ? this.completionDate : this.applicableState.fromDate(this.checklist.baseDate);
     }
 
     print(){

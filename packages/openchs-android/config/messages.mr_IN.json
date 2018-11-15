@@ -148,6 +148,7 @@
   "deleteRelativeConfirmationMessage": "हे {{individualA}} आणि {{individualB}} मधील संबंध हटवेल.",
 
   "Program exit": "प्रोग्रामच्या बाहेर",
-  "showMoreVisits": "अधिक भेटी दर्शवा"
+  "showMoreVisits": "अधिक भेटी दर्शवा",
+  "empty-formelement-name": "",
+  "completionDate": "पूर्ण झाल्याची तारीख"
 }
-
