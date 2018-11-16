@@ -44,7 +44,7 @@ class ConventionalRestClient {
         const resourceEndpoint = [settings.serverURL, entityMetadata.resourceName, searchFilter].join('/');
         const loadedSince = entityMetadata.syncStatus.loadedSince;
         const params = (page, size) => this.makeParams({
-            lastModifiedDateTime: moment(loadedSince).add(1, "ms").toISOString(),
+            lastModifiedDateTime: moment(loadedSince).toISOString(),
             size: size,
             page: page
         });
