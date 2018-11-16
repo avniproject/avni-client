@@ -227,6 +227,9 @@ run_app_debug: setup_hosts  ##
 open_app_bundle:
 	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ../temp/output.txt
 	vi ../temp/output.txt
+
+kill_app:
+	adb shell am force-stop com.openchsclient
 # </app>
 
 
