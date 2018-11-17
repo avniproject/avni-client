@@ -1724,6 +1724,11 @@
         "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0"
       },
       {
+        "name": "Underweight",
+        "uuid": "41b2db08-99a4-428c-a908-641330858b8a",
+        "abnormal": true
+      },
+      {
         "name": "Moderately Underweight",
         "uuid": "e422d466-f7a5-408e-b79a-d9f177ab8c5c",
         "abnormal": true
