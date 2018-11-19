@@ -4,16 +4,13 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntitySyncStatus} from "openchs-models";
+import {EntitySyncStatus, UserInfo} from "openchs-models";
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
-import {UserInfo} from "openchs-models";
 import UserInfoService from "./UserInfoService";
-import FakeDataService from './FakeDataService';
 import RuleEvaluationService from "./RuleEvaluationService";
-import RuleService from "./RuleService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -74,7 +71,7 @@ class SyncService extends BaseService {
         if (_.isEmpty(entityResources)) return;
         const entityService = this.getService(EntityService);
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
-        const entities = entityResources.map((entity) => entityMetaData.entityClass.fromResource(entity, entityService));
+        const entities = entityResources.reduce((acc, entity) => acc.concat([entityMetaData.entityClass.fromResource(entity, entityService, acc)]), []);
         let entitiesToCreateFns = this.createEntities(entityMetaData.entityName, entities);
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
