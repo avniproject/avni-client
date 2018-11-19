@@ -53,6 +53,9 @@ class ChecklistItemStatus {
         na.to = {};
         na.to.key = "year";
         na.to.value = years;
+        na.from = {};
+        na.from.key = "year";
+        na.from.value = years;
         na.color = 'grey';
         na.state = 'Past Expiry';
         return na;

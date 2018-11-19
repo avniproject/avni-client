@@ -68,8 +68,8 @@ class ChecklistItem {
     }
 
     get applicableState() {
-        const baseDate = this.checklist.baseDate;
 
+        const baseDate = this.checklist.baseDate;
         if (this.completed) {
             return ChecklistItemStatus.completed;
         }
@@ -78,7 +78,7 @@ class ChecklistItem {
             return nonCompletedState;
         }
 
-        if (this.firstState.hasNotStarted(baseDate)) return null;
+        if (this.detail.voided || this.firstState.hasNotStarted(baseDate)) return null;
 
         return ChecklistItemStatus.na(moment().diff(baseDate, 'years'));
     }
