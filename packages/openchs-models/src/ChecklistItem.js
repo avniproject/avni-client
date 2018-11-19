@@ -67,9 +67,16 @@ class ChecklistItem {
         return this.detail.stateConfig.find(status => status.displayOrder === 1);
     }
 
-    get applicableState() {
+    get baseDate() {
+        if (this.detail.isDependent) {
+            return this.checklist.items
+                .find(item => item.detail.uuid === this.detail.dependentOn.uuid).completionDate;
+        }
+        return this.checklist.baseDate;
+    }
 
-        const baseDate = this.checklist.baseDate;
+    get applicableState() {
+        const baseDate = this.baseDate;
         if (this.completed) {
             return ChecklistItemStatus.completed;
         }
@@ -99,7 +106,7 @@ class ChecklistItem {
         return this.completed ? this.completionDate : this.applicableState.fromDate(this.checklist.baseDate);
     }
 
-    print(){
+    print() {
         return `ChecklistItem{uuid=${this.uuid}}`;
     }
 }
