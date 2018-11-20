@@ -12,6 +12,7 @@ import General from "../utility/General";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import EntityService from "./EntityService";
 import {EntityMetaData} from "openchs-models";
+import ErrorHandler from "../utility/ErrorHandler";
 
 
 @Service("authService")
@@ -30,8 +31,10 @@ class AuthService extends BaseService {
 
     authenticate(userId, password) {
         let settingsService = this.settingsService;
-        const authenticateAndUpdateUserSettings = (userId, password, settings) =>
-            this._authenticate(userId, password, settings);
+        const authenticateAndUpdateUserSettings = (userId, password, settings) => {
+            ErrorHandler.setUser(userId);
+            return this._authenticate(userId, password, settings);
+        };
 
         return Promise.resolve(settingsService.getSettings())
             .then(() => this._updateCognitoPoolSettingsFromServer())

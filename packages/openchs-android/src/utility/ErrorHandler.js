@@ -11,11 +11,15 @@ export default class ErrorHandler {
         }
     }
 
+    static setUser(username) {
+        bugsnag.setUser(username, username, username);
+    }
+
     static postError(error, isFatal, errorCallback) {
         console.log(`[ErrorHandler] IsFatal=${isFatal} ${error}`);
         console.log(JSON.stringify(error));
         error.message = `${isFatal ? 'Fatal' : 'Non-fatal'} error: ${error.message}`;
-        
+
         if (isFatal) {
             StackTrace.fromError(error, {offline: true})
                 .then((x) => {
@@ -23,6 +27,7 @@ export default class ErrorHandler {
                     const frameArray = x.map((row) => Object.defineProperty(row, 'fileName', {
                         value: `${row.fileName}:${row.lineNumber || 0}:${row.columnNumber || 0}`
                     }));
+                    bugsnag.setUser()
                     console.log(`[ErrorHandler] Notifying Bugsnag ${error}`);
                     bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
                     console.log(`[ErrorHandler] Restarting app.`);
