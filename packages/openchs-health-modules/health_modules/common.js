@@ -134,7 +134,7 @@ function C() {
         const weight = programEncounter.getObservationValue("Weight");
         const height = programEncounter.getObservationValue("Height");
         return getZScore(programEncounter.programEnrolment.individual, programEncounter.encounterDateTime, weight, height);
-    }
+    };
 
     this.weeksBetween = (arg1, arg2) => {
         return moment.duration(moment(arg1).diff(moment(arg2))).asWeeks();

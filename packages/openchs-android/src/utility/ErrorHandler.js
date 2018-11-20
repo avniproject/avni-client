@@ -27,7 +27,6 @@ export default class ErrorHandler {
                     const frameArray = x.map((row) => Object.defineProperty(row, 'fileName', {
                         value: `${row.fileName}:${row.lineNumber || 0}:${row.columnNumber || 0}`
                     }));
-                    bugsnag.setUser()
                     console.log(`[ErrorHandler] Notifying Bugsnag ${error}`);
                     bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
                     console.log(`[ErrorHandler] Restarting app.`);
