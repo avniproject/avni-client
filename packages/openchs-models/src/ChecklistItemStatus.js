@@ -51,6 +51,7 @@ class ChecklistItemStatus {
     static na(years) {
         const na = new ChecklistItemStatus();
         na.to = {};
+        na.displayOrder = 999;
         na.to.key = "year";
         na.to.value = years;
         na.from = {};

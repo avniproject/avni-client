@@ -85,7 +85,9 @@ class ChecklistItem {
             return nonCompletedState;
         }
 
-        if (this.detail.voided || this.firstState.hasNotStarted(baseDate)) return null;
+        if (this.detail.voided || _.isNil(baseDate) || this.firstState.hasNotStarted(baseDate)) {
+            return null;
+        }
 
         return ChecklistItemStatus.na(moment().diff(baseDate, 'years'));
     }
