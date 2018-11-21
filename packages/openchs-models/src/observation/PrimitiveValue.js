@@ -30,9 +30,7 @@ class PrimitiveValue {
     }
 
     cloneForEdit() {
-        const primitiveValue = new PrimitiveValue();
-        primitiveValue.answer = this.answer;
-        return primitiveValue;
+        return new PrimitiveValue(this.value, this.datatype);
     }
 
     _valueFromString() {
@@ -42,7 +40,7 @@ class PrimitiveValue {
             return new Date(Date.parse(this.value));
         } else if (this.datatype === Concept.dataType.Date) {
             let date = new Date(Date.parse(this.value));
-            date.setHours(0, 0, 0, 0);
+            date.setUTCHours(0, 0, 0, 0);
             return date;
         }
 
