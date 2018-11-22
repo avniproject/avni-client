@@ -34,7 +34,7 @@ class ProgramEncounter extends AbstractEncounter {
         const programEncounter = AbstractEncounter.fromResource(resource, entityService, new ProgramEncounter());
 
         programEncounter.programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
-        General.assignDateFields(["earliestVisitDateTime", "maxVisitDateTime"], resource, programEncounter);
+        General.assignDateFields(["earliestVisitDateTime", "maxVisitDateTime", "cancelDateTime"], resource, programEncounter);
         programEncounter.name = resource.name;
         return programEncounter;
     }

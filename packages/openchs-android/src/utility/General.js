@@ -248,7 +248,7 @@ class General {
     }
 
     static isEmptyOrBlank(value) {
-        return _.overSome([_.isNil, _.isNaN])(value) ? true : 
+        return _.overSome([_.isNil, _.isNaN])(value) ? true :
             _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
                     _.isEmpty(value);
     }

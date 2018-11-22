@@ -31,6 +31,12 @@ class ChecklistItemStatus {
         return currentDate.isBetween(minDate, maxDate);
     }
 
+    hasNotStarted(baseDate) {
+        const currentDate = moment();
+        const minDate = moment(baseDate).add(this.from.value, this.from.key).startOf("day");
+        return currentDate.isBefore(minDate);
+    }
+
     static VALID_KEYS = ['day', 'week', 'month', 'year']
         .map((k) => [`${k}s`, k])
         .reduce((acc, ks) => acc.concat(ks), []);
@@ -45,15 +51,19 @@ class ChecklistItemStatus {
     static na(years) {
         const na = new ChecklistItemStatus();
         na.to = {};
+        na.displayOrder = 999;
         na.to.key = "year";
         na.to.value = years;
+        na.from = {};
+        na.from.key = "year";
+        na.from.value = years;
         na.color = 'grey';
         na.state = 'Past Expiry';
         return na;
     }
 
-    maxDate(baseDate) {
-        return moment(baseDate).add(this.to.value, this.to.key).toDate();
+    fromDate(baseDate) {
+        return moment(baseDate).add(this.from.value, this.from.key).toDate();
     }
 }
 

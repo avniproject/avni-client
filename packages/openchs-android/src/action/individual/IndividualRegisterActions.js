@@ -150,7 +150,6 @@ export default new Map([
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, IndividualRegisterActions.onSave],
-    [actions.RESET, IndividualRegisterActions.onLoad],
 ]);
 
 export {actions as Actions};

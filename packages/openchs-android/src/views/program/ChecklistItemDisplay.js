@@ -38,7 +38,7 @@ class ChecklistItemDisplay extends AbstractComponent {
         const applicableState = this.props.checklistItem.applicableState;
         const backgroundColor = applicableState.color;
         const statusText = applicableState.state;
-        const maxDateText = General.toDisplayDate(this.props.checklistItem.maxDate);
+        const maxDateText = General.toDisplayDate(this.props.checklistItem.statusDate);
         return (
             <TouchableHighlight style={this.appendedStyle({
                 borderWidth: 2,

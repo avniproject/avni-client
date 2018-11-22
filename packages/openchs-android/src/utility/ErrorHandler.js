@@ -11,11 +11,15 @@ export default class ErrorHandler {
         }
     }
 
+    static setUser(username) {
+        bugsnag.setUser(username, username, username);
+    }
+
     static postError(error, isFatal, errorCallback) {
         console.log(`[ErrorHandler] IsFatal=${isFatal} ${error}`);
         console.log(JSON.stringify(error));
         error.message = `${isFatal ? 'Fatal' : 'Non-fatal'} error: ${error.message}`;
-        
+
         if (isFatal) {
             StackTrace.fromError(error, {offline: true})
                 .then((x) => {

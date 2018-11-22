@@ -63,15 +63,33 @@ class ChecklistItem {
         return !_.isNil(this.completionDate);
     }
 
-    get applicableState() {
-        const baseDate = this.checklist.baseDate;
+    get firstState() {
+        return this.detail.stateConfig.find(status => status.displayOrder === 1);
+    }
 
+    get baseDate() {
+        if (this.detail.isDependent) {
+            return this.checklist.items
+                .find(item => item.detail.uuid === this.detail.dependentOn.uuid).completionDate;
+        }
+        return this.checklist.baseDate;
+    }
+
+    get applicableState() {
+        const baseDate = this.baseDate;
         if (this.completed) {
             return ChecklistItemStatus.completed;
-        } else {
-            let nonCompletedState = this.detail.stateConfig.find(status => status.isApplicable(baseDate));
-            return _.isNil(nonCompletedState) ? ChecklistItemStatus.na(moment().diff(baseDate, 'years')) : nonCompletedState;
         }
+        let nonCompletedState = this.detail.stateConfig.find(status => status.isApplicable(baseDate));
+        if (!_.isNil(nonCompletedState)) {
+            return nonCompletedState;
+        }
+
+        if (this.detail.voided || _.isNil(baseDate) || this.firstState.hasNotStarted(baseDate)) {
+            return null;
+        }
+
+        return ChecklistItemStatus.na(moment().diff(baseDate, 'years'));
     }
 
     get editable() {
@@ -86,11 +104,11 @@ class ChecklistItem {
         this.completionDate = date;
     }
 
-    get maxDate() {
-        return this.completed ? this.completionDate : this.applicableState.maxDate(this.checklist.baseDate);
+    get statusDate() {
+        return this.completed ? this.completionDate : this.applicableState.fromDate(this.checklist.baseDate);
     }
 
-    print(){
+    print() {
         return `ChecklistItem{uuid=${this.uuid}}`;
     }
 }

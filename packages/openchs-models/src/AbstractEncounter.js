@@ -36,7 +36,7 @@ class AbstractEncounter extends BaseEntity {
     }
 
     static fromResource(resource, entityService, encounter) {
-        const programEncounter = General.assignFields(resource, encounter, ["uuid"], ["encounterDateTime"], ["observations"], entityService);
+        const programEncounter = General.assignFields(resource, encounter, ["uuid"], ["encounterDateTime"], ["observations", "cancelObservations"], entityService);
         programEncounter.encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
         return encounter;
     }

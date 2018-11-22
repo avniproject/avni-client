@@ -74,7 +74,7 @@ class ChecklistItemView extends AbstractComponent {
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
                                              element={new StaticFormElement('completionDate', true)}
-                                             dateValue={new PrimitiveValue(this.state.checklistItem.completionDate)}
+                                             dateValue={new PrimitiveValue(this.state.checklistItem.completionDate ? this.state.checklistItem.completionDate : new Date())}
                                              validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
                             :
                             <View/>
@@ -83,7 +83,7 @@ class ChecklistItemView extends AbstractComponent {
                             observationHolder={new ObservationsHolder(this.state.checklistItem.observations)}
                             group={this.state.formElementGroup}
                             actions={Actions}
-                            dataEntryDate={this.state.checklistItem.completionDate}
+                            dataEntryDate={this.state.checklistItem.completionDate ? this.state.checklistItem.completionDate : new Date()}
                             validationResults={this.state.validationResults}
                             filteredFormElements={this.state.filteredFormElements}
                             formElementsUserState={this.state.formElementsUserState}/>

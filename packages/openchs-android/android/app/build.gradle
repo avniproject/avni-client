@@ -75,7 +75,7 @@ apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = true
+def enableSeparateBuildPerCPUArchitecture = System.getenv("ENVFILE").equals(".env.live")
 
 
 /**
@@ -92,8 +92,8 @@ android {
         applicationId "com.openchsclient"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 263 //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
-        versionName "2.6 - 3"
+        versionCode 267 //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
+        versionName "2.6 - 7"
 
         ndk {
             abiFilters "armeabi-v7a", "x86"

@@ -105,7 +105,6 @@ export default new Map([
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.SAVE, FamilyRegisterActions.onSave],
-    [actions.RESET, FamilyRegisterActions.onLoad],
 ]);
 
 export {actions as Actions};
