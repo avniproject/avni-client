@@ -20,6 +20,7 @@ class SettingsActions {
             userInfo: userInfo,
             serverURL: serverURL,
             advancedMode: false,
+            rulesToRun: []
         };
     }
 
@@ -27,7 +28,8 @@ class SettingsActions {
         return {
             settings: state.settings.clone(),
             localeMappings: state.localeMappings,
-            userInfo: state.userInfo.clone()
+            userInfo: state.userInfo.clone(),
+            rulesToRun: []
         };
     }
 
@@ -69,20 +71,27 @@ class SettingsActions {
     static onAdvancedMode(state, action, context) {
         return {...state, advancedMode: !state.advancedMode};
     }
+
+    static onRuleChange(state, action, context) {
+        const ruleToAddRemove = action.value;
+        return {...state};
+    }
 }
 
 const SettingsActionsNames = {
     ON_SERVER_URL_CHANGE: 'S.ON_SERVER_URL_CHANGE',
     ON_LOCALE_CHANGE: 'S.ON_LOCALE_CHANGE',
     ON_LOG_LEVEL_CHANGE: 'S.ON_LOG_LEVEL_CHANGE',
-    ON_ADVANCED_MODE: 'S.ON_ADVANCED_MODE'
+    ON_ADVANCED_MODE: 'S.ON_ADVANCED_MODE',
+    ON_RULE_CHANGE: 'S.ON_RULE_CHANGE'
 };
 
 const SettingsActionsMap = new Map([
     [SettingsActionsNames.ON_SERVER_URL_CHANGE, SettingsActions.onServerURLChange],
     [SettingsActionsNames.ON_LOCALE_CHANGE, SettingsActions.onLocaleChange],
     [SettingsActionsNames.ON_ADVANCED_MODE, SettingsActions.onAdvancedMode],
-    [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange]
+    [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange],
+    [SettingsActionsNames.ON_RULE_CHANGE, SettingsActions.onRuleChange]
 ]);
 
 export {
