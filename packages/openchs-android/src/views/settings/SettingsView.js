@@ -21,6 +21,7 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import EntityMetaData from "openchs-models/src/EntityMetaData";
 import EntityQueueService from "../../service/EntityQueueService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -76,6 +77,42 @@ class SettingsView extends AbstractComponent {
             </View>) : (<View/>);
     }
 
+    runRules() {
+        this.context.getService(RuleEvaluationService).runOnAll();
+    }
+
+    renderDevOptions() {
+        if (__DEV__) {
+            const ruleLevel = [
+                "Individual decisions",
+                "Enrolment decisions",
+                "Program encounter decisions",
+                "Encounter decisions",
+                "Visit Schedule",
+                "Checklists"
+            ].map((ruleName) => new RadioLabelValue(ruleName, ruleName));
+            return (<View>
+                <RadioGroup
+                    onPress={({value}) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
+                    labelValuePairs={ruleLevel}
+                    labelKey='Rules to run'
+                    selectionFn={(ruleToRun) => this.state.rulesToRun.indexOf(ruleToRun) > -1}
+                    validationError={null}
+                    multiSelect={true}
+                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                />
+                <TouchableNativeFeedback onPress={() => this.runRules(this.state.rulesToRun)}>
+                    <View style={Styles.basicPrimaryButtonView}>
+                        <Text style={{
+                            fontSize: Fonts.Medium,
+                            color: Colors.TextOnPrimaryColor
+                        }}>Run {this.state.rulesToRun.length === 0 ? 'All' : 'Selected'} Rules</Text>
+                    </View>
+                </TouchableNativeFeedback>
+            </View>);
+        }
+    }
+
     render() {
         const localeLabelValuePairs = this.state.localeMappings.map((localeMapping) => new RadioLabelValue(localeMapping.displayText, localeMapping));
         return (
@@ -101,12 +138,12 @@ class SettingsView extends AbstractComponent {
                                 style={{color: 'black', fontSize: Styles.normalTextSize}}>{config.BUILD_VERSION}</Text></Text>
                         </View>
 
+                        {this.renderDevOptions()}
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                             <Text style={{color: 'black', fontSize: Styles.normalTextSize}}>Advanced Settings</Text>
                             <Switch value={this.state.advancedMode}
                                     onValueChange={() => this.dispatchAction(Actions.ON_ADVANCED_MODE)}/>
                         </View>
-
                         {this.renderAdvancedOptions()}
                     </View>
                 </CHSContent>
