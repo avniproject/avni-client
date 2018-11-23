@@ -400,6 +400,16 @@
     "dataType": "NA"
   },
   {
+    "uuid": "c7bfff2a-43f6-4547-a0ad-a6837f22688f",
+    "name": "Infection",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "be478728-784e-4c99-8986-3de6f7ab1670",
+    "name": "Post-Partum Eclampsia",
+    "dataType": "NA"
+  },
+  {
     "name": "PNC Complications",
     "uuid": "5e204b7a-c5df-4cc4-af45-99647b61e047",
     "dataType": "Coded",
@@ -432,6 +442,16 @@
       {
         "uuid": "ac1e984c-28be-4ce2-887c-262749151350",
         "name": "Post-Partum Depression",
+        "abnormal": true
+      },
+      {
+        "uuid": "c7bfff2a-43f6-4547-a0ad-a6837f22688f",
+        "comment": "Infection",
+        "abnormal": true
+      },
+      {
+        "uuid": "be478728-784e-4c99-8986-3de6f7ab1670",
+        "comment": "Post-Partum Eclampsia",
         "abnormal": true
       }
     ]

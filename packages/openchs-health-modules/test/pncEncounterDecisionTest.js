@@ -13,7 +13,7 @@ describe("PNC encounter decisions", () => {
     var programEncounter;
 
     const pncComplications = (decisions) =>{
-        return C.findValue(decisions.encounterDecisions, "PNC Complications");
+        return TestHelper.findCodedValue(decisions.encounterDecisions, "PNC Complications");
     };
 
     const treatmentAdvice = (decisions) =>{
@@ -64,7 +64,7 @@ describe("PNC encounter decisions", () => {
             const decisions = getDecisions(programEncounter);
 
             const encounterDecisions = decisions.encounterDecisions;
-            const pncComplications = C.findValue(encounterDecisions, "PNC Complications");
+            const pncComplications = TestHelper.findCodedValue(encounterDecisions, "PNC Complications");
             expect(pncComplications).to.exist;
             expect(pncComplications).to.be.an('array').with.lengthOf(1).that.includes("Post-Partum Haemorrhage");
         });
