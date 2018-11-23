@@ -400,6 +400,16 @@
     "dataType": "NA"
   },
   {
+    "uuid": "c7bfff2a-43f6-4547-a0ad-a6837f22688f",
+    "name": "Infection",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "be478728-784e-4c99-8986-3de6f7ab1670",
+    "name": "Post-Partum Eclampsia",
+    "dataType": "NA"
+  },
+  {
     "name": "PNC Complications",
     "uuid": "5e204b7a-c5df-4cc4-af45-99647b61e047",
     "dataType": "Coded",
@@ -432,6 +442,16 @@
       {
         "uuid": "ac1e984c-28be-4ce2-887c-262749151350",
         "name": "Post-Partum Depression",
+        "abnormal": true
+      },
+      {
+        "uuid": "c7bfff2a-43f6-4547-a0ad-a6837f22688f",
+        "comment": "Infection",
+        "abnormal": true
+      },
+      {
+        "uuid": "be478728-784e-4c99-8986-3de6f7ab1670",
+        "comment": "Post-Partum Eclampsia",
         "abnormal": true
       }
     ]
@@ -1968,6 +1988,36 @@
     "dataType": "Coded",
     "answers": [
       {
+        "comment": "Post-Partum Depression Symptoms",
+        "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",
+        "abnormal": true
+      },
+      {
+        "comment": "Low Pulse",
+        "uuid": "87f387a4-434c-45ee-9cbd-c17b310469a7",
+        "abnormal": true
+      },
+      {
+        "comment": "High Pulse",
+        "uuid": "878c246d-4d2d-4a59-bcd4-fed33baa7814",
+        "abnormal": true
+      },
+      {
+        "comment": "Low Respiratory Rate",
+        "uuid": "12c00650-bed6-4242-9c29-4ab7af3676cb",
+        "abnormal": true
+      },
+      {
+        "comment": "High Respiratory Rate",
+        "uuid": "6af88b96-93bd-4283-815b-27bc9afae823",
+        "abnormal": true
+      },
+      {
+        "uuid": "a410eda0-4794-4fd4-86ca-bd1eaa88040e",
+        "comment": "Not using contraceptives",
+        "abnormal": true
+      },
+      {
         "uuid": "ebb0dd6f-4dc8-4ef5-838b-a18eec5ba9c9",
         "abnormal": true
       },
@@ -3463,6 +3513,26 @@
     "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
     "dataType": "Coded",
     "answers": [
+      {
+        "comment": "Breast-related problems",
+        "uuid": "5f2ba759-58ca-4fa9-8fee-3063e076d8fa",
+        "abnormal": true
+      },
+      {
+        "comment": "Cesarean incision problems",
+        "uuid": "e30b164e-3edc-4098-8271-42c4f483eec8",
+        "abnormal": true
+      },
+      {
+        "comment": "Feeling hot or has chills",
+        "uuid": "42292a37-089f-462a-b174-130de4137baa",
+        "abnormal": true
+      },
+      {
+        "uuid": "ef2507b0-b070-4e7c-b61a-47ed87b8432f",
+        "comment": "Vaginal problems",
+        "abnormal": true
+      },
       {
         "uuid": "57f0b3c2-372e-4af7-8a0d-b23228f836db",
         "abnormal": true
