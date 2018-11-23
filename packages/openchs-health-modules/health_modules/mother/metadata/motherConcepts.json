@@ -3484,6 +3484,11 @@
     "dataType": "Coded",
     "answers": [
       {
+        "uuid": "ef2507b0-b070-4e7c-b61a-47ed87b8432f",
+        "comment": "Vaginal problems",
+        "abnormal": true
+      },
+      {
         "uuid": "57f0b3c2-372e-4af7-8a0d-b23228f836db",
         "abnormal": true
       },
