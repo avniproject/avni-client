@@ -22,11 +22,20 @@ import Colors from "../primitives/Colors";
 import EntityMetaData from "openchs-models/src/EntityMetaData";
 import EntityQueueService from "../../service/EntityQueueService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import Rule from "openchs-models/src/Rule";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.settings);
+        this.entityMap = {
+            "Individual decisions": ["Individual", Rule.types.Decision],
+            "Enrolment decisions": ["ProgramEnrolment", Rule.types.Decision],
+            "Encounter decisions": ["Encounter", Rule.types.Decision],
+            "Program encounter decisions": ["ProgramEncounter", Rule.types.Decision],
+            "Enrolment Visit Schedule": ["ProgramEnrolment", Rule.types.VisitSchedule],
+            "Encounter Visit Schedule": ["ProgramEncounter", Rule.types.VisitSchedule]
+        };
     }
 
     viewName() {
@@ -78,19 +87,13 @@ class SettingsView extends AbstractComponent {
     }
 
     runRules() {
-        this.context.getService(RuleEvaluationService).runOnAll();
+        this.context.getService(RuleEvaluationService).runOnAll(this.state.rulesToRun);
     }
 
     renderDevOptions() {
         if (__DEV__) {
-            const ruleLevel = [
-                "Individual decisions",
-                "Enrolment decisions",
-                "Program encounter decisions",
-                "Encounter decisions",
-                "Visit Schedule",
-                "Checklists"
-            ].map((ruleName) => new RadioLabelValue(ruleName, ruleName));
+            const ruleLevel = Object.entries(this.entityMap)
+                .map(([displayName, value]) => new RadioLabelValue(displayName, value));
             return (<View>
                 <RadioGroup
                     onPress={({value}) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
