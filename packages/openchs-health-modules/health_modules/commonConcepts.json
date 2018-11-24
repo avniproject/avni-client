@@ -670,25 +670,32 @@
     "dataType": "Coded",
     "answers": [
       {
-        "uuid": "9832ccec-edd6-4fa2-96b1-f81832df3996"
+        "uuid": "9832ccec-edd6-4fa2-96b1-f81832df3996",
+        "name": "Married"
       },
       {
-        "uuid": "327563ae-47b5-46bf-9bcb-640ff6cfc52d"
+        "uuid": "327563ae-47b5-46bf-9bcb-640ff6cfc52d",
+        "name": "Unmarried"
       },
       {
-        "uuid": "00f2eb9a-94c6-48eb-bfad-0b93784d3cb9"
+        "uuid": "00f2eb9a-94c6-48eb-bfad-0b93784d3cb9",
+        "name": "Separated"
       },
       {
-        "uuid": "bad132b2-16d1-4fa5-a396-d864d666ac5d"
+        "uuid": "bad132b2-16d1-4fa5-a396-d864d666ac5d",
+        "name": "Divorced"
       },
       {
-        "uuid": "a5e367b3-48c6-4b6e-860c-89a1e4ab4b89"
+        "uuid": "a5e367b3-48c6-4b6e-860c-89a1e4ab4b89",
+        "name": "Widow(er)"
       },
       {
-        "uuid": "bbbcef7d-45d4-4dee-b04f-3a954a3bb768"
+        "uuid": "bbbcef7d-45d4-4dee-b04f-3a954a3bb768",
+        "name": "Remarried"
       },
       {
-        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "name": "Other"
       }
     ]
   },
@@ -1262,6 +1269,115 @@
     "name": "Household number",
     "uuid": "24dabc3a-6562-4521-bd42-5fff11ea5c46",
     "dataType": "Text"
+  },
+  {
+    "name": "Number of household members (eating together)",
+    "uuid": "25b73ca1-e268-452f-ba05-2595af28ac04",
+    "dataType": "Numeric",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "uuid": "77e9a994-23b5-4d88-bb16-c36dd3c3f58e",
+    "name": "Wife",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "uuid": "28b6b4bb-63c8-478a-93d3-a340ec13364c",
+    "name": "Daughter",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "uuid": "7699c9e0-aad0-4e20-840f-2012dd220dfc",
+    "name": "Daughter-in-law",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "uuid": "3305a303-be7f-4270-9f52-055a037b1f1f",
+    "name": "Husband"
+  },
+  {
+    "uuid": "4ab468c6-edca-44ae-8158-e98baac08fab",
+    "name": "Son"
+  },
+  {
+    "uuid": "0e78aef9-dabd-49a5-8e21-8889f3b1df19",
+    "name": "Brother"
+  },
+  {
+    "uuid": "1a7e9c3e-8b71-46c0-acd5-3d547655116b",
+    "name": "Sister"
+  },
+  {
+    "uuid": "dbf1d3cc-beca-48d0-90c7-cfeab5df685f",
+    "name": "Brother in law"
+  },
+  {
+    "uuid": "d5990426-a36c-4b56-a234-432ad34c69ec",
+    "name": "Sister in law"
+  },
+  {
+    "uuid": "136a7882-31af-4174-9d7d-2f02f2cc6e7d",
+    "name": "Grandmother"
+  },
+  {
+    "uuid": "6f6ff411-5f62-467b-9e91-6f978aaf0e5d",
+    "name": "Grandfather"
+  },
+
+  {
+    "name": "Relation to head of the family",
+    "uuid": "1b6ae290-1823-4aab-91a5-b1d8a1b3b837",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Self",
+        "uuid": "74466f64-3f7c-4046-aaae-57803cee46b1"
+      },
+      {
+        "uuid": "77e9a994-23b5-4d88-bb16-c36dd3c3f58e",
+        "name": "Wife"
+      },
+      {
+        "uuid": "3305a303-be7f-4270-9f52-055a037b1f1f",
+        "name": "Husband"
+      },
+      {
+        "uuid": "28b6b4bb-63c8-478a-93d3-a340ec13364c",
+        "name": "Daughter"
+      },
+      {
+        "uuid": "4ab468c6-edca-44ae-8158-e98baac08fab",
+        "name": "Son"
+      },
+      {
+        "uuid": "7699c9e0-aad0-4e20-840f-2012dd220dfc",
+        "name": "Daughter-in-law"
+      },
+      {
+        "uuid": "1a7e9c3e-8b71-46c0-acd5-3d547655116b",
+        "name": "Sister"
+      },
+      {
+        "uuid": "0e78aef9-dabd-49a5-8e21-8889f3b1df19",
+        "name": "Brother"
+      },
+      {
+        "uuid": "d5990426-a36c-4b56-a234-432ad34c69ec",
+        "name": "Sister in law"
+      },
+      {
+        "uuid": "dbf1d3cc-beca-48d0-90c7-cfeab5df685f",
+        "name": "Brother in law"
+      },
+      {
+        "uuid": "136a7882-31af-4174-9d7d-2f02f2cc6e7d",
+        "name": "Grandmother"
+      },
+      {
+        "uuid": "6f6ff411-5f62-467b-9e91-6f978aaf0e5d",
+        "name": "Grandfather"
+      }
+    ]
   },
   {
     "name": "Room number",
