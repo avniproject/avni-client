@@ -28,6 +28,9 @@ import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
 import RuleService from "./RuleService";
 import ChecklistDetail from "../../../openchs-models/src/ChecklistDetail";
+import IndividualService from "./IndividualService";
+import EncounterService from "./EncounterService";
+import IndividualEncounterService from "./IndividualEncounterService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -67,7 +70,7 @@ class RuleEvaluationService extends BaseService {
         const decisionsMap = this.getAllRuleItemsFor(form, "Decision")
             .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), defaultDecisions);
         const trimmedDecisions = {};
-        _.forEach(decisionsMap, (decisions, decisionType)=> {
+        _.forEach(decisionsMap, (decisions, decisionType) => {
             trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
         });
         General.logDebug("RuleEvaluationService", trimmedDecisions);
@@ -102,7 +105,7 @@ class RuleEvaluationService extends BaseService {
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
         const defaultVistSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
-        if ([entity, form].some(_.isEmpty)) return defaultVistSchedule;
+        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVistSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
         const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule")
             .reduce((schedule, rule) => rule.fn.exec(entity, schedule, visitScheduleConfig), scheduledVisits);
@@ -139,23 +142,40 @@ class RuleEvaluationService extends BaseService {
         return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
 
-    runOnAll() {
+    runOnAll(rulesToRun) {
         const conceptService = this.getService(ConceptService);
         const programEnrolmentService = this.getService(ProgramEnrolmentService);
+        const individualService = this.getService(IndividualService);
+        const encounterService = this.getService(IndividualEncounterService);
         const programEncounterService = this.getService(ProgramEncounterService);
         const saveEntityOfType = {
+            "Individual": (individual) => individualService.register(individual),
+            "Encounter": (encounter) => encounterService.saveOrUpdate(encounter),
             "ProgramEnrolment": (enrolment, nextScheduledVisits) =>
                 programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment, "ProgramEnrolment"), nextScheduledVisits),
             "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
         };
-        ["ProgramEnrolment", "ProgramEncounter"].map((schema) => {
+        rulesToRun.map(([schema, type]) => {
             let allEntities = this.getAll(schema).map((entity) => entity.cloneForEdit());
             allEntities.forEach((entity, idx) => {
-                General.logDebug('RuleEvaluationService', `${schema} - Running ${idx+1}/${allEntities.length}`);
-                const decisions = this.getDecisions(entity, schema);
-                const nextScheduledVisits = this.getNextScheduledVisits(entity, schema);
-                conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
-                conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
+                let nextScheduledVisits = [];
+                switch (type) {
+                    case Rule.types.Decision: {
+                        General.logDebug('RuleEvaluationService', `${schema} - Running ${Rule.types.Decision} on ${idx + 1}/${allEntities.length}`);
+                        const decisions = this.getDecisions(entity, schema);
+                        conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
+                        conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
+                        conceptService.addDecisions(entity.observations, decisions.registrationDecisions);
+                        break;
+                    }
+                    case Rule.types.VisitSchedule: {
+                        General.logDebug('RuleEvaluationService', `${schema} - Running ${Rule.types.VisitSchedule} on ${idx + 1}/${allEntities.length}`);
+                        nextScheduledVisits = this.getNextScheduledVisits(entity, schema);
+                        break;
+                    }
+                    default:
+                        break;
+                }
                 saveEntityOfType[schema](entity, nextScheduledVisits);
             });
         });

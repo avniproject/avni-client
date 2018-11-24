@@ -38,7 +38,7 @@ let findConcept = function (conceptName) {
 let isAnswerDefinedForCodedConcept = function (conceptName, answerConceptName) {
     let codedConcept = findConcept(conceptName);
     let answerConcept = findConcept(answerConceptName);
-    return _.some(codedConcept.answers, (x) => x.uuid === answerConcept.uuid);
+    return _.some(codedConcept.answers, (x) => x.uuid === _.get(answerConcept,'uuid'));
 };
 
 module.exports.areAnswersDefinedForCodedConcept = function (codedConceptName, answerConceptNames) {

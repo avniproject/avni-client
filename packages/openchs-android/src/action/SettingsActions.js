@@ -74,7 +74,13 @@ class SettingsActions {
 
     static onRuleChange(state, action, context) {
         const ruleToAddRemove = action.value;
-        return {...state};
+        let rulesToRun = state.rulesToRun;
+        if (state.rulesToRun.indexOf(ruleToAddRemove) > -1) {
+            rulesToRun = rulesToRun.filter(r => r !== ruleToAddRemove);
+        } else {
+            rulesToRun = rulesToRun.concat([ruleToAddRemove]);
+        }
+        return {...state, rulesToRun: rulesToRun};
     }
 }
 
