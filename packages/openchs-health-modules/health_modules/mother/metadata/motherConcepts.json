@@ -364,6 +364,62 @@
     "dataType": "Date"
   },
   {
+    "name": "Insomnia",
+    "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Irritability",
+    "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Loss of appetite",
+    "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Weakness",
+    "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Post-Partum Depression Symptoms",
+    "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Insomnia",
+        "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
+        "abnormal": true
+      },
+      {
+        "name": "Irritability",
+        "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
+        "abnormal": true
+      },
+      {
+        "name": "Loss of appetite",
+        "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
+        "abnormal": true
+      },
+      {
+        "name": "Weakness",
+        "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
+        "abnormal": true
+      },
+      {
+        "name": "No problem",
+        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "unique": true
+      }
+    ]
+  },
+  {
     "uuid": "154aeecb-2c8f-43f4-b86c-e070b83a516d",
     "name": "Post-Partum Haemorrhage",
     "abnormal": true,
@@ -601,30 +657,6 @@
   {
     "name": "Filled with pus",
     "uuid": "c2d3b745-b145-4268-80ec-6ea9707a99a5",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
-    "name": "Insomnia",
-    "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
-    "name": "Irritability",
-    "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
-    "name": "Loss of appetite",
-    "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
-    "name": "Weakness",
-    "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
     "abnormal": true,
     "dataType": "NA"
   },
@@ -1983,6 +2015,11 @@
     ]
   },
   {
+    "uuid": "a410eda0-4794-4fd4-86ca-bd1eaa88040e",
+    "name": "Not using contraceptives",
+    "dataType": "NA"
+  },
+  {
     "name": "Refer to the hospital for",
     "uuid": "18cfc41a-2110-484e-a3c6-3f5592387324",
     "dataType": "Coded",
@@ -3160,38 +3197,6 @@
     ]
   },
   {
-    "name": "Post-Partum Depression Symptoms",
-    "uuid": "0776992a-78de-4bd1-bfcb-f63ff1f7630e",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "name": "Insomnia",
-        "uuid": "492f2658-5a54-4d47-894c-af90d02730b7",
-        "abnormal": true
-      },
-      {
-        "name": "Irritability",
-        "uuid": "8b5390e0-bb10-438f-b57a-44afdc973d9c",
-        "abnormal": true
-      },
-      {
-        "name": "Loss of appetite",
-        "uuid": "47e93f5b-3bfb-4fb7-826f-278d8d0e04ce",
-        "abnormal": true
-      },
-      {
-        "name": "Weakness",
-        "uuid": "25ec9a8c-07df-471c-afac-4919d016464d",
-        "abnormal": true
-      },
-      {
-        "name": "No problem",
-        "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
-        "unique": true
-      }
-    ]
-  },
-  {
     "uuid": "8cb6e1ec-37cf-4563-8ce9-30b943664182",
     "name": "Date of Death",
     "dataType": "Date"
@@ -3277,11 +3282,6 @@
   {
     "uuid": "42292a37-089f-462a-b174-130de4137baa",
     "name": "Feeling hot or has chills",
-    "dataType": "NA"
-  },
-  {
-    "uuid": "a410eda0-4794-4fd4-86ca-bd1eaa88040e",
-    "name": "Not using contraceptives",
     "dataType": "NA"
   },
   {

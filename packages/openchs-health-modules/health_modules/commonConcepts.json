@@ -1323,7 +1323,11 @@
     "uuid": "6f6ff411-5f62-467b-9e91-6f978aaf0e5d",
     "name": "Grandfather"
   },
-
+  {
+    "name": "Self",
+    "uuid": "74466f64-3f7c-4046-aaae-57803cee46b1",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
   {
     "name": "Relation to head of the family",
     "uuid": "1b6ae290-1823-4aab-91a5-b1d8a1b3b837",
@@ -2218,11 +2222,6 @@
     "name": "Never"
   },
   {
-    "name": "Self",
-    "uuid": "74466f64-3f7c-4046-aaae-57803cee46b1",
-    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
-  },
-  {
     "name": "Private hospital",
     "uuid": "8767f6a6-6ca9-41d1-b60e-2c5addf22168",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
@@ -2323,5 +2322,17 @@
         "unique": true
       }
     ]
+  },
+  {
+    "name": "Address",
+    "uuid": "5f28bfdc-b4f4-4560-bafa-66690d9a9dcc",
+    "dataType": "Text"
+  },
+  {
+    "name": "MCTS Number",
+    "uuid": "191f8a30-d543-4b98-9464-2f5838d1d9a6",
+    "dataType": "Numeric"
   }
+
+
 ]
