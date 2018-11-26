@@ -71,9 +71,9 @@ const findObs = (programEncounter, conceptName) => {
 const getDecisions = (programEncounter) => {
     const currentEncounterDateTime = programEncounter.encounterDateTime;
     const individual = programEncounter.programEnrolment.individual;
-    
+
     // console.log(`dob ${individual.dateOfBirth} eDT ${currentEncounterDateTime}`);
-    
+
     const decisions = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
     const weight = findObs(programEncounter, "Weight");
     const height = findObs(programEncounter, "Height");
@@ -89,26 +89,26 @@ const getDecisions = (programEncounter) => {
 
     const sd2Neg = projectedSD2NegForWeight(individual, currentEncounterDateTime);
     const observations = programEncounter.programEnrolment.getObservationsForConceptName("Weight");
-    const observationsSorted = _.orderBy(observations, 
+    const observationsSorted = _.orderBy(observations,
         encounter => moment(encounter.encounterDateTime).unix(),
         ["desc"]
     );
 
-    const pastObservation = _.find(observationsSorted, observation => 
+    const pastObservation = _.find(observationsSorted, observation =>
         moment(currentEncounterDateTime).diff(moment(observation.encounterDateTime), "months", true) >= 3.0
     );
 
-    if(pastObservation) {
+    if (pastObservation) {
         const pastSD2Neg = projectedSD2NegForWeight(individual, pastObservation.encounterDateTime);
-        const pastWeight = pastObservation.obs
+        const pastWeight = pastObservation.obs;
         const falteringInPast = pastWeight < pastSD2Neg;
-        const falteringStatus = falteringInPast && weight < sd2Neg ? "Yes": "No";
+        const falteringStatus = falteringInPast && weight < sd2Neg ? "Yes" : "No";
         addIfRequired(decisions.encounterDecisions, "Growth Faltering Status", [falteringStatus]);
     } else {
         const falteringStatus = "No";
         addIfRequired(decisions.encounterDecisions, "Growth Faltering Status", [falteringStatus]);
     }
-    
+
 
     // console.log(`pastObservation ${JSON.stringify(pastObservation)}
     //             allObservationsInLastThreeMonths ${JSON.stringify(allObservationsInLastThreeMonths)} 

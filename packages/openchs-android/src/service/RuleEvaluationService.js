@@ -31,6 +31,7 @@ import ChecklistDetail from "../../../openchs-models/src/ChecklistDetail";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import IndividualEncounterService from "./IndividualEncounterService";
+import Individual from "openchs-models/src/Individual";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -148,6 +149,13 @@ class RuleEvaluationService extends BaseService {
         const individualService = this.getService(IndividualService);
         const encounterService = this.getService(IndividualEncounterService);
         const programEncounterService = this.getService(ProgramEncounterService);
+        const getAllEntitiesOfType = {
+            "Individual": () => this.getAll(Individual.schema.name).filtered('voided = null or voided = false'),
+            "Encounter": () => this.getAll(Encounter.schema.name),
+            "ProgramEnrolment": () =>
+                this.getAll(ProgramEnrolment.schema.name).filtered('programExitDateTime!=null'),
+            "ProgramEncounter": () => this.getAll(ProgramEncounter.schema.name).filtered('encounterDateTime != null and cancelDateTime = null')
+        };
         const saveEntityOfType = {
             "Individual": (individual) => individualService.register(individual),
             "Encounter": (encounter) => encounterService.saveOrUpdate(encounter),
@@ -156,7 +164,7 @@ class RuleEvaluationService extends BaseService {
             "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
         };
         rulesToRun.map(([schema, type]) => {
-            let allEntities = this.getAll(schema).map((entity) => entity.cloneForEdit());
+            let allEntities = getAllEntitiesOfType[schema]().map(e => e.cloneForEdit());
             allEntities.forEach((entity, idx) => {
                 let nextScheduledVisits = [];
                 switch (type) {
