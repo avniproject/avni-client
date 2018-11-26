@@ -10,6 +10,7 @@ import CHSContent from "./common/CHSContent";
 import {StatusBar} from "react-native";
 import Styles from "./primitives/Styles";
 import CHSNavigator from "../utility/CHSNavigator";
+import PlaygroundView from "./PlaygroundView";
 
 @Path('/landingView')
 class LandingView extends AbstractComponent {
@@ -39,13 +40,14 @@ class LandingView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent>
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                    <Tabs ref={ t => this._tabs = t }>
+                    <Tabs ref={t => this._tabs = t}>
                         <IndividualSearchView
                             tabLabel={this.I18n.t('home')}
                             tabStyle={{backgroundColor: 'red'}}
                             onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
                         />
                         <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
+                        <PlaygroundView tabLabel={"PlayGround"}/>
                     </Tabs>
                 </CHSContent>
             </CHSContainer>

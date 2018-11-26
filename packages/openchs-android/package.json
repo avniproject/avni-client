@@ -52,6 +52,7 @@
     "react-native-config": "0.10.0",
     "react-native-i18n": "0.1.1",
     "react-native-vector-icons": "4.3.0",
+    "react-native-video": "^3.2.1",
     "realm": "2.0.12",
     "redux": "3.6.0",
     "stacktrace-js": "2.0.0",

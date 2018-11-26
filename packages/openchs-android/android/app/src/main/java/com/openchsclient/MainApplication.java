@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.brentvatne.react.ReactVideoPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
@@ -33,6 +34,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+            new ReactVideoPackage(),
                     BugsnagReactNative.getPackage(),
                     new MPAndroidChartPackage(),
                     new ReactNativeConfigPackage(),
