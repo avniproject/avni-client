@@ -1092,7 +1092,9 @@
     "Child's weight": "Child's weight",
     "Child PNC - Weight - Dos": "Dos\n✓ Essential to weigh baby at birth\n✓ If baby weighs less than 2.5 kg, it is essential to take special care of baby",
     "Registration and immunisation": "Registration and immunisation",
-    "Child PNC - Registration Immunisation - Dos": "Dos\n✓ Birth registration\n✓ Anganwadi registration\n✓ Receive immunization at birth"
+    "Child PNC - Registration Immunisation - Dos": "Dos\n✓ Birth registration\n✓ Anganwadi registration\n✓ Receive immunization at birth",
+    "BT check reason": "Sickle cell test within 90 days after a blood transfusion may lead to inaccurate test results.",
+    "BT check failed revisit instruction": "Revisit in 3 months after the BT date."
   },
   "gu_IN": {
     "Religion": "ધર્મ",
