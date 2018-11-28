@@ -2332,7 +2332,33 @@
     "name": "MCTS Number",
     "uuid": "191f8a30-d543-4b98-9464-2f5838d1d9a6",
     "dataType": "Numeric"
+  },
+  {
+    "name": "Date of marriage",
+    "uuid": "d685d229-e06e-42f3-90c7-ca06d2fefe17",
+    "dataType": "Date"
+  },
+  {
+    "uuid": "eb3f1d36-5f1d-4571-9fef-a8adf7144171",
+    "name": "Sterilized"
+  },
+  {
+    "uuid": "62652ade-94c6-40fb-87ff-71c4bc7decd5",
+    "name": "Non sterilized"
+  },
+  {
+    "name": "Family planning status",
+    "uuid": "cbcebf1d-4053-4778-9170-a2775df0a140",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "uuid": "eb3f1d36-5f1d-4571-9fef-a8adf7144171",
+        "name": "Sterilized"
+      },
+      {
+        "uuid": "62652ade-94c6-40fb-87ff-71c4bc7decd5",
+        "name": "Non sterilized"
+      }
+    ]
   }
-
-
 ]
