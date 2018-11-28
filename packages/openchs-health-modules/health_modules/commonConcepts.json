@@ -2360,5 +2360,68 @@
         "name": "Non sterilized"
       }
     ]
+  },
+  {
+    "uuid": "b3e9c088-90ed-45d9-8c99-102d1bda66e1",
+    "name": "Number of living children",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "comment": "moved from CK"
+  },
+  {
+    "uuid": "99c9d0a3-6ffc-41a7-8641-d79e2e83a4c6",
+    "name": "Number of miscarriages",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "comment": "moved from CK"
+  },
+  {
+    "uuid": "74de4054-0e8b-4088-aae8-bd5f2933d300",
+    "name": "Number of stillbirths",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "comment": "moved from CK"
+  },
+  {
+    "uuid": "d7ae1329-9e09-47f1-ad7d-3c73474d973f",
+    "name": "Number of child deaths",
+    "dataType": "Numeric",
+    "lowAbsolute": 0,
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "comment": "moved from CK"
+  },
+  {
+    "name": "Number of induced abortions",
+    "uuid": "0b3eb875-b0f6-4420-be01-82bbd2812b21",
+    "dataType": "Numeric",
+    "lowAbsolute": 0
+  },
+  {
+    "name": "Number of male child deaths",
+    "uuid": "eb07e1bd-0379-4ffd-9bc6-df4b34f7745e",
+    "dataType": "Numeric",
+    "lowAbsolute": 0
+  },
+  {
+    "name": "Number of female child deaths",
+    "uuid": "c6454406-04da-4670-9318-3b71a2d9b0cf",
+    "dataType": "Numeric",
+    "lowAbsolute": 0
+  },
+  {
+    "name": "Abortion",
+    "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
+    "abnormal": true,
+    "dataType": "NA",
+    "comment": "moved from mother concepts, required for EC program also"
+  },
+  {
+    "name": "Age of youngest child",
+    "uuid": "305f693c-c8b6-4e3e-9a82-a6e91a3e462f",
+    "dataType": "Date",
+    "comment": "move from mother concepts, required for EC program also"
   }
 ]

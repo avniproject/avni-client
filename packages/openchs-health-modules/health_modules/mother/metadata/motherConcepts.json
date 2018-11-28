@@ -969,12 +969,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Abortion",
-    "uuid": "03dddd29-c1bb-4231-a17b-55445e247e7d",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
     "name": "Death",
     "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
     "abnormal": true,
@@ -2626,11 +2620,6 @@
     "dataType": "Numeric",
     "lowAbsolute": 0,
     "highAbsolute": 10
-  },
-  {
-    "name": "Age of youngest child",
-    "uuid": "305f693c-c8b6-4e3e-9a82-a6e91a3e462f",
-    "dataType": "Date"
   },
   {
     "name": "Infertility treatment",
