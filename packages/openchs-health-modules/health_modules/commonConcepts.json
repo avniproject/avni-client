@@ -2339,29 +2339,6 @@
     "dataType": "Date"
   },
   {
-    "uuid": "eb3f1d36-5f1d-4571-9fef-a8adf7144171",
-    "name": "Sterilized"
-  },
-  {
-    "uuid": "62652ade-94c6-40fb-87ff-71c4bc7decd5",
-    "name": "Non sterilized"
-  },
-  {
-    "name": "Family planning status",
-    "uuid": "cbcebf1d-4053-4778-9170-a2775df0a140",
-    "dataType": "Coded",
-    "answers": [
-      {
-        "uuid": "eb3f1d36-5f1d-4571-9fef-a8adf7144171",
-        "name": "Sterilized"
-      },
-      {
-        "uuid": "62652ade-94c6-40fb-87ff-71c4bc7decd5",
-        "name": "Non sterilized"
-      }
-    ]
-  },
-  {
     "uuid": "b3e9c088-90ed-45d9-8c99-102d1bda66e1",
     "name": "Number of living children",
     "dataType": "Numeric",
@@ -2445,5 +2422,17 @@
   {
     "uuid": "3cab380d-d6c4-4faa-a67e-d31fb9c6cf38",
     "name": "Family planning"
+  },
+  {
+    "uuid": "fb11151f-158f-49a3-8575-bd429a1846ac",
+    "name": "Woman"
+  },
+  {
+    "name": "Follow up date",
+    "uuid": "403f346a-1ac0-4286-9097-6fc4cb42b093",
+    "dataType": "Date"
   }
+
+
+
 ]
