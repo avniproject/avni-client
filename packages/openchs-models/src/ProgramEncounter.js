@@ -118,6 +118,7 @@ class ProgramEncounter extends AbstractEncounter {
         this.earliestVisitDateTime = scheduledVisit.earliestDate;
         this.maxVisitDateTime = scheduledVisit.maxDate;
         this.name = scheduledVisit.name;
+        return this;
     }
 
     getName() {
