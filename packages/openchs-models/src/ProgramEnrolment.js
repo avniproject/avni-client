@@ -349,14 +349,6 @@ class ProgramEnrolment extends BaseEntity {
         return _.filter(this.getEncounters(true), (encounter) => !encounter.encounterDateTime && _.isNil(encounter.cancelDateTime));
     }
 
-    completedScheduledEncountersOfTypeAfterDate(encounterTypeName, date) {
-        const filtered = this.getEncounters(true).filter((completedEncounter) => {
-            return completedEncounter.encounterType.name === encounterTypeName &&
-                !_.isNil(completedEncounter.encounterDateTime) && moment(completedEncounter.encounterDateTime).isAfter(date);
-        });
-        return filtered;
-    }
-
     scheduledEncountersOfType(encounterTypeName) {
         return this.scheduledEncounters()
             .filter((scheduledEncounter) => scheduledEncounter.encounterType.name === encounterTypeName);

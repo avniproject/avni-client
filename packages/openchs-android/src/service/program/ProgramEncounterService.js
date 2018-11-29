@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {ProgramEncounter, ProgramEnrolment, EncounterType, EntityQueue, ObservationsHolder} from "openchs-models";
+import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import moment from "moment";
 import _ from 'lodash';
 import General from "../../utility/General";
@@ -40,34 +40,14 @@ class ProgramEncounterService extends BaseService {
     }
 
     saveScheduledVisit(enrolment, nextScheduledVisit, db, schedulerDate) {
-
-        let completedEncounterOfTypeAfterDate = enrolment.completedScheduledEncountersOfTypeAfterDate(nextScheduledVisit.encounterType,schedulerDate);
-        let scheduledEncounterOfType = enrolment.scheduledEncountersOfType(nextScheduledVisit.encounterType);
-
-        if(!_.isEmpty(completedEncounterOfTypeAfterDate))
-        {   console.log("completedEncounter after date exist",JSON.stringify(nextScheduledVisit));
-            return;
-        }
-        else if(!_.isEmpty(scheduledEncounterOfType))
-        {
-            console.log("update schedule , not complted exist");
-            _.forEach(scheduledEncounterOfType, v=>{
-                v.updateSchedule(nextScheduledVisit);
-                this._saveEncounter(v, db);
-            });
-        }
-        else if(_.isEmpty(scheduledEncounterOfType))
-        {
-            console.log("new visit to be created");
+        let encountersToUpdate = enrolment.scheduledEncountersOfType(nextScheduledVisit.encounterType);
+        if (_.isEmpty(encountersToUpdate)) {
             const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
-            let encounterToSchedule = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
-            encounterToSchedule.updateSchedule(nextScheduledVisit);
-            this._saveEncounter(encounterToSchedule, db);
-            return;
+            encountersToUpdate = [ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment)];
         }
-
-      }
+        _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit), db));
+    }
 
     saveScheduledVisits(enrolment, nextScheduledVisits, db, schedulerDate) {
         return nextScheduledVisits.map(nSV =>{
