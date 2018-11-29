@@ -63,12 +63,7 @@ class ProgramEncounter extends AbstractEncounter {
         programEncounter.observations = [];
         programEncounter.cancelObservations = [];
         programEncounter.encounterDateTime = new Date();
-        programEncounter.earliestVisitDateTime = new Date();
         return programEncounter;
-    }
-
-    getRealEventDate() {
-        return _.isNil(this.encounterDateTime) ? this.earliestVisitDateTime : this.encounterDateTime;
     }
 
     cloneForEdit() {

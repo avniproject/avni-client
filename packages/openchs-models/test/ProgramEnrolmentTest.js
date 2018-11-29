@@ -176,6 +176,7 @@ describe('ProgramEnrolmentTest', () => {
         const scheduleEncounter = ProgramEncounter.createEmptyInstance();
         scheduleEncounter.encounterDateTime = encounterDate;
         scheduleEncounter.earliestVisitDateTime = scheduleDate;
+        scheduleEncounter.maxVisitDateTime = scheduleDate;
         if (!_.isEmpty(name)) scheduleEncounter.encounterType = EncounterType.create(name);
         return scheduleEncounter;
 
