@@ -245,6 +245,9 @@ deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 	cd packages/openchs-org && make deploy_locations
 
+deploy_common_concepts_dev:
+	cd packages/openchs-health-modules && make deploy_common_concepts_dev
+
 deploy_metadata_staging:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)

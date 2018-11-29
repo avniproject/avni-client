@@ -145,6 +145,8 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo
 	date
 
+deploy_common_concepts_dev:
+	$(call upload,concepts,@health_modules/commonConcepts.json)
 
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata

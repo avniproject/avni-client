@@ -2423,5 +2423,27 @@
     "uuid": "305f693c-c8b6-4e3e-9a82-a6e91a3e462f",
     "dataType": "Date",
     "comment": "move from mother concepts, required for EC program also"
+  },
+  {
+    "name": "Pill",
+    "uuid": "5a548cae-aca3-494f-9ca0-058bcdf3551c",
+    "dataType": "NA"
+  },
+  {
+    "name": "Copper T / IUD",
+    "uuid": "cfb6bf16-97bc-45b0-bbfe-e1a613344bd3",
+    "dataType": "NA"
+  },
+  {
+    "uuid": "e82a61a5-b532-4293-b5e8-3ec014325b85",
+    "name": "Pain during micturition"
+  },
+  {
+    "uuid": "39e98eb7-efe2-4a8a-ba99-79f51d522a8d",
+    "name": "Prolapsed uterus"
+  },
+  {
+    "uuid": "3cab380d-d6c4-4faa-a67e-d31fb9c6cf38",
+    "name": "Family planning"
   }
 ]
