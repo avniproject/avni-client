@@ -224,8 +224,8 @@ class Individual extends BaseEntity {
             return ValidationResult.failure(Individual.validationKeys.DOB, "ageTooHigh");
         } else if (this.isRegistrationBeforeDateOfBirth) {
             return ValidationResult.failure(Individual.validationKeys.DOB, 'registrationBeforeDateOfBirth');
-        } else if (General.dateIsAfterToday(dateOfBirth)) {
-            return ValidationResult.failure(Individual.validationKeys.validationKeys.DOB, "dateOfBirth");
+        } else if (General.dateIsAfterToday(this.dateOfBirth)) {
+            return ValidationResult.failure(Individual.validationKeys.DOB, "birthDateInFuture");
         } else {
             return ValidationResult.successful(Individual.validationKeys.DOB);
         }
