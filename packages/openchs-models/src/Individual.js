@@ -224,6 +224,8 @@ class Individual extends BaseEntity {
             return ValidationResult.failure(Individual.validationKeys.DOB, "ageTooHigh");
         } else if (this.isRegistrationBeforeDateOfBirth) {
             return ValidationResult.failure(Individual.validationKeys.DOB, 'registrationBeforeDateOfBirth');
+        } else if (General.dateIsAfterToday(dateOfBirth)) {
+            return ValidationResult.failure(Individual.validationKeys.validationKeys.DOB, "dateOfBirth");
         } else {
             return ValidationResult.successful(Individual.validationKeys.DOB);
         }
@@ -236,8 +238,12 @@ class Individual extends BaseEntity {
 
     validateRegistrationDate() {
         const validationResult = this.validateFieldForEmpty(this.registrationDate, Individual.validationKeys.REGISTRATION_DATE);
-        if (validationResult.success && this.isRegistrationBeforeDateOfBirth)
+        if (validationResult.success && this.isRegistrationBeforeDateOfBirth) {
             return ValidationResult.failure(Individual.validationKeys.REGISTRATION_DATE, 'registrationBeforeDateOfBirth');
+        }
+        if(validationResult.success && General.dateIsAfterToday(this.registrationDate)) {
+            return ValidationResult.failure(Individual.validationKeys.REGISTRATION_DATE, 'registrationDateInFuture');
+        }
         return validationResult;
     }
 

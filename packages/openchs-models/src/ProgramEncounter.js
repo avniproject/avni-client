@@ -90,6 +90,8 @@ class ProgramEncounter extends AbstractEncounter {
         if (!_.isNil(this.encounterDateTime) &&
             (General.dateAIsBeforeB(this.encounterDateTime, this.programEnrolment.enrolmentDateTime) || General.dateAIsAfterB(this.encounterDateTime, this.programEnrolment.programExitDateTime)))
             validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateNotInBetweenEnrolmentAndExitDate'));
+        if(!_.isNil(this.encounterDateTime) && General.dateIsAfterToday(this.encounterDateTime))
+            validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateInFuture'));
         return validationResults;
     }
 

@@ -135,6 +135,8 @@ class ProgramEnrolment extends BaseEntity {
         validationResults.push(this.validateFieldForEmpty(this.enrolmentDateTime, ProgramEnrolment.validationKeys.ENROLMENT_DATE));
         if (!_.isNil(this.enrolmentDateTime) && General.dateAIsBeforeB(this.enrolmentDateTime, this.individual.registrationDate))
             validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.ENROLMENT_DATE, 'enrolmentDateBeforeRegistrationDate'));
+        if (!_.isNil(this.enrolmentDateTime) && General.dateIsAfterToday(this.enrolmentDateTime))
+            validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.ENROLMENT_DATE, 'enrolmentDateInFuture'));
         return validationResults;
     }
 
@@ -143,6 +145,8 @@ class ProgramEnrolment extends BaseEntity {
         validationResults.push(this.validateFieldForEmpty(this.programExitDateTime, ProgramEnrolment.validationKeys.EXIT_DATE));
         if (!_.isNil(this.programExitDateTime) && General.dateAIsBeforeB(this.programExitDateTime, this.enrolmentDateTime))
             validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.EXIT_DATE, 'exitDateBeforeEnrolmentDate'));
+        if (!_.isNil(this.programExitDateTime) && General.dateIsAfterToday(this.programExitDateTime))
+            validationResults.push(new ValidationResult(false, ProgramEnrolment.validationKeys.EXIT_DATE, 'exitDateInFuture'));
         return validationResults;
     }
 
