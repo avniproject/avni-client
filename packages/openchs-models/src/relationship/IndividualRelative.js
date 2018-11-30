@@ -2,6 +2,7 @@ import Individual from "../Individual";
 import _ from "lodash";
 import IndividualRelation from "./IndividualRelation";
 import ValidationResult from "../application/ValidationResult";
+import General from "../utility/General";
 
 class IndividualRelative {
 
@@ -49,7 +50,35 @@ class IndividualRelative {
     validateRelative() {
         const emptyValidation = this.validateFieldForEmpty(this.relative.name, IndividualRelative.validationKeys.RELATIVE);
         if(!emptyValidation.success) return emptyValidation;
-        return this.relative.uuid === this.individual.uuid ? new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'selfRelationshipNotAllowed') : emptyValidation;
+
+        if (this.relative.uuid === this.individual.uuid) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'selfRelationshipNotAllowed');
+        } else {
+            return emptyValidation;
+        }
+
+    }
+
+    _validateRelationship() {
+        if (this.relation.name === "son" && !General.dateAIsBeforeB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'sonIsOlder');
+        } else if (this.relation.name === "daughter" && !General.dateAIsBeforeB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'daughterIsOlder');
+        } else if (this.relation.name === "father" && !General.dateAIsAfterB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'fatherIsYounger');
+        } else if (this.relation.name === "mother" && !General.dateAIsAfterB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'motherIsYounger');
+        } if (this.relation.name === "grandson" && !General.dateAIsBeforeB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'grandsonIsOlder');
+        } else if (this.relation.name === "granddaughter" && !General.dateAIsBeforeB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'granddaughterIsOlder');
+        } else if (this.relation.name === "grandfather" && !General.dateAIsAfterB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'grandfatherIsYounger');
+        } else if (this.relation.name === "grandmother" && !General.dateAIsAfterB(this.individual.dateOfBirth, this.relative.dateOfBirth)) {
+            return ValidationResult.failure(IndividualRelative.validationKeys.RELATIVE, 'grandmotherIsYounger');
+        } else {
+            return ValidationResult.successful(IndividualRelative.validationKeys.RELATIVE)
+        }
     }
 
     validateIndividual() {
@@ -65,10 +94,13 @@ class IndividualRelative {
         validationResults.push(this.validateRelative());
         validationResults.push(this.validateIndividual());
         validationResults.push(this.validateRelation());
-        if (!_.isNil(this.relative) && !_.isNil(this.relation)
-            && _.some(existingRelatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
-            validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'relationshipAlreadyRecorded'));
-            validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATION, 'relationshipAlreadyRecorded'));
+        if (!_.isNil(this.relative) && !_.isNil(this.relation)) {
+            if (_.some(existingRelatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
+                validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'relationshipAlreadyRecorded'));
+                validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATION, 'relationshipAlreadyRecorded'));
+            } else {
+                validationResults.push(this._validateRelationship());
+            }
         }
         return validationResults;
     }

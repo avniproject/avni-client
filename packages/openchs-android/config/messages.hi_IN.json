@@ -193,5 +193,19 @@
   "voidedChecklistItemDetailAlertTitle": "बदल नहीं सकता क्योंकि यह रोका जा चुका है",
   "Address": "पता",
   "showMoreVisits": "अधिक विज़िट दिखाएं",
-  "empty-formelement-name": "पूरा करने की तारीख"
+  "empty-formelement-name": "पूरा करने की तारीख",
+  "sonIsOlder": "बेटा उम्र में बड़ा नहीं हो सकता",
+  "daughterIsOlder": "बेटी उम्र में बड़ी नहीं हो सकती",
+  "fatherIsYounger": "बाप उम्र में छोटे नहीं हो सकते",
+  "motherIsYounger": "माँ उम्र में छोटी नहीं हो सकती",
+  "grandsonIsOlder": "पोता उम्र में बड़ा नहीं हो सकता",
+  "granddaughterIsOlder": "पोती उम्र में बड़ी नहीं हो सकती",
+  "grandfatherIsYounger": "दादा उम्र में छोटे नहीं हो सकते",
+  "grandmotherIsYounger": "दादी उम्र में छोटी नहीं हो सकती",
+
+  "registrationDateInFuture": "रजिसस्ट्रेशन की तारीख भविष्य में नहीं हो सकती है",
+  "birthDateInFuture": "जन्म तारीख भविष्य में नहीं हो सकती है",
+  "enrolmentDateInFuture": "इंरोलमेंट तारीख भविष्य में नहीं हो सकती है",
+  "encounterDateInFuture": "विजिट की तारीख भविष्य में नहीं हो सकती है",
+  "exitDateInFuture": "निकास तारीख भविष्य में नहीं हो सकती है"
 }

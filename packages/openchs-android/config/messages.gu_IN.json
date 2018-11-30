@@ -188,5 +188,19 @@
   "Other reason (Please specify)": "અન્ય કારણ (કૃપા કરીને સ્પષ્ટ કરો)",
   "Address": "સરનામું",
   "showMoreVisits": "વધુ મુલાકાતો બતાવો",
-  "empty-formelement-name": "પૂર્ણાહુતિ તારીખ્"
+  "empty-formelement-name": "પૂર્ણાહુતિ તારીખ્",
+  "sonIsOlder": "પુત્ર ઉમર માં મોટો ન હોઈ શકે",
+  "daughterIsOlder": "પુત્રી ઉમર માં મોટી ન હોઈ શકે",
+  "fatherIsYounger": "પિતા ઉમર માં નાના ન હોઈ શકે",
+  "motherIsYounger": "માતા ઉમર માં નાના ન હોઈ શકે",
+  "grandsonIsOlder": "પૌત્ર ઉમર માં મોટો ન હોઈ શકે",
+  "granddaughterIsOlder": "પૌત્રી ઉમર માં મોટી ન હોઈ શકે",
+  "grandfatherIsYounger": "દાદા ઉમર માં નાના ન હોઈ શકે",
+  "grandmotherIsYounger": "દાદી ઉમર માં નાના ન હોઈ શકે",
+
+  "registrationDateInFuture": "રજીસ્ટ્રેશન તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
+  "birthDateInFuture": "જન્મ તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
+  "enrolmentDateInFuture": "નોંધણી તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
+  "encounterDateInFuture": "મુલાકાતની તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
+  "exitDateInFuture": "બહાર નીકળવાની તારીખ ભવિષ્યમાં હોઈ શકતી નથી"
 }

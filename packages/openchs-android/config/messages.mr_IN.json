@@ -150,5 +150,20 @@
   "Program exit": "प्रोग्रामच्या बाहेर",
   "showMoreVisits": "अधिक भेटी दर्शवा",
   "empty-formelement-name": "",
-  "completionDate": "पूर्ण झाल्याची तारीख"
+  "completionDate": "पूर्ण झाल्याची तारीख",
+
+  "sonIsOlder": "मुलगा मोठा होऊ शकत नाही",
+  "daughterIsOlder": "मुलगी जुनी होऊ शकत नाही",
+  "fatherIsYounger": "वडील तरुण होऊ शकत नाही",
+  "motherIsYounger": "आई लहान होऊ शकत नाही",
+  "grandsonIsOlder": "नातू जुन्या असू शकत नाहीत",
+  "granddaughterIsOlder": "नात मोठी होऊ शकत नाही",
+  "grandfatherIsYounger": "आजोबा लहान होऊ शकत नाहीत",
+  "grandmotherIsYounger": "आजी लहान होऊ शकत नाहीत",
+
+  "registrationDateInFuture": "रजिसस्ट्रेशन तारीख भविष्यात असू शकत नाही",
+  "birthDateInFuture": "जन्मतारीख भविष्यात असू शकत नाही",
+  "enrolmentDateInFuture": "इंरोलमेंट तारीख भविष्यात असू शकत नाही",
+  "encounterDateInFuture": "भेटण्याची तारीख भविष्यात असू शकत नाही",
+  "exitDateInFuture": "निर्गमन तारीख भविष्यात असू शकत नाही"
 }
