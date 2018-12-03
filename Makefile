@@ -90,7 +90,7 @@ release-vivek: ##
 	ENVFILE=.env.devs.vivek make release
 
 release-live: ##
-	ENVFILE=.env.live make release
+	ENVFILE=.env.live make clean_env deps release
 	$(call _upload_release_sourcemap)
 
 release-staging: ##
