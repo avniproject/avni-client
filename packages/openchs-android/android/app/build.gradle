@@ -92,8 +92,8 @@ android {
         applicationId "com.openchsclient"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 269 //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
-        versionName "2.6 - 9"
+        versionCode 2610 //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
+        versionName "2.6 - 10"
 
         ndk {
             abiFilters "armeabi-v7a", "x86"
