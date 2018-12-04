@@ -66,6 +66,10 @@ class ProgramEncounter extends AbstractEncounter {
         return programEncounter;
     }
 
+    getRealEventDate() {
+        return _.isNil(this.encounterDateTime) ? this.earliestVisitDateTime : this.encounterDateTime;
+    }
+
     cloneForEdit() {
         const programEncounter = super.cloneForEdit(new ProgramEncounter());
         programEncounter.programEnrolment = this.programEnrolment;
