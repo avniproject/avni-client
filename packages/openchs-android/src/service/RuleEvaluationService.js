@@ -20,9 +20,6 @@ import {
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
-import RuleDependency from "../../../openchs-models/src/RuleDependency";
-import Rule from "../../../openchs-models/src/Rule";
-import Form from "../../../openchs-models/src/application/Form";
 import Decision from "../../../openchs-models/src/Decision";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
@@ -83,13 +80,20 @@ class RuleEvaluationService extends BaseService {
         return this.getEntityDecision(form, entity, context);
     }
 
-    getEnrolmentSummary(entity, entityName, context) {
-        let summary = this.entityRulesMap.get(entityName).getEnrolmentSummary(entity, context);
+    getEnrolmentSummary(enrolment, entityName='ProgramEnrolment', context) {
+        let summary = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
+        const ruleSummaries = [];
+        const summaryFromRules = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", 'program')
+            .reduce((summaries, rule) => rule.fn.exec(enrolment, summaries, context, new Date()), ruleSummaries);
+        summary = summary.concat(ruleSummaries);
         const conceptService = this.getService(ConceptService);
         let summaryWithObservations = [];
         summary.forEach((summaryElement) => {
             let concept = conceptService.conceptFor(summaryElement.name);
-            summaryWithObservations.push(Observation.create(concept, concept.getValueWrapperFor(summaryElement.value), summaryElement.abnormal));
+            summaryWithObservations.push(
+                Observation.create(concept,
+                    concept.getValueWrapperFor(summaryElement.value),
+                    summaryElement.abnormal));
         });
         return summaryWithObservations;
     }
@@ -137,9 +141,9 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    getAllRuleItemsFor(form, type) {
-        const applicableRules = RuleRegistry.getRulesFor(form.uuid, type);
-        const additionalRules = this.getService(RuleService).getApplicableRules(form, type);
+    getAllRuleItemsFor(entity, type, fieldNameInRule='form') {
+        const applicableRules = RuleRegistry.getRulesFor(entity.uuid, type);
+        const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, fieldNameInRule);
         return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
 

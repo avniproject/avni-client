@@ -200,7 +200,7 @@ export default {
         }
 
         if (oldDB.schemaVersion < 74) {
-            _.forEach(newDB.objects('Individual'), 
+            _.forEach(newDB.objects('Individual'),
                 (individual) => individual.voided = false);
         }
 
