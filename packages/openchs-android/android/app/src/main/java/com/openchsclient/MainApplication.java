@@ -1,22 +1,21 @@
 package com.openchsclient;
 
 import android.app.Application;
-import android.util.Log;
-
-import com.facebook.react.ReactApplication;
-import com.bugsnag.BugsnagReactNative;
-import com.github.wuxudong.rncharts.MPAndroidChartPackage;
-import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.airlabsinc.RNAWSCognitoPackage;
-import com.oblador.vectoricons.VectorIconsPackage;
-import com.facebook.react.ReactInstanceManager;
+import com.brentvatne.react.ReactVideoPackage;
+import com.bugsnag.BugsnagReactNative;
+import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
+import com.facebook.soloader.SoLoader;
+import com.github.wuxudong.rncharts.MPAndroidChartPackage;
+import com.github.yamill.orientation.OrientationPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
+import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
 import io.realm.react.RealmReactPackage;
-import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +32,8 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+                    new OrientationPackage(),
+                    new ReactVideoPackage(),
                     BugsnagReactNative.getPackage(),
                     new MPAndroidChartPackage(),
                     new ReactNativeConfigPackage(),

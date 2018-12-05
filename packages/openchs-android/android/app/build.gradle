@@ -144,6 +144,10 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-orientation')
+    compile(project(':react-native-video')) {
+        exclude group: 'com.squareup.okhttp3'
+    }
     compile project(':bugsnag-react-native')
     compile project(':react-native-charts-wrapper')
     compile project(':react-native-config')

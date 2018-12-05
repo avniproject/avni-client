@@ -1,5 +1,6 @@
 import DGS from "./DynamicGlobalStyles";
 import {Dimensions} from "react-native";
+import {StatusBar} from 'react-native';
 
 class Distances {
     static get ScaledContentDistanceFromEdge() {
@@ -32,6 +33,10 @@ class Distances {
 
     static get DeviceHeight() {
         return Dimensions.get('window').height;
+    }
+
+    static get DeviceEffectiveHeight() {
+        return Dimensions.get('window').height - StatusBar.currentHeight;
     }
 
     static ContentDistanceFromEdge = 16;

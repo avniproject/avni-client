@@ -23,6 +23,7 @@ import IndividualSearchView from "../views/individual/IndividualSearchView";
 import IndividualAddRelativeView from "../views/individual/IndividualAddRelativeView";
 import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
+import VideoPlayerView from "../views/videos/VideoPlayerView";
 
 
 class CHSNavigator {
@@ -156,6 +157,9 @@ class CHSNavigator {
         TypedTransition.from(source).with({familyUUID: familyUUID}).to(FamilyDashboardView, true);
     }
 
+    static navigateToVideoPlayerView(source, video) {
+        TypedTransition.from(source).with({video}).to(VideoPlayerView, true);
+    }
 }
 
 export default CHSNavigator;

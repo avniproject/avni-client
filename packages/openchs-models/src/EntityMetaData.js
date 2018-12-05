@@ -28,6 +28,7 @@ import Rule from "./Rule";
 import RuleDependency from "./RuleDependency";
 import ChecklistItemDetail from "./ChecklistItemDetail";
 import ChecklistDetail from "./ChecklistDetail";
+import Video from './videos/Video';
 
 class EntityMetaData {
     static checklistDetail = {entityName: "ChecklistDetail", entityClass: ChecklistDetail, resourceName: "checklistDetail", type: "reference", nameTranslated: false};
@@ -46,6 +47,7 @@ class EntityMetaData {
     static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
     static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"};
+    static video = {entityName: "Video", entityClass: Video, resourceName: "video", type: "reference", nameTranslated: true};
 
     static checklistItemDetail() {
         return {
@@ -115,6 +117,7 @@ class EntityMetaData {
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
+            EntityMetaData.video,
             EntityMetaData.checklistItemDetail(),
             EntityMetaData.checklistDetail,
             EntityMetaData.rule,

@@ -52,7 +52,7 @@ import {
     ChecklistItemActionNames,
     ChecklistItemActionMap
 } from '../action/program/ChecklistItemActions';
-
+import VideoListActions from '../action/VideoListViewActions';
 
 export default class Reducers {
     static reducerKeys = {
@@ -79,6 +79,7 @@ export default class Reducers {
         familyRegister: "familyRegister",
         individualAddRelative: "individualAddRelative",
         checklistItem: "checklistItem",
+        videoList: 'videoList'
     };
 
     static createReducers(beanStore) {
@@ -105,6 +106,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore, 'FRA');
         reducerMap[Reducers.reducerKeys.individualAddRelative] = Reducers._add(IndividualAddRelativeActionsMap, IndividualAddRelativeActions, beanStore);
         reducerMap[Reducers.reducerKeys.checklistItem] = Reducers._add(ChecklistItemActionMap, ChecklistItemActions, beanStore);
+        reducerMap[Reducers.reducerKeys.videoList] = Reducers._add(VideoListActions.Map, VideoListActions, beanStore);
         return reducerMap;
     };
 

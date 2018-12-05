@@ -39,6 +39,7 @@ import IndividualRelationshipType from "./relationship/IndividualRelationshipTyp
 import IndividualRelationGenderMapping from "./relationship/IndividualRelationGenderMapping";
 import Rule from "./Rule";
 import RuleDependency from "./RuleDependency";
+import Video from "./videos/Video";
 
 export default {
     //order is important, should be arranged according to the dependency
@@ -48,8 +49,8 @@ export default {
         EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval,
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
-        ChecklistDetail, ChecklistItemDetail],
-    schemaVersion: 81,
+        ChecklistDetail, ChecklistItemDetail, Video],
+    schemaVersion: 82,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
