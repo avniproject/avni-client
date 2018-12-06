@@ -1,12 +1,13 @@
 import React, {Component, PropTypes} from "react";
 import {ListView, Text, View} from "react-native";
 import {Button} from "native-base";
+import General from "openchs-models/src/utility/General";
 
 export class VideoList extends Component {
 
     static propTypes = {
         videos: PropTypes.array.isRequired,
-        play: PropTypes.func.isRequired
+        onPlay: PropTypes.func.isRequired
     };
 
     viewName() {
@@ -21,7 +22,7 @@ export class VideoList extends Component {
         return (
             <View style={{marginBottom: 2, flexDirection: 'row', flex: 16}}>
                 <Button style={{flex: 2, marginRight: 8, borderRadius: 2}}
-                        onPress={() => this.props.play(video)}>
+                        onPress={() => this.props.onPlay(video)}>
                     Play
                 </Button>
                 <View style={{flex: 14}}>
@@ -33,7 +34,7 @@ export class VideoList extends Component {
     }
 
     render() {
-        console.log(this.props.videos);
+        General.logDebug(this.viewName(), 'render');
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.videos);
         return (
             <View>

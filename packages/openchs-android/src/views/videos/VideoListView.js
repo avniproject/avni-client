@@ -42,13 +42,18 @@ class VideoListView extends AbstractComponent {
         super.componentWillUnmount();
     }
 
-    play(video) {
-        this.dispatchAction(Actions.Names.PLAY_VIDEO, {
-            cb: () => {
-                CHSNavigator.navigateToVideoPlayerView(this, video);
+    onExit = (telemetric) => {
+        this.dispatchAction(Actions.Names.ON_EXIT_VIDEO, {telemetric});
+    };
+
+    onPlay = (video) => {
+        this.dispatchAction(Actions.Names.ON_PLAY_VIDEO, {
+            video,
+            cb: (telemetric) => {
+                CHSNavigator.navigateToVideoPlayerView(this, {telemetric, onExit: this.onExit});
             }
         });
-    }
+    };
 
     render() {
         return (
@@ -60,7 +65,7 @@ class VideoListView extends AbstractComponent {
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
-                        <VideoList videos={this.state.videos} play={(video) => this.play(video)}/>
+                        <VideoList videos={this.state.videos} onPlay={this.onPlay}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

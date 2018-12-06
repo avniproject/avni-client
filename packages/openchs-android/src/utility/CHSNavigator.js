@@ -157,8 +157,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({familyUUID: familyUUID}).to(FamilyDashboardView, true);
     }
 
-    static navigateToVideoPlayerView(source, video) {
-        TypedTransition.from(source).with({video}).to(VideoPlayerView, true);
+    static navigateToVideoPlayerView(source, props) {
+        TypedTransition.from(source).with(props).to(VideoPlayerView, true);
     }
 }
 

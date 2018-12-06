@@ -29,6 +29,7 @@ import RuleDependency from "./RuleDependency";
 import ChecklistItemDetail from "./ChecklistItemDetail";
 import ChecklistDetail from "./ChecklistDetail";
 import Video from './videos/Video';
+import VideoTelemetric from './videos/VideoTelemetric';
 
 class EntityMetaData {
     static checklistDetail = {entityName: "ChecklistDetail", entityClass: ChecklistDetail, resourceName: "checklistDetail", type: "reference", nameTranslated: false};
@@ -114,6 +115,17 @@ class EntityMetaData {
         };
     }
 
+    static videoTelemetric() {
+        return {
+            entityName: VideoTelemetric.schema.name,
+            entityClass: VideoTelemetric,
+            resourceName: 'videoTelemetric',
+            type: 'tx',
+            nameTranslated: false,
+            parent: EntityMetaData.video
+        };
+    }
+
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
@@ -140,6 +152,7 @@ class EntityMetaData {
             EntityMetaData.conceptAnswer(),
             EntityMetaData.concept,
 
+            // EntityMetaData.videoTelemetric(),
             EntityMetaData.individualRelationship(),
             EntityMetaData.checklistItem(),
             EntityMetaData.checklist(),

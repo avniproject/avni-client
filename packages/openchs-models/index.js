@@ -58,6 +58,7 @@ import UserInfo from "./src/UserInfo"
 import ValidationResult from "./src/application/ValidationResult"
 import ValidationResults from "./src/application/ValidationResults"
 import Video from './src/videos/Video'
+import VideoTelemetric from './src/videos/VideoTelemetric'
 import VisitScheduleConfig from "./src/VisitScheduleConfig"
 import VisitScheduleInterval from "./src/VisitScheduleInterval"
 
@@ -122,6 +123,7 @@ export {
     ValidationResult,
     ValidationResults,
     Video,
+    VideoTelemetric,
     VisitScheduleConfig,
     VisitScheduleInterval
 }
