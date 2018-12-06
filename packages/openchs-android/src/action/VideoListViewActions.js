@@ -30,12 +30,16 @@ class VideoListActions {
     static onPlayVideo(state, {video, cb}, context) {
         const user = context.get(UserInfoService).getUserInfo();
         const telemetric = VideoTelemetric.create({video, user});
+        telemetric.setPlayerOpenTime();
         cb(telemetric);
         return {...state, telemetric};
     }
 
-    static onExitVideo(state, action, context) {
-        context.get(EntityService).save(state.telemetric, VideoTelemetric.schema.name);
+    static onExitVideo(state, {error}, context) {
+        if(!error) {
+            state.telemetric.setPlayerCloseTime();
+            context.get(EntityService).save(state.telemetric, VideoTelemetric.schema.name);
+        }
         return {...state, telemetric: undefined};
     }
 }

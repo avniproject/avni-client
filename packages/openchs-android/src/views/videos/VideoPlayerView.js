@@ -23,9 +23,6 @@ class VideoPlayerView extends AbstractComponent {
                 height: Distances.DeviceEffectiveHeight,
             }
         };
-        this.telemetric = this.props.telemetric;
-        this.video = this.props.telemetric.video;
-        console.log('this.props.telemetric.video',this.props.telemetric);
     }
 
     viewName() {
@@ -34,22 +31,20 @@ class VideoPlayerView extends AbstractComponent {
 
     componentDidMount() {
         Orientation.lockToLandscape();
-        this.telemetric.setPlayerOpenTime();
     }
 
     componentWillUnmount() {
+        console.log('UNMOUNTINGUNMOUNTINGUNMOUNTINGUNMOUNTING');
         Orientation.getOrientation((err, orientation) => {
-            console.log(`Current Device Orientation: ${orientation}`);
+            General.logDebug(this.viewName(), `Device Orientation: ${orientation}`);
         });
 
         Orientation.unlockAllOrientations();
-        this.telemetric.setPlayerCloseTime();
-        this.props.onExit(this.telemetric);
+        this.props.onExit({error:this.state.error});
         super.componentWillUnmount();
     }
 
     goBack = () => {
-        Orientation.unlockAllOrientations();
         super.goBack();
     };
 
@@ -68,8 +63,21 @@ class VideoPlayerView extends AbstractComponent {
     };
 
     onProgress = (progress) => {
-        this.telemetric.setOnceVideoStartTime(progress.currentTime);
-        this.telemetric.setVideoEndTime(progress.currentTime);
+        this.props.telemetric.setOnceVideoStartTime(progress.currentTime);
+        this.props.telemetric.setVideoEndTime(progress.currentTime);
+    };
+
+    onError = (event) => {
+        this.state.error = event.error;
+        const roughErrorMessage = _.join(_.values(_.get(event,'error')),'\n');
+        if (_.includes(roughErrorMessage,'FileNotFoundException')) {
+            //Popup:
+            //the app needs permission to access storage
+        } else {
+            //Popup:
+            //any common error
+        }
+        General.logError(this.viewName(), event);
     };
 
     render() {
@@ -78,19 +86,10 @@ class VideoPlayerView extends AbstractComponent {
         return (<View onLayout={this.onLayout}>
             <VideoPlayer
                 endWithThumbnail
-                // thumbnail={{ uri: '' }}
-                video={{uri: this.video.filePath}}
-                // videoWidth={}
-                // videoHeight={}
-                // duration={}
+                video={{uri: this.props.telemetric.video.filePath}}
                 ref={r => this.player = r}
-                onLoad={k => console.log('onLoad: ', k)}
-                onLoadStart={k => console.log('onLoadStart: ', k)}
-                onEnd={k => console.log('onEnd: ', k)}
+                onError={this.onError}
                 onProgress={this.onProgress}
-                onPause={k => console.log('onPause: ', k)}
-                onPlayPress={k => console.log('onPlayPress: ', k)}
-                onStart={k => console.log('onStart: ', k)}
                 disableSeek={false}
                 pauseOnPress={false}
                 autoplay={true}
@@ -109,24 +108,3 @@ class VideoPlayerView extends AbstractComponent {
 }
 
 export default VideoPlayerView;
-
-/*
-<VideoPlayer
-                source={{uri: this.props.video.filePath}}
-                style={{
-                    width: this.state.layout.width,
-                    height: this.state.layout.height,
-                }}
-                ref={(ref) => (this.player = ref)}
-                onLoad={() => {
-                    console.log('------------------started');
-                }}
-                onEnd={() => {
-                    console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\started');
-                }}
-                onBack={this._goBack}
-                resizeMode={'contain'}
-                disableFullscreen={true}
-            />
-
-*/
