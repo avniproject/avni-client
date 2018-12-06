@@ -53,7 +53,7 @@ class VideoListView extends AbstractComponent {
     render() {
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('myDashboard')}/>
+                <AppHeader title={this.I18n.t('Videos')}/>
                 <CHSContent>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,

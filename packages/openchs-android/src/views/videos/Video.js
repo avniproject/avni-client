@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from "react";
 import {ListView, Text, View} from "react-native";
-import Separator from "../primitives/Separator";
 import {Button} from "native-base";
 
 export class VideoList extends Component {
@@ -20,10 +19,15 @@ export class VideoList extends Component {
 
     renderLineItem(video) {
         return (
-            <View>
-                <Text>{video.title}</Text>
-                <Text>{video.description}</Text>
-                <Button onPress={() => this.props.play(video)}>Play Video</Button>
+            <View style={{marginBottom: 2, flexDirection: 'row', flex: 16}}>
+                <Button style={{flex: 2, marginRight: 8, borderRadius: 2}}
+                        onPress={() => this.props.play(video)}>
+                    Play
+                </Button>
+                <View style={{flex: 14}}>
+                    <Text style={{fontSize: 18}}>{video.title}</Text>
+                    <Text style={{flex: 5}}>{video.description}</Text>
+                </View>
             </View>
         );
     }
@@ -39,8 +43,6 @@ export class VideoList extends Component {
                     pageSize={20}
                     initialListSize={10}
                     removeClippedSubviews={true}
-                    renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
-                    renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
                     renderRow={(rowData) => this.renderLineItem(rowData)}/>
             </View>
         );
