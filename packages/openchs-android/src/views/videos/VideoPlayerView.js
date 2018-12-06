@@ -49,22 +49,24 @@ class VideoPlayerView extends AbstractComponent {
     };
 
     onLayout = (event) => {
-        this.setState(state => ({
-            ...state,
-            layout: {
-                height: Distances.DeviceEffectiveHeight,
-                width: Distances.DeviceWidth
+        if(this.state.layout.height !== Distances.DeviceEffectiveHeight) {
+            if (this.state.layout.width !== Distances.DeviceWidth) {
+                this.setState(state => ({
+                    ...state,
+                    layout: {
+                        height: Distances.DeviceEffectiveHeight,
+                        width: Distances.DeviceWidth
+                    }
+                }));
             }
-        }));
+        }
     };
 
     render() {
         General.logDebug(this.viewName(), 'render');
 
-        return (<View
-            onLayout={this.onLayout}>
+        return (<View onLayout={this.onLayout}>
             <VideoPlayer
-                onLayout={this.onLayout}
                 source={{uri: this.props.video.filePath}}
                 style={{
                     width: this.state.layout.width,
