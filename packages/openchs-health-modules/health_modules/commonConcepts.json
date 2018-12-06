@@ -2431,8 +2431,10 @@
     "name": "Follow up date",
     "uuid": "403f346a-1ac0-4286-9097-6fc4cb42b093",
     "dataType": "Date"
+  },
+  {
+    "name": "Program enrolment advice",
+    "uuid": "ef648418-3f24-4d50-b900-5428ef3271b4",
+    "dataType": "Text"
   }
-
-
-
 ]
