@@ -49,7 +49,7 @@ export default {
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
         ChecklistDetail, ChecklistItemDetail],
-    schemaVersion: 81,
+    schemaVersion: 82,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -200,7 +200,7 @@ export default {
         }
 
         if (oldDB.schemaVersion < 74) {
-            _.forEach(newDB.objects('Individual'), 
+            _.forEach(newDB.objects('Individual'),
                 (individual) => individual.voided = false);
         }
 
@@ -209,6 +209,14 @@ export default {
             const addressLevels = newDB.objects('AddressLevel');
             for (let i = 0; i < oldAddressLevels.length; i++) {
                 addressLevels[i].level = oldAddressLevels[i].level;
+            }
+        }
+        if (oldDB.schemaVersion < 82) {
+            const oblongProgramEncounters = newDB.objects('ProgramEncounter')
+                .filtered('maxVisitDateTime=null and earliestVisitDateTime!=null');
+            for (let i = 0; i < oblongProgramEncounters.length; i++) {
+                newDB.create('EntityQueue', EntityQueue.create(oblongProgramEncounters[i], 'ProgramEncounter', new Date()));
+                oblongProgramEncounters[i].earliestVisitDateTime = null;
             }
         }
     }
