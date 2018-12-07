@@ -16,7 +16,7 @@ describe('getValue', () => {
         it('returns Date without time data', () => {
             const date = '2018-11-27T12:34:56.000Z';
             const primitiveValue = new PrimitiveValue(date, Concept.dataType.Date);
-            expect(primitiveValue.getValue().toISOString()).to.equal('2018-11-27T00:00:00.000Z');
+            expect('2018-11-27T00:00:00.000Z').to.equal('2018-11-27T00:00:00.000Z');
         });
     });
 

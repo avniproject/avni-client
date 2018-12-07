@@ -39,9 +39,8 @@ class PrimitiveValue {
         } else if (this.datatype === Concept.dataType.DateTime) {
             return new Date(Date.parse(this.value));
         } else if (this.datatype === Concept.dataType.Date) {
-            let date = new Date(Date.parse(this.value));
-            date.setUTCHours(0, 0, 0, 0);
-            return date;
+            const date = new Date(Date.parse(this.value));
+            return moment(date).startOf('day').toDate();
         }
 
         return this.value;
