@@ -2374,18 +2374,21 @@
     "name": "Number of induced abortions",
     "uuid": "0b3eb875-b0f6-4420-be01-82bbd2812b21",
     "dataType": "Numeric",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
     "lowAbsolute": 0
   },
   {
     "name": "Number of male child deaths",
     "uuid": "eb07e1bd-0379-4ffd-9bc6-df4b34f7745e",
     "dataType": "Numeric",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
     "lowAbsolute": 0
   },
   {
     "name": "Number of female child deaths",
     "uuid": "c6454406-04da-4670-9318-3b71a2d9b0cf",
     "dataType": "Numeric",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
     "lowAbsolute": 0
   },
   {
@@ -2404,12 +2407,14 @@
   {
     "name": "Pill",
     "uuid": "5a548cae-aca3-494f-9ca0-058bcdf3551c",
-    "dataType": "NA"
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "name": "Copper T / IUD",
     "uuid": "cfb6bf16-97bc-45b0-bbfe-e1a613344bd3",
-    "dataType": "NA"
+    "dataType": "NA",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "uuid": "e82a61a5-b532-4293-b5e8-3ec014325b85",
