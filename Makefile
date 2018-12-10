@@ -21,8 +21,11 @@ endef
 setenv:
 	$(call _setBuildVersion)
 
+ci:
+	$(eval ci_flag_set:=true)
+
 define test
-	cd packages/openchs-$1; npm test
+	cd packages/openchs-$1; npm run $(if $(ci_flag_set),test-ci,test)
 endef
 
 # <setup>

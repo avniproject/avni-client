@@ -18,6 +18,7 @@
   "license": "AGPL-3.0",
   "scripts": {
     "test": "jest",
+    "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require $(find ./src/test -name '*Test.js')"
   },
   "dependencies": {

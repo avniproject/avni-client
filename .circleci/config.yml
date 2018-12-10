@@ -29,7 +29,7 @@ jobs:
            - packages/openchs-android/node_modules
           key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
 
-      - run: make test-android
+      - run: make ci test-android
 
 
 
@@ -62,7 +62,7 @@ jobs:
            - packages/openchs-health-modules/node_modules
           key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
 
-      - run: make test-health-modules
+      - run: make ci test-health-modules
 
 
   test_models:
@@ -95,7 +95,7 @@ jobs:
            - packages/openchs-models/node_modules
           key: v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
 
-      - run: make test-models
+      - run: make ci test-models
 
   release_android:
     docker:

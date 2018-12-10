@@ -17,7 +17,8 @@
   },
   "scripts": {
     "start": "",
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci"
   },
   "dependencies": {
     "@babel/polyfill": "7.0.0-beta.35",
