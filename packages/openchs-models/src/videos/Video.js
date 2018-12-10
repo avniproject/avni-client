@@ -9,7 +9,7 @@ class Video extends BaseEntity {
             title: 'string',
             filePath: 'string',
             description: {type: 'string', optional: true},
-            duration: 'double'
+            duration: {type: 'double', optional: true}
         }
     };
 

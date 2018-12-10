@@ -42,8 +42,8 @@ class VideoListView extends AbstractComponent {
         super.componentWillUnmount();
     }
 
-    onExit = (telemetric) => {
-        this.dispatchAction(Actions.Names.ON_EXIT_VIDEO, {telemetric});
+    onExit = (data) => {
+        this.dispatchAction(Actions.Names.ON_EXIT_VIDEO, data);
     };
 
     onPlay = (video) => {

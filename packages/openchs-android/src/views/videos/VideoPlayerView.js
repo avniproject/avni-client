@@ -5,8 +5,9 @@ import Reducers from "../../reducer";
 import General from "../../utility/General";
 import VideoPlayer from 'react-native-video-player';
 import Orientation from 'react-native-orientation';
-import {Text, TouchableHighlight, View} from 'react-native';
+import {Alert, Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
+import _ from "lodash";
 
 @Path('/VideoPlayerView')
 class VideoPlayerView extends AbstractComponent {
@@ -69,14 +70,15 @@ class VideoPlayerView extends AbstractComponent {
     onError = (event) => {
         this.state.error = event.error;
         const roughErrorMessage = _.join(_.values(_.get(event,'error')),'\n');
+        let message;
         if (_.includes(roughErrorMessage,'FileNotFoundException')) {
-            //Popup:
-            //the app needs permission to access storage
+            message = `FileNotFound: Provide permission to access storage from settings and make sure '${this.props.telemetric.video.filePath}' file exists`;
         } else {
-            //Popup:
-            //any common error
+            message = `UnknownError: ${roughErrorMessage}`;
         }
         General.logError(this.viewName(), event);
+        General.logError(this.viewName(), message);
+        Alert.alert(this.I18n.t("UnableToPlayVideoError"), message, [{text: this.I18n.t('Okay'), onPress: this.goBack}]);
     };
 
     render() {
