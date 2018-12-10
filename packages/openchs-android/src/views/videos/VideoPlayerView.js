@@ -34,7 +34,6 @@ class VideoPlayerView extends AbstractComponent {
     }
 
     componentWillUnmount() {
-        console.log('UNMOUNTINGUNMOUNTINGUNMOUNTINGUNMOUNTING');
         Orientation.getOrientation((err, orientation) => {
             General.logDebug(this.viewName(), `Device Orientation: ${orientation}`);
         });

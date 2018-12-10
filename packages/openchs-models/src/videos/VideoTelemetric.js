@@ -13,7 +13,6 @@ class VideoTelemetric extends BaseEntity {
             playerCloseTime: 'date',
             videoStartTime: 'double',//in seconds
             videoEndTime: 'double',//in seconds
-            user: 'UserInfo'
         }
     };
 
@@ -26,7 +25,6 @@ class VideoTelemetric extends BaseEntity {
             'playerCloseTime',
             'videoStartTime',
             'videoEndTime',
-            'user'
         ]), {uuid});
     }
 
@@ -50,21 +48,25 @@ class VideoTelemetric extends BaseEntity {
 
     setOnceVideoStartTime(videoTime) {
         if(_.isNil(this.videoStartTime)) {
-            this.videoStartTime = videoTime;
+            this.videoStartTime = this._roundToNearestPoint5(videoTime);
         }
     }
 
     setVideoEndTime(videoTime) {
-        this.videoEndTime = videoTime;
+        this.videoEndTime = this._roundToNearestPoint5(videoTime);
     }
 
     get toResource() {
-        const resource = _.pick(this, ['uuid', 'watchedDuration']);
+        const resource = _.pick(this, ['uuid', 'videoStartTime', 'videoEndTime']);
         resource.playerOpenTime = General.isoFormat(this.playerOpenTime);
         resource.playerCloseTime = General.isoFormat(this.playerCloseTime);
         resource.videoUUID = this.video.uuid;
-        resource.userUUID = this.user.uuid;
         return resource;
+    }
+
+    //valid outputs 0,0.5,1,1.5,2,2.5,3,3.5...
+    _roundToNearestPoint5(n) {
+        return Math.round(n * 2)/2;
     }
 
 }

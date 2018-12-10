@@ -2,7 +2,7 @@ import {Video} from "openchs-models";
 import VideoService from "../service/VideoService";
 import VideoTelemetric from "openchs-models/src/videos/VideoTelemetric";
 import EntityService from "../service/EntityService";
-import UserInfoService from "../service/UserInfoService";
+import General from "../utility/General";
 
 class VideoListActions {
     static getInitialState() {
@@ -28,17 +28,18 @@ class VideoListActions {
     }
 
     static onPlayVideo(state, {video, cb}, context) {
-        const user = context.get(UserInfoService).getUserInfo();
-        const telemetric = VideoTelemetric.create({video, user});
+        const telemetric = VideoTelemetric.create({video});
         telemetric.setPlayerOpenTime();
         cb(telemetric);
         return {...state, telemetric};
     }
 
     static onExitVideo(state, {error}, context) {
-        if(!error) {
+        if (!error) {
             state.telemetric.setPlayerCloseTime();
-            context.get(EntityService).save(state.telemetric, VideoTelemetric.schema.name);
+            context.get(EntityService).saveAndPushToEntityQueue(state.telemetric, VideoTelemetric.schema.name);
+        } else {
+            General.logDebug('VideoListActions',`Some error occurred: ${error}`);
         }
         return {...state, telemetric: undefined};
     }

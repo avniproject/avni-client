@@ -1,6 +1,8 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import _ from "lodash";
+import Individual from "openchs-models/src/Individual";
+import EntityQueue from "openchs-models/src/EntityQueue";
 
 @Service("entityService")
 class EntityService extends BaseService {
@@ -19,6 +21,13 @@ class EntityService extends BaseService {
             if (!_.isNil(savedFormElement)) {
                 db.delete(savedFormElement[objectKey]);
             }
+        });
+    }
+
+    saveAndPushToEntityQueue(entity, schema) {
+        this.db.write(() => {
+            this.db.create(schema, entity, true);
+            this.db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
     }
 }

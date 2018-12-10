@@ -119,7 +119,7 @@ class EntityMetaData {
         return {
             entityName: VideoTelemetric.schema.name,
             entityClass: VideoTelemetric,
-            resourceName: 'videoTelemetric',
+            resourceName: 'videotelemetric',
             type: 'tx',
             nameTranslated: false,
             parent: EntityMetaData.video
@@ -152,7 +152,7 @@ class EntityMetaData {
             EntityMetaData.conceptAnswer(),
             EntityMetaData.concept,
 
-            // EntityMetaData.videoTelemetric(),
+            EntityMetaData.videoTelemetric(),
             EntityMetaData.individualRelationship(),
             EntityMetaData.checklistItem(),
             EntityMetaData.checklist(),
