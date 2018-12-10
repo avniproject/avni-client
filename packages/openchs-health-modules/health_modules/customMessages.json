@@ -1094,7 +1094,14 @@
     "Registration and immunisation": "Registration and immunisation",
     "Child PNC - Registration Immunisation - Dos": "Dos\n✓ Birth registration\n✓ Anganwadi registration\n✓ Receive immunization at birth",
     "BT check reason": "Sickle cell test within 90 days after a blood transfusion may lead to inaccurate test results.",
-    "BT check failed revisit instruction": "Revisit in 3 months after the BT date."
+    "BT check failed revisit instruction": "Revisit in 3 months after the BT date.",
+    "Missed periods and not done UPT counselling": "Since the women has missed her period and not done UPT so far, provide counseling using MCH card no 1",
+    "IHMP FP counselling to delay first conception": "Use FP card no 1,2,3,4 and counsel to delay first conception till she becomes 20 years of age, and use FP card 6,7 and 9 to provide information regarding diffrent options of FP methods",
+    "IHMP FP counselling for spacing to non user": "Use FP card no 5 to counsel women regarding spacing for atleast three years, use FP cards 6 ,7,8,9,10,11 to provide information regarding diffrent options of FP methods",
+    "IHMP FP counselling for spacing to user": "Counsel women to continue using the present method for spacing of three years between two child births",
+    "IHMP FP counselling for spacing to desire to use EC": "Use FP card no 5 to counsel women regarding spacing for atleast three years, use FP cards 6 ,7,8,9,10,11 to provide information regarding diffrent options of FP methods",
+    "IHMP FP counselling information regarding sterilization": "Use card no 13 & 14 to provide information on sterlization operation ",
+    "IHMP IPIL counselling": "Counsel women on use of IPIL using FP card no 15"
   },
   "gu_IN": {
     "Religion": "ધર્મ",
