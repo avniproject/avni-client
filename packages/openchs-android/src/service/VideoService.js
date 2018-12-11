@@ -13,7 +13,7 @@ class VideoService extends BaseService {
     }
 
     getAll = () => {
-        return super.getAll(Video.schema.name).map(_.identity)
+        return super.getAll(Video.schema.name).map(_.identity).filter(this.unVoided);
     }
 }
 

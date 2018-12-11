@@ -9,7 +9,8 @@ class Video extends BaseEntity {
             title: 'string',
             filePath: 'string',
             description: {type: 'string', optional: true},
-            duration: {type: 'double', optional: true}
+            duration: {type: 'double', optional: true},
+            voided: {type: 'bool', default: false}
         }
     };
 
@@ -18,7 +19,10 @@ class Video extends BaseEntity {
     }
 
     static fromResource(resource) {
-        return Video.create(resource);
+        return Video.create({
+            ...resource,
+            voided: !!resource.voided,
+        });
     }
 
     cloneForReference() {
