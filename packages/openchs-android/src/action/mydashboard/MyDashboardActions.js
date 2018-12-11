@@ -61,7 +61,7 @@ class MyDashboardActions {
                     scheduled: {count: 0, abnormal: false},
                     overdue: {count: 0, abnormal: false},
                     completedVisits: {count: 0, abnormal: false},
-                    total: {count: 0, abnormal: true}
+                    total: {count: 0, abnormal: false}
                 },
                 ...results[addressLevel.uuid],
             };
