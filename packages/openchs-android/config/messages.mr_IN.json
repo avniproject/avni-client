@@ -166,5 +166,8 @@
   "enrolmentDateInFuture": "इंरोलमेंट तारीख भविष्यात असू शकत नाही",
   "encounterDateInFuture": "भेटण्याची तारीख भविष्यात असू शकत नाही",
   "exitDateInFuture": "निर्गमन तारीख भविष्यात असू शकत नाही",
-  "VideoList": "व्हिडिओ यादी"
+  "VideoList": "व्हिडिओ यादी",
+  "PlayVideo": "व्हिडिओ प्ले करा",
+  "UnableToPlayVideoError": "व्हिडिओ प्ले करण्यास अक्षम",
+  "Okay": "ठीक आहे"
 }

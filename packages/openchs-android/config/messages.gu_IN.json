@@ -203,5 +203,8 @@
   "enrolmentDateInFuture": "નોંધણી તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
   "encounterDateInFuture": "મુલાકાતની તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
   "exitDateInFuture": "બહાર નીકળવાની તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
-  "VideoList": "વિડિઓ સૂચિ"
+  "VideoList": "વિડિઓ સૂચિ",
+  "PlayVideo": "વિડિઓ ચલાવો",
+  "UnableToPlayVideoError": "વિડિઓ ચલાવવામાં અસમર્થ",
+  "Okay": "બરાબર"
 }

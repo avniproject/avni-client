@@ -23,11 +23,11 @@ export class VideoList extends Component {
             <View style={{marginBottom: 2, flexDirection: 'row', flex: 16}}>
                 <Button style={{flex: 2, marginRight: 8, borderRadius: 2}}
                         onPress={() => this.props.onPlay(video)}>
-                    Play
+                    {this.I18n.t('PlayVideo')}
                 </Button>
                 <View style={{flex: 14}}>
-                    <Text style={{fontSize: 18}}>{video.title}</Text>
-                    <Text style={{flex: 5}}>{video.description}</Text>
+                    <Text style={{fontSize: 18}}>{this.I18n.t(video.title)}</Text>
+                    <Text style={{flex: 5}}>{this.I18n.t(video.description)}</Text>
                 </View>
             </View>
         );

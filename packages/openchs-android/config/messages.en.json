@@ -194,5 +194,8 @@
   "forceSyncWarningMessage": "Are you sure you want to go ahead with this action, this action will cause the Sync to take a long time to finish. It is advisable to only use this action when directed by the support team.",
   "showMoreVisits": "Show More Visits",
   "empty-formelement-name": "",
-  "VideoList": "Video List"
+  "VideoList": "Video List",
+  "PlayVideo": "Play",
+  "UnableToPlayVideoError": "Unable to play the video",
+  "Okay": "Okay"
 }
