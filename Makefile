@@ -87,7 +87,7 @@ upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
 release: ##
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/default.realm.*
-	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
+	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx1024m -Xms1024m" ./gradlew assembleRelease
 
 release-vivek: ##
 	ENVFILE=.env.devs.vivek make release

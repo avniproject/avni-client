@@ -7,10 +7,6 @@ buildscript {
             url 'https://maven.google.com/'
             name 'Google'
         }
-        maven {
-            url "http://repo.spring.io/libs-release/"
-            name 'Spring Libs'
-        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
