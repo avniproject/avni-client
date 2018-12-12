@@ -86,6 +86,7 @@ upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
 # <release>
 release: ##
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
+	rm -rf packages/openchs-android/android/app/build
 	rm -f packages/openchs-android/android/app/src/main/assets/index.android.bundle*
 	rm -rf packages/openchs-android/default.realm.*
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx1024m -Xms1024m" ./gradlew assembleRelease
