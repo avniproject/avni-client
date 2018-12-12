@@ -153,7 +153,7 @@ uninstall_apk: ##
 	adb uninstall com.openchsclient
 
 install_apk: ##
-	adb install packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+	adb install packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
 	adb shell am start -n com.openchsclient/com.openchsclient.MainActivity
 
 reinstall_apk: uninstall_apk install_apk ##
@@ -161,13 +161,13 @@ reinstall_apk: uninstall_apk install_apk ##
 reinstall: uninstall_apk run_app ##
 
 local_deploy_apk: ##
-	cp packages/openchs-android/android/app/build/outputs/apk/app-release.apk ../openchs-server/external/app.apk
+	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
 
 openlocation_apk: ##
 	open packages/openchs-android/android/app/build/outputs/apk
 
 scp_apk:
-	scp packages/openchs-android/android/app/build/outputs/apk/app-release.apk $(host):~/Downloads/
+	scp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk $(host):~/Downloads/
 # </apk>
 
 
@@ -272,11 +272,11 @@ screencap:
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
 
 upload-staging-apk:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
 
 upload-prod-apk:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
 
 #server,port args need to be provided
@@ -285,7 +285,7 @@ lbp_inpremise_deploy:
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_LBP_PROD_USER_POOL_ID) clientId=$(OPENCHS_LBP_PROD_APP_CLIENT_ID) username=admin password=$(password) server=$(server) port=$(port)
 
 define _inpremise_upload_prod_apk
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/app-release.apk s3://samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk;
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk;
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk"
 endef
 
