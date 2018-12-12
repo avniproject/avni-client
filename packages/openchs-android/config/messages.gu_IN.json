@@ -202,5 +202,6 @@
   "birthDateInFuture": "જન્મ તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
   "enrolmentDateInFuture": "નોંધણી તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
   "encounterDateInFuture": "મુલાકાતની તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
-  "exitDateInFuture": "બહાર નીકળવાની તારીખ ભવિષ્યમાં હોઈ શકતી નથી"
+  "exitDateInFuture": "બહાર નીકળવાની તારીખ ભવિષ્યમાં હોઈ શકતી નથી",
+  "VideoList": "વિડિઓ સૂચિ"
 }
