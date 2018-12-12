@@ -213,5 +213,20 @@ export default {
                 addressLevels[i].level = oldAddressLevels[i].level;
             }
         }
+        if (oldDB.schemaVersion < 82) {
+            const oblongProgramEncounters = newDB.objects('ProgramEncounter')
+                .filtered('maxVisitDateTime=null and earliestVisitDateTime!=null');
+            for (let i = 0; i < oblongProgramEncounters.length; i++) {
+                newDB.create('EntityQueue', EntityQueue.create(oblongProgramEncounters[i], 'ProgramEncounter', new Date()));
+                oblongProgramEncounters[i].earliestVisitDateTime = null;
+            }
+        }
+        if (oldDB.schemaVersion < 83) {
+            _.forEach([... newDB.objects('Settings')], settings => {
+                if (settings.pageSize === 0 || settings.pageSize === undefined || settings.pageSize === null) {
+                    settings.pageSize = 100;
+                }
+            });
+        }
     }
 };
