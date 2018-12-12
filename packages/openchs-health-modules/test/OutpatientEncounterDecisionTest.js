@@ -185,6 +185,12 @@ describe('Make Decision', function () {
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
             });
         });
+
+        xit("prescribe Cetrizine for 3-5 days even when Fever present", () => {
+            verifyPrescriptionForComplaints(["Cold", "Fever"], (decisions,message) => {
+                assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
+            });
+        });
     });
 
     describe("For Diarrhoea", () => {
