@@ -197,5 +197,10 @@
   "VideoList": "Video List",
   "PlayVideo": "Play",
   "UnableToPlayVideoError": "Unable to play the video",
-  "Okay": "Okay"
+  "Okay": "Okay",
+  "entitySyncStatus": "Entity Sync Status",
+  "entityName": "Entity Name",
+  "loadedSince": "Loaded Since",
+  "queuedCount": "Queued",
+  "totalQueuedCount": "Total Queued"
 }
