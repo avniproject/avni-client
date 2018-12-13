@@ -1,4 +1,4 @@
-import {Text, View, TouchableNativeFeedback, Alert, Switch} from "react-native";
+import {Alert, Switch, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -16,13 +16,13 @@ import Styles from "../primitives/Styles";
 import I18n from 'react-native-i18n';
 import {Schema} from 'openchs-models';
 import config from 'react-native-config';
-import {color} from "../primitives/MaterialDesign";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
-import EntityMetaData from "openchs-models/src/EntityMetaData";
 import EntityQueueService from "../../service/EntityQueueService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import Rule from "openchs-models/src/Rule";
+import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -64,8 +64,13 @@ class SettingsView extends AbstractComponent {
         )
     }
 
+    entitySyncStatusView() {
+        TypedTransition.from(this).to(EntitySyncStatusView);
+    }
+
     renderAdvancedOptions() {
         const logLevelLabelValuePairs = _.keys(General.LogLevel).map((logLevelName) => new RadioLabelValue(logLevelName, General.LogLevel[logLevelName]));
+        const cb= this.entitySyncStatusView.bind(this);
         return this.state.advancedMode ? (
             <View>
                 <RadioGroup
@@ -74,7 +79,14 @@ class SettingsView extends AbstractComponent {
                     selectionFn={(logLevel) => this.state.settings.logLevel === logLevel}
                     validationError={null}
                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-
+                <TouchableNativeFeedback onPress={cb}>
+                    <View style={Styles.basicPrimaryButtonView}>
+                        <Text style={{
+                            fontSize: Fonts.Medium,
+                            color: Colors.TextOnPrimaryColor
+                        }}>{this.I18n.t('entitySyncStatus')}</Text>
+                    </View>
+                </TouchableNativeFeedback>
                 <TouchableNativeFeedback onPress={() => this.onForceSync()}>
                     <View style={Styles.basicPrimaryButtonView}>
                         <Text style={{

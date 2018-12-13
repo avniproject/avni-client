@@ -3,6 +3,8 @@ import BaseService from "./BaseService";
 import {EntitySyncStatus} from "openchs-models";
 import General from '../utility/General';
 import _ from "lodash";
+import EntityQueueService from "./EntityQueueService";
+import moment from "moment";
 
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
@@ -19,6 +21,18 @@ class EntitySyncStatusService extends BaseService {
         return this.db.objects(EntitySyncStatus.schema.name)
             .filtered("entityName = $0", entityName)
             .slice()[0];
+    }
+
+    geAllSyncStatus() {
+        const syncStatusList = this.findAll(EntitySyncStatus.schema.name);
+        const entityQueueService = this.getService(EntityQueueService);
+        return _.chain(syncStatusList).map((entitySyncStatus)=> {
+            return ({
+                entityName: entitySyncStatus.entityName,
+                loadedSince: moment(entitySyncStatus.loadedSince).format(),
+                queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName)
+            });
+        }).sortBy((entitySyncStatus)=>entitySyncStatus.entityName).value();
     }
 
     setup(entityMetaDataModel) {

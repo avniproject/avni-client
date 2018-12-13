@@ -1,35 +1,17 @@
 import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
 import Reducer from "./Reducer";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
-import FamilyProfileActionMap, {FamilyProfileActions} from "../action/familyFolder/FamilyProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/program/ProgramEnrolmentActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
-import {
-    EncounterActions,
-    IndividualEncounterViewActionsMap
-} from "../action/individual/EncounterActions";
-import {
-    ProgramEnrolmentsActions,
-    ProgramEnrolmentsActionsMap
-} from "../action/program/ProgramEnrolmentsActions";
+import {EncounterActions, IndividualEncounterViewActionsMap} from "../action/individual/EncounterActions";
+import {ProgramEnrolmentsActions, ProgramEnrolmentsActionsMap} from "../action/program/ProgramEnrolmentsActions";
 import {
     ProgramEnrolmentDashboardActions,
     ProgramEnrolmentDashboardActionsMap
 } from '../action/program/ProgramEnrolmentDashboardActions';
-import {
-    FamilyDashboardActions,
-    FamilyDashboardActionsMap
-} from '../action/familyFolder/FamilyDashboardActions';
-import {
-    MyDashboardActions,
-    MyDashboardActionsMap,
-    MyDashboardPrefix
-} from '../action/mydashboard/MyDashboardActions';
-import {
-    FamilyFolderActions,
-    FamilyFolderActionsMap,
-    FamilyFolderPrefix
-} from '../action/familyFolder/FamilyFolderActions';
+import {FamilyDashboardActions, FamilyDashboardActionsMap} from '../action/familyFolder/FamilyDashboardActions';
+import {MyDashboardActions, MyDashboardActionsMap, MyDashboardPrefix} from '../action/mydashboard/MyDashboardActions';
+import {FamilyFolderActions, FamilyFolderActionsMap} from '../action/familyFolder/FamilyFolderActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {
     IndividualRegistrationDetailsActions,
@@ -47,12 +29,9 @@ import {
 } from "../action/program/ProgramEncounterCancelActions";
 import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
 import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../action/individual/IndividualAddRelativeActions';
-import {
-    ChecklistItemActions,
-    ChecklistItemActionNames,
-    ChecklistItemActionMap
-} from '../action/program/ChecklistItemActions';
+import {ChecklistItemActionMap, ChecklistItemActions} from '../action/program/ChecklistItemActions';
 import VideoListActions from '../action/VideoListViewActions';
+import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -79,7 +58,8 @@ export default class Reducers {
         familyRegister: "familyRegister",
         individualAddRelative: "individualAddRelative",
         checklistItem: "checklistItem",
-        videoList: 'videoList'
+        videoList: 'videoList',
+        entitySyncStatusList: 'entitySyncStatusList'
     };
 
     static createReducers(beanStore) {
@@ -107,6 +87,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.individualAddRelative] = Reducers._add(IndividualAddRelativeActionsMap, IndividualAddRelativeActions, beanStore);
         reducerMap[Reducers.reducerKeys.checklistItem] = Reducers._add(ChecklistItemActionMap, ChecklistItemActions, beanStore);
         reducerMap[Reducers.reducerKeys.videoList] = Reducers._add(VideoListActions.Map, VideoListActions, beanStore);
+        reducerMap[Reducers.reducerKeys.entitySyncStatusList] = Reducers._add(EntitySyncStatusActions.Map, EntitySyncStatusActions, beanStore);
         return reducerMap;
     };
 
