@@ -211,5 +211,6 @@
   "VideoList": "वीडियो सूची",
   "PlayVideo": "वीडियो चलाएं",
   "UnableToPlayVideoError": "वीडियो चलाने में असमर्थ",
-  "Okay": "ठीक है"
+  "Okay": "ठीक है",
+  "videoListNotAvailable": "वीडियो सूची उपलब्ध नहीं है"
 }

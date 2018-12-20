@@ -202,5 +202,6 @@
   "entityName": "Entity Name",
   "loadedSince": "Loaded Since",
   "queuedCount": "Queued",
-  "totalQueuedCount": "Total Queued"
+  "totalQueuedCount": "Total Queued",
+  "videoListNotAvailable": "No video list available"
 }
