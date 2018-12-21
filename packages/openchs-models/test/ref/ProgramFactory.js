@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import EntityFactory from "../../../openchs-models/test/EntityFactory";
-import {Concept, EncounterType, FormMapping} from 'openchs-models';
-import General from "../../../openchs-models/src/utility/General";
+import EntityFactory from "../EntityFactory";
+import {Concept, EncounterType, FormMapping} from '../../index';
+import General from "../../src/utility/General";
 
 export default class ProgramBuilder {
     constructor(programConfig) {

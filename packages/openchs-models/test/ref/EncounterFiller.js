@@ -1,12 +1,13 @@
-import EntityFactory from "../../../openchs-models/test/EntityFactory";
-import General from "../../../openchs-models/src/utility/General";
+import EntityFactory from "../EntityFactory";
 
-export default class EnrolmentFiller {
-    constructor(programData, individual, enrolmentDateTime = new Date()) {
-        this.enrolment = EntityFactory.createEnrolment({
-            enrolmentDateTime: enrolmentDateTime,
-            program: programData,
-            individual: individual
+export default class EncounterFiller {
+    constructor(programData, enrolment, encounterType, encounterDateTime = new Date()) {
+        this.enrolment = enrolment;
+        this.programEnrolment = enrolment;
+        this.programEncounter = EntityFactory.createProgramEncounter({
+            programEnrolment: enrolment,
+            encounterType: encounterType,
+            encounterDateTime: encounterDateTime
         });
         this.concepts = programData.concepts;
         this.observations = [];
@@ -17,20 +18,16 @@ export default class EnrolmentFiller {
         return this.concepts.find(c => c.name.trim() === conceptName);
     }
 
-    __createNewConcept(conceptName, dataType = "NA") {
-        return EntityFactory.createConcept(conceptName, dataType, General.randomUUID())
-    }
-
     forConcept(conceptName, value) {
-        let concept = this._getConcept(conceptName) || this.__createNewConcept(conceptName);
+        let concept = this._getConcept(conceptName);
         let obs = EntityFactory.createObservation(concept, value);
         this.observations.push(obs);
         return this;
     }
 
     forSingleCoded(conceptName, value) {
-        let conceptAnswer = this._getConcept(value) || this.__createNewConcept(conceptName);
-        let concept = this._getConcept(conceptName) || this.__createNewConcept(conceptName, "Coded");
+        let conceptAnswer = this._getConcept(value);
+        let concept = this._getConcept(conceptName);
         let obs = EntityFactory.createObservation(concept, conceptAnswer.uuid);
         obs.valueJSON = JSON.stringify({answer: conceptAnswer.uuid});
         this.observations.push(obs);
@@ -47,7 +44,8 @@ export default class EnrolmentFiller {
     }
 
     build() {
-        this.enrolment.observations = this.observations;
-        return this.enrolment;
+        this.programEncounter.observations = this.observations;
+        this.enrolment.encounters.push(this.programEncounter);
+        return this.programEncounter;
     }
 }
