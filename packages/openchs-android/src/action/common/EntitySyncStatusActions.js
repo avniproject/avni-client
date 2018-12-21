@@ -9,14 +9,16 @@ export class EntitySyncStatusActions {
     static onLoad(state, action, context) {
         return {
             entitySyncStatusList: context.get(EntitySyncStatusService).geAllSyncStatus(),
-            totalQueueCount: context.get(EntityQueueService).getTotalQueueCount()
+            totalQueueCount: context.get(EntityQueueService).getTotalQueueCount(),
+            lastLoaded: context.get(EntitySyncStatusService).getLastLoaded()
         };
     }
 
     static clone(state) {
         return {
             entitySyncStatusList: state.entitySyncStatusList,
-            totalQueueCount: state.totalQueueCount
+            totalQueueCount: state.totalQueueCount,
+            lastLoaded: state.lastLoaded
         };
     }
 }

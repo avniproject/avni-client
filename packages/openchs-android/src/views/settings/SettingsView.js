@@ -1,4 +1,4 @@
-import {Alert, Switch, Text, TouchableNativeFeedback, View} from "react-native";
+import {Switch, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -18,7 +18,6 @@ import {Schema} from 'openchs-models';
 import config from 'react-native-config';
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
-import EntityQueueService from "../../service/EntityQueueService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import Rule from "openchs-models/src/Rule";
 import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
@@ -42,28 +41,6 @@ class SettingsView extends AbstractComponent {
         return 'SettingsView';
     }
 
-    forceSync() {
-        const entityQueueService = this.context.getService(EntityQueueService);
-        entityQueueService.requeueAll();
-    }
-
-    onForceSync() {
-        Alert.alert(
-            this.I18n.t('forceSyncWarning'),
-            this.I18n.t('forceSyncWarningMessage'),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => this.forceSync()
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    },
-                    style: 'cancel'
-                }
-            ]
-        )
-    }
-
     entitySyncStatusView() {
         TypedTransition.from(this).to(EntitySyncStatusView);
     }
@@ -85,14 +62,6 @@ class SettingsView extends AbstractComponent {
                             fontSize: Fonts.Medium,
                             color: Colors.TextOnPrimaryColor
                         }}>{this.I18n.t('entitySyncStatus')}</Text>
-                    </View>
-                </TouchableNativeFeedback>
-                <TouchableNativeFeedback onPress={() => this.onForceSync()}>
-                    <View style={Styles.basicPrimaryButtonView}>
-                        <Text style={{
-                            fontSize: Fonts.Medium,
-                            color: Colors.TextOnPrimaryColor
-                        }}>Reset Sync</Text>
                     </View>
                 </TouchableNativeFeedback>
             </View>) : (<View/>);
