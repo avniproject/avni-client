@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -12,6 +12,7 @@ import {VideoList} from './Video';
 import Colors from "../primitives/Colors";
 import Actions from "../../action/VideoListViewActions";
 import CHSNavigator from "../../utility/CHSNavigator";
+import GlobalStyles from "../primitives/GlobalStyles";
 
 @Path('/VideoListView')
 class VideoListView extends AbstractComponent {
@@ -42,6 +43,19 @@ class VideoListView extends AbstractComponent {
         super.componentWillUnmount();
     }
 
+    renderZeroResultsMessageIfNeeded() {
+        if (this.state.videos.length === 0)
+            return (
+                <View>
+                <Text
+        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('videoListNotAvailable')}</Text>
+        </View>
+    );
+    else
+        return (<View/>);
+    }
+
+
     onExit = (data) => {
         this.dispatchAction(Actions.Names.ON_EXIT_VIDEO, data);
     };
@@ -67,6 +81,7 @@ class VideoListView extends AbstractComponent {
                     }}>
                         <VideoList videos={this.state.videos} onPlay={this.onPlay}/>
                     </View>
+                    {this.renderZeroResultsMessageIfNeeded()}
                 </CHSContent>
             </CHSContainer>
         );

@@ -203,5 +203,5 @@
   "loadedSince": "Loaded Since",
   "queuedCount": "Queued",
   "totalQueuedCount": "Total Queued",
-  "lastLoaded": "Last Loaded"
+  "videoListNotAvailable": "No video list available"
 }

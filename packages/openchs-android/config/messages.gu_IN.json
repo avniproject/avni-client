@@ -206,5 +206,6 @@
   "VideoList": "વિડિઓ સૂચિ",
   "PlayVideo": "વિડિઓ ચલાવો",
   "UnableToPlayVideoError": "વિડિઓ ચલાવવામાં અસમર્થ",
-  "Okay": "બરાબર"
+  "Okay": "બરાબર",
+  "videoListNotAvailable": "વિડિઓ સૂચિ ઉપલબ્ધ નથી"
 }
