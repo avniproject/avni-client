@@ -1,4 +1,4 @@
-import {Alert, ListView, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -14,8 +14,7 @@ import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import Distances from "../primitives/Distances";
 import EntitySyncStatusSummary from "./EntitySyncStatusSummary";
-import Row from "./EntitySyncStatusRow";
-import Header from "./EntitySyncStatusHeader";
+import EntitySyncStatusTable from "./EntitySyncStatusTable";
 
 @Path('/entitySyncStatusView')
 class EntitySyncStatusView extends AbstractComponent {
@@ -60,8 +59,6 @@ class EntitySyncStatusView extends AbstractComponent {
     }
 
     render() {
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false})
-            .cloneWithRows(this.state.entitySyncStatusList);
         const headers = ['entityName', 'loadedSince', 'queuedCount'];
         const flexArr = [1, 1, 0.25];
         return (
@@ -70,29 +67,7 @@ class EntitySyncStatusView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('entitySyncStatus')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount} lastLoaded={this.state.lastLoaded}/>
-                        <View style={
-                            {
-                                flex: 1,
-                                padding: 16,
-                                paddingTop: 30,
-                                backgroundColor: '#fff'
-                            }}>
-                            <View style={
-                                {
-                                    borderLeftWidth: 1,
-                                    borderBottomWidth: 1,
-                                    borderColor:  '#000'
-                                }}>
-                                <Header titles={headers} flexArr={flexArr}/>
-                                <ListView
-                                    style={this.styles.table}
-                                    enableEmptySections={true}
-                                    dataSource={dataSource}
-                                    removeClippedSubviews={true}
-                                    renderRow={(rowData) => <Row rowData={rowData} flexArr={flexArr}/>}
-                                />
-                            </View>
-                        </View>
+                        <EntitySyncStatusTable data={this.state.entitySyncStatusList} headers={headers} flexArr={flexArr}/>
                         <TouchableNativeFeedback onPress={() => this.onForceSync()}>
                             <View style={[Styles.basicPrimaryButtonView, {paddingLeft: 8, paddingRight: 8, marginTop: Distances.VerticalSpacingBetweenFormElements}]}>
                                 <Text style={{
