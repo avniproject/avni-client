@@ -4,6 +4,7 @@ import {EntitySyncStatus} from "openchs-models";
 import General from '../utility/General';
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
+import moment from "moment";
 
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
@@ -28,15 +29,15 @@ class EntitySyncStatusService extends BaseService {
         return _.chain(syncStatusList).map((entitySyncStatus)=> {
             return ({
                 entityName: entitySyncStatus.entityName,
-                loadedSince: entitySyncStatus.loadedSince,
+                loadedSince: moment(entitySyncStatus.loadedSince).format("DD-MM-YYYY HH:MM:SS"),
                 queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName)
             });
         }).sortBy((entitySyncStatus)=>entitySyncStatus.entityName).value();
     }
 
     getLastLoaded() {
-        return _.max(this.findAll(EntitySyncStatus.schema.name)
-            .map((entitySyncStatus)=>entitySyncStatus.loadedSince));
+        return moment(_.max(this.findAll(EntitySyncStatus.schema.name)
+            .map((entitySyncStatus)=>entitySyncStatus.loadedSince))).format("DD-MM-YYYY HH:MM:SS");
     }
 
     setup(entityMetaDataModel) {
