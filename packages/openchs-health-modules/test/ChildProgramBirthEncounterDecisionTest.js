@@ -1,12 +1,12 @@
-import ProgramFactory from "./ref/ProgramFactory";
-import IndividualBuilder from "./ref/IndividualBuilder";
+import ProgramFactory from "../../openchs-models/test/ref/ProgramFactory";
+import IndividualBuilder from "../../openchs-models/test/ref/IndividualBuilder";
 import program from "../health_modules/child/metadata/childProgram.json";
 import childConcepts from "../health_modules/child/metadata/concepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
 import enrolmentForm from "../health_modules/child/metadata/childProgramEnrolmentForm.json";
 import birthForm from "../health_modules/child/metadata/birthForm";
-import EnrolmentFiller from "./ref/EnrolmentFiller";
-import EncounterFiller from "./ref/EncounterFiller";
+import EnrolmentFiller from "../../openchs-models/test/ref/EnrolmentFiller";
+import EncounterFiller from "../../openchs-models/test/ref/EncounterFiller";
 import TestHelper from "./TestHelper";
 
 const assert = require('chai').assert;

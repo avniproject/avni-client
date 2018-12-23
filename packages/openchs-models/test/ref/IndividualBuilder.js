@@ -1,8 +1,8 @@
-import {Individual} from "openchs-models";
-import General from "../../../openchs-models/src/utility/General";
-import C from '../../health_modules/common.js';
-import Gender from "../../../openchs-models/src/Gender";
-import EntityFactory from "../../../openchs-models/test/EntityFactory";
+import {Individual} from "../../index";
+import General from "../../src/utility/General";
+import C from '../../../openchs-health-modules/health_modules/common.js';
+import Gender from "../../src/Gender";
+import EntityFactory from "../EntityFactory";
 
 export default class IndividualBuilder {
     constructor(data = {concepts: []}) {
