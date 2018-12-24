@@ -45,22 +45,16 @@ ignore_deps_changes:
 	git checkout packages/openchs-health-modules/package-lock.json
 # </deps>
 
+ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 sha:=$(shell git rev-parse --short HEAD)
-
-define _setup_hosts
+setup_hosts:
 	adb root
 	adb remount
-	adb pull /system/etc/hosts ./tmp/hosts-adb
-	sed -i.bak '/dev.openchs.org/d' ./tmp/hosts-adb
-	echo '$(1)    dev.openchs.org' >> ./tmp/hosts-adb
-	adb push ./tmp/hosts-adb /system/etc/hosts
-endef
-
-setup_hosts:
-	$(if $(shell command -v ifconfig 1> /dev/null),\
-	$(call _setup_hosts,$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)),\
-	$(call _setup_hosts,$(shell ipconfig | grep -A 5 VirtualBox | grep -i ipv4 | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 2)))
-
+	adb pull /system/etc/hosts /tmp/hosts-adb
+	sed -i.bak '/dev.openchs.org/d' /tmp/hosts-adb
+	echo '$(ip)	dev.openchs.org' >> /tmp/hosts-adb
+	adb push /tmp/hosts-adb /system/etc/hosts
+# <test>
 test-health-modules: ##
 	$(call test,health-modules)
 
