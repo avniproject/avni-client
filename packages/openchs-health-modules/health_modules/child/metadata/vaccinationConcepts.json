@@ -1,6 +1,6 @@
 [
   {
-    "name": "OPV 0",
+    "name": "Polio 0",
     "uuid": "fa4297c3-8b9a-43b3-8357-8dad69441bfe",
     "dataType": "NA"
   },
@@ -20,12 +20,12 @@
     "dataType": "NA"
   },
   {
-    "name": "OPV 1",
+    "name": "Polio 1",
     "uuid": "39c49400-bfb1-4ac7-82d5-6277f01576a1",
     "dataType": "NA"
   },
   {
-    "name": "OPV 2",
+    "name": "Polio 2",
     "uuid": "47c2b79a-8d54-4507-878b-f5ec571a615d",
     "dataType": "NA"
   },
@@ -35,12 +35,12 @@
     "dataType": "NA"
   },
   {
-    "name": "OPV 3",
+    "name": "Polio 3",
     "uuid": "56116ae2-5502-4d49-b5dd-377a7b12d153",
     "dataType": "NA"
   },
   {
-    "name": "OPV Booster",
+    "name": "Polio Booster",
     "uuid": "b5e9cc1b-1213-4837-967f-c58e0c0c15eb",
     "dataType": "NA"
   },

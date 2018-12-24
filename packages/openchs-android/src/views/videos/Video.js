@@ -2,8 +2,9 @@ import React, {Component, PropTypes} from "react";
 import {ListView, Text, View} from "react-native";
 import {Button} from "native-base";
 import General from "openchs-models/src/utility/General";
+import AbstractComponent from "../../framework/view/AbstractComponent";
 
-export class VideoList extends Component {
+export class VideoList extends AbstractComponent {
 
     static propTypes = {
         videos: PropTypes.array.isRequired,

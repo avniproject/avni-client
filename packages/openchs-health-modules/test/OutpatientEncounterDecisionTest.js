@@ -118,7 +118,7 @@ describe('Make Decision', function () {
         var decisions = decision.getDecisions(new Encounter('Outpatient').setObservation(complaintConceptName, ["Fever", "Body Ache", "Vomiting"]).setGender("Male").setAge(20).setObservation("Weight", 18)).encounterDecisions;
         var message = completeValue(decisions);
         assert.equal((message.match(/पॅरासिटामॉल/g) || []).length, 2, message);
-        assert.equal((message.match(/३ दिवस/g) || []).length, 1, message);
+        assert.equal((message.match(/३ दिवस/g) || []).length, 3, message);
     });
 
     it("Shouldn't generate treatment advice if complaint is other", () => {
@@ -182,6 +182,12 @@ describe('Make Decision', function () {
     describe("For Cold", () => {
         it("prescribe Cetrizine for 3-5 days", () => {
             verifyPrescriptionForComplaints(["Cold"], (decisions,message) => {
+                assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
+            });
+        });
+
+        it("prescribe Cetrizine for 3-5 days even when Fever present", () => {
+            verifyPrescriptionForComplaints(["Cold", "Fever"], (decisions,message) => {
                 assert.equal((message.match(/३ किंवा ५ दिवसांसाठी\nसेट्रीझीन/g) || []).length, 1, message);
             });
         });

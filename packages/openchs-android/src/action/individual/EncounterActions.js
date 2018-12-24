@@ -15,8 +15,7 @@ export class EncounterActions {
     static onEncounterLandingViewLoad(state, action, context) {
         if (!action.encounter.encounterType) return state;
 
-        const individualEncounterService = context.get(IndividualEncounterService);
-        let encounter = individualEncounterService.findByUUID(action.encounter.uuid);
+        let encounter = action.encounter;
         const isNewEncounter = _.isNil(encounter);
         if (isNewEncounter) {
             encounter = action.encounter;

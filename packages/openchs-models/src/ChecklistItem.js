@@ -105,7 +105,7 @@ class ChecklistItem {
     }
 
     get statusDate() {
-        return this.completed ? this.completionDate : this.applicableState.fromDate(this.checklist.baseDate);
+        return this.completed ? this.completionDate : this.applicableState.fromDate(this.baseDate);
     }
 
     print() {
