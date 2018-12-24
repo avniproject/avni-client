@@ -168,6 +168,9 @@ const getDecisions = function (encounter) {
         return item !== 'Fever'
     }));
 
+    console.log('showing complaints');
+    console.log(complaints);
+
     const potentiallyPregnant = (sex === "Female" && (age >= 16 && age <= 40));
     const pregnant = complaints.includes("Pregnancy");
     let decisions = [];
@@ -189,7 +192,7 @@ const getDecisions = function (encounter) {
             continue;
         if ((potentiallyPregnant || pregnant) && ["Cough", "Boils", "Wound"].indexOf(complaint) !== -1) {
             prescriptionSet = treatmentByComplaintAndCode["Cifran-Special"];
-        } else if (complaints.indexOf("Fever") === -1) {
+        } else if (complaint !== "Fever") {
             prescriptionSet = treatmentByComplaintAndCode[complaint];
         }
 
@@ -250,7 +253,7 @@ const getDecisions = function (encounter) {
         treatmentAdviceDecision.value = treatmentAdviceDecision.value === '' ? message : `${treatmentAdviceDecision.value}\n${message}`;
 
         if (complaint === "Fever") {
-            treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\n${malariaPrescriptionMessage(encounter)}`;
+            treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\n${malariaPrescriptionMessage(encounter, prescribedMedicines)}`;
         }
 
         if (weight >= 13 && complaint === "Fever") {
@@ -269,7 +272,7 @@ const getDecisions = function (encounter) {
 
     let referralAdviceNeeded = (pregnant && hasMalaria(encounter))
         || complaints.indexOf('Chloroquine Resistant Malaria') !== -1
-        || complaints.indexOf('Other') !== -1
+        || complaints.indexOf('Other') !== -1;
 
     if (referralAdviceNeeded)
         referralAdviceDecision.value = 'लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे';

@@ -122,7 +122,7 @@ const malariaTreatment = [
     {
         check: pcmRequired,
         medication: [{
-            medicine: "Paracetamol Tablets",
+            medicine: "Paracetamol",
             dosageType: "uniform",
             form: "Tablets",
             dosageFn: matchByWeight(weightRangesForPcmOrChloroquineTablets, [
@@ -259,7 +259,7 @@ const lookup = {
     "Chloroquine Syrup": "क्लोरोक्विन सायरप",
     "Paracetamol Syrup": "पॅरासिटामॉल सायरप",
     "Chloroquine Tablets": "क्लोरोक्विन",
-    "Paracetamol Tablets": "पॅरासिटामॉल",
+    "Paracetamol": "पॅरासिटामॉल",
     "mg": "mg",
     "spoon": "चमचा",
     "Tablet": "गोळी",
@@ -340,8 +340,12 @@ const convertPrescriptionsToMarathi = (prescriptions) => {
     return daywisePrescriptions + "\n\n" + uniformPrescriptions;
 };
 
-const malariaPrescriptionMessage = (encounter) => {
-    return convertPrescriptionsToMarathi(prescription(encounter));
+const malariaPrescriptionMessage = (encounter, prescribedMedicines) => {
+    let prescriptions = prescription(encounter);
+    _.each(prescriptions, function (prescription) {
+        prescribedMedicines.push(prescription.medicine);
+    });
+    return convertPrescriptionsToMarathi(prescriptions);
 };
 
 export {prescription, convertPrescriptionsToMarathi, malariaPrescriptionMessage};
