@@ -47,12 +47,12 @@ class VideoListView extends AbstractComponent {
         if (this.state.videos.length === 0)
             return (
                 <View>
-                <Text
-        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('videoListNotAvailable')}</Text>
-        </View>
-    );
-    else
-        return (<View/>);
+                    <Text
+                        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('videoListNotAvailable')}</Text>
+                </View>
+            );
+        else
+            return (<View/>);
     }
 
 
@@ -74,13 +74,7 @@ class VideoListView extends AbstractComponent {
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('Videos')}/>
                 <CHSContent>
-                    <View style={{
-                        marginTop: Styles.ContentDistanceFromEdge,
-                        paddingHorizontal: Styles.ContentDistanceFromEdge,
-                        flexDirection: 'column'
-                    }}>
-                        <VideoList videos={this.state.videos} onPlay={this.onPlay}/>
-                    </View>
+                    <VideoList videos={this.state.videos} onPlay={this.onPlay}/>
                     {this.renderZeroResultsMessageIfNeeded()}
                 </CHSContent>
             </CHSContainer>

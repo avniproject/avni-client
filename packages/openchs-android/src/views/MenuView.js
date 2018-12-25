@@ -5,6 +5,7 @@ import _ from 'lodash';
 import Path from "../framework/routing/Path";
 import {Button} from "native-base";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Icon as Icon2} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -198,11 +199,20 @@ class MenuView extends AbstractComponent {
         )
     };
 
+    renderIcon(iconName) {
+        //i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
+        // TODO someday we need to have one single icon library.
+        if(_.startsWith(iconName, 'video')){
+            return <Icon2 name={iconName} style={MenuView.iconStyle}/>
+        }
+        return <Icon name={iconName} style={MenuView.iconStyle}/>
+    }
+
     renderMenuItem = (maxLength) => (iconName, menuMessageKey, pressHandler, idx) => {
         let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
         return (<View key={idx} style={this.columnStyle}>
             <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
-                <Icon name={iconName} style={MenuView.iconStyle}/>
+                {this.renderIcon(iconName)}
             </Button>
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
@@ -241,7 +251,7 @@ class MenuView extends AbstractComponent {
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__],
-            ["video", this.I18n.t("VideoList"), this.videoListView.bind(this)],
+            ["video-library", this.I18n.t("VideoList"), this.videoListView.bind(this)],
 
             ["sync", this.I18n.t("syncData"), this.sync.bind(this)],
             ["logout", this.I18n.t("logout"), this.logout.bind(this)],

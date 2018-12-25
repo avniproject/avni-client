@@ -1,8 +1,10 @@
 import React, {Component, PropTypes} from "react";
-import {ListView, Text, View} from "react-native";
-import {Button} from "native-base";
+import {ListView, Text, View, TouchableNativeFeedback} from "react-native";
+import {Icon} from "native-base";
 import General from "openchs-models/src/utility/General";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import Styles from "../primitives/Styles";
+import Colors from "../primitives/Colors";
 
 export class VideoList extends AbstractComponent {
 
@@ -19,18 +21,40 @@ export class VideoList extends AbstractComponent {
         super(props, context);
     }
 
+    background() {
+        return TouchableNativeFeedback.SelectableBackground();
+    }
+
     renderLineItem(video) {
         return (
-            <View style={{marginBottom: 2, flexDirection: 'row', flex: 16}}>
-                <Button style={{flex: 2, marginRight: 8, borderRadius: 2}}
-                        onPress={() => this.props.onPlay(video)}>
-                    {this.I18n.t('PlayVideo')}
-                </Button>
-                <View style={{flex: 14}}>
-                    <Text style={{fontSize: 18}}>{this.I18n.t(video.title)}</Text>
-                    <Text style={{flex: 5}}>{this.I18n.t(video.description)}</Text>
+            <TouchableNativeFeedback onPress={() => this.props.onPlay(video)}
+                                     background={this.background()}>
+            <View>
+                <View style={{
+                    marginBottom: 2,
+                    flexDirection: 'row',
+                    flex: 16,
+                    paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
+                    height: 86,
+                    alignItems: 'center',
+                    alignSelf: 'center'
+                }}>
+                    <Icon name='play-circle-outline' style={{
+                        color: Colors.AccentColor,
+                        fontSize: 56,
+                        paddingRight: 16
+                    }}/>
+                    <View style={{flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
+                        <Text style={Styles.textStyle}>{this.I18n.t(video.title)}</Text>
+                        <Text style={Styles.userProfileSubtext}>{this.I18n.t(video.description)}</Text>
+                    </View>
                 </View>
+                <View style={{
+                    borderBottomColor: Colors.GreyBackground,
+                    borderBottomWidth: 1,
+                }}/>
             </View>
+            </TouchableNativeFeedback>
         );
     }
 
@@ -42,6 +66,7 @@ export class VideoList extends AbstractComponent {
                 <ListView
                     enableEmptySections={true}
                     dataSource={dataSource}
+                    style={{backgroundColor: Styles.greyBackground}}
                     pageSize={20}
                     initialListSize={10}
                     removeClippedSubviews={true}
