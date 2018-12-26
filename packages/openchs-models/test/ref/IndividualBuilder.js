@@ -1,8 +1,8 @@
 import Individual from "../../src/Individual";
 import General from "../../src/utility/General";
-import C from '../../../openchs-health-modules/health_modules/common.js';
 import Gender from "../../src/Gender";
 import EntityFactory from "../EntityFactory";
+import moment from "moment";
 
 export default class IndividualBuilder {
     constructor(data = {concepts: []}) {
@@ -29,7 +29,7 @@ export default class IndividualBuilder {
     }
 
     withAge(age) {
-        this.individual.dateOfBirth = C.getDateOfBirth(age, new Date());
+        this.individual.dateOfBirth = moment(new Date()).subtract(age, 'years').toDate();
         return this;
     }
 

@@ -5,7 +5,7 @@ import {
 } from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
 import {RuleCondition} from "rules-config/rules";
-import AddressLevel from "../../../openchs-models/src/AddressLevel";
+import AddressLevel from "openchs-models/src/AddressLevel";
 
 describe('RuleConditions', () => {
     var programEncounter, form, a1, a2, codedConceptA1;

@@ -1,10 +1,10 @@
-import ProgramFactory from "../../openchs-models/test/ref/ProgramFactory";
-import IndividualBuilder from "../../openchs-models/test/ref/IndividualBuilder";
+import ProgramFactory from "openchs-models/test/ref/ProgramFactory";
+import IndividualBuilder from "openchs-models/test/ref/IndividualBuilder";
 import program from "../health_modules/adolescent/metadata/adolescentProgram.json";
 import motherConcepts from "../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
 import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolmentForm.json";
-import EnrolmentFiller from "../../openchs-models/test/ref/EnrolmentFiller";
+import EnrolmentFiller from "openchs-models/test/ref/EnrolmentFiller";
 
 const moment = require('moment');
 const assert = require('chai').assert;

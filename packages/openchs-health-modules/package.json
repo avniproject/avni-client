@@ -1,6 +1,6 @@
 {
   "name": "openchs-health-modules",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
     "babel-preset-env": "1.6.1",
     "chai": "4.1.2",
     "jest": "20.0.1",
-    "openchs-models": "0.0.1",
+    "openchs-models": "0.0.2",
     "webpack": "3.5.5",
     "webpack-node-externals": "1.6.0"
   }

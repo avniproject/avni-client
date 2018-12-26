@@ -7,7 +7,6 @@ import {immediateReferralAdvice, referralAdvice} from "./referral";
 import generateHighRiskConditionAdvice from "./highRisk";
 import {getDecisions as anthropometricDecisions} from "./anthropometricDecision"
 import {FormElementStatusBuilder} from "rules-config";
-import FormElementStatus from "../../../openchs-models/src/application/FormElementStatus";
 
 const ChildPNC = RuleFactory("e09dddeb-ed72-40c4-ae8d-112d8893f18b", "Decision");
 const Birth = RuleFactory("901e2f48-2fb8-402b-9073-ee2fac33fce4", "Decision");

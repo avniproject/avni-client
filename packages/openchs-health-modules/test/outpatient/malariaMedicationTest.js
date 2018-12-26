@@ -15,7 +15,7 @@ import {
     MultipleCodedValues,
     Individual
 } from "openchs-models";
-import EntityFactory from "../../../openchs-models/test/EntityFactory";
+import EntityFactory from "openchs-models/test/EntityFactory";
 import moment from "moment";
 
 describe("Malaria medications", () => {

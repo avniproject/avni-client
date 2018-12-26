@@ -6,10 +6,10 @@ import adolescentConcepts from "../../health_modules/adolescent/metadata/adolesc
 import motherConcepts from "../../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../../health_modules/commonConcepts.json";
 import adolescentRoutineVisitForm from "../../health_modules/adolescent/metadata/adolescentRoutineVisit.json";
-import ProgramFactory from "../../../openchs-models/test/ref/ProgramFactory";
-import EntityFactory from "../../../openchs-models/test/EntityFactory";
-import Gender from "../../../openchs-models/src/Gender";
-import EncounterFiller from "../../../openchs-models/test/ref/EncounterFiller";
+import ProgramFactory from "openchs-models/test/ref/ProgramFactory";
+import EntityFactory from "openchs-models/test/EntityFactory";
+import Gender from "openchs-models/src/Gender";
+import EncounterFiller from "openchs-models/test/ref/EncounterFiller";
 import C from '../../health_modules/common';
 import moment from "moment";
 
