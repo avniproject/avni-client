@@ -1,4 +1,4 @@
-import {Individual} from "../../index";
+import Individual from "../../src/Individual";
 import General from "../../src/utility/General";
 import C from '../../../openchs-health-modules/health_modules/common.js';
 import Gender from "../../src/Gender";

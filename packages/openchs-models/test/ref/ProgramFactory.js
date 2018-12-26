@@ -51,6 +51,7 @@ export default class ProgramBuilder {
                 concept = this._getConceptFrom(formElementToCreate.conceptUUID);
             }
             const formElement = EntityFactory.createFormElement(formElementToCreate.name, formElementToCreate.mandatory, concept, formElementToCreate.displayOrder, formElementToCreate.type);
+            formElement.uuid = formElementToCreate.uuid;
             formElement.formElementGroup = formElementGroup;
             return formElement;
         }
