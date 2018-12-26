@@ -6,8 +6,6 @@ import ProgramEncounter from "../src/ProgramEncounter";
 import SingleCodedValue from "../src/observation/SingleCodedValue";
 import Observation from "../src/Observation";
 import Concept from "../src/Concept";
-import RoutineEncounterHandler
-    from "../../openchs-health-modules/health_modules/adolescent/formFilters/RoutineEncounterHandler";
 import EncounterType from "../src/EncounterType";
 import EntityFactory from "./EntityFactory";
 import PrimitiveValue from "../src/observation/PrimitiveValue";
@@ -111,7 +109,7 @@ describe('ProgramEnrolmentTest', () => {
             enrolment.addEncounter(firstAnnualVisit);
 
             assert.equal(enrolment.findNthLastEncounterOfType(thirdMonthlyVisit,
-                RoutineEncounterHandler.visits.MONTHLY, 1), secondMonthlyVisit);
+                ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Monthly Visit"], 1), secondMonthlyVisit);
         });
 
         it("returns the latest value of observation recorded", () => {
