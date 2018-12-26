@@ -32,8 +32,7 @@ const defaultStyles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        paddingTop: 30,
-        backgroundColor: '#fff'
+        paddingTop: 30
     },
     table: {
         borderLeftWidth: 1,

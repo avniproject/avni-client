@@ -5,8 +5,7 @@ import React from 'react';
 
 class EntitySyncSummary extends AbstractComponent {
     static propTypes = {
-        totalQueueCount: React.PropTypes.number,
-        lastLoaded: React.PropTypes.instanceOf(Date)
+        totalQueueCount: React.PropTypes.number
     };
 
     static defaultProps = {

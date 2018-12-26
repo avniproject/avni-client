@@ -16,7 +16,7 @@ class EntitySyncStatusCell extends AbstractComponent {
     };
 
     render() {
-        const { data, width, height, flex, style, textStyle, borderStyle, key }= this.props;
+        const { data, width, height, flex, style, textStyle, borderStyle}= this.props;
         const borderTopWidth = borderStyle && borderStyle.borderWidth || 1;
         const borderRightWidth = borderTopWidth;
         const borderColor = borderStyle && borderStyle.borderColor || '#000';
@@ -32,7 +32,7 @@ class EntitySyncStatusCell extends AbstractComponent {
             height && { height },
             flex && { flex },
             ]}>
-            <Text key={key} style={[defaultStyles.textStyle, textStyle]}>{data}</Text>
+            <Text style={[defaultStyles.textStyle, textStyle]}>{data}</Text>
         </View>);
     }
 }
@@ -45,7 +45,7 @@ const defaultStyles = StyleSheet.create({
     },
     textStyle: {
         color: Colors.InputNormal,
-        fontSize: Fonts.Normal,
+        fontSize: Fonts.Medium,
         textAlign: 'center'
     }
 });
