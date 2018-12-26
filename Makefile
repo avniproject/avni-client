@@ -101,7 +101,7 @@ release-live: ##
 	$(call _upload_release_sourcemap)
 
 release-staging: ##
-	ENVFILE=.env.staging make release
+	ENVFILE=.env.staging make clean_env deps release
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
