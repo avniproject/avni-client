@@ -869,12 +869,12 @@
     "dataType": "NA"
   },
   {
-    "name": "Spontaneous",
+    "name": "Spontaneous abortion",
     "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5",
     "dataType": "NA"
   },
   {
-    "name": "Induced",
+    "name": "Induced abortion",
     "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
     "dataType": "NA"
   },
@@ -2358,12 +2358,12 @@
     "dataType": "Coded",
     "answers": [
       {
-        "name": "Spontaneous",
+        "name": "Spontaneous abortion",
         "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5",
         "abnormal": true
       },
       {
-        "name": "Induced",
+        "name": "Induced abortion",
         "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
         "abnormal": true
       }
@@ -3705,6 +3705,16 @@
       {
         "uuid": "8388ae07-4373-47c4-a8f5-2275a252c649",
         "abnormal": false
+      },
+      {
+        "name": "Spontaneous abortion",
+        "uuid": "e93e1640-7fea-4085-9f17-cfc36fcf13c5",
+        "abnormal": true
+      },
+      {
+        "name": "Induced abortion",
+        "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
+        "abnormal": true
       }
     ]
   }
