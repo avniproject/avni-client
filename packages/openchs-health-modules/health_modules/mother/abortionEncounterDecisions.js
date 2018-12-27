@@ -20,12 +20,12 @@ const getImmediateReferrals = (enrolment, encounter, today) => {
         .when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Fever")
         .and.valueInEncounter("Place of abortion").containsAnswerConceptName("Home");
 
-    referralAdvice.addComplication("Induced")
+    referralAdvice.addComplication("Induced abortion")
         .when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Per vaginal bleeding")
-        .and.when.valueInEncounter("Type of Abortion").containsAnswerConceptName("Induced");
+        .and.when.valueInEncounter("Type of Abortion").containsAnswerConceptName("Induced abortion");
 
-    referralAdvice.addComplication("Spontaneous")
-        .when.valueInEncounter("Type of Abortion").containsAnswerConceptName("Spontaneous");
+    referralAdvice.addComplication("Spontaneous abortion")
+        .when.valueInEncounter("Type of Abortion").containsAnswerConceptName("Spontaneous abortion");
 
     return referralAdvice.getComplications();
 };
@@ -33,7 +33,7 @@ const getImmediateReferrals = (enrolment, encounter, today) => {
 const getDecisions = (programEncounter, today = new Date()) => {
     const decisions = { encounterDecisions: [], enrolmentDecisions: [] };
     const immediateReferrals = getImmediateReferrals(programEncounter.programEnrolment, programEncounter, today);
-    decisions.encounterDecisions = _.isEmpty(immediateReferrals.value) ? [] : immediateReferrals
+    decisions.encounterDecisions = _.isEmpty(immediateReferrals.value) ? [] : [immediateReferrals];
     return decisions;
 };
 
