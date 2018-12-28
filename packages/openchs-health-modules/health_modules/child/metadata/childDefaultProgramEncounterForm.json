@@ -127,7 +127,7 @@
           "name": "Urination related complaints",
           "uuid": "6181ecd8-3bfa-433b-96b1-768186bb03f5",
           "keyValues": [],
-          "type": "SingleSelect",
+          "type": "MultiSelect",
           "concept": {
             "name": "PNC urination related complaints",
             "uuid": "43a78b5a-f4da-440d-9614-80af65090e1f"
