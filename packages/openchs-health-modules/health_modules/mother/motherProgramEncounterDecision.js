@@ -342,11 +342,8 @@ export function getDecisions(programEncounter, today) {
 }
 
 const mergeDecisionsByKey = (decisions) => {
-    let decisionKeys = decisions.map(d => d.name);
-    return decisionKeys.map((dk) => {
-        const d = _.flatten(decisions.filter((d) => d.name === dk).map(d => d.value || []));
-        return {name: dk, value: d};
-    });
+    const groups = _.groupBy(decisions, 'name');
+    return _.map(groups, (vals, key)=> ({name:key, value: _.flatten(_.map(vals, 'value'))}));
 };
 
 
