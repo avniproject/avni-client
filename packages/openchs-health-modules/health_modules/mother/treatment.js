@@ -21,8 +21,7 @@ const treatment = (enrolment, encounter, today) => {
         .and.whenItem(trimester).equalsOneOf(2, 3);
 
     treatmentBuilder.addComplication("Ferrous Sulphate (200mg) 1 OD")
-        .when.valueInEncounter("Hb").greaterThanOrEqualTo(8)
-        .and.when.valueInEncounter("Hb").lessThan(11)
+        .when.valueInEncounter("Hb").lessThan(11)
         .and.whenItem(trimester).equalsOneOf(2, 3);
 
     treatmentBuilder.addComplication("Calcium 1g/day")
@@ -48,8 +47,7 @@ const pncTreatment = (enrolment, encounter, today) => {
         .when.valueInEncounter("Hb % Level").greaterThanOrEqualTo(11);
 
     treatmentBuilder.addComplication("Ferrous Sulphate (200mg) 1 OD")
-        .when.valueInEncounter("Hb % Level").greaterThanOrEqualTo(8)
-        .and.when.valueInEncounter("Hb % Level").lessThan(11);
+        .when.valueInEncounter("Hb % Level").lessThan(11);
 
     return treatmentBuilder.getComplications()
 };
