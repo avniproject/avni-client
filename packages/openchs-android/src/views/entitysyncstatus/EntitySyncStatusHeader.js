@@ -3,6 +3,7 @@ import {StyleSheet, View} from "react-native";
 import Cell from "./EntitySyncStatusCell";
 import Fonts from "../primitives/Fonts";
 import React from "react";
+import Colors from "../primitives/Colors";
 
 class EntitySyncStatusHeader extends AbstractComponent {
     constructor(props, context) {
@@ -20,7 +21,7 @@ class EntitySyncStatusHeader extends AbstractComponent {
         return <View style={[defaultStyles.header, style]}>
             {titles.map((titleKey, index) => {
                 const flex = flexArr && flexArr[index];
-                return <Cell key={`header${index}`} data={this.I18n.t(titleKey)} flex={flex} textStyle={{fontSize: Fonts.Normal}}/>
+                return <Cell key={`header${index}`} data={this.I18n.t(titleKey)} flex={flex} textStyle={{fontSize: Fonts.Normal, fontWeight: 'bold'}}/>
             })}
         </View>;
     }
@@ -31,7 +32,7 @@ const defaultStyles = StyleSheet.create({
         flexDirection: 'row',
         overflow: 'hidden',
         height: 40,
-        backgroundColor: '#f1f8ff'
+        backgroundColor: Colors.GreyContentBackground
     }
 });
 

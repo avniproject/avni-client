@@ -17,7 +17,7 @@ class EntitySyncStatusRow extends AbstractComponent {
 
     render() {
         const {rowData, flexArr, style} = this.props;
-        const textStyle = rowData.queuedCount > 0 ? {color: Styles.redColor} : {color: Styles.blackColor};
+        const textStyle = rowData.queuedCount > 0 ? {color: Styles.redColor, paddingBottom:5} : {color: Styles.blackColor, paddingBottom:5};
         return (
             <View style={[defaultStyles.row, style]}>
                 {
