@@ -1,4 +1,4 @@
-import {Text, View, TouchableNativeFeedback, Alert, Switch} from "react-native";
+import {Alert, Switch, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -16,21 +16,28 @@ import Styles from "../primitives/Styles";
 import I18n from 'react-native-i18n';
 import {Schema} from 'openchs-models';
 import config from 'react-native-config';
-import {color} from "../primitives/MaterialDesign";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
-import EntityMetaData from "openchs-models/src/EntityMetaData";
 import EntityQueueService from "../../service/EntityQueueService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import AuthService from "../../service/AuthService";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.settings);
+        this.state = {}
     }
 
     viewName() {
         return 'SettingsView';
+    }
+
+    componentWillMount() {
+        this.context.getService(AuthService).getUserName().then(username => {
+            this.setState(state => ({...state, username: username}));
+        });
+        super.componentWillMount();
     }
 
     forceSync() {
@@ -121,7 +128,12 @@ class SettingsView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <Text style={Styles.settingsTitle}>
-                            {this.state.userInfo.organisationName ? `${this.state.userInfo.organisationName}` : I18n.t('syncRequired')}
+                            {this.state.userInfo.organisationName ?
+                                this.state.username ?
+                                    `${this.state.username} (${this.state.userInfo.organisationName})`
+                                    : this.state.userInfo.organisationName
+                                : I18n.t('syncRequired')
+                            }
                         </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'
