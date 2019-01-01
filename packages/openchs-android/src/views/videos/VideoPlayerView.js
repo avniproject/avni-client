@@ -5,7 +5,6 @@ import Reducers from "../../reducer";
 import General from "../../utility/General";
 import VideoPlayer from 'react-native-video-player';
 import Orientation from 'react-native-orientation';
-import { StatusBar } from 'react-native';
 import {Alert, Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import _ from "lodash";
@@ -32,12 +31,10 @@ class VideoPlayerView extends AbstractComponent {
     }
 
     componentDidMount() {
-        StatusBar.setHidden(true);
         Orientation.lockToLandscape();
     }
 
     componentWillUnmount() {
-        StatusBar.setHidden(false);
         Orientation.getOrientation((err, orientation) => {
             General.logDebug(this.viewName(), `Device Orientation: ${orientation}`);
         });
@@ -91,6 +88,8 @@ class VideoPlayerView extends AbstractComponent {
             <VideoPlayer
                 endWithThumbnail
                 video={{uri: this.props.telemetric.video.filePath}}
+                videoHeight={this.state.layout.height}
+                videoWidth={this.state.layout.width}
                 ref={r => this.player = r}
                 onError={this.onError}
                 onProgress={this.onProgress}
