@@ -59,15 +59,13 @@ class EntitySyncStatusView extends AbstractComponent {
     }
 
     render() {
-        const headers = ['entityName', 'loadedSince', 'queuedCount'];
-        const flexArr = [1, 1, 0.25];
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('entitySyncStatus')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount} lastLoaded={this.state.lastLoaded}/>
-                        <EntitySyncStatusTable data={this.state.entitySyncStatusList} headers={headers} flexArr={flexArr}/>
+                        <EntitySyncStatusTable data={this.state.entitySyncStatusList}/>
                         <TouchableNativeFeedback onPress={() => this.onForceSync()}>
                             <View style={[Styles.basicPrimaryButtonView, {paddingLeft: 8, paddingRight: 8, marginTop: Distances.VerticalSpacingBetweenFormElements}]}>
                                 <Text style={{

@@ -5,12 +5,17 @@ import General from '../utility/General';
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import moment from "moment";
+import EntityMetaData from "openchs-models/src/EntityMetaData";
 
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
         this.get = this.get.bind(this);
+    }
+
+    findAll() {
+        return super.findAll(this.getSchema());
     }
 
     getSchema() {
@@ -24,15 +29,13 @@ class EntitySyncStatusService extends BaseService {
     }
 
     geAllSyncStatus() {
-        const syncStatusList = this.findAll(EntitySyncStatus.schema.name);
         const entityQueueService = this.getService(EntityQueueService);
-        return _.chain(syncStatusList).map((entitySyncStatus)=> {
-            return ({
-                entityName: entitySyncStatus.entityName,
-                loadedSince: moment(entitySyncStatus.loadedSince).format("DD-MM-YYYY HH:MM:SS"),
-                queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName)
-            });
-        }).sortBy((entitySyncStatus)=>entitySyncStatus.entityName).value();
+        return _.map(this.findAll(), entitySyncStatus => ({
+            entityName: entitySyncStatus.entityName,
+            loadedSince: moment(entitySyncStatus.loadedSince).format("DD-MM-YYYY HH:MM:SS"),
+            queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName),
+            type: EntityMetaData.findByName(entitySyncStatus.entityName).type
+        }));
     }
 
     getLastLoaded() {

@@ -175,6 +175,10 @@ class EntityMetaData {
             return first.schema.name === second.schema.name;
         });
     }
+
+    static findByName(entityName) {
+        return _.find(EntityMetaData.model(), entityMetadata => entityMetadata.entityName === entityName);
+    }
 }
 
 export default EntityMetaData;
