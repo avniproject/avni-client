@@ -147,6 +147,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-fs')
     compile(project(':react-native-video')) {
         exclude group: 'com.squareup.okhttp3'
     }
