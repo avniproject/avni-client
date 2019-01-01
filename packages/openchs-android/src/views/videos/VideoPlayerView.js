@@ -7,6 +7,10 @@ import VideoPlayer from 'react-native-video-player';
 import {Alert, Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import _ from "lodash";
+import {ExternalStorageDirectoryPath} from 'react-native-fs';
+
+const appDocumentRoot = `${ExternalStorageDirectoryPath}/OpenCHS`;
+const appendRoot = (filePath) => `${appDocumentRoot}/${filePath}`;
 
 @Path('/VideoPlayerView')
 class VideoPlayerView extends AbstractComponent {
@@ -67,7 +71,7 @@ class VideoPlayerView extends AbstractComponent {
         return (<View onLayout={this.onLayout} style={{backgroundColor: 'black', flex: 1, justifyContent: 'center'}}>
             <VideoPlayer
                 endWithThumbnail
-                video={{uri: this.props.telemetric.video.filePath}}
+                video={{uri: appendRoot(this.props.telemetric.video.filePath)}}
                 ref={r => this.player = r}
                 onError={this.onError}
                 onProgress={this.onProgress}

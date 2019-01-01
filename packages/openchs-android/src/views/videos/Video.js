@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {PropTypes} from "react";
 import {ListView, Text, View, TouchableNativeFeedback} from "react-native";
 import {Icon} from "native-base";
 import General from "openchs-models/src/utility/General";

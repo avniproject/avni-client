@@ -9,13 +9,25 @@ import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
+import General from "./utility/General";
+import {ExternalStorageDirectoryPath, mkdir} from "react-native-fs";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
+const createMediaDirectoryIfRequired = () => {
+    const appDocumentRoot = `${ExternalStorageDirectoryPath}/OpenCHS`;
+    mkdir(appDocumentRoot).then(
+        _.noop,
+        () => {
+        General.logError('VideoService', `Could not create directory ${appDocumentRoot}`);
+    });
+};
+
 export default class App extends Component {
     constructor(props, context) {
         super(props, context);
+
         this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
         if (db === undefined) {
@@ -26,6 +38,9 @@ export default class App extends Component {
             const entitySyncStatusService = beans.get(EntitySyncStatusService);
             entitySyncStatusService.setup(EntityMetaData.model());
         }
+
+        createMediaDirectoryIfRequired();
+
         this.getBean = this.getBean.bind(this);
         this.state = {error: null}
     }
