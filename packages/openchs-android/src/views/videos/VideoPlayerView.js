@@ -96,6 +96,7 @@ class VideoPlayerView extends AbstractComponent {
                 disableSeek={false}
                 pauseOnPress={false}
                 autoplay={true}
+                resizeMode={'cover'}
             />
             <TouchableHighlight
                 underlayColor="transparent"
