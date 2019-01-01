@@ -147,7 +147,6 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-orientation')
     compile(project(':react-native-video')) {
         exclude group: 'com.squareup.okhttp3'
     }

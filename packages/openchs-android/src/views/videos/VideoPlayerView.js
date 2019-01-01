@@ -4,7 +4,6 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import General from "../../utility/General";
 import VideoPlayer from 'react-native-video-player';
-import Orientation from 'react-native-orientation';
 import {Alert, Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import _ from "lodash";

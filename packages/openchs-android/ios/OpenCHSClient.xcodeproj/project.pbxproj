@@ -29,7 +29,6 @@
 		3DDCF0A7128E443987F45403 /* libBugsnagReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 970476CB132D4972A85BB37C /* libBugsnagReactNative.a */; };
 		C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E47E37208FA44B70A06226F0 /* libz.tbd */; };
 		3A8427A3ACD64871B47806D9 /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 17769CA63BB44843A062279F /* libRCTVideo.a */; };
-		80D884BB6AE04175A629A3F1 /* libRCTOrientation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72E176C1353E41F7890ECA2C /* libRCTOrientation.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,8 +159,6 @@
 		E47E37208FA44B70A06226F0 /* libz.tbd */ = {isa = PBXFileReference; name = "libz.tbd"; path = "usr/lib/libz.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
 		02B515B63B614853BB04D64C /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; name = "RCTVideo.xcodeproj"; path = "../node_modules/react-native-video/ios/RCTVideo.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		17769CA63BB44843A062279F /* libRCTVideo.a */ = {isa = PBXFileReference; name = "libRCTVideo.a"; path = "libRCTVideo.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
-		17AE4C55E56941B3962A7F3F /* RCTOrientation.xcodeproj */ = {isa = PBXFileReference; name = "RCTOrientation.xcodeproj"; path = "../node_modules/react-native-orientation/iOS/RCTOrientation.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		72E176C1353E41F7890ECA2C /* libRCTOrientation.a */ = {isa = PBXFileReference; name = "libRCTOrientation.a"; path = "libRCTOrientation.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,7 +191,6 @@
 				3DDCF0A7128E443987F45403 /* libBugsnagReactNative.a in Frameworks */,
 				C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */,
 				3A8427A3ACD64871B47806D9 /* libRCTVideo.a in Frameworks */,
-				80D884BB6AE04175A629A3F1 /* libRCTOrientation.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,7 +328,6 @@
 				ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */,
 				AA4D6F2CE2BB4CA0AEA6AB81 /* BugsnagReactNative.xcodeproj */,
 				02B515B63B614853BB04D64C /* RCTVideo.xcodeproj */,
-				17AE4C55E56941B3962A7F3F /* RCTOrientation.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -674,7 +669,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -691,7 +685,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Release;
@@ -717,7 +710,6 @@
 					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
 					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 					"$(SRCROOT)/../node_modules/react-native-video/ios",
-					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 				);
 			};
 			name = Debug;
@@ -742,7 +734,6 @@
 					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
 					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 					"$(SRCROOT)/../node_modules/react-native-video/ios",
-					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 				);
 			};
 			name = Release;
