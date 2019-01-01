@@ -18,37 +18,18 @@ class VideoPlayerView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.videoList);
-        this.state = {
-            layout: {
-                width: Distances.DeviceWidth,
-                height: Distances.DeviceEffectiveHeight,
-            }
-        };
+        this.state = {layout: {}};
     }
 
     viewName() {
         return 'VideoPlayerView';
     }
 
-    componentDidMount() {
-        Orientation.lockToLandscape();
-    }
-
-    componentWillUnmount() {
-        Orientation.getOrientation((err, orientation) => {
-            General.logDebug(this.viewName(), `Device Orientation: ${orientation}`);
-        });
-
-        Orientation.unlockAllOrientations();
-        this.props.onExit({error:this.state.error});
-        super.componentWillUnmount();
-    }
-
     goBack = () => {
         super.goBack();
     };
 
-    onLayout = (event) => {
+    onLayout = () => {
         if (this.state.layout.height !== Distances.DeviceEffectiveHeight) {
             if (this.state.layout.width !== Distances.DeviceWidth) {
                 this.setState(state => ({
@@ -84,17 +65,14 @@ class VideoPlayerView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
 
-        return (<View onLayout={this.onLayout}>
+        return (<View onLayout={this.onLayout} style={{backgroundColor: 'black', flex: 1, justifyContent: 'center'}}>
             <VideoPlayer
                 endWithThumbnail
                 video={{uri: this.props.telemetric.video.filePath}}
-                videoHeight={this.state.layout.height}
-                videoWidth={this.state.layout.width}
                 ref={r => this.player = r}
                 onError={this.onError}
                 onProgress={this.onProgress}
-                disableSeek={false}
-                pauseOnPress={false}
+                pauseOnPress={true}
                 autoplay={true}
                 resizeMode={'cover'}
             />
