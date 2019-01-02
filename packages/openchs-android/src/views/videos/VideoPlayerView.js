@@ -28,6 +28,11 @@ class VideoPlayerView extends AbstractComponent {
         return 'VideoPlayerView';
     }
 
+    componentWillUnmount() {
+        this.props.onExit({error:this.state.error});
+        super.componentWillUnmount();
+    }
+
     goBack = () => {
         super.goBack();
     };
