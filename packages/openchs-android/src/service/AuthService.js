@@ -96,6 +96,12 @@ class AuthService extends BaseService {
         });
     }
 
+    getUserName() {
+        return this.getAuthToken().then(
+            () => this.getUser().then(user => user.getUsername(), _.noop),
+            _.noop)
+    }
+
     userExists() {
         return new Promise((resolve) => {
             const settings = this.settingsService.getSettings();

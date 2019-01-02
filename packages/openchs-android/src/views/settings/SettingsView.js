@@ -1,4 +1,4 @@
-import {Switch, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Switch, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -22,6 +22,8 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import Rule from "openchs-models/src/Rule";
 import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import EntityQueueService from "../../service/EntityQueueService";
+import AuthService from "../../service/AuthService";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -35,6 +37,7 @@ class SettingsView extends AbstractComponent {
             "Enrolment Visit Schedule": ["ProgramEnrolment", Rule.types.VisitSchedule],
             "Encounter Visit Schedule": ["ProgramEncounter", Rule.types.VisitSchedule]
         };
+        this.state = {};
     }
 
     viewName() {
@@ -45,9 +48,38 @@ class SettingsView extends AbstractComponent {
         TypedTransition.from(this).to(EntitySyncStatusView);
     }
 
+    componentWillMount() {
+        this.context.getService(AuthService).getUserName().then(username => {
+            this.setState(state => ({...state, username: username}));
+        });
+        super.componentWillMount();
+    }
+
+    forceSync() {
+        const entityQueueService = this.context.getService(EntityQueueService);
+        entityQueueService.requeueAll();
+    }
+
+    onForceSync() {
+        Alert.alert(
+            this.I18n.t('forceSyncWarning'),
+            this.I18n.t('forceSyncWarningMessage'),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => this.forceSync()
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                    },
+                    style: 'cancel'
+                }
+            ]
+        )
+    }
+
     renderAdvancedOptions() {
         const logLevelLabelValuePairs = _.keys(General.LogLevel).map((logLevelName) => new RadioLabelValue(logLevelName, General.LogLevel[logLevelName]));
-        const cb= this.entitySyncStatusView.bind(this);
+        const cb = this.entitySyncStatusView.bind(this);
         return this.state.advancedMode ? (
             <View>
                 <RadioGroup
@@ -105,7 +137,12 @@ class SettingsView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <Text style={Styles.settingsTitle}>
-                            {this.state.userInfo.organisationName ? `${this.state.userInfo.organisationName}` : I18n.t('syncRequired')}
+                            {this.state.userInfo.organisationName ?
+                                this.state.username ?
+                                    `${this.state.username} (${this.state.userInfo.organisationName})`
+                                    : this.state.userInfo.organisationName
+                                : I18n.t('syncRequired')
+                            }
                         </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
                                     labelValuePairs={localeLabelValuePairs} labelKey='locale'

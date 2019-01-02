@@ -59,8 +59,44 @@ const englishWordsToMarathi = {
     "Before": "जेवणाआधी",
     "After": "जेवणानंतर",
     "": "",
-    "ORS": "ORS"
+    "ORS": "ORS",
+    'half spoon': "अर्धा",
+    "half tablet": "अर्धी",
+    "1": "१",
+    "1.5": "दीड",
+    "2": "२",
+    "3": "३",
+    "4": "४",
+    "once a day": "दिवसातून एकदा",
+    "twice a day": "दिवसातून दोन वेळा",
+    "thrice a day": "दिवसातून तीन वेळा",
+    "once every evening after bathing": "रोज संध्याकाळी एकदा",
+    "after bathing and boiling in warm water for one hour": "मानेपासून संपूर्ण अंगास अंघोळीनंतर लावणे व कपडे १ तास गरम पाण्यात उकळवीणे",
+    "to be installed in a space": "गजकर्णाच्या जागेवर लावण्यास सांगावे",
+    "should be asked to drink": "पिण्यास सांगावे",
+    "spoon": "चमचा",
+    "tablespoon": "चमचे",
+    "3-5": "३ किंवा ५ दिवसांसाठी",
+    "1-5": "१ ते ५ दिवस",
+    "3 days": "३ दिवस",
+    "2 days": "२ दिवस",
+    "Chloroquine": "क्लोरोक्विन",
+    "chloroquine and paracetamol after these meals": "क्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी",
+    "take paracetamol if you have": "पॅरासिटामॉल ही औषध जेवल्यावर खायला सांगावी",
+    "ADVICE BASED ON VOMIT": "उलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत",
+    "dressing": "ड्रेसिंग",
+    "send for further treatment": "लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे",
 };
+
+class t {
+    static marathi(text) {
+        // to DEBUG
+        // return text;
+        const translation = englishWordsToMarathi[text];
+        if(translation != null) return translation;
+        return text;
+    }
+}
 
 const dayInMarathi = {
     "1": "पहिल्या दिवशी",
@@ -98,33 +134,33 @@ const medicines = {
 
 const doseQuantityToMarathi = function (doseQuantity, doseUnit) {
     if (doseQuantity === 0.25) return "१/४";
-    if (doseQuantity === 0.5 && doseUnit === "Spoon") return "अर्धा";
-    if (doseQuantity === 0.5 && doseUnit === "Tablet") return "अर्धी";
-    if (doseQuantity === 1) return "१";
-    if (doseQuantity === 1.5) return "दीड";
-    if (doseQuantity === 2) return "२";
-    if (doseQuantity === 3) return "३";
-    if (doseQuantity === 4) return "४";
+    if (doseQuantity === 0.5 && doseUnit === "Spoon") return t.marathi('half spoon');
+    if (doseQuantity === 0.5 && doseUnit === "Tablet") return t.marathi("half tablet");
+    if (doseQuantity === 1) return t.marathi("1");
+    if (doseQuantity === 1.5) return t.marathi("1.5");
+    if (doseQuantity === 2) return t.marathi("2");
+    if (doseQuantity === 3) return t.marathi("3");
+    if (doseQuantity === 4) return t.marathi("4");
     console.error("Dose quantity - " + doseQuantity + " for dose unit - " + doseUnit + " is not supported");
 };
 
 const dosageTimingToMarathi = function (complaint, times) {
-    if (times === 1 || times === "1") return "दिवसातून एकदा";
-    if (times === 2 || times === "2") return "दिवसातून दोन वेळा";
-    if (times === 3 || times === "3") return "दिवसातून तीन वेळा";
-    if (times === "Once Evening") return "रोज संध्याकाळी एकदा";
-    if (times === "Special Instruction" && complaint === "Scabies") return "मानेपासून संपूर्ण अंगास अंघोळीनंतर लावणे व कपडे १ तास गरम पाण्यात उकळवीणे";
-    if (times === "Special Instruction" && complaint === "Ring Worm") return "गजकर्णाच्या जागेवर लावण्यास सांगावे";
-    if (times === "Special Instruction" && (complaint === "Vomiting" || complaint === "Diarrhoea" || complaint === "Giddiness")) return " पिण्यास सांगावे";
+    if (times === 1 || times === "1") return t.marathi("once a day");
+    if (times === 2 || times === "2") return t.marathi("twice a day");
+    if (times === 3 || times === "3") return t.marathi("thrice a day");
+    if (times === "Once Evening") return t.marathi("once every evening after bathing");
+    if (times === "Special Instruction" && complaint === "Scabies") return t.marathi("after bathing and boiling in warm water for one hour");
+    if (times === "Special Instruction" && complaint === "Ring Worm") return t.marathi("to be installed in a space");
+    if (times === "Special Instruction" && (complaint === "Vomiting" || complaint === "Diarrhoea" || complaint === "Giddiness")) return ` ${t.marathi("should be asked to drink")}`;
     console.error("Number of times " + times + " not supported yet");
 };
 
 const getDoseUnitMessage = function (daysPrescription) {
     if (daysPrescription["Dose Unit"] === "Spoon")
-        return daysPrescription.Amount < 2 ? "चमचा" : "चमचे";
+        return daysPrescription.Amount < 2 ? t.marathi("spoon") : t.marathi("tablespoon");
     else if (daysPrescription["Dose Unit"] === "ml")
         return "ml";
-    return "टॅबलेट";
+    return t.marathi("Tablet");
 };
 
 const getKeys = function (obj) {
@@ -223,18 +259,18 @@ const getDecisions = function (encounter) {
 
                     if (dayTokens.length === 1 && firstToken !== "1") {
                         if (firstToken === "3-5")
-                            message += "३ किंवा ५ दिवसांसाठी";
+                            message += t.marathi("3-5");
                         else if (firstToken === "1-5")
-                            message += "१ ते ५ दिवस";
+                            message += t.marathi("1-5");
                         else if (firstToken === "3")
-                            message += "३ दिवस";
+                            message += t.marathi("3 days");
                         else if (firstToken === "2")
-                            message += "२ दिवस";
+                            message += t.marathi("2 days");
 
                         message += "\n";
                     }
 
-                    message += englishWordsToMarathi["" + daysPrescription.Medicine];
+                    message += t.marathi("" + daysPrescription.Medicine);
                     message += " ";
                     if (daysPrescription.Times !== "Special Instruction") {
                         message += doseQuantityToMarathi(daysPrescription.Amount, daysPrescription["Dose Unit"]);
@@ -244,7 +280,7 @@ const getDecisions = function (encounter) {
                     }
                     message += dosageTimingToMarathi(complaint, daysPrescription.Times);
                     message += " ";
-                    message += englishWordsToMarathi[medicines[daysPrescription.Medicine].take];
+                    message += t.marathi(medicines[daysPrescription.Medicine].take);
                     message += "\n";
                 }
             }
@@ -257,16 +293,16 @@ const getDecisions = function (encounter) {
         }
 
         if (weight >= 13 && complaint === "Fever") {
-            if (treatmentAdviceDecision.value.indexOf("क्लोरोक्विन") !== -1 && treatmentAdviceDecision.value.indexOf("पॅरासिटामॉल") !== -1) {
-                treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nक्लोरोक्विन व पॅरासिटामॉल ही औषधे जेवल्यावर खायला सांगावी`;
-            } else if (treatmentAdviceDecision.value.indexOf("पॅरासिटामॉल") !== -1) {
-                treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nपॅरासिटामॉल ही औषध जेवल्यावर खायला सांगावी`;
+            if (treatmentAdviceDecision.value.indexOf(t.marathi("Chloroquine")) !== -1 && treatmentAdviceDecision.value.indexOf(t.marathi("Paracetamol")) !== -1) {
+                treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\n${t.marathi("chloroquine and paracetamol after these meals")}`;
+            } else if (treatmentAdviceDecision.value.indexOf(t.marathi("Paracetamol")) !== -1) {
+                treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\n${t.marathi("take paracetamol if you have")}`;
             }
         }
         else if (complaint === 'Vomiting') {
-            treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nउलटी असल्यास आधी औषध द्यावे व अर्ध्या तासांनंतर जेवण, दुध द्यावे व अर्ध्या तासांनंतर इतर औषधे द्यावीत`;
+            treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\n${t.marathi("ADVICE BASED ON VOMIT")}`;
         } else if (complaint === 'Wound') {
-            treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\nड्रेसिंग`;
+            treatmentAdviceDecision.value = `${treatmentAdviceDecision.value}\n${t.marathi("dressing")}`;
         }
     }
 
@@ -275,7 +311,7 @@ const getDecisions = function (encounter) {
         || complaints.indexOf('Other') !== -1;
 
     if (referralAdviceNeeded)
-        referralAdviceDecision.value = 'लोक बिरादरी दवाखाण्यात पुढील उपचाराकरिता पाठवावे';
+        referralAdviceDecision.value = t.marathi('send for further treatment');
 
     decisions.push(treatmentAdviceDecision, referralAdviceDecision);
 
