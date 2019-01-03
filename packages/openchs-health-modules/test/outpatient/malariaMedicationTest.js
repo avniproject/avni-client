@@ -19,7 +19,7 @@ import EntityFactory from "openchs-models/test/EntityFactory";
 import moment from "moment";
 
 describe("Malaria medications", () => {
-    let encounter, weightConcept, paracheckConcept, complaintsConcept, complaintsObs;
+    let encounter, weightConcept, paracheckConcept, complaintsConcept, complaintsObs, availableTabletsACTObs, availableTabletsConcept;
 
     beforeEach(() => {
         complaintsConcept = EntityFactory.createConcept("Complaint", Concept.dataType.Coded);
@@ -33,6 +33,12 @@ describe("Malaria medications", () => {
         complaintsObs = Observation.create(complaintsConcept, new MultipleCodedValues());
         complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Fever").concept.uuid);
         encounter.observations.push(complaintsObs);
+
+        availableTabletsConcept = EntityFactory.createConcept("Available malaria treatment tablets", Concept.dataType.Coded);
+        EntityFactory.addCodedAnswers(availableTabletsConcept, ['ACT Tablets', 'Lonart Tablets']);
+        availableTabletsACTObs = Observation.create(availableTabletsConcept, new SingleCodedValue());
+        availableTabletsACTObs.toggleSingleSelectAnswer(availableTabletsConcept.getPossibleAnswerConcept('ACT Tablets').concept.uuid);
+        encounter.observations.push(availableTabletsACTObs);
     });
 
     describe("Primaquine", () => {
@@ -299,7 +305,7 @@ describe("Malaria medications", () => {
             //
             // पॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी
             // प्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी
-            expect(malariaPrescriptionMessage(encounter, [])).to.equal('पहिल्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी पहिल्या रांगेतील तीन गोळ्या \nदुसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी दुसऱ्या रांगेतील एक गोळी \nतिसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी तिसऱ्या रांगेतील एक गोळी \n\nपॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी\nप्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी');
+            expect(malariaPrescriptionMessage(encounter, [])).to.include('पहिल्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी पहिल्या रांगेतील तीन गोळ्या \nदुसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी दुसऱ्या रांगेतील एक गोळी \nतिसऱ्या दिवशी\nआरटीमीथर कॉम्बीणेशन थेरपी तिसऱ्या रांगेतील एक गोळी \n\nपॅरासिटामॉल अर्धी गोळी दिवसातून ३ वेळा १ ते ३ दिवसांसाठी\nप्रायामाक्वीन २.५ mg दोन गोळ्या दिवसातून १ वेळा १ ते १४ दिवसांसाठी');
         });
 
         it("Primaquine & ACT should not be given when patient is pregnant and Positive for PF and PV", () => {

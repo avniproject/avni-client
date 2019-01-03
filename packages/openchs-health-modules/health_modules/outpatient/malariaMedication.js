@@ -45,6 +45,13 @@ const weightRangesForPcmOrChloroquineTablets = [
     {code: "A4", min: 32.5, max: 1000}
 ];
 
+const weightRangesForLonartTablets = [
+    {code: 'A1', min: 4.9, max: 14.9},
+    {code: 'A2', min: 14.9, max: 24.9},
+    {code: 'A3', min: 24.9, max: 34.9},
+    {code: 'A4', min: 34.9, max: 1000}
+];
+
 const matchByType = (codeMap, valueMap, variableFn) => {
     return (encounter) => {
         const variable = variableFn(encounter);
@@ -93,11 +100,30 @@ const pregnant = (encounter) => {
 const primaquineRequired = (encounter) => !childBelow1Year(encounter)
     && !womanBetween16And40Years(encounter)
     && isPvPositive(encounter)
-    && !pregnant(encounter);
+    && !pregnant(encounter)
+    && actTabletsAvailable(encounter);
 
 const actRequired = (encounter) => isPfPositive(encounter)
     && !womanBetween16And40Years(encounter)
-    && !pregnant(encounter);
+    && !pregnant(encounter)
+    && actTabletsAvailable(encounter);
+
+const lonartRequired = (encounter) => isPfPositive(encounter)
+    && !womanBetween16And40Years(encounter)
+    && !pregnant(encounter)
+    && lonartTabletsAvailable(encounter);
+
+const actTabletsAvailable = (programEncounter) =>
+    new RuleCondition({programEncounter})
+        .valueInEncounter('Available malaria treatment tablets')
+        .containsAnswerConceptName('ACT Tablets')
+        .matches();
+
+const lonartTabletsAvailable = (programEncounter) =>
+    new RuleCondition({programEncounter})
+        .valueInEncounter('Available malaria treatment tablets')
+        .containsAnswerConceptName('Lonart Tablets')
+        .matches();
 
 const pcmRequired = () => true; //you come here only if you have fever.
 
@@ -212,6 +238,30 @@ const malariaTreatment = [
                 {day: 3, code: "A4", row: 3, itemsPerServing: 1}
             ])
         }]
+    },
+    {
+        check: lonartRequired,
+        medication: [
+            {
+                medicine: 'Lonart/Lonart Forte',
+                form: 'Tablets',
+                dosageType: "uniform",
+                dosageFn: matchByWeight(weightRangesForLonartTablets, [
+                    {code: "A1", days: 3, itemsPerServing: 1, timesPerDay: 2},
+                    {code: "A2", days: 3, itemsPerServing: 2, timesPerDay: 2},
+                    {code: "A3", days: 3, itemsPerServing: 3, timesPerDay: 2},
+                    {code: "A4", days: 3, itemsPerServing: 4, timesPerDay: 2},
+                ])
+            },
+            {
+                medicine: 'Lonart DS',
+                form: 'Tablets',
+                dosageType: "uniform",
+                dosageFn: matchByWeight(weightRangesForLonartTablets, [
+                    {code: "A4", days: 3, itemsPerServing: 1, timesPerDay: 2},
+                ])
+            }
+        ]
     }
 ];
 
@@ -256,6 +306,9 @@ const dayth = (day) => {
 const lookup = {
     "Primaquine Tablets": "प्रायामाक्वीन",
     "ACT": "आरटीमीथर कॉम्बीणेशन थेरपी",
+    "Lonart/Lonart Forte": "लोनार्ट / लोनार्ट फोर्ट टॅब्लेट [आरटीमीथर २०mg + लुईमफंट्राइन १२०mg]",
+        // "Lonart/Lonart Forte Tablets [Artemether 20 mg + Lumefantrine 120 mg]",
+    "Lonart DS": "लोनार्ट डी एस टॅब्लेट [आरटीमीथर ८०mg + लुईमफंट्राइन ४८०mg]",
     "Chloroquine Syrup": "क्लोरोक्विन सायरप",
     "Paracetamol Syrup": "पॅरासिटामॉल सायरप",
     "Chloroquine Tablets": "क्लोरोक्विन",
