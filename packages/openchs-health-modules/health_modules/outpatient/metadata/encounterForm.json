@@ -213,6 +213,26 @@
           "mandatory": true
         }
       ]
+    },
+    {
+      "name": "Drug information",
+      "uuid": "b213cfcb-dde8-4593-9fc4-c74e6a17dc2f",
+      "displayOrder": 4,
+      "display": "Drug information",
+      "formElements": [
+        {
+          "name": "What Malaria treatment tablets are available?",
+          "uuid": "52b33fd1-29fe-49c2-9bb5-f642f48da1a2",
+          "keyValues": [],
+          "type": "SingleSelect",
+          "concept": {
+            "comment": "Available malaria treatment tablets",
+            "uuid": "142c7855-8bb7-4476-b086-c6e393bd8aad"
+          },
+          "displayOrder": 1,
+          "mandatory": true
+        }
+      ]
     }
   ]
 }

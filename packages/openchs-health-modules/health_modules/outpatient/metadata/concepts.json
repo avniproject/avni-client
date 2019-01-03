@@ -276,5 +276,30 @@
         "uuid": "1224317d-0e64-41eb-a73b-09644c63582f"
       }
     ]
+  },
+  {
+    "name": "Lonart Tablets",
+    "uuid": "dd559add-2b86-455c-b6d9-6e7cb05dc779",
+    "dataType": "NA"
+  },
+  {
+    "name": "ACT Tablets",
+    "uuid": "9c4ed960-6473-405c-ac2e-68b180d7c880",
+    "dataType": "NA"
+  },
+  {
+    "name": "Available malaria treatment tablets",
+    "uuid": "142c7855-8bb7-4476-b086-c6e393bd8aad",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "comment": "Lonart Tablets",
+        "uuid": "dd559add-2b86-455c-b6d9-6e7cb05dc779"
+      },
+      {
+        "comment": "ACT Tablets",
+        "uuid": "9c4ed960-6473-405c-ac2e-68b180d7c880"
+      }
+    ]
   }
 ]

@@ -1,6 +1,7 @@
 import {FormElementStatusBuilder, FormElementStatus} from "rules-config/rules";
 import C from '../../common';
 import _ from 'lodash';
+import {RuleCondition} from "rules-config";
 
 export default class {
 
@@ -14,6 +15,26 @@ export default class {
         let statusBuilder = this._getStatusBuilder(encounter, formElement);
         statusBuilder.show().when
             .valueInEncounter("Is outpatient referred to higher health center?").containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+    }
+
+    whatMalariaTreatmentTabletsAreAvailable(encounter, formElement) {
+        const statusBuilder = this._getStatusBuilder(encounter, formElement);
+        const isPfPositive = new RuleCondition({programEncounter: encounter})
+            .valueInEncounter("Paracheck")
+            .containsAnyAnswerConceptName("Positive for PF and PV", "Positive for PF")
+            .matches();
+        const notAWomanBetween16And40Years = !(new RuleCondition({programEncounter: encounter})
+            .female
+            .and.age.is.greaterThanOrEqualTo(16)
+            .and.age.is.lessThanOrEqualTo(40)
+            .matches());
+        const notPregnant = !(new RuleCondition({programEncounter: encounter})
+            .valueInEncounter("Complaint")
+            .containsAnswerConceptName("Pregnancy")
+            .matches());
+        statusBuilder.show()
+            .whenItem(isPfPositive && notAWomanBetween16And40Years && notPregnant).is.truthy;
         return statusBuilder.build();
     }
 
