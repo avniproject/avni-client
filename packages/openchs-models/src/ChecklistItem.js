@@ -69,8 +69,9 @@ class ChecklistItem {
 
     get baseDate() {
         if (this.detail.isDependent) {
-            return this.checklist.items
-                .find(item => item.detail.uuid === this.detail.dependentOn.uuid).completionDate;
+            let leadingItem = this.checklist.items
+                .find(item => item.detail.uuid === this.detail.dependentOn.uuid);
+            return _.isNil(leadingItem) ? leadingItem : leadingItem.completionDate;
         }
         return this.checklist.baseDate;
     }
