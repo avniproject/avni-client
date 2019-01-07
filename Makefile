@@ -96,6 +96,9 @@ release: ##
 release-vivek: ##
 	ENVFILE=.env.devs.vivek make release
 
+release-arjun: ##
+	ENVFILE=.env.devs.arjun make release
+
 release-live: ##
 	ENVFILE=.env.live make clean_env deps release
 	$(call _upload_release_sourcemap)

@@ -2445,5 +2445,63 @@
     "name": "Program enrolment advice",
     "uuid": "ef648418-3f24-4d50-b900-5428ef3271b4",
     "dataType": "Text"
+  },
+  {
+    "name": "Completion",
+    "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
+    "dataType": "NA"
+  },
+  {
+    "name": "Death",
+    "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
+    "abnormal": true,
+    "dataType": "NA"
+  },
+  {
+    "name": "Shifted to other geographical area",
+    "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
+    "dataType": "NA"
+  },
+  {
+    "name": "Reason for exit",
+    "uuid": "9f815b72-4b4a-4210-a69f-a925d2baae1d",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Shifted to other geographical area",
+        "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
+        "abnormal": true
+      },
+      {
+        "name": "Death",
+        "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
+        "abnormal": true
+      },
+      {
+        "name": "Completion",
+        "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "name": "Other"
+      }
+    ]
+  },
+  {
+    "uuid": "305ed0d7-1e58-45e2-8643-6d58e7ec4a49",
+    "name": "Cause of person's death",
+    "dataType": "Text",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "uuid": "8cb6e1ec-37cf-4563-8ce9-30b943664182",
+    "name": "Date of Death",
+    "dataType": "Date"
+  },
+  {
+    "name": "Death place",
+    "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
+    "dataType": "Text"
   }
 ]

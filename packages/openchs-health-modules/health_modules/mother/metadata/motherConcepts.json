@@ -964,22 +964,6 @@
     "dataType": "NA"
   },
   {
-    "name": "Completion",
-    "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
-    "dataType": "NA"
-  },
-  {
-    "name": "Death",
-    "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
-    "abnormal": true,
-    "dataType": "NA"
-  },
-  {
-    "name": "Shifted to other geographical area",
-    "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
-    "dataType": "NA"
-  },
-  {
     "name": "Pre Eclampsia/ Eclampsia",
     "uuid": "4c5c8ed4-3166-4782-b010-728aeee3ebb1",
     "dataType": "NA"
@@ -2333,11 +2317,6 @@
     ]
   },
   {
-    "name": "Death place",
-    "uuid": "0ae4649b-c1ba-41ee-86e3-3911ae6c87db",
-    "dataType": "Text"
-  },
-  {
     "name": "Date of delivery",
     "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
     "dataType": "Date"
@@ -3184,11 +3163,6 @@
         "unique": true
       }
     ]
-  },
-  {
-    "uuid": "8cb6e1ec-37cf-4563-8ce9-30b943664182",
-    "name": "Date of Death",
-    "dataType": "Date"
   },
   {
     "name": "Death occurred after how many days",

@@ -74,6 +74,8 @@ dev_deploy_metadata: ## Upload metadata to server
 	$(call upload,formMappings,@health_modules/outpatient/metadata/formMappings.json)
 	@echo
 
+	$(call upload,forms,@health_modules/common/metadata/defaultProgramExitForm.json)
+	@echo
 
 	$(call upload,concepts,@health_modules/mother/metadata/motherConcepts.json)
 	@echo
