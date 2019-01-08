@@ -250,10 +250,6 @@ class ProgramEnrolment extends BaseEntity {
             .filter((enc) => enc.encounterDateTime)
             .filter((enc) => enc.encounterDateTime < currentEncounter.encounterDateTime)
             .value();
-
-        console.log('findLatestObservationFromPreviousEncounters');
-        console.log(encounters.length);
-        console.log(this._findObservationFromEntireEnrolment(conceptName, encounters, false));
         return this._findObservationFromEntireEnrolment(conceptName, encounters, false);
     }
 
