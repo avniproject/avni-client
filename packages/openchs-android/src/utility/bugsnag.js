@@ -9,7 +9,7 @@ import Config from 'react-native-config';
 const configuration = new Configuration();
 configuration.autoNotify = false;
 configuration.releaseStage = Config.ENV;
-configuration.notifyReleaseStages = ['staging', 'prod'];
+configuration.notifyReleaseStages = ['staging', 'prod', 'uat'];
 console.log("Creating new instance of Bugsnag");
 const client = new Client(configuration);
 
