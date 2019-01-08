@@ -5,6 +5,11 @@
     "dataType": "NA"
   },
   {
+    "name": "None",
+    "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
+    "dataType": "NA"
+  },
+  {
     "name": "Normal",
     "uuid": "ba43b326-18a1-4f8d-ad04-29b0371461e0",
     "dataType": "NA"
@@ -582,11 +587,6 @@
         "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539"
       }
     ]
-  },
-  {
-    "name": "None",
-    "uuid": "ebda5e05-a995-43ca-ad1a-30af3b937539",
-    "dataType": "NA"
   },
   {
     "name": "One",
