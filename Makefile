@@ -86,6 +86,10 @@ release: ##
 	rm -rf packages/openchs-android/default.realm.*
 	cd packages/openchs-android/android; GRADLE_OPTS="-Xmx250m -Xms250m" ./gradlew assembleRelease
 
+release-inpremise:
+	ENVFILE=.env.inpremise make release
+	$(call _upload_release_sourcemap)
+
 release-vivek: ##
 	ENVFILE=.env.devs.vivek make release
 
