@@ -22,7 +22,7 @@ export default class {
         const statusBuilder = this._getStatusBuilder(encounter, formElement);
         const isPfPositive = new RuleCondition({programEncounter: encounter})
             .valueInEncounter("Paracheck")
-            .containsAnyAnswerConceptName("Positive for PF and PV", "Positive for PF")
+            .containsAnyAnswerConceptName("Positive for PF and PV", "Positive for PF", "Positive for PV")
             .matches();
         const notAWomanBetween16And40Years = !(new RuleCondition({programEncounter: encounter})
             .female

@@ -15,6 +15,7 @@ const paracheckNotDone = (encounter) => {
 };
 const isPvPositive = (encounter) => paracheckResultContains(encounter, "Positive for PF and PV", "Positive for PV");
 const isPfPositive = (encounter) => paracheckResultContains(encounter, "Positive for PF and PV", "Positive for PF");
+const isParacheckPositive = (encounter) => paracheckResultContains(encounter, 'Positive for PF and PV', 'Positive for PF','Positive for PV');
 
 const ageRangesForAct = [
     {code: "A1", min: 1, max: 4},
@@ -108,7 +109,7 @@ const actRequired = (encounter) => isPfPositive(encounter)
     && !pregnant(encounter)
     && actTabletsAvailable(encounter);
 
-const lonartRequired = (encounter) => isPfPositive(encounter)
+const lonartRequired = (encounter) => isParacheckPositive(encounter)
     && !womanBetween16And40Years(encounter)
     && !pregnant(encounter)
     && lonartTabletsAvailable(encounter);
