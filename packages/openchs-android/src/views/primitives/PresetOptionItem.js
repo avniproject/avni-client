@@ -6,6 +6,7 @@ import Colors from '../primitives/Colors';
 import _ from 'lodash';
 import Styles from "./Styles";
 import themes from "./themes"
+import General from "../../utility/General";
 
 class PresetOptionItem extends AbstractComponent {
     static inputTextStyle = {marginLeft: 11, color: Colors.InputNormal};
@@ -43,10 +44,6 @@ class PresetOptionItem extends AbstractComponent {
         else
             return (<Radio theme={themes} selected={this.props.checked}
                            onPress={() => this.props.onPress()}/>);
-    }
-
-    shouldComponentUpdate(nextProps) {
-        return this.props.checked !== nextProps.checked;
     }
 
     render() {
