@@ -110,6 +110,9 @@ release-live: ##
 release-staging: ##
 	ENVFILE=.env.staging make clean_env deps release
 
+release-uat: ##
+	ENVFILE=.env.uat make release
+
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
 
@@ -266,6 +269,10 @@ deploy_metadata_staging:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
 
+deploy_metadata_uat:
+	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
+	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
+
 deploy_metadata_staging_local:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=http://localhost port=8021 username=admin password=$(password)
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=http://localhost port=8021 username=admin password=$(password)
@@ -285,6 +292,10 @@ screencap:
 upload-staging-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
+
+upload-uat-apk:
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
 
 upload-prod-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
