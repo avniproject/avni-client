@@ -2475,20 +2475,24 @@
       {
         "name": "Shifted to other geographical area",
         "uuid": "ca01f2cf-6479-44cf-9d43-ad428c82f9a6",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
         "abnormal": true
       },
       {
         "name": "Death",
         "uuid": "afff87d7-4c40-4dd4-9bf7-8e5d9adb3b83",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
         "abnormal": true
       },
       {
         "name": "Completion",
-        "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89"
+        "uuid": "f63a0122-8156-4956-a29c-c0722ff22a89",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       },
       {
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
-        "name": "Other"
+        "name": "Other",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       }
     ]
   },
