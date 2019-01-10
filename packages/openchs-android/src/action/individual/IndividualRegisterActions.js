@@ -10,7 +10,8 @@ export class IndividualRegisterActions {
     static getInitialState(context) {
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
         const genders = context.get(EntityService).getAll(Gender.schema.name);
-        return {form: form, genders: genders};
+        const gendersSortedByName = _.sortBy(genders, "name");
+        return {form: form, genders: gendersSortedByName};
     }
 
     static onLoad(state, action, context) {

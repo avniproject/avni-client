@@ -5,7 +5,6 @@ import Distances from "../../primitives/Distances";
 import Individual from "../../../../../openchs-models/src/Individual";
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
-import _ from "lodash";
 
 class GenderFormElement extends AbstractComponent {
     static propTypes = {
@@ -17,11 +16,10 @@ class GenderFormElement extends AbstractComponent {
     }
 
     render() {
-        let genders = _.sortBy(this.props.state.genders, "name");
         return (
             <RadioGroup
                 onPress={({value}) => this.dispatchAction(Actions.REGISTRATION_ENTER_GENDER, {value: value})}
-                labelValuePairs={genders.map((gender) => new RadioLabelValue(gender.name, gender))}
+                labelValuePairs={this.props.state.genders.map((gender) => new RadioLabelValue(gender.name, gender))}
                 labelKey="gender"
                 selectionFn={(gender) => gender.equals(this.props.state.individual.gender)}
                 validationError={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.GENDER)}
