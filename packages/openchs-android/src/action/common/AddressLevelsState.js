@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 class AddressLevelsState {
     constructor(levels = []) {
-        this.levels = Object.entries(_.uniqBy(levels, l => l.uuid)
+        const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
             .reduce((acc, {uuid, name, level, type, locationMappings, isSelected = false}) => {
                 acc[type] = _.defaultTo(acc[type], []).concat([{
                     uuid,
@@ -14,6 +14,7 @@ class AddressLevelsState {
                 }]);
                 return acc;
             }, {}));
+        this.levels = unsortedLevels.map(([levelType, levels]) => [levelType, _.sortBy(levels, "name")]);
     }
 
     static canBeUsed(level) {
