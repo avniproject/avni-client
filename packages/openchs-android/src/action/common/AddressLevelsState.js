@@ -14,7 +14,18 @@ class AddressLevelsState {
                 }]);
                 return acc;
             }, {}));
-        this.levels = unsortedLevels.map(([levelType, levels]) => [levelType, _.sortBy(levels, "name")]);
+        this.levels = unsortedLevels.map(([levelType, levels]) => {
+            const other = _.find(levels, (level) => _.startsWith(level.name, "Other"));
+            if(!_.isNil(other)) {
+                const levelsExcludingOther = _.filter(levels, (level) => level.name !== other.name);
+                const sortedLevels = _.sortBy(levelsExcludingOther, "name");
+                const levelsEndingWithOther = _.concat(sortedLevels, other);
+                return [levelType, levelsEndingWithOther];
+            } else {
+                return [levelType, _.sortBy(levels, "name")];
+            }
+
+        });
     }
 
     static canBeUsed(level) {
