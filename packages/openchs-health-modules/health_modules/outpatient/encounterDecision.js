@@ -203,10 +203,7 @@ const getDecisions = function (encounter) {
     }).concat(complaints.filter(function (item) {
         return item !== 'Fever'
     }));
-
-    console.log('showing complaints');
-    console.log(complaints);
-
+    
     const potentiallyPregnant = (sex === "Female" && (age >= 16 && age <= 40));
     const pregnant = complaints.includes("Pregnancy");
     let decisions = [];
