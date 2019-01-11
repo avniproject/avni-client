@@ -1,5 +1,4 @@
 import {assert} from "chai";
-import _ from "lodash";
 import IndividualService from "../../../src/service/IndividualService";
 import TestContext from '../views/testframework/TestContext'
 
@@ -32,9 +31,9 @@ describe('IndividualServiceTest', () => {
         individual.observations = [];
         individual.voided = voided;
         return individual;
-    }
+    };
 
-    describe("Test void individual", () => {
+    describe("search", () => {
         it("should include voided individuals in search results when includeVoided is true", () => {
             const individualSearchCriteria = IndividualSearchCriteria.empty();
             individualSearchCriteria.addNameCriteria("test");
@@ -64,6 +63,19 @@ describe('IndividualServiceTest', () => {
             
             const results = individualService.search(individualSearchCriteria);
             assert.lengthOf(results, 1);
+        });
+    });
+
+    describe("count", () => {
+        it("should return count of all registered individuals", () => {
+            const individualSearchCriteria = IndividualSearchCriteria.empty();
+
+            for (let i = 0; i < 100; i++) {
+                individualService.register(createIndividual(false));
+            }
+
+            const count = individualService.count(individualSearchCriteria);
+            assert.equal(count, 100);
         });
     });
 

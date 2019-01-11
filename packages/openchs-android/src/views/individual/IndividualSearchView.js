@@ -17,7 +17,6 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
-import {Badge} from 'native-base';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -37,8 +36,9 @@ class IndividualSearchView extends AbstractComponent {
 
     searchIndividual() {
         this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
-            cb: (results) => TypedTransition.from(this).with({
-                searchResults: results,
+            cb: (individualSearchResults, count) => TypedTransition.from(this).with({
+                searchResults: individualSearchResults,
+                count: count,
                 onIndividualSelection: this.props.onIndividualSelection
             }).to(IndividualSearchResultsView, true)
         });

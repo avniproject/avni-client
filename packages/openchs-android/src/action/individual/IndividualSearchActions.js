@@ -43,8 +43,11 @@ export class IndividualSearchActions {
 
     static searchIndividuals(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
-        const individualSearchResults = beans.get(IndividualService).search(newState.searchCriteria);
-        action.cb(individualSearchResults);
+
+        const individualService = beans.get(IndividualService);
+        const individualSearchResults = individualService.search(newState.searchCriteria);
+        const count = individualService.count(newState.searchCriteria)
+        action.cb({individualSearchResults, count});
         return newState;
     };
 

@@ -23,12 +23,28 @@ class IndividualService extends BaseService {
     }
 
     search(criteria) {
+        return this._search(criteria).slice(0, 50);
+    }
+
+    count(criteria) {
+        return this._search(criteria).length;
+    }
+
+    _search(criteria) {
         const filterCriteria = criteria.getFilterCriteria();
-        return _.isEmpty(filterCriteria) ? this.db.objects(Individual.schema.name).slice(0, 50) :
-            this.db.objects(Individual.schema.name)
-                .filtered(filterCriteria,
+        let searchResults;
+        if (_.isEmpty(filterCriteria)) {
+            searchResults = this.db.objects(Individual.schema.name);
+        } else {
+            searchResults = this.db
+                .objects(Individual.schema.name)
+                .filtered(
+                    filterCriteria,
                     criteria.getMinDateOfBirth(),
-                    criteria.getMaxDateOfBirth()).slice(0, 50);
+                    criteria.getMaxDateOfBirth()
+                );
+        }
+        return searchResults;
     }
 
     register(individual) {
