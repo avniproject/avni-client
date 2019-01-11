@@ -3477,6 +3477,16 @@
     "dataType": "Coded",
     "answers": [
       {
+        "comment": "Child PNC cry related complaints",
+        "uuid": "d6a0c77e-840d-40a2-9282-d22db7ede007",
+        "abnormal": true
+      },
+      {
+        "comment":"Child PNC urination related complaints",
+        "uuid":"43a78b5a-f4da-440d-9614-80af65090e1f",
+        "abnormal":true
+      },
+      {
         "comment": "Breast-related problems",
         "uuid": "5f2ba759-58ca-4fa9-8fee-3063e076d8fa",
         "abnormal": true
