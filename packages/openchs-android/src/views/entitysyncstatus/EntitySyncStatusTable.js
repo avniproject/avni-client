@@ -89,6 +89,7 @@ const defaultStyles = StyleSheet.create({
         textAlign: 'left',
         fontSize: Fonts.Normal,
         color: Styles.greyText,
+        paddingTop:16
     },
     tableColHeader: {
         borderLeftWidth: 1,
@@ -99,6 +100,7 @@ const defaultStyles = StyleSheet.create({
         fontSize: Fonts.Normal,
         color: Styles.greyText,
         fontWeight: 'bold',
+        paddingTop:16
     }
 });
 export default EntitySyncStatusTable;
