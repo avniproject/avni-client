@@ -212,5 +212,7 @@
   "PlayVideo": "वीडियो चलाएं",
   "UnableToPlayVideoError": "वीडियो चलाने में असमर्थ",
   "Okay": "ठीक है",
-  "videoListNotAvailable": "वीडियो सूची उपलब्ध नहीं है"
+  "videoListNotAvailable": "वीडियो सूची उपलब्ध नहीं है",
+  "totalMatchingResults": "कुल मेल खाते परिणाम",
+  "displayed": "प्रदर्शित"
 }

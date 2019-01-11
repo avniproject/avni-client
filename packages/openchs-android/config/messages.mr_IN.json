@@ -170,5 +170,7 @@
   "PlayVideo": "व्हिडिओ प्ले करा",
   "UnableToPlayVideoError": "व्हिडिओ प्ले करण्यास अक्षम",
   "Okay": "ठीक आहे",
-  "videoListNotAvailable": "व्हिडिओ यादी उपलब्ध नाही"
+  "videoListNotAvailable": "व्हिडिओ यादी उपलब्ध नाही",
+  "totalMatchingResults": "एकूण जुळणारे परिणाम",
+  "displayed": "प्रदर्शित"
 }

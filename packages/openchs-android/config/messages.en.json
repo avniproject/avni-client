@@ -204,5 +204,8 @@
   "queuedCount": "Queued",
   "totalQueuedCount": "Total Queued",
   "videoListNotAvailable": "No video list available",
-  "lastLoaded": "Last Loaded"
+  "lastLoaded": "Last Loaded",
+  "totalMatchingResults": "Total matching results",
+  "displayed": "Displayed"
+
 }

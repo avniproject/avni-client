@@ -47,7 +47,7 @@ export class IndividualSearchActions {
         const individualService = beans.get(IndividualService);
         const individualSearchResults = individualService.search(newState.searchCriteria);
         const count = individualService.count(newState.searchCriteria)
-        action.cb({individualSearchResults, count});
+        action.cb(individualSearchResults, count);
         return newState;
     };
 

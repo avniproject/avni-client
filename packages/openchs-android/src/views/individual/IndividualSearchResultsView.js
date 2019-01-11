@@ -10,11 +10,13 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
+import SearchResultsHeader from "./SearchResultsHeader";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
         searchResults: React.PropTypes.array.isRequired,
+        totalSearchResultsCount: React.PropTypes.number.isRequired,
         onIndividualSelection: React.PropTypes.func.isRequired
     };
 
@@ -45,15 +47,15 @@ class IndividualSearchResultsView extends AbstractComponent {
     renderProgram(program, index) {
         return (
             <Text key={index} disabled
-                    style={[{
-                        height: 22,
-                        marginLeft: 4,
-                        marginRight: 4,
-                        borderRadius: 2,
-                        paddingHorizontal:4,
-                        backgroundColor: program.colour,
-                        color: Colors.TextOnPrimaryColor,
-                    }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
+                  style={[{
+                      height: 22,
+                      marginLeft: 4,
+                      marginRight: 4,
+                      borderRadius: 2,
+                      paddingHorizontal: 4,
+                      backgroundColor: program.colour,
+                      color: Colors.TextOnPrimaryColor,
+                  }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
         );
     }
 
@@ -66,88 +68,95 @@ class IndividualSearchResultsView extends AbstractComponent {
         const i18n = this.I18n;
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults);
         const width = Dimensions.get('window').width;
+
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
+                <AppHeader title={this.I18n.t("searchResults")}/>
+                <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
+                                     displayedCount={this.props.searchResults.length}/>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t("searchResults")}/>
-                    <ListView enableEmptySections={true}
-                              dataSource={dataSource}
-                              style={{backgroundColor: Styles.greyBackground}}
-                              renderRow={(item) =>
-                                  <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
-                                                           background={this.background()}>
-                                      <View>
-                                          <View style={{
-                                              flexDirection: 'row',
-                                              flexWrap: 'nowrap',
-                                              alignItems: 'center',
-                                              alignSelf: 'center',
-                                              height: 86,
-                                              paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
-                                          }}>
-                                              <Icon name='person-pin' style={{
-                                                  color: Colors.AccentColor,
-                                                  fontSize: 56,
-                                                  paddingRight: 16
-                                              }}/>
-                                              <View
-                                                  style={{flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
-                                                  <Text style={Styles.textStyle}>
-                                                      {item.name}
-                                                      {item.voided &&
-                                                      <Text style={{color: Styles.redColor}}>
-                                                          {` ${this.I18n.t("voidedLabel")}`}
+                        <ListView enableEmptySections={true}
+                                  dataSource={dataSource}
+                                  style={{backgroundColor: Styles.greyBackground}}
+                                  renderRow={(item) =>
+                                      <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
+                                                               background={this.background()}>
+                                          <View>
+                                              <View style={{
+                                                  flexDirection: 'row',
+                                                  flexWrap: 'nowrap',
+                                                  alignItems: 'center',
+                                                  alignSelf: 'center',
+                                                  height: 86,
+                                                  paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
+                                              }}>
+                                                  <Icon name='person-pin' style={{
+                                                      color: Colors.AccentColor,
+                                                      fontSize: 56,
+                                                      paddingRight: 16
+                                                  }}/>
+                                                  <View
+                                                      style={{
+                                                          flexDirection: 'column',
+                                                          alignItems: 'flex-start',
+                                                          flex: 1
+                                                      }}>
+                                                      <Text style={Styles.textStyle}>
+                                                          {item.name}
+                                                          {item.voided &&
+                                                          <Text style={{color: Styles.redColor}}>
+                                                              {` ${this.I18n.t("voidedLabel")}`}
+                                                          </Text>
+                                                          }
                                                       </Text>
-                                                      }
-                                                  </Text>
+                                                      <View style={{
+                                                          flexDirection: 'row',
+                                                          justifyContent: 'flex-start',
+                                                          alignItems: 'flex-start'
+                                                      }}>
+                                                          <Text
+                                                              style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
+                                                          <Text
+                                                              style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
+                                                      </View>
+                                                  </View>
                                                   <View style={{
-                                                      flexDirection: 'row',
-                                                      justifyContent: 'flex-start',
-                                                      alignItems: 'flex-start'
+                                                      flexDirection: 'column',
+                                                      justifyContent: 'center',
+                                                      alignItems: 'flex-end',
+                                                      flex: 1
                                                   }}>
-                                                      <Text
-                                                          style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
-                                                      <Text
-                                                          style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
+                                                      <View style={{justifyContent: 'flex-end'}}>
+                                                          <Text
+                                                              style={Styles.textStyle}>{this.I18n.t(item.lowestAddressLevel.name)}</Text>
+                                                      </View>
+                                                      <View style={{
+                                                          flexDirection: 'row',
+                                                          justifyContent: 'flex-end'
+                                                      }}>
+                                                          {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                                                      </View>
                                                   </View>
                                               </View>
                                               <View style={{
-                                                  flexDirection: 'column',
-                                                  justifyContent: 'center',
-                                                  alignItems: 'flex-end',
-                                                  flex: 1
-                                              }}>
-                                                  <View style={{justifyContent: 'flex-end'}}>
-                                                      <Text
-                                                          style={Styles.textStyle}>{this.I18n.t(item.lowestAddressLevel.name)}</Text>
-                                                  </View>
-                                                  <View style={{
-                                                      flexDirection: 'row',
-                                                      justifyContent: 'flex-end'
-                                                  }}>
-                                                      {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
-                                                  </View>
-                                              </View>
+                                                  borderBottomColor: Colors.GreyBackground,
+                                                  borderBottomWidth: 1,
+                                              }}/>
                                           </View>
-                                          <View style={{
-                                              borderBottomColor: Colors.GreyBackground,
-                                              borderBottomWidth: 1,
-                                          }}/>
-                                      </View>
-                                  </TouchableNativeFeedback>
-                              }>
+                                      </TouchableNativeFeedback>
+                                  }>
 
-                    </ListView>
-                    {this.renderZeroResultsMessageIfNeeded()}
+                        </ListView>
+                        {this.renderZeroResultsMessageIfNeeded()}
                 </CHSContent>
             </CHSContainer>
-        );
+    );
     }
 
     onResultRowPress(individual) {
         this.props.onIndividualSelection(this, individual);
         // CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
     }
-}
+    }
 
-export default IndividualSearchResultsView;
+    export default IndividualSearchResultsView;

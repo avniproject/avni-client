@@ -207,5 +207,7 @@
   "PlayVideo": "વિડિઓ ચલાવો",
   "UnableToPlayVideoError": "વિડિઓ ચલાવવામાં અસમર્થ",
   "Okay": "બરાબર",
-  "videoListNotAvailable": "વિડિઓ સૂચિ ઉપલબ્ધ નથી"
+  "videoListNotAvailable": "વિડિઓ સૂચિ ઉપલબ્ધ નથી",
+  "totalMatchingResults": "કુલ મેળ ખાતા પરિણામો",
+  "displayed": "પ્રદર્શિત"
 }
