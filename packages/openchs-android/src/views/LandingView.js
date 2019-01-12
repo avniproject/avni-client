@@ -1,6 +1,6 @@
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
-import Path, {PathRoot} from "../framework/routing/Path";
+import Path from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
 import {Tabs} from "native-base";
