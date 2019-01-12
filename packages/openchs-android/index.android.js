@@ -2,6 +2,8 @@
 import {AppRegistry, StyleSheet, View} from 'react-native';
 import React, {Component} from 'react';
 import App from "./src/App";
+import Playground from "./src/Playground";
+import Config from 'react-native-config';
 
 class OpenCHS extends Component {
 
@@ -14,13 +16,18 @@ class OpenCHS extends Component {
         }
     });
 
+
     render() {
-        return (
+        const renderApp = (
             <View style={OpenCHS.styles.container}>
-                <App />
+                <App/>
             </View>
         );
+        const renderPlayground = <Playground/>;
+        console.log("playground value is ", Config.PLAYGROUND);
+        return Config.PLAYGROUND ? renderPlayground : renderApp;
     }
 }
+
 console.ignoredYellowBox = ['Warning: You are manually calling'];
 AppRegistry.registerComponent('OpenCHS', () => OpenCHS);

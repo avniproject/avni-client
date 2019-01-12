@@ -1,4 +1,4 @@
-import {Alert, Dimensions, NativeModules, View, Clipboard} from "react-native";
+import {Alert, NativeModules, View, Clipboard} from "react-native";
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
