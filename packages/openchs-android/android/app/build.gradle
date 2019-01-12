@@ -97,9 +97,6 @@ android {
         //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
         versionName "2.7 - 01"
 
-        ndk {
-            abiFilters "armeabi-v7a", "x86"
-        }
         manifestPlaceholders = [
                 bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"
         ]

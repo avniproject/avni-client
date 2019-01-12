@@ -72,7 +72,7 @@ define _upload_release_sourcemap ## Uploads release sourcemap to Bugsnag
 	cd packages/openchs-android && npx bugsnag-sourcemaps upload \
 		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
 		--app-version $(shell cat packages/openchs-android/android/app/build.gradle | sed -n  's/versionName \"\(.*\)\"/\1/p' | xargs echo | sed -e "s/\(.*\)/\"\1\"/") \
-		--minified-file android/app/build/intermediates/assets/release/index.android.bundle \
+		--minified-file android/app/src/main/assets/index.android.bundle \
 		--source-map android/app/build/generated/sourcemap.js \
 		--overwrite \
 		--minified-url "index.android.bundle" \
