@@ -6,7 +6,6 @@ import TimePicker from "../../primitives/TimePicker";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
-import {Concept} from "openchs-models";
 
 class TimeFormElement extends AbstractFormElement {
     static propTypes = {
