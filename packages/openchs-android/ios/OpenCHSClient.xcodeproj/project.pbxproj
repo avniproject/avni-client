@@ -30,6 +30,7 @@
 		C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E47E37208FA44B70A06226F0 /* libz.tbd */; };
 		3A8427A3ACD64871B47806D9 /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 17769CA63BB44843A062279F /* libRCTVideo.a */; };
 		447E4F7A396A4ED2BD876F7F /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A00C14328E614742B7209DFB /* libRNFS.a */; };
+		FA57F0706485444C85249CBD /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7838E9E6BAB54701A918FA0E /* libRNImagePicker.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -162,6 +163,8 @@
 		17769CA63BB44843A062279F /* libRCTVideo.a */ = {isa = PBXFileReference; name = "libRCTVideo.a"; path = "libRCTVideo.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		2876191146ED4A668206288F /* RNFS.xcodeproj */ = {isa = PBXFileReference; name = "RNFS.xcodeproj"; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		A00C14328E614742B7209DFB /* libRNFS.a */ = {isa = PBXFileReference; name = "libRNFS.a"; path = "libRNFS.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		E199E16A33AA44858C0EE0BE /* RNImagePicker.xcodeproj */ = {isa = PBXFileReference; name = "RNImagePicker.xcodeproj"; path = "../node_modules/react-native-image-picker/ios/RNImagePicker.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		7838E9E6BAB54701A918FA0E /* libRNImagePicker.a */ = {isa = PBXFileReference; name = "libRNImagePicker.a"; path = "libRNImagePicker.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +198,7 @@
 				C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */,
 				3A8427A3ACD64871B47806D9 /* libRCTVideo.a in Frameworks */,
 				447E4F7A396A4ED2BD876F7F /* libRNFS.a in Frameworks */,
+				FA57F0706485444C85249CBD /* libRNImagePicker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,6 +337,7 @@
 				AA4D6F2CE2BB4CA0AEA6AB81 /* BugsnagReactNative.xcodeproj */,
 				02B515B63B614853BB04D64C /* RCTVideo.xcodeproj */,
 				2876191146ED4A668206288F /* RNFS.xcodeproj */,
+				E199E16A33AA44858C0EE0BE /* RNImagePicker.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -675,6 +680,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -691,6 +697,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
@@ -718,6 +725,7 @@
 					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 					"$(SRCROOT)/../node_modules/react-native-video/ios",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
+					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 				);
 			};
 			name = Debug;
@@ -743,6 +751,7 @@
 					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 					"$(SRCROOT)/../node_modules/react-native-video/ios",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
+					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 				);
 			};
 			name = Release;
