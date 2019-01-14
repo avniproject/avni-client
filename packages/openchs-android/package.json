@@ -54,6 +54,7 @@
     "react-native-fs": "^2.11.17",
     "react-native-i18n": "0.1.1",
     "react-native-image-picker": "^0.28.0",
+    "react-native-image-zoom-viewer": "^2.2.24",
     "react-native-vector-icons": "^6.1.0",
     "react-native-video": "3.0.0",
     "react-native-video-player": "0.10.0",
