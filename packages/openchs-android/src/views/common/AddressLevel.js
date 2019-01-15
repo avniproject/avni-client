@@ -44,7 +44,6 @@ class AddressLevel extends AbstractComponent {
                 selectionFn={(selectedUUID) => this.props.levels.some(l => l.uuid === selectedUUID && l.isSelected)}
                 labelKey={this.props.levelType}
                 mandatory={this.props.mandatory}
-                validationError={this.props.validationError}
                 labelValuePairs={valueLabelPairs}/>
         );
     }

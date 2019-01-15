@@ -46,8 +46,25 @@ class PresetOptionItem extends AbstractComponent {
                            onPress={() => this.props.onPress()}/>);
     }
 
+    shouldComponentUpdate(nextProps) {
+        return (
+            this.props.checked !== nextProps.checked ||
+            _.isNil(this.props.validationResult) !==
+            _.isNil(nextProps.validationResult) ||
+            this.props.abnormal !== nextProps.abnormal ||
+            this.props.chunked !== nextProps.chunked ||
+            this.props.multiSelect !== nextProps.multiSelect ||
+            this.props.displayText !== nextProps.displayText
+        );
+    }
+
     render() {
-        const color = _.isNil(this.props.validationResult) ? this.props.checked && this.props.abnormal ? Colors.AbnormalValueHighlight : Colors.InputNormal : Colors.ValidationError;
+        General.logDebug("PresetOptionItem", "render");
+        const color = _.isNil(this.props.validationResult)
+            ? this.props.checked && this.props.abnormal
+                ? Colors.AbnormalValueHighlight
+                : Colors.InputNormal
+            : Colors.ValidationError;
         const chunked = {
             content: PresetOptionItem.styles.multiContent,
             container: [this.props.style, {flex: 1}]
