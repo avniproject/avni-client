@@ -10,6 +10,7 @@ import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 import {Text} from "native-base";
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -108,6 +109,9 @@ class AddressLevels extends AbstractComponent {
                     // paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
                 }}>
                     {addressLevels}
+                </View>
+                <View style={{backgroundColor: '#ffffff'}}>
+                    <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>
             </View>
         );
