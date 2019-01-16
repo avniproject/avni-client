@@ -38,7 +38,6 @@ export default class ImageFormElement extends AbstractFormElement {
         actionName: React.PropTypes.string.isRequired,
         value: React.PropTypes.object,
         validationResult: React.PropTypes.object,
-        multiline: React.PropTypes.bool.isRequired,
         extraStyle: React.PropTypes.object
     };
     static defaultProps = {
@@ -63,10 +62,10 @@ export default class ImageFormElement extends AbstractFormElement {
     }
 
     clearAnswer() {
-        this.dispatchAction(this.props.actionName), {
+        this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             value: null,
-        }
+        });
     }
 
     launchCamera() {
