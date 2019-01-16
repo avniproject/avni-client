@@ -23,8 +23,6 @@ export default class ExpandableImage extends React.Component {
 
     render() {
         const sourceFile = `file://${this.props.source}`.trim();
-        console.log('rendering ', sourceFile)
-        fs.exists(sourceFile).then((val) => console.log('file exists? ', val));
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
                 <Image source={{uri: sourceFile}} style={{height: 36, width: 36}}/>
