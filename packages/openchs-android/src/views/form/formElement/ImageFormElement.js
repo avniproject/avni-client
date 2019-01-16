@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         color: Colors.ActionButtonColor,
         opacity: 0.8,
         alignSelf: 'center',
-        fontSize: 48,
+        fontSize: 36,
     },
     closeIcon: {
         color: '#ff0000',
@@ -24,12 +24,10 @@ const styles = StyleSheet.create({
     contentRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 36,
+        height: 40,
         marginTop: 16
     },
     imageRow: {
-        backgroundColor: Colors.SecondaryActionButtonColor,
-        marginHorizontal: 4,
         justifyContent: 'space-between'
     }
 });
@@ -95,7 +93,7 @@ export default class ImageFormElement extends AbstractFormElement {
             <View style={[styles.contentRow, styles.imageRow]}>
                 <ExpandableImage source={this.props.value.answer}/>
                 <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
-                    <Icon name={"close-box"} style={[styles.icon, styles.closeIcon]}/>
+                    <Icon name={"backspace"} style={[styles.icon]}/>
                 </TouchableNativeFeedback>
             </View>
         );
@@ -103,18 +101,18 @@ export default class ImageFormElement extends AbstractFormElement {
 
     showInputOptions() {
         return !this.props.value.answer && (
-            <View style={styles.contentRow}>
-                <TouchableNativeFeedback onPress={() => {
-                    this.launchCamera()
-                }}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={"camera"} style={styles.icon}/>
-                </TouchableNativeFeedback>
+            <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
                 <TouchableNativeFeedback onPress={() => {
                     this.launchImageLibrary()
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={"file-image"} style={styles.icon}/>
+                </TouchableNativeFeedback>
+                <TouchableNativeFeedback onPress={() => {
+                    this.launchCamera()
+                }}
+                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                    <Icon name={"camera"} style={styles.icon}/>
                 </TouchableNativeFeedback>
             </View>
         );
@@ -122,10 +120,11 @@ export default class ImageFormElement extends AbstractFormElement {
 
     render() {
         return (
-            <View>
+            <View style={{marginVertical: 16}}>
                 {this.label}
                 {this.showInputOptions()}
                 {this.showImage()}
+                <View style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
         );
