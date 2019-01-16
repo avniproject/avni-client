@@ -1,17 +1,11 @@
 import {AuthenticationDetails, CognitoUserPool, CognitoUser} from 'react-native-aws-cognito-js';
 import Service from "../framework/bean/Service";
-import ConventionalRestClient from "./rest/ConventionalRestClient";
 import BaseService from "./BaseService";
 import SettingsService from "./SettingsService";
 import _ from "lodash";
-import MessageService from "./MessageService";
 import {getJSON} from '../framework/http/requests';
 import AuthenticationError from "./AuthenticationError";
-import base64 from "base-64";
 import General from "../utility/General";
-import EntitySyncStatusService from "./EntitySyncStatusService";
-import EntityService from "./EntityService";
-import {EntityMetaData} from "openchs-models";
 import ErrorHandler from "../utility/ErrorHandler";
 
 
@@ -23,10 +17,6 @@ class AuthService extends BaseService {
 
     init() {
         this.settingsService = this.getService(SettingsService);
-        this.conventionalRestClient = new ConventionalRestClient(this.settingsService);
-        this.messageService = this.getService(MessageService);
-        this.entitySyncStatusService = this.getService(EntitySyncStatusService);
-        this.entityService = this.getService(EntityService);
     }
 
     authenticate(userId, password) {
@@ -42,7 +32,6 @@ class AuthService extends BaseService {
     }
 
     getAuthToken() {
-        const authService = this;
         return this._getSettings().then((settings) => {
             return new Promise((resolve, reject) => {
                 if (this._authIsStubbed(settings)) {
@@ -233,11 +222,6 @@ class AuthService extends BaseService {
             return newSettings;
         });
     }
-
-    // _deleteData() {
-    //     this.entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-    //     this.entitySyncStatusService.setup(EntityMetaData.model());
-    // }
 
     _authIsStubbed(settings) {
         return settings.clientId === 'dummy';
