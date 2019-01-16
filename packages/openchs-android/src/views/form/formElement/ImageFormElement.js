@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
 import {ImageViewer} from "react-native-image-zoom-viewer";
 import ExpandableImage from "../../common/ExpandableImage";
+import FileSystem from "../../../model/FileSystem";
 
 const styles = StyleSheet.create({
     icon: {
@@ -50,9 +51,8 @@ export default class ImageFormElement extends AbstractFormElement {
     }
 
     addImageFromPicker(response) {
-        fs.mkdir(fs.ExternalStorageDirectoryPath + "/OpenCHS/media/images/");
         if (!response.didCancel && !response.error) {
-            const imageFilePath = fs.ExternalStorageDirectoryPath + "/OpenCHS/media/images/" + General.randomUUID() + ".jpg";
+            const imageFilePath = `${FileSystem.getImagesDir()}${General.randomUUID()}.jpg"`;
             fs.moveFile(response.path, imageFilePath)
                 .then(this.dispatchAction(this.props.actionName, {
                     formElement: this.props.element,

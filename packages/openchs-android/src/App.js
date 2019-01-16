@@ -9,6 +9,7 @@ import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
+import FileSystem from "./model/FileSystem";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
@@ -16,6 +17,7 @@ let routes, beans, reduxStore, db = undefined;
 export default class App extends Component {
     constructor(props, context) {
         super(props, context);
+        FileSystem.init();
         this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
         if (db === undefined) {
