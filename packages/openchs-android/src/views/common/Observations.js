@@ -1,13 +1,19 @@
-import {ListView, Text, View} from "react-native";
+import {Image, ListView, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
-import {Observation} from "openchs-models";
+import {Observation, Concept} from "openchs-models";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
 import Separator from "../primitives/Separator";
+import ExpandableImage from "./ExpandableImage";
+
+const renderTypes = {
+    Image: "Image",
+    Text: "Text",
+};
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -66,12 +72,32 @@ class Observations extends AbstractComponent {
             this.props.form.orderObservations(this.props.observations);
     }
 
+    renderValue(obs, isAbnormal, renderType) {
+        if (renderType === renderTypes.Image) {
+            return (
+                <View style={this.styles.observationColumn}>
+                    <ExpandableImage source={obs}/>
+                </View>
+            );
+        }
+        return (
+            <Text style={[{
+                textAlign: 'left',
+                fontSize: Fonts.Medium,
+                color: isAbnormal ? Styles.redColor : Styles.blackColor
+            }, this.styles.observationColumn]}>{obs}</Text>
+        )
+    }
+
+
     render() {
         if (this.props.observations.length === 0) return <View/>;
 
+        const renderType = (concept) => concept.datatype === Concept.dataType.Image ? renderTypes.Image : renderTypes.Text;
+
         const conceptService = this.context.getService(ConceptService);
         const orderedObservation = this.getOrderedObservation()
-            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal()]);
+            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), renderType(obs.concept)]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
             <View style={[{flexDirection: "column", paddingBottom: 10}, this.props.style]}>
@@ -85,18 +111,14 @@ class Observations extends AbstractComponent {
                     removeClippedSubviews={true}
                     renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
                     renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-                    renderRow={([name, obs, isAbnormal]) =>
+                    renderRow={([name, obs, isAbnormal, renderType]) =>
                         < View style={[{flexDirection: "row"}, this.styles.observationRow]}>
                             <Text style={[{
                                 textAlign: 'left',
                                 fontSize: Fonts.Normal,
                                 color: Styles.greyText
                             }, this.styles.observationColumn]}>{name}</Text>
-                            <Text style={[{
-                                textAlign: 'left',
-                                fontSize: Fonts.Medium,
-                                color: isAbnormal ? Styles.redColor : Styles.blackColor
-                            }, this.styles.observationColumn]}>{obs}</Text>
+                            {this.renderValue(obs, isAbnormal, renderType)}
                         </View>}
                 />
             </View>

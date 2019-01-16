@@ -8,6 +8,7 @@ import General from "../../../utility/General";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
 import {ImageViewer} from "react-native-image-zoom-viewer";
+import ExpandableImage from "../../common/ExpandableImage";
 
 const styles = StyleSheet.create({
     icon: {
@@ -46,7 +47,6 @@ export default class ImageFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {showModal: false};
     }
 
     addImageFromPicker(response) {
@@ -89,31 +89,14 @@ export default class ImageFormElement extends AbstractFormElement {
         );
     }
 
-    showModal() {
-        this.setState({showModal: true});
-    }
-
-    hideModal() {
-        this.setState({showModal: false});
-    }
 
     showImage() {
         return this.props.value.answer && (
             <View style={[styles.contentRow, styles.imageRow]}>
-                <TouchableNativeFeedback onPress={() => this.showModal()}>
-                    <Image source={{uri: `file://${this.props.value.answer}`}} style={{height: 36, width: 36}}/>
-                </TouchableNativeFeedback>
+                <ExpandableImage source={this.props.value.answer}/>
                 <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
                     <Icon name={"close-box"} style={[styles.icon, styles.closeIcon]}/>
                 </TouchableNativeFeedback>
-                {this.state.showModal && (
-                    <Modal onRequestClose={() => this.hideModal()}>
-                        <ImageViewer imageUrls={[{
-                            url: `file://${this.props.value.answer}`
-                        }]}
-                        />
-                    </Modal>
-                )}
             </View>
         );
     }
