@@ -24,7 +24,6 @@ class OpenCHS extends Component {
             </View>
         );
         const renderPlayground = <Playground/>;
-        console.log("playground value is ", Config.PLAYGROUND);
         return Config.PLAYGROUND ? renderPlayground : renderApp;
     }
 }
