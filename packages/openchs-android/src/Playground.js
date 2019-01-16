@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
 import {Schema, EntityMetaData} from "openchs-models";
@@ -8,10 +7,10 @@ import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import themes from "./views/primitives/themes";
 import CHSContainer from "./views/common/CHSContainer";
 import CHSContent from "./views/common/CHSContent";
-import configureStore from 'redux-mock-store';
 import {Text} from "react-native";
+import {createStore} from "redux";
 
-let routes, beans, reduxStore, db = undefined;
+let beans, mockStore, db = undefined;
 
 export default class App extends Component {
     constructor(props, context) {
@@ -19,31 +18,41 @@ export default class App extends Component {
         if (db === undefined) {
             db = new Realm(Schema);
             beans = BeanRegistry.init(db, this);
-            reduxStore = configureStore([])({});
-            routes = PathRegistry.routes();
+            mockStore = createStore((state, action) => this.mockReducer(state, action), {});
             const entitySyncStatusService = beans.get(EntitySyncStatusService);
             entitySyncStatusService.setup(EntityMetaData.model());
         }
         this.getBean = this.getBean.bind(this);
-        this.state = {error: null}
+    }
+
+    //This mock reducer can be used to perform any specific state changes you need to test out a component
+    mockReducer(state, action) {
+        switch (action.type) {
+            case 'AN_ACTION_NAME': {
+                this.setState({value: action.value});
+            }
+        }
     }
 
     static childContextTypes = {
         getService: React.PropTypes.func.isRequired,
         getDB: React.PropTypes.func.isRequired,
         getStore: React.PropTypes.func.isRequired,
+        navigator: React.PropTypes.func.isRequired,
     };
 
     handleError(error, stacktrace) {
         this.setState({error, stacktrace});
     }
 
+    //Note that the store and navigator are mocked in this implementation
     getChildContext = () => ({
         getDB: () => db,
         getService: (serviceName) => {
             return beans.get(serviceName)
         },
-        getStore: () => reduxStore,
+        getStore: () => mockStore,
+        navigator: () => null
     });
 
     getBean(name) {
