@@ -3,7 +3,6 @@ import Service from "../framework/bean/Service";
 import {FormMapping, Form, EncounterType} from "openchs-models";
 import _ from 'lodash';
 import FormQueryResult from "./FormQueryResult";
-import EntityService from "./EntityService";
 
 @Service("FormMappingService")
 class FormMappingService extends BaseService {

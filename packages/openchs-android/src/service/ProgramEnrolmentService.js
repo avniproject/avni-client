@@ -1,13 +1,11 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {
-    ProgramEnrolment, Individual, EntityQueue, ProgramEncounter,
-    ObservationsHolder, EncounterType, Checklist, ChecklistItem
-} from "openchs-models";
+import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder} from "openchs-models";
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
 import ChecklistService from "./ChecklistService";
+import MediaQueueService from "./MediaQueueService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -44,6 +42,7 @@ class ProgramEnrolmentService extends BaseService {
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name)
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
             programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db, programEnrolment.enrolmentDateTime);

@@ -1,6 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {Encounter, Individual, EntityQueue, ObservationsHolder} from "openchs-models";
+import MediaQueueService from "./MediaQueueService";
 
 @Service("individualEncounterService")
 class IndividualEncounterService extends BaseService {
@@ -28,6 +29,7 @@ class IndividualEncounterService extends BaseService {
             individual.addEncounter(loadedEncounter);
 
             db.create(EntityQueue.schema.name, EntityQueue.create(encounter, Encounter.schema.name));
+            this.getService(MediaQueueService).addMediaToQueue(encounter, Encounter.schema.name);
         });
         return encounter;
     }
