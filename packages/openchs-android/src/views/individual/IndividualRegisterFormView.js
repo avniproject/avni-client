@@ -15,8 +15,6 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import FormMappingService from "../../service/FormMappingService";
-import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
