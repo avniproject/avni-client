@@ -1,7 +1,6 @@
 import React from 'react';
 import {Image, Modal, TouchableNativeFeedback, View} from "react-native";
 import {ImageViewer} from "react-native-image-zoom-viewer";
-import fs from 'react-native-fs';
 
 export default class ExpandableImage extends React.Component {
     constructor(props) {

@@ -1,4 +1,4 @@
-import {Image, ListView, Text, TouchableNativeFeedback, View} from "react-native";
+import {ListView, Text, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
