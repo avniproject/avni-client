@@ -6,6 +6,7 @@ import _ from 'lodash';
 import moment from "moment";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
+import {findMediaObservations} from "./Media";
 
 class ProgramEncounter extends AbstractEncounter {
     static fieldKeys = {
@@ -140,6 +141,10 @@ class ProgramEncounter extends AbstractEncounter {
 
     getObservations() {
         return _.isEmpty(this.observations) ? this.cancelObservations : this.observations;
+    }
+
+    findMediaObservations() {
+        return findMediaObservations(this.observations, this.cancelObservations);
     }
 
     toJSON() {

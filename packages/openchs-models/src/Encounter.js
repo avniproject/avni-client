@@ -6,6 +6,7 @@ import ValidationResult from "./application/ValidationResult";
 import G from "./utility/General";
 import moment from "moment";
 import EncounterType from "./EncounterType";
+import {findMediaObservations} from "./Media";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -57,6 +58,10 @@ class Encounter extends AbstractEncounter {
 
     getName() {
         return 'Encounter';
+    }
+
+    findMediaObservations() {
+        return findMediaObservations(this.observations);
     }
 }
 

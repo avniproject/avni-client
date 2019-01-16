@@ -8,7 +8,6 @@ import EntityTypeChoiceActionNames from "../common/EntityTypeChoiceActionNames";
 import General from "../../utility/General";
 import ProgramConfigService from "../../service/ProgramConfigService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Program} from 'openchs-models';
 import ProgramService from "../../service/program/ProgramService";
 import SettingsService from "../../service/SettingsService";
 
@@ -89,7 +88,7 @@ class ProgramEnrolmentDashboardActions {
         newState.programEncounterTypeState.launchChooseEntityType();
         return newState;
     }
-    
+
     static onShowMore(state) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.showCount = state.showCount + SettingsService.IncrementalEncounterDisplayCount;

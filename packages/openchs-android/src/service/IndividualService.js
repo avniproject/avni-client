@@ -6,6 +6,7 @@ import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
 import moment from 'moment';
 import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
 import Individual from "openchs-models/src/Individual";
+import MediaQueueService from "./MediaQueueService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -54,6 +55,7 @@ class IndividualService extends BaseService {
             db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
         });
+        this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
     }
 
     eligiblePrograms(individualUUID) {

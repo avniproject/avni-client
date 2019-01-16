@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {AddressLevel, Family} from "openchs-models";
+import {AddressLevel} from "openchs-models";
 import _ from 'lodash';
 import FamilyService from "../../service/FamilyService";
 

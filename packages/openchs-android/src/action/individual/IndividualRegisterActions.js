@@ -4,7 +4,6 @@ import EntityService from "../../service/EntityService";
 import {Gender, Form, Individual} from "openchs-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
-import ConceptService from "../../service/ConceptService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {

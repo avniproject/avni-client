@@ -10,6 +10,7 @@ import moment from "moment";
 import ObservationsHolder from "./ObservationsHolder";
 import ValidationResult from "./application/ValidationResult";
 import Checklist from "./Checklist";
+import {findMediaObservations} from "./Media";
 
 class ProgramEnrolment extends BaseEntity {
     static schema = {
@@ -417,6 +418,10 @@ class ProgramEnrolment extends BaseEntity {
 
     hasObservation(conceptName) {
         return !_.isNil(this.getObservationValue(conceptName));
+    }
+
+    findMediaObservations() {
+        return findMediaObservations(this.observations, this.programExitObservations);
     }
 
     toJSON() {

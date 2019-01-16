@@ -11,6 +11,7 @@ import Duration from "./Duration";
 import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
+import { findMediaObservations } from './Media';
 
 class Individual extends BaseEntity {
     static schema = {
@@ -395,6 +396,10 @@ class Individual extends BaseEntity {
 
     get chronologicalEnrolments() {
         return _.sortBy(this.enrolments, (enrolment) => enrolment.encounterDateTime);
+    }
+
+    findMediaObservations() {
+        return findMediaObservations(this.observations);
     }
 
     toJSON() {
