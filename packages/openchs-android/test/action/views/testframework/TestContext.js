@@ -19,6 +19,8 @@ import SettingsService from "../../../../src/service/SettingsService";
 import StubbedSettingsService from "../../service/stub/StubbedSettingsService";
 import UserInfoService from "../../../../src/service/UserInfoService";
 import StubbedUserInfoService from "../../service/stub/StubbedUserInfoService";
+import MediaQueueService from "../../../../src/service/MediaQueueService";
+import StubbedMediaQueueService from "../../service/stub/StubbedMediaQueueService";
 
 class TestContext {
     static stubs = new Map([
@@ -31,7 +33,8 @@ class TestContext {
         [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)],
         [EntityService, (serviceData) => new StubbedEntityService(serviceData)],
         [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)],
-        [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)]
+        [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)],
+        [MediaQueueService, (serviceData) => new StubbedMediaQueueService(serviceData)]
     ]);
 
     constructor(serviceData) {
