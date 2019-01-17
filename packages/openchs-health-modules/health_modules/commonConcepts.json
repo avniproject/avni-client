@@ -644,7 +644,7 @@
     "dataType": "NA"
   },
   {
-    "name": "Married",
+    "name": "Currently married",
     "uuid": "9832ccec-edd6-4fa2-96b1-f81832df3996",
     "dataType": "NA"
   },
@@ -675,7 +675,7 @@
     "answers": [
       {
         "uuid": "9832ccec-edd6-4fa2-96b1-f81832df3996",
-        "name": "Married"
+        "name": "Currently married"
       },
       {
         "uuid": "327563ae-47b5-46bf-9bcb-640ff6cfc52d",
