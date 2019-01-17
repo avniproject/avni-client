@@ -39,6 +39,7 @@ clean: clean_env ##
 renew_env: clean_all deps
 # <deps>
 deps: build_env ##
+deps_ci: build_env_ci ##
 
 ignore_deps_changes:
 	git checkout package-lock.json
@@ -209,6 +210,11 @@ build_env: ##
 	npm run bootstrap
 # </env>
 
+
+build_env_ci: ##
+	npm install
+	export NODE_OPTIONS=--max_old_space_size=4096
+	npm run bootstrap-ci
 
 # <packager>
 run_packager: ##
