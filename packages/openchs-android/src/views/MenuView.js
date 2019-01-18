@@ -28,6 +28,7 @@ import MessageService from "../service/MessageService";
 import AuthenticationError from "../service/AuthenticationError";
 import AuthService from "../service/AuthService";
 import RuleService from "../service/RuleService";
+import bugsnag from "../utility/bugsnag";
 
 const {width, height} = Dimensions.get('window');
 
@@ -113,6 +114,7 @@ class MenuView extends AbstractComponent {
 
     _onError(error) {
         General.logError(`${this.viewName()}-Sync`, error);
+        bugsnag.notify(error);
         this.setState({syncing: false});
         if (error instanceof AuthenticationError) {
             General.logError(this.viewName(), "Could not authenticate");
