@@ -3699,6 +3699,10 @@
         "name": "Induced abortion",
         "uuid": "9e7d21e8-8123-46de-8bf0-f3c79e5810b0",
         "abnormal": true
+      },
+      {
+        "name": "Abdominal pain",
+        "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c"
       }
     ]
   }
