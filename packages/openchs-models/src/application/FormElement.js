@@ -36,12 +36,7 @@ class FormElement {
 
         //remove orphan keyValues (because KeyValue doesn't have primary key
         entityService.deleteObjects(resource["uuid"], FormElement.schema.name, "keyValues");
-        formElement.keyValues = [];
-        if (!_.isNil(resource["keyValues"])) {
-            _.forEach(resource["keyValues"], (keyValue) => {
-                formElement.keyValues.push(KeyValue.fromResource(keyValue));
-            });
-        }
+        formElement.keyValues = _.map(resource.keyValues, KeyValue.fromResource);
         formElement.validFormat = Format.fromResource(resource["validFormat"]);
         return formElement;
     }
