@@ -10,6 +10,8 @@ import CHSContent from "./common/CHSContent";
 import {StatusBar} from "react-native";
 import Styles from "./primitives/Styles";
 import CHSNavigator from "../utility/CHSNavigator";
+import AuthService from "../service/AuthService";
+import bugsnag from "../utility/bugsnag";
 
 @Path('/landingView')
 class LandingView extends AbstractComponent {
@@ -28,6 +30,13 @@ class LandingView extends AbstractComponent {
 
     viewName() {
         return "LandingView";
+    }
+
+    componentWillMount() {
+        const authService = this.context.getService(AuthService);
+        authService.getUserName().then(username => {
+            bugsnag.setUser(username, username, username);
+        });
     }
 
     componentDidMount() {
