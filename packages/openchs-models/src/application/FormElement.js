@@ -42,9 +42,7 @@ class FormElement {
                 formElement.keyValues.push(KeyValue.fromResource(keyValue));
             });
         }
-        if (!_.isNil(resource["validFormat"])) {
-            formElement.validFormat = Format.fromResource(resource["validFormat"]);
-        }
+        formElement.validFormat = Format.fromResource(resource["validFormat"]);
         return formElement;
     }
 

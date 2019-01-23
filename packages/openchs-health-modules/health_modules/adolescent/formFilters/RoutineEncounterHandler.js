@@ -823,6 +823,9 @@ export default class RoutineEncounterHandler {
     }
 
     _isFirstAnnualVisit(programEncounter) {
+        if(programEncounter.encounterType.name !== "Annual Visit"){
+            return false;
+        }
         const firstAnnualEncounter = programEncounter.programEnrolment.getEncounters(true)
             .find((encounter) => encounter.encounterType.name === "Annual Visit");
         return _.isEmpty(firstAnnualEncounter) ||

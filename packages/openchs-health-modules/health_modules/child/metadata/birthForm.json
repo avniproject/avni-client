@@ -222,7 +222,8 @@
             "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d"
           },
           "displayOrder": 4,
-          "mandatory": true
+          "mandatory": true,
+          "voided": true
         }
       ],
       "voided": true
