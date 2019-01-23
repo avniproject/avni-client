@@ -12,6 +12,7 @@ class Format {
     };
 
     static fromResource(resource) {
+        if(_.isNil(resource)) return null;
         const format = new Format();
         format.regex = resource.regex;
         format.descriptionKey = resource.descriptionKey;

@@ -113,8 +113,7 @@ class General {
     static assignDateFields(dateFields, source, dest) {
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {
-                if (!_.isNil(source[fieldName]))
-                    dest[fieldName] = new Date(source[fieldName]);
+                dest[fieldName] = _.isNil(source[fieldName])? null: new Date(source[fieldName]);
             });
         }
     }
