@@ -52,7 +52,7 @@ export default {
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
         ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue],
-    schemaVersion: 86,
+    schemaVersion: 87,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -228,6 +228,9 @@ export default {
                     settings.pageSize = 100;
                 }
             });
+        }
+        if (oldDB.schemaVersion < 87) {
+            _.forEach(newDB.objects("ChecklistItemDetail"), item => (item.scheduleOnExpiryOfDependency = false));
         }
     }
 };
