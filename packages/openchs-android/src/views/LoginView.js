@@ -172,7 +172,7 @@ class LoginView extends AbstractComponent {
                                 this.startLogin()
                             }} background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
-                                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>LOGIN</Text>
+                                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>
                                 </View>
                             </TouchableNativeFeedback>
                         </View>

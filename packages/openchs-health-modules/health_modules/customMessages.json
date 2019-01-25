@@ -1,5 +1,6 @@
 {
   "mr_IN": {
+    "LOGIN": "लॉग इन",
     "Gender": "लिंग",
     "Other Gender": "इतर लिंग",
     "Treatment": "उपचार",
@@ -981,6 +982,7 @@
     "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?"
   },
   "en": {
+    "LOGIN": "Login",
     "Hospital": "Hospital",
     "maleCannotBePregnant": "Male cannot be pregnant",
     "lessThanTenCannotBePregnant": "Less than 10 year old cannot be pregnant",
@@ -1105,6 +1107,7 @@
     "Child PNC - Registration Immunisation - Dos": "Dos\n✓ Birth registration\n✓ Anganwadi registration\n✓ Receive immunization at birth"
   },
   "gu_IN": {
+    "LOGIN": "પ્રવેશ કરો",
     "Religion": "ધર્મ",
     "Hindu": "હિંદુ",
     "Muslim": "મુસ્લિમ",
@@ -1491,6 +1494,7 @@
     "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ"
   },
   "hi_IN": {
+    "LOGIN": "लॉग इन",
     "Nayak": "नायक",
     "Ahirwar": "अहिरवार",
     "Vishwakarma": "विश्वकर्मा",

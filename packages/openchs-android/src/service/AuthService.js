@@ -52,14 +52,14 @@ class AuthService extends BaseService {
 
                 this.getUser().then((cognitoUser) => {
                     if (cognitoUser === null) {
-                        reject(new AuthenticationError("No user or needs login"));
+                        reject(new AuthenticationError('No User', "No user or needs login"));
                         return;
                     }
 
                     cognitoUser.getSession(function (err, session) {
                         if (err) {
                             General.logWarn("AuthService", err);
-                            reject(new AuthenticationError(err.message));
+                            reject(new AuthenticationError(err.code, err.message));
                             return;
                         } else {
                             const jwtToken = session.getIdToken().getJwtToken();
@@ -187,7 +187,7 @@ class AuthService extends BaseService {
                     return;
                 },
                 onFailure: function (err) {
-                    reject(new AuthenticationError(err));
+                    reject(new AuthenticationError('Unable to change password', err));
                     return;
                 }
             });
@@ -259,7 +259,7 @@ class AuthService extends BaseService {
                 },
 
                 onFailure: function (err) {
-                    reject(new AuthenticationError(err));
+                    reject(new AuthenticationError('Authentication failuer', err));
                 },
 
                 newPasswordRequired: function () {

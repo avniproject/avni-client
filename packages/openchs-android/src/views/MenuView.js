@@ -112,7 +112,7 @@ class MenuView extends AbstractComponent {
     _onError(error) {
         General.logError(`${this.viewName()}-Sync`, error);
         this.setState({syncing: false});
-        if (error instanceof AuthenticationError) {
+        if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
