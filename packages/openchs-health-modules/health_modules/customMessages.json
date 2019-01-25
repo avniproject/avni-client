@@ -1,5 +1,11 @@
 {
   "mr_IN": {
+    "LOGIN": "लॉग इन",
+    "logout": "लॉगआउट",
+    "logoutConfirmationTitle": "लॉगआउट ?",
+    "logoutConfirmationMessage": "जर आपण लॉगआउट केले तर आपल्याला पुन्हा लॉगिन करण्यासाठी इंटरनेटची आवश्यकता असेल \n",
+    "logoutConfirmed": "लॉगआउट",
+    "logoutCancelled": "रद्द करा",
     "Gender": "लिंग",
     "Other Gender": "इतर लिंग",
     "Treatment": "उपचार",
@@ -981,6 +987,12 @@
     "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?"
   },
   "en": {
+    "LOGIN": "Login",
+    "logout": "Logout",
+    "logoutConfirmationTitle": "Logout ?",
+    "logoutConfirmationMessage": "If you logout, you will need internet to login again\n",
+    "logoutConfirmed": "Logout",
+    "logoutCancelled": "Cancel",
     "Hospital": "Hospital",
     "maleCannotBePregnant": "Male cannot be pregnant",
     "lessThanTenCannotBePregnant": "Less than 10 year old cannot be pregnant",
@@ -1115,6 +1127,12 @@
     "IHMP Recommendation for RTI symptoms": "1) Refer her to the nearest facility where treatment of RTI is available.\n2) Counsel her on regarding risk of not taking treatment."
   },
   "gu_IN": {
+    "LOGIN": "પ્રવેશ કરો",
+    "logout": "લૉગ આઉટ",
+    "logoutConfirmationTitle": "લૉગ આઉટ ?",
+    "logoutConfirmationMessage": "જો તમે લૉગઆઉટ કરો છો, તો તમારે ફરી પ્રવેશ કરવા માટે ઇન્ટરનેટની જરૂર પડશે \n",
+    "logoutConfirmed": "લૉગ આઉટ",
+    "logoutCancelled": "રદ કરો",
     "Religion": "ધર્મ",
     "Hindu": "હિંદુ",
     "Muslim": "મુસ્લિમ",
@@ -1501,6 +1519,12 @@
     "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ"
   },
   "hi_IN": {
+    "LOGIN": "लॉग इन",
+    "logout": "लोग आउट",
+    "logoutConfirmationTitle": "लोग आउट ?",
+    "logoutConfirmationMessage": "यदि आप लॉगआउट करते हैं, तो आपको फिर से लॉगिन करने के लिए इंटरनेट की आवश्यकता होगी \n",
+    "logoutConfirmed": "लोग आउट",
+    "logoutCancelled": "रद्द करना",
     "Nayak": "नायक",
     "Ahirwar": "अहिरवार",
     "Vishwakarma": "विश्वकर्मा",

@@ -97,7 +97,7 @@ jobs:
 
       - run: make ci test-models
 
-  release_android:
+  release_android_staging:
     docker:
       - image: openchs/react-native-image:latest
         environment:
@@ -264,7 +264,7 @@ workflows:
           requires:
             - test_models
             - test_android
-      - hold:
+      - hold_staging:
           type: approval
           requires:
             - test_android
@@ -276,9 +276,9 @@ workflows:
             - test_android
             - test_health_modules
             - test_models
-      - release_android:
+      - release_android_staging:
           requires:
-            - hold
+            - hold_staging
       - release_android_live:
           requires:
             - hold_live
