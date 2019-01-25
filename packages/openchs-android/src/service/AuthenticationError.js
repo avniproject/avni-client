@@ -1,5 +1,10 @@
-function AuthenticationError(message, fileName, lineNumber) {
+// Code from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+
+function AuthenticationError(code, message, fileName, lineNumber) {
     let instance = new Error(message, fileName, lineNumber);
+    instance.authErrCode = code;
+    instance.authErrDate = new Date();
+
     if (Object.setPrototypeOf) {
         Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
     } else {

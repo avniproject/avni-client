@@ -13,7 +13,7 @@ const fetchFactory = (endpoint, method = "GET", params) => {
             }
             if (parseInt(response.status) === 403) {
                 General.logError("requests", response);
-                return Promise.reject(new AuthenticationError(response));
+                return Promise.reject(new AuthenticationError('Http 403', response));
             }
             return Promise.reject(response);
         });

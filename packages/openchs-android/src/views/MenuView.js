@@ -116,7 +116,7 @@ class MenuView extends AbstractComponent {
         General.logError(`${this.viewName()}-Sync`, error);
         bugsnag.notify(error);
         this.setState({syncing: false});
-        if (error instanceof AuthenticationError) {
+        if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
@@ -153,13 +153,25 @@ class MenuView extends AbstractComponent {
         }
     }
 
-    logout() {
+    _logout = () => {
         const authService = this.context.getService(AuthService);
         authService.logout().then(() => {
             CHSNavigator.navigateToLoginView(this, false, () => {
                 CHSNavigator.navigateToLandingView(this, true, {tabIndex: 2, menuProps: {startSync: false}});
             });
         });
+    };
+
+    logout() {
+        Alert.alert(
+            this.I18n.t("logoutConfirmationTitle"),
+            this.I18n.t("logoutConfirmationMessage"),
+            [{
+                text: this.I18n.t('logoutConfirmed'),
+                onPress: this._logout,
+            }, {text: this.I18n.t('logoutCancelled'), onPress: _.noop, style: 'cancel'},
+            ]
+        );
     }
 
     myDashboard() {
