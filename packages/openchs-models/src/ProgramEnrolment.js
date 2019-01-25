@@ -421,7 +421,10 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     findMediaObservations() {
-        return findMediaObservations(this.observations, this.programExitObservations);
+        return findMediaObservations(
+            ObservationsHolder.clone(this.observations),
+            ObservationsHolder.clone(this.this.programExitObservations)
+        );
     }
 
     toJSON() {

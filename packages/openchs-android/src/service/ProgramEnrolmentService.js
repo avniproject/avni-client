@@ -42,8 +42,8 @@ class ProgramEnrolmentService extends BaseService {
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
-            this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name)
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
             General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
             programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db, programEnrolment.enrolmentDateTime);
             General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');

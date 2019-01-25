@@ -144,7 +144,10 @@ class ProgramEncounter extends AbstractEncounter {
     }
 
     findMediaObservations() {
-        return findMediaObservations(this.observations, this.cancelObservations);
+        return findMediaObservations(
+            ObservationsHolder.clone(this.observations),
+            ObservationsHolder.clone(this.cancelObservations)
+        );
     }
 
     toJSON() {
