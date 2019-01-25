@@ -2,13 +2,14 @@ import {ListView, Text, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
-import {Observation, Concept} from "openchs-models";
+import {Concept, Observation} from "openchs-models";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
 import Separator from "../primitives/Separator";
 import ExpandableImage from "./ExpandableImage";
+import ExpandableVideo from "./ExpandableVideo";
 
 const renderTypes = {
     Image: "Image",
@@ -73,10 +74,11 @@ class Observations extends AbstractComponent {
     }
 
     renderValue(obs, isAbnormal, renderType) {
-        if (renderType === renderTypes.Image) {
+        if ([Concept.dataType.Image, Concept.dataType.Video].includes(renderType)) {
             return (
                 <View style={this.styles.observationColumn}>
-                    <ExpandableImage source={obs}/>
+                    {renderType === Concept.dataType.Image && <ExpandableImage source={obs}/>}
+                    {renderType === Concept.dataType.Video && <ExpandableVideo source={obs}/>}
                 </View>
             );
         }
@@ -93,11 +95,9 @@ class Observations extends AbstractComponent {
     render() {
         if (this.props.observations.length === 0) return <View/>;
 
-        const renderType = (concept) => concept.datatype === Concept.dataType.Image ? renderTypes.Image : renderTypes.Text;
-
         const conceptService = this.context.getService(ConceptService);
         const orderedObservation = this.getOrderedObservation()
-            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), renderType(obs.concept)]);
+            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), obs.concept.datatype]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
             <View style={[{flexDirection: "column", paddingBottom: 10}, this.props.style]}>

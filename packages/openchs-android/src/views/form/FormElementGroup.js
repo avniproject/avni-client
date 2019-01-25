@@ -142,7 +142,7 @@ class FormElementGroup extends AbstractComponent {
                                                                   noDateMessageKey='chooseADate'
                                                                   validationResult={validationResult}
                                                                   element={formElement}/>, idx);
-                        } else if (formElement.concept.datatype === Concept.dataType.Image) {
+                        } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype)) {
                             return this.wrap(<ImageFormElement
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}

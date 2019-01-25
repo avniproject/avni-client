@@ -73,6 +73,7 @@ export default class Concept {
         Notes: 'Notes',
         NA: 'NA',
         Image: 'Image',
+        Video: 'Video',
     };
 
     // static primitiveDataTypes = [Concept.dataType.Boolean, Concept.dataType.Coded, Concept.dataType.Numeric, Concept.dataType.Date, Concept.dataType.Text];

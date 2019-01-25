@@ -8,6 +8,7 @@ import {Alert, Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import _ from "lodash";
 
+//TODO: Replace some of the code inside it and put Enhanced Video Player Component
 @Path('/VideoPlayerView')
 class VideoPlayerView extends AbstractComponent {
     static propTypes = {

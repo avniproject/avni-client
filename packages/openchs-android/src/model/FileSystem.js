@@ -7,6 +7,7 @@ export default class FileSystem {
     static init() {
         General.logDebug("FileSystem", "Creating directories if they don't exist");
         General.logDebug("FileSystem", FileSystem.getImagesDir());
+        General.logDebug("FileSystem", FileSystem.getVideosDir());
 
         (async function requestCameraPermission() {
             try {
@@ -18,10 +19,9 @@ export default class FileSystem {
                     }
                 );
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    fs.mkdir(FileSystem.getImagesDir()).then(_.noop, (err) => {
-                        General.logError("FileSystem", "Could not create images directory");
-                        General.logError("FileSystem", err);
-                    } );
+                    FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
+                        .then(() => FileSystem.mkdir(FileSystem.getVideosDir(), 'videos'))
+                        .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
                 }
@@ -31,8 +31,20 @@ export default class FileSystem {
         })();
     }
 
+    static mkdir(path, hint) {
+        return fs.mkdir(path).catch(err => {
+            General.logError("FileSystem", `Could not create ${hint} directory`);
+            throw err;
+        });
+    }
+
     static getImagesDir() {
         General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images/`);
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images`;
+    }
+
+    static getVideosDir() {
+        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos/`);
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos`;
     }
 }
