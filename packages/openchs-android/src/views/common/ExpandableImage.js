@@ -1,6 +1,7 @@
 import React from 'react';
 import {Image, Modal, TouchableNativeFeedback, View} from "react-native";
 import {ImageViewer} from "react-native-image-zoom-viewer";
+import FileSystem from "../../model/FileSystem";
 
 export default class ExpandableImage extends React.Component {
     constructor(props) {
@@ -21,7 +22,7 @@ export default class ExpandableImage extends React.Component {
     }
 
     render() {
-        const sourceFile = `file://${this.props.source}`.trim();
+        const sourceFile = `file://${FileSystem.getImagesDir()}/${this.props.source}`.trim();
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
                 <Image source={{uri: sourceFile}} style={{height: 36, width: 36}}/>

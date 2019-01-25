@@ -33,6 +33,6 @@ export default class FileSystem {
 
     static getImagesDir() {
         General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images/`);
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images/`;
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images`;
     }
 }

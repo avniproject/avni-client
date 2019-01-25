@@ -7,7 +7,6 @@ import fs from 'react-native-fs';
 import General from "../../../utility/General";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
-import {ImageViewer} from "react-native-image-zoom-viewer";
 import ExpandableImage from "../../common/ExpandableImage";
 import FileSystem from "../../../model/FileSystem";
 
@@ -50,11 +49,12 @@ export default class ImageFormElement extends AbstractFormElement {
 
     addImageFromPicker(response) {
         if (!response.didCancel && !response.error) {
-            const imageFilePath = `${FileSystem.getImagesDir()}${General.randomUUID()}.jpg"`;
+            const fileName = `${General.randomUUID()}.jpg`;
+            const imageFilePath = `${FileSystem.getImagesDir()}/${fileName}`;
             fs.moveFile(response.path, imageFilePath)
                 .then(this.dispatchAction(this.props.actionName, {
                     formElement: this.props.element,
-                    value: imageFilePath
+                    value: fileName
                 }));
         }
     }
