@@ -74,6 +74,7 @@ export default class Concept {
         NA: 'NA',
         Image: 'Image',
         Video: 'Video',
+        get Media() {return [this.Image, this.Video]},
     };
 
     // static primitiveDataTypes = [Concept.dataType.Boolean, Concept.dataType.Coded, Concept.dataType.Numeric, Concept.dataType.Date, Concept.dataType.Text];
@@ -216,3 +217,7 @@ export default class Concept {
     }
 
 }
+
+console.log('includes');
+console.log(Concept.dataType.Media.includes('Image'));
+console.log(Concept.dataType.Media.includes('Video'));

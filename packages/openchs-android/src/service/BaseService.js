@@ -91,6 +91,7 @@ class BaseService {
     }
 
     getAll(schema) {
+        if (schema === undefined) schema = this.getSchema();
         return this.db.objects(schema);
     }
 

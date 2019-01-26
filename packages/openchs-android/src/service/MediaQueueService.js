@@ -8,21 +8,24 @@ class MediaQueueService extends BaseService {
         super(db, context);
     }
 
-    fileExistsInQueue(fileName) {
-        return this.db.objects(MediaQueue.schema.name).filtered(`fileName == '${fileName}'`).length > 0;
+    getSchema () {
+        return MediaQueue.schema.name;
     }
 
-    addToQueue(entity, schemaName, fileName) {
-        console.log('adding file ', fileName)
-        !this.fileExistsInQueue(fileName) &&
-        this.db.write(() => {
-            this.db.create(MediaQueue.schema.name, MediaQueue.create(schemaName, entity.uuid, fileName, ''));
-        });
+    fileExistsInQueue(fileName) {
+        return this.getAll().filtered(`fileName == '${fileName}'`).length > 0;
+    }
+
+    addToQueue(entity, schemaName, fileName, type) {
+        if(!this.fileExistsInQueue(fileName)) {
+            this.saveOrUpdate(MediaQueue.create(schemaName, entity.uuid, fileName, '', type));
+        }
     }
 
     addMediaToQueue(entity, schemaName) {
-        console.log('adding media to queue')
-        _.forEach(entity.findMediaObservations(), (observation) => this.addToQueue(entity, schemaName, observation.getValue()))
+        _.forEach(entity.findMediaObservations(), (observation) => {
+            this.addToQueue(entity, schemaName, observation.getValue(), observation.concept.datatype)
+        });
     }
 }
 
