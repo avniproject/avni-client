@@ -9,16 +9,20 @@ export default class FileSystem {
         General.logDebug("FileSystem", FileSystem.getImagesDir());
         General.logDebug("FileSystem", FileSystem.getVideosDir());
 
-        (async function requestCameraPermission() {
+        const grantSuccess = (grant) => {
+            return typeof (grant) === 'boolean'? grant: PermissionsAndroid.RESULTS.GRANTED === grant;
+        };
+
+        (async function requestFileSystemPermission() {
             try {
-                const granted = await PermissionsAndroid.request(
+                const grant = await PermissionsAndroid.request(
                     PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
                     {
                         'title': 'Write to external storage',
                         'message': 'This is required to store files for OpenCHS'
                     }
                 );
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                if (grantSuccess(grant)) {
                     FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
                         .then(() => FileSystem.mkdir(FileSystem.getVideosDir(), 'videos'))
                         .catch(err => General.logError("FileSystem", err));
