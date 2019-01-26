@@ -28,7 +28,7 @@ export default class ExpandableVideo extends React.Component {
         const sourceFile = `file://${FileSystem.getVideosDir()}/${this.props.source}`.trim();
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
-                <Image source={{uri: sourceFile}} style={{height: 60, width: 80}}/>
+                <Image source={{uri: sourceFile}} style={{height: 50, width: 100}}/>
             </TouchableNativeFeedback>
             {this.state.expanded && (
                 <Modal onRequestClose={() => this.hideModal()} style={{height: '100%'}}>
