@@ -2518,5 +2518,19 @@
     "name": "Caste (Free Text)",
     "uuid": "60c44aa2-3635-487d-8962-43000e77d382",
     "dataType": "Text"
+  },
+  {
+    "name": "VHND",
+    "uuid": "1d3d49c5-feba-48d4-9a18-e1aecffb29a6",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "uuid": "a1a7476f-0f51-49ec-aa9d-314f15c4d62a",
+    "name": "Block hospital"
+  },
+  {
+    "name": "High Blood Pressure",
+    "uuid": "63398939-0a45-46ee-8d92-f01d55e96c1a",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
 ]

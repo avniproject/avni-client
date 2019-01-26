@@ -1342,52 +1342,64 @@
       },
       {
         "uuid": "2a2768ac-713b-4f74-85af-4a1fc5a832d1",
+        "comment": "Morning sickness",
         "abnormal": true
       },
       {
         "uuid": "7cdba040-6fad-4a43-8306-4a284178cf5d",
+        "comment": "Excessive vomiting and inability to consume anything orally in last 24 hours",
         "abnormal": true
       },
       {
         "uuid": "97652252-0024-434d-8749-078b395fb6f2",
+        "name": "Pain on urination",
         "abnormal": true,
         "voided": true
       },
       {
         "uuid": "5ba2d201-a120-4f2d-92e6-ca97d48b60b0",
+        "name": "Severe Abdominal Pain",
         "abnormal": true
       },
       {
         "uuid": "fe8c09ce-4135-4092-a693-3ad9bd8edb44",
+        "name": "Difficulty breathing",
         "abnormal": true
       },
       {
         "uuid": "2367268e-5988-4db3-a0ca-19438bd5931c",
+        "name": "Blurred vision",
         "abnormal": true
       },
       {
         "uuid": "d4276c48-2db2-494b-b041-97ffc1146c83",
+        "name": "Decreased Foetal movements",
         "abnormal": true,
         "voided": true
       },
       {
         "uuid": "5a6ab8bb-fb14-4747-a66e-3961d718a83e",
+        "name": "Bad headache",
         "abnormal": true
       },
       {
         "uuid": "79865f4d-1946-40b4-a823-28281fc58ba0",
+        "name": "Per vaginal bleeding",
         "abnormal": true
       },
       {
         "uuid": "f7a77870-e1c6-47b7-9d72-01eec4adf0f5",
+        "name": "PV leaking",
         "abnormal": true
       },
       {
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "name": "Other",
         "abnormal": true
       },
       {
         "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
+        "name": "No problem",
         "unique": true
       }
     ]
