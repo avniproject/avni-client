@@ -11,6 +11,7 @@ import MessageService from "./MessageService";
 import AuthService from "./AuthService";
 import UserInfoService from "./UserInfoService";
 import RuleEvaluationService from "./RuleEvaluationService";
+import MediaQueueService from "./MediaQueueService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -27,6 +28,7 @@ class SyncService extends BaseService {
         this.authService = this.getService(AuthService);
         this.userInfoService = this.getService(UserInfoService);
         this.ruleEvaluationService = this.getService(RuleEvaluationService);
+        this.mediaQueueService = this.getService(MediaQueueService);
     }
 
     authenticate() {
@@ -34,6 +36,24 @@ class SyncService extends BaseService {
     }
 
     sync(allEntitiesMetaData) {
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData);
+
+        const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
+        //Even blank dataServerSync with no data in or out takes quite a while.
+        // Don't do it twice if no image sync required
+        return mediaUploadRequired ?
+            firstDataServerSync
+                .then(() => this.imageSync(allEntitiesMetaData))
+                .then(() => this.dataServerSync(allEntitiesMetaData))
+            : firstDataServerSync;
+    }
+
+    imageSync() {
+        return this.authenticate()
+            .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
+    }
+
+    dataServerSync(allEntitiesMetaData) {
         // CREATE FAKE DATA
         // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
         // this.getService(FakeDataService).createFakeOverdueEncountersFor(700);

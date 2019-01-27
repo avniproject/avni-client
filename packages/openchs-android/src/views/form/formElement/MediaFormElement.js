@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default class ImageFormElement extends AbstractFormElement {
+export default class MediaFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
         actionName: React.PropTypes.string.isRequired,

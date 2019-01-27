@@ -20,9 +20,8 @@ import {
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
-import General from "../../utility/General";
 import DurationFormElement from "./formElement/DurationFormElement";
-import ImageFormElement from "./formElement/ImageFormElement";
+import MediaFormElement from "./formElement/MediaFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -143,7 +142,7 @@ class FormElementGroup extends AbstractComponent {
                                                                   validationResult={validationResult}
                                                                   element={formElement}/>, idx);
                         } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype)) {
-                            return this.wrap(<ImageFormElement
+                            return this.wrap(<MediaFormElement
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}

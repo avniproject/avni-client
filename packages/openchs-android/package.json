@@ -60,6 +60,7 @@
     "react-native-video-player": "0.10.0",
     "realm": "2.0.12",
     "redux": "3.6.0",
+    "rn-fetch-blob": "^0.10.15",
     "stacktrace-js": "2.0.0",
     "transducers-js": "0.4.174"
   },

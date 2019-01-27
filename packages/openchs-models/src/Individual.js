@@ -402,6 +402,10 @@ class Individual extends BaseEntity {
         return findMediaObservations(this.observations);
     }
 
+    replaceObservation(originalValue, newValue) {
+        new ObservationsHolder(this.observations).updateObservationBasedOnValue(originalValue, newValue);
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

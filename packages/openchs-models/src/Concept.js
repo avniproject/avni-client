@@ -217,7 +217,3 @@ export default class Concept {
     }
 
 }
-
-console.log('includes');
-console.log(Concept.dataType.Media.includes('Image'));
-console.log(Concept.dataType.Media.includes('Video'));

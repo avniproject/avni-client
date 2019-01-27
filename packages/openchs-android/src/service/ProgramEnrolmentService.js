@@ -35,7 +35,7 @@ class ProgramEnrolmentService extends BaseService {
         });
     }
 
-    enrol(programEnrolment, checklists, nextScheduledVisits) {
+    enrol(programEnrolment, checklists = [], nextScheduledVisits) {
         const db = this.db;
         const entityQueueItems = [];
         const programEncounterService = this.getService(ProgramEncounterService);

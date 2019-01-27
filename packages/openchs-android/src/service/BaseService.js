@@ -26,7 +26,7 @@ class BaseService {
         return this.findAll(schema).filtered(filterCriteria);
     }
 
-    findAll(schema) {
+    findAll(schema = this.getSchema()) {
         return this.db.objects(schema);
     }
 

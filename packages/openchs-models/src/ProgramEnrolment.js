@@ -427,6 +427,11 @@ class ProgramEnrolment extends BaseEntity {
         );
     }
 
+    replaceObservation(originalValue, newValue) {
+        new ObservationsHolder(this.observations).updateObservationBasedOnValue(originalValue, newValue);
+        new ObservationsHolder(this.programExitObservations).updateObservationBasedOnValue(originalValue, newValue);
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

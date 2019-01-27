@@ -95,6 +95,7 @@ class Observation {
         return this.getValueWrapper().getValue();
     }
 
+
     setValue(valueWrapper) {
         this.valueJSON = valueWrapper;
     }

@@ -62,7 +62,6 @@ import VideoTelemetric from './src/videos/VideoTelemetric'
 import VisitScheduleConfig from "./src/VisitScheduleConfig"
 import VisitScheduleInterval from "./src/VisitScheduleInterval"
 import MediaQueue from "./src/MediaQueue";
-import Media from "./src/Media";
 
 export {
     AbstractEncounter,
@@ -100,7 +99,6 @@ export {
     IndividualRelative,
     KeyValue,
     LocaleMapping,
-    Media,
     MediaQueue,
     MultipleCodedValues,
     MultiSelectFilter,

@@ -150,6 +150,11 @@ class ProgramEncounter extends AbstractEncounter {
         );
     }
 
+    replaceObservation(originalValue, newValue) {
+        new ObservationsHolder(this.observations).updateObservationBasedOnValue(originalValue, newValue);
+        new ObservationsHolder(this.cancelObservations).updateObservationBasedOnValue(originalValue, newValue);
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

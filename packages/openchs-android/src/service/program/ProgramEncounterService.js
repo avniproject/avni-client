@@ -49,7 +49,7 @@ class ProgramEncounterService extends BaseService {
         _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit), db));
     }
 
-    saveScheduledVisits(enrolment, nextScheduledVisits, db, schedulerDate) {
+    saveScheduledVisits(enrolment, nextScheduledVisits = [], db, schedulerDate) {
         return nextScheduledVisits.map(nSV =>{
             return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
         });

@@ -7,6 +7,7 @@ import G from "./utility/General";
 import moment from "moment";
 import EncounterType from "./EncounterType";
 import {findMediaObservations} from "./Media";
+import ObservationsHolder from "./ObservationsHolder";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -62,6 +63,10 @@ class Encounter extends AbstractEncounter {
 
     findMediaObservations() {
         return findMediaObservations(this.observations);
+    }
+
+    replaceObservation(originalValue, newValue) {
+        new ObservationsHolder(this.observations).updateObservationBasedOnValue(originalValue, newValue);
     }
 }
 

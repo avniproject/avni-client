@@ -21,6 +21,10 @@ class ObservationsHolder {
         });
     }
 
+    findObservationByValue(value) {
+        return _.find(this.observations, (observation) => observation.getValue() === value);
+    }
+
     addOrUpdatePrimitiveObs(concept, value) {
         const observation = this.getObservation(concept);
         if (!_.isEmpty(observation)) {
@@ -106,6 +110,13 @@ class ObservationsHolder {
             observation.setValue(valueWrapper);
         else
             this.observations.push(Observation.create(concept, valueWrapper));
+    }
+
+    updateObservationBasedOnValue(oldValue, newValue) {
+        const observation = this.findObservationByValue(oldValue);
+        if (observation) {
+            observation.setValue(observation.concept.getValueWrapperFor(newValue));
+        }
     }
 
     toString(I18n) {
