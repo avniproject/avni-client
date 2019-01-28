@@ -156,9 +156,7 @@ class MenuView extends AbstractComponent {
     _logout = () => {
         const authService = this.context.getService(AuthService);
         authService.logout().then(() => {
-            CHSNavigator.navigateToLoginView(this, false, () => {
-                CHSNavigator.navigateToLandingView(this, true, {tabIndex: 2, menuProps: {startSync: false}});
-            });
+            CHSNavigator.navigateToLoginView(this, false);
         });
     };
 
