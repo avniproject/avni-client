@@ -1,23 +1,16 @@
-import {View, ToastAndroid, Alert, BackAndroid} from "react-native";
+import {ToastAndroid, Alert, BackAndroid} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
 import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
-import {Button, Text} from "native-base";
-import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
-import DGS from "../primitives/DynamicGlobalStyles";
+import {ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
 import Colors from "../primitives/Colors";
-import Distances from "../primitives/Distances";
-import Fonts from "../primitives/Fonts";
-import {Duration} from "openchs-models";
-import ChecklistItemDisplay from "./ChecklistItemDisplay";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import Styles from "../primitives/Styles";
 import ChecklistDisplay from "./ChecklistDisplay";
 
 @Path('/ChecklistView')
