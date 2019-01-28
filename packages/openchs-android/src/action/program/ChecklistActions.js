@@ -3,33 +3,24 @@ import _ from 'lodash';
 import {ProgramEnrolment, Checklist} from 'openchs-models';
 
 class ChecklistActions {
-    static getValidationResult(checklistIndex, checklistItemName, state) {
-        const validationResults = state.validationResultsArray[checklistIndex];
-        return validationResults.find((validationResult) => validationResult.name === checklistItemName);
-    }
-
     static getInitialState() {
         return {};
     }
 
     static clone(state) {
         const checklists = [];
-        const validationResults = [];
         if (!_.isNil(state.checklists)) {
             state.checklists.forEach((checklist) => {
                 checklists.push(checklist.clone());
-                validationResults.push([]);
             });
         }
-        return {checklists: checklists, validationResultsArray: validationResults, showSavedToast: false, promptForSave: false};
+        return {checklists: checklists, showSavedToast: false, promptForSave: false};
     }
 
     static onLoad(state, action, context) {
         const newState = ChecklistActions.clone(state);
         const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
         newState.checklists = enrolment.checklists;
-        newState.validationResultsArray = [];
-        newState.checklists.forEach((checklist) => newState.validationResultsArray.push([]));
         return newState;
     }
 
