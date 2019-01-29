@@ -43,13 +43,14 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         return mediaUploadRequired ?
             firstDataServerSync
-                .then(() => this.imageSync(allEntitiesMetaData))
-                .then(() => this.dataServerSync(allEntitiesMetaData))
+                .then(() => this.imageSync(statusMessageCallBack))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack))
             : firstDataServerSync;
     }
 
-    imageSync() {
+    imageSync(statusMessageCallBack) {
         return this.authenticate()
+            .then(() => statusMessageCallBack("uploadMedia"))
             .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
     }
 

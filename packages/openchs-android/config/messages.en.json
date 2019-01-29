@@ -206,6 +206,7 @@
   "lastLoaded": "Last Loaded",
   "totalMatchingResults": "Total matching results",
   "displayed": "Displayed",
+  "uploadMedia": "Uploading locally saved media files",
   "uploadLocallySavedData": "Uploading locally saved data",
   "downloadFormsEtc":"Downloading new forms etc",
   "downloadNewDataFromServer":"Downloading new data from server"
