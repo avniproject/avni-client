@@ -35,8 +35,8 @@ class SyncService extends BaseService {
         return this.authService.getAuthToken();
     }
 
-    sync(allEntitiesMetaData) {
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData);
+    sync(allEntitiesMetaData, statusMessageCallBack = _.noop) {
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         //Even blank dataServerSync with no data in or out takes quite a while.
@@ -53,7 +53,8 @@ class SyncService extends BaseService {
             .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
     }
 
-    dataServerSync(allEntitiesMetaData) {
+    dataServerSync(allEntitiesMetaData, statusMessageCallBack) {
+
         // CREATE FAKE DATA
         // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
         // this.getService(FakeDataService).createFakeOverdueEncountersFor(700);
@@ -63,8 +64,14 @@ class SyncService extends BaseService {
         return this.authenticate()
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
             .then(() => this.getUserInfo())
+
+            .then(() => statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushTxData(allTxEntityMetaData.slice()))
+
+            .then(() => statusMessageCallBack("downloadFormsEtc"))
             .then(() => this.getData(allReferenceDataMetaData))
+
+            .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getData(allTxEntityMetaData));
     }
 

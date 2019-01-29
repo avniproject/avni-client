@@ -99,7 +99,7 @@ class MenuView extends AbstractComponent {
     }
 
     _preSync() {
-        this.setState({syncing: true, error: false});
+        this.setState({syncing: true, error: false, syncMessage: "syncingData"});
     }
 
     _postSync() {
@@ -141,13 +141,17 @@ class MenuView extends AbstractComponent {
         }
     }
 
+    messageCallBack(syncMessage) {
+        this.setState({syncMessage});
+    }
+
     sync() {
         try {
             const syncService = this.context.getService(SyncService);
             const onError = this._onError.bind(this);
             const postSync = this._postSync.bind(this);
             this._preSync();
-            syncService.sync(EntityMetaData.model()).then(postSync, onError);
+            syncService.sync(EntityMetaData.model(), (message) => this.messageCallBack(message)).then(postSync, onError);
         } catch (e) {
             this._onError(e);
         }
@@ -185,7 +189,6 @@ class MenuView extends AbstractComponent {
     }
 
 
-
     onDelete() {
         const service = this.context.getService(EntityService);
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
@@ -214,7 +217,7 @@ class MenuView extends AbstractComponent {
     renderIcon(iconName) {
         //i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
         // TODO someday we need to have one single icon library.
-        if(_.startsWith(iconName, 'video')){
+        if (_.startsWith(iconName, 'video')) {
             return <Icon2 name={iconName} style={MenuView.iconStyle}/>
         }
         return <Icon name={iconName} style={MenuView.iconStyle}/>
@@ -249,7 +252,7 @@ class MenuView extends AbstractComponent {
                         />
                         <View style={{flex: .7}}>
                             <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                {this.I18n.t("syncingData")}
+                                {this.I18n.t(this.state.syncMessage)}
                             </Text>
                         </View>
                     </View>
