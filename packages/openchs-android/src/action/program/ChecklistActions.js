@@ -8,19 +8,37 @@ class ChecklistActions {
     }
 
     static clone(state) {
-        const checklists = [];
-        if (!_.isNil(state.checklists)) {
-            state.checklists.forEach((checklist) => {
-                checklists.push(checklist.clone());
-            });
-        }
-        return {checklists: checklists, showSavedToast: false, promptForSave: false};
+        const checklists = _.clone(state.checklists);
+
+        return {
+            checklists: checklists,
+            individual: !_.isNil(state.individual) ? state.individual.cloneForReference() : null,
+            showSavedToast: false,
+            promptForSave: false
+        };
     }
 
     static onLoad(state, action, context) {
         const newState = ChecklistActions.clone(state);
         const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
-        newState.checklists = enrolment.checklists;
+
+        const checklists = [];
+        enrolment.checklists.forEach(checklist => {
+            const groupedItems = [];
+            checklist.items.filter(item => !item.detail.voided).forEach(checklistItem => {
+                const applicableState = checklistItem.calculateApplicableState();
+                if (!_.isNil(applicableState.status)) {
+                    const applicableStateName = applicableState.status.state;
+                    groupedItems[applicableStateName] = _
+                        .get(groupedItems, applicableStateName, [])
+                        .concat([{"uuid": checklistItem.uuid, applicableState, checklistItem}]);
+                }
+            });
+            checklists.push({"uuid": checklist.uuid, groupedItems});
+        });
+
+        newState.checklists = checklists;
+        newState.individual = enrolment.individual;
         return newState;
     }
 

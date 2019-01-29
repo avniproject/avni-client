@@ -21,7 +21,7 @@ export default ({data, onSave}) => (
         paddingHorizontal: DGS.resizeWidth(13)
     }}>
         <Text style={{fontSize: Fonts.Large}}>{data.name}</Text>
-        {Object.entries(data.groupedItems()).map(([state, items], idx) =>
+        {Object.entries(data.groupedItems).map(([state, items], idx) =>
             <View key={idx}
                   style={{marginTop: DGS.resizeHeight(10)}}>
                 <Text
@@ -35,13 +35,10 @@ export default ({data, onSave}) => (
                     {items.map((item, idx) =>
                         <ChecklistItemDisplay
                             key={idx}
-                            checklistItem={item}
-                            completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
-                            validationResult={undefined}
-                            actionObject={{
-                                checklistName: item.checklist.name,
-                                checklistItemName: item.detail.concept.name
-                            }}/>)}
+                            checklistItem={item.checklistItem}
+                            applicableState={item.applicableState}
+                            completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}/>
+                    )}
                 </View>
             </View>)}
     </View>);

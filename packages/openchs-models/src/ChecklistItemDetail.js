@@ -42,11 +42,6 @@ class ChecklistItemDetail extends BaseEntity {
         }
         return checklistItemDetail;
     }
-
-    get isDependent() {
-        return !_.isNil(this.dependentOn);
-    }
-
 }
 
 export default ChecklistItemDetail;

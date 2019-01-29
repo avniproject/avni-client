@@ -72,13 +72,6 @@ class Checklist extends BaseEntity {
         checklistItem.completionDate = value;
     }
 
-    groupedItems() {
-        return this.items.filter(item => !_.isNil(item.applicableState)).reduce((acc, item) => {
-            acc[item.applicableStateName] = _.get(acc, item.applicableStateName, []).concat([item]);
-            return acc;
-        }, {});
-    }
-
     addItem(item) {
         this.items.push(item);
     }

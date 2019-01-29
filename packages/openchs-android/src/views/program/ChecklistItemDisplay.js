@@ -13,11 +13,10 @@ import ObservationsHolder from "openchs-models/src/ObservationsHolder";
 class ChecklistItemDisplay extends AbstractComponent {
     static propTypes = {
         checklistItem: React.PropTypes.object.isRequired,
+        applicableState: React.PropTypes.object.isRequired,
         completionDateAction: React.PropTypes.string,
         style: React.PropTypes.object,
         editable: React.PropTypes.bool,
-        validationResult: React.PropTypes.object,
-        actionObject: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -35,10 +34,10 @@ class ChecklistItemDisplay extends AbstractComponent {
     }
 
     render() {
-        const applicableState = this.props.checklistItem.applicableState;
-        const backgroundColor = applicableState.color;
-        const statusText = applicableState.state;
-        const maxDateText = General.toDisplayDate(this.props.checklistItem.statusDate);
+        const status = this.props.applicableState.status;
+        const backgroundColor = status.color;
+        const statusText = status.state;
+        const maxDateText = General.toDisplayDate(this.props.applicableState.statusDate);
         return (
             <TouchableHighlight style={this.appendedStyle({
                 borderWidth: 2,
