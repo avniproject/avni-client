@@ -41,24 +41,24 @@ describe('ChecklistItemTest', () => {
     it('getApplicableState when completed', () => {
         checklist.baseDate = moment().subtract(8, 'week').toDate();
         checklistItem.completionDate = moment().subtract(4, 'week');
-        expect(checklistItem.applicableState.state).is.equal(ChecklistItemStatus.completed.state);
+        expect(checklistItem.calculateApplicableState().status.state).is.equal(ChecklistItemStatus.completed.state);
     });
 
     it('getApplicableState when past dueDate', function () {
         checklist.baseDate = moment().subtract(8, 'week').toDate();
-        let applicableState = checklistItem.applicableState;
+        let applicableState = checklistItem.calculateApplicableState().status;
         expect(applicableState.state).is.equal("Due");
     });
 
     it('getApplicableState when before due', function () {
         checklist.baseDate = moment().subtract(4, 'week').toDate();
-        let applicableState = checklistItem.applicableState;
+        let applicableState = checklistItem.calculateApplicableState().status;
         expect(applicableState).is.null;
     });
 
     it('getApplicableState when after max', function () {
         checklist.baseDate = moment().subtract(4, 'year').toDate();
-        let applicableState = checklistItem.applicableState;
+        let applicableState = checklistItem.calculateApplicableState().status;
         expect(applicableState.state).is.equal("Past Expiry");
     });
 });

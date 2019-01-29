@@ -83,8 +83,6 @@ class ChecklistItem {
     }
 
     calculateApplicableState() {
-        const conceptName = this.detail.concept.name;
-
         let baseDate = this.baseDate;
         if (this.completed) {
             return {status: ChecklistItemStatus.completed, statusDate: this.completionDate};
