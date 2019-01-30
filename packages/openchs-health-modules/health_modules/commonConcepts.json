@@ -2212,7 +2212,12 @@
       {
         "name": "Private Job",
         "uuid": "ccb99e5b-d75c-40a3-881d-dc27cdc154ed"
+      },
+      {
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       }
+
     ]
   },
   {
