@@ -3715,7 +3715,11 @@
       {
         "name": "Abdominal pain",
         "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c"
+      },
+      {
+        "name": "Child PNC eye problems",
+        "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8"
       }
-    ]
+        ]
   }
 ]
