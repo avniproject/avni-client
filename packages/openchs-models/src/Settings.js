@@ -16,7 +16,8 @@ class Settings {
             logLevel: 'int',
             pageSize: 'int',
             poolId: 'string',
-            clientId: 'string'
+            clientId: 'string',
+            devSkipValidation: {type: 'bool', default: false}
         }
     };
 
@@ -29,6 +30,7 @@ class Settings {
         settings.poolId = this.poolId;
         settings.clientId = this.clientId;
         settings.pageSize = this.pageSize;
+        settings.devSkipValidation = this.devSkipValidation;
         return settings;
     }
 

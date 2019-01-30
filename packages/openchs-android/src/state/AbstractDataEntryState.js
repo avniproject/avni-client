@@ -3,6 +3,7 @@ import RuleEvaluationService from "../service/RuleEvaluationService";
 import {ValidationResult, BaseEntity} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
+import SettingsService from "../service/SettingsService";
 
 class AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
@@ -36,10 +37,13 @@ class AbstractDataEntryState {
         }
     }
 
-    handleValidationResults(validationResults) {
-        validationResults.forEach((validationResult) => {
-            this.handleValidationResult(validationResult);
-        });
+    handleValidationResults(validationResults, context) {
+        const settings = context.get(SettingsService).getSettings();
+        if (!settings.devSkipValidation) {
+            validationResults.forEach((validationResult) => {
+                this.handleValidationResult(validationResult);
+            });
+        }
     }
 
     moveNext() {
@@ -84,14 +88,14 @@ class AbstractDataEntryState {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity();
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements));
-        this.handleValidationResults(allValidationResults);
+        this.handleValidationResults(allValidationResults, context);
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage()) {
             this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
             const validationResults = this.validateEntityAgainstRule(ruleService);
-            this.handleValidationResults(validationResults);
+            this.handleValidationResults(validationResults, context);
             let decisions, checklists, nextScheduledVisits;
             if (!ValidationResult.hasValidationError(this.validationResults)) {
                 decisions = this.executeRule(ruleService, context);

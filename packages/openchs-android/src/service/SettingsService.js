@@ -39,6 +39,7 @@ class SettingsService extends BaseService {
             if (Config.ENV === 'dev') {
                 settings.logLevel = General.LogLevel.Debug;
                 settings.pageSize = InitialSettings.dev.pageSize;
+                settings.devSkipValidation = InitialSettings.dev.skipValidation;
             }
 
             if (_.isNil(settings.locale)) {
