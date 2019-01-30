@@ -150,6 +150,9 @@ dev_deploy_metadata: ## Upload metadata to server
 deploy_common_concepts_dev:
 	$(call upload,concepts,@health_modules/commonConcepts.json)
 
+deploy_referral_concepts_fix: auth
+	$(call upload,concepts,@health_modules/mother/metadata/referral_concepts_fix.json)
+
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata
 test: test_env
