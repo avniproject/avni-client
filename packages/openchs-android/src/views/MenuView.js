@@ -252,7 +252,7 @@ class MenuView extends AbstractComponent {
                         />
                         <View style={{flex: .7}}>
                             <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                {this.I18n.t(this.state.syncMessage)}
+                                {this.I18n.t(_.isNil(this.state.syncMessage)? "doingNothing" : this.state.syncMessage)}
                             </Text>
                         </View>
                     </View>
