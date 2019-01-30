@@ -29,7 +29,7 @@ class MediaQueueService extends BaseService {
     addToQueue(entity, schemaName, fileName, type) {
         //Guard against infinite loop. Uploading MediaQueueItem saves entity with the uploaded url.
         //This will trigger an addToQueue once again.
-        const fileHasAlreadyBeenUploaded = fileName.startsWith('http');
+        const fileHasAlreadyBeenUploaded = _.startsWith(fileName, 'http');
         if (fileHasAlreadyBeenUploaded) {
             General.logDebug("MediaQueueService", `${fileName} has already been uploaded. Ignoring... `);
             return;

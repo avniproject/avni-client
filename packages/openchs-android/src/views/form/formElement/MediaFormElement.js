@@ -10,6 +10,7 @@ import Colors from "../../primitives/Colors";
 import ExpandableImage from "../../common/ExpandableImage";
 import ExpandableVideo from "../../common/ExpandableVideo";
 import FileSystem from "../../../model/FileSystem";
+import MediaService from "../../../service/MediaService";
 
 const styles = StyleSheet.create({
     icon: {
@@ -46,6 +47,16 @@ export default class MediaFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
+        this.mediaService = context.getService(MediaService);
+        this.state = {};
+    }
+
+    componentDidMount() {
+        this.mediaService.exists(this.mediaUriInDevice).then((exists)=> {
+            this.setState((state)=>({
+                ...state, exists
+            }));
+        });
     }
 
     get isVideo() {
@@ -54,6 +65,14 @@ export default class MediaFormElement extends AbstractFormElement {
 
     get isImage() {
         return this.props.element.concept.datatype === 'Image';
+    }
+
+    get mediaUri() {
+        return _.get(this, 'props.value.answer');
+    }
+
+    get mediaUriInDevice() {
+        return this.mediaUri && this.mediaService.getAbsolutePath(this.mediaUri);
     }
 
     addImageFromPicker(response) {
@@ -67,6 +86,32 @@ export default class MediaFormElement extends AbstractFormElement {
                     value: fileName
                 }));
         }
+    }
+
+    _preDownload = (cb) => {
+        this.setState((state) => ({...state, downloading: true}), cb);
+    };
+
+    _postDownload = () => {
+        this.setState((state) => ({
+            ...state,
+            exists: true,
+            downloading: false
+        }));
+    };
+
+    _errDownload = (err) => {
+        General.logDebug('MediaFormElement', `${err}`);
+    };
+
+    download() {
+        this._preDownload(() => {
+            this.mediaService.exists(this.mediaUriInDevice).then((exists)=> {
+                if(!exists) {
+                    return this.mediaService.downloadMedia(this.mediaUri, this.mediaUriInDevice);
+                }
+            }).then(this._postDownload, this._errDownload);
+        });
     }
 
     clearAnswer() {
@@ -100,31 +145,41 @@ export default class MediaFormElement extends AbstractFormElement {
         );
     }
 
-
-    showImage() {
-        return (
-            <View style={[styles.contentRow, styles.imageRow]}>
-                <ExpandableImage source={this.props.value.answer}/>
-                <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
-                    <Icon name={"backspace"} style={[styles.icon]}/>
-                </TouchableNativeFeedback>
-            </View>
-        );
+    showMedia() {
+        if (this.mediaUri) {
+            return (
+                <View style={[styles.contentRow, styles.imageRow]}>
+                    {this.showDownloadIcon()}
+                    {this.showExpandableMedia()}
+                    <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
+                        <Icon name={"backspace"} style={[styles.icon]}/>
+                    </TouchableNativeFeedback>
+                </View>
+            );
+        }
     }
 
-    showVideo() {
-        return (
-            <View style={[styles.contentRow, styles.imageRow]}>
-                <ExpandableVideo source={this.props.value.answer}/>
-                <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
-                    <Icon name={"backspace"} style={[styles.icon]}/>
+    showDownloadIcon() {
+        if (!this.state.exists) {
+            return <View>
+                <TouchableNativeFeedback onPress={() => this.download()}>
+                    <Icon name={this.state.downloading ? 'loading' : 'download'} style={styles.icon}/>
                 </TouchableNativeFeedback>
             </View>
-        );
+        }
+    }
+
+    showExpandableMedia() {
+        console.log('this.mediaUriInDevicethis.mediaUriInDevicethis.mediaUriInDevice');
+        console.log(this.mediaUriInDevice);
+        if (this.state.exists) {
+            return this.isVideo ? <ExpandableVideo source={this.mediaUriInDevice}/>
+                : <ExpandableImage source={this.mediaUriInDevice}/>;
+        }
     }
 
     showInputOptions() {
-        return !this.props.value.answer && (
+        return !this.mediaUri && (
             <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
                 <TouchableNativeFeedback onPress={() => {
                     this.launchImageLibrary()
@@ -147,7 +202,7 @@ export default class MediaFormElement extends AbstractFormElement {
             <View style={{marginVertical: 16}}>
                 {this.label}
                 {this.showInputOptions()}
-                {this.props.value.answer && (this.isVideo ? this.showVideo() : this.showImage())}
+                {this.showMedia()}
                 <View
                     style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
