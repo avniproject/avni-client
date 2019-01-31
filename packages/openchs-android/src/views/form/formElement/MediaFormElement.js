@@ -33,6 +33,11 @@ const styles = StyleSheet.create({
     }
 });
 
+const Mode = {
+    MediaLibrary: "MediaLibrary",
+    Camera: "Camera"
+};
+
 export default class MediaFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
@@ -52,8 +57,8 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     componentDidMount() {
-        this.mediaService.exists(this.mediaUriInDevice).then((exists)=> {
-            this.setState((state)=>({
+        this.mediaService.exists(this.mediaUriInDevice).then((exists) => {
+            this.setState((state) => ({
                 ...state, exists
             }));
         });
@@ -75,12 +80,14 @@ export default class MediaFormElement extends AbstractFormElement {
         return this.mediaUri && this.mediaService.getAbsolutePath(this.mediaUri);
     }
 
-    addImageFromPicker(response) {
+    addMediaFromPicker(response) {
         if (!response.didCancel && !response.error) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
             const fileName = `${General.randomUUID()}.${ext}`;
             const directory = this.isVideo ? FileSystem.getVideosDir() : FileSystem.getImagesDir();
-            fs.moveFile(response.path, `${directory}/${fileName}`)
+            const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
+
+            fileSystemAction(response.path, `${directory}/${fileName}`)
                 .then(this.dispatchAction(this.props.actionName, {
                     formElement: this.props.element,
                     value: fileName
@@ -106,8 +113,8 @@ export default class MediaFormElement extends AbstractFormElement {
 
     download() {
         this._preDownload(() => {
-            this.mediaService.exists(this.mediaUriInDevice).then((exists)=> {
-                if(!exists) {
+            this.mediaService.exists(this.mediaUriInDevice).then((exists) => {
+                if (!exists) {
                     return this.mediaService.downloadMedia(this.mediaUri, this.mediaUriInDevice);
                 }
             }).then(this._postDownload, this._errDownload);
@@ -122,6 +129,8 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     launchCamera() {
+        this.setState({mode: Mode.Camera});
+
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
             maxWidth: 1280,
@@ -132,16 +141,18 @@ export default class MediaFormElement extends AbstractFormElement {
             }
         };
         ImagePicker.launchCamera(options,
-            (response) => this.addImageFromPicker(response)
+            (response) => this.addMediaFromPicker(response)
         );
     }
 
-    launchImageLibrary() {
+    launchMediaLibrary() {
+        this.setState({mode: Mode.MediaLibrary});
+
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
         };
         ImagePicker.launchImageLibrary(options,
-            (response) => this.addImageFromPicker(response)
+            (response) => this.addMediaFromPicker(response)
         );
     }
 
@@ -182,7 +193,7 @@ export default class MediaFormElement extends AbstractFormElement {
         return !this.mediaUri && (
             <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
                 <TouchableNativeFeedback onPress={() => {
-                    this.launchImageLibrary()
+                    this.launchMediaLibrary()
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={'folder-open'} style={styles.icon}/>
