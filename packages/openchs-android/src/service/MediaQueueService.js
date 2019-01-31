@@ -116,7 +116,6 @@ class MediaQueueService extends BaseService {
             .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
             .then(() => this.popItem(mediaQueueItem))
-            .then(() => this.deleteFile(mediaQueueItem))
             .catch((error) => {
                 General.logError("MediaQueueService", `Error while uploading ${mediaQueueItem.uuid}`);
                 General.logError("MediaQueueService", error);
