@@ -5,6 +5,7 @@ import com.airlabsinc.RNAWSCognitoPackage;
 import com.brentvatne.react.ReactVideoPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.facebook.react.ReactApplication;
+import com.jamesisaac.rnbackgroundtask.BackgroundTaskPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.rnfs.RNFSPackage;
@@ -34,6 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+            new BackgroundTaskPackage(),
             new RNFetchBlobPackage(),
             new ImagePickerPackage(),
             new RNFSPackage(),
@@ -54,6 +56,7 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
+        BackgroundTaskPackage.useContext(this);
     }
 
     @Override

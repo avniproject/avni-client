@@ -10,9 +10,18 @@ import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
 import FileSystem from "./model/FileSystem";
+import BackgroundTask from 'react-native-background-task'
+import PruneMedia from "./task/PruneMedia";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
+
+BackgroundTask.define(() => {
+    PruneMedia().then(
+            () => BackgroundTask.finish(),
+            () => BackgroundTask.finish()
+        );
+});
 
 export default class App extends Component {
     constructor(props, context) {
@@ -53,7 +62,8 @@ export default class App extends Component {
     renderError() {
         Alert.alert("App will restart now", this.state.error.message,
             [
-                {text: "Copy error and Restart",
+                {
+                    text: "Copy error and Restart",
                     onPress: () => {
                         Clipboard.setString(`${this.state.error.message}\nStacktrace:\n${this.state.stacktrace}`);
                         Restart.restart()
@@ -67,6 +77,11 @@ export default class App extends Component {
 
     getBean(name) {
         return beans.get(name);
+    }
+
+    componentDidMount() {
+        const SIX_HOURS = 60 * 60 * 6;
+        BackgroundTask.schedule({period: SIX_HOURS});
     }
 
     render() {
