@@ -55,10 +55,4 @@ describe('ChecklistItemTest', () => {
         let applicableState = checklistItem.calculateApplicableState().status;
         expect(applicableState).is.null;
     });
-
-    it('getApplicableState when after max', function () {
-        checklist.baseDate = moment().subtract(4, 'year').toDate();
-        let applicableState = checklistItem.calculateApplicableState().status;
-        expect(applicableState.state).is.equal("Past Expiry");
-    });
 });
