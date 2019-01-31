@@ -39,9 +39,9 @@ class MediaService extends BaseService {
     }
 
     getAbsolutePath(uri, type) {
-        if (!uri) return false;
-        const fileName = _.get(uri.match(/[0-9A-Fa-f-]{36}\.\w+$/), 0);
-        return `${type === 'Video'? FileSystem.getVideosDir(): FileSystem.getImagesDir()}/${fileName}`;
+        if (!uri) return '';
+        const fileName = _.get(uri.trim().match(/[0-9A-Fa-f-]{36}\.\w+$/), 0);
+        return `${type === 'Video' ? FileSystem.getVideosDir() : FileSystem.getImagesDir()}/${fileName}`.trim();
     }
 
     exists(filePath) {

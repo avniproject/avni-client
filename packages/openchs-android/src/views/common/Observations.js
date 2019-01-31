@@ -8,8 +8,7 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
 import Separator from "../primitives/Separator";
-import ExpandableImage from "./ExpandableImage";
-import ExpandableVideo from "./ExpandableVideo";
+import ExpandableMedia from "./ExpandableMedia";
 
 const renderTypes = {
     Image: "Image",
@@ -77,8 +76,7 @@ class Observations extends AbstractComponent {
         if ([Concept.dataType.Image, Concept.dataType.Video].includes(renderType)) {
             return (
                 <View style={this.styles.observationColumn}>
-                    {renderType === Concept.dataType.Image && <ExpandableImage source={obs}/>}
-                    {renderType === Concept.dataType.Video && <ExpandableVideo source={obs}/>}
+                    <ExpandableMedia source={obs} type={renderType}/>
                 </View>
             );
         }

@@ -143,6 +143,7 @@ class FormElementGroup extends AbstractComponent {
                                                                   element={formElement}/>, idx);
                         } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype)) {
                             return this.wrap(<MediaFormElement
+                                key={idx}
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}

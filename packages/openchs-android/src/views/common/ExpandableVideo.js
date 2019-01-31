@@ -1,6 +1,5 @@
 import React from 'react';
 import {Image, Modal, TouchableNativeFeedback, View} from "react-native";
-import FileSystem from "../../model/FileSystem";
 import VideoPlayerWrapper from "../videos/VideoPlayerWrapper";
 
 export default class ExpandableVideo extends React.Component {
@@ -25,7 +24,7 @@ export default class ExpandableVideo extends React.Component {
     }
 
     render() {
-        const sourceFile = `file://${FileSystem.getVideosDir()}/${this.props.source}`.trim();
+        const sourceFile = `file://${this.props.source}`;
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
                 <Image source={{uri: sourceFile}} style={{height: 50, width: 100}}/>
