@@ -85,7 +85,6 @@ class MediaQueueService extends BaseService {
         const canonicalUrl = url.substring(0, url.indexOf("?"));
         const entity = this.findByUUID(mediaQueueItem.entityUUID, mediaQueueItem.entityName).cloneForEdit();
         entity.replaceObservation(mediaQueueItem.fileName, canonicalUrl);
-        console.log("Replace complete");
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:
                 return this.getService(IndividualService).register(entity);
