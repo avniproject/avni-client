@@ -172,5 +172,10 @@
   "Okay": "ठीक आहे",
   "videoListNotAvailable": "व्हिडिओ यादी उपलब्ध नाही",
   "totalMatchingResults": "एकूण जुळणारे परिणाम",
-  "displayed": "प्रदर्शित"
+  "displayed": "प्रदर्शित",
+  "uploadMedia": "सेव्ह केलेल्या मीडिया फायली अपलोड करीत आहे",
+  "uploadLocallySavedData": "सेव्ह केलेला डेटा अपलोड करीत आहे",
+  "downloadFormsEtc":"नवीन फॉर्म इ डाउनलोड करीत आहे",
+  "downloadNewDataFromServer":"सर्व्हरवरून नवीन डेटा डाउनलोड करत आहे"
+
 }

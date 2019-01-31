@@ -214,5 +214,10 @@
   "Okay": "ठीक है",
   "videoListNotAvailable": "वीडियो सूची उपलब्ध नहीं है",
   "totalMatchingResults": "कुल मेल खाते परिणाम",
-  "displayed": "प्रदर्शित"
+  "displayed": "प्रदर्शित",
+  "uploadMedia": "सेव की गयी मीडिया फाइल्स अपलोड हो रही है",
+  "uploadLocallySavedData": "सेव किया गया डाटा अपलोड हो रहा है",
+  "downloadFormsEtc":"नए फॉर्म आदि डाउनलोड हो रहे है",
+  "downloadNewDataFromServer":"नया डाटा सर्वर से डाउनलोड हो रहा है"
+
 }
