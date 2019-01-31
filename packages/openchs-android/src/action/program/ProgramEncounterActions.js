@@ -68,7 +68,7 @@ class ProgramEncounterActions {
     static encounterDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.programEncounter.encounterDateTime = action.value;
-        newState.handleValidationResults(newState.programEncounter.validate());
+        newState.handleValidationResults(newState.programEncounter.validate(), context);
         const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
         newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);

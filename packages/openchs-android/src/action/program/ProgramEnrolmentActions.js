@@ -35,14 +35,14 @@ export class ProgramEnrolmentActions {
     static enrolmentDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.enrolment.enrolmentDateTime = action.value;
-        newState.handleValidationResults(newState.enrolment.validateEnrolment());
+        newState.handleValidationResults(newState.enrolment.validateEnrolment(), context);
         return newState;
     }
 
     static exitDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.enrolment.programExitDateTime = action.value;
-        newState.handleValidationResults(newState.enrolment.validateExit());
+        newState.handleValidationResults(newState.enrolment.validateExit(), context);
         return newState;
     }
 
