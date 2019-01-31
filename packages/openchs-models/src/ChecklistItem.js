@@ -67,63 +67,92 @@ class ChecklistItem {
         return this.detail.stateConfig.find(status => status.displayOrder === 1);
     }
 
-    get leadingItem() {
-        return !_.isNil(this.detail.dependentOn)
+    get _leadingItem() {
+        return this.isDependent
             ? this.checklist.items.find(item => item.detail.uuid === this.detail.dependentOn.uuid)
             : null;
     }
 
-    get baseDate() {
-        if (!_.isNil(this.detail.dependentOn)) {
-            let leadingItem = this.checklist.items
-                .find(item => item.detail.uuid === this.detail.dependentOn.uuid);
-            return _.isNil(leadingItem) ? leadingItem : leadingItem.completionDate;
-        }
-        return this.checklist.baseDate;
-    }
-
     calculateApplicableState() {
-        let baseDate = this.baseDate;
         if (this.completed) {
             return {status: ChecklistItemStatus.completed, statusDate: this.completionDate};
         }
 
         let isLeadingItemExpired = false;
-        let leadingItemState = null;
         let statusDate = null;
-        if(!_.isNil(this.leadingItem) && this.detail.scheduleOnExpiryOfDependency) {
-            leadingItemState = this.leadingItem.calculateApplicableState().status;
+        const leadingItem = this._leadingItem;
+
+        if (!_.isNil(leadingItem) && this.scheduleOnExpiryOfDependency) {
+            const leadingItemState = leadingItem.calculateApplicableState().status;
+            if(_.isNil(leadingItemState)) {
+                return {status: null, statusDate: null}
+            }
             isLeadingItemExpired = leadingItemState.state === "Expired";
-            if(isLeadingItemExpired)
-                baseDate = this.checklist.baseDate;
         }
 
-        let nonCompletedState = this.detail.stateConfig.find(status => {
-            const minDate = moment(baseDate).add(status.from.value, status.from.key).startOf("day");
-            const maxDate = moment(baseDate).add(status.to.value, status.to.key).endOf("day");
+        let lastSetDate = null;
 
-            if(isLeadingItemExpired) {
-                minDate.add(leadingItemState.from.value, leadingItemState.from.key).startOf("day");
-                maxDate.add(leadingItemState.from.value, leadingItemState.from.key).startOf("day");
-            }
-
+        let nonCompletedState = this.detail.stateConfig.find((status, index) => {
             const currentDate = moment();
-            const isApplicable = currentDate.isBetween(minDate, maxDate);
-            if(isApplicable) {
-                statusDate = minDate.toDate();
+
+            if (!this.isDependent) {
+                const minDate = moment(this.checklist.baseDate).add(status.from.value, status.from.key).startOf("day");
+                const maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key).endOf("day");
+                if (currentDate.isBetween(minDate, maxDate)) {
+                    statusDate = minDate.toDate();
+                    return true;
+                }
+            } else if (leadingItem.completed) {
+                const minDaysFromStartDate = this.detail.minDaysFromStartDate;
+                const daysSinceCompleted = moment(this.checklist.baseDate).diff(leadingItem.completionDate, "day");
+                const gap = status.to.value - status.from.value;
+                let startAfter = Math.max(daysSinceCompleted + this.firstState.from.value, minDaysFromStartDate);
+                let minDate, maxDate;
+
+                if (!_.isNil(lastSetDate)) {
+                    minDate = moment(lastSetDate);
+                    maxDate = moment(lastSetDate).add(gap, "day");
+                } else {
+                    minDate = moment(this.checklist.baseDate).add(startAfter, "day").startOf("day");
+                    maxDate = moment(this.checklist.baseDate).add(startAfter, "day").add(gap, "day").endOf("day");
+                }
+                lastSetDate = maxDate;
+
+                if(this.detail.stateConfig.length-1 === index)
+                    maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key);
+
+                if (currentDate.isBetween(minDate, maxDate)) {
+                    statusDate = minDate.toDate();
+                    return true;
+                }
             }
-            return isApplicable;
+            else if (isLeadingItemExpired) {
+                const minDaysFromStartDate = this.detail.minDaysFromStartDate;
+                const diff = minDaysFromStartDate - this.firstState.from.value;
+                const minDate = moment(this.checklist.baseDate).add(status.from.value, status.from.key).add(diff, "day").startOf("day");
+                const maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key).add(diff, "day").endOf("day");
+                if (currentDate.isBetween(minDate, maxDate)) {
+                    statusDate = minDate.toDate();
+                    return true;
+                }
+            }
+
+            return false;
         });
 
         if (!_.isNil(nonCompletedState)) {
             return {status: nonCompletedState, statusDate: statusDate};
         }
 
-        if (this.detail.voided || _.isNil(baseDate) || this.firstState.hasNotStarted(baseDate)) {
-            return {status: null, statusDate: null};
-        }
+        return {status: null, statusDate: null};
+    }
 
-        return {status: ChecklistItemStatus.na(moment().diff(baseDate, 'years')), statusDate: null};
+    get isDependent() {
+        return this.detail.isDependent;
+    }
+
+    get scheduleOnExpiryOfDependency() {
+        return this.detail.scheduleOnExpiryOfDependency;
     }
 
     get editable() {
@@ -133,7 +162,7 @@ class ChecklistItem {
     setCompletionDate(date = new Date()) {
         this.completionDate = date;
     }
-    
+
     print() {
         return `ChecklistItem{uuid=${this.uuid}}`;
     }

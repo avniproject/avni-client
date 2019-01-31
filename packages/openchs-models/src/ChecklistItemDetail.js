@@ -19,7 +19,8 @@ class ChecklistItemDetail extends BaseEntity {
             checklistDetail: 'ChecklistDetail',
             voided: {type: 'bool', default: false},
             dependentOn: {type: 'ChecklistItemDetail', optional: true},
-            scheduleOnExpiryOfDependency: {type: 'bool', default: false}
+            scheduleOnExpiryOfDependency: {type: 'bool', default: false},
+            minDaysFromStartDate: {type: 'int', optional: true}
         }
     };
 
@@ -27,7 +28,7 @@ class ChecklistItemDetail extends BaseEntity {
         const checklistDetail = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistDetailUUID"), ChecklistDetail.schema.name);
         const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "formUUID"), Form.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
-        const checklistItemDetail = General.assignFields(checklistItemResource, new ChecklistItemDetail(), ["uuid", "voided", "scheduleOnExpiryOfDependency"]);
+        const checklistItemDetail = General.assignFields(checklistItemResource, new ChecklistItemDetail(), ["uuid", "voided", "scheduleOnExpiryOfDependency", "minDaysFromStartDate"]);
         checklistItemDetail.stateConfig = _.get(checklistItemResource, "checklistItemStatus", [])
             .map(itemStatus => ChecklistItemStatus.fromResource(itemStatus, entityService));
         checklistItemDetail.checklistDetail = checklistDetail;
@@ -41,6 +42,10 @@ class ChecklistItemDetail extends BaseEntity {
             checklistItemDetail.dependentOn = createdLeadChecklistItemDetail;
         }
         return checklistItemDetail;
+    }
+
+    get isDependent() {
+        return !_.isNil(this.dependentOn);
     }
 }
 
