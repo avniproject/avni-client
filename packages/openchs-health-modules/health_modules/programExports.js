@@ -1,3 +1,4 @@
+/* This file is unused. Commenting it for now, will delete it later.
 const programEncounterExports = {};
 programEncounterExports.Mother = require('./mother/motherProgramEncounterDecision');
 programEncounterExports.Child = require('./child/childProgramEncounterDecision');
@@ -32,3 +33,4 @@ module.exports.execute = function (config) {
 };
 
 module.exports.programConfig = programConfigExports;
+*/
