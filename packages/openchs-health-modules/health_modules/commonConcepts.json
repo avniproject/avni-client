@@ -2522,7 +2522,8 @@
   {
     "name": "Caste (Free Text)",
     "uuid": "60c44aa2-3635-487d-8962-43000e77d382",
-    "dataType": "Text"
+    "dataType": "Text",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   },
   {
     "name": "VHND",
