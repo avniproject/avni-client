@@ -2472,7 +2472,7 @@
     ]
   },
   {
-    "name": "Pregnancy outcome",
+    "name": "Delivery outcome",
     "uuid": "36b7b1a8-d191-4bbe-ad3c-0e25a48334e0",
     "dataType": "Coded",
     "answers": [

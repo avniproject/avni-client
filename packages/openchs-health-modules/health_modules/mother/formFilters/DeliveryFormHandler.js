@@ -10,7 +10,7 @@ class DeliveryFormHandler {
         return statusBuilder.build();
     }
 
-    pregnancyOutcome(programEncounter, formElement) {
+    deliveryOutcome(programEncounter, formElement) {
         const statusBuilder = new FormElementStatusBuilder({
             programEncounter: programEncounter,
             formElement: formElement
@@ -26,7 +26,7 @@ class DeliveryFormHandler {
             programEncounter: programEncounter,
             formElement: formElement
         });
-        statusBuilder.show().when.valueInEncounter("Pregnancy outcome")
+        statusBuilder.show().when.valueInEncounter("Delivery outcome")
             .containsAnyAnswerConceptName("Live birth and Still birth", "Still Birth");
         const status = statusBuilder.build();
         // status.value = this._getNoOfStillBornBabies(programEncounter);
@@ -82,7 +82,7 @@ class DeliveryFormHandler {
     }
 
     _getNoOfStillBornBabies(programEncounter) {
-        const deliveryOutcome = programEncounter.getObservationReadableValue("Pregnancy outcome");
+        const deliveryOutcome = programEncounter.getObservationReadableValue("Delivery outcome");
         const noOfBabies = programEncounter.getObservationValue("Number of babies");
         let noOfStillBornBabies = 0;
         if (deliveryOutcome === "Still Birth") {
