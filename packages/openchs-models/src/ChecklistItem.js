@@ -104,7 +104,7 @@ class ChecklistItem {
                 }
             } else if (leadingItem.completed) {
                 const minDaysFromStartDate = this.detail.minDaysFromStartDate;
-                const daysSinceCompleted = moment(this.checklist.baseDate).diff(leadingItem.completionDate, "day");
+                const daysSinceCompleted = moment(leadingItem.completionDate).diff(this.checklist.baseDate, "day");
                 const gap = status.to.value - status.from.value;
                 let startAfter = Math.max(daysSinceCompleted + this.firstState.from.value, minDaysFromStartDate);
                 let minDate, maxDate;
