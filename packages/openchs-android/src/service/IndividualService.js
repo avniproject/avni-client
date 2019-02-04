@@ -24,14 +24,6 @@ class IndividualService extends BaseService {
     }
 
     search(criteria) {
-        return this._search(criteria).slice(0, 50);
-    }
-
-    count(criteria) {
-        return this._search(criteria).length;
-    }
-
-    _search(criteria) {
         const filterCriteria = criteria.getFilterCriteria();
         let searchResults;
         if (_.isEmpty(filterCriteria)) {
@@ -45,7 +37,7 @@ class IndividualService extends BaseService {
                     criteria.getMaxDateOfBirth()
                 );
         }
-        return searchResults;
+        return {results: searchResults.slice(0, 50), count: searchResults.length};
     }
 
     register(individual) {

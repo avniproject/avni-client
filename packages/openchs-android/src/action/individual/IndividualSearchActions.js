@@ -45,8 +45,9 @@ export class IndividualSearchActions {
         const newState = IndividualSearchActions.clone(state);
 
         const individualService = beans.get(IndividualService);
-        const individualSearchResults = individualService.search(newState.searchCriteria);
-        const count = individualService.count(newState.searchCriteria)
+        const searchResults = individualService.search(newState.searchCriteria);
+        const individualSearchResults = searchResults.results;
+        const count = searchResults.count;
         action.cb(individualSearchResults, count);
         return newState;
     };

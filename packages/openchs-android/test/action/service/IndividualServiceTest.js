@@ -34,6 +34,18 @@ describe('IndividualServiceTest', () => {
     };
 
     describe("search", () => {
+        it("should cap the results at 50", () => {
+            const individualSearchCriteria = IndividualSearchCriteria.empty();
+
+            for (let i = 0; i < 100; i++) {
+                individualService.register(createIndividual(false));
+            }
+
+            const searchResult = individualService.search(individualSearchCriteria);
+            const numberOfResults = searchResult.results.length;
+            assert.equal(numberOfResults, 50);
+            assert.equal(searchResult.count, 100);
+        });
         it("should include voided individuals in search results when includeVoided is true", () => {
             const individualSearchCriteria = IndividualSearchCriteria.empty();
             individualSearchCriteria.addNameCriteria("test");
@@ -45,7 +57,7 @@ describe('IndividualServiceTest', () => {
             individualService.register(indi1);
             individualService.register(indi2);
             
-            const results = individualService.search(individualSearchCriteria);
+            const results = individualService.search(individualSearchCriteria).results;
             assert.lengthOf(results, 2);
         });
 
@@ -61,7 +73,7 @@ describe('IndividualServiceTest', () => {
             individualService.register(indi1);
             individualService.register(indi2);
             
-            const results = individualService.search(individualSearchCriteria);
+            const results = individualService.search(individualSearchCriteria).results;
             assert.lengthOf(results, 1);
         });
     });
@@ -74,7 +86,7 @@ describe('IndividualServiceTest', () => {
                 individualService.register(createIndividual(false));
             }
 
-            const count = individualService.count(individualSearchCriteria);
+            const count = individualService.search(individualSearchCriteria).count;
             assert.equal(count, 100);
         });
     });
