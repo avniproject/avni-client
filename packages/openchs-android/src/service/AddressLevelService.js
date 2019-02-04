@@ -81,7 +81,7 @@ class AddressLevelService extends BaseService {
 
     getDescendantsOfParent(parentUuid) {
         const children = this.getChildrenParent(parentUuid);
-        return _.flatten(children.concat(children.map(c => this.getDescendantsOfParent(c.uuid))));
+        return children;
     }
 }
 
