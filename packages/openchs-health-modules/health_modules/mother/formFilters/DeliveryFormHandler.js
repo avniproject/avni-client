@@ -1,7 +1,9 @@
-import {FormElementStatusBuilder, FormElementStatus} from "rules-config/rules";
+import {FormElementStatusBuilder, FormElementStatus, WithName} from "rules-config/rules";
 
 class DeliveryFormHandler {
-    dateOfDischarge(programEncounter, formElement) {
+
+    @WithName('Date of discharge')
+    1(programEncounter, formElement) {
         const statusBuilder = new FormElementStatusBuilder({
             programEncounter: programEncounter,
             formElement: formElement
@@ -10,7 +12,8 @@ class DeliveryFormHandler {
         return statusBuilder.build();
     }
 
-    deliveryOutcome(programEncounter, formElement) {
+    @WithName('Delivery outcome')
+    2(programEncounter, formElement) {
         const statusBuilder = new FormElementStatusBuilder({
             programEncounter: programEncounter,
             formElement: formElement
