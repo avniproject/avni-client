@@ -50,11 +50,7 @@ class PresetOptionItem extends AbstractComponent {
         return (
             this.props.checked !== nextProps.checked ||
             _.isNil(this.props.validationResult) !==
-            _.isNil(nextProps.validationResult) ||
-            this.props.abnormal !== nextProps.abnormal ||
-            this.props.chunked !== nextProps.chunked ||
-            this.props.multiSelect !== nextProps.multiSelect ||
-            this.props.displayText !== nextProps.displayText
+            _.isNil(nextProps.validationResult)
         );
     }
 
