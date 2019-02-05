@@ -143,7 +143,7 @@ export default class MediaFormElement extends AbstractFormElement {
                     this.launchCamera()
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={'camera'} style={styles.icon}/>
+                    <Icon name={this.isImage? 'camera': this.isVideo ? 'video': 'alert-octagon'} style={styles.icon}/>
                 </TouchableNativeFeedback>
             </View>
         );

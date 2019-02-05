@@ -26,11 +26,18 @@ export default class ExpandableMedia extends AbstractFormElement {
     }
 
     componentDidMount() {
+        this.setState({mounted: true});
         this.mediaService.exists(this.mediaUriInDevice).then((exists) => {
+            /*https://reactjs.org/blog/2015/12/16/ismounted-antipattern.html*/
+            if(this.state.mounted) return;
             this.setState((state) => ({
                 ...state, exists
             }));
         });
+    }
+
+    componentWillUnmount() {
+        this.setState({mounted: false});
     }
 
     _preDownload = (cb) => {
