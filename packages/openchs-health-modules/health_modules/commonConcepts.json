@@ -785,6 +785,16 @@
     "dataType": "Coded",
     "answers": [
       {
+        "uuid": "72fd70f8-65ae-4ac4-8339-6faf455e04f5",
+        "comment": "Away from village",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
+        "uuid": "10885638-561a-42b6-8b24-8daa01864c89",
+        "comment": "Absent",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
         "comment": "Other"
       },
@@ -2007,9 +2017,9 @@
     "dataType": "NA"
   },
   {
-    "name":"Forceps delivery",
+    "name": "Forceps delivery",
     "uuid": "045bb6bd-2c56-4f25-8a44-46d74a119d5d",
-    "dataType":"NA"
+    "dataType": "NA"
   },
   {
     "name": "Growth Faltering Status",
@@ -2217,7 +2227,6 @@
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
         "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       }
-
     ]
   },
   {
