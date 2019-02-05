@@ -42,6 +42,7 @@ import RuleDependency from "./RuleDependency";
 import Video from "./videos/Video";
 import VideoTelemetric from "./videos/VideoTelemetric";
 import MediaQueue from "./MediaQueue";
+import Point from "./geo/Point";
 
 export default {
     //order is important, should be arranged according to the dependency
@@ -51,8 +52,8 @@ export default {
         EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval,
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
-        ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue],
-    schemaVersion: 91,
+        ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue, Point],
+    schemaVersion: 92,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

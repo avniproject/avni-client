@@ -12,6 +12,7 @@ import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
 import { findMediaObservations } from './Media';
+import Point from "./geo/Point";
 
 class Individual extends BaseEntity {
     static schema = {
@@ -31,7 +32,8 @@ class Individual extends BaseEntity {
             enrolments: {type: "list", objectType: "ProgramEnrolment"},
             encounters: {type: "list", objectType: "Encounter"},
             observations: {type: 'list', objectType: 'Observation'},
-            relationships: {type: 'list', objectType: 'IndividualRelationship'}
+            relationships: {type: 'list', objectType: 'IndividualRelationship'},
+            registrationLocation: {type: 'Point', optional: true}
         }
     };
 
@@ -64,6 +66,10 @@ class Individual extends BaseEntity {
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
+
+        if(!_.isNil(this.registrationLocation)) {
+            resource["registrationLocation"] = this.registrationLocation.toResource();
+        }
 
         resource["observations"] = [];
         this.observations.forEach((obs) => {
@@ -106,6 +112,8 @@ class Individual extends BaseEntity {
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
         individual.name = `${individual.firstName} ${individual.lastName}`;
+        if(!_.isNil(individualResource.registrationLocation))
+            individual.registrationLocation = Point.fromResource(individualResource.registrationLocation);
         return individual;
     }
 

@@ -62,6 +62,7 @@ import VideoTelemetric from './src/videos/VideoTelemetric'
 import VisitScheduleConfig from "./src/VisitScheduleConfig"
 import VisitScheduleInterval from "./src/VisitScheduleInterval"
 import MediaQueue from "./src/MediaQueue";
+import Point from "./src/geo/Point";
 
 export {
     AbstractEncounter,
@@ -127,5 +128,6 @@ export {
     Video,
     VideoTelemetric,
     VisitScheduleConfig,
-    VisitScheduleInterval
+    VisitScheduleInterval,
+    Point
 }
