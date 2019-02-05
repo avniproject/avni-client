@@ -46,8 +46,8 @@ class IndividualService extends BaseService {
         this.db.write(() => {
             db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
         });
-        this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
     }
 
     eligiblePrograms(individualUUID) {

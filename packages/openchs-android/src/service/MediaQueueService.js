@@ -36,9 +36,10 @@ class MediaQueueService extends BaseService {
         }
 
         General.logInfo('MediaQueueService', `Adding ${fileName} to queue`);
-        if (!this.fileExistsInQueue(fileName)) {
-            this.saveOrUpdate(MediaQueue.create(entity.uuid, schemaName, fileName, type));
-        }
+        if (this.fileExistsInQueue(fileName)) return;
+        this.runInTransaction(() => {
+            this.db.create(MediaQueue.schema.name, MediaQueue.create(entity.uuid, schemaName, fileName, type));
+        });
     }
 
     addMediaToQueue(entity, schemaName) {
@@ -112,7 +113,9 @@ class MediaQueueService extends BaseService {
         let uploadUrl = "";
 
         return this.getUploadUrl(mediaQueueItem, auth)
-            .then((url) => {uploadUrl = url})
+            .then((url) => {
+                uploadUrl = url
+            })
             .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
             .then(() => this.popItem(mediaQueueItem))

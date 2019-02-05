@@ -114,6 +114,13 @@ class BaseService {
     unVoided(item) {
         return !_.get(item, 'voided');
     }
+
+    runInTransaction(fn) {
+        if (this.db.isInTransaction) {
+            return fn();
+        }
+        return this.db.write(fn);
+    }
 }
 
 export default BaseService;

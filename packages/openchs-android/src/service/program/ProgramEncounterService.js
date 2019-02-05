@@ -4,6 +4,7 @@ import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, Progra
 import moment from "moment";
 import _ from 'lodash';
 import General from "../../utility/General";
+import MediaQueueService from "../MediaQueueService";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -37,6 +38,7 @@ class ProgramEncounterService extends BaseService {
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);
         db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+        this.getService(MediaQueueService).addMediaToQueue(programEncounter, ProgramEncounter.schema.name);
     }
 
     saveScheduledVisit(enrolment, nextScheduledVisit, db, schedulerDate) {
