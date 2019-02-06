@@ -22,6 +22,10 @@ class Point {
         resource.y = this.y;
         return resource;
     }
+
+    clone() {
+        return new Point(this.x, this.y);
+    }
 }
 
 export default Point;

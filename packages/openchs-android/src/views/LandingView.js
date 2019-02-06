@@ -21,7 +21,7 @@ class LandingView extends AbstractComponent {
     };
 
     static defaultProps = {
-        tabIndex: 0
+        tabIndex: 1
     };
 
     constructor(props, context) {

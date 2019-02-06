@@ -43,7 +43,8 @@ class Individual extends BaseEntity {
         FIRST_NAME: 'FIRST_NAME',
         LAST_NAME: 'LAST_NAME',
         REGISTRATION_DATE: 'REGISTRATION_DATE',
-        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL',
+        REGISTRATION_LOCATION: 'REGISTRATION_LOCATION'
     };
 
     static createEmptyInstance() {
@@ -166,6 +167,10 @@ class Individual extends BaseEntity {
         this.name = this.nameString;
     }
 
+    setRegistrationLocation(point) {
+        this.registrationLocation = point;
+    }
+
     getDisplayAge(i18n) {
         //Keeping date of birth to be always entered and displayed as per the current date. It would be perhaps more error prone for users to put themselves in the past and enter age as of that date
         const ageInYears = this.getAgeInYears();
@@ -264,6 +269,10 @@ class Individual extends BaseEntity {
         return this.validateFieldForEmpty(this.lastName, Individual.validationKeys.LAST_NAME);
     }
 
+    validateRegistrationLocation() {
+        return this.validateFieldForNull(this.registrationLocation, Individual.validationKeys.REGISTRATION_LOCATION)
+    }
+
     validate() {
         const validationResults = [];
         validationResults.push(this.validateFirstName());
@@ -272,6 +281,7 @@ class Individual extends BaseEntity {
         validationResults.push(this.validateRegistrationDate());
         validationResults.push(this.validateGender());
         validationResults.push(this.validateAddress());
+        validationResults.push(this.validateRegistrationLocation());
         return validationResults;
     }
 
@@ -325,6 +335,8 @@ class Individual extends BaseEntity {
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : {...this.lowestAddressLevel};
         individual.observations = ObservationsHolder.clone(this.observations);
+        console.log(`clone ${_.isNil(this.registrationLocation)} ${JSON.stringify(this.registrationLocation)}`);
+        individual.registrationLocation = _.isNil(this.registrationLocation) ? null : this.registrationLocation.clone();
         return individual;
     }
 

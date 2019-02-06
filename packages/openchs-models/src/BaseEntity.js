@@ -42,6 +42,10 @@ class BaseEntity {
         return _.isEmpty(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
     }
 
+    validateFieldForNull(value, key) {
+        return _.isNil(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
+    }
+
     print() {
         return this.toString();
     }
