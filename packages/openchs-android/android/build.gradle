@@ -38,5 +38,6 @@ allprojects {
 
         minSdkVersion = 16
         targetSdkVersion = 26
+        googlePlayServicesVersion = "11.0.0"
     }
 }

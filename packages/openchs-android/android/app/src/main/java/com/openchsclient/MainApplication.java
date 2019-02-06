@@ -19,6 +19,7 @@ import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
 import io.realm.react.RealmReactPackage;
+import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +36,10 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
-            new BackgroundTaskPackage(),
-            new RNFetchBlobPackage(),
-            new ImagePickerPackage(),
-            new RNFSPackage(),
+                    new BackgroundTaskPackage(),
+                    new RNFetchBlobPackage(),
+                    new ImagePickerPackage(),
+                    new RNFSPackage(),
                     new ReactVideoPackage(),
                     BugsnagReactNative.getPackage(),
                     new MPAndroidChartPackage(),
@@ -47,7 +48,8 @@ public class MainApplication extends Application implements ReactApplication {
                     new VectorIconsPackage(),
                     new ReactNativeI18n(),
                     new RealmReactPackage(),
-                    new RestartPackage()
+                    new RestartPackage(),
+                    new RNFusedLocationPackage()
             );
         }
     };

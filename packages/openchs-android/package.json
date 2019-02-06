@@ -63,7 +63,8 @@
     "redux": "3.6.0",
     "rn-fetch-blob": "^0.10.15",
     "stacktrace-js": "2.0.0",
-    "transducers-js": "0.4.174"
+    "transducers-js": "0.4.174",
+    "react-native-geolocation-service": "1.1.0"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",
