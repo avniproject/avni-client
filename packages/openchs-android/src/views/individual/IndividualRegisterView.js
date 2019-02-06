@@ -20,6 +20,7 @@ import RegistrationDateFormElement from "../form/formElement/RegistrationDateFor
 import IndividualNameFormElement from "../form/formElement/IndividualNameFormElement";
 import DateOfBirthAndAgeFormElement from "../form/formElement/DateOfBirthAndAgeFormElement";
 import GenderFormElement from "../form/formElement/GenderFormElement";
+import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -56,6 +57,10 @@ class IndividualRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
+                        <GeolocationFormElement
+                            state={this.state}
+                            validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}
+                        />
                         <RegistrationDateFormElement state={this.state}/>
                         <IndividualNameFormElement state={this.state}/>
                         <DateOfBirthAndAgeFormElement state={this.state}/>

@@ -7,13 +7,15 @@ class Point {
         }
     };
 
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    static newInstance(x, y) {
+        const point = new Point();
+        point.x = x;
+        point.y = y;
+        return point;
     }
 
     static fromResource(resource) {
-        return new Point(resource.x, resource.y);
+        return Point.newInstance(resource.x, resource.y);
     }
 
     get toResource() {
@@ -21,6 +23,10 @@ class Point {
         resource.x = this.x;
         resource.y = this.y;
         return resource;
+    }
+
+    clone() {
+        return Point.newInstance(this.x, this.y);
     }
 }
 

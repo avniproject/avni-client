@@ -43,7 +43,8 @@ class Individual extends BaseEntity {
         FIRST_NAME: 'FIRST_NAME',
         LAST_NAME: 'LAST_NAME',
         REGISTRATION_DATE: 'REGISTRATION_DATE',
-        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL',
+        REGISTRATION_LOCATION: 'REGISTRATION_LOCATION'
     };
 
     static createEmptyInstance() {
@@ -68,7 +69,7 @@ class Individual extends BaseEntity {
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
 
         if(!_.isNil(this.registrationLocation)) {
-            resource["registrationLocation"] = this.registrationLocation.toResource();
+            resource["registrationLocation"] = this.registrationLocation.toResource;
         }
 
         resource["observations"] = [];
@@ -164,6 +165,10 @@ class Individual extends BaseEntity {
     setLastName(lastName) {
         this.lastName = lastName;
         this.name = this.nameString;
+    }
+
+    setRegistrationLocation(x, y) {
+        this.registrationLocation = Point.newInstance(x, y);
     }
 
     getDisplayAge(i18n) {
@@ -264,6 +269,10 @@ class Individual extends BaseEntity {
         return this.validateFieldForEmpty(this.lastName, Individual.validationKeys.LAST_NAME);
     }
 
+    validateRegistrationLocation() {
+        return this.validateFieldForNull(this.registrationLocation, Individual.validationKeys.REGISTRATION_LOCATION)
+    }
+
     validate() {
         const validationResults = [];
         validationResults.push(this.validateFirstName());
@@ -272,6 +281,7 @@ class Individual extends BaseEntity {
         validationResults.push(this.validateRegistrationDate());
         validationResults.push(this.validateGender());
         validationResults.push(this.validateAddress());
+        validationResults.push(this.validateRegistrationLocation());
         return validationResults;
     }
 
@@ -325,6 +335,7 @@ class Individual extends BaseEntity {
         individual.gender = _.isNil(this.gender) ? null : this.gender.clone();
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : {...this.lowestAddressLevel};
         individual.observations = ObservationsHolder.clone(this.observations);
+        individual.registrationLocation = _.isNil(this.registrationLocation) ? null : this.registrationLocation.clone();
         return individual;
     }
 
@@ -427,7 +438,8 @@ class Individual extends BaseEntity {
             encounters: this.encounters,
             observations: this.observations,
             relationships: this.relationships,
-            voided: this.voided
+            voided: this.voided,
+            registrationLocation: this.registrationLocation
         };
     }
 }
