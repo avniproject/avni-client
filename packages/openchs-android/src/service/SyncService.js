@@ -50,7 +50,10 @@ class SyncService extends BaseService {
 
     imageSync(statusMessageCallBack) {
         return this.authenticate()
-            .then(() => statusMessageCallBack("uploadMedia"))
+            .then((idToken) => {
+                statusMessageCallBack("uploadMedia");
+                return idToken;
+            })
             .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
     }
 
