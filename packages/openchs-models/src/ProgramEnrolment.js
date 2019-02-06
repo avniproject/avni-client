@@ -388,6 +388,10 @@ class ProgramEnrolment extends BaseEntity {
         return !_.isNil(this.findEncounter(encounterTypeName, encounterName));
     }
 
+    hasCompletedEncounterOfType(encounterTypeName) {
+        return _.some(this.encounters, encounter => encounter.encounterType.name === encounterTypeName && !_.isNil(encounter.encounterDateTime));
+    }
+
     hasEncounterOfType(encounterTypeName) {
         return !_.isNil(this.encounters.find(encounter => encounter.encounterType.name === encounterTypeName));
     }
