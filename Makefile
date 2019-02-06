@@ -269,7 +269,12 @@ analyse_crash: ##
 # <metadata>
 deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
-	cd packages/openchs-org && make deploy_locations
+	@echo
+	@echo
+	@echo 'Skipping "cd packages/openchs-org && make deploy_locations"'
+	@echo 'Uncomment if you want'
+	@echo
+#	cd packages/openchs-org && make deploy_locations
 
 deploy_common_concepts_dev:
 	cd packages/openchs-health-modules && make deploy_common_concepts_dev
