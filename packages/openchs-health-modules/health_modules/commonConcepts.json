@@ -780,6 +780,11 @@
     "uuid": "51dfd71b-1b06-4477-9ca3-f88acbafc0db"
   },
   {
+    "uuid": "72fd70f8-65ae-4ac4-8339-6faf455e04f5",
+    "name": "Away from village",
+    "dataType": "NA"
+  },
+  {
     "name": "Visit cancel reason",
     "uuid": "739f9a56-c02c-4f81-927b-69842d78c1e8",
     "dataType": "Coded",
@@ -1758,11 +1763,6 @@
   {
     "name": "grandmother",
     "uuid": "afdd2740-c46a-4414-8e17-31414b40128a",
-    "dataType": "NA"
-  },
-  {
-    "uuid": "72fd70f8-65ae-4ac4-8339-6faf455e04f5",
-    "name": "Away from village",
     "dataType": "NA"
   },
   {
