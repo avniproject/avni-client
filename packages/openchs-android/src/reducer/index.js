@@ -32,6 +32,7 @@ import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../
 import {ChecklistItemActionMap, ChecklistItemActions} from '../action/program/ChecklistItemActions';
 import VideoListActions from '../action/VideoListViewActions';
 import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
+import SubjectRegisterActionsMap, {SubjectRegisterActions} from "../action/subject/SubjectRegisterActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -59,7 +60,8 @@ export default class Reducers {
         individualAddRelative: "individualAddRelative",
         checklistItem: "checklistItem",
         videoList: 'videoList',
-        entitySyncStatusList: 'entitySyncStatusList'
+        entitySyncStatusList: 'entitySyncStatusList',
+        subject: 'subject',
     };
 
     static createReducers(beanStore) {
@@ -88,6 +90,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.checklistItem] = Reducers._add(ChecklistItemActionMap, ChecklistItemActions, beanStore);
         reducerMap[Reducers.reducerKeys.videoList] = Reducers._add(VideoListActions.Map, VideoListActions, beanStore);
         reducerMap[Reducers.reducerKeys.entitySyncStatusList] = Reducers._add(EntitySyncStatusActions.Map, EntitySyncStatusActions, beanStore);
+        reducerMap[Reducers.reducerKeys.subject] = Reducers._add(SubjectRegisterActionsMap, SubjectRegisterActions, beanStore);
         return reducerMap;
     };
 

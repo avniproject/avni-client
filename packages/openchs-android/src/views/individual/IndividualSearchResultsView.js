@@ -90,7 +90,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                                   height: 86,
                                                   paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
                                               }}>
-                                                  <Icon name='person-pin' style={{
+                                                  <Icon name={item.icon()} style={{
                                                       color: Colors.AccentColor,
                                                       fontSize: 56,
                                                       paddingRight: 16
@@ -102,7 +102,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                                           flex: 1
                                                       }}>
                                                       <Text style={Styles.textStyle}>
-                                                          {item.name}
+                                                          {item.nameString}
                                                           {item.voided &&
                                                           <Text style={{color: Styles.redColor}}>
                                                               {` ${this.I18n.t("voidedLabel")}`}
@@ -115,9 +115,9 @@ class IndividualSearchResultsView extends AbstractComponent {
                                                           alignItems: 'flex-start'
                                                       }}>
                                                           <Text
-                                                              style={Styles.userProfileSubtext}>{this.I18n.t(item.gender.name)}</Text>
+                                                              style={Styles.userProfileSubtext}>{item.userProfileSubtext1(i18n)}</Text>
                                                           <Text
-                                                              style={Styles.userProfileSubtext}>{item.getDisplayAge(i18n)}</Text>
+                                                              style={Styles.userProfileSubtext}>{item.userProfileSubtext2(i18n)}</Text>
                                                       </View>
                                                   </View>
                                                   <View style={{

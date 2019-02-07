@@ -30,6 +30,7 @@ import ChecklistItemDetail from "./ChecklistItemDetail";
 import ChecklistDetail from "./ChecklistDetail";
 import Video from './videos/Video';
 import VideoTelemetric from './videos/VideoTelemetric';
+import SubjectType from './SubjectType';
 
 class EntityMetaData {
     static checklistDetail = {entityName: "ChecklistDetail", entityClass: ChecklistDetail, resourceName: "checklistDetail", type: "reference", nameTranslated: false};
@@ -49,6 +50,8 @@ class EntityMetaData {
     static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"};
     static video = {entityName: "Video", entityClass: Video, resourceName: "video", type: "reference", nameTranslated: true};
+    static subjectType = {entityName: "SubjectType", entityClass: SubjectType, resourceName: "operationalSubjectType", type: "reference", nameTranslated: true};
+
 
     static checklistItemDetail() {
         return {
@@ -61,11 +64,11 @@ class EntityMetaData {
         }
     };
     static encounter() {
-        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
+        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.subject, nameTranslated: false}
     };
 
     static programEnrolment() {
-        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
+        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.subject, nameTranslated: false};
     }
 
     static formElement() {
@@ -99,7 +102,7 @@ class EntityMetaData {
             resourceName: "individualRelationship",
             type: "tx",
             nameTranslated: false,
-            parent: EntityMetaData.individual
+            parent: EntityMetaData.subject
         };
     }
 
@@ -149,6 +152,7 @@ class EntityMetaData {
             EntityMetaData.program,
             EntityMetaData.programOutcome,
             EntityMetaData.gender,
+            EntityMetaData.subjectType,
             EntityMetaData.conceptAnswer(),
             EntityMetaData.concept,
 

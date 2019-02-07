@@ -9,7 +9,7 @@ import {Icon as Icon2} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
-import {EntityMetaData} from "openchs-models";
+import {EntityMetaData, SubjectType} from "openchs-models";
 import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
@@ -91,7 +91,8 @@ class MenuView extends AbstractComponent {
     }
 
     registrationView() {
-        CHSNavigator.navigateToIndividualRegisterView(this);
+        const isIndividual = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0].isIndividual();
+        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this): CHSNavigator.navigateToSubjectRegisterView(this);
     }
 
     changePasswordView() {
@@ -263,6 +264,9 @@ class MenuView extends AbstractComponent {
 
     render() {
         let menuItemsData = [
+            //TODO Show a subject specific register icon which means subjectTypes will have to be
+            // TODO fetched first which won't be available on the first time load of this page OR use generic plus-box
+            // TODO ["plus-box", this.I18n.t("register"), this.registrationView.bind(this)],
             ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__],

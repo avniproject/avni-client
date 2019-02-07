@@ -13,6 +13,7 @@ import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
 import { findMediaObservations } from './Media';
 import Point from "./geo/Point";
+import SubjectType from './SubjectType';
 
 class Individual extends BaseEntity {
     static schema = {
@@ -20,12 +21,13 @@ class Individual extends BaseEntity {
         primaryKey: 'uuid',
         properties: {
             uuid: "string",
+            subjectType: "SubjectType",
             name: "string",
             firstName: "string",
-            lastName: "string",
-            dateOfBirth: "date",
-            dateOfBirthVerified: "bool",
-            gender: 'Gender',
+            lastName: {type:'string',optional:true},
+            dateOfBirth: {type:"date", optional:true},
+            dateOfBirthVerified: {type:'bool', optional:true},
+            gender: {type:'Gender', optional:true},
             registrationDate: "date",
             lowestAddressLevel: 'AddressLevel',
             voided: {type: 'bool', default: false},
@@ -46,9 +48,16 @@ class Individual extends BaseEntity {
         LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
     };
 
+    static nonIndividualValidationKeys = {
+        FIRST_NAME: 'FIRST_NAME',
+        REGISTRATION_DATE: 'REGISTRATION_DATE',
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+    };
+
     static createEmptyInstance() {
         const individual = new Individual();
         individual.uuid = General.randomUUID();
+        individual.subjectType = SubjectType.create("");
         individual.registrationDate = new Date();
         individual.gender = Gender.create("");
         individual.observations = [];
@@ -62,10 +71,11 @@ class Individual extends BaseEntity {
 
     get toResource() {
         const resource = _.pick(this, ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"]);
-        resource.dateOfBirth = moment(this.dateOfBirth).format('YYYY-MM-DD');
+        resource.dateOfBirth = this.dateOfBirth? moment(this.dateOfBirth).format('YYYY-MM-DD'): null;
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender.uuid;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
+        resource["subjectTypeUUID"] = this.subjectType.uuid;
 
         if(!_.isNil(this.registrationLocation)) {
             resource["registrationLocation"] = this.registrationLocation.toResource();
@@ -103,6 +113,7 @@ class Individual extends BaseEntity {
     static fromResource(individualResource, entityService) {
         const addressLevel = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "addressUUID"), AddressLevel.schema.name);
         const gender = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "genderUUID"), Gender.schema.name);
+        const subjectType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(individualResource, "subjectTypeUUID"), SubjectType.schema.name)
         const individual = General.assignFields(individualResource,
             new Individual(),
             ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"],
@@ -114,6 +125,7 @@ class Individual extends BaseEntity {
         individual.name = `${individual.firstName} ${individual.lastName}`;
         if(!_.isNil(individualResource.registrationLocation))
             individual.registrationLocation = Point.fromResource(individualResource.registrationLocation);
+        individual.subjectType = subjectType;
         return individual;
     }
 
@@ -193,7 +205,7 @@ class Individual extends BaseEntity {
     }
 
     get nameString() {
-        return `${this.firstName} ${this.lastName}`;
+        return this.subjectType.isIndividual() ? `${this.firstName} ${this.lastName}` : this.firstName;
     }
 
     getAgeIn(unit) {
@@ -266,22 +278,27 @@ class Individual extends BaseEntity {
 
     validate() {
         const validationResults = [];
-        validationResults.push(this.validateFirstName());
-        validationResults.push(this.validateLastName());
-        validationResults.push(this.validateDateOfBirth());
         validationResults.push(this.validateRegistrationDate());
-        validationResults.push(this.validateGender());
         validationResults.push(this.validateAddress());
+        validationResults.push(this.validateFirstName());
+
+        if(this.subjectType.isIndividual()){
+            validationResults.push(this.validateLastName());
+            validationResults.push(this.validateDateOfBirth());
+            validationResults.push(this.validateGender());
+        }
+
         return validationResults;
     }
 
     validateAddress() {
-        return this.validateFieldForEmpty(
+        let validateAddressFieldForEmpty = this.validateFieldForEmpty(
             _.isEmpty(this.lowestAddressLevel)
                 ? undefined
                 : this.lowestAddressLevel.name,
             Individual.validationKeys.LOWEST_ADDRESS_LEVEL
         );
+        return validateAddressFieldForEmpty;
     }
 
     validateGender() {
@@ -315,6 +332,7 @@ class Individual extends BaseEntity {
     cloneForEdit() {
         const individual = new Individual();
         individual.uuid = this.uuid;
+        individual.subjectType = this.subjectType.clone();
         individual.name = this.name;
         individual.firstName = this.firstName;
         individual.lastName = this.lastName;
@@ -329,6 +347,7 @@ class Individual extends BaseEntity {
     }
 
     cloneForReference() {
+        console.log("came to Individual.cloneForReference");
         const individual = new Individual();
         individual.uuid = this.uuid;
         individual.name = this.name;
@@ -414,6 +433,33 @@ class Individual extends BaseEntity {
         new ObservationsHolder(this.observations).updateObservationBasedOnValue(originalValue, newValue);
     }
 
+    //TODO use polymorphism to avoid if checks based on this
+    isIndividual(){
+        //TODO this nil check is not required when migration works properly
+        return (_.isNil(this.subjectType) || this.subjectType.isIndividual());
+    }
+
+    userProfileSubtext1(i18n){
+        return this.isIndividual() ? i18n.t(this.gender.name) : "";
+    }
+
+    userProfileSubtext2(i18n){
+        return this.isIndividual() ? this.getDisplayAge(i18n) : "";
+    }
+
+    icon(){
+        return this.isIndividual() ? 'person-pin' : 'account-balance';
+    }
+
+    //TODO these methods are slightly differece because of differece in UI on search result and my dashboard listing. Not taking the hit right now.
+    detail1(i18n){
+        return this.isIndividual() ? {label: "Age", value:this.getDisplayAge(i18n)} : {};
+    }
+
+    detail2(i18n){
+        return this.isIndividual() ? {label: "Gender", value: i18n.t(this.gender.name)} : {};
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,
@@ -427,7 +473,8 @@ class Individual extends BaseEntity {
             encounters: this.encounters,
             observations: this.observations,
             relationships: this.relationships,
-            voided: this.voided
+            voided: this.voided,
+            subjectType: this.subjectType
         };
     }
 }
