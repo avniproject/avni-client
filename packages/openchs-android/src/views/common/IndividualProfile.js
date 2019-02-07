@@ -105,6 +105,7 @@ class IndividualProfile extends AbstractComponent {
                     </View>
                     <Text
                         style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
+                    {this.programProfileHeading()}
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
                         {this.props.viewContext === IndividualProfile.viewContext.Individual ?
                             this.renderProfileActionButton('mode-edit', 'editProfile', () => {

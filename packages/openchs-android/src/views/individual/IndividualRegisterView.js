@@ -50,7 +50,7 @@ class IndividualRegisterView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration')}/>
+                    <AppHeader title={this.I18n.t('registration', {subjectName:'Individual'})}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',

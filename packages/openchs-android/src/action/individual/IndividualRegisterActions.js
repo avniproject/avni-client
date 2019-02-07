@@ -1,7 +1,7 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Gender, Form, Individual} from "openchs-models";
+import {Gender, Form, Individual, SubjectType} from "openchs-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
 
@@ -10,12 +10,19 @@ export class IndividualRegisterActions {
         const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
         const genders = context.get(EntityService).getAll(Gender.schema.name);
         const gendersSortedByName = _.sortBy(genders, "name");
-        return {form: form, genders: gendersSortedByName};
+        const subjectTypes = context.get(EntityService).getAll(SubjectType.schema.name);
+        return {form: form, genders: gendersSortedByName, individualSubjectType: subjectTypes[0]};
     }
 
     static onLoad(state, action, context) {
         const individual = _.isNil(action.individualUUID) ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
+
+        if (_.isEmpty(individual.subjectType.name)) {
+            console.log('onLoad setting subjectType', state.individualSubjectType);
+            individual.subjectType = state.individualSubjectType;
+        }
+
         const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
         IndividualRegisterActions.setAgeState(newState);
         return newState;
