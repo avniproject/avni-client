@@ -9,7 +9,7 @@ import {Icon as Icon2} from "native-base";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
-import {EntityMetaData} from "openchs-models";
+import {EntityMetaData, SubjectType} from "openchs-models";
 import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
@@ -29,6 +29,7 @@ import AuthenticationError from "../service/AuthenticationError";
 import AuthService from "../service/AuthService";
 import RuleService from "../service/RuleService";
 import bugsnag from "../utility/bugsnag";
+import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
 
 const {width, height} = Dimensions.get('window');
 
@@ -91,7 +92,8 @@ class MenuView extends AbstractComponent {
     }
 
     registrationView() {
-        CHSNavigator.navigateToIndividualRegisterView(this);
+        const isIndividual = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0].isIndividual();
+        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this): CHSNavigator.navigateToSubjectRegisterView(this);
     }
 
     changePasswordView() {
@@ -108,6 +110,10 @@ class MenuView extends AbstractComponent {
         this.context.getService(MessageService).init();
         this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
+
+        //To load subjectType after sync
+        this.dispatchAction(IndividualSearchActions.ON_LOAD);
+
         this.setState({syncing: false, error: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
@@ -262,8 +268,10 @@ class MenuView extends AbstractComponent {
     }
 
     render() {
+        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
+        const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
+            [registerIcon, this.I18n.t("register"), this.registrationView.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             ["video-library", this.I18n.t("VideoList"), this.videoListView.bind(this)],

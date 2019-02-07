@@ -24,6 +24,7 @@ import IndividualAddRelativeView from "../views/individual/IndividualAddRelative
 import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
+import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 
 
 class CHSNavigator {
@@ -161,6 +162,10 @@ class CHSNavigator {
 
     static navigateToVideoPlayerView(source, props) {
         TypedTransition.from(source).with(props).to(VideoPlayerView, true);
+    }
+
+    static navigateToSubjectRegisterView(source, subjectUUID) {
+        TypedTransition.from(source).with({subjectUUID}).to(SubjectRegisterView);
     }
 }
 

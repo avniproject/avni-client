@@ -17,6 +17,7 @@ import {
 } from "openchs-models";
 import EntityFactory from "openchs-models/test/EntityFactory";
 import moment from "moment";
+import SubjectType from "../../../openchs-models/src/SubjectType";
 
 describe("Malaria medications", () => {
     let encounter, weightConcept, paracheckConcept, complaintsConcept, complaintsObs, availableTabletsACTObs, availableTabletsConcept;
@@ -28,7 +29,7 @@ describe("Malaria medications", () => {
         paracheckConcept = EntityFactory.createConcept("Paracheck", Concept.dataType.Coded);
         EntityFactory.addCodedAnswers(paracheckConcept, ["Positive for PF", "Positive for PF and PV", "Positive for PV", "Negative"]);
         encounter = Encounter.create();
-        encounter.individual = Individual.newInstance("0bdf1d2c-b918-47b8-ac59-343060c3de4b", "first", "last", moment().subtract(2, 'years').toDate(), true, Gender.create("Female"), 1);
+        encounter.individual = Individual.newInstance("0bdf1d2c-b918-47b8-ac59-343060c3de4b", "first", "last", moment().subtract(2, 'years').toDate(), true, Gender.create("Female"), 1, SubjectType.create(""));
 
         complaintsObs = Observation.create(complaintsConcept, new MultipleCodedValues());
         complaintsObs.toggleMultiSelectAnswer(complaintsConcept.getPossibleAnswerConcept("Fever").concept.uuid);

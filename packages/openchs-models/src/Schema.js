@@ -43,11 +43,12 @@ import Video from "./videos/Video";
 import VideoTelemetric from "./videos/VideoTelemetric";
 import MediaQueue from "./MediaQueue";
 import Point from "./geo/Point";
+import SubjectType from "./SubjectType";
 
 export default {
     //order is important, should be arranged according to the dependency
     schema: [LocaleMapping, Settings, ConceptAnswer, Concept, EncounterType, Gender, UserDefinedIndividualProperty,
-        LocationMapping, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, Individual,
+        LocationMapping, AddressLevel, KeyValue, Form, FormMapping, FormElementGroup, FormElement, SubjectType, Individual,
         ProgramOutcome, Program, ProgramEnrolment, Observation, ProgramEncounter, Encounter, EntitySyncStatus,
         EntityQueue, ConfigFile, Checklist, ChecklistItem, Format, UserInfo, StringKeyNumericValue, VisitScheduleInterval,
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
@@ -235,6 +236,18 @@ export default {
         }
         if (oldDB.schemaVersion < 90) {
             _.forEach(newDB.objects('Settings'), item => (item.devSkipValidation = false));
+        }
+        if (oldDB.schemaVersion < 93) {
+            const individuals = newDB.objects('Individual');
+            if(individuals.length > 0){
+                const individualSubjectType = SubjectType.create('Individual');
+                //This is the uuid used in server migration to create Individual subjectType
+                individualSubjectType.uuid = '9f2af1f9-e150-4f8e-aad3-40bb7eb05aa3';
+                individualSubjectType.voided = false;
+                newDB.create(SubjectType.schema.name, individualSubjectType, true);
+                _.forEach(individuals, item => (item.subjectType = individualSubjectType));
+            }
+
         }
     }
 };

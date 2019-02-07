@@ -1,10 +1,19 @@
 import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelService from "../../service/AddressLevelService";
+import EntityService from "../../service/EntityService";
+import {SubjectType} from "openchs-models";
+import _ from "lodash";
 
 export class IndividualSearchActions {
     static clone(state) {
-        return {searchCriteria: state.searchCriteria.clone()};
+        return {searchCriteria: state.searchCriteria.clone(), subjectType:state.subjectType.clone()};
+    }
+
+    static onLoad(state, action, context) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0] || SubjectType.create("");
+        return newState;
     }
 
     static enterNameCriteria(state, action, beans) {
@@ -53,7 +62,7 @@ export class IndividualSearchActions {
     };
 
     static getInitialState(state) {
-        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false};
+        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false, subjectType: SubjectType.create("")};
     }
 
     static reset(state) {
@@ -62,6 +71,7 @@ export class IndividualSearchActions {
 }
 
 const individualSearchActions = {
+    ON_LOAD: "dc7cdc96-c4d9-41d5-be1d-1c4c1d588801",
     ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
@@ -78,7 +88,8 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_VOIDED_CRITERIA, IndividualSearchActions.enterVoidedCriteria],
     [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
     [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria],
-    [individualSearchActions.RESET, IndividualSearchActions.reset]
+    [individualSearchActions.RESET, IndividualSearchActions.reset],
+    [individualSearchActions.ON_LOAD, IndividualSearchActions.onLoad],
 ]);
 
 export {

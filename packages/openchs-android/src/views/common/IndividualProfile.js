@@ -47,13 +47,20 @@ class IndividualProfile extends AbstractComponent {
     }
 
     editProfile() {
-        CHSNavigator.navigateToIndividualRegisterView(this, this.props.individual.uuid);
+        this.props.individual.subjectType.isIndividual() ? CHSNavigator.navigateToIndividualRegisterView(this, this.props.individual.uuid) :
+            CHSNavigator.navigateToSubjectRegisterView(this, this.props.individual.uuid);
     }
 
     renderViewEnrolmentsIfNecessary() {
         if (this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program) {
             return this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments())
         }
+    }
+
+
+    programProfileHeading(){
+        return     this.props.individual.subjectType.isIndividual() ?
+            <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> : <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -98,8 +105,7 @@ class IndividualProfile extends AbstractComponent {
                     </View>
                     <Text
                         style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
-                    <Text
-                        style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                    {this.programProfileHeading()}
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
                         {this.props.viewContext === IndividualProfile.viewContext.Individual ?
                             this.renderProfileActionButton('mode-edit', 'editProfile', () => {
@@ -114,7 +120,7 @@ class IndividualProfile extends AbstractComponent {
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
                         {this.props.viewContext === IndividualProfile.viewContext.Individual &&
-                            !this.props.individual.voided && 
+                            !this.props.individual.voided &&
                             this.renderProfileActionButton('delete', 'void', () => this.voidIndividual())
                         }
                     </View>
@@ -131,10 +137,13 @@ class IndividualProfile extends AbstractComponent {
                         <Text
                             style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <Text style={{fontSize: Fonts.Normal}}>
-                            {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
-                    </View>
+                    {
+                        this.props.individual.subjectType.isIndividual() ?
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={{fontSize: Fonts.Normal}}>
+                                    {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
+                            </View> : <View/>
+                    }
                 </View>
             );
     }

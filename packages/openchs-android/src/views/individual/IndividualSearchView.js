@@ -34,6 +34,12 @@ class IndividualSearchView extends AbstractComponent {
         return 'IndividualSearchView';
     }
 
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD);
+        super.componentWillMount();
+    }
+
+
     searchIndividual() {
         this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
             cb: (individualSearchResults, count) => TypedTransition.from(this).with({
@@ -46,7 +52,6 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
@@ -61,14 +66,14 @@ class IndividualSearchView extends AbstractComponent {
                                          element={new StaticFormElement('name')}
                                          style={Styles.simpleTextFormElement}
                                          value={new PrimitiveValue(this.state.searchCriteria.name)} multiline={false}/>
-                        <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
+                        {this.state.subjectType.isIndividual() ? <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
                                          element={new StaticFormElement('age')}
                                          style={Styles.simpleTextFormElement}
-                                         value={new PrimitiveValue(this.state.searchCriteria.age)} multiline={false}/>
-                        <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
+                                         value={new PrimitiveValue(this.state.searchCriteria.age)} multiline={false}/> : null }
+                        {this.state.subjectType.isIndividual() ? <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                          element={new StaticFormElement('obsKeyword')}
                                          style={Styles.simpleTextFormElement}
-                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)} multiline={false}/>
+                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)} multiline={false}/> : null}
                         <AddressLevels
                             key={this.state.key}
                             onSelect={(selectedAddressLevels) =>

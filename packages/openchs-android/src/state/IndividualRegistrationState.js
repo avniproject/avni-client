@@ -5,12 +5,13 @@ import ConceptService from "../service/ConceptService";
 import {StaticFormElementGroup, Individual, ObservationsHolder} from "openchs-models";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements) {
+    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType) {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
         this.individual = individual;
+        this.individualSubjectType = individualSubjectType;
     }
 
     getEntity() {
@@ -23,7 +24,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     static createLoadState(form, genders, individual) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, []);
+        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType);
         individualRegistrationState.form = form;
         return individualRegistrationState;
     }
@@ -36,6 +37,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.ageProvidedInYears = this.ageProvidedInYears;
         newState.form = this.form;
         newState.filteredFormElements = this.filteredFormElements;
+        newState.individualSubjectType = this.individualSubjectType.clone();
         super.clone(newState);
         return newState;
     }
