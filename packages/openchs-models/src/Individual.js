@@ -281,7 +281,7 @@ class Individual extends BaseEntity {
         validationResults.push(this.validateRegistrationDate());
         validationResults.push(this.validateGender());
         validationResults.push(this.validateAddress());
-        validationResults.push(this.validateRegistrationLocation());
+        //validationResults.push(this.validateRegistrationLocation());
         return validationResults;
     }
 

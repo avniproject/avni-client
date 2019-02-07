@@ -10,13 +10,21 @@ import ValidationErrorMessage from "../ValidationErrorMessage";
 import General from "../../../utility/General";
 
 class GeolocationFormElement extends AbstractComponent {
+    static propTypes = {
+        validationResult: React.PropTypes.object,
+        state: React.PropTypes.object.isRequired,
+        loadFromGps: React.PropTypes.bool.isRequired
+    };
+
     constructor(props, context) {
         super(props, context);
         this.getPosition = this.getPosition.bind(this);
     }
 
     componentWillMount() {
-        this.getPosition();
+        if(this.props.loadFromGps) {
+            this.getPosition();
+        }
         return super.componentWillMount();
     }
 

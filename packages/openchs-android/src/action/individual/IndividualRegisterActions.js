@@ -46,7 +46,7 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         const position = action.value;
         newState.individual.setRegistrationLocation(position.coords.latitude, position.coords.longitude);
-        newState.handleValidationResult(newState.individual.validateRegistrationLocation());
+        //newState.handleValidationResult(newState.individual.validateRegistrationLocation());
         return newState;
     }
 
