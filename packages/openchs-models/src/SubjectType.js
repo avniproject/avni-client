@@ -40,7 +40,6 @@ class SubjectType extends ReferenceEntity {
         return this.name === 'Individual';
     }
 
-    registerIcon() {}
 }
 
 export default SubjectType;

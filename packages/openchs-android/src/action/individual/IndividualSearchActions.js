@@ -6,7 +6,7 @@ import {SubjectType} from "openchs-models";
 
 export class IndividualSearchActions {
     static clone(state) {
-        return {searchCriteria: state.searchCriteria.clone()};
+        return {searchCriteria: state.searchCriteria.clone(), subjectType:state.subjectType.clone()};
     }
 
     static onLoad(state, action, context) {
@@ -61,7 +61,7 @@ export class IndividualSearchActions {
     };
 
     static getInitialState(state) {
-        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false};
+        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false, subjectType: SubjectType.create("")};
     }
 
     static reset(state) {

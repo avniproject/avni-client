@@ -52,8 +52,6 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        console.log('ISV.render',this.state.subjectType);
-
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
