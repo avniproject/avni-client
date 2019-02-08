@@ -238,12 +238,15 @@ export default {
             _.forEach(newDB.objects('Settings'), item => (item.devSkipValidation = false));
         }
         if (oldDB.schemaVersion < 93) {
-            const individualSubjectType = SubjectType.create('Individual');
-            //This is the uuid used in server migration to create Individual subjectType
-            individualSubjectType.uuid = '9f2af1f9-e150-4f8e-aad3-40bb7eb05aa3';
-            individualSubjectType.voided = false;
-            newDB.create(SubjectType.schema.name, individualSubjectType, true);
-            _.forEach(newDB.objects('Individual'), item => (item.subjectType = individualSubjectType));
+            const individuals = newDB.objects('Individual');
+            if(individuals.length > 0){
+                const individualSubjectType = SubjectType.create('Individual');
+                //This is the uuid used in server migration to create Individual subjectType
+                individualSubjectType.uuid = '9f2af1f9-e150-4f8e-aad3-40bb7eb05aa3';
+                individualSubjectType.voided = false;
+                newDB.create(SubjectType.schema.name, individualSubjectType, true);
+                _.forEach(individuals, item => (item.subjectType = individualSubjectType));
+            }
 
         }
     }
