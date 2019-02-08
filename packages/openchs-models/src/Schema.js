@@ -237,13 +237,14 @@ export default {
         if (oldDB.schemaVersion < 90) {
             _.forEach(newDB.objects('Settings'), item => (item.devSkipValidation = false));
         }
-        //TODO For some reason this is not working. Need to check and fix this.
-        // if (oldDB.schemaVersion < 102) {
-        //     const individualSubjectType = SubjectType.create('Individual');
-        //     individualSubjectType.uuid = '9f2af1f9-e150-4f8e-aad3-40bb7eb05aa3';
-        //     individualSubjectType.displayName = 'Individual';
-        //     newDB.create('SubjectType', individualSubjectType);
-        //     _.forEach(newDB.objects('Individual'), item => (item.subjectType = individualSubjectType));
-        // }
+        if (oldDB.schemaVersion < 93) {
+            const individualSubjectType = SubjectType.create('Individual');
+            //This is the uuid used in server migration to create Individual subjectType
+            individualSubjectType.uuid = '9f2af1f9-e150-4f8e-aad3-40bb7eb05aa3';
+            individualSubjectType.voided = false;
+            newDB.create(SubjectType.schema.name, individualSubjectType, true);
+            _.forEach(newDB.objects('Individual'), item => (item.subjectType = individualSubjectType));
+
+        }
     }
 };

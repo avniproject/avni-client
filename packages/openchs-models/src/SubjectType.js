@@ -1,6 +1,5 @@
 import ReferenceEntity from "./ReferenceEntity";
 import General from "./utility/General";
-import _ from 'lodash';
 
 class SubjectType extends ReferenceEntity {
     static schema = {
@@ -9,8 +8,6 @@ class SubjectType extends ReferenceEntity {
         properties: {
             uuid: 'string',
             name: 'string',
-            operationalSubjectTypeName: {type: 'string', optional: true},
-            displayName: 'string',
             voided: { type: 'bool', default: false }
         }
     };
@@ -24,16 +21,18 @@ class SubjectType extends ReferenceEntity {
 
     static fromResource(operationalSubjectType) {
         const subjectType = new SubjectType();
-        subjectType.name = operationalSubjectType.subjectTypeName;
+        subjectType.name = operationalSubjectType.name;
         subjectType.uuid = operationalSubjectType.subjectTypeUUID;
-        subjectType.voided = !!operationalSubjectType.subjectTypeVoided;
-        subjectType.operationalSubjectTypeName = operationalSubjectType.name;
-        subjectType.displayName = _.isEmpty(subjectType.operationalSubjectTypeName) ? subjectType.name : subjectType.operationalSubjectTypeName;
+        subjectType.voided = !!operationalSubjectType.voided;
         return subjectType;
     }
 
     clone() {
-        return General.assignFields(this,super.clone(new SubjectType()),['operationalSubjectTypeName','displayName']);
+        const cloned = new SubjectType();
+        cloned.uuid = this.uuid;
+        cloned.name = this.name;
+        cloned.voided = this.voided;
+        return cloned;
     }
 
     isIndividual(){
