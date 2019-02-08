@@ -50,7 +50,7 @@ class GeolocationFormElement extends AbstractComponent {
         return (
             <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
                 <Text style={Styles.formLabel}>
-                    {`GPS Coordinates ${this.props.editing ? 'Editing' : 'Readonly'}`}
+                    GPS Coordinates
                 </Text>
                 <Text
                     style={[
