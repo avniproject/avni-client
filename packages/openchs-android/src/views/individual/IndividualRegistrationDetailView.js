@@ -88,7 +88,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const relativesFeatureToggle = true;
+        const relativesFeatureToggle = this.state.individual.isIndividual();
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
