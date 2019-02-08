@@ -3,6 +3,7 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
 import {SubjectType} from "openchs-models";
+import _ from "lodash";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -11,7 +12,7 @@ export class IndividualSearchActions {
 
     static onLoad(state, action, context) {
         const newState = IndividualSearchActions.clone(state);
-        newState.subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0];
+        newState.subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0] || SubjectType.create("");
         return newState;
     }
 

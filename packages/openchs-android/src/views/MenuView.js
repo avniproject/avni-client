@@ -29,6 +29,7 @@ import AuthenticationError from "../service/AuthenticationError";
 import AuthService from "../service/AuthService";
 import RuleService from "../service/RuleService";
 import bugsnag from "../utility/bugsnag";
+import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
 
 const {width, height} = Dimensions.get('window');
 
@@ -109,6 +110,10 @@ class MenuView extends AbstractComponent {
         this.context.getService(MessageService).init();
         this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
+
+        //To load subjectType after sync
+        this.dispatchAction(IndividualSearchActions.ON_LOAD);
+
         this.setState({syncing: false, error: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
