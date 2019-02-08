@@ -17,6 +17,8 @@ import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
+import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -46,6 +48,8 @@ class ProgramFormComponent extends AbstractComponent {
     }
 
     render() {
+        const enrol = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol;
+
         return (<CHSContainer theme={themes}>
             <CHSContent ref="scroll">
                 <AppHeader
@@ -53,6 +57,11 @@ class ProgramFormComponent extends AbstractComponent {
                     func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
+                        <GeolocationFormElement
+                            location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}
+                            editing={true}
+                            actionName={enrol ? Actions.SET_ENROLMENT_LOCATION : Actions.SET_EXIT_LOCATION}
+                        />
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                            individual={this.props.state.enrolment.individual}/>
                         <DateFormElement actionName={this.props.context.dateAction}

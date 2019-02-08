@@ -167,10 +167,6 @@ class Individual extends BaseEntity {
         this.name = this.nameString;
     }
 
-    setRegistrationLocation(x, y) {
-        this.registrationLocation = Point.newInstance(x, y);
-    }
-
     getDisplayAge(i18n) {
         //Keeping date of birth to be always entered and displayed as per the current date. It would be perhaps more error prone for users to put themselves in the past and enter age as of that date
         const ageInYears = this.getAgeInYears();

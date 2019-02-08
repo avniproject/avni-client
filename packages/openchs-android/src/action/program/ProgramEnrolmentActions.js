@@ -3,10 +3,11 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
-import _ from 'lodash';
+import _ from "lodash";
 import {StaticFormElementGroup, ProgramEnrolment} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {Point} from "openchs-models";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -16,18 +17,32 @@ export class ProgramEnrolmentActions {
     static onLoad(state, action, context) {
         if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action) || action.forceLoad) {
             const formMappingService = context.get(FormMappingService);
-            const form = action.usage === ProgramEnrolmentState.UsageKeys.Enrol ? formMappingService.findFormForProgramEnrolment(action.enrolment.program) : formMappingService.findFormForProgramExit(action.enrolment.program);
-            const isNewEnrolment = _.isNil(action.enrolment.uuid) ? true : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
+            const form =
+                action.usage === ProgramEnrolmentState.UsageKeys.Enrol
+                    ? formMappingService.findFormForProgramEnrolment(action.enrolment.program)
+                    : formMappingService.findFormForProgramExit(action.enrolment.program);
+            const isNewEnrolment = _.isNil(action.enrolment.uuid)
+                ? true
+                : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
             const formElementGroup = _.isNil(form) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
-            let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
+            let formElementStatuses = context
+                .get(RuleEvaluationService)
+                .getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
-            let programEnrolmentState = new ProgramEnrolmentState([], formElementGroup, new Wizard(numberOfPages, 1), action.usage, action.enrolment, isNewEnrolment, filteredElements);
+            let programEnrolmentState = new ProgramEnrolmentState(
+                [],
+                formElementGroup,
+                new Wizard(numberOfPages, 1),
+                action.usage,
+                action.enrolment,
+                isNewEnrolment,
+                filteredElements
+            );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
             return programEnrolmentState;
-        }
-        else {
+        } else {
             return state.clone();
         }
     }
@@ -36,6 +51,20 @@ export class ProgramEnrolmentActions {
         const newState = state.clone();
         newState.enrolment.enrolmentDateTime = action.value;
         newState.handleValidationResults(newState.enrolment.validateEnrolment(), context);
+        return newState;
+    }
+
+    static setEnrolmentLocation(state, action) {
+        const newState = state.clone();
+        const position = action.value;
+        newState.enrolment.enrolmentLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        return newState;
+    }
+
+    static setExitLocation(state, action) {
+        const newState = state.clone();
+        const position = action.value;
+        newState.enrolment.exitLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         return newState;
     }
 
@@ -58,10 +87,14 @@ export class ProgramEnrolmentActions {
         const newState = state.clone();
         const service = context.get(ProgramEnrolmentService);
         if (newState.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
-            context.get(ConceptService).addDecisions(newState.enrolment.observations, action.decisions.enrolmentDecisions);
+            context
+                .get(ConceptService)
+                .addDecisions(newState.enrolment.observations, action.decisions.enrolmentDecisions);
             newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits);
         } else {
-            context.get(ConceptService).addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
+            context
+                .get(ConceptService)
+                .addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
             service.exit(newState.enrolment);
         }
         action.cb();
@@ -75,13 +108,15 @@ const actions = {
     EXIT_DATE_TIME_CHANGED: "PEA.EXIT_DATE_TIME_CHANGED",
     TOGGLE_MULTISELECT_ANSWER: "PEA.TOGGLE_MULTISELECT_ANSWER",
     TOGGLE_SINGLESELECT_ANSWER: "PEA.TOGGLE_SINGLESELECT_ANSWER",
-    PRIMITIVE_VALUE_CHANGE: 'PEA.PRIMITIVE_VALUE_CHANGE',
-    PRIMITIVE_VALUE_END_EDITING: 'PEA.PRIMITIVE_VALUE_END_EDITING',
-    NEXT: 'PEA.NEXT',
-    PREVIOUS: 'PEA.PREVIOUS',
-    SAVE: 'PEA.SAVE',
-    DURATION_CHANGE: 'PEA.DURATION_CHANGE',
-    DATE_DURATION_CHANGE: 'PEA.DATE_DURATION_CHANGE'
+    PRIMITIVE_VALUE_CHANGE: "PEA.PRIMITIVE_VALUE_CHANGE",
+    PRIMITIVE_VALUE_END_EDITING: "PEA.PRIMITIVE_VALUE_END_EDITING",
+    NEXT: "PEA.NEXT",
+    PREVIOUS: "PEA.PREVIOUS",
+    SAVE: "PEA.SAVE",
+    DURATION_CHANGE: "PEA.DURATION_CHANGE",
+    DATE_DURATION_CHANGE: "PEA.DATE_DURATION_CHANGE",
+    SET_ENROLMENT_LOCATION: "PEA.SET_ENROLMENT_LOCATION",
+    SET_EXIT_LOCATION: "PEA.SET_EXIT_LOCATION"
 };
 
 export default new Map([
@@ -96,7 +131,9 @@ export default new Map([
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
     [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious],
-    [actions.SAVE, ProgramEnrolmentActions.onSave]
+    [actions.SAVE, ProgramEnrolmentActions.onSave],
+    [actions.SET_ENROLMENT_LOCATION, ProgramEnrolmentActions.setEnrolmentLocation],
+    [actions.SET_EXIT_LOCATION, ProgramEnrolmentActions.setExitLocation]
 ]);
 
 export {actions as Actions};

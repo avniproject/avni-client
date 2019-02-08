@@ -66,16 +66,16 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter) {
-        TypedTransition.from(source).with({programEncounter: programEncounter}).to(ProgramEncounterView);
+    static navigateToProgramEncounterView(source, programEncounter, editing=false) {
+        TypedTransition.from(source).with({programEncounter: programEncounter, editing}).to(ProgramEncounterView);
     }
 
     static navigateToChecklistItemView(source, checklistItem) {
         TypedTransition.from(source).with({checklistItem: checklistItem}).to(ChecklistItemView);
     }
 
-    static navigateToProgramEncounterCancelView(source, programEncounter) {
-        TypedTransition.from(source).with({programEncounter: programEncounter}).to(ProgramEncounterCancelView);
+    static navigateToProgramEncounterCancelView(source, programEncounter, editing=false) {
+        TypedTransition.from(source).with({programEncounter: programEncounter, editing}).to(ProgramEncounterCancelView);
     }
 
     static navigateToIndividualRegistrationDetails(source, individual, backFunction) {
@@ -90,10 +90,11 @@ class CHSNavigator {
         TypedTransition.from(source).with({onIndividualSelection: onIndividualSelection}).to(IndividualSearchView, true);
     }
 
-    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter) {
+    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing=false) {
         TypedTransition.from(source).bookmark().with({
             encounter: encounter,
-            individualUUID: individualUUID
+            individualUUID: individualUUID,
+            editing
         }).to(IndividualEncounterLandingView, true);
     }
 

@@ -21,6 +21,7 @@ import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
 import FormMappingService from "../../service/FormMappingService";
+import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -78,6 +79,10 @@ class IndividualEncounterLandingView extends AbstractComponent {
                         paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
+                        <GeolocationFormElement
+                            location={this.state.encounter.encounterLocation}
+                            editing={this.props.editing}
+                            actionName={Actions.SET_ENCOUNTER_LOCATION}/>
                         <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
                                          element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
                                          dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}

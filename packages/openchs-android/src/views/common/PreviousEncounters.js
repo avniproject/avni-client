@@ -33,15 +33,16 @@ class PreviousEncounters extends AbstractComponent {
 
     editEncounter(encounter) {
         encounter = encounter.cloneForEdit();
+        const editing = true;
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
         if (encounter.getName() === 'Encounter') {
-            CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter);
+            CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter, editing);
         }
         else if (encounter.isCancelled()) {
-            CHSNavigator.navigateToProgramEncounterCancelView(this, encounter);
+            CHSNavigator.navigateToProgramEncounterCancelView(this, encounter, editing);
         }
         else {
-            CHSNavigator.navigateToProgramEncounterView(this, encounter);
+            CHSNavigator.navigateToProgramEncounterView(this, encounter, editing);
         }
 
     }

@@ -7,6 +7,7 @@ import moment from "moment";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
 import {findMediaObservations} from "./Media";
+import Point from "./geo/Point";
 
 class ProgramEncounter extends AbstractEncounter {
     static fieldKeys = {
@@ -27,7 +28,9 @@ class ProgramEncounter extends AbstractEncounter {
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'},
             cancelDateTime: {type: 'date', optional: true},
-            cancelObservations: {type: 'list', objectType: 'Observation'}
+            cancelObservations: {type: 'list', objectType: 'Observation'},
+            encounterLocation: {type: 'Point', optional: true},
+            cancelLocation: {type: 'Point', optional: true}
         }
     };
 
@@ -37,6 +40,13 @@ class ProgramEncounter extends AbstractEncounter {
         programEncounter.programEnrolment = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "programEnrolmentUUID"), ProgramEnrolment.schema.name);
         General.assignDateFields(["earliestVisitDateTime", "maxVisitDateTime", "cancelDateTime"], resource, programEncounter);
         programEncounter.name = resource.name;
+
+        if(!_.isNil(resource.encounterLocation))
+            programEncounter.encounterLocation = Point.fromResource(resource.encounterLocation);
+
+        if(!_.isNil(resource.cancelLocation))
+            programEncounter.cancelLocation = Point.fromResource(resource.cancelLocation);
+
         return programEncounter;
     }
 
@@ -55,6 +65,12 @@ class ProgramEncounter extends AbstractEncounter {
         resource.cancelObservations = _.map(this.cancelObservations, (obs) => {
             return obs.toResource
         });
+        if(!_.isNil(this.encounterLocation)) {
+            resource["encounterLocation"] = this.encounterLocation.toResource;
+        }
+        if(!_.isNil(this.cancelLocation)) {
+            resource["cancelLocation"] = this.cancelLocation.toResource;
+        }
         return resource;
     }
 
@@ -79,7 +95,8 @@ class ProgramEncounter extends AbstractEncounter {
         programEncounter.maxVisitDateTime = this.maxVisitDateTime;
         programEncounter.cancelDateTime = this.cancelDateTime;
         programEncounter.cancelObservations = ObservationsHolder.clone(this.cancelObservations);
-
+        programEncounter.encounterLocation = _.isNil(this.encounterLocation) ? null : this.encounterLocation.clone();
+        programEncounter.cancelLocation = _.isNil(this.cancelLocation) ? null : this.cancelLocation.clone();
         return programEncounter;
     }
 

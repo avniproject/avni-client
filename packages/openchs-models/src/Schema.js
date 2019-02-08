@@ -53,7 +53,7 @@ export default {
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
         ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue, Point],
-    schemaVersion: 92,
+    schemaVersion: 93,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');

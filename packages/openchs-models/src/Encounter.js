@@ -8,6 +8,7 @@ import moment from "moment";
 import EncounterType from "./EncounterType";
 import {findMediaObservations} from "./Media";
 import ObservationsHolder from "./ObservationsHolder";
+import Point from "./geo/Point";
 
 class Encounter extends AbstractEncounter {
     static schema = {
@@ -18,7 +19,8 @@ class Encounter extends AbstractEncounter {
             encounterType: 'EncounterType',
             encounterDateTime: 'date',
             individual: 'Individual',
-            observations: {type: 'list', objectType: 'Observation'}
+            observations: {type: 'list', objectType: 'Observation'},
+            encounterLocation: {type: 'Point', optional: true}
         }
     };
 
@@ -35,6 +37,10 @@ class Encounter extends AbstractEncounter {
         const encounter = AbstractEncounter.fromResource(resource, entityService, new Encounter());
 
         encounter.individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
+
+        if(!_.isNil(resource.encounterLocation))
+            encounter.encounterLocation = Point.fromResource(resource.encounterLocation);
+
         return encounter;
     }
 
@@ -42,12 +48,16 @@ class Encounter extends AbstractEncounter {
         const resource = super.toResource;
         resource.encounterDateTime = moment(this.encounterDateTime).format();
         resource["individualUUID"] = this.individual.uuid;
+        if(!_.isNil(this.encounterLocation)) {
+            resource["encounterLocation"] = this.encounterLocation.toResource;
+        }
         return resource;
     }
 
     cloneForEdit() {
         const encounter = super.cloneForEdit(new Encounter());
         encounter.individual = this.individual;
+        encounter.encounterLocation = _.isNil(this.encounterLocation) ? null : this.encounterLocation.clone();
         return encounter;
     }
 

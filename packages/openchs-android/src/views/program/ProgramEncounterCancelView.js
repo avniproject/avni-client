@@ -18,6 +18,12 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import EncounterService from "../../service/EncounterService";
+import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+import DateFormElement from "../form/formElement/DateFormElement";
+import StaticFormElement from "../viewmodel/StaticFormElement";
+import PrimitiveValue from "../../../../openchs-models/src/observation/PrimitiveValue";
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import AbstractEncounter from "../../../../openchs-models/src/AbstractEncounter";
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -28,7 +34,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
     viewName() {
         return 'ProgramEncounterCancelView';
     }
-
+this
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounterCancel);
     }
@@ -72,6 +78,12 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.nameString}
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                        {this.state.wizard.isFirstPage() &&
+                            <GeolocationFormElement
+                                location={this.state.programEncounter.cancelLocation}
+                                editing={this.props.params.editing}
+                                actionName={Actions.SET_CANCEL_LOCATION}/>
+                        }
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}
                             group={this.state.formElementGroup}

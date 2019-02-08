@@ -48,7 +48,7 @@ class IndividualRegisterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
-        const beingEdited = !_.isNil(this.props.params.individualUUID);
+        const editing = !_.isNil(this.props.params.individualUUID);
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
@@ -59,8 +59,9 @@ class IndividualRegisterView extends AbstractComponent {
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
                         <GeolocationFormElement
-                            state={this.state}
-                            loadFromGps={!beingEdited}
+                            actionName={Actions.REGISTRATION_SET_LOCATION}
+                            location={this.state.individual.registrationLocation}
+                            editing={editing}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}
                         />
                         <RegistrationDateFormElement state={this.state}/>

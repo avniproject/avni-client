@@ -20,11 +20,12 @@ import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
+import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: React.PropTypes.object.isRequired,
     };
 
     viewName() {
@@ -75,10 +76,17 @@ class ProgramEncounterView extends AbstractComponent {
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
-                            <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
-                                             element={new StaticFormElement('encounterDate')}
-                                             dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
-                                             validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                            <View>
+                                <GeolocationFormElement
+                                    location={this.state.programEncounter.encounterLocation}
+                                    editing={this.props.params.editing}
+                                    actionName={Actions.SET_ENCOUNTER_LOCATION}
+                                />
+                                <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
+                                                 element={new StaticFormElement('encounterDate')}
+                                                 dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                            </View>
                             :
                             <View/>
                         }

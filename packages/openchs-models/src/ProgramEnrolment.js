@@ -11,6 +11,7 @@ import ObservationsHolder from "./ObservationsHolder";
 import ValidationResult from "./application/ValidationResult";
 import Checklist from "./Checklist";
 import {findMediaObservations} from "./Media";
+import Point from "./geo/Point";
 
 class ProgramEnrolment extends BaseEntity {
     static schema = {
@@ -26,7 +27,9 @@ class ProgramEnrolment extends BaseEntity {
             programOutcome: {type: 'ProgramOutcome', optional: true},
             encounters: {type: 'list', objectType: 'ProgramEncounter'},
             checklists: {type: 'list', objectType: 'Checklist'},
-            individual: 'Individual'
+            individual: 'Individual',
+            enrolmentLocation: {type: 'Point', optional: true},
+            exitLocation: {type: 'Point', optional: true}
         }
     };
 
@@ -68,6 +71,14 @@ class ProgramEnrolment extends BaseEntity {
             resource["observations"].push(obs.toResource);
         });
 
+
+        if(!_.isNil(this.enrolmentLocation)) {
+            resource["enrolmentLocation"] = this.enrolmentLocation.toResource;
+        }
+        if(!_.isNil(this.exitLocation)) {
+            resource["exitLocation"] = this.exitLocation.toResource;
+        }
+
         resource["programExitObservations"] = [];
         this.programExitObservations.forEach((obs) => {
             resource["programExitObservations"].push(obs.toResource);
@@ -88,6 +99,12 @@ class ProgramEnrolment extends BaseEntity {
         if (!_.isNil(programOutcomeUUID)) {
             programEnrolment.programOutcome = entityService.findByKey("uuid", programOutcomeUUID, ProgramOutcome.schema.name);
         }
+
+        if(!_.isNil(resource.enrolmentLocation))
+            programEnrolment.enrolmentLocation = Point.fromResource(resource.enrolmentLocation);
+
+        if(!_.isNil(resource.exitLocation))
+            programEnrolment.exitLocation = Point.fromResource(resource.exitLocation);
 
         return programEnrolment;
     }
@@ -123,6 +140,8 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = this.encounters;
         programEnrolment.checklists = _.map(this.checklists, list => list.clone());
+        programEnrolment.enrolmentLocation = _.isNil(this.enrolmentLocation) ? null : this.enrolmentLocation.clone();
+        programEnrolment.exitLocation = _.isNil(this.exitLocation) ? null : this.exitLocation.clone();
         return programEnrolment;
     }
 

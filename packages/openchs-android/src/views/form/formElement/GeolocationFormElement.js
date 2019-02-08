@@ -5,15 +5,15 @@ import Geo from "../../../framework/geo";
 import {View, Text} from "react-native";
 import Geolocation from "react-native-geolocation-service";
 import Colors from "../../primitives/Colors";
-import {Actions} from "../../../action/individual/IndividualRegisterActions";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import General from "../../../utility/General";
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {
-        validationResult: React.PropTypes.object,
-        state: React.PropTypes.object.isRequired,
-        loadFromGps: React.PropTypes.bool.isRequired
+        actionName: React.PropTypes.string.isRequired,
+        location: React.PropTypes.object,
+        editing: React.PropTypes.bool.isRequired,
+        validationResult: React.PropTypes.object
     };
 
     constructor(props, context) {
@@ -22,7 +22,7 @@ class GeolocationFormElement extends AbstractComponent {
     }
 
     componentWillMount() {
-        if(this.props.loadFromGps) {
+        if(!this.props.editing) {
             this.getPosition();
         }
         return super.componentWillMount();
@@ -36,7 +36,7 @@ class GeolocationFormElement extends AbstractComponent {
         console.log("requesting position");
         Geolocation.getCurrentPosition(
             position => {
-                this.dispatchAction(Actions.REGISTRATION_SET_LOCATION, {value: position});
+                this.dispatchAction(this.props.actionName, {value: position});
             },
             error => {
                 General.logError('GeolocationFormElement', error);
@@ -46,11 +46,11 @@ class GeolocationFormElement extends AbstractComponent {
     }
 
     render() {
-        const registrationLocation = this.props.state.individual.registrationLocation;
+        const location = this.props.location;
         return (
             <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
                 <Text style={Styles.formLabel}>
-                    GPS Coordinates
+                    {`GPS Coordinates ${this.props.editing ? 'Editing' : 'Readonly'}`}
                 </Text>
                 <Text
                     style={[
@@ -63,7 +63,7 @@ class GeolocationFormElement extends AbstractComponent {
                         {color: Colors.InputNormal}
                     ]}
                 >
-                    {registrationLocation != null ? `${registrationLocation.x} , ${registrationLocation.y}` : ""}
+                    {location != null ? `${location.x} , ${location.y}` : ""}
                 </Text>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
