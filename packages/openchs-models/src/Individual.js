@@ -97,11 +97,12 @@ class Individual extends BaseEntity {
         return this.enrolments.find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
     }
 
-    static newInstance(uuid, firstName, lastName, dateOfBirth, dateOfBirthVerified, gender, lowestAddressLevel) {
+    static newInstance(uuid, firstName, lastName, dateOfBirth, dateOfBirthVerified, gender, lowestAddressLevel, subjectType) {
         const individual = new Individual();
         individual.uuid = uuid;
         individual.firstName = firstName;
         individual.lastName = lastName;
+        individual.subjectType = subjectType;
         individual.name = individual.nameString;
         individual.dateOfBirth = dateOfBirth;
         individual.dateOfBirthVerified = dateOfBirthVerified;
@@ -205,7 +206,7 @@ class Individual extends BaseEntity {
     }
 
     get nameString() {
-        return this.subjectType.isIndividual() ? `${this.firstName} ${this.lastName}` : this.firstName;
+        return this.isIndividual() ? `${this.firstName} ${this.lastName}` : this.firstName;
     }
 
     getAgeIn(unit) {
