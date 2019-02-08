@@ -268,11 +268,10 @@ class MenuView extends AbstractComponent {
     }
 
     render() {
+        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
+        const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            //TODO Show a subject specific register icon which means subjectTypes will have to be
-            // TODO fetched first which won't be available on the first time load of this page OR use generic plus-box
-            // TODO ["plus-box", this.I18n.t("register"), this.registrationView.bind(this)],
-            ["account-plus", this.I18n.t("register"), this.registrationView.bind(this)],
+            [registerIcon, this.I18n.t("register"), this.registrationView.bind(this)],
             ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             ["video-library", this.I18n.t("VideoList"), this.videoListView.bind(this)],

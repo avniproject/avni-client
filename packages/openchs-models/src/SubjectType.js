@@ -40,6 +40,10 @@ class SubjectType extends ReferenceEntity {
         return this.name === 'Individual';
     }
 
+    registerIcon() {
+        return this.isIndividual() ? 'account-plus' : 'plus-box';
+    }
+
 }
 
 export default SubjectType;
