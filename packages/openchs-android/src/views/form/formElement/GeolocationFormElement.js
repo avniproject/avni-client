@@ -25,7 +25,6 @@ class GeolocationFormElement extends AbstractComponent {
         if(!this.props.editing) {
             this.getPosition();
         }
-        return super.componentWillMount();
     }
 
     async getPosition() {

@@ -90,6 +90,10 @@ class AbstractEncounter extends BaseEntity {
         return !!this.cancelDateTime;
     }
 
+    isScheduled() {
+        return _.isNil(this.encounterDateTime) && _.isNil(this.cancelDateTime);
+    }
+
     hasObservation(conceptName) {
         return !_.isNil(this.getObservationValue(conceptName));
     }

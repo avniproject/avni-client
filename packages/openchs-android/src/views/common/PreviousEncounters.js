@@ -33,7 +33,7 @@ class PreviousEncounters extends AbstractComponent {
 
     editEncounter(encounter) {
         encounter = encounter.cloneForEdit();
-        const editing = true;
+        let editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
         if (encounter.getName() === 'Encounter') {
             CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter, editing);
@@ -62,8 +62,8 @@ class PreviousEncounters extends AbstractComponent {
 
     getTitle(encounter) {
         const name = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
-        const time = _.isNil(encounter.encounterDateTime) ?
-            `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`
+        const time = _.isNil(encounter.encounterDateTime)
+            ? `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}`
             : `${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}`;
         const cancellationInformation = encounter.isCancelled() ? this.I18n.t('cancelled') : '';
         return `${name}   ${time} ${cancellationInformation}`;
