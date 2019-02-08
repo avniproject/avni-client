@@ -64,11 +64,11 @@ class EntityMetaData {
         }
     };
     static encounter() {
-        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.subject, nameTranslated: false}
+        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
     };
 
     static programEnrolment() {
-        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.subject, nameTranslated: false};
+        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
     }
 
     static formElement() {
@@ -102,7 +102,7 @@ class EntityMetaData {
             resourceName: "individualRelationship",
             type: "tx",
             nameTranslated: false,
-            parent: EntityMetaData.subject
+            parent: EntityMetaData.individual
         };
     }
 
