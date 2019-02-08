@@ -7,6 +7,7 @@ import Geolocation from "react-native-geolocation-service";
 import Colors from "../../primitives/Colors";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import General from "../../../utility/General";
+import Distances from "../../primitives/Distances";
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {
@@ -45,9 +46,10 @@ class GeolocationFormElement extends AbstractComponent {
     }
 
     render() {
+        General.logDebug('GeolocationFormElement', `render, props: editing ${this.props.editing}`)
         const location = this.props.location;
         return (
-            <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
+            <View style={this.appendedStyle({paddingTop: Distances.VerticalSpacingBetweenFormElements, flexDirection: "column", justifyContent: "flex-start"})}>
                 <Text style={Styles.formLabel}>
                     GPS Coordinates
                 </Text>

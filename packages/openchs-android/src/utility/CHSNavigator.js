@@ -35,10 +35,11 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(LandingView, true, replace);
     }
 
-    static navigateToProgramEnrolmentView(source, enrolment, backFunction) {
+    static navigateToProgramEnrolmentView(source, enrolment, backFunction, editing=false) {
         TypedTransition.from(source).with({
             enrolment: enrolment,
-            backFunction: backFunction
+            backFunction: backFunction,
+            editing
         }).to(ProgramEnrolmentView, true);
     }
 
@@ -54,8 +55,8 @@ class CHSNavigator {
         }
     }
 
-    static navigateToExitProgram(source, enrolment) {
-        TypedTransition.from(source).with({enrolment: enrolment}).to(ProgramExitView);
+    static navigateToExitProgram(source, enrolment, editing=false) {
+        TypedTransition.from(source).with({enrolment: enrolment, editing}).to(ProgramExitView);
     }
 
     static navigateToStartProgramView(source, enrolmentUUID) {

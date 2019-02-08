@@ -47,7 +47,7 @@ class ProgramExitView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent state={this.state} context={ProgramExitView.context} backFunction={() => this.onBack()}/>;
+        return <ProgramFormComponent editing={this.props.params.editing} state={this.state} context={ProgramExitView.context} backFunction={() => this.onBack()}/>;
     }
 }
 

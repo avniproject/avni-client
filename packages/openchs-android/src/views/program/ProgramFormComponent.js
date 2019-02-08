@@ -19,12 +19,12 @@ import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 
-
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
         context: React.PropTypes.object.isRequired,
         state: React.PropTypes.object.isRequired,
-        backFunction: React.PropTypes.func.isRequired
+        backFunction: React.PropTypes.func.isRequired,
+        editing: React.PropTypes.bool.isRequired
     };
 
     next() {
@@ -57,13 +57,14 @@ class ProgramFormComponent extends AbstractComponent {
                     func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
-                        <GeolocationFormElement
-                            location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}
-                            editing={true}
-                            actionName={enrol ? Actions.SET_ENROLMENT_LOCATION : Actions.SET_EXIT_LOCATION}
-                        />
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                            individual={this.props.state.enrolment.individual}/>
+                        <GeolocationFormElement
+                            location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}
+                            editing={this.props.editing}
+                            actionName={enrol ? Actions.SET_ENROLMENT_LOCATION : Actions.SET_EXIT_LOCATION}
+                            style={{marginHorizontal: Distances.ContentDistanceFromEdge}}
+                        />
                         <DateFormElement actionName={this.props.context.dateAction}
                                          element={new StaticFormElement(this.props.context.dateKey)}
                                          dateValue={new PrimitiveValue(this.props.state.enrolment[this.props.context.dateField])}

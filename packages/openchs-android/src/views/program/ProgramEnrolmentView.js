@@ -42,7 +42,7 @@ class ProgramEnrolmentView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent state={this.state} context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}/>;
+        return <ProgramFormComponent editing={this.props.editing} state={this.state} context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}/>;
     }
 }
 
