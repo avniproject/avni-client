@@ -1021,6 +1021,7 @@
     "Required4Digits": "Required 4 digits",
     "requiredFormatxxDotx": "Required format XX.X",
     "RequiredPositiveNumbers": "Required positive number",
+    "RequiredNonNegativeInteger": "Required non-negative integer",
     "Adolescent Vulnerabilities": "Risk Of",
     "Reason for School Dropout Vulnerability": "Reason(s) for Risk Of School Dropout",
     "Reason for Addiction Vulnerability": "Reason(s) for Risk Of Addiction",
