@@ -4,10 +4,9 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {ProgramEncounter, Form} from "openchs-models";
+import {ProgramEncounter, Form, Point} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import Point from "../../../../openchs-models/src/geo/Point";
 
 class ProgramEncounterActions {
     static getInitialState() {

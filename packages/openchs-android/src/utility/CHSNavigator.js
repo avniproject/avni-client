@@ -164,8 +164,8 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(VideoPlayerView, true);
     }
 
-    static navigateToSubjectRegisterView(source, subjectUUID) {
-        TypedTransition.from(source).with({subjectUUID}).to(SubjectRegisterView);
+    static navigateToSubjectRegisterView(source, subjectUUID, editing=false) {
+        TypedTransition.from(source).with({subjectUUID, editing}).to(SubjectRegisterView);
     }
 }
 

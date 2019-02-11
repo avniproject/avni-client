@@ -4,9 +4,8 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {ProgramEncounter} from "openchs-models";
+import {ProgramEncounter, Point} from "openchs-models";
 import EntityService from "../../service/EntityService";
-import Point from "../../../../openchs-models/src/geo/Point";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {

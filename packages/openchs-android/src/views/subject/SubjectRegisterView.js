@@ -21,6 +21,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import TextFormElement from "../form/formElement/TextFormElement";
 import AddressLevels from "../common/AddressLevels";
+import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -77,6 +78,10 @@ class SubjectRegisterView extends AbstractComponent {
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (
                                 <View>
+                                    <GeolocationFormElement
+                                        actionName={Actions.SET_LOCATION}
+                                        location={this.state.subject.registrationLocation}
+                                        editing={this.props.params.editing}/>
                                     <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
                                                      element={new StaticFormElement('registrationDate')}
                                                      dateValue={new PrimitiveValue(this.state.subject.registrationDate)}

@@ -5,8 +5,7 @@ import _ from "lodash";
 import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter, Form} from "openchs-models";
-import Point from "../../../../openchs-models/src/geo/Point";
+import {Encounter, Form, Point} from "openchs-models";
 
 export class EncounterActions {
     static getInitialState(context) {

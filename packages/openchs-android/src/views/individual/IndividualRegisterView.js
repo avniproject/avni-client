@@ -62,8 +62,7 @@ class IndividualRegisterView extends AbstractComponent {
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             location={this.state.individual.registrationLocation}
                             editing={editing}
-                            validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}
-                        />
+                            validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
                         <RegistrationDateFormElement state={this.state}/>
                         <IndividualNameFormElement state={this.state}/>
                         <DateOfBirthAndAgeFormElement state={this.state}/>
