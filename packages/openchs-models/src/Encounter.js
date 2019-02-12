@@ -69,6 +69,7 @@ class Encounter extends AbstractEncounter {
         const validationResults = super.validate();
         if (!_.isNil(this.encounterDateTime) && G.dateAIsBeforeB(this.encounterDateTime, this.individual.registrationDate))
             validationResults.push(new ValidationResult(false, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, 'encounterDateBeforeRegistrationDate'));
+        return validationResults;
     }
 
     getName() {
