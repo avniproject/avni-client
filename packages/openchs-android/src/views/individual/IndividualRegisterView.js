@@ -60,6 +60,7 @@ class IndividualRegisterView extends AbstractComponent {
                     }}>
                         <GeolocationFormElement
                             actionName={Actions.REGISTRATION_SET_LOCATION}
+                            errorActionName={Actions.SET_LOCATION_ERROR}
                             location={this.state.individual.registrationLocation}
                             editing={editing}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
