@@ -52,7 +52,8 @@ class Individual extends BaseEntity {
     static nonIndividualValidationKeys = {
         FIRST_NAME: 'FIRST_NAME',
         REGISTRATION_DATE: 'REGISTRATION_DATE',
-        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL'
+        LOWEST_ADDRESS_LEVEL: 'LOWEST_ADDRESS_LEVEL',
+        REGISTRATION_LOCATION: 'REGISTRATION_LOCATION'
     };
 
     static createEmptyInstance() {
@@ -279,6 +280,7 @@ class Individual extends BaseEntity {
     }
 
     validateRegistrationLocation() {
+
         return this.validateFieldForNull(this.registrationLocation, Individual.validationKeys.REGISTRATION_LOCATION)
     }
 

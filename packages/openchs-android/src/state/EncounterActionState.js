@@ -1,9 +1,8 @@
 import _ from "lodash";
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import {AbstractEncounter, ObservationsHolder} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, Encounter} from "openchs-models";
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
-import {Encounter} from "openchs-models";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements) {
@@ -55,7 +54,13 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     validateEntity() {
-        return this.encounter.validate();
+        const validationResults = this.encounter.validate();
+        const locationValidation = this.validateLocation(
+            this.encounter.encounterLocation,
+            Encounter.validationKeys.ENCOUNTER_LOCATION,
+        );
+        validationResults.push(locationValidation);
+        return validationResults;
     }
 
     getEffectiveDataEntryDate() {

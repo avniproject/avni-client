@@ -6,6 +6,7 @@ import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {ProgramEncounter, Point} from "openchs-models";
 import EntityService from "../../service/EntityService";
+import GeolocationActions from "../common/GeolocationActions";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -59,6 +60,12 @@ class ProgramEncounterCancelActions {
         const newState = state.clone();
         const position = action.value;
         newState.programEncounter.cancelLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.programEncounter.cancelLocation,
+                ProgramEncounter.validationKeys.CANCEL_LOCATION
+            )
+        );
         return newState;
     }
 }
@@ -75,6 +82,7 @@ const ProgramEncounterCancelActionsNames = {
     NEXT: 'ProgramEncounterCancelActions.NEXT',
     SAVE: "ProgramEncounterCancelActions.SAVE",
     SET_CANCEL_LOCATION: "ProgramEncounterCancelActions.SET_CANCEL_LOCATION",
+    SET_LOCATION_ERROR: "ProgramEncounterCancelActions.SET_LOCATION_ERROR",
 };
 
 const ProgramEncounterCancelActionsMap = new Map([
@@ -89,6 +97,7 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.PREVIOUS, ProgramEncounterCancelActions.onPrevious],
     [ProgramEncounterCancelActionsNames.SAVE, ProgramEncounterCancelActions.onSave],
     [ProgramEncounterCancelActionsNames.SET_CANCEL_LOCATION, ProgramEncounterCancelActions.setCancelLocation],
+    [ProgramEncounterCancelActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
 ]);
 
 export {

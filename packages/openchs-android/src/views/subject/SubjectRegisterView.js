@@ -80,8 +80,10 @@ class SubjectRegisterView extends AbstractComponent {
                                 <View>
                                     <GeolocationFormElement
                                         actionName={Actions.SET_LOCATION}
+                                        errorActionName={Actions.SET_LOCATION_ERROR}
                                         location={this.state.subject.registrationLocation}
-                                        editing={this.props.params.editing}/>
+                                        editing={this.props.params.editing}
+                                        validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
                                     <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
                                                      element={new StaticFormElement('registrationDate')}
                                                      dateValue={new PrimitiveValue(this.state.subject.registrationDate)}

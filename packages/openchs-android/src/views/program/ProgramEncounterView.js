@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterActionsNames as Actions} from "../../action/program/ProgramEncounterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, PrimitiveValue, AbstractEncounter} from "openchs-models";
+import {ObservationsHolder, PrimitiveValue, AbstractEncounter, ProgramEncounter} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -81,6 +81,8 @@ class ProgramEncounterView extends AbstractComponent {
                                     location={this.state.programEncounter.encounterLocation}
                                     editing={this.props.params.editing}
                                     actionName={Actions.SET_ENCOUNTER_LOCATION}
+                                    errorActionName={Actions.SET_LOCATION_ERROR}
+                                    validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
                                                  element={new StaticFormElement('encounterDate')}

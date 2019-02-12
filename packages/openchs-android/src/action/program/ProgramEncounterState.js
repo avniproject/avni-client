@@ -27,7 +27,9 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     clone() {
-        return new ProgramEncounterState(this.formElementGroup, this.wizard.clone(), this.isNewEntity, this.programEncounter.cloneForEdit(), this.filteredFormElements);
+        const programEncounterState = new ProgramEncounterState(this.formElementGroup, this.wizard.clone(), this.isNewEntity, this.programEncounter.cloneForEdit(), this.filteredFormElements);
+        programEncounterState.locationError = this.locationError;
+        return programEncounterState;
     }
 
     get observationsHolder() {
@@ -35,11 +37,22 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     validateEntity() {
-        return this.programEncounter.validate();
+        const validationResults = this.programEncounter.validate();
+        const locationValidation = this.validateLocation(
+            this.programEncounter.encounterLocation,
+            ProgramEncounter.validationKeys.ENCOUNTER_LOCATION,
+        );
+        console.log(`PE error ${this.locationError} ${JSON.stringify(this.programEncounter.encounterLocation)} ${JSON.stringify(locationValidation)}`)
+        validationResults.push(locationValidation);
+        return validationResults;
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
+        if (this.wizard.isFirstPage()) {
+            return [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION];
+        } else {
+            return [];
+        }
     }
 
     validateEntityAgainstRule(ruleService) {

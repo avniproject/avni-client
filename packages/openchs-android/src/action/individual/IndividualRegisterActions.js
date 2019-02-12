@@ -4,6 +4,7 @@ import EntityService from "../../service/EntityService";
 import {Gender, Form, Individual, Point, SubjectType} from "openchs-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
+import GeolocationActions from "../common/GeolocationActions";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -53,7 +54,12 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         const position = action.value;
         newState.individual.registrationLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
-        //newState.handleValidationResult(newState.individual.validateRegistrationLocation());
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.individual.registrationLocation,
+                Individual.validationKeys.REGISTRATION_LOCATION
+            )
+        );
         return newState;
     }
 
@@ -143,7 +149,8 @@ const actions = {
     DURATION_CHANGE: 'b1136ef7-202b-4a41-8b82-5603a4f90000',
     SAVE: 'IRA.SAVE',
     RESET: 'IRA.RESET',
-    REGISTRATION_SET_LOCATION: "REGISTRATION_SET_LOCATION"
+    REGISTRATION_SET_LOCATION: "REGISTRATION_SET_LOCATION",
+    SET_LOCATION_ERROR: "IRA.SET_LOCATION_ERROR",
 };
 
 export default new Map([
@@ -166,7 +173,8 @@ export default new Map([
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, IndividualRegisterActions.onSave],
-    [actions.REGISTRATION_SET_LOCATION, IndividualRegisterActions.setLocation]
+    [actions.REGISTRATION_SET_LOCATION, IndividualRegisterActions.setLocation],
+    [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
 ]);
 
 export {actions as Actions};

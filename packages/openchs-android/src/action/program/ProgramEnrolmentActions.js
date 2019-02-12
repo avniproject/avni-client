@@ -8,6 +8,7 @@ import {StaticFormElementGroup, ProgramEnrolment} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Point} from "openchs-models";
+import GeolocationActions from "../common/GeolocationActions";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -58,6 +59,12 @@ export class ProgramEnrolmentActions {
         const newState = state.clone();
         const position = action.value;
         newState.enrolment.enrolmentLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.enrolment.enrolmentLocation,
+                ProgramEnrolment.validationKeys.ENROLMENT_LOCATION
+            )
+        );
         return newState;
     }
 
@@ -65,6 +72,12 @@ export class ProgramEnrolmentActions {
         const newState = state.clone();
         const position = action.value;
         newState.enrolment.exitLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.enrolment.exitLocation,
+                ProgramEnrolment.validationKeys.EXIT_LOCATION
+            )
+        );
         return newState;
     }
 
@@ -116,7 +129,8 @@ const actions = {
     DURATION_CHANGE: "PEA.DURATION_CHANGE",
     DATE_DURATION_CHANGE: "PEA.DATE_DURATION_CHANGE",
     SET_ENROLMENT_LOCATION: "PEA.SET_ENROLMENT_LOCATION",
-    SET_EXIT_LOCATION: "PEA.SET_EXIT_LOCATION"
+    SET_EXIT_LOCATION: "PEA.SET_EXIT_LOCATION",
+    SET_LOCATION_ERROR: "PEA.SET_LOCATION_ERROR",
 };
 
 export default new Map([
@@ -133,7 +147,8 @@ export default new Map([
     [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious],
     [actions.SAVE, ProgramEnrolmentActions.onSave],
     [actions.SET_ENROLMENT_LOCATION, ProgramEnrolmentActions.setEnrolmentLocation],
-    [actions.SET_EXIT_LOCATION, ProgramEnrolmentActions.setExitLocation]
+    [actions.SET_EXIT_LOCATION, ProgramEnrolmentActions.setExitLocation],
+    [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError]
 ]);
 
 export {actions as Actions};

@@ -7,6 +7,7 @@ import EntityService from "../../service/EntityService";
 import {ProgramEncounter, Form, Point} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import GeolocationActions from "../common/GeolocationActions";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -58,6 +59,12 @@ class ProgramEncounterActions {
         const newState = state.clone();
         const position = action.value;
         newState.programEncounter.encounterLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.programEncounter.encounterLocation,
+                ProgramEncounter.validationKeys.ENCOUNTER_LOCATION
+            )
+        );
         return newState;
     }
 
@@ -95,7 +102,8 @@ const ProgramEncounterActionsNames = {
     NEXT: 'PEncA.NEXT',
     ENCOUNTER_DATE_TIME_CHANGED: "PEncA.ENROLMENT_DATE_TIME_CHANGED",
     SAVE: "PEncA.SAVE",
-    SET_ENCOUNTER_LOCATION: "PEncA.SET_ENCOUNTER_LOCATION"
+    SET_ENCOUNTER_LOCATION: "PEncA.SET_ENCOUNTER_LOCATION",
+    SET_LOCATION_ERROR: "PEncA.SET_LOCATION_ERROR"
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -110,7 +118,8 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.PREVIOUS, ProgramEncounterActions.onPrevious],
     [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged],
     [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave],
-    [ProgramEncounterActionsNames.SET_ENCOUNTER_LOCATION, ProgramEncounterActions.setEncounterLocation]
+    [ProgramEncounterActionsNames.SET_ENCOUNTER_LOCATION, ProgramEncounterActions.setEncounterLocation],
+    [ProgramEncounterActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
 ]);
 
 export {

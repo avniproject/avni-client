@@ -1,6 +1,7 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {ObservationsHolder, Form} from "openchs-models";
+import {ObservationsHolder, Form, ProgramEncounter} from "openchs-models";
+import _ from "lodash";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter, filteredFormElements) {
@@ -14,6 +15,10 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
 
     getEntityType() {
         return Form.formTypes.ProgramEncounterCancellation;
+    }
+
+    get staticFormElementIds() {
+        return this.wizard.isFirstPage() ? [ProgramEncounter.validationKeys.CANCEL_LOCATION] : [];
     }
 
     static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements) {
@@ -30,7 +35,13 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     validateEntity() {
-        return [];
+        const validationResults = [];
+        const locationValidation = this.validateLocation(
+            this.programEncounter.cancelLocation,
+            ProgramEncounter.validationKeys.CANCEL_LOCATION,
+        );
+        validationResults.push(locationValidation);
+        return validationResults;
     }
 
     getEffectiveDataEntryDate() {

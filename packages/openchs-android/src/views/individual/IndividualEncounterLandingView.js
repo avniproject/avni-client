@@ -12,7 +12,7 @@ import Reducers from "../../reducer";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import _ from "lodash";
 import General from "../../utility/General";
-import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue} from "openchs-models";
+import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";
@@ -22,6 +22,7 @@ import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -82,7 +83,10 @@ class IndividualEncounterLandingView extends AbstractComponent {
                         <GeolocationFormElement
                             location={this.state.encounter.encounterLocation}
                             editing={this.props.editing}
-                            actionName={Actions.SET_ENCOUNTER_LOCATION}/>
+                            actionName={Actions.SET_ENCOUNTER_LOCATION}
+                            errorActionName={Actions.SET_LOCATION_ERROR}
+                            validationResult={AbstractDataEntryState.getValidationError(this.state, Encounter.validationKeys.ENCOUNTER_LOCATION)}
+                        />
                         <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
                                          element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
                                          dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}

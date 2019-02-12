@@ -24,6 +24,10 @@ class Encounter extends AbstractEncounter {
         }
     };
 
+    static validationKeys = {
+        ENCOUNTER_LOCATION: 'ENCOUNTER_LOCATION',
+    };
+
     static create() {
         let encounter = new Encounter();
         encounter.observations = [];

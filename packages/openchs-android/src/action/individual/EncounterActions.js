@@ -6,6 +6,7 @@ import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Encounter, Form, Point} from "openchs-models";
+import GeolocationActions from "../common/GeolocationActions";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -55,6 +56,12 @@ export class EncounterActions {
         const newState = state.clone();
         const position = action.value;
         newState.encounter.encounterLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.encounter.encounterLocation,
+                Encounter.validationKeys.ENCOUNTER_LOCATION
+            )
+        );
         return newState;
     }
 
@@ -87,7 +94,8 @@ const individualEncounterViewActions = {
     ON_LOAD: 'EA.ON_LOAD',
     TOGGLE_SHOWING_PREVIOUS_ENCOUNTER: 'EA.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER',
     SAVE: 'EA.SAVE',
-    SET_ENCOUNTER_LOCATION: "EA.SET_ENCOUNTER_LOCATION"
+    SET_ENCOUNTER_LOCATION: "EA.SET_ENCOUNTER_LOCATION",
+    SET_LOCATION_ERROR: "EA.SET_LOCATION_ERROR",
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -104,7 +112,8 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
     [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter],
     [individualEncounterViewActions.SAVE, EncounterActions.onSave],
-    [individualEncounterViewActions.SET_ENCOUNTER_LOCATION, EncounterActions.setEncounterLocation]
+    [individualEncounterViewActions.SET_ENCOUNTER_LOCATION, EncounterActions.setEncounterLocation],
+    [individualEncounterViewActions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
 ]);
 
 export {

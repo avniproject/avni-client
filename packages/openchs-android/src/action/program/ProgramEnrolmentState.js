@@ -42,8 +42,17 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        const validationKey = this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ProgramEnrolment.validationKeys.ENROLMENT_DATE : ProgramEnrolment.validationKeys.EXIT_DATE;
-        return this.wizard.isFirstPage() ? [validationKey] : [];
+        const validationKeys = [];
+        if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            validationKeys.push(ProgramEnrolment.validationKeys.ENROLMENT_DATE);
+            validationKeys.push(ProgramEnrolment.validationKeys.ENROLMENT_LOCATION);
+        } else {
+            validationKeys.push(ProgramEnrolment.validationKeys.EXIT_DATE);
+            validationKeys.push(ProgramEnrolment.validationKeys.EXIT_LOCATION);
+        }
+
+
+        return this.wizard.isFirstPage() ? validationKeys : [];
     }
 
     static hasEnrolmentOrItsUsageChanged(state, action) {
@@ -54,7 +63,23 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     validateEntity() {
-        return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.enrolment.validateEnrolment() : this.enrolment.validateExit();
+        let validationResults;
+        if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            validationResults = this.enrolment.validateEnrolment();
+            const locationValidation = this.validateLocation(
+                this.enrolment.enrolmentLocation,
+                ProgramEnrolment.validationKeys.ENROLMENT_LOCATION,
+            );
+            validationResults.push(locationValidation);
+        } else {
+            validationResults = this.enrolment.validateExit();
+            const locationValidation = this.validateLocation(
+                this.enrolment.exitLocation,
+                ProgramEnrolment.validationKeys.EXIT_LOCATION,
+            );
+            validationResults.push(locationValidation);
+        }
+        return validationResults;
     }
 
     validateEntityAgainstRule(ruleService) {

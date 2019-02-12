@@ -15,6 +15,11 @@ class ProgramEncounter extends AbstractEncounter {
         MAX_DATE_TIME: 'MAX_DATE_TIME'
     };
 
+    static validationKeys = {
+        ENCOUNTER_LOCATION: 'ENCOUNTER_LOCATION',
+        CANCEL_LOCATION: 'CANCEL_LOCATION'
+    };
+
     static schema = {
         name: 'ProgramEncounter',
         primaryKey: 'uuid',

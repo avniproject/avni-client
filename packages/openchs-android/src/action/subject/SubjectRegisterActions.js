@@ -1,5 +1,6 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
+import GeolocationActions from "../common/GeolocationActions";
 import EntityService from "../../service/EntityService";
 import {Form, Individual, SubjectType, Point} from "openchs-models";
 import SubjectRegistrationState from '../../state/SubjectRegistrationState';
@@ -65,6 +66,12 @@ export class SubjectRegisterActions {
         const newState = state.clone();
         const position = action.value;
         newState.subject.registrationLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
+        newState.handleValidationResult(
+            state.validateLocation(
+                newState.subject.registrationLocation,
+                Individual.validationKeys.REGISTRATION_LOCATION
+            )
+        );
         return newState;
     }
 
@@ -99,7 +106,8 @@ const actions = {
     DURATION_CHANGE: 'c45669d7-a79f-48e5-a786-cc60e873e7dd',
     SAVE: 'f52a8a2b-2d46-4bfc-9bcc-34851d754422',
     RESET: 'b0fc5ebb-03db-4449-abac-e9790f926447',
-    SET_LOCATION: "7a9996f9-cca0-4d1f-b713-7af46432ff7e"
+    SET_LOCATION: "SRA.SET_LOCATION",
+    SET_LOCATION_ERROR: "SRA.SET_LOCATION_ERROR",
 };
 
 export default new Map([
@@ -117,6 +125,7 @@ export default new Map([
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, SubjectRegisterActions.onSave],
     [actions.SET_LOCATION, SubjectRegisterActions.setLocation],
+    [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
 ]);
 
 export {actions as Actions};

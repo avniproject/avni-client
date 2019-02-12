@@ -148,6 +148,8 @@ class ProgramEnrolment extends BaseEntity {
     static validationKeys = {
         ENROLMENT_DATE: 'ENROLMENT_DATE',
         EXIT_DATE: 'EXIT_DATE',
+        ENROLMENT_LOCATION: 'ENROLMENT_LOCATION',
+        EXIT_LOCATION: 'EXIT_LOCATION'
     };
 
     validateEnrolment() {

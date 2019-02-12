@@ -9,7 +9,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/formElement/DateFormElement";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {PrimitiveValue} from "openchs-models";
+import {PrimitiveValue, ProgramEnrolment} from "openchs-models";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
@@ -49,6 +49,9 @@ class ProgramFormComponent extends AbstractComponent {
 
     render() {
         const enrol = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol;
+        const validationKey = enrol
+            ? ProgramEnrolment.validationKeys.ENROLMENT_LOCATION
+            : ProgramEnrolment.validationKeys.EXIT_LOCATION
 
         return (<CHSContainer theme={themes}>
             <CHSContent ref="scroll">
@@ -63,6 +66,8 @@ class ProgramFormComponent extends AbstractComponent {
                             location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}
                             editing={this.props.editing}
                             actionName={enrol ? Actions.SET_ENROLMENT_LOCATION : Actions.SET_EXIT_LOCATION}
+                            errorActionName={Actions.SET_LOCATION_ERROR}
+                            validationResult={AbstractDataEntryState.getValidationError(this.props.state, validationKey)}
                             style={{marginHorizontal: Distances.ContentDistanceFromEdge}}
                         />
                         <DateFormElement actionName={this.props.context.dateAction}

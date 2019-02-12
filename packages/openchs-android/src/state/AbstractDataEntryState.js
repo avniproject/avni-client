@@ -4,8 +4,10 @@ import {ValidationResult, BaseEntity} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
+import Geo from "../framework/geo";
 
 class AbstractDataEntryState {
+    locationError;
     constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
         this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {});
     }
@@ -19,6 +21,7 @@ class AbstractDataEntryState {
         newState.filteredFormElements = this.filteredFormElements;
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
         newState.formElementsUserState = this.formElementsUserState;
+        newState.locationError = this.locationError;
         return newState;
     }
 
@@ -179,6 +182,21 @@ class AbstractDataEntryState {
 
     getEffectiveDataEntryDate() {
         throw Error('This method should be overridden');
+    }
+
+    validateLocation(location, validationKey) {
+        if (_.isNil(location) && !_.isNil(this.locationError)) {
+            if (
+                this.locationError.code === Geo.ErrorCodes.SETTINGS_NOT_SATISFIED ||
+                this.locationError.code === Geo.ErrorCodes.PERMISSION_DENIED
+            ) {
+                return ValidationResult.failure(validationKey, "giveLocationPermissions");
+            } else if (this.locationError.code === Geo.ErrorCodes.PERMISSION_NEVER_ASK_AGAIN) {
+                return ValidationResult.failure(validationKey, "giveLocationPermissionFromSettings");
+            }
+        } else {
+            return ValidationResult.successful(validationKey);
+        }
     }
 }
 

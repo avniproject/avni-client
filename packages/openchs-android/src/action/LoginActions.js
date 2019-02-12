@@ -3,7 +3,7 @@ import General from "../utility/General";
 
 class LoginActions {
     static getInitialState() {
-        return {userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false, showPassword: false};
+        return {userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false};
     }
 
     static changeValue(state, key, value) {

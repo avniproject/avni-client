@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterCancelActionsNames as Actions} from "../../action/program/ProgramEncounterCancelActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder} from "openchs-models";
+import {ObservationsHolder, ProgramEncounter} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -82,7 +82,10 @@ this
                             <GeolocationFormElement
                                 location={this.state.programEncounter.cancelLocation}
                                 editing={this.props.params.editing}
-                                actionName={Actions.SET_CANCEL_LOCATION}/>
+                                actionName={Actions.SET_CANCEL_LOCATION}
+                                errorActionName={Actions.SET_LOCATION_ERROR}
+                                validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.CANCEL_LOCATION)}
+                            />
                         }
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}
