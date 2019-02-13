@@ -274,7 +274,7 @@ deploy_metadata:  ## Deploy demo metadata
 	@echo 'Skipping "cd packages/openchs-org && make deploy_locations"'
 	@echo 'Uncomment if you want'
 	@echo
-#	cd packages/openchs-org && make deploy_locations
+	cd packages/openchs-org && make deploy_locations
 
 deploy_common_concepts_dev:
 	cd packages/openchs-health-modules && make deploy_common_concepts_dev
@@ -284,6 +284,7 @@ deploy_common_concepts_staging:
 
 deploy_metadata_staging:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
+	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
 
 deploy_metadata_uat:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)

@@ -1,0 +1,6283 @@
+[
+  {
+    "uuid": "b6eabe76-5587-40d9-a39c-4f2fae1c43b8",
+    "name": "Payari",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "33490f6b-21b7-462f-a356-daea14f4893e",
+    "name": "Sarai",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "53afbfae-06f1-445e-9789-2e07f73357b1",
+    "name": "Tarang",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "50426354-f4c4-4b89-86e1-a6bcc69a98e1",
+    "name": "Katurdona",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e5781368-9ad0-4b6c-8843-6258fc823200",
+    "name": "Khalebhanvar",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "6ecfd742-d4e8-4da1-8366-447d24337bdf",
+    "name": "Khamroud Village",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "c6a3515b-e8a0-4868-9042-acb347318759",
+    "name": "Tankitola",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "4190b123-0702-4030-ba0f-ce329224379a",
+    "name": "Chatua",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5939c21c-372f-455a-9869-56d6c4d4fe67",
+    "name": "Piparha",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ca003a5c-048d-4325-a11a-b1f2cfffa7d3",
+    "name": "Tarera",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2cfb9e6d-621c-4307-b7bf-81e3f84732a7",
+    "name": "Sital pani",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "bd5d4720-9d5a-494d-976c-e936d6513096",
+    "name": "Mithu mahua",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "e3f23175-786e-4ac8-a7b6-24c998aa847d",
+    "name": "Dona",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ebedd39d-5cd5-4050-9b38-c5d0133b703d",
+    "name": "Daldali",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "4f09bd3c-a34c-4159-9659-731f1f6cef2e",
+    "name": "Khumni",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "74924af7-c4d5-487c-b286-a11d70643f42",
+    "name": "BulhuPani",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "cb339d55-ee0d-41ee-9a82-005940153c89",
+    "name": "Dadra Silvari",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "cd8ebf92-28c2-46fa-a6a9-2a861afe93ab",
+    "name": "Neeche Silvari",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "778eb5f7-05bc-4bb5-996b-3aaee78d0b8c",
+    "name": "Kodar Village",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "1f6f6691-6ae3-4145-ac82-1e8baa26b8ac",
+    "name": "Khirni",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "cdb0ab1b-d610-4d16-8fdf-d33a1aef339f",
+    "name": "Tithi",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "7d6bfdb4-75d6-481f-a398-b87182df2694",
+    "name": "Jaithari",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "ec06d15b-aa33-4ad8-9235-15fc92736d9f",
+    "name": "Sarfa",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "61cf9090-0f3c-4026-907d-295f452d98ae",
+    "name": "Ahirgawan",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "29240d2a-1889-4bba-9195-7a6f47cdd5aa",
+    "name": "Badi Tumi",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "fb26de1f-fd37-417f-aa50-20729448efc7",
+    "name": "Kharsol",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "0f550183-ace5-4414-83aa-74e2490df18b",
+    "name": "Chirpani",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "17dc33cb-e4cd-4843-ad17-38c8fda6ea77",
+    "name": "Dabhaniya",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "15c0df5e-bc58-4408-a594-12a3b72016f3",
+    "name": "Majhauli",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "3beceeea-1fc7-4176-a2d9-79ac5ee53778",
+    "name": "Kui",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "582798d9-06f5-4ade-b88b-68c572f945d3",
+    "name": "Padmania Village",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "34765b3a-5626-4983-b29d-209f4179e728",
+    "name": "Gijri",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "645ad434-8ce2-4229-9094-022204b04df4",
+    "name": "Amoda",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "dbf1fe09-e2bb-4646-b396-19804099a782",
+    "name": "Batiya",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "a469e6db-2ef4-4599-b855-a0a2dee07972",
+    "name": "Bijora",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "ef893d61-1c32-4706-bc6c-9fc46cb1a272",
+    "name": "Thunguni",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "a2079e78-2df0-4541-b1b4-0d6c15c09878",
+    "name": "Duradhar",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "fcb313d4-b776-467e-8378-b412fceaae25",
+    "name": "Khosurgod",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "0349151b-3a00-442d-8bbc-4663195b3e15",
+    "name": "Chottibairagi",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "e3334d80-5350-4b19-a67f-551b20123f0c",
+    "name": "Badibairagi",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "59dc385a-bdc8-42b5-9cc7-4e5212f7ed8b",
+    "name": "Alwar Village",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "82b53ed5-5cf0-4008-aef7-e8ad210c1ed7",
+    "name": "Adwar",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "27d28156-614d-4b72-b3ed-4f27e7a142fa",
+    "name": "Lamsarai",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "57e41947-e713-4295-9c24-c5f51bdfe6a6",
+    "name": "Ghata",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "425dabe2-7688-483b-b7c7-80c51686c9cd",
+    "name": "Hathbandha",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "bf2c2f6e-d5d6-4bf7-83e0-7c8ce91afc7c",
+    "name": "Jairhi",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "714a19fd-2370-4e2b-82e0-44b847f6cc11",
+    "name": "Karoundi",
+    "level": 1,
+    "type": "Village",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
+    "parents": []
+  },
+  {
+    "uuid": "869ef1c1-8828-466f-b38a-421762fb57e1",
+    "name": "Khati",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2813aee5-0339-45f8-bae2-89c4772e5a55",
+    "name": "Kadam Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "8bf02158-3ec7-4612-879f-1b3e1b0c5f44",
+    "name": "Kyontar (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ed0af380-ea98-4f3d-bb8d-941280de1162",
+    "name": "Senduri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c90fc4bf-9beb-4f13-8d14-0e46d409411d",
+    "name": "Padri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5d155cc5-c5d1-4722-a563-ca2aa43e3032",
+    "name": "Bakan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "3633694c-f201-4af1-8706-d35044250c26",
+    "name": "Kikri Pondi 98. Kirar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "b28b28fa-cc3a-4cff-86b0-705a5b0f1a57",
+    "name": "Jharokha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "821143b1-b563-4cd7-ac16-630e057e5224",
+    "name": "Parasi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "6cb30c67-c0b5-4c0c-a330-f0828b821386",
+    "name": "Chor Bhathi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "d345cd13-2728-4ee6-a06a-cc50db71a9cb",
+    "name": "Rohila Kachhar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "58400c68-8541-4a11-9fbc-d81af325df46",
+    "name": "Amadand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5309abcf-7f3a-41c8-b2dd-81099921e4fc",
+    "name": "Basantpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "29c9d8fa-fbf0-4b12-bce8-281977cf65b3",
+    "name": "Chandaniya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c36e2d13-db34-4713-b7aa-f7bb8e629867",
+    "name": "Chondi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f9880c4c-7558-436a-afca-106701cdd90a",
+    "name": "Mohadi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5ad1e813-b5ac-4bda-ad60-f84a0cfed06e",
+    "name": "Kanai Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "b9f725d5-33e0-4fab-8057-2b19934a93d9",
+    "name": "Karan Pathar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fbc563ad-0ca6-4288-b47a-563bc36799ca",
+    "name": "Malaiki",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f77689de-38f1-482b-bda1-a80ebecbe8c8",
+    "name": "Boda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c32649c6-aeb1-4e28-b46e-420ed28c9229",
+    "name": "Bhelma",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "13b853e1-776a-417c-97b1-a6c4493b4551",
+    "name": "Kuhka",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "0fa918a1-07b2-4e88-b1fc-a73191f79d6c",
+    "name": "Jangwa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "492fc1aa-2d2c-48c6-8fa4-e26f1a2c30b4",
+    "name": "Jogi Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5ff7189c-f894-48be-a7d3-fec7257aabca",
+    "name": "Baherahatola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "b855328d-3a65-47d3-a744-804cb11f7a7e",
+    "name": "Barbaspur (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f2be035f-3d49-41dd-a258-51c7e40f7d78",
+    "name": "Lapti",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "68ff8b63-32d9-47dd-8f13-ba0e69a2ee34",
+    "name": "Harra Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f5466c71-e765-4895-93f6-612a78d48667",
+    "name": "Nagula",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6c4f008b-181f-4231-9def-0f12a3c49882",
+    "name": "Bulhupani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "211e0f17-c808-4469-ba6a-b1668c3fc1dd",
+    "name": "Gidhan Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2ad3baeb-35a0-40af-9dbf-36f8c9dd26ac",
+    "name": "Budhanpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "b918e4ff-35b7-4b2a-b66b-34053923c44b",
+    "name": "Albahra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "6b8a164a-4b7e-4435-a800-1cbc723ea93d",
+    "name": "Keshori",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "118fe1ab-4657-4921-b6c4-40731fbcb3eb",
+    "name": "Guwari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "eb9933c8-b55a-4bba-a1ee-9e54202417fc",
+    "name": "Dogariya Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "d888454b-d9d7-4775-b4df-ca9c87f7affc",
+    "name": "Muddhoba",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e5c6f99d-9d13-47a9-98eb-71d66b989f7f",
+    "name": "Aihar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "6b4a6c68-f031-4e2b-b0ed-8df41a5b9c44",
+    "name": "Katkona",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "049e8834-9d59-4632-97ce-f86acd7f37dd",
+    "name": "Jatanga",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d93d95f8-42da-4da2-a462-433625820188",
+    "name": "Padripani (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "44e58df1-3816-4e51-b2b0-1e8cc3c0cca0",
+    "name": "Sendur Khar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d79ebcc4-1875-4e3d-83ff-8252daf42b09",
+    "name": "Daldal",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "843e4a7b-d1e0-4d36-b070-722216d27314",
+    "name": "Ledra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ab6a4cd8-8b69-4463-9187-2ed8b9622cf1",
+    "name": "Tummi Badi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "73e8b1cc-445e-40c0-9257-315f0c9a0662",
+    "name": "Uphari Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "40f1e784-23cc-4795-a980-e5e33c0b58f3",
+    "name": "Haweli",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "bd20bcf8-4e54-4645-a4bb-72fb719d5c28",
+    "name": "Garjanbija",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e8e18164-e539-42cc-a367-1aada53658ae",
+    "name": "Baghadi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "927ceb96-d8a1-4bff-87c6-a759648d0366",
+    "name": "Dumar Kachhar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f58e9ca4-c3e4-4f3d-bbec-797f623aa4aa",
+    "name": "Ghuidadar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "4040f3c3-6bf7-4b15-8843-a60764c9ca63",
+    "name": "Kudri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "6faf8ee9-f508-4bbd-827a-4f678f1a6342",
+    "name": "Harra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "25df5311-afb0-4576-9590-0ceae200f27b",
+    "name": "Umariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "207e2d66-12c0-44ae-b2d9-0fccccf76b9c",
+    "name": "Pamra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "dc5549d9-ddb1-4683-bebe-54608487071e",
+    "name": "Karondi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "572897b7-d7dc-48b0-a058-5d6bb36ece2f",
+    "name": "Baghad",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c4a56ce2-2059-4ca1-91d0-ed1660c7e86f",
+    "name": "Juhili",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "de7a22d6-a8ac-4f6c-8f19-b9d1eca3797e",
+    "name": "Pipariya (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1bb4fc8e-bef3-4bb2-8231-63832406582c",
+    "name": "Dhanpuri (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "869afa75-1c0e-4cd9-8e35-1235366a52fb",
+    "name": "Dharhar Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "eb1b0df1-d1e9-4ee3-8075-5c95f364c683",
+    "name": "Pondi Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7f993c48-2609-49f6-a46a-d8bdf43f745e",
+    "name": "Ghoghari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "a2eb43bc-526a-432d-84c2-520339b0eab4",
+    "name": "Deora",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6ac76d02-bb2f-430c-af95-420a8728448f",
+    "name": "Tulra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "52439ad7-2975-4c2a-a311-84f471bbfbcf",
+    "name": "Bhagat Bandh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "3857ea09-5aa0-412f-9d6d-7f957441f983",
+    "name": "Beliya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "cdb5a322-9c40-4a5d-a2f8-6dd93ae52ace",
+    "name": "Bicharpur (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "f3347e56-f669-432b-acc2-42dd07a352da",
+    "name": "Dhiru Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "deccb29b-d12f-426b-b844-0b9141a0fc93",
+    "name": "Lama Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "78525b69-7e37-4159-9e6f-ac5fb6d2699e",
+    "name": "Bhathisarai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5f32ace9-be38-44d8-8683-257e93a81c08",
+    "name": "Basaniha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7f1af1f5-4593-4b0b-8ff4-f3d7447ce353",
+    "name": "Deori (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "3bfe209d-1c67-416c-96cf-1cef758e6021",
+    "name": "Uphari Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "df10c4ee-c006-46bc-adaf-cc6a67eea664",
+    "name": "Beliya Chhot",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "bf9f507f-dcf9-4be1-81f5-91eaaa5adb7f",
+    "name": "Majholi (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "8f4b13f5-327d-497e-8890-316b87282b28",
+    "name": "Badhar (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e0549257-d908-4a92-9fd3-ce12e22f438f",
+    "name": "Ramna Sarkari 1",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fd468f04-ae7b-4885-8454-7729b573ed52",
+    "name": "Siwni",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "ac3be62c-1485-4e01-a6d6-97b8a07b4640",
+    "name": "Kusmahai (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "72d87864-39b0-42ff-acc2-4aebdf7e660f",
+    "name": "Khanda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "8c29b711-9017-4056-8c65-de945daf09e3",
+    "name": "Jamuniha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f1be061c-bc90-49f8-9471-5de1f0e62965",
+    "name": "Chilhari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "50de9567-f31f-4970-bcbd-39c93f7fd019",
+    "name": "Damgarh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "21ff0c8f-8de9-452f-bbbf-9e19b3c8d59e",
+    "name": "Chhira Patpar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "dbf8de81-2e6a-4612-bc68-2802b655fae5",
+    "name": "Deogawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "1316443f-c732-4041-bda4-9e914b052aae",
+    "name": "Jamudi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e59d9f15-7a53-426c-83c5-9992c6f37ff8",
+    "name": "Darsagar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c7d95a1c-de68-4e4f-ab1f-3f836ec5ca30",
+    "name": "Karaunda Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "3b273766-2f5b-49c8-9750-070d758efc99",
+    "name": "Nardaha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "23222fbd-10e4-4893-84c4-445411f61669",
+    "name": "Bhundakona",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "255cfe52-93a8-481b-bb76-94ef8ba378a3",
+    "name": "Koda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f38072a2-b801-499f-a4ec-13d6d9882aa8",
+    "name": "Bartola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "83541bf7-0885-48ab-b1e1-862f85e09fc0",
+    "name": "Padariya (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "662dff40-7e14-42dc-9d53-75a60624c437",
+    "name": "Ghatha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "821dbb4a-b839-478e-8826-f4a7fbc4073d",
+    "name": "Kholaiya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "5c822d35-82f8-4344-b789-c989cfdc28c2",
+    "name": "Bholgarh 33",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "4c833981-2659-4d0b-a9e8-eefc3a7d31ee",
+    "name": "Bachhauli",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "d45cf2cb-e952-4248-bd9d-fb23d483896a",
+    "name": "Itaur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e00e25b4-77dc-403d-943c-75c40fbee071",
+    "name": "Podaki",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "40398e13-d70b-4dfa-a763-d4592f0e8c0c",
+    "name": "Lakhanpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "8feb3ff3-8631-419d-94bb-df1e81edf3e6",
+    "name": "Daikhal",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "fd88e7ae-1fbf-40f9-953e-f39cd929fa4d",
+    "name": "Gannaguda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d60cf485-a622-4386-980e-fa4ecc8eadc2",
+    "name": "Newsa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "12b07b43-c687-4324-8067-dbd305144fa8",
+    "name": "Bartarai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "0c194997-6d9d-48b8-afa7-20fb53cbe8c4",
+    "name": "Nawatola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "ea85a514-fada-4d63-ab40-735ff52d89f9",
+    "name": "Bhagha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c3bf0dc6-8bec-4712-8e46-2e5c847e89b5",
+    "name": "Bagaiha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "2308fa32-e5db-49a0-aebc-70c6f30a5c1f",
+    "name": "Kalyanpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "db672f79-2b0b-4fe8-bfec-6d66f712e4ac",
+    "name": "Lohari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "48976b2b-ef6a-4536-8b82-613dfb7cd7fe",
+    "name": "Benibari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "973ebce9-061a-4836-8c83-3872a480f323",
+    "name": "Dadai Bahra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "cfe1031e-160f-4352-b675-844d2fd739e0",
+    "name": "Gulidand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "39f3bb7f-cf13-47cb-85c3-5b4b381dd6b3",
+    "name": "Mauhari (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "a8141c68-b0f4-4665-9340-112672b9c372",
+    "name": "Khursa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "d65b9eec-bc70-4dde-9a76-d8bba8013f1c",
+    "name": "Dabaniya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "0599b93c-eece-4dd7-bd3e-1dc280f1ebeb",
+    "name": "Picharwahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "843a605e-80e2-40f0-923a-62ce8b5d5ba8",
+    "name": "Basahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "364b3d58-5982-4ec6-8c29-e1af80304e34",
+    "name": "Bendi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f0bd3ad7-d676-4f3c-8c85-728ed0f6d032",
+    "name": "Kanwahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ee84940e-4d2d-4114-b773-7f1bb6f38717",
+    "name": "Thangaon",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "7769ba29-2445-4bf8-8af1-e5c0684bedfd",
+    "name": "Kasturi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ba6b5819-98d1-4464-96b6-6f7eab818120",
+    "name": "Chalpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f5817b9c-ddb6-4ac9-995a-c9a7bc93a2ef",
+    "name": "Keyotar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "1d3d8fbc-0764-44e1-9615-edcd8502decd",
+    "name": "Kadamsara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "609d5583-cf54-4ae3-9e12-e562bd5c8fbb",
+    "name": "Kachhra Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "9d2f3e34-da02-4291-a6cb-9837f0eebadb",
+    "name": "Mauhari (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "56698b19-15a0-47db-9461-9aac58b6c41c",
+    "name": "Chaura Dadav",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "133fc601-cf0e-445a-93d5-a67f5646bf0a",
+    "name": "Mauhari (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ca92b4a7-12bd-422f-ab8e-5b81086d1069",
+    "name": "Bahera Bandh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "f8d3b1de-de29-4805-915c-af1c5a4ab41f",
+    "name": "Bilai Kher",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6ff9cd95-77ff-47ac-bbe3-b63e22474e92",
+    "name": "Saranggarh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "d2b8e1bf-93f9-481b-bc8c-2edbcae2d788",
+    "name": "Naugai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b1bbb1e2-aa16-4922-b0c5-b7af0c24663d",
+    "name": "Bijauri (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "da3a187b-e45b-4749-8a77-8fb1e6fe6512",
+    "name": "Umarda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "96e84f2a-8e7f-45e5-99b6-e8470d5286f2",
+    "name": "Papraudi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "f24520a7-cb4f-4568-b848-5922f3d8a7bb",
+    "name": "Padari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "597b07e2-8acb-4da5-8996-f054a9816e7e",
+    "name": "Bicharpur (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "57214228-b02a-40f6-9804-3f4edf17d9c0",
+    "name": "Pharhada",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f2f880db-256d-4472-bf14-4daad83d4dad",
+    "name": "Bargawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "61bfb829-4549-41a2-a0c3-150a2cd7485e",
+    "name": "Parsel Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ad0b7f31-fffe-4764-93f0-5bde510704bc",
+    "name": "Sarpha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "a720ce3d-0d1b-4fe2-945e-66c90d23b810",
+    "name": "Harad",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "cc2bdb56-01bf-4e9b-97e6-28da3b748464",
+    "name": "Barha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "46750d83-993d-4984-8785-8bf3fb0a9fae",
+    "name": "Khalbahra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "985972fe-e8a1-42ce-b8d1-c3c03d4f7dad",
+    "name": "Chapani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c314b626-71dd-435a-be69-2bca421bcaff",
+    "name": "Dudhmaniya (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "104bc7fd-2935-495d-8bee-ac0c37efa76d",
+    "name": "Funga",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "0d75074f-13da-4caa-bfc5-b445402725e5",
+    "name": "Udal",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c093e13b-f99c-4657-aff7-ad403e497b98",
+    "name": "Mdari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ef91db3b-3e39-4b4c-8e2c-8a03ed97abeb",
+    "name": "Haraswah",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "21aeb914-bcc5-4a62-bbab-242a0937e8da",
+    "name": "Chhulha (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "67831ac3-9a68-44a3-950a-2cac05d98e45",
+    "name": "Dogara Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "030d855a-ac6f-4c7b-a973-9c73e0b23c93",
+    "name": "Kekariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "46ab7ebc-42b8-4e99-9603-0424185aba3a",
+    "name": "Chatuwa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fa1f2751-cc7d-47d5-a4d4-478d9fcca438",
+    "name": "Chilihamar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d55e1f79-1a74-4fa0-975a-e9ac2043622c",
+    "name": "Duari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "70fddd00-d34f-4bcd-89a3-dfccec8b4fc6",
+    "name": "Mahuda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "02de27f5-17cf-4d01-9b4c-c15d3fdb9f6a",
+    "name": "Gora Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1b1efba0-9ac6-4e21-8d4d-beff41b1abb9",
+    "name": "Kandi Kapa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e83474d7-abe0-415f-b9d4-cf76fcc8d1f8",
+    "name": "Chandrauthi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "f4518e62-b23f-46ec-aa55-cf7f29e0c080",
+    "name": "Fulkona",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "91c03c23-9b85-4909-b7b9-98487e43b887",
+    "name": "Raksa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "386129a0-b219-4288-af63-079ea94850eb",
+    "name": "Chachai Viran",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "77400e36-e003-4562-bd56-2a38157a4b93",
+    "name": "Jarha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "beef798b-be2a-40ae-8a99-06903a022e6c",
+    "name": "Barsot",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "61e23bda-2701-4ad4-80d8-8c4c49f63e4c",
+    "name": "Suadand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "4d348dce-99fe-4b57-b83c-6e63935753c5",
+    "name": "Dhumma Kapa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "24ffe08b-fda1-46da-bd19-6700615053e7",
+    "name": "Bahpuri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "bf32f014-7d84-49c1-88b2-eee27ee644fd",
+    "name": "Cholna",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "3fff84ab-a02e-4ead-8c81-a12a9c83c18f",
+    "name": "Bhedwa Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "dc822e7a-a384-48cd-ae53-eff15a595209",
+    "name": "Bahpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ec34cb0b-b5a9-4059-8e11-6700f417fc34",
+    "name": "Mauda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2a25de49-2490-4aea-a200-5e8a038345b0",
+    "name": "Baskhali",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "9288b06b-ce78-46a7-91c2-3daf7d6a7b06",
+    "name": "Jalsar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "a9200a1c-68f9-47eb-b5b5-ec6a8707880a",
+    "name": "Paraswar (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "4163660d-6454-48da-85ef-2f5a8cd26121",
+    "name": "Dauniya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f1f0b29a-b9ba-4a8e-b1b0-965c8c61c813",
+    "name": "Jarra Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "60bba35f-908a-416a-8f9e-b743717ea4e0",
+    "name": "Payari (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "01695c3a-8ce9-4502-a44a-2ba7b36474c2",
+    "name": "Majhigawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "31e1f011-4a25-4771-b565-2a6f84d03408",
+    "name": "Bairi Bandh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f8f637b3-8c90-4d31-a054-9acb2a03c86c",
+    "name": "Kukar Goda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "6d4ed949-6b5a-4781-962c-216b210a6418",
+    "name": "Nigwani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "0b4d534e-311d-40c5-a013-13eb6980bb4b",
+    "name": "Pondi (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "89a53140-e1ce-4be7-9a00-e5264e697b04",
+    "name": "Ranai Kapa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "36adb990-6f49-4eda-a0b3-2d0fb6a5449c",
+    "name": "Bilaspur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "808aebd4-e8b0-48bb-b473-8647b139848f",
+    "name": "Chaka",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "e50bcc3a-fd96-4e84-8e79-38f6e74b8bdc",
+    "name": "Kusera",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "51080cb4-96fb-4770-8db6-f1ee4505e702",
+    "name": "Tanki",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e2437475-c7b8-470a-ab03-7d8314f838e8",
+    "name": "Belgaon",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "642a01da-78cb-40c6-b43b-676308bd68e3",
+    "name": "Amlai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ae9d9a8d-afcd-4a62-80ad-59fb33372d49",
+    "name": "Jariyari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "d6367888-acaa-4ba8-b95d-6cfb6778a3bd",
+    "name": "Chhohari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "33d4ee11-15f2-4561-8135-0902aa4ba333",
+    "name": "Kapariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "f49422c3-3085-4e01-bb96-1073fb39c088",
+    "name": "Kholgarhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7438c1dd-2fbc-4865-9874-a3a6e02b2a91",
+    "name": "Dhiraul",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "83b4800b-0948-47fa-a69b-38deb25a891f",
+    "name": "Dhuradhar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c02e80ce-0c25-457a-a9f9-34c8d41218d4",
+    "name": "Mauhari Badi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "bbc3e897-2a3c-47b9-bad5-05c24a7c7583",
+    "name": "Ehnadawar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "d30fe89b-b0a3-457e-854f-5386508d0d05",
+    "name": "Ghochimuda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "9e8aba72-476b-44d1-bcfb-6a843661baf9",
+    "name": "Paladigwar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "da0d0136-9856-451d-87dd-6f2de95b8658",
+    "name": "Saristal",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "796c0b30-d817-40de-9b40-82bb1704250f",
+    "name": "Nimha (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "99b0b242-656e-4bbc-b6ca-360830ef71b8",
+    "name": "Bhad",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "814e5bea-cd15-4d2b-b543-45b32b84ebdb",
+    "name": "Kotmi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "a59375a9-e53f-48e2-b34c-4260073b82b3",
+    "name": "Gadhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "620ef5d9-560a-450c-abe4-00f22f97388b",
+    "name": "Taradand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f38a757f-7eff-4df4-af32-9ff0465ed461",
+    "name": "Dulhi Bandh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "de1e190d-c5f6-4a29-8d4b-e64e1e04434f",
+    "name": "Khajurwar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2d9570a3-63dd-47f0-a793-e74f47af34ad",
+    "name": "Badhar (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "76493f8c-de8e-4708-bb2c-005950f2eb15",
+    "name": "Mlaga",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "2f083de1-690c-48d9-87d1-a1a3a401a7df",
+    "name": "Dhangawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "00e1a4c4-5a8c-4938-8638-66a3aebd22c4",
+    "name": "Majhtoliya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "ec206d93-cf06-4825-abf7-80fae8a9ef7c",
+    "name": "Kolmi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "83bfa3b8-0bcf-4eae-9b96-087f986d60d6",
+    "name": "Tala",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "71e02d1e-a1ef-498a-90c9-b74924e02d2a",
+    "name": "Khodari (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "bdcf55f1-9b79-4d8d-a6ca-8728c4e0affc",
+    "name": "Pairichuwa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "45e301d5-b01e-42cd-b27b-3d13ede9f85c",
+    "name": "Sidhaura",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "534c1a55-fffb-4a3e-b6bc-6037e67f4def",
+    "name": "Pasala",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "d4075a1a-212e-41ae-9db6-7890c3b8c97f",
+    "name": "Sarai Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "be463bd7-1f23-40ae-b87d-13255b2ae344",
+    "name": "Silpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "24941311-7cc5-48d4-a387-e3d17e191275",
+    "name": "Kumharwar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5f252e6d-762d-4593-bcce-067a93873ebd",
+    "name": "Dhawai Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "7a556cce-918d-4cab-9337-75d48fd3bd89",
+    "name": "Changeri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "32efd577-e861-4a09-becc-c448f06ed42b",
+    "name": "Koliha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5b4e6e18-a1dd-40ae-9946-218810a69fac",
+    "name": "Badikhar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "6806ad43-ee0d-40fa-99f5-14c21c149fff",
+    "name": "Anka",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "50ed9003-ef4b-44e1-94c4-eb6191c5941c",
+    "name": "Laharpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "38aefa05-9bf2-4cce-8a63-2fb785c4e195",
+    "name": "Mantoliya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "dea3c701-0b8a-4a7c-a9cf-e11ae94ca7ab",
+    "name": "Nigaura",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "ccc0d501-9064-4df6-9eef-a02cdf0b30ba",
+    "name": "Mekal Pahad",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "64262048-0303-427c-9d4c-36b09b4da844",
+    "name": "Pakariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "06e3e4f9-e280-41e7-9dd2-508e1c361e2b",
+    "name": "Padri Khar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "89853fa1-1749-46d1-abea-dcb2afe271ba",
+    "name": "Girari Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "bbbffd24-7a5e-40c9-a898-bcecd0bf206c",
+    "name": "Dodhipani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "2e885e33-61fb-44cd-ad94-d2775198604b",
+    "name": "Chhulkari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "43fd5cbf-5f63-4fda-b8ea-49859403ee2f",
+    "name": "Pipariya (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "cc80485b-9f49-4ec4-a9c0-3d0a9e6ad8a1",
+    "name": "Dubsara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "60f435c0-6b18-43bd-b781-ef325030033b",
+    "name": "Chhidmidi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "9529ba9a-62cd-4fbc-88a9-6b3c7a908749",
+    "name": "Chatha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "74bf9c1b-c4a8-4f22-91bc-9bb6d351868f",
+    "name": "Pali",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ca8a6df1-5b87-4c69-ad79-d768f485a278",
+    "name": "Lakhaura",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7e859639-03c5-42ea-877b-7fc8d406fdc0",
+    "name": "Harri (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "ac368d61-ea2a-414b-a8be-0958bbb42fa6",
+    "name": "Pagna",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "07cf8e0c-04ca-42c4-b628-f1f91ab3c204",
+    "name": "Bijapuri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "cfe878fc-f3ee-4518-9d00-c12716f111ea",
+    "name": "Eed",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "6bdaba64-5f31-4c18-adb0-47272bdbcfa7",
+    "name": "Sheoni Sangam",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "bd2ca032-c598-4a27-ba54-8efd515c2b26",
+    "name": "Sitapur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "60d3eb7c-1070-41b2-88b0-c0255a94ea49",
+    "name": "Bhuila",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "a1c69b79-23ad-4ceb-a8b9-5286243cb8af",
+    "name": "Pondi (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "bcdc3f11-7d1d-473e-9802-06e8d1ea3588",
+    "name": "Pathaiti",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "18d2dc97-42f2-4a43-a6e3-d91d929ac8d6",
+    "name": "Benibahara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "89cb8ae1-7289-48eb-8449-5a99326cad6e",
+    "name": "Kushiyara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "74953860-4469-46df-b0fd-901690191a63",
+    "name": "Belha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "51a11795-9c8e-416f-8535-1c681cd28b8a",
+    "name": "Mgawan (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c729709e-0321-4784-b05c-7586688f3d64",
+    "name": "Tiwari Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b8ff0788-a90e-425a-a56d-18ee2fa4e14c",
+    "name": "Sulkhari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "9664d48e-b193-4cfd-bc9b-e0527e2263aa",
+    "name": "Nadpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "83a1c3a5-788b-4fb0-ad07-113c784a0914",
+    "name": "Mediyaras",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f700a14a-134a-481c-90ad-c1e0af50a63e",
+    "name": "Padripani (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "d117c957-c8b4-4d15-9cc5-d3e665b406c2",
+    "name": "Harri (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "182015a7-d8db-405a-b4af-68a7f265fd6b",
+    "name": "Chakethi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "55c32914-6536-465a-90cb-b7699cc3f818",
+    "name": "Kansa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c5a9b51f-f8a0-40ca-9af2-e57eb8128628",
+    "name": "Dharhar Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "174d53a4-8a8d-45f3-ac94-6ba8da674fef",
+    "name": "Saja Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "53998f9a-99a7-4fcb-bec9-d7da3d99a45e",
+    "name": "Baranjh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "68bfd031-fb33-45d8-87cb-97d16c3cfa16",
+    "name": "Mithu Mahua",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c8ec9387-7045-4067-9230-4da5e13534f8",
+    "name": "Karra Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "74143bdb-5ee1-4513-a321-234e7e771cfc",
+    "name": "Kholi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "44e0d948-52ed-49a0-b257-64a974ad80ef",
+    "name": "Sonhara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "07d69da5-a644-4836-a528-ea7ea77506c7",
+    "name": "Thamardar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c6a9ef61-a0ae-483e-931c-4108091921ab",
+    "name": "Jinda Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "213d289a-e79d-4321-abe9-2e3ac343b29b",
+    "name": "Charku Umar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "bb2ea49b-abf8-4f92-a0f1-1ca3c06707ef",
+    "name": "Dhurwa Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7c57f202-8629-45da-ad83-484bef27d979",
+    "name": "Daladeeh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "e8cd1bc0-d717-4b0d-b9f8-6eec42ac6ca6",
+    "name": "Kirgi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "82d4d3fa-42ac-4872-b75a-02556543c6f4",
+    "name": "Pachkhura",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "9a899913-473a-403e-82c2-1b607b909319",
+    "name": "Bairagi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "db33f9f5-f4bf-4e88-b045-5fa4a7c329a4",
+    "name": "Pakariha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "b91ea827-1618-44e8-afb5-3939be17d689",
+    "name": "Majhgawan (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f07cbeca-c276-4790-9d05-555d0a2dd434",
+    "name": "Dawar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8a8ee09e-7d23-4f96-8125-cd29f402773d",
+    "name": "Gonda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f2634c52-f3ad-434e-be74-8c4f0a2d05fc",
+    "name": "Pouni",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "baf202e9-d61d-4b8f-88b1-dbc8845f9fd8",
+    "name": "Godhan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "e2078928-a362-4fe6-a9f9-4aa0a5ee29ed",
+    "name": "Deori Dadar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "88ae46e0-844a-42c7-872f-b14dcc959504",
+    "name": "Kekarpani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "2b6ecdf7-ba26-468c-88fa-b2c7e8d34acb",
+    "name": "Rehidadar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "50c803af-069b-46eb-aae3-ca723dcb88a8",
+    "name": "Dhanpuri (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "cc15346e-f965-4b75-9b93-b9ea920cd28a",
+    "name": "Sakariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "29568c7e-fc1e-40b5-9292-07f810655ebf",
+    "name": "Padri Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "a398d3fe-8273-44fd-be76-d157d6c4a1ab",
+    "name": "Jalda Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e97f882d-c1ff-45cb-9f38-9fe660eabaa1",
+    "name": "Bhalu Chuwa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "9cd59e5a-cf87-4a86-90d1-e8a826040385",
+    "name": "Patna Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7bb3ff56-4437-4eab-8167-3d5b6fa5559a",
+    "name": "Lila Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "488cbed2-1713-482e-90a4-d0de3c3885ad",
+    "name": "Padariya (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "5a671cc4-c6dd-401b-b7d8-39d60cc14801",
+    "name": "Tikuradudhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "310a7b8c-f6fa-46ad-a392-b9cf4619ea67",
+    "name": "Reusa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "2e2b9360-4a4c-4187-959c-3ff305a725a1",
+    "name": "Beliya Badi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "787fc122-3c39-44d6-9f2c-35f48f32b0db",
+    "name": "Takduli",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "4a097bd9-e70a-474e-895b-448a25661d4e",
+    "name": "Pejha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ca43b288-829a-45ae-b8f8-bc1cf97040ae",
+    "name": "Parsapani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "34372a1d-ff4a-4c06-be73-a9528c8e1c4a",
+    "name": "Raja Kachhar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "3fc021c5-18f7-4204-b474-42d2035bad1e",
+    "name": "Saddi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7938de08-0484-41b0-8bd0-f672822ce3b2",
+    "name": "Haina Dongri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "eea249e0-4547-4b2c-9d87-07f960e7fccf",
+    "name": "Semarwar (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "5f28df1b-cf21-40f2-8206-105982409769",
+    "name": "Deohra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "76717f49-452a-4980-9d4d-dc5159398911",
+    "name": "Baiha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "68ecd25e-42bc-4730-af08-cfbf847ebb60",
+    "name": "Damana",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "822f1457-1e37-4eec-a42a-32cc964e7bd2",
+    "name": "Patna",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e593a2e0-8b58-4869-8e9e-68652dd25508",
+    "name": "Tali",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "a4b3cd61-730f-496c-ac67-9b9e734c0607",
+    "name": "Deori (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "91b861c8-808f-4ad0-a650-ab27722eb4f0",
+    "name": "Kodaili",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "d7115b4a-cf04-4433-9153-156548c8bab8",
+    "name": "Bhimkundi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7da9feba-8ad1-42fe-b7d3-35be182e08ce",
+    "name": "Lhawar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2772d639-d53e-47c5-8392-203798a54b7d",
+    "name": "Padmaniya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b2ecd85a-1f36-4b4c-94ef-3198b888d418",
+    "name": "Ramna Sarkari 2",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "cb941dcf-e3f8-437b-a5fa-e3993358dc04",
+    "name": "Jarhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1635d5a0-d4f1-4dc2-b089-9bce3d7f5373",
+    "name": "Njani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "8cc1c0a8-8e03-448e-9f95-a49b8fd7eae9",
+    "name": "Amiliha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "6d7a9464-3a6f-484a-97de-f5aa28f20807",
+    "name": "Reula",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e2d64dd7-1024-4c5b-882b-43c71f34ca5c",
+    "name": "Chhilpa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "92f242ed-3109-43d3-8120-197181ad249a",
+    "name": "Chachandih",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "40a4c068-80e0-4a36-acaa-b7cee8cdcc0c",
+    "name": "Nidawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "2c5fe877-1e4d-4b54-bf14-ec1b199cfb71",
+    "name": "Kholadi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "b4060a2e-24c4-4344-8fea-e823fc9c4470",
+    "name": "Khairi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "fed40100-d837-47d6-bfe6-1bd0b679270f",
+    "name": "Bela",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "cbd6ad1c-a90a-42c6-a090-be71ba34b4ae",
+    "name": "Loharin Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ccbc4c52-85a3-4e65-b582-8d1252ccfe2a",
+    "name": "Nakti Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5f203b19-3d47-4723-9326-4eb214041102",
+    "name": "Semra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "4df4f6b8-05b3-463d-99c7-d3bba704fdfe",
+    "name": "Mauhari (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "55bd631f-9eff-4060-9250-c3d73e959683",
+    "name": "Dulhara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "2c055326-9248-498d-a180-caf060908f60",
+    "name": "Dhumkahai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "f38cbcd3-7dd8-4ac7-9c68-7cdfb036a840",
+    "name": "Tarsili",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "9723fe5d-b9df-4f05-8c7a-3eae4532aa6e",
+    "name": "Manpur (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "139f60bf-004f-4e1e-892d-2b05e80ab9d8",
+    "name": "Sakra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "b38ba699-cd4e-4e39-89b7-03be9b128d84",
+    "name": "Baghni Bhawar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8383d87a-a885-4b98-a8a7-07b04008397f",
+    "name": "Bhalwahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "abe2a1e8-84bf-4f6e-a3f8-1600859f3cbc",
+    "name": "Goga",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7050ab59-2201-4e0b-9d69-e816a2000335",
+    "name": "Lalpur (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1310aa6a-f6dc-42fd-89c3-a43fff605c3a",
+    "name": "Gorsi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "ce34b5c5-7a74-4f14-896e-7aa4b9b17fc4",
+    "name": "Sursapara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "32e21e23-b460-4475-a564-6fcbdda7b037",
+    "name": "Dudhmaniya (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c3dd31f2-97b2-4f85-915b-fa4de136e280",
+    "name": "Soniyamar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "0421d6eb-736b-4892-8a50-8aa0ca81e21a",
+    "name": "Madand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "19184723-b836-418d-9f16-d9bbe51ca35c",
+    "name": "Chandwar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "6c3821a0-ce7f-4f33-9e2d-2ec6615f4b59",
+    "name": "Bhamariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2483e246-f78c-46a3-9969-478b6fa67d67",
+    "name": "Manmari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "29c5f13c-89d3-49a3-9fcb-7ae3db1b0cd3",
+    "name": "Dola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "0afb068d-b245-4145-8a63-75103fce616e",
+    "name": "Bijaura",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "64e0976f-032a-4db1-bd83-456a7ee29da3",
+    "name": "Bamhni",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "89d4b918-2d7f-4df7-a6db-487ebb91a72e",
+    "name": "Nagarabandh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "81b53c55-6a21-4925-aa50-0854a64c0776",
+    "name": "Kholadhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "3eaf64eb-d92f-48b3-b5b2-1bf7d39bdc29",
+    "name": "Chhirpani (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7b6bbb09-5ad0-4845-9834-8b5cbd68b676",
+    "name": "Belgawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2882f8e5-ef45-485d-aece-a41902a6b80d",
+    "name": "Thodaha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "b6a4aeb8-a595-4372-aabb-85b68bcac1e0",
+    "name": "Majhtoliya 2",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "0f295946-4b05-4cd7-a676-c38c8eb9252f",
+    "name": "Sital Pani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1752c7fe-6afa-44e9-aaec-882bd1e5e1c9",
+    "name": "Hirgawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fc4641df-9a63-4a74-a043-cc01f01ee5bc",
+    "name": "Ghotai Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "a97c77ac-75a5-477a-b77e-1997a3fd49d8",
+    "name": "Dhurvasin",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "4256d6ee-da1b-4f68-bc0a-714d7ffccafb",
+    "name": "Bhejari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "470649f1-3e40-4b24-a26e-62df687cc1ff",
+    "name": "Dongariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6d98fe29-cc3a-4932-a575-f89765d24c85",
+    "name": "Majholi (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "664688ef-ecbe-4e2a-ad71-e9ebbee817f6",
+    "name": "Miriya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "4db1b487-644c-4ce3-b9d0-bad21dbe6974",
+    "name": "Sarai Patera",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "44ce5bec-6572-4567-bea2-17bcad0c5c7a",
+    "name": "Lahsuna",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "78db1bf3-fde8-4613-8c83-04fd22c3e136",
+    "name": "Sohibelha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "4ff5fb3c-e521-452b-a0f2-88ecebd2a71d",
+    "name": "Nimha (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "e0c24f3c-539f-429b-9b8d-c8d8a7d4cde0",
+    "name": "Khetgaon",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "71f4063d-494d-4922-a5c5-c32564ced620",
+    "name": "Jarwahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "4e7c435a-d394-469c-8d48-3e6eb72dee8d",
+    "name": "Kumhani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "784cce0c-c4d5-43da-a4dd-1ca0cb3c59fa",
+    "name": "Umaniya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c719d173-d54d-46fc-b35a-fa97c6f4a027",
+    "name": "Vynkatnagar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "2bb3263e-fbed-4cff-821e-516ffb9f177e",
+    "name": "Sikarpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ccd59756-4de2-4cd3-9baa-33062c0b00ba",
+    "name": "Lodhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "9e319f7f-e166-464c-ad53-e66a83802a4b",
+    "name": "Badra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e7e3e251-2f8b-49db-bcde-569988cd1c67",
+    "name": "Jhaital",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "709963e7-0801-4ef4-aef3-ac0e6bb751d1",
+    "name": "Dogariya Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "860ba5c9-fdc6-495e-9499-e967c74d5859",
+    "name": "Patan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "1f744dd3-c7ee-4f6b-a87d-f3e35b7fc198",
+    "name": "Godaroo",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "b9eabad1-e1e6-4618-b2a7-2c07c91db3d0",
+    "name": "Karaunda Pani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "633ff31e-1b2b-44e2-ac33-48ac9291ae63",
+    "name": "Rausar Khar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "dd5d13ed-044c-4499-913f-788809dbef45",
+    "name": "Dhobe",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "973be37b-75a8-4c8d-8226-788f1fef245b",
+    "name": "Lalpur (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "5a0d3b13-8374-4361-8995-c8014e1debd8",
+    "name": "Ndhiyar Khoh",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "3112d5a2-5040-4f8b-9508-d0ba44a8ae92",
+    "name": "Reunda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ccd98e82-c500-4900-8138-c2923dfe675b",
+    "name": "Silwari Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "0e3535be-5f45-4c45-9f49-92b4bcc370ef",
+    "name": "Girari Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "336de8d6-e2f4-4ee0-9cf8-2feedeadb15e",
+    "name": "Choi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "fe103f4b-9a31-4bcb-89f9-374f01b0bdad",
+    "name": "Medha Khar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b0c59ad5-db75-4236-beb1-68f0eb993e97",
+    "name": "Baidara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "72408398-a484-4603-8c67-24c98d9db3a6",
+    "name": "Pipariya (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "aa0dae84-5e1e-4c94-b7b6-ba8d9526d050",
+    "name": "Salaiya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "927faee6-ab31-4f3f-ad4f-88a9c143ed6d",
+    "name": "Khamraudh (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "53c6ee65-9300-43cd-8e83-d70eb482a8da",
+    "name": "Purga",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b8a9794c-50fe-4fc5-8ba8-24496b0a83e8",
+    "name": "Rakhital",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b501c6d4-5970-48e1-8c51-e5bba8d9317e",
+    "name": "Bodri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c0cee863-72f7-412e-bb53-0fd496903a19",
+    "name": "Nagmala",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7003aeee-1593-47fa-842d-e344807597f0",
+    "name": "Akua",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c8b3b55d-ba9a-4afb-83af-94d1dfd7b025",
+    "name": "Munda",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "3b98a7ce-9d6f-49bf-9e54-5c42d88057da",
+    "name": "Umargohan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e1e5c321-7889-44c5-986d-332cbb958d94",
+    "name": "Bhalwar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6ff99be9-fd72-4afd-8886-80fe920bace1",
+    "name": "Chhulha (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "451bc4b1-2192-4896-9fcc-c148258671f6",
+    "name": "Bijaha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "21b95331-6c4e-435b-a9a3-f00d4c751b14",
+    "name": "Nonghati",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "75e9c3cd-2a24-4ed5-aa02-97a28a56c06b",
+    "name": "Paraswar (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8ccc0b9d-7288-4c98-b889-6f01756a09c7",
+    "name": "Karaundi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "060c51c4-f139-41bb-a13b-06021319996e",
+    "name": "Gobri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "dcb487c4-ae82-43ca-b240-c305cb4a5445",
+    "name": "Khamhariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "1d0b4171-d665-4422-93d7-709ea2ebd0d3",
+    "name": "Baskhala",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "d74df9f4-fff1-4ba1-8bd0-c7a21faf5963",
+    "name": "Bijauri (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2c59f48f-c408-498e-871d-db17a2c02ecc",
+    "name": "Ntariya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "4e167ecc-ec6c-4303-af15-20c09661bedf",
+    "name": "Sarwahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fd7e8262-4eac-4097-aaf8-5228228e5d25",
+    "name": "Pipraha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "bc0ee10a-c9be-4b80-b062-0250f8b62790",
+    "name": "Majhgawan (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fc607283-c2b3-4486-a53a-ca6ed067c0aa",
+    "name": "Shyam Duwari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7989b719-4f85-4f1b-953d-32998e88b62a",
+    "name": "Majhtoliya 1",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7d16d982-b417-4881-a3ba-1e0874755e3e",
+    "name": "Harrai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "09e4cdfb-5f39-46dd-a6a3-ff9f5783dd9e",
+    "name": "Patna Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5154f87b-43ac-4435-a05a-d12f477ad5ca",
+    "name": "Chandpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "67419c19-8b93-4ab8-ab60-17f52d6268ce",
+    "name": "Pcooha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "4a0b1952-61b5-4148-a532-f5121d3bb96c",
+    "name": "Bhamarha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d127398b-a338-4c88-b40f-86d0a17a59d0",
+    "name": "Kohka",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6ec53e9a-dc23-4024-9bac-d8e579589b7e",
+    "name": "Sakola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "3c69767b-e61c-48e5-a049-842cf5334cc5",
+    "name": "Ledhara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5163edf1-8758-4d1d-baac-14d31fc2eda7",
+    "name": "Bangawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "657fd6ea-ede0-40f6-a905-9f18a48969d4",
+    "name": "Audhera",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7afcb6df-f630-4677-a1b1-ec1b92beaa98",
+    "name": "Gondi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f21f8708-fc0c-4706-8087-8aa779600a0c",
+    "name": "Khalhedudhi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6257bd04-2e04-4e0a-aee9-825fa50ec77e",
+    "name": "Jaitahari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "49f9577d-5260-43e8-ad35-7a950d9cf50b",
+    "name": "Bagdumara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "16abf7cb-9781-43c4-a5a5-4369d20c8630",
+    "name": "Pondi (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "d21f8cfb-9150-41c2-87d5-b833e244fab1",
+    "name": "Salargondi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "cad8724c-1a09-4f57-84da-ba6654930f15",
+    "name": "Salharo",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "35f5bafb-a7b9-4125-ba0e-5cdaa759524e",
+    "name": "Thadh Pathar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f0994416-f9b6-4cd8-84c0-2bac2a5abeb0",
+    "name": "Chhatai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "238beb9a-2f4e-4dc7-b0a6-223ffe0e43f9",
+    "name": "Bandhwa Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "0287edcb-ddbc-4e28-ba52-c4474ef30110",
+    "name": "Sanchara",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5dc10828-ba4e-41b8-b00a-60831e05335c",
+    "name": "Urtan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "6fa1443c-0405-486a-a411-9ff90fe7e593",
+    "name": "Beldongri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "22cd1ea4-2fc4-4795-8486-65da9ae143ff",
+    "name": "Jilan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "017ae047-0eb8-4c24-a8a6-dd81e4dc5fab",
+    "name": "Guguwa Kapa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "470d44f6-e6e0-4177-9b65-1ae436256bd9",
+    "name": "Pathraudi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "76a79920-5c08-4ce1-b5ac-e9805e552fff",
+    "name": "Khoonta Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "586a6a19-adc3-4c7d-a22a-ea1b93865810",
+    "name": "Chhapani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5e8321c2-79b2-42cf-a43e-850f1e33fb3d",
+    "name": "Pipar Khunta",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b4903428-dc6b-447d-837d-7328bcde57ce",
+    "name": "Mediya Ras",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "28ea8b64-40cc-4682-b89d-a3ce73fc99c0",
+    "name": "Pardi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "cb8e008d-a28b-4bf8-ace7-7b8e944ee403",
+    "name": "Chhulha Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "dc7d1e00-2e25-45c5-9971-f91220f5492a",
+    "name": "Badhamar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fb96f02b-4671-4fc5-8d36-a504d65e4ebd",
+    "name": "Bakeli",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5bbc0a05-36ac-426a-bc8c-3ec621abc202",
+    "name": "Kothi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "5d5bcba6-41b6-4828-89c8-b3221ba67ce1",
+    "name": "Barri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "c4df12da-3ae8-4332-a658-7abeb0deb5fc",
+    "name": "Kodar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "b4f12f02-44f3-4ea2-a659-487681ba42cc",
+    "name": "Latar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "230b35c1-55d1-4dff-8655-c5201a442bcf",
+    "name": "Tanki Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d8924af8-3046-4c00-adbe-c3079f43d177",
+    "name": "Paladongri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "0d45759d-281d-4948-acda-26dd64a150e8",
+    "name": "Koylari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8be9f693-03a1-49fe-8323-2c6ad6bd0c3a",
+    "name": "Girwi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "df59b226-e983-4dd4-ace9-02fb8d2610b9",
+    "name": "Sunpuri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d63a883d-4dbb-4545-b21d-9ad59a98abbb",
+    "name": "Banka Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5d0deb03-63fc-4ff6-ab78-8c487defec0e",
+    "name": "Pharrisemar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "e565d70c-5c76-4c94-b6de-89166774c090",
+    "name": "Lohasur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "ff933801-7bd4-4ca4-807e-86decadbcf57",
+    "name": "Chhata Patpar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "f4de96e3-7958-42be-9e0f-e69766667f15",
+    "name": "Batki",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ac2073dc-0e84-4092-8b18-151d99f0462a",
+    "name": "Karpa",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7316622b-2485-4da9-bf41-fbc4e33dc14c",
+    "name": "Ghotai Khurd",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2507e718-ae7a-4078-9906-9d7508537352",
+    "name": "Dhopa Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "9cc3bdf5-6ba0-417b-bef9-31c21d0caf32",
+    "name": "Kusmahai (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "b2a3266f-0afd-4523-b5e1-d669f8bc6994",
+    "name": "Mahora",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "5f03d8d6-0dc5-47b1-bffa-01d8310e7a8d",
+    "name": "Chhirpani (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "73644696-bacd-4810-8786-67f2c4092800",
+    "name": "Dhanoli",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "386c75a4-929e-42f8-b793-5a90cd2856b1",
+    "name": "Mgawan (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "fcb06d1a-45d1-46bc-afdb-b491557e5e3c",
+    "name": "Jamkachhar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "07119d67-449e-4bc5-9c30-64de9edebb01",
+    "name": "Dodiya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c2008cbd-0533-4b4d-bd89-f99beec60b0f",
+    "name": "Damehari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "fe1ab466-a9b8-41f6-a0c4-6867dfb9f5aa",
+    "name": "Bhalmudi (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "53d541fe-a65e-4f43-a585-7ba191541bad",
+    "name": "Dharamdas",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "62b81d72-c70f-4fc3-9103-de57a82cbf44",
+    "name": "Hirna Chhapar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "ebffc667-b0c6-4fcf-824d-0d68467f5f7c",
+    "name": "Khursi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "60592eef-9854-4e50-aab7-46047f242ef5",
+    "name": "Gijari",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "10497fc8-1749-4942-9190-152003adddbd",
+    "name": "Dongara Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "1be8aef1-de16-4b44-a375-709037879391",
+    "name": "Khodari (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "649598c6-c40a-420d-b6ec-b9caadf963b5",
+    "name": "Semarwar (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "79cb465a-c330-4b97-9b65-91058336edcf",
+    "name": "Naguli Dadar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "08bd639e-c18b-40eb-8b1f-a2be44644704",
+    "name": "Bhalmudi (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "a0d51ec8-865c-4288-941a-3e6ce76272c1",
+    "name": "Payari (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "e0446b91-4e57-4256-b3e4-4687007b91e9",
+    "name": "Titahi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7ae1bed1-2a90-422e-8402-94f28e25bcc1",
+    "name": "Lapta",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "faff908a-3424-48ca-8cec-3bc23f83ea52",
+    "name": "Bharni",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "a9cd6ee2-2aad-4e9b-a6a0-f22de41ca05d",
+    "name": "Didwapani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "5e523502-5018-4a0f-9113-7720a5c0caef",
+    "name": "Manpur (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "0724c9e1-fe9f-4299-afd5-aac17591897b",
+    "name": "Chachai Abad",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "8a04681b-84d3-4004-bbfb-e4511f60b1ff",
+    "name": "Manaura",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "f7d6b1eb-906f-4a2b-b3ee-de0804b53128",
+    "name": "Gedi Ama",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8759b6e9-3de5-4984-b7e8-913b54304f9e",
+    "name": "Parsel Kalan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "9c0d1a0c-e7d6-4c7b-8ada-656cfacb8e3f",
+    "name": "Kanchanpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "92da6f76-3eda-478c-8221-416e48980f29",
+    "name": "Sheori Chandas",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "90a78e67-b7d1-49c4-854e-244a6621b22f",
+    "name": "Pakriha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "586bb83b-b348-4636-8b65-a5067b558745",
+    "name": "Jhilmila",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "17947815-2415-4d88-8024-b5db551d18bb",
+    "name": "Gutti Para",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "74a4c3df-ed6e-4c7b-b5a9-79d254d6faf6",
+    "name": "Chukan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "b9b4b1c1-6677-446d-830b-f9074f521ae2",
+    "name": "Korya",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "42e99827-6286-4ced-884b-078b7349a170",
+    "name": "Bodiha",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "b8c7c3e6-c533-42f9-ad4d-c640920e6e5e",
+    "name": "Mentola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "ef1ff4ce-7b1f-4fb3-9125-54b8d2e59875",
+    "name": "Thehi",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "3de28533-20a5-40fd-b56f-c5cae7a93513",
+    "name": "Khamraudh (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "d3638d22-2456-4195-abf7-0e18595b32a4",
+    "name": "Kelhauri",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "d24d5bae-5e84-4809-be39-79a735c4ec6c",
+    "name": "Dhankuta",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "de4894b3-a2a9-47a6-b0b7-556a6823ac0b",
+    "name": "Dhumma",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f1bfcebc-125e-47b6-afdb-f03a1192c8a7",
+    "name": "Bhathadand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "f233667e-4fc2-49f7-8243-facd591c8cc7",
+    "name": "Kamran Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "15a29287-1831-46d0-9485-b588e32cd51a",
+    "name": "Dhawai",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "c5aa52e9-d9e7-47e5-83a5-edbf61e06b79",
+    "name": "Gohandra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "4560f03a-14fd-410c-b983-2bbfc8969c3d",
+    "name": "Agriyanar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f7122cea-3a27-4bbd-9514-2c7c626af5c8",
+    "name": "Barbaspur (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "7f7b69c2-66b0-4980-9ec1-035610e0a8fa",
+    "name": "Keshwani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "9b236829-2bb2-4904-b10d-9793632724fa",
+    "name": "Gaurela",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "d60e1f08-069a-4832-9275-191491831dbf",
+    "name": "Kyontar (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  },
+  {
+    "uuid": "9940945d-5507-4b81-a809-c50c0a37054d",
+    "name": "Manikpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "270327b7-dac2-4570-bd8d-87acb4bbb3cc",
+    "name": "Suidand",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "4b2d8ee0-4b8e-4d8f-9803-2ccf15cd4086",
+    "name": "Nougawan",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "d781c14b-44d2-4062-88c7-5c49012ef023",
+    "name": "Padaur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "d67f1cae-d958-4ff9-80f7-4965ba433971",
+    "name": "Bamhani",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "da3d1b2b-5db3-4f33-9fde-9bc4c214e1e0",
+    "name": "Gadhidadar",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "9f118d20-9404-465f-b851-615039bb30da",
+    "name": "Gambhirwa Tola",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "fa2a840c-69a9-40cb-a4f6-90c7752a0662",
+    "name": "Bagharra",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8c28d3f2-9221-489a-ba2a-065cfa82ecfc",
+    "name": "Other (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1686c485-b49a-44c8-bc25-c596d45f834d",
+    "name": "Other (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "a705ba01-026e-46d8-a066-b4c4d39db253",
+    "name": "Other (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f2d6ebff-ada3-4e1b-9293-d29de7f41618",
+    "name": "Other (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
+  }
+]

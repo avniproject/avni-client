@@ -194,5 +194,12 @@
     "level": 4,
     "type": "District",
     "parents": []
+  },
+  {
+    "uuid": "371dd45c-2546-4958-b00f-80af2430965d",
+    "name": "Anuppur",
+    "level": 4,
+    "type": "District",
+    "parents": []
   }
 ]
