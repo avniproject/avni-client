@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {ValidationResult, BaseEntity} from "openchs-models";
+import {BaseEntity, ValidationResult} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
@@ -185,17 +185,17 @@ class AbstractDataEntryState {
     }
 
     validateLocation(location, validationKey) {
-        if (_.isNil(location) && !_.isNil(this.locationError)) {
-            if (
-                this.locationError.code === Geo.ErrorCodes.SETTINGS_NOT_SATISFIED ||
-                this.locationError.code === Geo.ErrorCodes.PERMISSION_DENIED
-            ) {
-                return ValidationResult.failure(validationKey, "giveLocationPermissions");
-            } else if (this.locationError.code === Geo.ErrorCodes.PERMISSION_NEVER_ASK_AGAIN) {
-                return ValidationResult.failure(validationKey, "giveLocationPermissionFromSettings");
-            }
-        } else {
+        if (!_.isNil(location) || _.isNil(this.locationError)) {
             return ValidationResult.successful(validationKey);
+        }
+        switch (this.locationError.code) {
+            case Geo.ErrorCodes.SETTINGS_NOT_SATISFIED:
+            case Geo.ErrorCodes.PERMISSION_DENIED:
+                return ValidationResult.failure(validationKey, "giveLocationPermissions");
+            case Geo.ErrorCodes.PERMISSION_NEVER_ASK_AGAIN:
+                return ValidationResult.failure(validationKey, "giveLocationPermissionFromSettings");
+            default:
+                return ValidationResult.successful(validationKey);
         }
     }
 }
