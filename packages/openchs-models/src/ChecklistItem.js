@@ -73,7 +73,7 @@ class ChecklistItem {
             : null;
     }
 
-    calculateApplicableState() {
+    calculateApplicableState(currentDate = moment()) {
         if (this.completed) {
             return {status: ChecklistItemStatus.completed, statusDate: this.completionDate};
         }
@@ -93,12 +93,10 @@ class ChecklistItem {
         let lastSetDate = null;
 
         let nonCompletedState = this.detail.stateConfig.find((status, index) => {
-            const currentDate = moment();
-
             if (!this.isDependent) {
                 const minDate = moment(this.checklist.baseDate).add(status.from.value, status.from.key).startOf("day");
                 const maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key).endOf("day");
-                if (currentDate.isBetween(minDate, maxDate)) {
+                if (currentDate.isBetween(minDate, maxDate, null, '[]')) {
                     statusDate = minDate.toDate();
                     return true;
                 }
@@ -121,7 +119,7 @@ class ChecklistItem {
                 if(this.detail.stateConfig.length-1 === index)
                     maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key);
 
-                if (currentDate.isBetween(minDate, maxDate)) {
+                if (currentDate.isBetween(minDate, maxDate, null, '[]')) {
                     statusDate = minDate.toDate();
                     return true;
                 }
@@ -131,7 +129,7 @@ class ChecklistItem {
                 const diff = minDaysFromStartDate - this.firstState.from.value;
                 const minDate = moment(this.checklist.baseDate).add(status.from.value, status.from.key).add(diff, "day").startOf("day");
                 const maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key).add(diff, "day").endOf("day");
-                if (currentDate.isBetween(minDate, maxDate)) {
+                if (currentDate.isBetween(minDate, maxDate, null, '[]')) {
                     statusDate = minDate.toDate();
                     return true;
                 }
