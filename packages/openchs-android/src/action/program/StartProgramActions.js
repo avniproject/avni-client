@@ -33,7 +33,7 @@ class StartProgramActions {
     }
 
     static displayLabel(encounter, I18n) {
-        const encounterName = I18n.t(encounter.name) || '';
+        const encounterName = I18n.t(encounter.name || encounter.encounterType.name);
         const displayDate = encounter.earliestVisitDateTime && `(${General.toDisplayDate(encounter.earliestVisitDateTime)})` || '';
         return `${encounterName} ${displayDate}`;
     }
