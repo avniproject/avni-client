@@ -9,6 +9,7 @@ import General from "../../../utility/General";
 import Distances from "../../primitives/Distances";
 import {Button, Icon} from "native-base";
 import Geo from "../../../framework/geo";
+import SettingsService from "../../../service/SettingsService";
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {
@@ -22,38 +23,34 @@ class GeolocationFormElement extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.getPosition = this.getPosition.bind(this);
+        this.settings = context.getService(SettingsService).getSettings();
     }
 
     componentWillMount() {
-        if (!this.props.editing) {
+        if (!this.props.editing && this.settings.captureLocation) {
             this.getPosition();
         }
     }
 
     async askLocationPermission() {
-        if (Platform.OS === 'ios' ||
-            (Platform.OS === 'android' && Platform.Version < 23)) {
+        if (Platform.OS === "ios" || (Platform.OS === "android" && Platform.Version < 23)) {
             return true;
         }
 
-        const hasPermission = await PermissionsAndroid.check(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        );
+        const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
 
         if (hasPermission) return true;
 
-        const status = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        );
+        const status = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
 
         if (status === PermissionsAndroid.RESULTS.GRANTED) return true;
 
         if (status === PermissionsAndroid.RESULTS.DENIED) {
             this.dispatchAction(this.props.errorActionName, {value: {code: Geo.ErrorCodes.PERMISSION_DENIED}});
-            General.logDebug('Geo', 'Location permission denied by user');
+            General.logDebug("Geo", "Location permission denied by user");
         } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
             this.dispatchAction(this.props.errorActionName, {value: {code: Geo.ErrorCodes.PERMISSION_NEVER_ASK_AGAIN}});
-            General.logDebug('Geo', 'Location permission revoked by user');
+            General.logDebug("Geo", "Location permission revoked by user");
         }
 
         return false;
@@ -70,7 +67,7 @@ class GeolocationFormElement extends AbstractComponent {
                 },
                 error => {
                     this.dispatchAction(this.props.errorActionName, {value: error});
-                    General.logError('GeolocationFormElement', error);
+                    General.logError("GeolocationFormElement", error);
                 },
                 {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
             );
@@ -99,31 +96,30 @@ class GeolocationFormElement extends AbstractComponent {
     renderGetLocationButton() {
         return (
             <Button small primary iconLeft onPress={this.getPosition}>
-                <Icon name='my-location'/>
-                <Text>{this.I18n.t('getLocation')}</Text>
+                <Icon name="my-location" />
+                <Text>{this.I18n.t("getLocation")}</Text>
             </Button>
         );
     }
 
     render() {
-        General.logDebug('GeolocationFormElement', `render, props: editing ${this.props.editing}`);
-        return (
-            <View style={this.appendedStyle({
-                paddingTop: Distances.VerticalSpacingBetweenFormElements,
-                flexDirection: "column",
-                justifyContent: "flex-start"
-            })}>
-                <Text style={Styles.formLabel}>
-                    {this.I18n.t('gpsCoordinates')}
-                </Text>
+        General.logDebug("GeolocationFormElement", `render, props: editing ${this.props.editing}`);
+        return this.settings.captureLocation ? (
+            <View
+                style={this.appendedStyle({
+                    paddingTop: Distances.VerticalSpacingBetweenFormElements,
+                    flexDirection: "column",
+                    justifyContent: "flex-start"
+                })}
+            >
+                <Text style={Styles.formLabel}>{this.I18n.t("gpsCoordinates")}</Text>
                 <View style={{flexDirection: "row"}}>
-                    {!_.isNil(this.props.validationResult)
-                        ? this.renderGetLocationButton()
-                        : this.renderCoordinates()
-                    }
+                    {!_.isNil(this.props.validationResult) ? this.renderGetLocationButton() : this.renderCoordinates()}
                 </View>
-                <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                <ValidationErrorMessage validationResult={this.props.validationResult} />
             </View>
+        ) : (
+            <View />
         );
     }
 }

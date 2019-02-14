@@ -36,11 +36,12 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return new ObservationsHolder(this.programEncounter.observations);
     }
 
-    validateEntity() {
+    validateEntity(context) {
         const validationResults = this.programEncounter.validate();
         const locationValidation = this.validateLocation(
             this.programEncounter.encounterLocation,
             ProgramEncounter.validationKeys.ENCOUNTER_LOCATION,
+            context
         );
         console.log(`PE error ${this.locationError} ${JSON.stringify(this.programEncounter.encounterLocation)} ${JSON.stringify(locationValidation)}`)
         validationResults.push(locationValidation);

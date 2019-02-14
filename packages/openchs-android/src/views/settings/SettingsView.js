@@ -145,7 +145,8 @@ class SettingsView extends AbstractComponent {
                             }
                         </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
-                                    labelValuePairs={localeLabelValuePairs} labelKey='locale'
+                                    labelValuePairs={localeLabelValuePairs}
+                                    labelKey='locale'
                                     selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid}
                                     validationError={null}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
@@ -157,6 +158,21 @@ class SettingsView extends AbstractComponent {
                                 style={{color: 'black', fontSize: Styles.normalTextSize}}>{Schema.schemaVersion}</Text></Text>
                             <Text style={Styles.textList}>BuildVersion: <Text
                                 style={{color: 'black', fontSize: Styles.normalTextSize}}>{config.BUILD_VERSION}</Text></Text>
+                        </View>
+
+                        <Text style={Styles.formLabel}>{this.I18n.t('location')}</Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            borderWidth: 1,
+                            borderStyle: 'dashed',
+                            borderColor: Colors.InputBorderNormal,
+                            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
+                        }}>
+                            <Text style={{color: 'black', fontSize: Styles.normalTextSize}}>{this.I18n.t('trackLocation')}</Text>
+                            <Switch value={this.state.settings.captureLocation}
+                                    onValueChange={() => this.dispatchAction(Actions.ON_CAPTURE_LOCATION_CHANGE)}/>
                         </View>
 
                         {this.renderDevOptions()}

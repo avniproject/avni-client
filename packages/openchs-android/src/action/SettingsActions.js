@@ -72,6 +72,16 @@ class SettingsActions {
         return {...state, advancedMode: !state.advancedMode};
     }
 
+    static onCaptureLocationChange(state, action, context) {
+        return SettingsActions._updateSettingAndSave(
+            state,
+            settings => {
+                settings.captureLocation = !settings.captureLocation;
+            },
+            context
+        );
+    }
+
     static onRuleChange(state, action, context) {
         const ruleToAddRemove = action.value;
         let rulesToRun = state.rulesToRun;
@@ -89,7 +99,8 @@ const SettingsActionsNames = {
     ON_LOCALE_CHANGE: 'S.ON_LOCALE_CHANGE',
     ON_LOG_LEVEL_CHANGE: 'S.ON_LOG_LEVEL_CHANGE',
     ON_ADVANCED_MODE: 'S.ON_ADVANCED_MODE',
-    ON_RULE_CHANGE: 'S.ON_RULE_CHANGE'
+    ON_RULE_CHANGE: 'S.ON_RULE_CHANGE',
+    ON_CAPTURE_LOCATION_CHANGE: 'S.ON_CAPTURE_LOCATION_CHANGE'
 };
 
 const SettingsActionsMap = new Map([
@@ -97,7 +108,8 @@ const SettingsActionsMap = new Map([
     [SettingsActionsNames.ON_LOCALE_CHANGE, SettingsActions.onLocaleChange],
     [SettingsActionsNames.ON_ADVANCED_MODE, SettingsActions.onAdvancedMode],
     [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange],
-    [SettingsActionsNames.ON_RULE_CHANGE, SettingsActions.onRuleChange]
+    [SettingsActionsNames.ON_RULE_CHANGE, SettingsActions.onRuleChange],
+    [SettingsActionsNames.ON_CAPTURE_LOCATION_CHANGE, SettingsActions.onCaptureLocationChange]
 ]);
 
 export {

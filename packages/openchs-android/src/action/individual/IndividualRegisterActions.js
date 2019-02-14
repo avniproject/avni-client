@@ -50,14 +50,15 @@ export class IndividualRegisterActions {
         return newState;
     }
 
-    static setLocation(state, action) {
+    static setLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
         newState.individual.registrationLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         newState.handleValidationResult(
             state.validateLocation(
                 newState.individual.registrationLocation,
-                Individual.validationKeys.REGISTRATION_LOCATION
+                Individual.validationKeys.REGISTRATION_LOCATION,
+                context
             )
         );
         return newState;

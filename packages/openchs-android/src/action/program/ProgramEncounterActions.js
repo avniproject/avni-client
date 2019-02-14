@@ -55,14 +55,15 @@ class ProgramEncounterActions {
         return state.clone().handlePrevious(action, context);
     }
 
-    static setEncounterLocation(state, action) {
+    static setEncounterLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
         newState.programEncounter.encounterLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         newState.handleValidationResult(
             state.validateLocation(
                 newState.programEncounter.encounterLocation,
-                ProgramEncounter.validationKeys.ENCOUNTER_LOCATION
+                ProgramEncounter.validationKeys.ENCOUNTER_LOCATION,
+                context
             )
         );
         return newState;

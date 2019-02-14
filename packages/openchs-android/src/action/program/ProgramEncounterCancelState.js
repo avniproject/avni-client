@@ -34,11 +34,12 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
         return new ObservationsHolder(this.programEncounter.cancelObservations);
     }
 
-    validateEntity() {
+    validateEntity(context) {
         const validationResults = [];
         const locationValidation = this.validateLocation(
             this.programEncounter.cancelLocation,
             ProgramEncounter.validationKeys.CANCEL_LOCATION,
+            context
         );
         validationResults.push(locationValidation);
         return validationResults;

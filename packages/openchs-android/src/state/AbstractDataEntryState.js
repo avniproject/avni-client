@@ -89,7 +89,7 @@ class AbstractDataEntryState {
 
     handleNext(action, context) {
         const ruleService = context.get(RuleEvaluationService);
-        const validationResults = this.validateEntity();
+        const validationResults = this.validateEntity(context);
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements));
         this.handleValidationResults(allValidationResults, context);
         if (this.anyFailedResultForCurrentFEG()) {
@@ -138,7 +138,7 @@ class AbstractDataEntryState {
         return null;
     }
 
-    validateEntity() {
+    validateEntity(context) {
         throw Error('Should be overridden');
     }
 
@@ -184,8 +184,9 @@ class AbstractDataEntryState {
         throw Error('This method should be overridden');
     }
 
-    validateLocation(location, validationKey) {
-        if (!_.isNil(location) || _.isNil(this.locationError)) {
+    validateLocation(location, validationKey, context) {
+        const settings = context.get(SettingsService).getSettings();
+        if (settings.captureLocation !== true || !_.isNil(location) || _.isNil(this.locationError)) {
             return ValidationResult.successful(validationKey);
         }
         switch (this.locationError.code) {

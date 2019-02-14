@@ -57,11 +57,12 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? _.keys(Individual.validationKeys) : [];
     }
 
-    validateEntity() {
+    validateEntity(context) {
         const validationResults = this.individual.validate();
         const locationValidation = this.validateLocation(
             this.individual.registrationLocation,
             Individual.validationKeys.REGISTRATION_LOCATION,
+            context
         );
         validationResults.push(locationValidation);
         return validationResults;

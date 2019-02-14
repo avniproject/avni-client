@@ -56,14 +56,15 @@ class ProgramEncounterCancelActions {
         return newState;
     }
 
-    static setCancelLocation(state, action) {
+    static setCancelLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
         newState.programEncounter.cancelLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         newState.handleValidationResult(
             state.validateLocation(
                 newState.programEncounter.cancelLocation,
-                ProgramEncounter.validationKeys.CANCEL_LOCATION
+                ProgramEncounter.validationKeys.CANCEL_LOCATION,
+                context
             )
         );
         return newState;

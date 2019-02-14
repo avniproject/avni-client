@@ -53,11 +53,12 @@ class EncounterActionState extends AbstractDataEntryState {
         return decisions;
     }
 
-    validateEntity() {
+    validateEntity(context) {
         const validationResults = this.encounter.validate();
         const locationValidation = this.validateLocation(
             this.encounter.encounterLocation,
             Encounter.validationKeys.ENCOUNTER_LOCATION,
+            context
         );
         validationResults.push(locationValidation);
         return validationResults;

@@ -62,13 +62,14 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
             state.usage !== action.usage;
     }
 
-    validateEntity() {
+    validateEntity(context) {
         let validationResults;
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             validationResults = this.enrolment.validateEnrolment();
             const locationValidation = this.validateLocation(
                 this.enrolment.enrolmentLocation,
                 ProgramEnrolment.validationKeys.ENROLMENT_LOCATION,
+                context
             );
             validationResults.push(locationValidation);
         } else {
@@ -76,6 +77,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
             const locationValidation = this.validateLocation(
                 this.enrolment.exitLocation,
                 ProgramEnrolment.validationKeys.EXIT_LOCATION,
+                context
             );
             validationResults.push(locationValidation);
         }

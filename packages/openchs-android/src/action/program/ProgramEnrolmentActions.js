@@ -55,27 +55,29 @@ export class ProgramEnrolmentActions {
         return newState;
     }
 
-    static setEnrolmentLocation(state, action) {
+    static setEnrolmentLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
         newState.enrolment.enrolmentLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         newState.handleValidationResult(
             state.validateLocation(
                 newState.enrolment.enrolmentLocation,
-                ProgramEnrolment.validationKeys.ENROLMENT_LOCATION
+                ProgramEnrolment.validationKeys.ENROLMENT_LOCATION,
+                context
             )
         );
         return newState;
     }
 
-    static setExitLocation(state, action) {
+    static setExitLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
         newState.enrolment.exitLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         newState.handleValidationResult(
             state.validateLocation(
                 newState.enrolment.exitLocation,
-                ProgramEnrolment.validationKeys.EXIT_LOCATION
+                ProgramEnrolment.validationKeys.EXIT_LOCATION,
+                context
             )
         );
         return newState;

@@ -52,14 +52,15 @@ export class EncounterActions {
         return newState;
     }
 
-    static setEncounterLocation(state, action) {
+    static setEncounterLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
         newState.encounter.encounterLocation = Point.newInstance(position.coords.latitude, position.coords.longitude);
         newState.handleValidationResult(
             state.validateLocation(
                 newState.encounter.encounterLocation,
-                Encounter.validationKeys.ENCOUNTER_LOCATION
+                Encounter.validationKeys.ENCOUNTER_LOCATION,
+                context
             )
         );
         return newState;

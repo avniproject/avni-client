@@ -213,5 +213,7 @@
   "getLocation": "Get GPS Location",
   "gpsCoordinates": "GPS Coordinates",
   "giveLocationPermissions": "Click on Get Location button and give permissions when asked",
-  "giveLocationPermissionFromSettings": "Please give location permission to OpenCHS from Settings > Apps > OpenCHS"
+  "giveLocationPermissionFromSettings": "Please give location permission to OpenCHS from Settings > Apps > OpenCHS",
+  "location": "Location",
+  "trackLocation": "Track Location"
 }

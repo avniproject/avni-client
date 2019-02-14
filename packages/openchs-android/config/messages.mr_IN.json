@@ -176,6 +176,10 @@
   "uploadMedia": "सेव्ह केलेल्या मीडिया फायली अपलोड करीत आहे",
   "uploadLocallySavedData": "सेव्ह केलेला डेटा अपलोड करीत आहे",
   "downloadFormsEtc":"नवीन फॉर्म इ डाउनलोड करीत आहे",
-  "downloadNewDataFromServer":"सर्व्हरवरून नवीन डेटा डाउनलोड करत आहे"
+  "downloadNewDataFromServer":"सर्व्हरवरून नवीन डेटा डाउनलोड करत आहे",
 
+  "getLocation": "जीपीएस लोकेशन मिळावा",
+  "gpsCoordinates": "जीपीएस कोऑर्डिनेट्स",
+  "giveLocationPermissions": "जीपीएस लोकेशन प्राप्त करावी व बटन वर क्लिक करावे आणि विचारल्यास अनुमति द्यावी",
+  "giveLocationPermissionFromSettings": "कृपया Settings > Apps > OpenCHS मध्ये जाऊन OpenCHS ला ठिकाणाची अनुमति द्या"
 }

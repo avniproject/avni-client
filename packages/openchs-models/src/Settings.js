@@ -17,7 +17,8 @@ class Settings {
             pageSize: 'int',
             poolId: 'string',
             clientId: 'string',
-            devSkipValidation: {type: 'bool', default: false}
+            devSkipValidation: {type: 'bool', default: false},
+            captureLocation: {type: 'bool', default: true}
         }
     };
 
@@ -31,6 +32,7 @@ class Settings {
         settings.clientId = this.clientId;
         settings.pageSize = this.pageSize;
         settings.devSkipValidation = this.devSkipValidation;
+        settings.captureLocation = this.captureLocation;
         return settings;
     }
 
