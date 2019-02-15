@@ -321,6 +321,14 @@ upload-prod-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
 
+upload-prod-apk-x86:
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-x86-release.apk s3://samanvay/openchs/prod-apks/prod-x86-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-x86-$(sha)-$(dat).apk"
+
+upload-prod-apk-arm:
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk s3://samanvay/openchs/prod-apks/prod-arm-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-arm-$(sha)-$(dat).apk"
+
 #server,port args need to be provided
 lbp_inpremise_deploy:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_LBP_PROD_USER_POOL_ID) clientId=$(OPENCHS_LBP_PROD_APP_CLIENT_ID) username=admin password=$(password) server=$(server) port=$(port)
