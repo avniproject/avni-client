@@ -49,10 +49,10 @@ class MyDashboardActions {
                 individualService.allOverdueVisitsIn(state.date.value, queryAdditions),
                 individualService.allCompletedVisitsIn(state.date.value, queryAdditions),
                 individualService.allIn(state.date.value, queryAdditions)].map(MyDashboardActions.applyFilters(filters));
-        const individualsWithScheduledVisits = _.groupBy(allIndividualsWithScheduledVisits, 'addressUUID');
-        const individualsWithOverdueVisits = _.groupBy(allIndividualsWithOverDueVisits, 'addressUUID');
-        const individualsWithCompletedVisits = _.groupBy(allIndividualsWithCompletedVisits, 'addressUUID');
-        const allIndividualsGrouped = _.groupBy(allIndividuals, 'addressUUID');
+        const individualsWithScheduledVisits = _.groupBy(allIndividualsWithScheduledVisits, 'lowestAddressLevel.uuid');
+        const individualsWithOverdueVisits = _.groupBy(allIndividualsWithOverDueVisits, 'lowestAddressLevel.uuid');
+        const individualsWithCompletedVisits = _.groupBy(allIndividualsWithCompletedVisits, 'lowestAddressLevel.uuid');
+        const allIndividualsGrouped = _.groupBy(allIndividuals, 'lowestAddressLevel.uuid');
         allAddressLevels.map((addressLevel) => {
             const address = nameAndID(addressLevel);
             let existingResultForAddress = {
