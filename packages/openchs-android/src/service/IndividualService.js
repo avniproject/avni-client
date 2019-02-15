@@ -80,6 +80,7 @@ class IndividualService extends BaseService {
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
                 'AND cancelDateTime = null ' +
+                'AND programEnrolment.programExitDateTime = null ' +
                 (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $2'),
                 dateMidnight,
                 dateMorning,
@@ -128,6 +129,7 @@ class IndividualService extends BaseService {
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
+                'AND programEnrolment.programExitDateTime = null ' +
                 (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $1'),
                 dateMorning,
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
