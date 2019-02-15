@@ -66,7 +66,6 @@ class IndividualService extends BaseService {
             .filtered('voided = false ' +
                 (_.isNil(addressLevel) ? '' : 'AND lowestAddressLevel.uuid = $0'),
                 (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
-            .map((individual) => ({...individual, addressUUID: individual.lowestAddressLevel.uuid}))
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
             .map(_.identity);
@@ -88,7 +87,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
+                return individual;
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -136,7 +135,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
+                return individual;
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -177,7 +176,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return {...individual, addressUUID: individual.lowestAddressLevel.uuid};
+                return individual;
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
