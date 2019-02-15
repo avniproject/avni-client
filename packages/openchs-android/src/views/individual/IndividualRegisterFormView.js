@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {BackAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -28,13 +28,24 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
+        this.previous = this.previous.bind(this);
+    }
+
+    componentWillMount() {
+        BackAndroid.addEventListener('hardwareBackPress', this.previous);
+        return super.componentWillMount();
+    }
+
+    componentWillUnmount() {
+        super.componentWillUnmount();
+        BackAndroid.removeEventListener('hardwareBackPress', this.previous);
     }
 
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {
                 if (newState.wizard.isFirstPage()) {
-                    TypedTransition.from(this).goBack();
+                    //TypedTransition.from(this).goBack();
                 }
                 this.scrollToTop();
             }
