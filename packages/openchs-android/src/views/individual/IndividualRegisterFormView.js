@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {BackAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -28,6 +28,11 @@ class IndividualRegisterFormView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.individualRegister);
     }
 
+    onHardwareBackPress() {
+        this.previous();
+        return true;
+    }
+
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {
@@ -48,7 +53,8 @@ class IndividualRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration', {subjectName:'Individual'})} func={() => this.previous()}/>
+                    <AppHeader title={this.I18n.t('registration', {subjectName: 'Individual'})}
+                               func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}
