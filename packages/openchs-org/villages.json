@@ -69,7 +69,7 @@
   },
   {
     "uuid": "4190b123-0702-4030-ba0f-ce329224379a",
-    "name": "Chatua",
+    "name": "Chatua (Anuppur)",
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
@@ -209,7 +209,12 @@
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
-    "parents": []
+    "parents": [
+      {
+        "comment": "Jaithari",
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
   },
   {
     "uuid": "ec06d15b-aa33-4ad8-9235-15fc92736d9f",
@@ -225,7 +230,12 @@
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
-    "parents": []
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
   },
   {
     "uuid": "29240d2a-1889-4bba-9195-7a6f47cdd5aa",
@@ -271,6 +281,7 @@
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
     "parents": [
       {
+        "comment": "Kotma",
         "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
       }
     ]
@@ -1028,18 +1039,6 @@
     ]
   },
   {
-    "uuid": "ad41d8f4-3309-46c7-9399-303fed68f362",
-    "name": "Majhauli",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Kotma",
-        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
-      }
-    ]
-  },
-  {
     "uuid": "b0611dcd-9f6d-46a4-b721-5718bd3f34b8",
     "name": "Majhtoliya",
     "level": 1,
@@ -1785,7 +1784,7 @@
   },
   {
     "uuid": "97f246e0-7360-42ea-897e-78459fe87106",
-    "name": "Chatua",
+    "name": "Chatua (Jaithari)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2098,18 +2097,6 @@
   {
     "uuid": "2685bdd1-f5ca-4e96-a7fb-2bb5bd5f43ff",
     "name": "Harri (Jaithari)",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Jaithari",
-        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
-      }
-    ]
-  },
-  {
-    "uuid": "d47bcb10-6141-448f-b672-bf3f5f2104ec",
-    "name": "Jaithari",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4232,18 +4219,6 @@
     ]
   },
   {
-    "uuid": "94e106e7-d401-4d0a-8d37-2c936ab9d0fb",
-    "name": "Ahirgawan",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "315e8e7f-2190-4723-af2e-28eda1cc13bb",
     "name": "Alhawar",
     "level": 1,
@@ -4928,18 +4903,6 @@
     ]
   },
   {
-    "uuid": "c8751989-938e-4e0d-b99c-046c1954234d",
-    "name": "Daldali",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "811301e9-41d2-4be2-a510-4a958c215776",
     "name": "Damehari",
     "level": 1,
@@ -5168,18 +5131,6 @@
     ]
   },
   {
-    "uuid": "821a4c8a-add9-46e4-9eab-0c9c35411793",
-    "name": "Dona",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "f57543b8-00e8-4818-adb5-2eb71fc7b823",
     "name": "Dongariya",
     "level": 1,
@@ -5266,18 +5217,6 @@
   {
     "uuid": "9d1676da-07df-4057-b3ce-41b13495213a",
     "name": "Gedi Ama",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "1de19312-4fa0-4257-882b-ca6762ee55f8",
-    "name": "Ghata",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5506,18 +5445,6 @@
   {
     "uuid": "e5a6f9de-5e84-4506-bb61-90ecf34d5f14",
     "name": "Harrai",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "c5b05577-6f95-48fb-919b-466215199ae3",
-    "name": "Hathbandha",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5804,18 +5731,6 @@
     ]
   },
   {
-    "uuid": "ae66f5a9-2fd7-4a6c-aa2a-084d61b041ff",
-    "name": "Katurdona",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "5d290bea-956c-4c40-b283-069c4a2dc5ea",
     "name": "Kekariya",
     "level": 1,
@@ -5876,18 +5791,6 @@
     ]
   },
   {
-    "uuid": "bf9f8185-665d-4e8e-9aeb-ccf7309f7b40",
-    "name": "Kharsol",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "ef17fd51-7ad1-4143-8a2f-9dae861d9d92",
     "name": "Khati",
     "level": 1,
@@ -5902,18 +5805,6 @@
   {
     "uuid": "039d459c-99d4-42b3-bae1-ee9ff2167709",
     "name": "Khetgaon",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "73da4f45-fea8-4c04-9c2c-a4ae8119b5ff",
-    "name": "Khirni",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5996,18 +5887,6 @@
     ]
   },
   {
-    "uuid": "a45117f8-cca6-4b5c-8b68-6925f9af84cf",
-    "name": "Kui",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "5f22f7c3-5079-4209-8c97-4b550ab64b0d",
     "name": "Kumhani",
     "level": 1,
@@ -6070,18 +5949,6 @@
   {
     "uuid": "76b66c1e-0fff-437e-988b-b96c0142de1c",
     "name": "Lalpur (Pushparajgarh)",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "67ab5852-cfc8-464b-98a3-6cbb4a8c7bc3",
-    "name": "Lamsarai",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6656,18 +6523,6 @@
     ]
   },
   {
-    "uuid": "40f51791-75ba-4950-9004-f7479852868c",
-    "name": "Piparha",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "ae8a3516-d383-47e7-9d79-890e468c653c",
     "name": "Pipariya (Pushparajgarh)",
     "level": 1,
@@ -6850,18 +6705,6 @@
   {
     "uuid": "7e6779ae-e7b5-4906-ad85-3c8e153f43e7",
     "name": "Sanchara",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "29dcb01e-f493-495d-ad8f-55cbc348776a",
-    "name": "Sarai",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -7088,30 +6931,6 @@
     ]
   },
   {
-    "uuid": "31088dd3-0fc5-42c1-8448-3ea2dd9f277c",
-    "name": "Tarang",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "6539841b-058a-4c76-9cf7-04e86f616ddc",
-    "name": "Tarera",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
     "uuid": "221fd02f-ad90-4996-a1a1-c634e7bc2482",
     "name": "Thadh Pathar",
     "level": 1,
@@ -7126,18 +6945,6 @@
   {
     "uuid": "b81be39d-e95e-4df1-b0bb-5001b819a2bd",
     "name": "Thamardar",
-    "level": 1,
-    "type": "Village",
-    "parents": [
-      {
-        "comment": "Pushparajgarh",
-        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
-      }
-    ]
-  },
-  {
-    "uuid": "04f49775-1b32-4805-9459-7a3c952f92e6",
-    "name": "Thunguni",
     "level": 1,
     "type": "Village",
     "parents": [
