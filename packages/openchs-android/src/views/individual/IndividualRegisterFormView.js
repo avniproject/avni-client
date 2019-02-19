@@ -30,6 +30,11 @@ class IndividualRegisterFormView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.individualRegister);
     }
 
+    onHardwareBackPress() {
+        !this.state.wizard.isFirstPage() ? this.previous() : TypedTransition.from(this).goBack();
+        return true;
+    }
+
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {

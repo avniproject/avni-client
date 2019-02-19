@@ -34,6 +34,10 @@ export default class Router extends Component {
 
     componentDidMount = () => {
         BackAndroid.addEventListener('hardwareBackPress', () => {
+            const element = this.routeElementMap[this.path];
+            if( element && element.onHardwareBackPress) {
+                return element.onHardwareBackPress();
+            }
             if (!this.onInitialScreen) {
                 this.navigator.pop();
                 return true;
@@ -54,6 +58,7 @@ export default class Router extends Component {
 
     renderScene(route, nav) {
         this.navigator = nav;
+        this.path = route.path;
         if (!this.state.routes[route.path]) return <View/>;
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
