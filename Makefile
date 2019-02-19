@@ -304,6 +304,15 @@ deploy_metadata_live:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
 
+deploy_locations_uat:
+	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
+
+deploy_locations_staging:
+	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
+
+deploy_locations_live:
+	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
+
 deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
 	cd packages/demo-organisation && make deploy
 
