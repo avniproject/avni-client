@@ -29,13 +29,8 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     onHardwareBackPress() {
-        this.previous();
+        !this.state.wizard.isFirstPage() ? this.previous() : TypedTransition.from(this).goBack();
         return true;
-    }
-
-    goBack(){
-        super.goBack();
-        this.state.backFunction();
     }
 
     previous() {
