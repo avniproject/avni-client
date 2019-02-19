@@ -35,3 +35,4 @@ deploy_locations: auth
 	$(call _curl,POST,locations,@districts.json)
 	$(call _curl,POST,locations,@blocks.json)
 	$(call _curl,POST,locations,@phcs.json)
+	$(call _curl,POST,locations,@villages.json)
