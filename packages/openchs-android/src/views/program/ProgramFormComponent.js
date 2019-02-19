@@ -43,10 +43,6 @@ class ProgramFormComponent extends AbstractComponent {
         });
     }
 
-    previous() {
-        this.dispatchAction(Actions.PREVIOUS);
-    }
-
     render() {
         const enrol = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol;
         const validationKey = enrol
@@ -87,7 +83,7 @@ class ProgramFormComponent extends AbstractComponent {
                                       dataEntryDate={this.props.state.enrolment.enrolmentDateTime}/>
                     <WizardButtons previous={{
                         visible: !this.props.state.wizard.isFirstPage(),
-                        func: () => this.previous(),
+                        func: () => this.props.previous(),
                         label: this.I18n.t('previous')
                     }}
                                    next={{func: () => this.next(), label: this.I18n.t('next')}}/>

@@ -40,9 +40,21 @@ class ProgramEnrolmentView extends AbstractComponent {
         this.goBack();
     }
 
+    onHardwareBackPress() {
+        this.previous();
+        return true;
+    }
+
+    previous() {
+        this.state.wizard.isFirstPage() ? this.onBack() : this.dispatchAction(Actions.PREVIOUS);
+        
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent editing={this.props.editing} state={this.state} context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}/>;
+        return <ProgramFormComponent editing={this.props.editing} state={this.state}
+                                     context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}
+                                     previous={() => this.previous()}/>;
     }
 }
 

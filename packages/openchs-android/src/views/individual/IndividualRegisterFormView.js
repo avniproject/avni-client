@@ -33,6 +33,11 @@ class IndividualRegisterFormView extends AbstractComponent {
         return true;
     }
 
+    goBack(){
+        super.goBack();
+        this.state.backFunction();
+    }
+
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {

@@ -51,6 +51,11 @@ class IndividualEncounterView extends AbstractComponent {
         });
     }
 
+    onHardwareBackPress() {
+        this.previous();
+        return true;
+    }
+
     previous() {
         this.dispatchAction(Actions.PREVIOUS, {
             cb: (newState) => {
