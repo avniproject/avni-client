@@ -7229,5 +7229,53 @@
         "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
       }
     ]
+  },
+  {
+    "uuid": "8c28d3f2-9221-489a-ba2a-065cfa82ecfc",
+    "name": "Other (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1686c485-b49a-44c8-bc25-c596d45f834d",
+    "name": "Other (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Jaithari",
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "a705ba01-026e-46d8-a066-b4c4d39db253",
+    "name": "Other (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Anuppur",
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f2d6ebff-ada3-4e1b-9293-d29de7f41618",
+    "name": "Other (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Kotma",
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
+      }
+    ]
   }
 ]
