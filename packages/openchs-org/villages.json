@@ -400,7 +400,7 @@
   },
   {
     "uuid": "27d28156-614d-4b72-b3ed-4f27e7a142fa",
-    "name": "Lamsarai (Near Keshwani)",
+    "name": "Lamsarai (Near Ahirwar)",
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
@@ -7172,7 +7172,7 @@
   },
   {
     "uuid": "2c99fafb-55f6-417a-8f32-61868db51326",
-    "name": "Lamsarai (Near Ahirwar)",
+    "name": "Lamsarai (Near Keshwani)",
     "level": 1,
     "type": "Village",
     "parents": [
