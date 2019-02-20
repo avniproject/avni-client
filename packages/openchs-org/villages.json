@@ -9,7 +9,7 @@
   },
   {
     "uuid": "33490f6b-21b7-462f-a356-daea14f4893e",
-    "name": "Sarai",
+    "name": "Sarai (Near Tarang)",
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
@@ -81,7 +81,7 @@
   },
   {
     "uuid": "5939c21c-372f-455a-9869-56d6c4d4fe67",
-    "name": "Piparha",
+    "name": "Piparaha (Near Chaura Dadar)",
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
@@ -400,7 +400,7 @@
   },
   {
     "uuid": "27d28156-614d-4b72-b3ed-4f27e7a142fa",
-    "name": "Lamsarai",
+    "name": "Lamsarai (Near Ahirwar)",
     "level": 1,
     "type": "Village",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884",
@@ -1196,7 +1196,7 @@
   },
   {
     "uuid": "d9484a36-fc3a-4bf6-bfb1-fe82b9c446ba",
-    "name": "Payari no. 2",
+    "name": "Payari no. 2 (Near Bhalumada)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1208,7 +1208,7 @@
   },
   {
     "uuid": "af668d27-ebc1-48a6-ba4f-540a50c61f12",
-    "name": "Pipariya-1",
+    "name": "Pipariya (near Saristal)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1316,7 +1316,7 @@
   },
   {
     "uuid": "82247765-7fb8-4350-bfaa-72bc83bf1624",
-    "name": "Thodaha (Dhodaha)",
+    "name": "Thohda",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1412,7 +1412,7 @@
   },
   {
     "uuid": "0c8f618b-fa62-4778-b1d0-0b8ddbec909c",
-    "name": "Amlai",
+    "name": "Amlai gaaon (Deori)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1424,7 +1424,7 @@
   },
   {
     "uuid": "4d872d8f-58f4-49d9-91fc-c983b0b108ad",
-    "name": "Amlai (CT) WN.‐1*",
+    "name": "Amlai (Town) WN.‐1*",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1532,13 +1532,13 @@
   },
   {
     "uuid": "404732a5-3f00-4e01-b5ba-f984f5db54ec",
-    "name": "Banka Tola",
+    "name": "Banka Tola (Daikhal)",
     "level": 1,
     "type": "Village",
     "parents": [
       {
-        "comment": "Jaithari",
-        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+        "comment": "Anuppur",
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
       }
     ]
   },
@@ -1928,7 +1928,7 @@
   },
   {
     "uuid": "90914b4b-4d93-4b35-982d-7fa34fc4ce97",
-    "name": "Deohra",
+    "name": "Deohra (Near Chachai)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1940,7 +1940,7 @@
   },
   {
     "uuid": "b358da36-a10a-4038-a293-12b08d205b00",
-    "name": "Deor",
+    "name": "Deori (Near Chachai)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1976,7 +1976,7 @@
   },
   {
     "uuid": "10212008-8b7f-415c-ae77-e23c7cb42c9f",
-    "name": "Didwapani",
+    "name": "Didwapani (Near Agriyanar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -1988,7 +1988,7 @@
   },
   {
     "uuid": "ea081c06-f8fa-4af3-8513-04af9f1b3c4e",
-    "name": "Dodhipani",
+    "name": "Dodhipani (Padripani)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2132,7 +2132,7 @@
   },
   {
     "uuid": "1723cae9-c80d-4094-be9b-140a83986c82",
-    "name": "Jangwa",
+    "name": "Jangwa (near Dhanganwan)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2612,7 +2612,7 @@
   },
   {
     "uuid": "485c81b0-5e66-440a-a1bf-6392440e7dfa",
-    "name": "Padari",
+    "name": "Padari (Near Kholadi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2624,7 +2624,7 @@
   },
   {
     "uuid": "b82ffcab-59dc-408e-b588-bf772a7a6fb4",
-    "name": "Padariya (Jaithari)",
+    "name": "Padariya (Near Dhangawan)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2636,7 +2636,7 @@
   },
   {
     "uuid": "757d1b12-3d02-4905-968f-e47e3746add1",
-    "name": "Padripani (Jaithari)",
+    "name": "Padripani (Near Dodhipani)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2684,7 +2684,7 @@
   },
   {
     "uuid": "13411feb-8a83-41bb-821a-8e05c67fcdfb",
-    "name": "Patan",
+    "name": "Patan (Gorsi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2696,7 +2696,7 @@
   },
   {
     "uuid": "323ccc37-8e01-4c84-a5a1-c09865565ec9",
-    "name": "Patna Kalan",
+    "name": "Patna Kalan (Tummiwar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2708,7 +2708,7 @@
   },
   {
     "uuid": "9517cffa-0e42-494a-aca3-ea59295119a6",
-    "name": "Patna Khurd",
+    "name": "Patna Khurd (Tummiwar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2732,7 +2732,7 @@
   },
   {
     "uuid": "0ecbadda-e0bb-4143-9df3-1a414fbc6bfc",
-    "name": "Pcooha",
+    "name": "Pcooha (Kusumhai)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2744,7 +2744,7 @@
   },
   {
     "uuid": "14b57962-4dfb-4fdd-a8d5-572626a24a45",
-    "name": "Pipariya (Jaithari)",
+    "name": "Pipariya (Near Dulhara)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2756,7 +2756,7 @@
   },
   {
     "uuid": "5b06b020-bbd1-44f4-931c-c0d00fb5771b",
-    "name": "Pondi (Jaithari)",
+    "name": "Pondi (Near Lehsuna)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -2768,7 +2768,7 @@
   },
   {
     "uuid": "98025657-c510-42a3-9281-e709b0a5b345",
-    "name": "Pondi Khurd",
+    "name": "Pondi Khurd (Near kekarpani)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3440,7 +3440,7 @@
   },
   {
     "uuid": "166a47f3-2676-4825-8932-c69b70b12d3c",
-    "name": "Dola (CT) WN.‐1*",
+    "name": "Dola (Town)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3452,7 +3452,7 @@
   },
   {
     "uuid": "6a7078e0-9f42-4563-8309-df54e72afa35",
-    "name": "Dumar Kachhar (CT) WN.‐1*",
+    "name": "Dumar Kachhar (Town)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3764,7 +3764,7 @@
   },
   {
     "uuid": "2bd656f4-09a3-4ae8-a649-f0f275e8c7cf",
-    "name": "Majhtoliya‐1",
+    "name": "Majhtoliya-1  (GP Pondi )",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3776,7 +3776,7 @@
   },
   {
     "uuid": "b778ccd8-e271-4ad4-bfe2-2641e027feed",
-    "name": "Majhtoliya‐2",
+    "name": "Majhtoliya-2 (GP Pondi )",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3884,7 +3884,7 @@
   },
   {
     "uuid": "1b2f702d-e2bb-456d-80e4-d2680a85afad",
-    "name": "Padripani (Anuppur)",
+    "name": "Padripani (Near Bhalwahi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3896,7 +3896,7 @@
   },
   {
     "uuid": "a5788dae-7bec-4bd8-a25f-a16727b04cb2",
-    "name": "Pakariha Tola",
+    "name": "Pakariha Tola (Near Chapani, Saddi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3908,7 +3908,7 @@
   },
   {
     "uuid": "4460d880-1f67-4029-a878-504fad97cb9e",
-    "name": "Pakariya",
+    "name": "Pakariya (Near Jamuniha)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3968,7 +3968,7 @@
   },
   {
     "uuid": "bf637e95-f06b-410d-89f8-b1705ac27bed",
-    "name": "Payari no.1",
+    "name": "Payari no.1 (near Kadamtola)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -3992,7 +3992,7 @@
   },
   {
     "uuid": "c6be2f34-da10-48bb-a6ac-beb0a5ca1bb6",
-    "name": "Pipariya (Anuppur)",
+    "name": "Pipariya (Chondi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4004,7 +4004,7 @@
   },
   {
     "uuid": "f8de917e-79d5-43f3-9f1a-64deb070e0a4",
-    "name": "Pipraha",
+    "name": "Pipraha (Near Semra)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4016,7 +4016,7 @@
   },
   {
     "uuid": "516472a9-7b7c-4ef3-8493-1285f9101eee",
-    "name": "Pondi (Anuppur)",
+    "name": "Pondi (Near Chondi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4712,7 +4712,7 @@
   },
   {
     "uuid": "314384c2-cefc-4cd9-bd0c-99401580b8d0",
-    "name": "Bijapuri",
+    "name": "Bijapuri (Near Salargondi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4724,7 +4724,7 @@
   },
   {
     "uuid": "abd3fc44-ac12-46e8-bf5e-0a57d649db2a",
-    "name": "Bijaura",
+    "name": "Bijaura ( Near Sanchara)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4736,7 +4736,7 @@
   },
   {
     "uuid": "91b13239-e5e1-4572-ba0d-90b07463c295",
-    "name": "Bijauri (Pushparajgarh)",
+    "name": "Bijauri (Near Pamra)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4964,7 +4964,7 @@
   },
   {
     "uuid": "75cb88f4-177a-4abe-8f2c-b3ad898fb1e2",
-    "name": "Deori-1",
+    "name": "Deori (Damheri)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -4976,7 +4976,7 @@
   },
   {
     "uuid": "8bd8b97b-1b52-432f-bc78-dc5539c1bc06",
-    "name": "Deori-2",
+    "name": "Deori (Kanchanpur)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5420,7 +5420,7 @@
   },
   {
     "uuid": "b4bf28ea-e195-4d14-9a42-8449262fa873",
-    "name": "Harra",
+    "name": "Harra (Haraswah)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5432,7 +5432,7 @@
   },
   {
     "uuid": "7346b68f-4f02-43c1-b793-99ee5afeb290",
-    "name": "Harra Tola",
+    "name": "Harra Tola (Near Soniyamar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5516,7 +5516,7 @@
   },
   {
     "uuid": "54a4f637-d503-4b28-a50f-eb43fd758b7a",
-    "name": "Jarha",
+    "name": "Jarha (Suadand)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5528,7 +5528,7 @@
   },
   {
     "uuid": "ebee97fc-4e21-4d78-a508-924110f35e3f",
-    "name": "Jarhi",
+    "name": "Jarhi (Near Hatbandha))",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5576,7 +5576,7 @@
   },
   {
     "uuid": "4ba19afc-421f-42d7-9e43-e3be0a204a11",
-    "name": "Jilan",
+    "name": "Jeelang",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5684,7 +5684,7 @@
   },
   {
     "uuid": "ee0315fa-4a53-49a2-acee-94179aecf745",
-    "name": "Karaundi",
+    "name": "Karaundi (Karpa)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5696,7 +5696,7 @@
   },
   {
     "uuid": "8cdbcfe3-a5a6-4be3-aa5e-9f58602008b3",
-    "name": "Karondi",
+    "name": "Karondi (Juhili)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5852,7 +5852,7 @@
   },
   {
     "uuid": "37bf6b43-1dfd-456c-8bd0-84c4993c6d27",
-    "name": "Kohka",
+    "name": "Kohka (Soniyamar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5948,7 +5948,7 @@
   },
   {
     "uuid": "76b66c1e-0fff-437e-988b-b96c0142de1c",
-    "name": "Lalpur (Pushparajgarh)",
+    "name": "Lalpur (Near Pondki)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -5972,7 +5972,7 @@
   },
   {
     "uuid": "29feb427-0d87-4fb5-962e-8e2ed4c2fbf5",
-    "name": "Ledhara",
+    "name": "Ledhara(Near Dauniya)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6044,7 +6044,7 @@
   },
   {
     "uuid": "1c644902-472d-4f0c-85af-240e34f5534d",
-    "name": "Majhgawan (Pushparajgarh)",
+    "name": "Majhgawan (Achalpur)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6056,7 +6056,7 @@
   },
   {
     "uuid": "a65eb913-869e-46bd-8928-3b7094b8425c",
-    "name": "Majhigawan",
+    "name": "Majhigawan (Bhalu Chuwa)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6116,7 +6116,7 @@
   },
   {
     "uuid": "7d6482a7-8ea5-443d-bc55-44568765748f",
-    "name": "Medha Khar",
+    "name": "Medha Khar (Near Sarai Patera)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6140,7 +6140,7 @@
   },
   {
     "uuid": "63a8a730-ac8e-42df-a88c-45b0f38e5bab",
-    "name": "Mekal Pahad",
+    "name": "Mekal Pahad (Near Udal)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6188,7 +6188,7 @@
   },
   {
     "uuid": "13763d90-76e1-4d88-b8e7-2a2a7ae5a891",
-    "name": "Nadpur",
+    "name": "Nandpur",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6296,7 +6296,7 @@
   },
   {
     "uuid": "8ae0aab0-79ca-46ce-b430-63e95ed8775d",
-    "name": "Padariya (Pushparajgarh)",
+    "name": "Padariya",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6320,7 +6320,7 @@
   },
   {
     "uuid": "808cd240-0a5e-4009-af4f-6ce90951bcc7",
-    "name": "Padri",
+    "name": "Padri (near Chaura Dadar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6344,7 +6344,7 @@
   },
   {
     "uuid": "c64f1a48-cc0c-451f-849e-6667fe486dc4",
-    "name": "Padri Khar",
+    "name": "Padri Khar (Near Manpur)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6452,7 +6452,7 @@
   },
   {
     "uuid": "0412a42e-804a-46cd-92f9-067b7b6d8340",
-    "name": "Patna",
+    "name": "Patna (Kirar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6524,7 +6524,7 @@
   },
   {
     "uuid": "ae8a3516-d383-47e7-9d79-890e468c653c",
-    "name": "Pipariya (Pushparajgarh)",
+    "name": "Pipariya (Near Kusera)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6536,7 +6536,7 @@
   },
   {
     "uuid": "341f2497-febe-47f8-a891-e7b64ff90d38",
-    "name": "Podaki",
+    "name": "Pondki",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6548,7 +6548,7 @@
   },
   {
     "uuid": "76874429-1903-4610-b9a6-256df500a7e7",
-    "name": "Pondi (Pushparajgarh)",
+    "name": "Pondi (Near Lalpur)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6560,7 +6560,7 @@
   },
   {
     "uuid": "7fe651f3-e8c4-4097-b9cb-c73afd23d77e",
-    "name": "Pouni",
+    "name": "Pouni (Near Kyontar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6608,7 +6608,7 @@
   },
   {
     "uuid": "aed372e9-67e7-4b22-ab19-a7f0279876ad",
-    "name": "Ramna Sarkari‐1",
+    "name": "Ramna Sarkari‐1 (Dona)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6620,7 +6620,7 @@
   },
   {
     "uuid": "ceeedbf2-da51-4deb-bdc3-c06e06bb1483",
-    "name": "Ramna Sarkari‐2",
+    "name": "Ramna Sarkari‐2 (Dona)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6716,7 +6716,7 @@
   },
   {
     "uuid": "9423f0b9-ad90-4684-a5be-082a73e18506",
-    "name": "Sarai Patera",
+    "name": "Sarai Patera ( Near karpa)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6728,7 +6728,7 @@
   },
   {
     "uuid": "21cd3b88-bc3a-4e58-96aa-a9d4a3da332e",
-    "name": "Sarai Tola",
+    "name": "Sarai Tola (Near Khajurwar)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6896,7 +6896,7 @@
   },
   {
     "uuid": "8c493d35-6a7a-43f7-9861-377a96928c42",
-    "name": "Tala",
+    "name": "Tala (Near Bendi)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -6908,7 +6908,7 @@
   },
   {
     "uuid": "6e32d53d-8d83-4b3e-a44a-f5c5af58542e",
-    "name": "Tali",
+    "name": "Tali (Near Batki)",
     "level": 1,
     "type": "Village",
     "parents": [
@@ -7059,6 +7059,222 @@
       {
         "comment": "Pushparajgarh",
         "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "825992ae-d1cf-48b8-8667-d96dd08b29dc",
+    "name": "Tedhi Lalpur",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "85acdbaf-f5ea-4592-b2e5-2d2c9b5491ed",
+    "name": "Sarai Tola (Near Goga)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "89f8cbbd-e9eb-47ba-96d0-42d94e2bc532",
+    "name": "Sarai Tola (Near bagha)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7d6cddc1-571d-4b87-a42f-de5d5202de7f",
+    "name": "Pondi (Near Bakeli)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Jaithari",
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "7d018bed-0875-4aa7-a2e7-78462b8c8171",
+    "name": "Pakariya (Badra)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Anuppur",
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "6c8de2e5-55d7-4381-8560-2bfbd4fb445e",
+    "name": "Mekal Pahad (Near Patna)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "6eceba96-b792-4cd7-9a18-72f5b06ff162",
+    "name": "Mekal Pahad (Near Lapti)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "7cfab771-82cc-49d9-884d-e8c8e8077e62",
+    "name": "Medha Khar (near lapti)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2cda8930-a872-4ecc-9433-42daebbdf143",
+    "name": "Lendhara (Near Padri)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "2c99fafb-55f6-417a-8f32-61868db51326",
+    "name": "Lamsarai (Near Keshwani)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "30c1eeb8-ae0d-44e0-bdeb-5e455f3a6f42",
+    "name": "Kohka(Beldongri)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "aa2cbf3c-8042-4b1a-a77a-2e7e544a1bd7",
+    "name": "Jarhi (near Godhantola)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "f046d80b-263c-4952-a7a4-23a60c85e638",
+    "name": "Harra Tola (Near Pondki)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "35492c6c-67b8-447b-b527-e59a5737d886",
+    "name": "Bijapuri (Near Pharhada)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "8c28d3f2-9221-489a-ba2a-065cfa82ecfc",
+    "name": "Other (Pushparajgarh)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Pushparajgarh",
+        "uuid": "4af73b4f-c726-4e0b-8236-fe4168b60fe1"
+      }
+    ]
+  },
+  {
+    "uuid": "1686c485-b49a-44c8-bc25-c596d45f834d",
+    "name": "Other (Jaithari)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Jaithari",
+        "uuid": "03d77e2f-bdf4-4468-bb1d-f2fe0a54c471"
+      }
+    ]
+  },
+  {
+    "uuid": "a705ba01-026e-46d8-a066-b4c4d39db253",
+    "name": "Other (Anuppur)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Anuppur",
+        "uuid": "879922ce-d382-45d4-a488-6dcb97dcadd9"
+      }
+    ]
+  },
+  {
+    "uuid": "f2d6ebff-ada3-4e1b-9293-d29de7f41618",
+    "name": "Other (Kotma)",
+    "level": 1,
+    "type": "Village",
+    "parents": [
+      {
+        "comment": "Kotma",
+        "uuid": "c3110c85-683a-4fa1-bd24-537f8a3ee566"
       }
     ]
   }
