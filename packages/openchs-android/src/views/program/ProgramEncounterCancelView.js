@@ -34,7 +34,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
     viewName() {
         return 'ProgramEncounterCancelView';
     }
-this
+
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounterCancel);
     }
@@ -42,6 +42,11 @@ this
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: this.props.params.programEncounter});
         return super.componentWillMount();
+    }
+
+    onHardwareBackPress() {
+        this.previous();
+        return true;
     }
 
     previous() {
