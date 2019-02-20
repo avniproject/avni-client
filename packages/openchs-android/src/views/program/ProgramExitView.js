@@ -44,10 +44,19 @@ class ProgramExitView extends AbstractComponent {
         this.goBack();
     }
 
+    onHardwareBackPress() {
+        this.previous();
+        return true;
+    }
+
+    previous() {
+        this.state.wizard.isFirstPage() ? this.onBack() : this.dispatchAction(Actions.PREVIOUS);
+
+    }
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent state={this.state} context={ProgramExitView.context} backFunction={() => this.onBack()}/>;
+        return <ProgramFormComponent state={this.state} context={ProgramExitView.context} backFunction={() => this.onBack()} previous={() => this.previous()}/>;
     }
 }
 

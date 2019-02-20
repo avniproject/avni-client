@@ -40,6 +40,11 @@ class ProgramEncounterView extends AbstractComponent {
         return super.componentWillMount();
     }
 
+    onHardwareBackPress() {
+        this.previous();
+        return true;
+    }
+
     previous() {
         if (this.state.wizard.isFirstFormPage())
             TypedTransition.from(this).goBack();
