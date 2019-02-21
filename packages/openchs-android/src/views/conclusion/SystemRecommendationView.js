@@ -18,6 +18,7 @@ import ConceptService from "../../service/ConceptService";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import {Individual} from "openchs-models";
+import NextScheduledVisits from "../common/NextScheduledVisits";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -110,6 +111,8 @@ class SystemRecommendationView extends AbstractComponent {
                                               observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
                                               title={this.I18n.t('systemRecommendations')}/>
                             </View>
+                            <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits}
+                                                 title={this.I18n.t('visitsBeingScheduled')}/>
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}

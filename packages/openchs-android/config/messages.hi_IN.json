@@ -214,5 +214,9 @@
   "Okay": "ठीक है",
   "videoListNotAvailable": "वीडियो सूची उपलब्ध नहीं है",
   "totalMatchingResults": "कुल मेल खाते परिणाम",
-  "displayed": "प्रदर्शित"
+  "displayed": "प्रदर्शित",
+  "visitsBeingScheduled": "आने वाले विजिट",
+  "visitName": "विज़िट का नाम",
+  "schedulingFor": "निर्धारित तारिख",
+  "overdueBy": "अतिदेय तारीख"
 }

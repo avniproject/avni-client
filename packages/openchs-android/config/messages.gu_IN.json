@@ -209,5 +209,9 @@
   "Okay": "બરાબર",
   "videoListNotAvailable": "વિડિઓ સૂચિ ઉપલબ્ધ નથી",
   "totalMatchingResults": "કુલ મેળ ખાતા પરિણામો",
-  "displayed": "પ્રદર્શિત"
+  "displayed": "પ્રદર્શિત",
+  "visitsBeingScheduled": "સુનિશ્ચિત થયેલી મુલાકાતો",
+  "visitName": "મુલાકાત નું નામ",
+  "schedulingFor": "મુલાકાત ની તારીખ",
+  "overdueBy": "છેલ્લી તારીખ"
 }

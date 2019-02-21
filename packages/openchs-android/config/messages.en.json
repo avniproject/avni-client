@@ -205,6 +205,10 @@
   "videoListNotAvailable": "No video list available",
   "lastLoaded": "Last Loaded",
   "totalMatchingResults": "Total matching results",
-  "displayed": "Displayed"
+  "displayed": "Displayed",
+  "visitsBeingScheduled": "Visits Being Scheduled",
+  "visitName": "Visit Name",
+  "schedulingFor": "Scheduling For",
+  "overdueBy": "Overdue By"
 
 }
