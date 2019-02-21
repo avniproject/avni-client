@@ -215,5 +215,9 @@
   "giveLocationPermissions": "Click on Get Location button and give permissions when asked",
   "giveLocationPermissionFromSettings": "Please give location permission to OpenCHS from Settings > Apps > OpenCHS",
   "location": "Location",
-  "trackLocation": "Track Location"
+  "trackLocation": "Track Location",
+  "visitsBeingScheduled": "Visits Being Scheduled",
+  "visitName": "Visit Name",
+  "schedulingFor": "Scheduling For",
+  "overdueBy": "Overdue By"
 }

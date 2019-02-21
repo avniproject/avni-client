@@ -45,8 +45,8 @@ class NextScheduledVisits extends AbstractComponent {
                     flexDirection: "row",
                     borderBottomColor: Colors.InputBorderNormal,
                     borderBottomWidth: StyleSheet.hairlineWidth,
-                    height: 30,
-                    backgroundColor: Colors.GreyContentBackground
+                    flexWrap : 'wrap',
+                    backgroundColor: Colors.HighlightBackgroundColor
                 },
                 tableColHeader: {
                     borderLeftWidth: 1,
