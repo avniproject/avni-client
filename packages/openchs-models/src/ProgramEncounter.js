@@ -165,6 +165,11 @@ class ProgramEncounter extends AbstractEncounter {
         return _.isEmpty(this.observations) ? this.cancelObservations : this.observations;
     }
 
+    getObservationReadableValue(conceptName) {
+        const obs = _.find(this.observations, (observation) => observation.concept.name === conceptName);
+        return _.isNil(obs) ? null : obs.getReadableValue();
+    }
+
     findMediaObservations() {
         return findMediaObservations(
             ObservationsHolder.clone(this.observations),

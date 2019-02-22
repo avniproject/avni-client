@@ -221,6 +221,10 @@ class ProgramEnrolment extends BaseEntity {
         return this._getEncounters(removeCancelledEncounters).value();
     }
 
+    getEncountersOfType(encounterTypeName, removeCancelledEncounters) {
+        return this.getEncounters(removeCancelledEncounters).filter((enc) => enc.encounterType.name === encounterTypeName);
+    }
+
     findObservationValueInEntireEnrolment(conceptName, checkInEnrolment) {
         let encounters = _.reverse(this.getEncounters(true));
         let observationWithDate = this._findObservationWithDateFromEntireEnrolment(conceptName, encounters, checkInEnrolment);
