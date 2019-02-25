@@ -254,6 +254,8 @@ export default {
         }
 
         if (oldDB.schemaVersion < 95) {
+            _.forEach(newDB.objects('ProgramEnrolment'),
+                (programEnrolment) => programEnrolment.voided = false);
             _.forEach(newDB.objects('ProgramEncounter'),
                 (programEncounter) => programEncounter.voided = false);
             _.forEach(newDB.objects('Encounter'),
