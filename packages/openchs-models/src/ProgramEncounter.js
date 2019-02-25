@@ -26,7 +26,8 @@ class ProgramEncounter extends AbstractEncounter {
             programEnrolment: 'ProgramEnrolment',
             observations: {type: 'list', objectType: 'Observation'},
             cancelDateTime: {type: 'date', optional: true},
-            cancelObservations: {type: 'list', objectType: 'Observation'}
+            cancelObservations: {type: 'list', objectType: 'Observation'},
+            voided: {type: 'bool', default: false}
         }
     };
 
@@ -58,11 +59,12 @@ class ProgramEncounter extends AbstractEncounter {
     }
 
     static createEmptyInstance() {
-        const programEncounter = new ProgramEncounter();
+        const programEncounter = AbstractEncounter.createEmptyInstance(new ProgramEncounter());
         programEncounter.uuid = General.randomUUID();
         programEncounter.observations = [];
         programEncounter.cancelObservations = [];
         programEncounter.encounterDateTime = new Date();
+        programEncounter.voided = false;
         return programEncounter;
     }
 
@@ -150,7 +152,8 @@ class ProgramEncounter extends AbstractEncounter {
             maxVisitDateTime: this.maxVisitDateTime,
             encounterDateTime: this.encounterDateTime,
             programEnrolmentUUID: this.programEnrolment.uuid,
-            observations: this.observations
+            observations: this.observations,
+            voided: this.voided
         };
     }
 }

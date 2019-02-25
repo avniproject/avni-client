@@ -16,12 +16,13 @@ class Encounter extends AbstractEncounter {
             encounterType: 'EncounterType',
             encounterDateTime: 'date',
             individual: 'Individual',
-            observations: {type: 'list', objectType: 'Observation'}
+            observations: {type: 'list', objectType: 'Observation'},
+            voided: {type: 'bool', default: false}
         }
     };
 
     static create() {
-        let encounter = new Encounter();
+        let encounter = AbstractEncounter.createEmptyInstance(new Encounter());
         encounter.observations = [];
         encounter.uuid = G.randomUUID();
         encounter.encounterDateTime = new Date();
