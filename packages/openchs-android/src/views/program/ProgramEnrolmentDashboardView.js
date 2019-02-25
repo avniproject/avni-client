@@ -144,7 +144,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     render() {
-        General.logWarn(this.viewName(), 'render');
+        General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;

@@ -356,7 +356,6 @@ class Individual extends BaseEntity {
     }
 
     cloneForReference() {
-        console.log("came to Individual.cloneForReference");
         const individual = new Individual();
         individual.uuid = this.uuid;
         individual.name = this.name;

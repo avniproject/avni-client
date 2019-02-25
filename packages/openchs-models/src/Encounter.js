@@ -20,7 +20,8 @@ class Encounter extends AbstractEncounter {
             encounterDateTime: 'date',
             individual: 'Individual',
             observations: {type: 'list', objectType: 'Observation'},
-            encounterLocation: {type: 'Point', optional: true}
+            encounterLocation: {type: 'Point', optional: true},
+            voided: {type: 'bool', default: false}
         }
     };
 
@@ -29,7 +30,7 @@ class Encounter extends AbstractEncounter {
     };
 
     static create() {
-        let encounter = new Encounter();
+        let encounter = AbstractEncounter.createEmptyInstance(new Encounter());
         encounter.observations = [];
         encounter.uuid = G.randomUUID();
         encounter.encounterDateTime = new Date();
