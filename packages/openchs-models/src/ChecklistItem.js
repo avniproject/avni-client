@@ -164,6 +164,13 @@ class ChecklistItem {
     print() {
         return `ChecklistItem{uuid=${this.uuid}}`;
     }
+
+    findObservation(conceptName) {
+        return _.find(this.observations, (observation) => {
+            return observation.concept.name === conceptName
+        });
+    }
+
 }
 
 export default ChecklistItem;
