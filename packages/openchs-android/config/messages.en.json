@@ -219,5 +219,5 @@
   "visitsBeingScheduled": "Visits Being Scheduled",
   "visitName": "Visit Name",
   "schedulingFor": "Scheduling For",
-  "overdueBy": "Overdue By"
+  "overdueBy": "Overdue After"
 }
