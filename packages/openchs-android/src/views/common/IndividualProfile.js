@@ -97,7 +97,7 @@ class IndividualProfile extends AbstractComponent {
                                         getEntityLabel={(program)=> program.displayName }
                                         onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
                     <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-                        <Icon name='person-pin' style={{
+                        <Icon name={this.props.individual.icon()} style={{
                             justifyContent: 'center',
                             alignSelf: 'stretch',
                             fontSize: DGS.resizeWidth(75),

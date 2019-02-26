@@ -95,6 +95,7 @@ class IndividualList extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
         const visitType = this.I18n.t(this.props.params.listType);
+        const subjectTypeName = this.state.subjectType.name;
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
@@ -120,7 +121,8 @@ class IndividualList extends AbstractComponent {
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
                                 {`${this.I18n.t("patientCountForVisitType", {
                                     visitType: visitType,
-                                    count: this.state.individuals.data.length
+                                    count: this.state.individuals.data.length,
+                                    subjectTypeName: subjectTypeName
                                 })}`}
                             </Text>)}
                         removeClippedSubviews={true}

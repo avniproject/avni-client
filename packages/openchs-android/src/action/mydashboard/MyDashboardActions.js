@@ -3,6 +3,7 @@ import {AddressLevel} from "openchs-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
+import SubjectType from "../../../../openchs-models/src/SubjectType";
 
 class MyDashboardActions {
     static getInitialState() {
@@ -32,6 +33,7 @@ class MyDashboardActions {
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
+        const subjectType = entityService.getAll(SubjectType.schema.name)[0];
         const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
         const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
@@ -71,7 +73,7 @@ class MyDashboardActions {
             existingResultForAddress.visits.total.count = _.get(allIndividualsGrouped, addressLevel.uuid, []).length;
             results[addressLevel.uuid] = existingResultForAddress;
         });
-        return {...state, visits: results, filters: filters};
+        return {...state, visits: results, filters: filters, subjectType:subjectType};
     }
 
     static onListLoad(state, action, context) {

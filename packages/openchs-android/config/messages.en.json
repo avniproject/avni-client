@@ -160,7 +160,7 @@
   "menu": "Menu",
   "overdue": "Overdue",
   "highRisk": "At Risk",
-  "patientCountForVisitType": "Patients with {{visitType}} Visits: {{count}}",
+  "patientCountForVisitType": "{{subjectTypeName}} with {{visitType}} Visits: {{count}}",
   "summary": "Summary",
   "Not Known Yet": "Not Known Yet",
   "uniqueAnswerConflict": "'{{answer}}' cannot be selected with other answers",
