@@ -26,7 +26,7 @@ class GeolocationFormElement extends AbstractComponent {
         this.settings = context.getService(SettingsService).getSettings();
     }
 
-    componentWillMount() {
+    componentDidMount() {
         if (!this.props.editing && this.settings.captureLocation) {
             this.getPosition();
         }
