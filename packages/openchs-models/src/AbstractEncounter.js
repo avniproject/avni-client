@@ -18,7 +18,7 @@ class AbstractEncounter extends BaseEntity {
     }
 
     get toResource() {
-        const resource = _.pick(this, ["uuid", "voided"]);
+        const resource = _.pick(this, ["uuid"]);
         resource["encounterTypeUUID"] = this.encounterType.uuid;
         resource["observations"] = [];
         this.observations.forEach((obs) => {
@@ -27,22 +27,16 @@ class AbstractEncounter extends BaseEntity {
         return resource;
     }
 
-    static createEmptyInstance(encounter) {
-        encounter.voided = false;
-        return encounter;
-    }
-
     cloneForEdit(encounter) {
         encounter.uuid = this.uuid;
         encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
         encounter.encounterDateTime = this.encounterDateTime;
         encounter.observations = ObservationsHolder.clone(this.observations);
-        encounter.voided = this.voided;
         return encounter;
     }
 
     static fromResource(resource, entityService, encounter) {
-        const programEncounter = General.assignFields(resource, encounter, ["uuid", "voided"], ["encounterDateTime"], ["observations", "cancelObservations"], entityService);
+        const programEncounter = General.assignFields(resource, encounter, ["uuid"], ["encounterDateTime"], ["observations", "cancelObservations"], entityService);
         programEncounter.encounterType = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "encounterTypeUUID"), EncounterType.schema.name);
         return encounter;
     }

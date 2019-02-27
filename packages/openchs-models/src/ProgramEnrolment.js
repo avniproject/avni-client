@@ -25,8 +25,7 @@ class ProgramEnrolment extends BaseEntity {
             programOutcome: {type: 'ProgramOutcome', optional: true},
             encounters: {type: 'list', objectType: 'ProgramEncounter'},
             checklists: {type: 'list', objectType: 'Checklist'},
-            individual: 'Individual',
-            voided: {type: 'bool', default: false}
+            individual: 'Individual'
         }
     };
 
@@ -39,12 +38,23 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.encounters = [];
         programEnrolment.checklists = [];
         programEnrolment.individual = Individual.createEmptyInstance();
-        programEnrolment.voided = false;
+        return programEnrolment;
+    }
+
+    static fromObject(enrolment) {
+        const programEnrolment = new ProgramEnrolment();
+        programEnrolment.uuid = enrolment.uuid;
+        programEnrolment.program = enrolment.program;
+        programEnrolment.enrolmentDateTime = enrolment.enrolmentDateTime;
+        programEnrolment.observations = enrolment.observations;
+        programEnrolment.programExitObservations = enrolment.programExitObservations;
+        programEnrolment.encounters = enrolment.encounters;
+        programEnrolment.checklists = enrolment.checklists;
         return programEnrolment;
     }
 
     get toResource() {
-        const resource = _.pick(this, ["uuid", "voided"]);
+        const resource = _.pick(this, ["uuid"]);
         resource["programUUID"] = this.program.uuid;
         resource.enrolmentDateTime = General.isoFormat(this.enrolmentDateTime);
         resource.programExitDateTime = General.isoFormat(this.programExitDateTime);
@@ -70,7 +80,7 @@ class ProgramEnrolment extends BaseEntity {
         const programOutcomeUUID = ResourceUtil.getUUIDFor(resource, "programOutcomeUUID");
         const individual = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(resource, "individualUUID"), Individual.schema.name);
 
-        const programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid", "voided"], ["enrolmentDateTime", "programExitDateTime"], ["observations", "programExitObservations"], entityService);
+        const programEnrolment = General.assignFields(resource, new ProgramEnrolment(), ["uuid"], ["enrolmentDateTime", "programExitDateTime"], ["observations", "programExitObservations"], entityService);
         programEnrolment.program = program;
         programEnrolment.individual = individual;
 
@@ -112,7 +122,6 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.programExitObservations = ObservationsHolder.clone(this.programExitObservations);
         programEnrolment.encounters = this.encounters;
         programEnrolment.checklists = _.map(this.checklists, list => list.clone());
-        programEnrolment.voided = this.voided;
         return programEnrolment;
     }
 
@@ -421,8 +430,7 @@ class ProgramEnrolment extends BaseEntity {
             programOutcome: {type: 'ProgramOutcome', optional: true},
             encounters: this.encounters,
             checklists: this.checklists,
-            individualUUID: this.individual.uuid,
-            voided: this.voided
+            individualUUID: this.individual.uuid
         };
     }
 }
