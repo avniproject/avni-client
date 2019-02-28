@@ -1,0 +1,20 @@
+Revert "1214 | use nonVoidedEncounter everywhere instead of enrolment.encounters"
+
+This reverts commit 2dc85845d78ee1a9482c9405388fdc58751b6e6b.
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Your branch is up to date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   packages/openchs-android/src/views/program/ProgramEnrolmentDashboardView.js
+#	modified:   packages/openchs-health-modules/health_modules/mother/calculations.js
+#	modified:   packages/openchs-models/src/Individual.js
+#	modified:   packages/openchs-models/src/ProgramEnrolment.js
+#
+# Changes not staged for commit:
+#	modified:   package-lock.json
+#	modified:   packages/openchs-android/test/action/service/IndividualServiceTest.js
+#

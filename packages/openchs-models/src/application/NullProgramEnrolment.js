@@ -4,6 +4,10 @@ class NullProgramEnrolment {
         this.program = {uuid: null};
     }
 
+    nonVoidedEncounters() {
+        return [];
+    }
+
     get isActive() {
         return false;
     }
