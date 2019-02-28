@@ -73,7 +73,7 @@ class IndividualDetails extends AbstractComponent {
     render() {
         const individualDetail1 = this.props.individual.detail1(this.I18n);
         const individualDetail2 = this.props.individual.detail2(this.I18n);
-        const badges = this.props.individual.enrolments.map(({program}, idx) =>
+        const badges = this.props.individual.nonVoidedEnrolments().map(({program}, idx) =>
             <Badge key={idx} style={{backgroundColor: program.color}}>{program.displayName}</Badge>);
         return (
             <TouchableNativeFeedback

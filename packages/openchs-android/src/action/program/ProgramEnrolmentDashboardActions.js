@@ -61,7 +61,7 @@ class ProgramEnrolmentDashboardActions {
         const ruleService = context.get(RuleEvaluationService);
         if (_.isNil(action.enrolmentUUID)) {
             const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
-            newState.enrolment = individual.enrolments.length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
+            newState.enrolment = individual.nonVoidedEnrolments().length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         } else {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);

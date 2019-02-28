@@ -145,7 +145,7 @@ class GrowthChartView extends AbstractComponent {
 
     getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
         const enrolment = this.props.params.enrolment;
-        let observations = _.chain(enrolment.encounters)
+        let observations = _.chain(enrolment.nonVoidedEncounters())
             .map((encounter) => {
                 let y = encounter.findObservation(yAxisConceptName);
                 let yValue = y? y.getValue() : null;
