@@ -220,7 +220,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                       observations={this.state.enrolment.observations}
                                                       style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
-                                    <PreviousEncounters encounters={this.state.enrolment.encounters}
+                                    <PreviousEncounters encounters={this.state.enrolment.nonVoidedEncounters()}
                                                         formType={Form.formTypes.ProgramEncounter} onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
                                                         showCount={this.state.showCount} showPartial={true}/>
                                 </View>}
