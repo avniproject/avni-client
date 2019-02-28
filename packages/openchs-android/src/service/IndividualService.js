@@ -234,13 +234,13 @@ class IndividualService extends BaseService {
 
     atRiskFilter(atRiskConcepts) {
         return (individuals) => individuals.filter((individual) =>
-            individual.enrolments.some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
+            individual.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
                 .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name))));
     }
 
     notAtRiskFilter(atRiskConcepts) {
         return (individuals) => individuals.filter((individual) =>
-            !individual.enrolments.some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
+            !individual.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
                 .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name))));
     }
 

@@ -134,7 +134,7 @@ class Relatives extends AbstractComponent {
                                                   <Text style={Styles.textStyle}>{this.I18n.t(relative.relative.lowestAddressLevel.name)}</Text>
                                               </View>
                                               <View style={{ flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                                  {_.filter(relative.relative.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                                                  {_.filter(relative.relative.nonVoidedEnrolments(), (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
                                               </View>
                                           </View>
                                       </View>
