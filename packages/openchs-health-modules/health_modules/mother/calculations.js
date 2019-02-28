@@ -49,7 +49,7 @@ const currentTrimester = (enrolment, toDate = new Date()) => [...TRIMESTER_MAPPI
         gestationalAge(enrolment, toDate) >= TRIMESTER_MAPPING.get(trimester).from);
 
 const get1stEncounterAfter1stTrimester = (enrolment) => {
-    return _(enrolment.nonVoidedEncounters())
+    return _(enrolment.encounters)
         .filter((en) => !_.isNil(en.findObservation('Weight')))
         .filter((en) => currentTrimester(enrolment, en.encounterDateTime) > 1)
         .sortBy('encounterDateTime')
@@ -100,7 +100,7 @@ const isBelowNormalWeightGain = (enrolment, currentEncounter) => {
 
 const getOldestObsBeforeCurrentEncounter = (currentEncounter, conceptName) => {
     const {programEnrolment} = currentEncounter;
-    const oldestEncounter = _.sortBy(programEnrolment.nonVoidedEncounters(), 'encounterDateTime')
+    const oldestEncounter = _.sortBy(programEnrolment.encounters, 'encounterDateTime')
         .filter(encounter => encounter.encounterDateTime <= currentEncounter.encounterDateTime)
         .find(encounter => encounter.hasObservation(conceptName));
     let oldestAbstractEncounter = oldestEncounter;

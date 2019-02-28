@@ -336,14 +336,6 @@ class Individual extends BaseEntity {
             this.encounters.push(encounter);
     }
 
-    nonVoidedEncounters() {
-        return this.encounters.filter(x => !x.voided);
-    }
-
-    nonVoidedEnrolments() {
-        return this.enrolments.filter(x => !x.voided);
-    }
-
 
     cloneForEdit() {
         const individual = new Individual();

@@ -114,10 +114,6 @@ class ProgramEnrolment extends BaseEntity {
         return programEnrolment;
     }
 
-    nonVoidedEncounters() {
-        return this.encounters.filter(enc => !enc.voided);
-    }
-
     getChecklists() {
         return _.isEmpty(this.checklists) ? [] : this.checklists;
     }
@@ -168,7 +164,7 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     lastFulfilledEncounter(...encounterTypeNames) {
-        return _.chain(this.nonVoidedEncounters())
+        return _.chain(this.encounters)
             .filter((encounter) => _.isEmpty(encounterTypeNames) ? encounter : _.some(encounterTypeNames, (name) => name === _.get(encounter, 'encounterType.name')))
             .filter((encounter) => encounter.encounterDateTime)
             .maxBy((encounter) => encounter.encounterDateTime).value();
@@ -207,7 +203,7 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     _getEncounters(removeCancelledEncounters) {
-        return _.chain(this.nonVoidedEncounters())
+        return _.chain(this.encounters)
             .filter((encounter) => removeCancelledEncounters ? _.isNil(encounter.cancelDateTime) : true)
             .sortBy((encounter) => moment().diff(encounter.encounterDateTime));
     }
@@ -393,13 +389,13 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     findEncounter(encounterTypeName, encounterName) {
-        return this.nonVoidedEncounters().find(function (encounter) {
+        return this.encounters.find(function (encounter) {
             return encounter.encounterType.name === encounterTypeName && encounter.name === encounterName;
         });
     }
 
     numberOfEncountersOfType(encounterTypeName) {
-        return _.countBy(this.nonVoidedEncounters(), (encounter) => {
+        return _.countBy(this.encounters, (encounter) => {
             return encounter.encounterType.name === encounterTypeName;
         }).true;
     }
@@ -409,11 +405,11 @@ class ProgramEnrolment extends BaseEntity {
     }
 
     hasCompletedEncounterOfType(encounterTypeName) {
-        return _.some(this.nonVoidedEncounters(), encounter => encounter.encounterType.name === encounterTypeName && !_.isNil(encounter.encounterDateTime));
+        return _.some(this.encounters, encounter => encounter.encounterType.name === encounterTypeName && !_.isNil(encounter.encounterDateTime));
     }
 
     hasEncounterOfType(encounterTypeName) {
-        return !_.isNil(this.nonVoidedEncounters().find(encounter => encounter.encounterType.name === encounterTypeName));
+        return !_.isNil(this.encounters.find(encounter => encounter.encounterType.name === encounterTypeName));
     }
 
     hasAnyOfEncounterTypes(encounterTypeNames = []) {
