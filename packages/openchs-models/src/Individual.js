@@ -92,11 +92,11 @@ class Individual extends BaseEntity {
     }
 
     findObservationAcrossAllEnrolments(conceptName) {
-        return this.nonVoidedEnrolments().find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
+        return this.enrolments.find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
     }
 
     observationExistsAcrossAllEnrolments(conceptName) {
-        return this.nonVoidedEnrolments().find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
+        return this.enrolments.find(enrolment => enrolment.findLatestObservationInEntireEnrolment(conceptName) !== undefined);
     }
 
     static newInstance(uuid, firstName, lastName, dateOfBirth, dateOfBirthVerified, gender, lowestAddressLevel, subjectType) {
@@ -322,7 +322,7 @@ class Individual extends BaseEntity {
         const eligiblePrograms = _.slice(allPrograms);
 
         _.remove(eligiblePrograms, (program) => {
-            const find = _.find(this.nonVoidedEnrolments(), (enrolment) => {
+            const find = _.find(this.enrolments, (enrolment) => {
                 return enrolment.program.uuid === program.uuid && enrolment.isActive;
             });
             return find !== undefined;
@@ -375,19 +375,19 @@ class Individual extends BaseEntity {
     }
 
     get hasActiveEnrolment() {
-        return _.some(this.nonVoidedEnrolments(), (enrolment) => enrolment.isActive);
+        return _.some(this.enrolments, (enrolment) => enrolment.isActive);
     }
 
     get firstActiveOrRecentEnrolment() {
-        return _.find(_.reverse(_.sortBy(this.nonVoidedEnrolments(), (enrolment) => enrolment.enrolmentDateTime), (enrolment) => enrolment.isActive));
+        return _.find(_.reverse(_.sortBy(this.enrolments, (enrolment) => enrolment.enrolmentDateTime), (enrolment) => enrolment.isActive));
     }
 
     get hasEnrolments() {
-        return this.nonVoidedEnrolments().length;
+        return this.enrolments.length;
     }
 
     findEnrolment(enrolmentUUID) {
-        return _.find(this.nonVoidedEnrolments(), (enrolment) => enrolment.uuid === enrolmentUUID);
+        return _.find(this.enrolments, (enrolment) => enrolment.uuid === enrolmentUUID);
     }
 
     addEnrolment(programEnrolment) {
@@ -438,7 +438,7 @@ class Individual extends BaseEntity {
     }
 
     get chronologicalEnrolments() {
-        return _.sortBy(this.nonVoidedEnrolments(), (enrolment) => enrolment.encounterDateTime);
+        return _.sortBy(this.enrolments, (enrolment) => enrolment.encounterDateTime);
     }
 
     findMediaObservations() {

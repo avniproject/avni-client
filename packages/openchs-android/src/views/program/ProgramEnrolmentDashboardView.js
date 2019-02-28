@@ -116,8 +116,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     enrolments() {
-        const nonVoidedEnrolments = this.state.enrolment.individual.nonVoidedEnrolments();
-        return _.isEmpty(nonVoidedEnrolments) ? [] : nonVoidedEnrolments;
+        return _.get(this.state, 'enrolment.individual.enrolments') || [];
     }
 
     renderExitObservations() {

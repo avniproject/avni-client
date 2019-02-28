@@ -52,7 +52,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                         borderRadius: 5,
                         paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
                     }}>
-                        <PreviousEncounters encounters={this.state.individual.nonVoidedEncounters()}
+                        <PreviousEncounters encounters={this.state.individual.encounters}
                                             formType={Form.formTypes.Encounter}
                                             style={{marginBottom: 21}} onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)} showPartial={true} showCount={this.state.showCount}/>
                     </Card>

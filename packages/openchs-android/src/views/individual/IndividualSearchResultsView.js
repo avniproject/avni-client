@@ -134,7 +134,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                                           flexDirection: 'row',
                                                           justifyContent: 'flex-end'
                                                       }}>
-                                                          {_.filter(item.nonVoidedEnrolments(), (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                                                          {_.filter(item.enrolments, (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
                                                       </View>
                                                   </View>
                                               </View>
