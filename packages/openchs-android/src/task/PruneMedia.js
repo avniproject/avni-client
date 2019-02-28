@@ -1,11 +1,13 @@
 import Realm from 'realm';
-import {Schema, Observation} from "openchs-models";
+import {Schema, Observation, Concept} from "openchs-models";
 import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 
 const imageObservationDoesNotExist = (db) => (image) => {
-    return !db.objects(Observation.schema.name).some((obs) => obs.valueJSON.includes(image))
+    return db.objects(Observation.schema.name).filtered(
+        `(concept.datatype == "${Concept.dataType.Image}" OR  concept.datatype == "${Concept.dataType.Video}") and valueJSON contains[c] "${image}"`)
+        .length == 0;
 };
 
 const deleteFile = (file) => {
