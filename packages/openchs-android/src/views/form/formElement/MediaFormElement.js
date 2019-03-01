@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
@@ -89,7 +89,7 @@ export default class MediaFormElement extends AbstractFormElement {
         });
     }
 
-    launchCamera() {
+    async launchCamera() {
         this.setState({mode: Mode.Camera});
 
         const options = {
@@ -101,20 +101,34 @@ export default class MediaFormElement extends AbstractFormElement {
                 waitUntilSaved: true,
             }
         };
-        ImagePicker.launchCamera(options,
-            (response) => this.addMediaFromPicker(response)
-        );
+        if (await this.isPermissionGranted()) {
+            ImagePicker.launchCamera(options,
+                (response) => this.addMediaFromPicker(response));
+        }
     }
 
-    launchMediaLibrary() {
+    async launchMediaLibrary() {
         this.setState({mode: Mode.MediaLibrary});
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
         };
-        ImagePicker.launchImageLibrary(options,
-            (response) => this.addMediaFromPicker(response)
-        );
+        if (await this.isPermissionGranted()) {
+            ImagePicker.launchImageLibrary(options,
+                (response) => this.addMediaFromPicker(response));
+        }
+    }
+
+    async isPermissionGranted() {
+        const readStoragePermission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+        const writeStoragePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+        const cameraPermission = PermissionsAndroid.PERMISSIONS.CAMERA;
+        const granted = PermissionsAndroid.RESULTS.GRANTED;
+
+        const permissionRequest = await PermissionsAndroid.requestMultiple([readStoragePermission, writeStoragePermission, cameraPermission]);
+
+        return permissionRequest[readStoragePermission] === granted && permissionRequest[writeStoragePermission] === granted
+            && permissionRequest[cameraPermission] === granted
     }
 
     showMedia() {

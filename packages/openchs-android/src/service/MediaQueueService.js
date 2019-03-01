@@ -11,6 +11,7 @@ import fs from 'react-native-fs';
 import IndividualService from "./IndividualService";
 import IndividualEncounterService from "./IndividualEncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
+import ProgramEnrolmentService from "./ProgramEnrolmentService";
 
 @Service("mediaQueueService")
 class MediaQueueService extends BaseService {
@@ -135,7 +136,9 @@ class MediaQueueService extends BaseService {
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         return Promise.all(
             _.map(mediaQueueItems,
-                (mediaQueueItem) => this.uploadMediaQueueItem(mediaQueueItem, auth)
+                (mediaQueueItem) => {
+                return this.uploadMediaQueueItem(mediaQueueItem, auth)
+                }
             )
         );
     }
