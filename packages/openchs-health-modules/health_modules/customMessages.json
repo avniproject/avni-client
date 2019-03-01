@@ -1022,6 +1022,7 @@
     "requiredFormatxxDotx": "Required format XX.X",
     "RequiredPositiveNumbers": "Required positive number",
     "RequiredNonNegativeInteger": "Required non-negative integer",
+    "RequiredValidContactNumber": "Only numbers,(,+,-,), and spaces are allowed",
     "Adolescent Vulnerabilities": "Risk Of",
     "Reason for School Dropout Vulnerability": "Reason(s) for Risk Of School Dropout",
     "Reason for Addiction Vulnerability": "Reason(s) for Risk Of Addiction",
