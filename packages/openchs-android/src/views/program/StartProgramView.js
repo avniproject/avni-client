@@ -12,6 +12,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
+import Distances from "../primitives/Distances";
 import General from "../../utility/General";
 
 @Path('/StartProgramView')
@@ -40,7 +41,8 @@ class StartProgramView extends AbstractComponent {
                                           multiSelect={false}
                                           onPress={() => this.dispatchAction(Actions.ON_SELECTION_CHANGE, option)}
                                           key={idx}
-                                          style={{paddingTop: Styles.VerticalSpacingBetweenOptionItems, flex: 0.5}}/>
+                                          style={{paddingTop: Styles.VerticalSpacingBetweenOptionItems, flex: 0.5,
+                                              paddingRight: Distances.HorizontalSpacingBetweenOptionItems}}/>
             : <View key={idx} style={{flex: 0.5}}/>;
     }
 
