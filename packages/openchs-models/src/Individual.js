@@ -75,7 +75,7 @@ class Individual extends BaseEntity {
         const resource = _.pick(this, ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"]);
         resource.dateOfBirth = this.dateOfBirth? moment(this.dateOfBirth).format('YYYY-MM-DD'): null;
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
-        resource["genderUUID"] = this.gender.uuid;
+        resource["genderUUID"] = this.gender ? this.gender.uuid : null;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
         resource["subjectTypeUUID"] = this.subjectType.uuid;
 

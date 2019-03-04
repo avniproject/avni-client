@@ -28,6 +28,13 @@
     "comment": "Adolescent-Quarterly Visit-Routine Visit-ProgramEncounter"
   },
   {
+    "uuid": "a2cf7e1e-6109-4c2f-b6b7-14c678baba12",
+    "formUUID": "92cd5f05-eec3-4e70-9537-62119c5e3a16",
+    "programUUID": "215f4795-7d46-4617-95dd-52343f945a0f",
+    "encounterTypeUUID": "69a5c071-587f-4c53-bf09-781762138d5f",
+    "comment": "Adolescent-Midline Visit-Routine Visit-ProgramEncounter"
+  },
+  {
     "uuid": "6a307b02-d3fd-49f5-8624-14ed174e976e",
     "formUUID": "92cd5f05-eec3-4e70-9537-62119c5e3a16",
     "programUUID": "215f4795-7d46-4617-95dd-52343f945a0f",

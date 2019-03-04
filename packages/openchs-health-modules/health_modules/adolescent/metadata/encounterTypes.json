@@ -22,5 +22,9 @@
   {
     "uuid": "e57cbb66-b981-4ff6-ad80-9628de38623d",
     "name": "Dropout Followup Visit"
+  },
+  {
+    "uuid": "69a5c071-587f-4c53-bf09-781762138d5f",
+    "name": "Midline Visit"
   }
 ]
