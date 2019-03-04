@@ -47,10 +47,10 @@ const existingReferralAdvice = (currentEncounter) => {
     const lastRoutineEncounter =
         currentEncounter.programEnrolment
             .findLastEncounterOfType(currentEncounter,
-                RoutineEncounterHandler.visits.MONTHLY);
+                RoutineEncounterHandler.visits.MONTHLY_OR_MIDLINE);
     const secondLastRoutineEncounter =
         _.defaultTo(currentEncounter.programEnrolment.findNthLastEncounterOfType(currentEncounter,
-            RoutineEncounterHandler.visits.MONTHLY, 1), {findObservation: _.noop});
+            RoutineEncounterHandler.visits.MONTHLY_OR_MIDLINE, 1), {findObservation: _.noop});
 
     if (_.isNil(lastRoutineEncounter)) return [];
 

@@ -82,6 +82,7 @@ const encounterTypeHandlerMap = new Map([
     ['Quarterly Visit', new RoutineEncounterHandler()],
     ['Half-Yearly Visit', new RoutineEncounterHandler()],
     ['Monthly Visit', new RoutineEncounterHandler()],
+    ['Midline Visit', new RoutineEncounterHandler()],
     ['Dropout Home Visit', new DropoutEncounterFormHandler()]
 ]);
 
