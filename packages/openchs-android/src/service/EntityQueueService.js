@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {EntityMetaData, EntityQueue} from "openchs-models";
+import {EntityMetaData, EntityQueue, MediaQueue} from "openchs-models";
 import _ from "lodash";
 
 @Service("entityQueueService")
@@ -47,7 +47,7 @@ class EntityQueueService extends BaseService {
     }
 
     getTotalQueueCount() {
-        return this.getQueuedItemCount();
+        return this.getQueuedItemCount() + this.db.objects(MediaQueue.schema.name).length;
     }
 
     popItem(uuid) {

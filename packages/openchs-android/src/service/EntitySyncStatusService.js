@@ -6,6 +6,7 @@ import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
 import moment from "moment";
 import EntityMetaData from "openchs-models/src/EntityMetaData";
+import MediaQueueService from "./MediaQueueService";
 
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
@@ -30,12 +31,23 @@ class EntitySyncStatusService extends BaseService {
 
     geAllSyncStatus() {
         const entityQueueService = this.getService(EntityQueueService);
-        return _.map(this.findAll(), entitySyncStatus => ({
+        const entities = _.map(this.findAll(), entitySyncStatus => ({
             entityName: entitySyncStatus.entityName,
             loadedSince: moment(entitySyncStatus.loadedSince).format("DD-MM-YYYY HH:MM:SS"),
             queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName),
             type: EntityMetaData.findByName(entitySyncStatus.entityName).type
         }));
+        const mediaQueueService = this.getService(MediaQueueService);
+        const mediaGroups = _.groupBy(mediaQueueService.findAll(), 'type');
+        const mediaEntities = _.map(mediaGroups, (list, mediaType) => ({
+            entityName: 'Media ' + mediaType,
+            loadedSince: '',
+            queuedCount: list.length,
+            type: 'tx'
+        }));
+
+        return _.concat(entities, mediaEntities);
+
     }
 
     getLastLoaded() {
