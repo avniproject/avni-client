@@ -13,7 +13,8 @@ export default class RoutineEncounterHandler {
             QUARTERLY_OR_MIDLINE: ["Annual Visit", "Half-Yearly Visit", "Quarterly Visit", "Midline Visit"],
             HALF_YEARLY: ["Annual Visit", "Half-Yearly Visit"],
             HALF_YEARLY_OR_MIDLINE: ["Annual Visit", "Half-Yearly Visit", "Midline Visit"],
-            ANNUAL: ["Annual Visit"]
+            ANNUAL: ["Annual Visit"],
+            ANNUAL_OR_MIDLINE: ["Annual Visit", "Midline Visit"],
         };
     }
 
@@ -135,13 +136,13 @@ export default class RoutineEncounterHandler {
     }
 
     hemoglobinTestDone(programEncounter, formElement) {
-        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL).build()
-            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL))
-            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL));
+        return this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL_OR_MIDLINE).build()
+            .and(this._notDroppedOutOrRegisteredAtVillage(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL_OR_MIDLINE))
+            .and(this._notEleventhTwelfthAdolescentRegisteredAtSchoolOrBoardingSchool(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL_OR_MIDLINE));
     }
 
     hemoglobinTest(programEncounter, formElement) {
-        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL);
+        let statusBuilder = this._getStatusBuilder(programEncounter, formElement, RoutineEncounterHandler.visits.ANNUAL_OR_MIDLINE);
         statusBuilder.show().when.valueInEncounter("Hemoglobin Test Done").containsAnswerConceptName("Yes");
         return statusBuilder.build();
     }
