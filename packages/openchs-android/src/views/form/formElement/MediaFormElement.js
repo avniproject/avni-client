@@ -36,6 +36,12 @@ const Mode = {
     Camera: "Camera"
 };
 
+const DEFAULT_IMG_WIDTH = 1280;
+const DEFAULT_IMG_HEIGHT = 960;
+const DEFAULT_IMG_QUALITY = 1;
+const DEFAULT_VIDEO_QUALITY = 'high';
+const DEFAULT_DURATION_LIMIT = 60;
+
 export default class MediaFormElement extends AbstractFormElement {
     static propTypes = {
         element: React.PropTypes.object.isRequired,
@@ -89,13 +95,24 @@ export default class MediaFormElement extends AbstractFormElement {
         });
     }
 
+    getFromKeyValue(key, defaultVal) {
+        let keyVal = this.props.element.keyValues.find(keyVal => keyVal.key === key);
+        let value = keyVal ? keyVal.getValue() : defaultVal;
+        if (key === 'videoQuality' && ['low', 'high'].indexOf(value) === -1)
+            throw Error("videoQuality must be either of 'low' or 'high'");
+        return value;
+    }
+
     async launchCamera() {
         this.setState({mode: Mode.Camera});
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
-            maxWidth: 1280,
-            maxHeight: 960,
+            maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
+            maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
+            quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
+            videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY),
+            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT),
             noData: true,
             storageOptions: {
                 waitUntilSaved: true,
