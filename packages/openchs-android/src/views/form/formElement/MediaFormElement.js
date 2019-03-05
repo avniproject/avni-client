@@ -71,6 +71,16 @@ export default class MediaFormElement extends AbstractFormElement {
         return _.get(this, 'props.value.answer');
     }
 
+    get label() {
+        let label = super.label;
+        if (this.isVideo) {
+            let duration = this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT);
+            let durationSuffix = duration > 60 ? `[${Math.floor(duration/60)}min ${duration%60}sec]` : `[${duration}sec]`;
+            return React.cloneElement(label, {}, [...label.props.children, durationSuffix]);
+        }
+        return label;
+    }
+
     addMediaFromPicker(response) {
         if (!response.didCancel && !response.error) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
