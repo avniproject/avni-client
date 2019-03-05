@@ -28,30 +28,132 @@ import Rule from "./Rule";
 import RuleDependency from "./RuleDependency";
 import ChecklistItemDetail from "./ChecklistItemDetail";
 import ChecklistDetail from "./ChecklistDetail";
-import Video from './videos/Video';
-import VideoTelemetric from './videos/VideoTelemetric';
-import SubjectType from './SubjectType';
+import Video from "./videos/Video";
+import VideoTelemetric from "./videos/VideoTelemetric";
+import SubjectType from "./SubjectType";
 
 class EntityMetaData {
-    static checklistDetail = {entityName: "ChecklistDetail", entityClass: ChecklistDetail, resourceName: "checklistDetail", type: "reference", nameTranslated: false};
-    static rule = {entityName: "Rule", entityClass: Rule, resourceName: "rule", type: "reference", nameTranslated: false};
-    static ruleDependency = {entityName: "RuleDependency", entityClass: RuleDependency, resourceName: "ruleDependency", type: "reference", nameTranslated: false};
-    static form = {entityName: "Form", entityClass: Form, resourceName: "form", type: "reference", nameTranslated: false};
-    static formMapping = {entityName: "FormMapping", entityClass: FormMapping, resourceName: "formMapping", type: "reference", nameTranslated: false};
-    static addressLevel = {entityName: "AddressLevel", entityClass: AddressLevel, resourceName: "locations", resourceSearchFilterURL: "byCatchmentAndLastModified", type: "reference", nameTranslated: true};
-    static encounterType = {entityName: "EncounterType", entityClass: EncounterType, resourceName: "operationalEncounterType", type: "reference", nameTranslated: true};
-    static program = {entityName: "Program", entityClass: Program, resourceName: "operationalProgram", type: "reference", nameTranslated: true};
-    static programOutcome = {entityName: "ProgramOutcome", entityClass: ProgramOutcome, resourceName: "programOutcome", type: "reference", nameTranslated: true};
-    static gender = {entityName: "Gender", entityClass: Gender, resourceName: "gender", type: "reference", nameTranslated: true};
-    static individualRelation = {entityName: "IndividualRelation", entityClass: IndividualRelation, resourceName: "individualRelation", type: "reference", nameTranslated: true};
-    static individualRelationGenderMapping = {entityName: "IndividualRelationGenderMapping", entityClass: IndividualRelationGenderMapping, resourceName: "individualRelationGenderMapping", type: "reference", nameTranslated: true};
-    static individualRelationshipType = {entityName: "IndividualRelationshipType", entityClass: IndividualRelationshipType, resourceName: "individualRelationshipType", type: "reference", nameTranslated: true};
-    static concept = {entityName: "Concept", entityClass: Concept, resourceName: "concept", type: "reference", nameTranslated: true};
-    static programConfig = {entityName: "ProgramConfig", entityClass: ProgramConfig, resourceName: "programConfig", type: "reference", nameTranslated: true};
+    static checklistDetail = {
+        entityName: "ChecklistDetail",
+        entityClass: ChecklistDetail,
+        resourceName: "checklistDetail",
+        type: "reference",
+        nameTranslated: false
+    };
+    static rule = {
+        entityName: "Rule",
+        entityClass: Rule,
+        resourceName: "rule",
+        type: "reference",
+        nameTranslated: false
+    };
+    static ruleDependency = {
+        entityName: "RuleDependency",
+        entityClass: RuleDependency,
+        resourceName: "ruleDependency",
+        type: "reference",
+        nameTranslated: false
+    };
+    static form = {
+        entityName: "Form",
+        entityClass: Form,
+        resourceName: "form",
+        type: "reference",
+        nameTranslated: false
+    };
+    static formMapping = {
+        entityName: "FormMapping",
+        entityClass: FormMapping,
+        resourceName: "formMapping",
+        type: "reference",
+        nameTranslated: false
+    };
+    static addressLevel = {
+        entityName: "AddressLevel",
+        entityClass: AddressLevel,
+        resourceName: "locations",
+        resourceSearchFilterURL: "byCatchmentAndLastModified",
+        type: "reference",
+        nameTranslated: true
+    };
+    static encounterType = {
+        entityName: "EncounterType",
+        entityClass: EncounterType,
+        resourceName: "operationalEncounterType",
+        type: "reference",
+        nameTranslated: true
+    };
+    static program = {
+        entityName: "Program",
+        entityClass: Program,
+        resourceName: "operationalProgram",
+        type: "reference",
+        nameTranslated: true
+    };
+    static programOutcome = {
+        entityName: "ProgramOutcome",
+        entityClass: ProgramOutcome,
+        resourceName: "programOutcome",
+        type: "reference",
+        nameTranslated: true
+    };
+    static gender = {
+        entityName: "Gender",
+        entityClass: Gender,
+        resourceName: "gender",
+        type: "reference",
+        nameTranslated: true
+    };
+    static individualRelation = {
+        entityName: "IndividualRelation",
+        entityClass: IndividualRelation,
+        resourceName: "individualRelation",
+        type: "reference",
+        nameTranslated: true
+    };
+    static individualRelationGenderMapping = {
+        entityName: "IndividualRelationGenderMapping",
+        entityClass: IndividualRelationGenderMapping,
+        resourceName: "individualRelationGenderMapping",
+        type: "reference",
+        nameTranslated: true
+    };
+    static individualRelationshipType = {
+        entityName: "IndividualRelationshipType",
+        entityClass: IndividualRelationshipType,
+        resourceName: "individualRelationshipType",
+        type: "reference",
+        nameTranslated: true
+    };
+    static concept = {
+        entityName: "Concept",
+        entityClass: Concept,
+        resourceName: "concept",
+        type: "reference",
+        nameTranslated: true
+    };
+    static programConfig = {
+        entityName: "ProgramConfig",
+        entityClass: ProgramConfig,
+        resourceName: "programConfig",
+        type: "reference",
+        nameTranslated: true
+    };
     static individual = {entityName: "Individual", entityClass: Individual, resourceName: "individual", type: "tx"};
-    static video = {entityName: "Video", entityClass: Video, resourceName: "video", type: "reference", nameTranslated: true};
-    static subjectType = {entityName: "SubjectType", entityClass: SubjectType, resourceName: "operationalSubjectType", type: "reference", nameTranslated: true};
-
+    static video = {
+        entityName: "Video",
+        entityClass: Video,
+        resourceName: "video",
+        type: "reference",
+        nameTranslated: true
+    };
+    static subjectType = {
+        entityName: "SubjectType",
+        entityClass: SubjectType,
+        resourceName: "operationalSubjectType",
+        type: "reference",
+        nameTranslated: true
+    };
 
     static checklistItemDetail() {
         return {
@@ -61,38 +163,94 @@ class EntityMetaData {
             type: "reference",
             nameTranslated: false,
             parent: EntityMetaData.checklistDetail
-        }
-    };
+        };
+    }
     static encounter() {
-        return {entityName: "Encounter", entityClass: Encounter, resourceName: "encounter", type: "tx", parent: EntityMetaData.individual, nameTranslated: false}
-    };
+        return {
+            entityName: "Encounter",
+            entityClass: Encounter,
+            resourceName: "encounter",
+            type: "tx",
+            parent: EntityMetaData.individual,
+            nameTranslated: false
+        };
+    }
 
     static programEnrolment() {
-        return {entityName: "ProgramEnrolment", entityClass: ProgramEnrolment, resourceName: "programEnrolment", type: "tx", parent: EntityMetaData.individual, nameTranslated: false};
+        return {
+            entityName: "ProgramEnrolment",
+            entityClass: ProgramEnrolment,
+            resourceName: "programEnrolment",
+            type: "tx",
+            parent: EntityMetaData.individual,
+            nameTranslated: false
+        };
     }
 
     static formElement() {
-        return {entityName: "FormElement", entityClass: FormElement, resourceName: "formElement", type: "reference", parent: EntityMetaData.formElementGroup(), nameTranslated: true};
+        return {
+            entityName: "FormElement",
+            entityClass: FormElement,
+            resourceName: "formElement",
+            type: "reference",
+            parent: EntityMetaData.formElementGroup(),
+            nameTranslated: true
+        };
     }
 
     static formElementGroup() {
-        return {entityName: "FormElementGroup", entityClass: FormElementGroup, resourceName: "formElementGroup", type: "reference", parent: EntityMetaData.form, nameTranslated: true};
-    };
+        return {
+            entityName: "FormElementGroup",
+            entityClass: FormElementGroup,
+            resourceName: "formElementGroup",
+            type: "reference",
+            parent: EntityMetaData.form,
+            nameTranslated: true
+        };
+    }
 
     static programEncounter() {
-        return {entityName: "ProgramEncounter", entityClass: ProgramEncounter, resourceName: "programEncounter", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
-    };
+        return {
+            entityName: "ProgramEncounter",
+            entityClass: ProgramEncounter,
+            resourceName: "programEncounter",
+            type: "tx",
+            parent: EntityMetaData.programEnrolment(),
+            nameTranslated: false
+        };
+    }
 
     static conceptAnswer() {
-        return {entityName: "ConceptAnswer", entityClass: ConceptAnswer, resourceName: "conceptAnswer", type: "reference", parent: EntityMetaData.concept, nameTranslated: false};
-    };
+        return {
+            entityName: "ConceptAnswer",
+            entityClass: ConceptAnswer,
+            resourceName: "conceptAnswer",
+            type: "reference",
+            parent: EntityMetaData.concept,
+            nameTranslated: false
+        };
+    }
 
     static checklist() {
-        return {entityName: "Checklist", entityClass: Checklist, resourceName: "txNewChecklistEntity", type: "tx", parent: EntityMetaData.programEnrolment(), nameTranslated: false};
+        return {
+            entityName: "Checklist",
+            entityClass: Checklist,
+            resourceName: "txNewChecklistEntity",
+            type: "tx",
+            parent: EntityMetaData.programEnrolment(),
+            nameTranslated: false
+        };
     }
 
     static checklistItem() {
-        return {entityName: "ChecklistItem", entityClass: ChecklistItem, resourceName: "txNewChecklistItemEntity", type: "tx", parent: EntityMetaData.checklist(), nameTranslated: false};
+        return {
+            entityName: "ChecklistItem",
+            entityClass: ChecklistItem,
+            resourceName: "txNewChecklistItemEntity",
+            type: "tx",
+            parent: EntityMetaData.checklist(),
+            nameTranslated: false
+        };
     }
 
     static individualRelationship() {
@@ -122,8 +280,8 @@ class EntityMetaData {
         return {
             entityName: VideoTelemetric.schema.name,
             entityClass: VideoTelemetric,
-            resourceName: 'videotelemetric',
-            type: 'tx',
+            resourceName: "videotelemetric",
+            type: "tx",
             nameTranslated: false,
             parent: EntityMetaData.video
         };
@@ -165,12 +323,12 @@ class EntityMetaData {
             EntityMetaData.programEnrolment(),
             EntityMetaData.individual
         ].map(it => {
-            if (it.type === 'reference' && _.isNil(it.resourceSearchFilterURL)) {
-                it.resourceSearchFilterURL = 'lastModified';
+            if (it.type === "reference" && _.isNil(it.resourceSearchFilterURL)) {
+                it.resourceSearchFilterURL = "lastModified";
             }
             return it;
         });
-    };
+    }
 
     static entitiesLoadedFromServer() {
         return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping, UserInfo], (first, second) => {
