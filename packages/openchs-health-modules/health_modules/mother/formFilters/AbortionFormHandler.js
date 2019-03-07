@@ -4,7 +4,7 @@ export default class AbortionFormHandler {
 
     otherAbortionComplaints(programEncounter, formElement) {
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
-        statusBuilder.show().when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Other");
+        statusBuilder.show().when.valueInEncounter("Post abortion complaints").containsAnswerConceptName("Other");
         return statusBuilder.build();
     }
 
