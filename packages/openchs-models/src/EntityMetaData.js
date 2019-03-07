@@ -287,6 +287,16 @@ class EntityMetaData {
         };
     }
 
+    static userInfo() {
+        return {
+            entityName: UserInfo.schema.name,
+            entityClass: UserInfo,
+            resourceName: "userInfo",
+            type: "user",
+            postUrl: "me"
+        }
+    }
+
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
@@ -321,7 +331,8 @@ class EntityMetaData {
             EntityMetaData.encounter(),
             EntityMetaData.programEncounter(),
             EntityMetaData.programEnrolment(),
-            EntityMetaData.individual
+            EntityMetaData.individual,
+            EntityMetaData.userInfo()
         ].map(it => {
             if (it.type === "reference" && _.isNil(it.resourceSearchFilterURL)) {
                 it.resourceSearchFilterURL = "lastModified";

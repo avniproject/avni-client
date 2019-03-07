@@ -17,13 +17,16 @@ class ConventionalRestClient {
     getUserInfo(persistFn) {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
-        return getJSON(`${serverURL}/userInfo`, this.token).then(persistFn);
+        return getJSON(`${serverURL}/me`, this.token).then(persistFn);
     }
 
     postAllEntities(allEntities, onCompleteOfIndividualPost) {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
-        const url = (entity) => `${serverURL}/${entity.metaData.resourceName}s`;
+        const url = entity =>
+            _.isNil(entity.metaData.postUrl)
+                ? `${serverURL}/${entity.metaData.resourceName}s`
+                : `${serverURL}/${entity.metaData.postUrl}`;
         return _.reduce(allEntities,
             (acc, entities) => acc.then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost)),
             Promise.resolve());

@@ -33,7 +33,7 @@ const addAuthIfRequired = (request, authToken) => {
 };
 
 let _get = (endpoint, authToken) => {
-    General.logDebug('Requests', `Calling: ${endpoint}`);
+    General.logDebug('Requests', `GET: ${endpoint}`);
     return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("json"), authToken))
         .then((response) => response.json(), Promise.reject)
 };
@@ -46,7 +46,7 @@ let _getText = (endpoint, authToken) => {
 
 let _post = (endpoint, file, authToken) => {
     const params = addAuthIfRequired(makeRequest("json", {body: JSON.stringify(file)}), authToken);
-    General.logDebug('Requests', `Posting to ${endpoint}`);
+    General.logDebug('Requests', `POST: ${endpoint}`);
     return fetchFactory(endpoint, "POST", params)
 };
 

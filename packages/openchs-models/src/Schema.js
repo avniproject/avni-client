@@ -54,7 +54,7 @@ export default {
         VisitScheduleConfig, ProgramConfig, Family, IndividualRelation, IndividualRelationGenderMapping,
         IndividualRelationshipType, IndividualRelationship, RuleDependency, Rule, ChecklistItemStatus,
         ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue, Point],
-    schemaVersion: 95,
+    schemaVersion: 96,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -260,6 +260,12 @@ export default {
                 (programEncounter) => programEncounter.voided = false);
             _.forEach(newDB.objects('Encounter'),
                 (encounter) => encounter.voided = false);
+        }
+
+        if(oldDB.schemaVersion < 96) {
+            _.forEach(newDB.objects('UserInfo'),
+                (userInfo) => userInfo.settings = UserInfo.DEFAULT_SETTINGS
+            );
         }
     }
 };

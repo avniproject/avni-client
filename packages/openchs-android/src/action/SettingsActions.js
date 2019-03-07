@@ -1,7 +1,7 @@
 import SettingsService from "../service/SettingsService";
 import _ from 'lodash';
 import EntityService from "../service/EntityService";
-import {LocaleMapping, Settings} from 'openchs-models';
+import {LocaleMapping, Settings, UserInfo} from 'openchs-models';
 import General from "../utility/General";
 import MessageService from "../service/MessageService";
 import UserInfoService from '../service/UserInfoService';
@@ -45,6 +45,15 @@ class SettingsActions {
         return newState;
     }
 
+    static _updateUserSettingsAndSave(state, updateFunc, context) {
+        const newState = SettingsActions.clone(state);
+        const settings = newState.userInfo.getSettings();
+        updateFunc(settings);
+        newState.userInfo.setSettings(settings);
+        context.get(EntityService).saveAndPushToEntityQueue(newState.userInfo, UserInfo.schema.name)
+        return newState;
+    }
+
     static onServerURLChange(state, action, context) {
         return SettingsActions._updateSettingAndSave(state, (settings) => {
             settings.serverURL = action.value
@@ -56,10 +65,15 @@ class SettingsActions {
     }
 
     static onLocaleChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(state, (settings) => {
-            settings.locale = action.value;
-            context.get(MessageService).setLocale(settings.locale.locale);
-        }, context);
+        console.log(`action ${JSON.stringify(action)}`);
+        return SettingsActions._updateUserSettingsAndSave(
+            state,
+            (settings) => {
+                settings.locale = action.locale;
+                context.get(MessageService).setLocale(action.locale);
+            },
+            context
+        );
     }
 
     static onLogLevelChange(state, action, context) {
@@ -73,10 +87,11 @@ class SettingsActions {
     }
 
     static onCaptureLocationChange(state, action, context) {
-        return SettingsActions._updateSettingAndSave(
+        return SettingsActions._updateUserSettingsAndSave(
             state,
             settings => {
-                settings.captureLocation = !settings.captureLocation;
+                console.log(`SettingsActions settings ${JSON.stringify(settings)}`);
+                settings.trackLocation = !settings.trackLocation;
             },
             context
         );

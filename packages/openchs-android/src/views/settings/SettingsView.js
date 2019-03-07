@@ -144,10 +144,10 @@ class SettingsView extends AbstractComponent {
                                 : I18n.t('syncRequired')
                             }
                         </Text>
-                        <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {value: value})}
+                        <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {locale: value.locale})}
                                     labelValuePairs={localeLabelValuePairs}
                                     labelKey='locale'
-                                    selectionFn={(localeMapping) => this.state.settings.locale.uuid === localeMapping.uuid}
+                                    selectionFn={(localeMapping) => this.state.userInfo.getSettings().locale === localeMapping.locale}
                                     validationError={null}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
 
@@ -171,7 +171,7 @@ class SettingsView extends AbstractComponent {
                             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
                         }}>
                             <Text style={{color: 'black', fontSize: Styles.normalTextSize}}>{this.I18n.t('trackLocation')}</Text>
-                            <Switch value={this.state.settings.captureLocation}
+                            <Switch value={this.state.userInfo.getSettings().trackLocation}
                                     onValueChange={() => this.dispatchAction(Actions.ON_CAPTURE_LOCATION_CHANGE)}/>
                         </View>
 

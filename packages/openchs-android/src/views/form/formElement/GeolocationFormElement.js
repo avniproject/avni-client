@@ -9,7 +9,7 @@ import General from "../../../utility/General";
 import Distances from "../../primitives/Distances";
 import {Button, Icon} from "native-base";
 import Geo from "../../../framework/geo";
-import SettingsService from "../../../service/SettingsService";
+import UserInfoService from "../../../service/UserInfoService";
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {
@@ -23,11 +23,11 @@ class GeolocationFormElement extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.getPosition = this.getPosition.bind(this);
-        this.settings = context.getService(SettingsService).getSettings();
+        this.trackLocation = context.getService(UserInfoService).getUserInfo().getSettings().trackLocation;
     }
 
     componentDidMount() {
-        if (!this.props.editing && this.settings.captureLocation) {
+        if (!this.props.editing && this.trackLocation) {
             this.getPosition();
         }
     }
@@ -104,7 +104,7 @@ class GeolocationFormElement extends AbstractComponent {
 
     render() {
         General.logDebug("GeolocationFormElement", `render, props: editing ${this.props.editing}`);
-        return this.settings.captureLocation ? (
+        return this.trackLocation ? (
             <View
                 style={this.appendedStyle({
                     paddingTop: Distances.VerticalSpacingBetweenFormElements,

@@ -12,6 +12,10 @@ import Styles from "./primitives/Styles";
 import CHSNavigator from "../utility/CHSNavigator";
 import AuthService from "../service/AuthService";
 import bugsnag from "../utility/bugsnag";
+import General from "../utility/General";
+import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
+import Reducers from "../reducer";
+
 
 @Path('/landingView')
 class LandingView extends AbstractComponent {
@@ -25,7 +29,7 @@ class LandingView extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, Reducers.reducerKeys.landingView);
     }
 
     viewName() {
@@ -33,10 +37,13 @@ class LandingView extends AbstractComponent {
     }
 
     componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD);
         const authService = this.context.getService(AuthService);
         authService.getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
+
+        return super.componentWillMount();
     }
 
     componentDidMount() {
@@ -44,6 +51,7 @@ class LandingView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug("LandingView", "render");
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>

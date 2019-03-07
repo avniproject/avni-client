@@ -1,5 +1,5 @@
 import StubbedBaseService from "./StubbedBaseService";
-import {Settings} from "openchs-models";
+import {UserInfo} from "openchs-models";
 
 class StubbedUserInfoService extends StubbedBaseService {
     constructor(serviceData) {
@@ -7,7 +7,11 @@ class StubbedUserInfoService extends StubbedBaseService {
     }
 
     getUserInfo() {
-        return {organisationName: ""};
+        return UserInfo.createEmptyInstance();
+    }
+
+    getUserSettings() {
+        return this.getUserInfo().getSettings();
     }
 }
 

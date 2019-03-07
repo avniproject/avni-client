@@ -22,8 +22,7 @@ class SyncService extends BaseService {
     init() {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
-        this.settingsService = this.getService(SettingsService);
-        this.conventionalRestClient = new ConventionalRestClient(this.settingsService);
+        this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
         this.messageService = this.getService(MessageService);
         this.authService = this.getService(AuthService);
         this.userInfoService = this.getService(UserInfoService);
@@ -65,27 +64,30 @@ class SyncService extends BaseService {
         // this.getService(FakeDataService).createFakeCompletedEncountersFor(700);
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
+        const userMetadata = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "user")
         return this.authenticate()
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
-            .then(() => this.getUserInfo())
 
             .then(() => statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushTxData(allTxEntityMetaData.slice()))
+            .then(() => this.pushUserData(userMetadata.slice()))
 
             .then(() => statusMessageCallBack("downloadFormsEtc"))
+            .then(() => this.getUserInfo())
             .then(() => this.getData(allReferenceDataMetaData))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getData(allTxEntityMetaData));
+            .then(() => this.getData(allTxEntityMetaData))
+
     }
 
     getUserInfo() {
-        const settings = this.settingsService.getSettings();
         return this.conventionalRestClient.getUserInfo(this.persistUserInfo.bind(this));
     }
 
     persistUserInfo(userInfoResource) {
-        return this.userInfoService.saveOrUpdate(UserInfo.fromResource(userInfoResource));
+        const entityService = this.getService(EntityService);
+        return this.userInfoService.saveOrUpdate(UserInfo.fromResource(userInfoResource, entityService));
     }
 
     getData(entitiesMetadata) {
@@ -127,6 +129,10 @@ class SyncService extends BaseService {
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
+    }
+
+    pushUserData(userMetadata) {
+        return this.pushTxData(userMetadata);
     }
 
     pushTxData(allTxEntityMetaData) {

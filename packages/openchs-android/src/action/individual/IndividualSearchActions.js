@@ -66,6 +66,7 @@ export class IndividualSearchActions {
     }
 
     static reset(state) {
+        console.log(`ISA.RESET called`);
         return {...IndividualSearchActions.getInitialState(), key: Math.random()};
     }
 }

@@ -151,6 +151,9 @@ put_db: ## Apply realmdb from ../default.realm
 rm_db:
 	rm -rf ../db
 
+kill_realm_browser:
+	pkill "Realm Browser" || true
+
 open_db: rm_db get_db ## Open realmdb in Realm Browser
 	$(if $(shell command -v xdg-open 2> /dev/null),make xdg-opendb,make mac-opendb)
 
@@ -244,8 +247,10 @@ run_app_live:
 	cd packages/openchs-android && ENVFILE=.env.live react-native run-android
 
 open_app_bundle:
-	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ../temp/output.txt
-	vi ../temp/output.txt
+	cd ..
+	mkdir ./temp
+	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ./temp/output.txt
+	vi ./temp/output.txt
 # sometimes there are errors for which we need to run the following to get the exact problem
 run_app_debug: setup_hosts  ##
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace

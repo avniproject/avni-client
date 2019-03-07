@@ -29,6 +29,8 @@ import AuthService from "../service/AuthService";
 import RuleService from "../service/RuleService";
 import bugsnag from "../utility/bugsnag";
 import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
+import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
+import UserInfoService from "../service/UserInfoService";
 
 const {width, height} = Dimensions.get('window');
 
@@ -112,6 +114,12 @@ class MenuView extends AbstractComponent {
 
         //To load subjectType after sync
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
+
+        //To re-render LandingView after sync
+        this.dispatchAction(LandingViewActions.ON_LOAD);
+
+        const userInfoService = this.context.getService(UserInfoService);
+        const userSettings = userInfoService.getUserSettings();
 
         this.setState({syncing: false, error: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
@@ -265,6 +273,7 @@ class MenuView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug("MenuView", "render");
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [

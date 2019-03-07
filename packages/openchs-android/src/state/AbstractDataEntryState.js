@@ -5,6 +5,7 @@ import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
 import Geo from "../framework/geo";
+import UserInfoService from "../service/UserInfoService";
 
 class AbstractDataEntryState {
     locationError;
@@ -185,8 +186,9 @@ class AbstractDataEntryState {
     }
 
     validateLocation(location, validationKey, context) {
-        const settings = context.get(SettingsService).getSettings();
-        if (settings.captureLocation !== true || !_.isNil(location) || _.isNil(this.locationError)) {
+        const userInfoService = context.get(UserInfoService);
+        const settings = userInfoService.getUserSettings();
+        if (settings.trackLocation !== true || !_.isNil(location) || _.isNil(this.locationError)) {
             return ValidationResult.successful(validationKey);
         }
         switch (this.locationError.code) {

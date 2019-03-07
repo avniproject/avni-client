@@ -9,6 +9,7 @@ import Messages_mr_IN from '../../config/messages.mr_IN.json';
 import Messages_gu_IN from '../../config/messages.gu_IN.json';
 import {EntityMetaData} from 'openchs-models';
 import {customMessages} from "openchs-health-modules";
+import UserInfoService from "./UserInfoService";
 
 @Service("messageService")
 class MessageService extends BaseService {
@@ -28,7 +29,7 @@ class MessageService extends BaseService {
     }
 
     init() {
-        this.setLocale(this.getService(SettingsService).getSettings().locale.locale);
+        this.setLocale(this.getService(UserInfoService).getUserSettings().locale);
         this.addEnglishNameTranslations();
         this.addTranslationsFrom(customMessages);
     }
