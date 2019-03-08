@@ -31,6 +31,11 @@ password:=
 auth:
 	$(if $(poolId),$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password))))
 
+get-token: auth
+	@echo
+	@echo $(token)
+	@echo
+
 auth_live:
 	make auth poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
 	echo $(token)

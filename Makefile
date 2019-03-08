@@ -357,3 +357,12 @@ endef
 #orgname needs to be provided
 inpremise_upload_prod_apk:
 	$(if $(orgname),$(call _inpremise_upload_prod_apk),@echo "\nNeeded: orgname=")
+
+get-token-prod:
+	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=$(username) password=$(password)
+
+get-token-staging:
+	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=$(username) password=$(password)
+
+get-token-uat:
+	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=$(username) password=$(password)
