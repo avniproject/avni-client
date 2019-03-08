@@ -1,11 +1,10 @@
-import {Alert, ToastAndroid, Text, View, Dimensions, Modal, ActivityIndicator} from "react-native";
+import {ActivityIndicator, Alert, Dimensions, Modal, Text, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
-import {Button} from "native-base";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Icon as Icon2} from "native-base";
+import {Button, Icon as NBIcon} from "native-base";
+import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -220,20 +219,11 @@ class MenuView extends AbstractComponent {
         )
     };
 
-    renderIcon(iconName) {
-        //i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
-        // TODO someday we need to have one single icon library.
-        if (_.startsWith(iconName, 'video')) {
-            return <Icon2 name={iconName} style={MenuView.iconStyle}/>
-        }
-        return <Icon name={iconName} style={MenuView.iconStyle}/>
-    }
-
-    renderMenuItem = (maxLength) => (iconName, menuMessageKey, pressHandler, idx) => {
+    renderMenuItem = (maxLength) => (icon, menuMessageKey, pressHandler, idx) => {
         let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
         return (<View key={idx} style={this.columnStyle}>
             <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
-                {this.renderIcon(iconName)}
+                {icon}
             </Button>
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
@@ -267,26 +257,33 @@ class MenuView extends AbstractComponent {
             </Modal>);
     }
 
+    get syncIcon() {
+        //Get EntityQueueService from context
+        //Get Total un-synced items count from EntityQueueService
+        //return a View wrapping this icon along with the count
+        return Icon("sync");
+    }
+
     render() {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            [registerIcon, this.I18n.t("register"), this.registrationView.bind(this)],
-            ["view-list", this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
-            ["account-multiple", "Family Folder", this.familyFolder.bind(this), () => __DEV__],
-            ["video-library", this.I18n.t("VideoList"), this.videoListView.bind(this)],
+            [Icon(registerIcon), this.I18n.t("register"), this.registrationView.bind(this)],
+            [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
+            [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
+            [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
 
-            ["sync", this.I18n.t("syncData"), this.sync.bind(this)],
-            ["logout", this.I18n.t("logout"), this.logout.bind(this)],
-            ["account-key", this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
+            [this.syncIcon, this.I18n.t("syncData"), this.sync.bind(this)],
+            [Icon("logout"), this.I18n.t("logout"), this.logout.bind(this)],
+            [Icon("account-key"), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
 
-            ["settings", this.I18n.t("settings"), this.settingsView.bind(this)],
-            ["delete", "Delete Data", this.onDelete.bind(this), () => __DEV__]
+            [Icon("settings"), this.I18n.t("settings"), this.settingsView.bind(this)],
+            [Icon("delete"), "Delete Data", this.onDelete.bind(this), () => __DEV__]
         ];
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData
-            .filter(([key, display, cb, shouldRender]) => shouldRender === undefined || shouldRender())
-            .map(([key, display, cb], idx) => this.renderMenuItem(maxMenuItemDisplay)(key, display, cb, idx));
+            .filter(([icon, display, cb, shouldRender]) => shouldRender === undefined || shouldRender())
+            .map(([icon, display, cb], idx) => this.renderMenuItem(maxMenuItemDisplay)(icon, display, cb, idx));
         return (
             <CHSContent>
                 <View style={{
@@ -299,6 +296,15 @@ class MenuView extends AbstractComponent {
             </CHSContent>
         );
     }
+}
+
+function Icon(iconName) {
+    //Arjun: i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
+    //Arjun: TODO someday we need to have one single icon library.
+    if (_.startsWith(iconName, 'video')) {
+        return <NBIcon name={iconName} style={MenuView.iconStyle}/>
+    }
+    return <MCIIcon name={iconName} style={MenuView.iconStyle}/>
 }
 
 export default MenuView;
