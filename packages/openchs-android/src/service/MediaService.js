@@ -23,7 +23,7 @@ class MediaService extends BaseService {
         const authService = this.getService(AuthService);
         const settingsService = this.getService(SettingsService);
         const serverUrl = settingsService.getSettings().serverURL;
-        return authService.authenticate()
+        return authService.getAuthToken()
             .then(auth => get(`${serverUrl}/media/signedUrl?url=${remoteFilePath}`, auth))
             .then(downloadUrl => this.downloadFromUrl(downloadUrl, targetFilePath));
     }
