@@ -2549,5 +2549,24 @@
     "name": "High Blood Pressure",
     "uuid": "63398939-0a45-46ee-8d92-f01d55e96c1a",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Place of death",
+    "uuid": "3f6c371a-4638-4823-be14-98c22f208902",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Hospital",
+        "uuid": "8359bf16-d329-4752-927c-24a9364f12bf"
+      },
+      {
+        "name": "Home",
+        "uuid": "bb75a86c-05af-4b05-b699-860737d19e57"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      }
+    ]
   }
 ]
