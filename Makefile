@@ -114,6 +114,9 @@ release-staging: ##
 release-uat: ##
 	ENVFILE=.env.uat make clean_env deps release
 
+release-prerelease:
+	ENVFILE=.env.prerelease make clean_env deps release
+
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
 
