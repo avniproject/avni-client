@@ -246,6 +246,9 @@ run_app_staging_dev:
 run_app_staging:
 	cd packages/openchs-android && ENVFILE=.env.staging react-native run-android
 
+run_app_prerelease:
+	cd packages/openchs-android && ENVFILE=.env.prerelease react-native run-android
+
 run_app_uat:
 	cd packages/openchs-android && ENVFILE=.env.uat react-native run-android
 
@@ -285,7 +288,7 @@ deploy_metadata:  ## Deploy demo metadata
 	@echo 'Skipping "cd packages/openchs-org && make deploy_locations"'
 	@echo 'Uncomment if you want'
 	@echo
-	cd packages/openchs-org && make deploy_locations
+	#cd packages/openchs-org && make deploy_locations
 
 deploy_common_concepts_dev:
 	cd packages/openchs-health-modules && make deploy_common_concepts_dev
@@ -342,6 +345,10 @@ screencap:
 upload-staging-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
+
+upload-prerelease-apk:
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/prerelease-apks/prerelease-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prerelease-apks/prerelease-$(sha)-$(dat).apk"
 
 upload-uat-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk

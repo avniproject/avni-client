@@ -1407,6 +1407,11 @@
         "uuid": "855fb739-19d8-418d-a8ae-c1da977b7fa9",
         "name": "No problem",
         "unique": true
+      },
+      {
+        "name": "Convulsions",
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
       }
     ]
   },

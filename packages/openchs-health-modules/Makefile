@@ -65,90 +65,90 @@ dev_deploy_metadata: ## Upload metadata to server
 	@echo " Common metadata"
 	@echo "-----------------"
 
-	$(call upload,concepts,@health_modules/commonConcepts.json)
-	@echo
-
-	$(call upload,concepts,@health_modules/outpatient/metadata/concepts.json)
-	@echo
-	$(call upload,encounterTypes,@health_modules/outpatient/metadata/encounterTypes.json)
-	@echo
-	$(call upload,forms,@health_modules/common/metadata/defaultProgramEncounterCancellationForm.json)
-	@echo
-	$(call upload,forms,@health_modules/outpatient/metadata/encounterForm.json)
-	@echo
-	$(call upload,formMappings,@health_modules/outpatient/metadata/formMappings.json)
-	@echo
-
-	$(call upload,forms,@health_modules/common/metadata/defaultProgramExitForm.json)
+#	$(call upload,concepts,@health_modules/commonConcepts.json)
+#	@echo
+#
+#	$(call upload,concepts,@health_modules/outpatient/metadata/concepts.json)
+#	@echo
+#	$(call upload,encounterTypes,@health_modules/outpatient/metadata/encounterTypes.json)
+#	@echo
+#	$(call upload,forms,@health_modules/common/metadata/defaultProgramEncounterCancellationForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/outpatient/metadata/encounterForm.json)
+#	@echo
+#	$(call upload,formMappings,@health_modules/outpatient/metadata/formMappings.json)
+#	@echo
+#
+#	$(call upload,forms,@health_modules/common/metadata/defaultProgramExitForm.json)
 	@echo
 
 	$(call upload,concepts,@health_modules/mother/metadata/motherConcepts.json)
 	@echo
-	$(call upload,programs,@health_modules/mother/metadata/motherProgram.json)
-	@echo
-	$(call upload,encounterTypes,@health_modules/mother/metadata/encounterTypes.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherProgramEnrolmentForm.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherANCForm.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherANCLabTestResultsForm.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherDeliveryForm.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherAbortionForm.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherPNCForm.json)
-	@echo
-	$(call upload,forms,@health_modules/mother/metadata/motherProgramExitForm.json)
-	@echo
-	$(call upload,formMappings,@health_modules/mother/metadata/formMappings.json)
-	@echo
-	$(call upload,mother/config,@health_modules/mother/metadata/motherProgramConfig.json)
-	@echo
-
-	$(call upload,concepts,@health_modules/child/metadata/concepts.json)
-	@echo
-	$(call upload,concepts,@health_modules/child/metadata/vaccinationConcepts.json)
-	@echo
-	$(call upload,programs,@health_modules/child/metadata/childProgram.json)
-	@echo
-	$(call upload,encounterTypes,@health_modules/child/metadata/encounterTypes.json)
-	@echo
-	$(call upload,forms,@health_modules/child/metadata/birthForm.json)
-	@echo
-	$(call upload,forms,@health_modules/child/metadata/childProgramEnrolmentForm.json)
-	@echo
-	$(call upload,forms,@health_modules/child/metadata/childDefaultProgramEncounterForm.json)
-	@echo
-	$(call upload,forms,@health_modules/child/metadata/childProgramExitForm.json)
-	@echo
-	$(call upload,forms,@health_modules/child/metadata/anthroAssessmentForm.json)
-	@echo
-	$(call upload,formMappings,@health_modules/child/metadata/formMappings.json)
-	@echo
-
-	$(call upload,programs,@health_modules/adolescent/metadata/adolescentProgram.json)
-	@echo
-	$(call upload,concepts,@health_modules/adolescent/metadata/adolescentConcepts.json)
-	@echo
-	$(call upload,encounterTypes,@health_modules/adolescent/metadata/encounterTypes.json)
-	@echo
-	$(call upload,forms,@health_modules/adolescent/metadata/adolescentEnrolment.json)
-	@echo
-	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramExitForm.json)
-	@echo
-	$(call upload,forms,@health_modules/adolescent/metadata/adolescentRoutineVisit.json)
-	@echo
-	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutForm.json)
-	@echo
-	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutFollowupForm.json)
-	@echo
-	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramEncounterCancellationForm.json)
-	@echo
-	$(call upload,formMappings,@health_modules/adolescent/metadata/formMappings.json)
-	@echo
-	$(call upload,adolescent/config,@health_modules/adolescent/metadata/adolescentProgramConfig.json)
+#	$(call upload,programs,@health_modules/mother/metadata/motherProgram.json)
+#	@echo
+#	$(call upload,encounterTypes,@health_modules/mother/metadata/encounterTypes.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherProgramEnrolmentForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherANCForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherANCLabTestResultsForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherDeliveryForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherAbortionForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherPNCForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/mother/metadata/motherProgramExitForm.json)
+#	@echo
+#	$(call upload,formMappings,@health_modules/mother/metadata/formMappings.json)
+#	@echo
+#	$(call upload,mother/config,@health_modules/mother/metadata/motherProgramConfig.json)
+#	@echo
+#
+#	$(call upload,concepts,@health_modules/child/metadata/concepts.json)
+#	@echo
+#	$(call upload,concepts,@health_modules/child/metadata/vaccinationConcepts.json)
+#	@echo
+#	$(call upload,programs,@health_modules/child/metadata/childProgram.json)
+#	@echo
+#	$(call upload,encounterTypes,@health_modules/child/metadata/encounterTypes.json)
+#	@echo
+#	$(call upload,forms,@health_modules/child/metadata/birthForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/child/metadata/childProgramEnrolmentForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/child/metadata/childDefaultProgramEncounterForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/child/metadata/childProgramExitForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/child/metadata/anthroAssessmentForm.json)
+#	@echo
+#	$(call upload,formMappings,@health_modules/child/metadata/formMappings.json)
+#	@echo
+#
+#	$(call upload,programs,@health_modules/adolescent/metadata/adolescentProgram.json)
+#	@echo
+#	$(call upload,concepts,@health_modules/adolescent/metadata/adolescentConcepts.json)
+#	@echo
+#	$(call upload,encounterTypes,@health_modules/adolescent/metadata/encounterTypes.json)
+#	@echo
+#	$(call upload,forms,@health_modules/adolescent/metadata/adolescentEnrolment.json)
+#	@echo
+#	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramExitForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/adolescent/metadata/adolescentRoutineVisit.json)
+#	@echo
+#	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/adolescent/metadata/adolescentDropoutFollowupForm.json)
+#	@echo
+#	$(call upload,forms,@health_modules/adolescent/metadata/adolescentProgramEncounterCancellationForm.json)
+#	@echo
+#	$(call upload,formMappings,@health_modules/adolescent/metadata/formMappings.json)
+#	@echo
+#	$(call upload,adolescent/config,@health_modules/adolescent/metadata/adolescentProgramConfig.json)
 	@echo
 	date
 
