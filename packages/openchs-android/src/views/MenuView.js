@@ -55,7 +55,7 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48};
+    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48, padding: 8};
 
     createStyles() {
         this.columnStyle = {
@@ -266,10 +266,10 @@ class MenuView extends AbstractComponent {
     }
 
     get syncIcon() {
-        //Get EntityQueueService from context
-        //Get Total un-synced items count from EntityQueueService
-        //return a View wrapping this icon along with the count
-        return Icon("sync");
+        const icon = Icon("sync");
+        const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
+        const totalPending = _.sum(entitySyncStatusService.geAllSyncStatus().map(s => s.queuedCount));
+        return totalPending > 0 ? Badge(totalPending)(icon) : icon;
     }
 
     render() {
@@ -315,5 +315,17 @@ function Icon(iconName) {
     }
     return <MCIIcon name={iconName} style={MenuView.iconStyle}/>
 }
+
+const Badge = (number) => (child) => {
+    const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
+    return (
+        <View>
+            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'purple', elevation: 4, borderRadius: 14}}>
+                <Text style={{fontSize, paddingLeft, color: 'white', flex: 1, textAlignVertical: 'center'}}>{number}</Text>
+            </View>
+            {child}
+        </View>
+    );
+};
 
 export default MenuView;
