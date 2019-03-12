@@ -11,17 +11,17 @@ const getImmediateReferrals = (enrolment, encounter, today) => {
     if (_.isEmpty(encounter)) return referralAdvice.getComplications();
 
     referralAdvice.addComplication("Abdominal pain")
-        .when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Abdominal pain");
+        .when.valueInEncounter("Post abortion complaints").containsAnswerConceptName("Abdominal pain");
 
     referralAdvice.addComplication("Per vaginal bleeding")
-        .when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Per vaginal bleeding");
+        .when.valueInEncounter("Post abortion complaints").containsAnswerConceptName("Per vaginal bleeding");
 
     referralAdvice.addComplication("Fever")
-        .when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Fever")
+        .when.valueInEncounter("Post abortion complaints").containsAnswerConceptName("Fever")
         .and.valueInEncounter("Place of abortion").containsAnswerConceptName("Home");
 
     referralAdvice.addComplication("Induced abortion")
-        .when.valueInEncounter("Abortion complaints").containsAnswerConceptName("Per vaginal bleeding")
+        .when.valueInEncounter("Post abortion complaints").containsAnswerConceptName("Per vaginal bleeding")
         .and.when.valueInEncounter("Type of Abortion").containsAnswerConceptName("Induced abortion");
 
     referralAdvice.addComplication("Spontaneous abortion")
