@@ -111,6 +111,9 @@ release-live: ##
 release-staging: ##
 	ENVFILE=.env.staging make clean_env deps release
 
+release-staging-without-clean: ##
+	ENVFILE=.env.staging make deps release
+
 release-uat: ##
 	ENVFILE=.env.uat make clean_env deps release
 
