@@ -29,7 +29,8 @@ class SettingsActions {
             settings: state.settings.clone(),
             localeMappings: state.localeMappings,
             userInfo: state.userInfo.clone(),
-            rulesToRun: []
+            rulesToRun: [],
+            serverURL: state.serverURL
         };
     }
 
@@ -50,7 +51,7 @@ class SettingsActions {
         const settings = newState.userInfo.getSettings();
         updateFunc(settings);
         newState.userInfo.setSettings(settings);
-        context.get(EntityService).saveAndPushToEntityQueue(newState.userInfo, UserInfo.schema.name)
+        context.get(EntityService).saveAndPushToEntityQueue(newState.userInfo, UserInfo.schema.name);
         return newState;
     }
 
@@ -65,7 +66,6 @@ class SettingsActions {
     }
 
     static onLocaleChange(state, action, context) {
-        console.log(`action ${JSON.stringify(action)}`);
         return SettingsActions._updateUserSettingsAndSave(
             state,
             (settings) => {
@@ -90,7 +90,6 @@ class SettingsActions {
         return SettingsActions._updateUserSettingsAndSave(
             state,
             settings => {
-                console.log(`SettingsActions settings ${JSON.stringify(settings)}`);
                 settings.trackLocation = !settings.trackLocation;
             },
             context

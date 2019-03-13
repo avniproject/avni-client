@@ -1,9 +1,10 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
+import ValidationResult from "openchs-models/src/application/ValidationResult";
 
 class LoginActions {
     static getInitialState() {
-        return {userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false};
+        return {userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false, validationResult: ValidationResult.successful()};
     }
 
     static changeValue(state, key, value) {
@@ -13,7 +14,8 @@ class LoginActions {
     }
 
     static onUserIdChange(state, action) {
-        return Object.assign({}, state, {userId: action.value});
+        const validationResult = /\s/.test(action.value) ? ValidationResult.failure('','Invalid username') : ValidationResult.successful();
+        return Object.assign({}, state, {userId: action.value}, {validationResult:validationResult});
     }
 
     static onPasswordChange(state, action) {

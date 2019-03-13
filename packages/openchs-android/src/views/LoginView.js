@@ -117,7 +117,8 @@ class LoginView extends AbstractComponent {
                         }}>{this.errorMessage()}</Text>
                         <View>
                             <TextFormElement element={new StaticFormElement('userId')}
-                                             actionName={Actions.ON_USER_ID_CHANGE} validationResult={null}
+                                             actionName={Actions.ON_USER_ID_CHANGE}
+                                             validationResult={this.state.validationResult}
                                              value={new PrimitiveValue(this.state.userId)}
                                              style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                              multiline={false}
@@ -142,14 +143,18 @@ class LoginView extends AbstractComponent {
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                         <CheckBox onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
                                                   checked={this.state.showPassword}/>
-                                        <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show password"}</Text>
+                                        <Text
+                                            style={[Styles.formLabel, {paddingLeft: 8}]}>{this.I18n.t('Show password')}</Text>
                                     </View>
                                 </TouchableNativeFeedback>
                                 <TouchableNativeFeedback onPress={() => {
                                     this.forgotPassword()
                                 }} background={TouchableNativeFeedback.SelectableBackground()}>
                                     <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                        <Text style={{color: Styles.accentColor, fontSize: 16}}>Forgot Password</Text>
+                                        <Text style={{
+                                            color: Styles.accentColor,
+                                            fontSize: 16
+                                        }}>{this.I18n.t('Forgot Password')}</Text>
                                     </View>
                                 </TouchableNativeFeedback>
                             </View>
@@ -157,7 +162,7 @@ class LoginView extends AbstractComponent {
                             {this.spinner()}
                         </View>
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                            {_.get(this, 'props.params.allowSkipLogin')?
+                            {_.get(this, 'props.params.allowSkipLogin') ?
                                 <TouchableNativeFeedback onPress={() => {
                                     this.cancelLogin()
                                 }} background={TouchableNativeFeedback.SelectableBackground()}>
@@ -165,11 +170,13 @@ class LoginView extends AbstractComponent {
                                         <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
                                     </View>
                                 </TouchableNativeFeedback>
-                            :
+                                :
                                 <View/>
                             }
                             <TouchableNativeFeedback onPress={() => {
-                                this.startLogin()
+                                if (this.state.validationResult.success) {
+                                    this.startLogin()
+                                }
                             }} background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
                                     <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>

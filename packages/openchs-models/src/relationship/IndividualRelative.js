@@ -95,7 +95,10 @@ class IndividualRelative {
         validationResults.push(this.validateIndividual());
         validationResults.push(this.validateRelation());
         if (!_.isNil(this.relative) && !_.isNil(this.relation)) {
-            if (_.some(existingRelatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
+            if(_.isNil(this.relative.name)){
+                validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'selectRelative'));
+            }
+            else if (_.some(existingRelatives, (relative) => relative.relative.uuid === this.relative.uuid && relative.relation.uuid === this.relation.uuid)) {
                 validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATIVE, 'relationshipAlreadyRecorded'));
                 validationResults.push(new ValidationResult(false, IndividualRelative.validationKeys.RELATION, 'relationshipAlreadyRecorded'));
             } else {
