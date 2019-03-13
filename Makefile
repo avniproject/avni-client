@@ -111,6 +111,9 @@ release-live: ##
 release-staging: ##
 	ENVFILE=.env.staging make clean_env deps release
 
+release-staging-without-clean: ##
+	ENVFILE=.env.staging make deps release
+
 release-uat: ##
 	ENVFILE=.env.uat make clean_env deps release
 
@@ -243,6 +246,9 @@ run_app_staging_dev:
 run_app_staging:
 	cd packages/openchs-android && ENVFILE=.env.staging react-native run-android
 
+run_app_prerelease:
+	cd packages/openchs-android && ENVFILE=.env.prerelease react-native run-android
+
 run_app_uat:
 	cd packages/openchs-android && ENVFILE=.env.uat react-native run-android
 
@@ -282,7 +288,7 @@ deploy_metadata:  ## Deploy demo metadata
 	@echo 'Skipping "cd packages/openchs-org && make deploy_locations"'
 	@echo 'Uncomment if you want'
 	@echo
-	cd packages/openchs-org && make deploy_locations
+	#cd packages/openchs-org && make deploy_locations
 
 deploy_common_concepts_dev:
 	cd packages/openchs-health-modules && make deploy_common_concepts_dev
@@ -312,6 +318,10 @@ deploy_metadata_live:
 	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
 
+deploy_metadata_prerelease:
+	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://prerelease.openchs.org port=443 username=admin password=$(password)
+	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://prerelease.openchs.org port=443 username=admin password=$(password)
+
 deploy_locations_uat:
 	cd packages/openchs-org && make deploy_locations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
 
@@ -335,6 +345,10 @@ screencap:
 upload-staging-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
+
+upload-prerelease-apk:
+	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/prerelease-apks/prerelease-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prerelease-apks/prerelease-$(sha)-$(dat).apk"
 
 upload-uat-apk:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk

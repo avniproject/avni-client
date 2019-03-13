@@ -81,21 +81,16 @@ class RuleEvaluationService extends BaseService {
     }
 
     getEnrolmentSummary(enrolment, entityName='ProgramEnrolment', context) {
-        let summary = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
-        const ruleSummaries = [];
-        const summaryFromRules = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", 'program')
-            .reduce((summaries, rule) => rule.fn.exec(enrolment, summaries, context, new Date()), ruleSummaries);
-        summary = summary.concat(ruleSummaries);
+        const summaries = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
+        const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", 'program')
+            .reduce((summaries, rule) => rule.fn.exec(enrolment, summaries, context, new Date()), summaries);
         const conceptService = this.getService(ConceptService);
-        let summaryWithObservations = [];
-        summary.forEach((summaryElement) => {
-            let concept = conceptService.conceptFor(summaryElement.name);
-            summaryWithObservations.push(
-                Observation.create(concept,
-                    concept.getValueWrapperFor(summaryElement.value),
-                    summaryElement.abnormal));
+        const summaryObservations = _.map(updatedSummaries, (summary) => {
+            let concept = conceptService.conceptFor(summary.name);
+            return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
         });
-        return summaryWithObservations;
+        General.logDebug("RuleEvaluationService - Summary Observations", summaryObservations);
+        return summaryObservations;
     }
 
     validateAgainstRule(entity, form, entityName) {
