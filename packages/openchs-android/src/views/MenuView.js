@@ -1,9 +1,9 @@
-import {ActivityIndicator, Alert, Dimensions, Modal, Text, View} from "react-native";
+import {ActivityIndicator, Alert, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
-import {Button, Icon as NBIcon} from "native-base";
+import {Icon as NBIcon} from "native-base";
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
@@ -55,7 +55,7 @@ class MenuView extends AbstractComponent {
         return "MenuView";
     }
 
-    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48};
+    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48, padding: 8};
 
     createStyles() {
         this.columnStyle = {
@@ -230,9 +230,9 @@ class MenuView extends AbstractComponent {
     renderMenuItem = (maxLength) => (icon, menuMessageKey, pressHandler, idx) => {
         let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
         return (<View key={idx} style={this.columnStyle}>
-            <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
+            <TouchableOpacity style={{height: 84, width: 84, justifyContent: 'flex-end'}} onPress={pressHandler}>
                 {icon}
-            </Button>
+            </TouchableOpacity>
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
     };
@@ -266,10 +266,10 @@ class MenuView extends AbstractComponent {
     }
 
     get syncIcon() {
-        //Get EntityQueueService from context
-        //Get Total un-synced items count from EntityQueueService
-        //return a View wrapping this icon along with the count
-        return Icon("sync");
+        const icon = Icon("sync");
+        const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
+        const totalPending = _.sum(entitySyncStatusService.geAllSyncStatus().map(s => s.queuedCount));
+        return totalPending > 0 ? Badge(totalPending)(icon) : icon;
     }
 
     render() {
@@ -315,5 +315,17 @@ function Icon(iconName) {
     }
     return <MCIIcon name={iconName} style={MenuView.iconStyle}/>
 }
+
+const Badge = (number) => (icon) => {
+    const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
+    return (
+        <View style={{backgroundColor: Styles.defaultBackground}}>
+            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'purple', borderRadius: 14, justifyContent:'center', alignItems:'center'}}>
+                <Text style={{fontSize, color: 'white', flex: 1, textAlignVertical: 'center', textAlign: 'center'}}>{number}</Text>
+            </View>
+            {icon}
+        </View>
+    );
+};
 
 export default MenuView;
