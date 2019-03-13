@@ -32,12 +32,12 @@ class DurationFormElement extends AbstractFormElement {
 
     renderDuration(duration, idx) {
         return (
-            <View key={idx} style={{flexDirection: 'row'}}>
+            <View key={idx} style={{flexDirection: 'row', marginRight: 10}}>
                 <TextInput style={[Styles.formBodyText, {
                     paddingBottom: 5,
                     paddingTop: 0,
                     marginBottom: 5,
-                    width: 80,
+                    width: 50,
                     color: Colors.InputNormal
                 }]}
                            keyboardType='numeric'
@@ -62,7 +62,7 @@ class DurationFormElement extends AbstractFormElement {
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                    paddingVertical: 5
+                    paddingTop: 10
                 }}>
                     <View style={[{flexDirection: 'row'}]}>
                         <View style={{flexDirection: 'row'}}>
