@@ -74,10 +74,11 @@ class ProgramEncounterView extends AbstractComponent {
 
     render() {
         General.logDebug('ProgramEncounterView', 'render');
+        const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${this.state.programEncounter.name || this.state.programEncounter.encounterType.operationalEncounterTypeName}`;
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">
-                    <AppHeader title={this.state.programEncounter.programEnrolment.individual.nameString}
+                    <AppHeader title={title}
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?

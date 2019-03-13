@@ -72,7 +72,7 @@ class SyncService extends BaseService {
             .then(() => this.pushTxData(allTxEntityMetaData.slice()))
             .then(() => this.pushUserData(userMetadata.slice()))
 
-            .then(() => statusMessageCallBack("downloadFormsEtc"))
+            .then(() => statusMessageCallBack("downloadForms"))
             .then(() => this.getUserInfo())
             .then(() => this.getData(allReferenceDataMetaData))
 

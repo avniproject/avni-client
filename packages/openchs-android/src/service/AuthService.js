@@ -243,7 +243,7 @@ class AuthService extends BaseService {
                 },
 
                 onFailure: function (err) {
-                    reject(new AuthenticationError('Authentication failuer', err));
+                    reject(new AuthenticationError('Authentication failure', err));
                 },
 
                 newPasswordRequired: function () {

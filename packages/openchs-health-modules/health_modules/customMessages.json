@@ -2,6 +2,8 @@
   "mr_IN": {
     "LOGIN": "लॉग इन",
     "logout": "लॉगआउट",
+    "Show password": "संकेतशब्द दर्शवा",
+    "Forgot Password": "पासवर्ड विसरला",
     "logoutConfirmationTitle": "तुला खात्री आहे?",
     "logoutConfirmationMessage": "आपण लॉग आउट केल्यास, अॅप वापरणे सुरू ठेवण्यासाठी आपल्याला इंटरनेटसह पुन्हा लॉग इन करावे लागेल.\n",
     "logoutConfirmed": "लॉगआउट",
@@ -989,6 +991,8 @@
   "en": {
     "LOGIN": "Login",
     "logout": "Logout",
+    "Show password": "Show password",
+    "Forgot Password":"Forgot Password",
     "logoutConfirmationTitle": "Are You Sure?",
     "logoutConfirmationMessage": "If you log out, you will need to login again with the internet to continue using the app.\n",
     "logoutConfirmed": "Logout",
@@ -1140,6 +1144,8 @@
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
+    "Show password": "પાસવર્ડ બતાવો",
+    "Forgot Password": "પાસવર્ડ ભૂલી ગયા છો",
     "logout": "લૉગ આઉટ",
     "logoutConfirmationTitle": "શું તમે ખાતરી કરો છો?",
     "logoutConfirmationMessage": "જો તમે લૉગ આઉટ કરો છો, તો એપ્લિકેશનનો ઉપયોગ કરવાનું ચાલુ રાખવા માટે તમારે ફરીથી ઇન્ટરનેટથી લૉગ ઇન કરવું પડશે.\n",
@@ -1533,6 +1539,8 @@
   "hi_IN": {
     "LOGIN": "लॉग इन",
     "logout": "लोग आउट",
+    "Show password": "शो पासवर्ड",
+    "Forgot Password": "पासवर्ड भूल गए",
     "logoutConfirmationTitle": "क्या आप लॉगऑऊट  करना चाहते हैं ?",
     "logoutConfirmationMessage": "यदि आप लॉग आउट करते हैं, तो आपको ऐप का उपयोग जारी रखने के लिए इंटरनेट के साथ फिर से लॉगिन करना होगा।\n",
     "logoutConfirmed": "लॉग आउट",
