@@ -1,9 +1,9 @@
-import {ActivityIndicator, Alert, Dimensions, Modal, Text, View} from "react-native";
+import {ActivityIndicator, Alert, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
-import {Button, Icon as NBIcon} from "native-base";
+import {Icon as NBIcon} from "native-base";
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
@@ -230,9 +230,9 @@ class MenuView extends AbstractComponent {
     renderMenuItem = (maxLength) => (icon, menuMessageKey, pressHandler, idx) => {
         let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
         return (<View key={idx} style={this.columnStyle}>
-            <Button style={{alignSelf: 'center'}} onPress={pressHandler} transparent large>
+            <TouchableOpacity style={{height: 84, width: 84, justifyContent: 'flex-end'}} onPress={pressHandler}>
                 {icon}
-            </Button>
+            </TouchableOpacity>
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
     };
@@ -316,14 +316,14 @@ function Icon(iconName) {
     return <MCIIcon name={iconName} style={MenuView.iconStyle}/>
 }
 
-const Badge = (number) => (child) => {
+const Badge = (number) => (icon) => {
     const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
     return (
-        <View>
-            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'purple', elevation: 4, borderRadius: 14}}>
-                <Text style={{fontSize, paddingLeft, color: 'white', flex: 1, textAlignVertical: 'center'}}>{number}</Text>
+        <View style={{backgroundColor: Styles.defaultBackground}}>
+            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'purple', borderRadius: 14, justifyContent:'center', alignItems:'center'}}>
+                <Text style={{fontSize, color: 'white', flex: 1, textAlignVertical: 'center', textAlign: 'center'}}>{number}</Text>
             </View>
-            {child}
+            {icon}
         </View>
     );
 };
