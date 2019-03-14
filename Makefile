@@ -288,7 +288,7 @@ deploy_metadata:  ## Deploy demo metadata
 	@echo 'Skipping "cd packages/openchs-org && make deploy_locations"'
 	@echo 'Uncomment if you want'
 	@echo
-	#cd packages/openchs-org && make deploy_locations
+	cd packages/openchs-org && make deploy_locations
 
 deploy_common_concepts_dev:
 	cd packages/openchs-health-modules && make deploy_common_concepts_dev
