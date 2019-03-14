@@ -39,7 +39,7 @@ class LoginActions {
                 },
                 (error) => {
                     General.logError("LoginActions", error);
-                    const errorMsg = _.includes(error.message,"Network request failed") ? error.message.concat('. Please connect to internet') : error.message;
+                    const errorMsg = _.includes(error.message,"Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.message;
                     action.failure(errorMsg);
                     return;
                 },
