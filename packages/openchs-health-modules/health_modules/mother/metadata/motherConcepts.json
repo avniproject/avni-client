@@ -1342,6 +1342,11 @@
     "dataType": "Coded",
     "answers": [
       {
+        "name": "Convulsions",
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
         "comment": "Painful or difficult urination",
         "uuid": "39379c57-8f29-4d46-a600-d28b90b963da",
         "abnormal": true
