@@ -14,7 +14,7 @@ class LoginActions {
     }
 
     static onUserIdChange(state, action) {
-        const validationResult = /\s/.test(action.value) ? ValidationResult.failure('','Invalid username') : ValidationResult.successful();
+        const validationResult = /\s/.test(action.value) ? ValidationResult.failure('','Username is incorrect, please correct it') : ValidationResult.successful();
         return Object.assign({}, state, {userId: action.value}, {validationResult:validationResult});
     }
 
@@ -39,7 +39,8 @@ class LoginActions {
                 },
                 (error) => {
                     General.logError("LoginActions", error);
-                    action.failure(error.message);
+                    const errorMsg = _.includes(error.message,"Network request failed") ? error.message.concat('. Please connect to internet') : error.message;
+                    action.failure(errorMsg);
                     return;
                 },
             );
