@@ -3727,5 +3727,10 @@
         "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8"
       }
     ]
+  },
+  {
+    "name": "Number of days stayed at the hospital post delivery",
+    "uuid": "a70cca4d-2f79-4f39-8839-2683ad43cba4",
+    "dataType": "Numeric"
   }
 ]

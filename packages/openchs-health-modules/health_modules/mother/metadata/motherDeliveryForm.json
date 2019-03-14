@@ -11,6 +11,16 @@
       "display": "Service Details",
       "formElements": [
         {
+          "name": "Date of delivery",
+          "uuid": "4ff66c5e-becb-4f0c-bb33-59f5546311f4",
+          "concept": {
+            "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
+            "name": "Date of delivery"
+          },
+          "displayOrder": 0,
+          "mandatory": true
+        },
+        {
           "name": "Place of delivery",
           "uuid": "f48b8eb2-a338-45fd-b63d-3c00d266d388",
           "keyValues": [],
@@ -34,14 +44,19 @@
           "mandatory": true
         },
         {
-          "name": "Date of delivery",
-          "uuid": "4ff66c5e-becb-4f0c-bb33-59f5546311f4",
+          "name": "Number of days stayed at the hospital post delivery",
+          "uuid": "a2053871-6568-4969-8eac-8820fd67d928",
+          "keyValues": [
+            {
+              "key": "editable",
+              "value": false
+            }
+          ],
           "concept": {
-            "uuid": "f66b51a3-c0ad-4e40-a5ee-eca2481bd83c",
-            "name": "Date of delivery"
+            "uuid": "a70cca4d-2f79-4f39-8839-2683ad43cba4"
           },
           "displayOrder": 3,
-          "mandatory": true
+          "mandatory": false
         },
         {
           "name": "Delivered By",
