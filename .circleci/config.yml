@@ -302,7 +302,8 @@ workflows:
             - test_health_modules
             - test_models
       - release_staging_test:
-          type: approval
+          requires:
+            - hold_staging
       - release_android_staging:
           requires:
             - hold_staging
