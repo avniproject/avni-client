@@ -304,9 +304,6 @@ workflows:
       - release_staging_test:
           requires:
             - hold_staging
-      - release_android_staging:
-          requires:
-            - hold_staging
       - release_android_live:
           requires:
             - hold_live
