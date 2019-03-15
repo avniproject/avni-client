@@ -320,7 +320,7 @@ const Badge = (number) => (icon) => {
     const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
     return (
         <View style={{backgroundColor: Styles.defaultBackground}}>
-            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'purple', borderRadius: 14, justifyContent:'center', alignItems:'center'}}>
+            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'mediumvioletred', borderRadius: 14, justifyContent:'center', alignItems:'center'}}>
                 <Text style={{fontSize, color: 'white', flex: 1, textAlignVertical: 'center', textAlign: 'center'}}>{number}</Text>
             </View>
             {icon}
