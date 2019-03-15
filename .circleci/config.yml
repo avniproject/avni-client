@@ -281,6 +281,7 @@ workflows:
   version: 2
   test_all:
     jobs:
+      - release_staging_test
       - test_models
       - test_android:
           requires:
@@ -301,9 +302,6 @@ workflows:
             - test_android
             - test_health_modules
             - test_models
-      - release_staging_test:
-          requires:
-            - hold_staging
       - release_android_live:
           requires:
             - hold_live
