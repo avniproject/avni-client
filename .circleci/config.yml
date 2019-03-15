@@ -102,7 +102,7 @@ jobs:
         environment:
           - TERM: dumb
           - ENVFILE: .env.staging
-          - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
+          - GRADLE_OPTS: "-Xms1024m -Xmx1024m -Dorg.gradle.daemon=false"
 
     working_directory: ~/openchs-client
 
