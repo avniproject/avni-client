@@ -91,7 +91,7 @@ release: ##
 	rm -rf packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/src/main/assets
 	rm -rf packages/openchs-android/default.realm.*
-	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+	cd packages/openchs-android; node "--expose-gc" "--max-old-space-size=2048" `which react-native` bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --debug
 
 release-inpremise:
@@ -222,7 +222,7 @@ build_env: ##
 
 build_env_ci: ##
 	npm install
-	export NODE_OPTIONS=--max_old_space_size=4096
+	export NODE_OPTIONS=--max_old_space_size=2048
 	npm run bootstrap-ci
 
 # <packager>

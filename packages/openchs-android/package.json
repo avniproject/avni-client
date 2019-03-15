@@ -29,7 +29,7 @@
   },
   "license": "AGPL-3.0",
   "scripts": {
-    "start": "node --max-old-space-size=4076 node_modules/react-native/local-cli/cli.js start --reset-cache",
+    "start": "node --max-old-space-size=2048 node_modules/react-native/local-cli/cli.js start --reset-cache",
     "test": "jest --forceExit",
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "postinstall": "bash patches/scripts/apply-patches.sh",
