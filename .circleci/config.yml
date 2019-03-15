@@ -96,7 +96,32 @@ jobs:
           key: v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
 
       - run: make ci test-models
+  release_staging_test:
+    docker:
+      - image: openchs/react-native-image:latest
+        environment:
+          - TERM: dumb
+          - ENVFILE: .env.staging
+          - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
 
+    working_directory: ~/openchs-client
+
+    steps:
+      - checkout
+
+      - run: sudo chmod a+x packages/openchs-android/android/gradlew
+
+      - run: make deps_ci;
+
+      - run: make release
+
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+          destination: openchs.apk
+
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          destination: sourcemap.js
   release_android_staging:
     docker:
       - image: openchs/react-native-image:latest
@@ -276,6 +301,8 @@ workflows:
             - test_android
             - test_health_modules
             - test_models
+      - release_staging_test:
+          type: approval
       - release_android_staging:
           requires:
             - hold_staging
