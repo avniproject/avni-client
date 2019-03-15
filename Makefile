@@ -222,7 +222,7 @@ build_env: ##
 
 build_env_ci: ##
 	npm install
-	export NODE_OPTIONS=--max_old_space_size=4096
+	export NODE_OPTIONS=--max_old_space_size=3072
 	npm run bootstrap-ci
 
 # <packager>
