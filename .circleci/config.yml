@@ -168,7 +168,7 @@ jobs:
            - ~/openchs-client/packages/openchs-android/android/.gradle
 
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+          path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
           destination: openchs.apk
 
       - store_artifacts:
