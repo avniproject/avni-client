@@ -92,7 +92,7 @@ release: ##
 	mkdir -p packages/openchs-android/android/app/src/main/assets
 	rm -rf packages/openchs-android/default.realm.*
 	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
-	cd packages/openchs-android/android; ./gradlew assembleRelease --stacktrace
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace
 
 release-inpremise:
 	ENVFILE=.env.inpremise make release
