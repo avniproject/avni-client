@@ -256,6 +256,7 @@ workflows:
   version: 2
   test_all:
     jobs:
+      - release_android_staging
       - test_models
       - test_android:
           requires:
