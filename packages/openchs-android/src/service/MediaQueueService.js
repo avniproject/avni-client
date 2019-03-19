@@ -72,7 +72,10 @@ class MediaQueueService extends BaseService {
 
     uploadToUrl(url, mediaQueueItem) {
         General.logDebug("MediaQueueService", `Uploading media to ${url}`)
-        return RNFetchBlob.fetch('PUT', url, {}, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
+        const contentType = mediaQueueItem.type === "Image" ? "image/jpeg": "video/mp4";
+        return RNFetchBlob.fetch('PUT', url, {
+            "Content-Type": contentType,
+        }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
     }
 
     deleteFile(mediaQueueItem) {
