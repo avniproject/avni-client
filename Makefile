@@ -90,8 +90,9 @@ release: ##
 	rm -rf packages/openchs-android/android/app/build
 	rm -rf packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/src/main/assets
+	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
-	cd packages/openchs-android; node "--expose-gc" "--max-old-space-size=2048" `which react-native` bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+	cd packages/openchs-android; node "--expose-gc" "--max-old-space-size=2048" `which react-native` bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ --sourcemap-output android/app/build/generated/sourcemap.js
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease -x bundleReleaseJsAndAssets --stacktrace
 
 release-inpremise:
