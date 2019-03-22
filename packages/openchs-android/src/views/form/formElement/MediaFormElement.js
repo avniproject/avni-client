@@ -75,7 +75,7 @@ export default class MediaFormElement extends AbstractFormElement {
         let label = super.label;
         if (this.isVideo) {
             let duration = this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT);
-            let durationSuffix = duration > 60 ? `(Up to ${Math.floor(duration/60)} min ${duration%60} sec)` : `(Up to ${duration} sec)`;
+            let durationSuffix = duration > 60 ? `(`+this.I18n.t(`Upto ${Math.floor(duration/60)} min ${duration%60} sec`)+`)` : `(`+this.I18n.t(`Upto ${duration} sec`)+`)`;
             return React.cloneElement(label, {}, [...label.props.children, durationSuffix]);
         }
         return label;

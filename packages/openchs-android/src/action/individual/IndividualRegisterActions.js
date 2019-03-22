@@ -20,7 +20,6 @@ export class IndividualRegisterActions {
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
 
         if (_.isEmpty(individual.subjectType.name)) {
-            console.log('onLoad setting subjectType', state.individualSubjectType);
             individual.subjectType = state.individualSubjectType;
         }
 

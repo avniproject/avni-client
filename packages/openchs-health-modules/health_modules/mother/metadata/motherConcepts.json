@@ -1342,6 +1342,11 @@
     "dataType": "Coded",
     "answers": [
       {
+        "name": "Convulsions",
+        "uuid": "ab9596e4-04b6-48f2-9f4d-1c7a2c82dbf8",
+        "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
         "comment": "Painful or difficult urination",
         "uuid": "39379c57-8f29-4d46-a600-d28b90b963da",
         "abnormal": true
@@ -2006,6 +2011,11 @@
       },
       {
         "uuid": "489f07e5-d9e1-478a-969d-3acad587a15e",
+        "abnormal": true
+      },
+      {
+        "name": "Intrauterine Growth Retardation",
+        "uuid": "7e9fed7d-f111-4c87-9412-d8c0f8c162d2",
         "abnormal": true
       }
     ]
@@ -3727,5 +3737,10 @@
         "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8"
       }
     ]
+  },
+  {
+    "name": "Number of days stayed at the hospital post delivery",
+    "uuid": "a70cca4d-2f79-4f39-8839-2683ad43cba4",
+    "dataType": "Numeric"
   }
 ]

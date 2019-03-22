@@ -74,7 +74,7 @@ class IndividualDetails extends AbstractComponent {
         const individualDetail1 = this.props.individual.detail1(this.I18n);
         const individualDetail2 = this.props.individual.detail2(this.I18n);
         const badges = this.props.individual.nonVoidedEnrolments().map(({program}, idx) =>
-            <Badge key={idx} style={{backgroundColor: program.color}}>{program.displayName}</Badge>);
+            <Badge key={idx} style={{backgroundColor: program.colour}}>{this.I18n.t(program.displayName)}</Badge>);
         return (
             <TouchableNativeFeedback
                 onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid, "", false, this.props.backFunction)}
@@ -83,7 +83,7 @@ class IndividualDetails extends AbstractComponent {
                     <View style={IndividualDetails.styles.nameContainer}>
                         <View style={{flex: 1}}>
                             <Text style={[Fonts.typography("paperFontTitle"), IndividualDetails.styles.name]}>
-                                {this.props.individual.name}
+                                {this.props.individual.nameString}
                             </Text>
                         </View>
                         <View style={IndividualDetails.styles.badgeList}>

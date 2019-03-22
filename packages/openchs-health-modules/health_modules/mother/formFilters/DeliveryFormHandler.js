@@ -1,4 +1,5 @@
-import {FormElementStatusBuilder, FormElementStatus, WithName} from "rules-config/rules";
+import {FormElementStatus, FormElementStatusBuilder, WithName} from "rules-config/rules";
+import moment from 'moment';
 
 class DeliveryFormHandler {
 
@@ -22,6 +23,14 @@ class DeliveryFormHandler {
             .when.valueInEncounter("Number of babies").lessThanOrEqualTo(1);
         statusBuilder.show().whenItem(true).is.truthy;
         return statusBuilder.build();
+    }
+
+    @WithName('Number of days stayed at the hospital post delivery')
+    3(programEncounter, formElement) {
+        const days = moment(programEncounter.getObservationReadableValue('Date of discharge'))
+            .diff(programEncounter.getObservationReadableValue('Date of delivery'), 'days');
+        const value = isFinite(days) ? days : undefined;
+        return new FormElementStatus(formElement.uuid, true, value);
     }
 
     numberOfStillBornBabies(programEncounter, formElement) {

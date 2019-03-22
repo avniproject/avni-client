@@ -176,7 +176,7 @@
   "displayed": "प्रदर्शित",
   "uploadMedia": "सेव्ह केलेल्या मीडिया फायली अपलोड करीत आहे",
   "uploadLocallySavedData": "सेव्ह केलेला डेटा अपलोड करीत आहे",
-  "downloadForms":"नवीन फॉर्म इ डाउनलोड करीत आहे",
+  "downloadForms":"नवीन फॉर्म डाउनलोड करीत आहे",
   "downloadNewDataFromServer":"सर्व्हरवरून नवीन डेटा डाउनलोड करत आहे",
 
   "getLocation": "जीपीएस लोकेशन मिळावा",
@@ -239,5 +239,7 @@
   "Whether MB recording done": "एम.बी. रेकॉर्डिंग झाले आहे की नाही",
   "Working hours": "चालू कामाचे तास",
   "Name": "नाव",
-  "Aadhaar ID": "आधार आयडी"
+  "Aadhaar ID": "आधार आयडी",
+  "Upto 20 sec": "20 सेकंद पर्यंत",
+  "Amount spent by farmer for carting the silt per day": "शेतकर्यानी गाळ काढण्यासाठी दररोज केलेला खर्च"
 }

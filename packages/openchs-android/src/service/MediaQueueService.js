@@ -12,6 +12,7 @@ import IndividualService from "./IndividualService";
 import IndividualEncounterService from "./IndividualEncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
+import * as mime from 'react-native-mime-types';
 
 @Service("mediaQueueService")
 class MediaQueueService extends BaseService {
@@ -72,7 +73,10 @@ class MediaQueueService extends BaseService {
 
     uploadToUrl(url, mediaQueueItem) {
         General.logDebug("MediaQueueService", `Uploading media to ${url}`)
-        return RNFetchBlob.fetch('PUT', url, {}, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
+        const contentType = mime.lookup(mediaQueueItem.fileName);
+        return RNFetchBlob.fetch('PUT', url, {
+            "Content-Type": contentType,
+        }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
     }
 
     deleteFile(mediaQueueItem) {

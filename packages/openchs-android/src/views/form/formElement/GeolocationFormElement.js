@@ -58,9 +58,7 @@ class GeolocationFormElement extends AbstractComponent {
 
     async getPosition() {
         const hasPermission = await this.askLocationPermission();
-        console.log(`has permission ${hasPermission}`);
         if (hasPermission) {
-            console.log("requesting position");
             Geolocation.getCurrentPosition(
                 position => {
                     this.dispatchAction(this.props.actionName, {value: position});
