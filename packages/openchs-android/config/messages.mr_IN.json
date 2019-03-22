@@ -239,5 +239,7 @@
   "Whether MB recording done": "एम.बी. रेकॉर्डिंग झाले आहे की नाही",
   "Working hours": "चालू कामाचे तास",
   "Name": "नाव",
-  "Aadhaar ID": "आधार आयडी"
+  "Aadhaar ID": "आधार आयडी",
+  "percentageDone": "टक्केवारी",
+  "syncComplete": "संकालन पूर्ण"
 }

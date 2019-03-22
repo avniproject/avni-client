@@ -29,7 +29,9 @@ class ConventionalRestClient {
                 : `${serverURL}/${entity.metaData.postUrl}`;
         return _.reduce(allEntities,
             (acc, entities) => {
-                return acc.then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost)).then(()=> onComplete(entities.metaData.entityName+".PUSH"));
+                return acc
+                    .then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost))
+                    .then(() => onComplete(entities.metaData.entityName + ".PUSH"));
             },
             Promise.resolve());
     }
@@ -71,8 +73,9 @@ class ConventionalRestClient {
     getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, afterGetOfAllEntities) {
         return _.reduce(entitiesMetadataWithSyncStatus,
             (acc, entityMetadataWithSyncStatus) => {
-                return acc.then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity))
-                    .then(()=> afterGetOfAllEntities(entityMetadataWithSyncStatus.entityName+".PULL"));
+                return acc
+                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity))
+                    .then(() => afterGetOfAllEntities(entityMetadataWithSyncStatus.entityName + ".PULL"));
             },
             Promise.resolve());
     }

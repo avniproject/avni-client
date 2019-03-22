@@ -220,5 +220,7 @@
   "visitsBeingScheduled": "Visits Being Scheduled",
   "visitName": "Visit Name",
   "schedulingFor": "Scheduling For",
-  "overdueBy": "Overdue After"
+  "overdueBy": "Overdue After",
+  "percentageDone": "Percentage Done",
+  "syncComplete": "Sync Complete "
 }

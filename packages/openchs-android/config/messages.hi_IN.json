@@ -227,5 +227,7 @@
   "visitsBeingScheduled": "आने वाले विजिट",
   "visitName": "विज़िट का नाम",
   "schedulingFor": "निर्धारित तारिख",
-  "overdueBy": "अतिदेय तारीख"
+  "overdueBy": "अतिदेय तारीख",
+  "percentageDone": "प्रतिशत काम",
+  "syncComplete": "ससिंक पूरा हुआ"
 }

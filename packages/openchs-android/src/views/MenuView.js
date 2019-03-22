@@ -1,4 +1,4 @@
-import {ActivityIndicator, Alert, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, delay, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
@@ -95,7 +95,7 @@ class MenuView extends AbstractComponent {
 
     registrationView() {
         const isIndividual = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0].isIndividual();
-        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this): CHSNavigator.navigateToSubjectRegisterView(this);
+        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this) : CHSNavigator.navigateToSubjectRegisterView(this);
     }
 
     changePasswordView() {
@@ -160,15 +160,14 @@ class MenuView extends AbstractComponent {
     }
 
     sync() {
-        try {
-            const syncService = this.context.getService(SyncService);
-            const onError = this._onError.bind(this);
-            const postSync = this._postSync.bind(this);
-            this._preSync();
-            syncService.sync(EntityMetaData.model(), (progress)=> this.progressBar.update(progress), (message) => this.messageCallBack(message)).then(postSync, onError);
-        } catch (e) {
-            this._onError(e);
-        }
+        const syncService = this.context.getService(SyncService);
+        const onError = this._onError.bind(this);
+        this._preSync();
+        syncService.sync(
+            EntityMetaData.model(),
+            (progress) => this.progressBar.update(progress),
+            (message) => this.progressMessage.messageCallBack(message)
+        ).catch(onError);
     }
 
     _logout = () => {
@@ -250,11 +249,11 @@ class MenuView extends AbstractComponent {
                       key={`spinner_${Date.now()}`}>
                     <View style={{flex: .4}}/>
                     <View style={this.syncBackground}>
-                         <View style={{flex: .7}}>
-                            <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                {this.I18n.t(_.isNil(this.state.syncMessage)? "doingNothing" : this.state.syncMessage)}
-                            </Text>
-                            <ProgressBarView progressBar={(pb)=> this.progressBar = pb}/>
+                        <View style={{flex: .7}}>
+                            <ProgressBarView
+                                progressBar={(pb) => this.progressBar = pb}
+                                progressMessage={(pm) => this.progressMessage = pm}
+                                onProgressComplete={this._postSync.bind(this)}/>
                         </View>
                     </View>
                     <View style={{flex: 1}}/>
@@ -317,8 +316,24 @@ const Badge = (number) => (icon) => {
     const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
     return (
         <View style={{backgroundColor: Styles.defaultBackground}}>
-            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'purple', borderRadius: 14, justifyContent:'center', alignItems:'center'}}>
-                <Text style={{fontSize, color: 'white', flex: 1, textAlignVertical: 'center', textAlign: 'center'}}>{number}</Text>
+            <View style={{
+                height,
+                width,
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                backgroundColor: 'purple',
+                borderRadius: 14,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    fontSize,
+                    color: 'white',
+                    flex: 1,
+                    textAlignVertical: 'center',
+                    textAlign: 'center'
+                }}>{number}</Text>
             </View>
             {icon}
         </View>

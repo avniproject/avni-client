@@ -9,9 +9,8 @@ class ProgressbarStatus {
 
     onComplete(event) {
         const index = this.progressSteps.indexOf(event);
-        this.progressSteps.splice(index,1);
-        this.onprogress(1 - (this.progressSteps.length/this.initialCount));
-
+        this.progressSteps.splice(index, 1);
+        this.onprogress(1 - (this.progressSteps.length / this.initialCount));
     }
 
 }

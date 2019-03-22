@@ -35,9 +35,7 @@ class SyncService extends BaseService {
         return this.authService.getAuthToken();
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
-
-
+    getProgressSteps(allEntitiesMetaData) {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
         const userMetadata = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "user");
@@ -45,11 +43,11 @@ class SyncService extends BaseService {
         const entityQueueService = this.getService(EntityQueueService);
         const entitiesToPost = allTxEntityMetaData
             .map(entityQueueService.getAllQueuedItems)
-            .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.entityName + ".PUSH");
+            .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.metaData.entityName + ".PUSH");
 
         const usersToPost = userMetadata
             .map(entityQueueService.getAllQueuedItems)
-            .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.entityName + ".PUSH");
+            .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.metaData.entityName + ".PUSH");
 
         const steps = _.concat(allReferenceDataMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
             allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
@@ -57,19 +55,26 @@ class SyncService extends BaseService {
             userMetadata.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
             usersToPost);
 
-        const progressBarStatus = new ProgressbarStatus(trackProgress, steps);
+        return this.mediaQueueService.isMediaUploadRequired() ?
+            _.concat(steps, entitiesToPost, usersToPost, ['Media', 'After_Media.Push']) : steps;
+    }
+
+    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
 
         const onProgressPerEntity = (entityType) => progressBarStatus.onComplete(entityType);
+        const onAfterMediaPush = (entityType) => progressBarStatus.onComplete(entityType);
 
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity);
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
+        const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
+
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
         return mediaUploadRequired ?
             firstDataServerSync
-                .then(() => this.imageSync(statusMessageCallBack).then(() => onProgressPerEntity('Media')))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity))
+                .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media')))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush))
             : firstDataServerSync;
     }
 
@@ -82,7 +87,7 @@ class SyncService extends BaseService {
             .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
     }
 
-    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity) {
+    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush) {
 
         // CREATE FAKE DATA
         // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
@@ -95,8 +100,9 @@ class SyncService extends BaseService {
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
 
             .then(() => statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushTxData(allTxEntityMetaData.slice(), onProgressPerEntity))
+            .then(() => this.pushTxData(allTxEntityMetaData.slice(), onProgressPerEntity, onAfterMediaPush))
             .then(() => this.pushTxData(userMetadata.slice(), onProgressPerEntity))
+            .then(() => onAfterMediaPush("After_Media.Push"))
 
             .then(() => statusMessageCallBack("downloadForms"))
             .then(() => this.getUserInfo(onProgressPerEntity))

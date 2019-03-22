@@ -222,5 +222,7 @@
   "visitsBeingScheduled": "સુનિશ્ચિત થયેલી મુલાકાતો",
   "visitName": "મુલાકાત નું નામ",
   "schedulingFor": "મુલાકાત ની તારીખ",
-  "overdueBy": "છેલ્લી તારીખ"
+  "overdueBy": "છેલ્લી તારીખ",
+  "percentageDone": "ટકાવારી કામ",
+  "syncComplete": "સમન્વયન પૂર્ણ થયું"
 }
