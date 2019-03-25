@@ -1,4 +1,4 @@
-import {ProgressBarAndroid, Text, View} from "react-native";
+import {ProgressBarAndroid, Text, View,Button} from "react-native";
 import Fonts from "./primitives/Fonts";
 import React from "react";
 import Colors from "./primitives/Colors";
@@ -10,12 +10,13 @@ class ProgressBarView extends AbstractComponent {
     static propType = {
         progressBar: React.PropTypes.func,
         progressMessage: React.PropTypes.func,
-        onProgressComplete: React.PropTypes.func
+        onProgressComplete: React.PropTypes.func,
+        onPress: React.PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
         super(props, context);
-        this.state = {value: 0, syncMessage: '', complete: false};
+        this.state = {value: 0, syncMessage: ''};
         this.createStyles();
         this.props.progressBar(this);
         this.props.progressMessage(this)
@@ -23,12 +24,6 @@ class ProgressBarView extends AbstractComponent {
 
     update(value) {
         this.setState({value});
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (this.state.value === 1) {
-            setTimeout(this.props.onProgressComplete, 500);
-        }
     }
 
     messageCallBack(syncMessage) {
@@ -75,8 +70,8 @@ class ProgressBarView extends AbstractComponent {
                         <View style={this.container}>
                             <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
                                 {this.I18n.t("syncComplete")}
+                                <Icon name='check-circle' size={25} style={[{color: Colors.TextOnPrimaryColor}]}/>
                             </Text>
-                            <Icon name='check-circle' size={25} style={[{color: Colors.TextOnPrimaryColor}]}/>
                         </View>
                         <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
                                             indeterminate={false} color="green"/>
@@ -84,6 +79,9 @@ class ProgressBarView extends AbstractComponent {
                             style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
                             {((this.state.value) * 100).toFixed(0)}%
                         </Text>
+                        <Button title={`${this.I18n.t('ok')}`}
+                                color= {Colors.ActionButtonColor}
+                                onPress={() => this.props.onPress()}/>
                     </View>)}
             </View>
         );

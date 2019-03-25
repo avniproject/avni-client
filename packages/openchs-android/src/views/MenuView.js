@@ -253,7 +253,7 @@ class MenuView extends AbstractComponent {
                             <ProgressBarView
                                 progressBar={(pb) => this.progressBar = pb}
                                 progressMessage={(pm) => this.progressMessage = pm}
-                                onProgressComplete={this._postSync.bind(this)}/>
+                                onPress={this._postSync.bind(this)}/>
                         </View>
                     </View>
                     <View style={{flex: 1}}/>
