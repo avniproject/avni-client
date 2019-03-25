@@ -30,3 +30,4 @@ class OpenCHS extends Component {
 
 console.ignoredYellowBox = ['Warning: You are manually calling'];
 AppRegistry.registerComponent('OpenCHS', () => OpenCHS);
+console.disableYellowBox = true;

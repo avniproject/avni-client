@@ -1,4 +1,4 @@
-import {ActivityIndicator, Alert, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, delay, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
@@ -31,6 +31,7 @@ import bugsnag from "../utility/bugsnag";
 import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
 import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
 import UserInfoService from "../service/UserInfoService";
+import ProgressBarView from "./ProgressBarView";
 
 const {width, height} = Dimensions.get('window');
 
@@ -94,7 +95,7 @@ class MenuView extends AbstractComponent {
 
     registrationView() {
         const isIndividual = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0].isIndividual();
-        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this): CHSNavigator.navigateToSubjectRegisterView(this);
+        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this) : CHSNavigator.navigateToSubjectRegisterView(this);
     }
 
     changePasswordView() {
@@ -159,15 +160,14 @@ class MenuView extends AbstractComponent {
     }
 
     sync() {
-        try {
-            const syncService = this.context.getService(SyncService);
-            const onError = this._onError.bind(this);
-            const postSync = this._postSync.bind(this);
-            this._preSync();
-            syncService.sync(EntityMetaData.model(), (message) => this.messageCallBack(message)).then(postSync, onError);
-        } catch (e) {
-            this._onError(e);
-        }
+        const syncService = this.context.getService(SyncService);
+        const onError = this._onError.bind(this);
+        this._preSync();
+        syncService.sync(
+            EntityMetaData.model(),
+            (progress) => this.progressBar.update(progress),
+            (message) => this.progressMessage.messageCallBack(message)
+        ).catch(onError);
     }
 
     _logout = () => {
@@ -249,15 +249,11 @@ class MenuView extends AbstractComponent {
                       key={`spinner_${Date.now()}`}>
                     <View style={{flex: .4}}/>
                     <View style={this.syncBackground}>
-                        <ActivityIndicator
-                            color={Colors.DarkPrimaryColor}
-                            size={'large'}
-                            style={{flex: .3}}
-                        />
                         <View style={{flex: .7}}>
-                            <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                {this.I18n.t(_.isNil(this.state.syncMessage)? "doingNothing" : this.state.syncMessage)}
-                            </Text>
+                            <ProgressBarView
+                                progressBar={(pb) => this.progressBar = pb}
+                                progressMessage={(pm) => this.progressMessage = pm}
+                                onPress={this._postSync.bind(this)}/>
                         </View>
                     </View>
                     <View style={{flex: 1}}/>

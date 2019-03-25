@@ -14,13 +14,13 @@ class ConventionalRestClient {
             .join("&");
     }
 
-    getUserInfo(persistFn) {
+    getUserInfo() {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
-        return getJSON(`${serverURL}/me`, this.token).then(persistFn);
+        return getJSON(`${serverURL}/me`, this.token);
     }
 
-    postAllEntities(allEntities, onCompleteOfIndividualPost) {
+    postAllEntities(allEntities, onCompleteOfIndividualPost, onComplete) {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
         const url = entity =>
@@ -28,7 +28,11 @@ class ConventionalRestClient {
                 ? `${serverURL}/${entity.metaData.resourceName}s`
                 : `${serverURL}/${entity.metaData.postUrl}`;
         return _.reduce(allEntities,
-            (acc, entities) => acc.then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost)),
+            (acc, entities) => {
+                return acc
+                    .then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost))
+                    .then(() => onComplete(entities.metaData.entityName + ".PUSH"));
+            },
             Promise.resolve());
     }
 
@@ -66,9 +70,13 @@ class ConventionalRestClient {
         });
     }
 
-    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity) {
+    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, afterGetOfAllEntities) {
         return _.reduce(entitiesMetadataWithSyncStatus,
-            (acc, entityMetadataWithSyncStatus) => acc.then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity)),
+            (acc, entityMetadataWithSyncStatus) => {
+                return acc
+                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity))
+                    .then(() => afterGetOfAllEntities(entityMetadataWithSyncStatus.entityName + ".PULL"));
+            },
             Promise.resolve());
     }
 
