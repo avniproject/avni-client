@@ -43,7 +43,12 @@ class ProgressBarView extends AbstractComponent {
             alignItems: 'center',
         };
         this.syncTextContent = {
-            color: Colors.TextOnPrimaryColor
+            color: Colors.TextOnPrimaryColor,
+            lineHeight: 20,
+            height: 40,
+        };
+        this.percentageText = {
+            color: Colors.TextOnPrimaryColor,
         };
 
     }
@@ -61,7 +66,7 @@ class ProgressBarView extends AbstractComponent {
                         <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
                                             indeterminate={false} color="white"/>
                         <Text
-                            style={[this.syncTextContent, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
+                            style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
                             {((this.state.value) * 100).toFixed(0)}%
                         </Text>
                     </View>)
@@ -76,7 +81,7 @@ class ProgressBarView extends AbstractComponent {
                         <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
                                             indeterminate={false} color="green"/>
                         <Text
-                            style={[this.syncTextContent, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
+                            style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
                             {((this.state.value) * 100).toFixed(0)}%
                         </Text>
                     </View>)}
