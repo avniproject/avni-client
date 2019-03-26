@@ -1,4 +1,4 @@
-import {View, Button} from "react-native";
+import {View, Button, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -17,6 +17,7 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
+import RegistrationFAB from './RegistrationFAB';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -90,6 +91,7 @@ class IndividualSearchView extends AbstractComponent {
                                 onPress={() => this.searchIndividual()}/>
                     </View>
                 </CHSContent>
+                {/*<RegistrationFAB parent={this}/>*/}
             </CHSContainer>
         );
     }

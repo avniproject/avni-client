@@ -106,7 +106,7 @@ class AbstractDataEntryState {
                 checklists = this.getChecklists(ruleService, context);
                 nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
             }
-            action.completed(this, decisions, validationResults, checklists, nextScheduledVisits);
+            action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
             this.moveNext();
             const formElementStatuses = ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);

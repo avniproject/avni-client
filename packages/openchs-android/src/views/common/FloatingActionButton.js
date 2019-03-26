@@ -6,9 +6,11 @@ import {Button} from 'native-base'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Fonts from "../primitives/Fonts";
 
-class StitchView extends AbstractComponent {
+class FloatingActionButton extends AbstractComponent {
 
-    static propTypes = {};
+    static propTypes = {
+        actions: React.PropTypes.array.isRequired
+    };
 
     constructor(props, context) {
         super(props, context);
@@ -89,13 +91,13 @@ class StitchView extends AbstractComponent {
 
     renderContent() {
         return (
-            this.props.programList.map(obj =>
-                <View>
-                    <TouchableOpacity style={{flexDirection: 'row-reverse', padding: 5}} onPress={() => obj.onPress()}>
-                        {obj.icon}
+            this.props.actions.map((action, key) =>
+                <View key={key}>
+                    <TouchableOpacity style={{flexDirection: 'row-reverse', padding: 5}} onPress={() => action.fn()}>
+                        {action.icon}
                         <Button
                             style={this.buttonStyle}
-                            textStyle={this.buttonTextStyle}>{obj.label}</Button>
+                            textStyle={this.buttonTextStyle}>{action.label}</Button>
                     </TouchableOpacity>
                 </View>
             )
@@ -110,7 +112,7 @@ class StitchView extends AbstractComponent {
             <Modal
                 animationType='fade'
                 transparent={true}
-                visible={this.state.modalVisible}
+                // visible={this.state.modalVisible}
                 presentationStyle='fullScreen'
                 onRequestClose={() => {
                     this.setModalVisible(false)
@@ -144,4 +146,4 @@ class StitchView extends AbstractComponent {
 
 }
 
-export default StitchView
+export default FloatingActionButton

@@ -8,6 +8,10 @@ class ProgramService extends BaseService {
         super(db, beanStore);
     }
 
+    getSchema() {
+        return Program.schema.name;
+    }
+
     allPrograms() {
         return this.findAll(Program.schema.name);
     }

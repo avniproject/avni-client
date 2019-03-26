@@ -84,8 +84,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
     }
 
-    static navigateToIndividualRegisterView(source, individualUUID) {
-        TypedTransition.from(source).with({individualUUID: individualUUID}).to(IndividualRegisterView);
+    static navigateToIndividualRegisterView(source, individualUUID, stitchOptions) {
+        TypedTransition.from(source).with({individualUUID, stitchOptions}).to(IndividualRegisterView);
     }
 
     static navigateToIndividualSearchView(source, onIndividualSelection) {
@@ -107,7 +107,7 @@ class CHSNavigator {
         CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form);
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form) {
+    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, saveAndProceed) {
         TypedTransition.from(source).with({
             form: form,
             decisions: decisions,
@@ -118,7 +118,8 @@ class CHSNavigator {
             validationErrors: ruleValidationErrors,
             headerMessage: headerMessage,
             checklists: _.isNil(checklists) ? [] : checklists,
-            nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits
+            nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits,
+            saveAndProceed: saveAndProceed,
         }).to(SystemRecommendationView, true);
     }
 

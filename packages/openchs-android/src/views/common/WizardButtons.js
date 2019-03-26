@@ -1,9 +1,6 @@
 import {View} from "react-native";
-import React, {Component} from "react";
-import {
-    Button
-
-} from "native-base";
+import React from "react";
+import {Button} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
@@ -16,7 +13,8 @@ class WizardButtons extends AbstractComponent {
     static propTypes = {
         previous: React.PropTypes.object,
         next: React.PropTypes.object,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        nextAndMore: React.PropTypes.object,
     };
 
     getButtonProps(buttonProps) {
@@ -31,9 +29,20 @@ class WizardButtons extends AbstractComponent {
     render() {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
-        return (
+        const nextAndMore = this.getButtonProps(this.props.nextAndMore);
+        return (<View style={{marginVertical: 30, }}>
             <View
-                style={this.appendedStyle({marginVertical: 30, justifyContent: 'space-between', flexDirection: 'row'})}>
+                style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
+                {nextAndMore.visible ?
+                    <Button primary
+                            style={{flex: 1}}
+                            onPress={() => nextAndMore.func()}>
+                        {nextAndMore.label}</Button>
+                    : null
+                }
+            </View>
+            <View
+                style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row'})}>
                 {previousButton.visible ?
                     <Button primary
                             style={{
@@ -48,7 +57,7 @@ class WizardButtons extends AbstractComponent {
                             style={{flex: 0.5, marginLeft: 8}}
                             onPress={() => nextButton.func()}>{nextButton.label}</Button> : <View style={{flex: 0.5}}/>}
             </View>
-        );
+        </View>);
     }
 }
 

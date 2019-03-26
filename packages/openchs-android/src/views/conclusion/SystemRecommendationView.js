@@ -32,7 +32,8 @@ class SystemRecommendationView extends AbstractComponent {
         headerMessage: React.PropTypes.string,
         checklists: React.PropTypes.array,
         nextScheduledVisits: React.PropTypes.array,
-        form: React.PropTypes.object
+        form: React.PropTypes.object,
+        saveAndProceed: React.PropTypes.object,
     };
 
     static styles = {
@@ -47,7 +48,7 @@ class SystemRecommendationView extends AbstractComponent {
         super(props, context);
     }
 
-    save() {
+    save(cb) {
         if (this.props.individual.voided) {
             Alert.alert(this.I18n.t("voidedIndividualAlertTitle"), 
                 this.I18n.t("voidedIndividualAlertMessage"));
@@ -56,7 +57,7 @@ class SystemRecommendationView extends AbstractComponent {
                 decisions: this.props.decisions,
                 checklists: this.props.checklists,
                 nextScheduledVisits: this.props.nextScheduledVisits,
-                cb: () => this.props.onSaveCallback(this),
+                cb,
                 error: (message) => this.showError(message)
             });
         }
@@ -117,10 +118,14 @@ class SystemRecommendationView extends AbstractComponent {
                                           title={this.I18n.t('observations')}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                            next={{
-                                               func: () => this.save(),
+                                               func: () => this.save(() => this.props.onSaveCallback(this)),
                                                visible: this.props.validationErrors.length === 0,
                                                label: this.I18n.t('save')
                                            }}
+                                           nextAndMore={this.props.saveAndProceed? {
+                                               label: this.I18n.t(this.props.saveAndProceed.key),
+                                               func: () => this.save(() => this.props.saveAndProceed.callback(this))
+                                           }: {}}
                                            style={{marginHorizontal: 24}}/>
 
                         </View>
