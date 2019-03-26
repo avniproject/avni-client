@@ -70,7 +70,7 @@ class ProgressBarView extends AbstractComponent {
                         <View style={this.container}>
                             <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
                                 {this.I18n.t("syncComplete")}
-                                <Icon name='check-circle' size={25} style={[{color: Colors.TextOnPrimaryColor}]}/>
+                                <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
                             </Text>
                         </View>
                         <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
