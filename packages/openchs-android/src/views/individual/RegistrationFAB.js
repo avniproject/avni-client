@@ -1,13 +1,12 @@
 import FloatingActionButton from "../common/FloatingActionButton";
 import CHSNavigator from "../../utility/CHSNavigator";
-import {Text} from "react-native";
-import CHSContainer from "../common/CHSContainer";
+import {Text, TouchableOpacity} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import AuthService from "../../service/AuthService";
 import ProgramService from "../../service/program/ProgramService";
 import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
 import ObservationsHolder from "openchs-models/src/ObservationsHolder";
+import Colors from "../primitives/Colors";
 
 export default class RegistrationFAB extends AbstractComponent {
     static propTypes = {
@@ -16,11 +15,42 @@ export default class RegistrationFAB extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.createStyles();
     }
 
     componentWillMount() {
         const programs = this.context.getService(ProgramService).findAll();
         this.setState({programs: _.map(programs, _.identity)});
+    }
+
+    createStyles() {
+        this.iconStyle = {
+            alignSelf: 'flex-end',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 40,
+            height: 40,
+            borderRadius: 80,
+            backgroundColor: Colors.AccentColor,
+            elevation: 2,
+            marginBottom: 10,
+            marginLeft: 6
+        };
+        this.textStyle = {
+            color: Colors.TextOnPrimaryColor,
+            fontFamily: 'FontAwesome',
+            fontWeight: 'bold',
+            textAlign: 'justify',
+            lineHeight: 25,
+            fontSize: 30,
+            padding: 5,
+        }
+    }
+
+    renderIcon(icon) {
+        return (<TouchableOpacity disabled={true} style={this.iconStyle}>
+            <Text style={this.textStyle}>{icon}</Text>
+        </TouchableOpacity>);
     }
 
     render() {
@@ -40,7 +70,7 @@ export default class RegistrationFAB extends AbstractComponent {
                             }
                         });
                     },
-                    icon: <Text>{program.name[0]}</Text>,
+                    icon: this.renderIcon(program.name[0]),
                     label: 'Registration ' + program.name
                 }
             })

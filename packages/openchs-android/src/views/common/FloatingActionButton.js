@@ -55,27 +55,8 @@ class FloatingActionButton extends AbstractComponent {
             flexDirection: 'column-reverse',
             padding: 20,
         };
-        this.modalButton = {
-            alignSelf: 'flex-end',
-            width: 40,
-            height: 40,
-            borderRadius: 80,
-            backgroundColor: Colors.AccentColor,
-            elevation: 2,
-            marginBottom: 20,
-        };
-        this.modalIcon = {
-            color: Colors.TextOnPrimaryColor,
-            fontFamily: 'FontAwesome',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            alignSelf: 'center',
-            fontSize: 30,
-            padding: 5,
-        };
         this.buttonStyle = {
             elevation: 2,
-            flexWrap: 'nowrap',
             backgroundColor: '#e0e0e0',
             alignItems: 'center',
             justifyContent: 'center',
@@ -89,13 +70,19 @@ class FloatingActionButton extends AbstractComponent {
 
     }
 
+    reset(fun) {
+        this.setModalVisible(false);
+        fun()
+    }
+
     renderContent() {
         return (
             this.props.actions.map((action, key) =>
-                <View key={key}>
-                    <TouchableOpacity style={{flexDirection: 'row-reverse', padding: 5}} onPress={() => action.fn()}>
+                <View key={key} >
+                    <TouchableOpacity style={{flexDirection: 'row-reverse', padding: 5}}
+                                      onPress={() => this.reset(action.fn)}>
                         {action.icon}
-                        <Button
+                        <Button disabled={true}
                             style={this.buttonStyle}
                             textStyle={this.buttonTextStyle}>{action.label}</Button>
                     </TouchableOpacity>
