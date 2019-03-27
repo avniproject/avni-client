@@ -30,6 +30,7 @@ import RuleService from "../service/RuleService";
 import bugsnag from "../utility/bugsnag";
 import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
 import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
+import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import UserInfoService from "../service/UserInfoService";
 import ProgressBarView from "./ProgressBarView";
 
@@ -123,11 +124,13 @@ class MenuView extends AbstractComponent {
         const userSettings = userInfoService.getUserSettings();
 
         this.setState({syncing: false, error: false});
+
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
     _onError(error) {
         General.logError(`${this.viewName()}-Sync`, error);
+        this.dispatchAction(SyncActions.SYNC_FAILED);
         bugsnag.notify(error);
         this.setState({syncing: false});
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
@@ -150,6 +153,7 @@ class MenuView extends AbstractComponent {
     }
 
     componentWillMount() {
+        super.componentWillMount();
         if (this.props.startSync) {
             this.sync();
         }
@@ -166,7 +170,8 @@ class MenuView extends AbstractComponent {
         syncService.sync(
             EntityMetaData.model(),
             (progress) => this.progressBar.update(progress),
-            (message) => this.progressMessage.messageCallBack(message)
+            (message) => this.progressMessage.messageCallBack(message),
+            (action, params) => this.dispatchAction(action, params)
         ).catch(onError);
     }
 
