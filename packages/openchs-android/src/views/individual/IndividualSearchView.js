@@ -91,7 +91,9 @@ class IndividualSearchView extends AbstractComponent {
                                 onPress={() => this.searchIndividual()}/>
                     </View>
                 </CHSContent>
-                {/*<RegistrationFAB parent={this}/>*/}
+                {/*<View style={{bottom:50}}>
+                    <RegistrationFAB parent={this}/>
+                </View>*/}
             </CHSContainer>
         );
     }

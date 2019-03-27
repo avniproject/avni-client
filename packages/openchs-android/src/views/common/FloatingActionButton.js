@@ -3,7 +3,7 @@ import React from "react";
 import {View, Modal, TouchableOpacity, Text, TouchableWithoutFeedback} from 'react-native';
 import Colors from "../primitives/Colors";
 import {Button} from 'native-base'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {Icon} from 'native-base';
 import Fonts from "../primitives/Fonts";
 
 class FloatingActionButton extends AbstractComponent {
@@ -36,10 +36,9 @@ class FloatingActionButton extends AbstractComponent {
             height: 60,
             alignItems: 'center',
             justifyContent: 'center',
-            right: 20,
-            bottom: 70,
+            right: 30,
+            bottom: 30,
             borderRadius: 150,
-            elevation: 2,
             backgroundColor: Colors.AccentColor
         };
         this.floatingButtonIcon = {
@@ -56,11 +55,9 @@ class FloatingActionButton extends AbstractComponent {
             padding: 20,
         };
         this.buttonStyle = {
-            elevation: 2,
             backgroundColor: '#e0e0e0',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 5,
         };
         this.buttonTextStyle = {
             fontSize: Fonts.Medium,
@@ -78,13 +75,14 @@ class FloatingActionButton extends AbstractComponent {
     renderContent() {
         return (
             this.props.actions.map((action, key) =>
-                <View key={key} >
-                    <TouchableOpacity style={{flexDirection: 'row-reverse', padding: 5}}
+                <View key={key} style={{flexDirection: 'row-reverse'}}>
+                    {action.icon}
+                    <TouchableOpacity hitSlop={{top: 0, bottom: 0, left: 0, right: 50}}
                                       onPress={() => this.reset(action.fn)}>
-                        {action.icon}
                         <Button disabled={true}
-                            style={this.buttonStyle}
-                            textStyle={this.buttonTextStyle}>{action.label}</Button>
+                                style={this.buttonStyle}
+                                textStyle={this.buttonTextStyle}>{action.label}
+                        </Button>
                     </TouchableOpacity>
                 </View>
             )
@@ -124,7 +122,7 @@ class FloatingActionButton extends AbstractComponent {
                 <TouchableOpacity activeOpacity={0.5}
                                   onPress={() => this.onPress()}
                                   style={this.floatingButton}>
-                    <Icon name="plus" size={30} style={this.floatingButtonIcon}/>
+                    <Icon name="add" size={40} style={this.floatingButtonIcon}/>
                 </TouchableOpacity>
                 {this.renderModal()}
             </View>
