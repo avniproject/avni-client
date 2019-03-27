@@ -7,6 +7,11 @@ import ProgramService from "../../service/program/ProgramService";
 import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
 import ObservationsHolder from "openchs-models/src/ObservationsHolder";
 import Colors from "../primitives/Colors";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import IndividualRegisterFormView from "./IndividualRegisterFormView";
+import IndividualRegisterView from "./IndividualRegisterView";
+import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 
 export default class RegistrationFAB extends AbstractComponent {
     static propTypes = {
@@ -53,28 +58,30 @@ export default class RegistrationFAB extends AbstractComponent {
         </TouchableOpacity>);
     }
 
+    navigateToRegistrationThenProgramEnrolmentView(program) {
+        CHSNavigator.navigateToIndividualRegisterView(this, null, {
+            label: 'saveAndEnrol',
+            fn: recommendationView => this.navigateToProgramEnrolmentView(recommendationView.props.individual, program)
+        })
+    }
+
+    navigateToProgramEnrolmentView(individual, program) {
+        const enrolment = ProgramEnrolment.createEmptyInstance();
+        enrolment.individual = individual.cloneForEdit();
+        enrolment.program = program;
+        ObservationsHolder.convertObsForSave(enrolment.individual.observations);
+        TypedTransition.from(this.props.parent).wizardCompleted(
+            [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+            ProgramEnrolmentView, {enrolment: enrolment}, true);
+    }
+
     render() {
         return <FloatingActionButton actions={
-            this.state.programs.map((program)=> {
-                return {
-                    fn: ()=> {
-                        CHSNavigator.navigateToIndividualRegisterView(this, null, {
-                            key: 'saveAndEnrol',
-                            callback: (systemRecommendationView) => {
-                                const individual = systemRecommendationView.state.individual;
-                                const enrolment = ProgramEnrolment.createEmptyInstance();
-                                enrolment.individual = individual.cloneForEdit();
-                                enrolment.program = program;
-                                ObservationsHolder.convertObsForSave(enrolment.individual.observations);
-                                CHSNavigator.navigateToProgramEnrolmentView(source, enrolment);
-                            }
-                        });
-                    },
-                    icon: this.renderIcon(program.name[0]),
-                    label: 'Registration ' + program.name
-                }
-            })
-        }/>
+            this.state.programs.map(program => ({
+                fn: () => this.navigateToRegistrationThenProgramEnrolmentView(program),
+                icon: this.renderIcon(program.name[0]),
+                label: 'Registration ' + program.name
+            }))}/>
     }
 
 }

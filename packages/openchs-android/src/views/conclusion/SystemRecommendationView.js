@@ -123,8 +123,8 @@ class SystemRecommendationView extends AbstractComponent {
                                                label: this.I18n.t('save')
                                            }}
                                            nextAndMore={this.props.saveAndProceed? {
-                                               label: this.I18n.t(this.props.saveAndProceed.key),
-                                               func: () => this.save(() => this.props.saveAndProceed.callback(this))
+                                               label: this.I18n.t(this.props.saveAndProceed.label),
+                                               func: () => this.save(() => this.props.saveAndProceed.fn(this))
                                            }: {}}
                                            style={{marginHorizontal: 24}}/>
 

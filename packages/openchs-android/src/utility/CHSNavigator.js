@@ -84,8 +84,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
     }
 
-    static navigateToIndividualRegisterView(source, individualUUID, stitchOptions) {
-        TypedTransition.from(source).with({individualUUID, stitchOptions}).to(IndividualRegisterView);
+    static navigateToIndividualRegisterView(source, individualUUID, stitches) {
+        TypedTransition.from(source).with({individualUUID, stitches}).to(IndividualRegisterView);
     }
 
     static navigateToIndividualSearchView(source, onIndividualSelection) {
