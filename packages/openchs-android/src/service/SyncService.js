@@ -56,7 +56,10 @@ class SyncService extends BaseService {
             usersToPost);
 
         return this.mediaQueueService.isMediaUploadRequired() ?
-            _.concat(steps, entitiesToPost, usersToPost, ['Media', 'After_Media.Push']) : steps;
+            _.concat(steps,
+                ['Media', 'After_Media.Push'],
+                allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
+                userMetadata.map((entityMetaData) => entityMetaData.entityName + ".PULL")) : steps;
     }
 
     sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
@@ -64,7 +67,7 @@ class SyncService extends BaseService {
         const onProgressPerEntity = (entityType) => progressBarStatus.onComplete(entityType);
         const onAfterMediaPush = (entityType) => progressBarStatus.onComplete(entityType);
 
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush);
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
@@ -87,7 +90,7 @@ class SyncService extends BaseService {
             .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
     }
 
-    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush) {
+    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush = _.noop) {
 
         // CREATE FAKE DATA
         // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
