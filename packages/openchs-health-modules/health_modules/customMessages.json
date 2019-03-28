@@ -1140,7 +1140,8 @@
     "IHMP ASHA counselling regarding preparations for delivery" : "Counselling regarding preparations for delivery\n✓Use MCH card number 6 to counsel the pregnant mother regarding preparations for delivery\n✓Use MCH card number 7 to inform the woman regarding potential complications during delivery and hence importance of hospital delivery",
     "IHMP ASHA counselling during every contact post registration" : "Counselling during every contact post registration\n✓Use MCH card number 8 to inform the pregnant mother regarding her entitlements such as JSY and Pradhanmantri Matrutva Vandan Yojana",
     "IHMP ASHA counselling during every contact post 8th month" : "Counselling during every contact post 8th month\n✓Use FP card number 7 and 10 - Counsel pregnant woman to start using FP method such as condom, Copper T, or sterlization operation immediatly after delivery",
-    "IHMP Diarrohea Councelling": "✓Give mother ORS \n✓Counsel her how to prepare ORS at home \n✓Counsel her regarding hand washing and food hygiene"
+    "IHMP Diarrohea Councelling": "✓Give mother ORS \n✓Counsel her how to prepare ORS at home \n✓Counsel her regarding hand washing and food hygiene",
+    "saveAndProceedEncounter": "Save and proceed to {{enc}}"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",

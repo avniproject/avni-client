@@ -76,7 +76,7 @@ class ProgramEncounterActions {
         const service = context.get(ProgramEncounterService);
         service.saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
 
-        action.cb();
+        action.cb(newState.programEncounter.programEnrolment);
         return newState;
     }
 

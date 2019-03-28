@@ -68,8 +68,8 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter, editing=false) {
-        TypedTransition.from(source).with({programEncounter: programEncounter, editing}).to(ProgramEncounterView);
+    static navigateToProgramEncounterView(source, programEncounter, editing=false, encounterTypeName, enrolmentUUID) {
+        TypedTransition.from(source).with({programEncounter: programEncounter, editing, encounterTypeName, enrolmentUUID}).to(ProgramEncounterView);
     }
 
     static navigateToChecklistItemView(source, checklistItem) {

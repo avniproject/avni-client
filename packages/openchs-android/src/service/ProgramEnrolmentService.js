@@ -60,8 +60,8 @@ class ProgramEnrolmentService extends BaseService {
             General.logDebug('ProgramEnrolmentService', 'ProgramEnrolment added to Individual');
 
             entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
-            return programEnrolment;
         });
+        return programEnrolment;
     }
 
     exit(programEnrolment) {

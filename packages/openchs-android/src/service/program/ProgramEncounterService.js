@@ -70,8 +70,8 @@ class ProgramEncounterService extends BaseService {
         return programEncounter;
     }
 
-    findDueEncounter(encounterTypeUUID, enrolmentUUID) {
-        const encounters = this.findAllByCriteria(`encounterType.uuid="${encounterTypeUUID}" AND programEnrolment.uuid="${enrolmentUUID}"`);
+    findDueEncounter({encounterTypeUUID, enrolmentUUID, encounterTypeName}) {
+        const encounters = this.findAllByCriteria(` ( encounterType.name == "${encounterTypeName}" OR encounterType.uuid == "${encounterTypeUUID}" ) AND programEnrolment.uuid == "${enrolmentUUID}" `);
         return encounters.find((encounter) => _.isNil(encounter.encounterDateTime));
     }
 }

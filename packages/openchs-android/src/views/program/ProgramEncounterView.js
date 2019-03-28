@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterActionsNames as Actions} from "../../action/program/ProgramEncounterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, PrimitiveValue, AbstractEncounter, ProgramEncounter} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, PrimitiveValue, ProgramEncounter} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -21,6 +21,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -37,7 +38,11 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {programEncounter: this.props.params.programEncounter});
+        const {encounterTypeName, enrolmentUUID} = this.props.params;
+        const programEncounter = this.props.params.programEncounter ||
+            this.context.getService(ProgramEncounterService).findDueEncounter({encounterTypeName, enrolmentUUID});
+
+        this.dispatchAction(Actions.ON_LOAD, {programEncounter});
         return super.componentWillMount();
     }
 

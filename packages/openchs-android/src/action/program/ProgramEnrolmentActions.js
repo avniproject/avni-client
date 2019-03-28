@@ -112,7 +112,7 @@ export class ProgramEnrolmentActions {
                 .addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
             service.exit(newState.enrolment);
         }
-        action.cb();
+        action.cb(newState.enrolment);
         return newState;
     }
 }

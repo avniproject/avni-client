@@ -86,12 +86,12 @@ export default class RegistrationFAB extends AbstractComponent {
         const registrationAndEnrolmentActions = this.state.programs.map(program => ({
             fn: () => this.navigateToRegistrationThenProgramEnrolmentView(program),
             icon: this.renderIcon(program.name[0]),
-            label: 'Registration ' + program.name
+            label: program.name
         }));
         const registrationsAction = {
             fn: () => this.navigateToMultipleRegistrations(),
             icon: this.renderIcon('R'),
-            label: 'Registrations'
+            label: 'Individual'
         };
         return _.concat([], [registrationsAction], registrationAndEnrolmentActions);
     }

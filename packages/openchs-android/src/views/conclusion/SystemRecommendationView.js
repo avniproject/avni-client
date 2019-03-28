@@ -19,6 +19,8 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import {Individual} from "openchs-models";
 import NextScheduledVisits from "../common/NextScheduledVisits";
+import moment from 'moment';
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -48,9 +50,30 @@ class SystemRecommendationView extends AbstractComponent {
         super(props, context);
     }
 
+    get nextAndMore() {
+        if (this.props.saveAndProceed) {
+            return {
+                label: this.I18n.t(this.props.saveAndProceed.label),
+                func: () => this.save(() => this.props.saveAndProceed.fn(this))
+            }
+        }
+        const applicableScheduledVisit = this.props.nextScheduledVisits.find((visit)=> {
+            return moment().isBetween(visit.earliestDate, visit.maxDate);
+        });
+        if (applicableScheduledVisit) {
+            return {
+                label: this.I18n.t('saveAndProceedEncounter', {enc: applicableScheduledVisit.encounterType}),
+                func: () => this.save((programEnrolment) => {
+                    CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType, programEnrolment.uuid);
+                })
+            };
+        }
+        return {}
+    }
+
     save(cb) {
         if (this.props.individual.voided) {
-            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"), 
+            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
                 this.I18n.t("voidedIndividualAlertMessage"));
         } else {
             this.dispatchAction(this.props.saveActionName, {
@@ -122,10 +145,7 @@ class SystemRecommendationView extends AbstractComponent {
                                                visible: this.props.validationErrors.length === 0,
                                                label: this.I18n.t('save')
                                            }}
-                                           nextAndMore={this.props.saveAndProceed? {
-                                               label: this.I18n.t(this.props.saveAndProceed.label),
-                                               func: () => this.save(() => this.props.saveAndProceed.fn(this))
-                                           }: {}}
+                                           nextAndMore={this.nextAndMore}
                                            style={{marginHorizontal: 24}}/>
 
                         </View>

@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {ProgramEnrolment, ProgramEncounter, Encounter, NullProgramEnrolment, Individual} from 'openchs-models';
+import {Encounter, Individual, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";
@@ -111,8 +111,9 @@ class ProgramEnrolmentDashboardActions {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
 
         if (!newState.programEncounterTypeState.entity.encounterType) return newState;
-
-        const dueEncounter = context.get(ProgramEncounterService).findDueEncounter(newState.programEncounterTypeState.entity.encounterType.uuid, newState.enrolment.uuid);
+        const encounterTypeUUID = newState.programEncounterTypeState.entity.encounterType.uuid;
+        const enrolmentUUID = newState.enrolment.uuid;
+        const dueEncounter = context.get(ProgramEncounterService).findDueEncounter({encounterTypeUUID, enrolmentUUID});
         if (!_.isNil(dueEncounter)) {
             General.logInfo('ProgramEnrolmentDashboardActions', 'Found a due encounter');
             newState.programEncounterTypeState.overwriteEntity(dueEncounter);
