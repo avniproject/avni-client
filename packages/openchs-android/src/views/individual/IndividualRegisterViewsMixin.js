@@ -13,18 +13,20 @@ class IndividualRegisterViewsMixin {
         if (view.scrollToTop)
             view.scrollToTop();
 
+        const {stitches, onSaveCallback} = view.props.params;
+
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
-                const onSaveCallback = (source) => {
-                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView], ProgramEnrolmentDashboardView, {individualUUID: view.state.individual.uuid}, true);
-                };
+                const _onSaveCallback = onSaveCallback || ((source) => {
+                    // CHSNavigator.navigateToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
+                    IndividualRegisterViewsMixin.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
+                });
                 const headerMessage = `${view.I18n.t('registration', {subjectName:'Individual'})} - ${view.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null,
-                    view.props.params.stitches);
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, _onSaveCallback, headerMessage, null, null, null, stitches);
             },
             movedNext: (state) => {
                 if (state.wizard.isFirstFormPage())
-                    TypedTransition.from(view).with({stitches: view.props.params.stitches}).to(IndividualRegisterFormView);
+                    TypedTransition.from(view).with({stitches, onSaveCallback}).to(IndividualRegisterFormView);
             },
             validationFailed: (newState) => {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
@@ -32,6 +34,13 @@ class IndividualRegisterViewsMixin {
                 }
             }
         });
+    }
+
+    static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
+        TypedTransition
+            .from(recommendationsView)
+            .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+                ProgramEnrolmentDashboardView, {individualUUID}, true);
     }
 }
 

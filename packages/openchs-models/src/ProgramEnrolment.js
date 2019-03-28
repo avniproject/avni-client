@@ -34,7 +34,7 @@ class ProgramEnrolment extends BaseEntity {
         }
     };
 
-    static createEmptyInstance() {
+    static createEmptyInstance({individual, program} = {}) {
         const programEnrolment = new ProgramEnrolment();
         programEnrolment.uuid = General.randomUUID();
         programEnrolment.enrolmentDateTime = new Date();
@@ -42,8 +42,10 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];
         programEnrolment.checklists = [];
-        programEnrolment.individual = Individual.createEmptyInstance();
+        programEnrolment.individual = individual? individual.cloneForEdit() : Individual.createEmptyInstance();
         programEnrolment.voided = false;
+        programEnrolment.program = program;
+        ObservationsHolder.convertObsForSave(programEnrolment.individual.observations);
         return programEnrolment;
     }
 

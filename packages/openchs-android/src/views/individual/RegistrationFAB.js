@@ -12,6 +12,7 @@ import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import IndividualRegisterFormView from "./IndividualRegisterFormView";
 import IndividualRegisterView from "./IndividualRegisterView";
 import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
+import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 
 export default class RegistrationFAB extends AbstractComponent {
     static propTypes = {
@@ -58,6 +59,13 @@ export default class RegistrationFAB extends AbstractComponent {
         </TouchableOpacity>);
     }
 
+    navigateToMultipleRegistrations() {
+        const onSaveCallback = (recommendationsView) => {
+            CHSNavigator.navigateToIndividualRegisterView(this, null, null, onSaveCallback);
+        };
+        CHSNavigator.navigateToIndividualRegisterView(this, null, null, onSaveCallback);
+    }
+
     navigateToRegistrationThenProgramEnrolmentView(program) {
         CHSNavigator.navigateToIndividualRegisterView(this, null, {
             label: 'saveAndEnrol',
@@ -66,22 +74,27 @@ export default class RegistrationFAB extends AbstractComponent {
     }
 
     navigateToProgramEnrolmentView(individual, program) {
-        const enrolment = ProgramEnrolment.createEmptyInstance();
-        enrolment.individual = individual.cloneForEdit();
-        enrolment.program = program;
-        ObservationsHolder.convertObsForSave(enrolment.individual.observations);
         TypedTransition.from(this.props.parent).wizardCompleted(
             [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
-            ProgramEnrolmentView, {enrolment: enrolment}, true);
+            ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual, program})}, true);
+    }
+
+    get actions() {
+        const registrationAndEnrolmentActions = this.state.programs.map(program => ({
+            fn: () => this.navigateToRegistrationThenProgramEnrolmentView(program),
+            icon: this.renderIcon(program.name[0]),
+            label: 'Registration ' + program.name
+        }));
+        const registrationsAction = {
+            fn: () => this.navigateToMultipleRegistrations(),
+            icon: this.renderIcon('R'),
+            label: 'Registrations'
+        };
+        return _.concat([], [registrationsAction], registrationAndEnrolmentActions);
     }
 
     render() {
-        return <FloatingActionButton actions={
-            this.state.programs.map(program => ({
-                fn: () => this.navigateToRegistrationThenProgramEnrolmentView(program),
-                icon: this.renderIcon(program.name[0]),
-                label: 'Registration ' + program.name
-            }))}/>
+        return <FloatingActionButton actions={this.actions}/>
     }
 
 }
