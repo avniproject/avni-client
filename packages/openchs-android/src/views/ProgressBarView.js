@@ -68,10 +68,10 @@ class ProgressBarView extends AbstractComponent {
                     :
                     (<View>
                         <View style={this.container}>
-                            <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
+                            <Text style={[this.syncTextContent, { paddingTop:7}, Fonts.typography("paperFontSubhead")]}>
                                 {this.I18n.t("syncComplete")}
-                                <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
                             </Text>
+                            <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
                         </View>
                         <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
                                             indeterminate={false} color="green"/>
@@ -79,9 +79,12 @@ class ProgressBarView extends AbstractComponent {
                             style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
                             {((this.state.value) * 100).toFixed(0)}%
                         </Text>
-                        <Button title={`${this.I18n.t('ok')}`}
+                        <View style={{paddingTop: 10}}>
+                            <Button
+                                title={`${this.I18n.t('ok')}`}
                                 color= {Colors.ActionButtonColor}
                                 onPress={() => this.props.onPress()}/>
+                        </View>
                     </View>)}
             </View>
         );

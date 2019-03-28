@@ -117,7 +117,8 @@ class SyncService extends BaseService {
     }
 
     getUserInfo(onProgressPerEntity) {
-        return this.conventionalRestClient.getUserInfo().then(this.persistUserInfo.bind(this)).then(() => onProgressPerEntity('UserInfo.PULL'));
+        return this.conventionalRestClient.getUserInfo().then(this.persistUserInfo.bind(this)).
+        then(() => setTimeout(() => onProgressPerEntity('UserInfo.PULL'),100)); //Progress bar doesn't starts from 0% without this
     }
 
     persistUserInfo(userInfoResource) {
