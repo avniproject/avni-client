@@ -61,7 +61,10 @@ export default class RegistrationFAB extends AbstractComponent {
 
     navigateToMultipleRegistrations() {
         const onSaveCallback = (recommendationsView) => {
-            CHSNavigator.navigateToIndividualRegisterView(this, null, null, onSaveCallback);
+            TypedTransition
+                .from(recommendationsView)
+                .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
+                    IndividualRegisterView, {params:{onSaveCallback}}, true);
         };
         CHSNavigator.navigateToIndividualRegisterView(this, null, null, onSaveCallback);
     }
