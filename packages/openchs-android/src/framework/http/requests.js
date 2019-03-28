@@ -5,7 +5,7 @@ import AuthenticationError from "../../service/AuthenticationError";
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const fetchFactory = (endpoint, method = "GET", params) => {
-    return fetch(endpoint, {"method": method, ...params})
+    return fetchWithTimeOut(endpoint, {"method": method, ...params})
         .then((response) =>
         {
             if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
@@ -15,8 +15,17 @@ const fetchFactory = (endpoint, method = "GET", params) => {
                 General.logError("requests", response);
                 return Promise.reject(new AuthenticationError('Http 403', response));
             }
-            return Promise.reject(response);
+            return Promise.reject(new Error('HTTP error, status = ' + response.status));
         });
+};
+
+const fetchWithTimeOut = (url, options, timeout = 60000) => {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Sorry it's taking too long. Please try after sometime")), timeout)
+        )
+    ]);
 };
 
 const makeHeader = (type) => new Map([['json', {

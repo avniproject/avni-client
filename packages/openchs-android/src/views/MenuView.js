@@ -1,4 +1,4 @@
-import {ActivityIndicator, Alert, delay, Dimensions, Modal, Text, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, Dimensions, Modal, Text, TouchableOpacity, View, NetInfo} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
@@ -139,7 +139,8 @@ class MenuView extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            Alert.alert(this.I18n.t("syncError"), error.message, [{
+            const errorMessage = error.message.startsWith('HTTP error') ? 'An error has occurred. Please try after sometime.' : error.message;
+            Alert.alert(this.I18n.t("syncError"), errorMessage, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
                 },
@@ -163,11 +164,16 @@ class MenuView extends AbstractComponent {
         const syncService = this.context.getService(SyncService);
         const onError = this._onError.bind(this);
         this._preSync();
-        syncService.sync(
-            EntityMetaData.model(),
-            (progress) => this.progressBar.update(progress),
-            (message) => this.progressMessage.messageCallBack(message)
-        ).catch(onError);
+        //check for internet connection before sync starts
+        NetInfo.isConnected.fetch().then(isConnected => {
+            return isConnected ?
+                syncService.sync(
+                    EntityMetaData.model(),
+                    (progress) => this.progressBar.update(progress),
+                    (message) => this.progressMessage.messageCallBack(message))
+                :
+                new Promise((_, reject) => reject(new Error('No internet connection. Please connect to internet.')))
+        }).catch(onError);
     }
 
     _logout = () => {
