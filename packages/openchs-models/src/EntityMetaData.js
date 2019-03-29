@@ -31,6 +31,7 @@ import ChecklistDetail from "./ChecklistDetail";
 import Video from "./videos/Video";
 import VideoTelemetric from "./videos/VideoTelemetric";
 import SubjectType from "./SubjectType";
+import SyncTelemetry from "./SyncTelemetry";
 
 class EntityMetaData {
     static checklistDetail = {
@@ -287,13 +288,24 @@ class EntityMetaData {
         };
     }
 
+    static syncTelemetry() {
+        return {
+            entityName: SyncTelemetry.schema.name,
+            entityClass: SyncTelemetry,
+            resourceName: "syncTelemetry",
+            type: "tx",
+            resourceUrl: "syncTelemetry"
+        }
+    }
+
     static userInfo() {
         return {
             entityName: UserInfo.schema.name,
             entityClass: UserInfo,
             resourceName: "userInfo",
-            type: "user",
-            postUrl: "me"
+            type: "tx",
+            resourceUrl: "me",
+            apiVersion: "v2"
         }
     }
 
@@ -332,7 +344,8 @@ class EntityMetaData {
             EntityMetaData.programEncounter(),
             EntityMetaData.programEnrolment(),
             EntityMetaData.individual,
-            EntityMetaData.userInfo()
+            EntityMetaData.userInfo(),
+            EntityMetaData.syncTelemetry()
         ].map(it => {
             if (it.type === "reference" && _.isNil(it.resourceSearchFilterURL)) {
                 it.resourceSearchFilterURL = "lastModified";

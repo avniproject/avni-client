@@ -34,6 +34,7 @@ import VideoListActions from '../action/VideoListViewActions';
 import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
 import SubjectRegisterActionsMap, {SubjectRegisterActions} from "../action/subject/SubjectRegisterActions";
 import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewActions";
+import {SyncActions, SyncActionsMap} from "../action/SyncActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -63,7 +64,8 @@ export default class Reducers {
         videoList: 'videoList',
         entitySyncStatusList: 'entitySyncStatusList',
         subject: 'subject',
-        landingView: 'landingView'
+        landingView: 'landingView',
+        syncActions: "syncActions"
     };
 
     static createReducers(beanStore) {
@@ -94,6 +96,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.entitySyncStatusList] = Reducers._add(EntitySyncStatusActions.Map, EntitySyncStatusActions, beanStore);
         reducerMap[Reducers.reducerKeys.subject] = Reducers._add(SubjectRegisterActionsMap, SubjectRegisterActions, beanStore);
         reducerMap[Reducers.reducerKeys.landingView] = Reducers._add(LandingViewActionsMap, LandingViewActions, beanStore);
+        reducerMap[Reducers.reducerKeys.syncActions] = Reducers._add(SyncActionsMap, SyncActions, beanStore);
         return reducerMap;
     };
 

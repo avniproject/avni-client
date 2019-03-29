@@ -4,20 +4,21 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntitySyncStatus, UserInfo} from "openchs-models";
-import _ from "lodash";
+import {EntitySyncStatus, SyncTelemetry} from "openchs-models";
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
-import UserInfoService from "./UserInfoService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
+import {SyncActionNames as SyncActions, SyncActionNames as Actions} from "../action/SyncActions";
+import _ from "lodash";
 
 @Service("syncService")
 class SyncService extends BaseService {
     constructor(db, context) {
         super(db, context);
+        this.persistAll = this.persistAll.bind(this);
     }
 
     init() {
@@ -26,9 +27,9 @@ class SyncService extends BaseService {
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
         this.messageService = this.getService(MessageService);
         this.authService = this.getService(AuthService);
-        this.userInfoService = this.getService(UserInfoService);
         this.ruleEvaluationService = this.getService(RuleEvaluationService);
         this.mediaQueueService = this.getService(MediaQueueService);
+        this.entityQueueService = this.getService(EntityQueueService);
     }
 
     authenticate() {
@@ -38,47 +39,49 @@ class SyncService extends BaseService {
     getProgressSteps(allEntitiesMetaData) {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
-        const userMetadata = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "user");
 
-        const entityQueueService = this.getService(EntityQueueService);
         const entitiesToPost = allTxEntityMetaData
-            .map(entityQueueService.getAllQueuedItems)
+            .map(this.entityQueueService.getAllQueuedItems)
             .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.metaData.entityName + ".PUSH");
 
-        const usersToPost = userMetadata
-            .map(entityQueueService.getAllQueuedItems)
-            .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.metaData.entityName + ".PUSH");
-
-        const steps = _.concat(allReferenceDataMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
+        const steps = _.concat(
+            allReferenceDataMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
             allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
-            entitiesToPost,
-            userMetadata.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
-            usersToPost);
+            entitiesToPost
+        );
 
-        return this.mediaQueueService.isMediaUploadRequired() ?
-            _.concat(steps,
+        return this.mediaQueueService.isMediaUploadRequired()
+            ? _.concat(
+                steps,
                 ['Media', 'After_Media.Push'],
-                allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
-                userMetadata.map((entityMetaData) => entityMetaData.entityName + ".PULL")) : steps;
+                allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL")
+            )
+            : steps;
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
+    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, dispatch) {
 
         const onProgressPerEntity = (entityType) => progressBarStatus.onComplete(entityType);
         const onAfterMediaPush = (entityType) => progressBarStatus.onComplete(entityType);
 
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity);
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, dispatch);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
+
+        dispatch(Actions.START_SYNC);
 
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
         return mediaUploadRequired ?
             firstDataServerSync
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media')))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush))
-            : firstDataServerSync;
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, dispatch))
+                .then(() => dispatch(SyncActions.SYNC_COMPLETED))
+                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity, dispatch))
+            : firstDataServerSync
+                .then(() => dispatch(SyncActions.SYNC_COMPLETED))
+                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity, dispatch));
     }
 
     imageSync(statusMessageCallBack) {
@@ -90,53 +93,55 @@ class SyncService extends BaseService {
             .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
     }
 
-    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush = _.noop) {
+    telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
+        const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.entityName === SyncTelemetry.schema.name);
+        const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => this.entityQueueService.popItem(entityUUID)();
+        const entitiesToPost = telemetryMetadata.reverse()
+            .map(this.entityQueueService.getAllQueuedItems)
+            .filter((entities) => !_.isEmpty(entities.entities));
+        return this.authenticate()
+            .then((idToken) => this.conventionalRestClient.setToken(idToken))
+            .then(() => this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, onProgressPerEntity))
+    }
 
-        // CREATE FAKE DATA
-        // this.getService(FakeDataService).createFakeScheduledEncountersFor(700);
-        // this.getService(FakeDataService).createFakeOverdueEncountersFor(700);
-        // this.getService(FakeDataService).createFakeCompletedEncountersFor(700);
+    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, dispatch) {
+
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
-        const userMetadata = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "user");
+
         return this.authenticate()
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
 
             .then(() => statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushTxData(allTxEntityMetaData.slice(), onProgressPerEntity, onAfterMediaPush))
-            .then(() => this.pushTxData(userMetadata.slice(), onProgressPerEntity))
+            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity, dispatch))
             .then(() => onAfterMediaPush("After_Media.Push"))
 
             .then(() => statusMessageCallBack("downloadForms"))
-            .then(() => this.getUserInfo(onProgressPerEntity))
-            .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity))
+            .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity, dispatch))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getData(allTxEntityMetaData, onProgressPerEntity))
+            .then(() => this.getData(allTxEntityMetaData, onProgressPerEntity, dispatch))
 
     }
 
-    getUserInfo(onProgressPerEntity) {
-        return this.conventionalRestClient.getUserInfo().then(this.persistUserInfo.bind(this)).
-        then(() => setTimeout(() => onProgressPerEntity('UserInfo.PULL'),100)); //Progress bar doesn't starts from 0% without this
-    }
-
-    persistUserInfo(userInfoResource) {
-        const entityService = this.getService(EntityService);
-        return this.userInfoService.saveOrUpdate(UserInfo.fromResource(userInfoResource, entityService));
-    }
-
-    getData(entitiesMetadata, afterAllInEachTypePulled) {
+    getData(entitiesMetadata, afterAllInEachTypePulled, dispatch) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => Object.assign({
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
                 ...entityMetadata
             }));
-        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll.bind(this), afterAllInEachTypePulled);
+
+        const onGetOfFirstPage = (entityName, page) =>
+            dispatch(Actions.RECORD_FIRST_PAGE_OF_PULL, {entityName, totalElements: page.totalElements});
+
+        const onGetOfAnEntity = (entityMetaData, entityResources) =>
+            this.persistAll(entityMetaData, entityResources, dispatch);
+
+        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterAllInEachTypePulled);
     }
 
-    persistAll(entityMetaData, entityResources) {
+    persistAll(entityMetaData, entityResources, dispatch) {
         if (_.isEmpty(entityResources)) return;
         const entityService = this.getService(EntityService);
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
@@ -165,19 +170,25 @@ class SyncService extends BaseService {
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
+
+        dispatch(Actions.ENTITY_PULL_COMPLETED, {entityName: entityMetaData.entityName, numberOfPulledEntities: entities.length})
     }
 
-    pushUserData(userMetadata, afterUserDataPushed) {
-        return this.pushTxData(userMetadata, afterUserDataPushed);
-    }
-
-
-    pushTxData(allTxEntityMetaData, afterEachEntityTypePushed) {
-        const entityQueueService = this.getService(EntityQueueService);
+    pushData(allTxEntityMetaData, afterEachEntityTypePushed, dispatch) {
         const entitiesToPost = allTxEntityMetaData.reverse()
-            .map(entityQueueService.getAllQueuedItems)
+            .map(this.entityQueueService.getAllQueuedItems)
             .filter((entities) => !_.isEmpty(entities.entities));
-        return this.conventionalRestClient.postAllEntities(entitiesToPost, entityQueueService.popItem, afterEachEntityTypePushed);
+
+        dispatch(Actions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost});
+
+        const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => {
+            return () => {
+                dispatch(Actions.ENTITY_PUSH_COMPLETED, {entityMetadata});
+                return this.entityQueueService.popItem(entityUUID)();
+            }
+        };
+
+        return this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, afterEachEntityTypePushed);
     }
 }
 

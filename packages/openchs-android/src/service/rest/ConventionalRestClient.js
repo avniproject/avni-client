@@ -24,9 +24,9 @@ class ConventionalRestClient {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
         const url = entity =>
-            _.isNil(entity.metaData.postUrl)
+            _.isNil(entity.metaData.resourceUrl)
                 ? `${serverURL}/${entity.metaData.resourceName}s`
-                : `${serverURL}/${entity.metaData.postUrl}`;
+                : `${serverURL}/${entity.metaData.resourceUrl}`;
         return _.reduce(allEntities,
             (acc, entities) => {
                 return acc
@@ -39,16 +39,23 @@ class ConventionalRestClient {
     chainPostEntities(url, entities, authToken, onComplete) {
         return () => {
             const chainedRequest = new ChainedRequests();
-            entities.entities.map((entity) => chainedRequest.push(chainedRequest.post(url, entity.resource, authToken, onComplete(entity.resource.uuid))));
+            entities.entities.map((entity) => chainedRequest.push(chainedRequest.post(url, entity.resource, authToken, onComplete(entities.metaData, entity.resource.uuid))));
             return chainedRequest.fire();
         }
     }
 
-    getAllForEntity(entityMetadata, onGetOfAnEntity) {
+    getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage) {
         const token = this.token;
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? `search/${entityMetadata.resourceSearchFilterURL}` : '';
         let settings = this.settingsService.getSettings();
-        const resourceEndpoint = [settings.serverURL, entityMetadata.resourceName, searchFilter].join('/');
+        const resourceEndpoint = [
+            settings.serverURL,
+            _.isNil(entityMetadata.apiVersion) ? "" : entityMetadata.apiVersion,
+            _.isNil(entityMetadata.resourceUrl) ? entityMetadata.resourceName : entityMetadata.resourceUrl,
+            searchFilter
+        ]
+            .filter(p => !_.isEmpty(p))
+            .join("/");
         const loadedSince = entityMetadata.syncStatus.loadedSince;
         const params = (page, size) => this.makeParams({
             lastModifiedDateTime: moment(loadedSince).toISOString(),
@@ -58,10 +65,14 @@ class ConventionalRestClient {
         const processResponse = (resp) => onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
         const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
         return getJSON(endpoint(), token).then((response) => {
-            const chainedRequests = new ChainedRequests();
-            const resourceMetadata = response["page"];
+            //first page
+            const page = response["page"];
             processResponse(response);
-            _.range(1, resourceMetadata.totalPages, 1)
+            onGetOfFirstPage(entityMetadata.entityName, page);
+
+            //rest pages
+            const chainedRequests = new ChainedRequests();
+            _.range(1, page.totalPages, 1)
                 .forEach((pageNumber) => chainedRequests.push(chainedRequests.get(
                     endpoint(pageNumber), token,
                     (resp) => processResponse(resp))));
@@ -70,11 +81,11 @@ class ConventionalRestClient {
         });
     }
 
-    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, afterGetOfAllEntities) {
+    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfAllEntities) {
         return _.reduce(entitiesMetadataWithSyncStatus,
             (acc, entityMetadataWithSyncStatus) => {
                 return acc
-                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity))
+                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage))
                     .then(() => afterGetOfAllEntities(entityMetadataWithSyncStatus.entityName + ".PULL"));
             },
             Promise.resolve());
