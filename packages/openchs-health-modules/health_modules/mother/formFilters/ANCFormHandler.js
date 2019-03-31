@@ -175,9 +175,19 @@ class ANCFormHandler {
     }
 
     foetalPresentation(programEncounter, formElement) {
-        return this._formStatusBuilder(programEncounter, formElement).show()
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
             .when.valueInEncounter("US Scanning Done").containsAnswerConceptName("Yes")
             .and.whenItem(this.currentTrimester).equals(3);
+        return statusBuilder.build();
+    }
+
+    estimatedDateOfDeliveryByDoctor(programEncounter, formElement) {
+        const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
+        statusBuilder.show()
+            .when.valueInEncounter("US Scanning Done").containsAnswerConceptName("Yes");
+        return statusBuilder.build();
+
     }
 
     tt1Date(programEncounter, formElement) {
