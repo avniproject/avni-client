@@ -984,7 +984,9 @@
     "ACT Tablets": "ऐसीटी",
     "Available malaria treatment tablets": "उपलब्ध मलेरिया औषध",
     "Drug information": "औषध माहिती",
-    "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?"
+    "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?",
+    "Low BMI": "कमी असलेला BMI",
+    "High BMI": "वाढलेला BMI"
   },
   "en": {
     "LOGIN": "Login",
