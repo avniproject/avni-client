@@ -33,6 +33,7 @@ import {LandingViewActionsNames as LandingViewActions} from "../action/LandingVi
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import UserInfoService from "../service/UserInfoService";
 import ProgressBarView from "./ProgressBarView";
+import ServerError from "../service/ServerError";
 
 const {width, height} = Dimensions.get('window');
 
@@ -142,7 +143,7 @@ class MenuView extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            const errorMessage = error.message || this.I18n.t('syncServerError');
+            const errorMessage = error instanceof ServerError ? this.I18n.t('syncServerError') : error.message;
             Alert.alert(this.I18n.t("syncError"), errorMessage, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
@@ -346,8 +347,24 @@ const Badge = (number) => (icon) => {
     const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
     return (
         <View style={{backgroundColor: Styles.defaultBackground}}>
-            <View style={{height, width, position: 'absolute', top: 0, right: 0, backgroundColor: 'mediumvioletred', borderRadius: 14, justifyContent:'center', alignItems:'center'}}>
-                <Text style={{fontSize, color: 'white', flex: 1, textAlignVertical: 'center', textAlign: 'center'}}>{number}</Text>
+            <View style={{
+                height,
+                width,
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                backgroundColor: 'mediumvioletred',
+                borderRadius: 14,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    fontSize,
+                    color: 'white',
+                    flex: 1,
+                    textAlignVertical: 'center',
+                    textAlign: 'center'
+                }}>{number}</Text>
             </View>
             {icon}
         </View>

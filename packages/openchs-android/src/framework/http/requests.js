@@ -1,6 +1,7 @@
 import General from "../../utility/General";
 import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
+import ServerError from "../../service/ServerError";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
@@ -15,7 +16,7 @@ const fetchFactory = (endpoint, method = "GET", params) => {
                 General.logError("requests", response);
                 return Promise.reject(new AuthenticationError('Http 403', response));
             }
-            return Promise.reject(response);
+                return Promise.reject(new ServerError(response));
         });
 };
 
