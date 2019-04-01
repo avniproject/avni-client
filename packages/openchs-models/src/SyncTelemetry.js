@@ -9,6 +9,9 @@ class SyncTelemetry extends BaseEntity {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
+            appVersion: 'string',
+            androidVersion: 'string',
+            deviceName: 'string',
             syncStatus: 'string',
             syncStartTime: 'date',
             syncEndTime: 'date?',
@@ -24,7 +27,7 @@ class SyncTelemetry extends BaseEntity {
         const syncTelemetry = new SyncTelemetry();
         syncTelemetry.uuid = General.randomUUID();
         syncTelemetry.syncStartTime = new Date();
-        syncTelemetry.syncStatus = "incomplete"
+        syncTelemetry.syncStatus = "incomplete";
         const allEntitiesMetaData = EntityMetaData.model();
         const initialEntityStatus = {
             push: allEntitiesMetaData.map(e => ({entity: e.entityName, todo: 0, done: 0})),
@@ -43,7 +46,7 @@ class SyncTelemetry extends BaseEntity {
     }
 
     get toResource() {
-        const resource = _.pick(this, ["uuid", "syncStatus", "syncStartTime", "syncEndTime"]);
+        const resource = _.pick(this, ["uuid", "syncStatus", "syncStartTime", "syncEndTime", "appVersion", "androidVersion", "deviceName"]);
         resource.entityStatus = this.getEntityStatus();
         return resource;
     }
@@ -56,6 +59,9 @@ class SyncTelemetry extends BaseEntity {
         syncTelemetry.syncEndTime = this.syncEndTime;
         syncTelemetry.entityStatus = this.entityStatus;
         syncTelemetry.createdAt = this.createdAt;
+        syncTelemetry.appVersion = this.appVersion;
+        syncTelemetry.androidVersion = this.androidVersion;
+        syncTelemetry.deviceName = this.deviceName;
         return syncTelemetry;
     }
 

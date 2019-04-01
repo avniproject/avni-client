@@ -1,11 +1,17 @@
-import {EntityMetaData, SyncTelemetry} from "openchs-models";
+import {SyncTelemetry} from "openchs-models";
 import _ from "lodash";
-import EntityQueueService from "../service/EntityQueueService";
+import {NativeModules} from "react-native";
 import EntityService from "../service/EntityService";
+
+const {DeviceInfo} = NativeModules;
 
 class SyncActions {
     static getInitialState() {
-        return {syncTelemetry: SyncTelemetry.newInstance()}
+        const syncTelemetry = SyncTelemetry.newInstance();
+        syncTelemetry.appVersion = DeviceInfo.versionName;
+        syncTelemetry.androidVersion = DeviceInfo.releaseVersion;
+        syncTelemetry.deviceName = DeviceInfo.deviceName;
+        return {syncTelemetry};
     }
 
     static clone(state) {
