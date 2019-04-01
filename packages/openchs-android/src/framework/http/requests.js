@@ -15,7 +15,7 @@ const fetchFactory = (endpoint, method = "GET", params) => {
                 General.logError("requests", response);
                 return Promise.reject(new AuthenticationError('Http 403', response));
             }
-            return Promise.reject(new Error('HTTP error, status = ' + response.status));
+            return Promise.reject(response);
         });
 };
 

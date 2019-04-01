@@ -229,5 +229,7 @@
   "schedulingFor": "निर्धारित तारिख",
   "overdueBy": "अतिदेय तारीख",
   "percentageDone": "प्रतिशत काम",
-  "syncComplete": "सिंक पूरा हुआ"
+  "syncComplete": "सिंक पूरा हुआ",
+  "internetConnectionError" :  "कोई इंटरनेट कनेक्शन नहीं है, कृपया इंटरनेट से कनेक्ट करें।",
+  "syncServerError": "कुछ त्रुटि हुई है। कृपया कुछ देर बाद प्रयास करें।"
 }

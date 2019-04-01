@@ -48,7 +48,7 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {syncing: false, error: false};
+        this.state = {syncing: false, error: false, isConnected: true};
         this.createStyles();
         this.renderSyncModal = this.renderSyncModal.bind(this);
     }
@@ -142,7 +142,7 @@ class MenuView extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            const errorMessage = error.message.startsWith('HTTP error') ? 'An error has occurred. Please try after sometime.' : error.message;
+            const errorMessage = error.message || this.I18n.t('syncServerError');
             Alert.alert(this.I18n.t("syncError"), errorMessage, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
@@ -160,26 +160,44 @@ class MenuView extends AbstractComponent {
         }
     }
 
-    messageCallBack(syncMessage) {
-        this.setState({syncMessage});
+    onConnectionChange(isConnected) {
+        if (isConnected) {
+            this.setState({isConnected: true})
+        } else if (this.state.syncing) { //if internet disconnects in between sync show the error
+            this.setState({isConnected: false});
+            this._onError(new Error(this.I18n.t('internetConnectionError')))
+        } else {
+            this.setState({isConnected: false})
+        }
+    }
+
+    componentDidMount() {
+        NetInfo.isConnected.addEventListener('connectionChange', this._handleConnectivityChange);
+        NetInfo.isConnected.fetch().done((isConnected) => {
+            this.onConnectionChange(isConnected)
+        });
+    }
+
+    _handleConnectivityChange = (isConnected) => {
+        this.onConnectionChange(isConnected)
+    };
+
+    componentWillUnmount() {
+        NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
     }
 
     sync() {
-        const syncService = this.context.getService(SyncService);
-        const onError = this._onError.bind(this);
-        this._preSync();
-        //check for internet connection before sync starts
-        NetInfo.isConnected.fetch().then(isConnected => {
-            return isConnected ?
-                syncService.sync(
-                    EntityMetaData.model(),
-                    (progress) => this.progressBar.update(progress),
-                    (message) => this.progressMessage.messageCallBack(message)
-                )
-                :
-                new Promise((_, reject) => reject(new Error('No internet connection. Please connect to internet.')))
-        }).catch(onError);
-
+        if (this.state.isConnected) {
+            const syncService = this.context.getService(SyncService);
+            const onError = this._onError.bind(this);
+            this._preSync();
+            syncService.sync(
+                EntityMetaData.model(),
+                (progress) => this.progressBar.update(progress),
+                (message) => this.progressMessage.messageCallBack(message)).catch(onError)
+        } else {
+            this._onError(new Error(this.I18n.t('internetConnectionError')))
+        }
     }
 
     _logout = () => {

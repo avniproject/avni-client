@@ -1,4 +1,4 @@
-import {ProgressBarAndroid, Text, View,Button} from "react-native";
+import {ProgressBarAndroid, Text, View, Button} from "react-native";
 import Fonts from "./primitives/Fonts";
 import React from "react";
 import Colors from "./primitives/Colors";
@@ -27,7 +27,12 @@ class ProgressBarView extends AbstractComponent {
     }
 
     messageCallBack(syncMessage) {
-        this.setState({syncMessage});
+        //this is kept to give time to render this state when user first time login.
+        return new Promise((resolve) => {
+            this.setState({syncMessage}, () => {
+                setTimeout(resolve, 10)
+            })
+        })
     }
 
     createStyles() {
@@ -68,21 +73,16 @@ class ProgressBarView extends AbstractComponent {
                     :
                     (<View>
                         <View style={this.container}>
-                            <Text style={[this.syncTextContent, { paddingTop:7}, Fonts.typography("paperFontSubhead")]}>
+                            <Text
+                                style={[this.syncTextContent, {paddingTop: 7}, Fonts.typography("paperFontSubhead")]}>
                                 {this.I18n.t("syncComplete")}
                             </Text>
                             <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
                         </View>
-                        <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
-                                            indeterminate={false} color="green"/>
-                        <Text
-                            style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
-                            {((this.state.value) * 100).toFixed(0)}%
-                        </Text>
-                        <View style={{paddingTop: 10}}>
+                        <View style={{paddingTop: 20}}>
                             <Button
                                 title={`${this.I18n.t('ok')}`}
-                                color= {Colors.ActionButtonColor}
+                                color={Colors.ActionButtonColor}
                                 onPress={() => this.props.onPress()}/>
                         </View>
                     </View>)}

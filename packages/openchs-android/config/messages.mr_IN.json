@@ -243,5 +243,7 @@
   "Upto 20 sec": "20 सेकंद पर्यंत",
   "Amount spent by farmer for carting the silt per day": "शेतकर्यानी गाळ काढण्यासाठी दररोज केलेला खर्च",
   "percentageDone": "टक्केवारी",
-  "syncComplete": "संकालन पूर्ण"
+  "syncComplete": "संकालन पूर्ण",
+  "internetConnectionError" :  "इंटरनेट कनेक्शन नाही कृपया इंटरनेटशी कनेक्ट करा.",
+  "syncServerError": "त्रुटी आढळली आहे. कृपया काही वेळानंतर प्रयत्न करा."
 }
