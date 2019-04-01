@@ -1,9 +1,7 @@
 import {SyncTelemetry} from "openchs-models";
 import _ from "lodash";
-import {NativeModules} from "react-native";
+import DeviceInfo from "../framework/device-info";
 import EntityService from "../service/EntityService";
-
-const {DeviceInfo} = NativeModules;
 
 class SyncActions {
     static getInitialState() {
