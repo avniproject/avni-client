@@ -73,7 +73,7 @@ class DatePicker extends AbstractComponent {
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showDatePicker.bind(this, {date: date})}
+                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode :'spinner'})}
                           style={[{
                               fontSize: Fonts.Large,
                               color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError

@@ -25,7 +25,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
         return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date);
     }
 
-    async showPicker(stateKey, options) {
+    async showPicker(options) {
         const {action, year, month, day} = await DatePickerAndroid.open(options);
         if (action !== DatePickerAndroid.dismissedAction) {
             this.dispatchAction(Actions.REGISTRATION_ENTER_DOB, {value: new Date(year, month, day)});
@@ -41,7 +41,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                 </View>
                 <View style={{flexDirection: 'row'}}>
                     <Text
-                        onPress={this.showPicker.bind(this, 'simple', {date: this.props.state.individual.dateOfBirth})}
+                        onPress={this.showPicker.bind(this, {date: this.props.state.individual.dateOfBirth, mode :'spinner'})}
                         style={[DGS.formElementTextInput,
                             {
                                 marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
