@@ -32,7 +32,6 @@ class SyncActions {
         const pushEntity = _.find(entityStatus.push, e => e.entity === action.entityMetadata.entityName);
         pushEntity.done = pushEntity.done + 1;
         syncTelemetry.setEntityStatus(entityStatus);
-        // console.log(`====done ${JSON.stringify(syncTelemetry)}`);
 
         return newState;
     }
@@ -67,18 +66,17 @@ class SyncActions {
         syncTelemetry.syncStatus = "complete";
         syncTelemetry.syncEndTime = new Date();
 
-        console.log(`sync completed: ${JSON.stringify(syncTelemetry.getEntityStatus())}`);
         const entityService = context.get(EntityService);
-        entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name)
+        entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
+
         return newState;
     }
 
     static syncFailed(state, action, context) {
         const newState = SyncActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
-        console.log(`sync failed: ${JSON.stringify(syncTelemetry.uuid)}`);
         const entityService = context.get(EntityService);
-        entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name)
+        entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
         return newState;
     }
 }

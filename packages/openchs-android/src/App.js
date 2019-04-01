@@ -33,6 +33,7 @@ export default class App extends Component {
             db = new Realm(Schema);
             beans = BeanRegistry.init(db, this);
             reduxStore = AppStore.create(beans, this.handleError);
+            beans.forEach(bean => bean.setReduxStore(reduxStore));
             routes = PathRegistry.routes();
             const entitySyncStatusService = beans.get(EntitySyncStatusService);
             entitySyncStatusService.setup(EntityMetaData.model());

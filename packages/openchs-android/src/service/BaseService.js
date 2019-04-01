@@ -10,6 +10,16 @@ class BaseService {
         this.bulkSaveOrUpdate = this.bulkSaveOrUpdate.bind(this);
     }
 
+    setReduxStore(store) {
+        this.reduxStore = store;
+    }
+
+    dispatchAction(action, params) {
+        if (General.canLog(General.LogLevel.Debug))
+            General.logDebug('BaseService', `Dispatching action: ${JSON.stringify(action)}`);
+        return this.reduxStore.dispatch({"type": action, ...params});
+    }
+
     init() {
     }
 

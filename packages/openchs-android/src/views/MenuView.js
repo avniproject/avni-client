@@ -174,8 +174,7 @@ class MenuView extends AbstractComponent {
                 syncService.sync(
                     EntityMetaData.model(),
                     (progress) => this.progressBar.update(progress),
-                    (message) => this.progressMessage.messageCallBack(message),
-                    (action, params) => this.dispatchAction(action, params)
+                    (message) => this.progressMessage.messageCallBack(message)
                 )
                 :
                 new Promise((_, reject) => reject(new Error('No internet connection. Please connect to internet.')))

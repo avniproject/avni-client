@@ -45,7 +45,7 @@ class AbstractComponent extends Component {
 
     dispatchAction(action, params) {
         if (General.canLog(General.LogLevel.Debug))
-            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(action)}. Params: ${JSON.stringify(params)}`);
+            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(action)}`);
         return this.context.getStore().dispatch({"type": action, ...params});
     }
 
