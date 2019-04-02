@@ -8,6 +8,8 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {BaseEntity} from "openchs-models";
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
+import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
+import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 
 class Mixin {
     static next(view) {
