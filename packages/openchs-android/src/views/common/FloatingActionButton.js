@@ -47,7 +47,7 @@ class FloatingActionButton extends AbstractComponent {
         };
         this.floatingButtonIcon = {
             color: Colors.TextOnPrimaryColor,
-            fontSize: 54
+            fontSize: 44
         };
         this.modalOverlay = {
             flexDirection: 'column',
