@@ -47,9 +47,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     editProfile() {
-        this.props.individual.subjectType.isIndividual()
-            ? CHSNavigator.navigateToIndividualRegisterView(this, this.props.individual.uuid)
-            : CHSNavigator.navigateToSubjectRegisterView(this, this.props.individual.uuid, true);
+        CHSNavigator.navigateToRegisterView(this, this.props.individual.uuid, null, this.props.individual.subjectType);
     }
 
     renderViewEnrolmentsIfNecessary() {

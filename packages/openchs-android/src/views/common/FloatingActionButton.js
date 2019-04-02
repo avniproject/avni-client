@@ -1,9 +1,8 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from "react";
-import {View, Modal, TouchableOpacity, Text, TouchableWithoutFeedback} from 'react-native';
+import {Modal, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import Colors from "../primitives/Colors";
-import {Button} from 'native-base'
-import {Icon} from 'native-base';
+import {Button, Icon} from 'native-base'
 import Fonts from "../primitives/Fonts";
 
 class FloatingActionButton extends AbstractComponent {
@@ -39,10 +38,16 @@ class FloatingActionButton extends AbstractComponent {
             right: 30,
             bottom: 30,
             borderRadius: 150,
-            backgroundColor: Colors.AccentColor
+            backgroundColor: Colors.AccentColor,
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+            shadowOpacity: 0.8,
+            elevation: 10,
+            shadowRadius: 15 ,
+            shadowOffset : { width: 1, height: 13},
         };
         this.floatingButtonIcon = {
             color: Colors.TextOnPrimaryColor,
+            fontSize: 54
         };
         this.modalOverlay = {
             flexDirection: 'column',
@@ -52,7 +57,10 @@ class FloatingActionButton extends AbstractComponent {
         this.modalContent = {
             flex: 1,
             flexDirection: 'column-reverse',
-            padding: 20,
+            // padding: 20,
+            position: 'absolute',
+            right: 30,
+            bottom: 30,
         };
         this.buttonStyle = {
             backgroundColor: '#e0e0e0',
@@ -118,11 +126,11 @@ class FloatingActionButton extends AbstractComponent {
 
     render() {
         return (
-            <View>
+            <View style={this.floatingButton}>
                 <TouchableOpacity activeOpacity={0.5}
                                   onPress={() => this.onPress()}
-                                  style={this.floatingButton}>
-                    <Icon name="add" size={40} style={this.floatingButtonIcon}/>
+                                  style={{borderRadius: 150, backgroundColor: Colors.AccentColor}}>
+                    <Icon name="add" style={this.floatingButtonIcon}/>
                 </TouchableOpacity>
                 {this.renderModal()}
             </View>

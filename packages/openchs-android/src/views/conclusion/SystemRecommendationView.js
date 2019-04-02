@@ -58,7 +58,7 @@ class SystemRecommendationView extends AbstractComponent {
             }
         }
         const applicableScheduledVisit = this.props.nextScheduledVisits.find((visit)=> {
-            return moment().isBetween(visit.earliestDate, visit.maxDate);
+            return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
         });
         if (applicableScheduledVisit) {
             return {

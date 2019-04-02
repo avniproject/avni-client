@@ -1,18 +1,12 @@
 import FloatingActionButton from "../common/FloatingActionButton";
-import CHSNavigator from "../../utility/CHSNavigator";
 import {Text, TouchableOpacity} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ProgramService from "../../service/program/ProgramService";
-import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
-import ObservationsHolder from "openchs-models/src/ObservationsHolder";
 import Colors from "../primitives/Colors";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import SystemRecommendationView from "../conclusion/SystemRecommendationView";
-import IndividualRegisterFormView from "./IndividualRegisterFormView";
-import IndividualRegisterView from "./IndividualRegisterView";
-import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
-import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
+import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
+import EntityService from "../../service/EntityService";
+import SubjectType from "openchs-models/src/SubjectType";
 
 export default class RegistrationFAB extends AbstractComponent {
     static propTypes = {
@@ -22,6 +16,8 @@ export default class RegistrationFAB extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.createStyles();
+        const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
+        this.subjectType = subjectType;
     }
 
     componentWillMount() {
@@ -37,7 +33,6 @@ export default class RegistrationFAB extends AbstractComponent {
             width: 40,
             height: 40,
             borderRadius: 80,
-            backgroundColor: Colors.AccentColor,
             elevation: 2,
             marginBottom: 10,
             marginLeft: 6
@@ -45,59 +40,36 @@ export default class RegistrationFAB extends AbstractComponent {
         this.textStyle = {
             color: Colors.TextOnPrimaryColor,
             fontFamily: 'FontAwesome',
-            fontWeight: 'bold',
+            fontWeight: 'normal',
             textAlign: 'justify',
-            lineHeight: 25,
-            fontSize: 30,
-            padding: 5,
+            lineHeight: 30,
+            fontSize: 28,
+            padding: 8,
         }
     }
 
-    renderIcon(icon) {
-        return (<TouchableOpacity disabled={true} style={this.iconStyle}>
+    renderIcon(icon, style = {}) {
+        return (<TouchableOpacity disabled={true} style={[style, this.iconStyle]}>
             <Text style={this.textStyle}>{icon}</Text>
         </TouchableOpacity>);
     }
 
-    navigateToMultipleRegistrations() {
-        const onSaveCallback = (recommendationsView) => {
-            TypedTransition
-                .from(recommendationsView)
-                .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
-                    IndividualRegisterView, {params:{onSaveCallback}}, true);
-        };
-        CHSNavigator.navigateToIndividualRegisterView(this, null, null, onSaveCallback);
-    }
-
-    navigateToRegistrationThenProgramEnrolmentView(program) {
-        CHSNavigator.navigateToIndividualRegisterView(this, null, {
-            label: 'saveAndEnrol',
-            fn: recommendationView => this.navigateToProgramEnrolmentView(recommendationView.props.individual, program)
-        })
-    }
-
-    navigateToProgramEnrolmentView(individual, program) {
-        TypedTransition.from(this.props.parent).wizardCompleted(
-            [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
-            ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual, program})}, true);
-    }
-
     get actions() {
         const registrationAndEnrolmentActions = this.state.programs.map(program => ({
-            fn: () => this.navigateToRegistrationThenProgramEnrolmentView(program),
-            icon: this.renderIcon(program.name[0]),
-            label: program.name
+            fn: () => IndividualRegisterViewsMixin.navigateToRegistrationThenProgramEnrolmentView(this, program, this.props.parent, this.subjectType),
+            icon: this.renderIcon(program.name[0], {backgroundColor: program.colour}),
+            label: program.name,
         }));
         const registrationsAction = {
-            fn: () => this.navigateToMultipleRegistrations(),
-            icon: this.renderIcon('R'),
-            label: 'Individual'
+            fn: () => IndividualRegisterViewsMixin.navigateToRegistration(this, this.subjectType),
+            icon: this.renderIcon('R', {backgroundColor: Colors.AccentColor}),
+            label: this.subjectType.name
         };
         return _.concat([], [registrationsAction], registrationAndEnrolmentActions);
     }
 
     render() {
-        return <FloatingActionButton actions={this.actions}/>
+        return <FloatingActionButton actions={this.subjectType? this.actions: []}/>
     }
 
 }

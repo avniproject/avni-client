@@ -15,6 +15,7 @@ import bugsnag from "../utility/bugsnag";
 import General from "../utility/General";
 import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
+import RegistrationFAB from "./individual/RegistrationFAB";
 
 
 @Path('/landingView')
@@ -54,17 +55,16 @@ class LandingView extends AbstractComponent {
         General.logDebug("LandingView", "render");
         return (
             <CHSContainer theme={themes}>
-                <CHSContent>
-                    <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                    <Tabs ref={ t => this._tabs = t }>
-                        <IndividualSearchView
-                            tabLabel={this.I18n.t('home')}
-                            tabStyle={{backgroundColor: 'red'}}
-                            onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                        />
-                        <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
-                    </Tabs>
-                </CHSContent>
+                <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
+                <Tabs ref={ t => this._tabs = t }>
+                    <IndividualSearchView
+                        tabLabel={this.I18n.t('home')}
+                        tabStyle={{backgroundColor: 'red'}}
+                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                    />
+                    <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
+                </Tabs>
+                <RegistrationFAB parent={this}/>
             </CHSContainer>
         );
     }

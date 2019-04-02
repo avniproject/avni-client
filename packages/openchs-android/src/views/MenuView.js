@@ -95,10 +95,6 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(SettingsView);
     }
 
-    registrationView() {
-        const isIndividual = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0].isIndividual();
-        return isIndividual ? CHSNavigator.navigateToIndividualRegisterView(this) : CHSNavigator.navigateToSubjectRegisterView(this);
-    }
 
     changePasswordView() {
         CHSNavigator.navigateToChangePasswordView(this);
@@ -304,7 +300,7 @@ class MenuView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            [Icon(registerIcon), this.I18n.t("register"), this.registrationView.bind(this)],
+            // [Icon(registerIcon), this.I18n.t("register"), this.registrationView.bind(this)],
             [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
@@ -324,7 +320,8 @@ class MenuView extends AbstractComponent {
             <CHSContent>
                 <View style={{
                     flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
-                    height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground
+                    height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground,
+                    // paddingBottom: 120
                 }}>
                     {this.renderSyncModal()}
                     {MenuItems}

@@ -7,26 +7,26 @@ import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {BaseEntity} from "openchs-models";
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
+import SubjectRegisterView from "../subject/SubjectRegisterView";
 
-class IndividualRegisterViewsMixin {
+class Mixin {
     static next(view) {
         if (view.scrollToTop)
             view.scrollToTop();
 
-        const {stitches, onSaveCallback} = view.props.params;
+        const {stitches} = view.props.params;
 
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
-                const _onSaveCallback = onSaveCallback || ((source) => {
-                    // CHSNavigator.navigateToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
-                    IndividualRegisterViewsMixin.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
+                const onSaveCallback = ((source) => {
+                    Mixin.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
                 });
-                const headerMessage = `${view.I18n.t('registration', {subjectName:'Individual'})} - ${view.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, _onSaveCallback, headerMessage, null, null, null, stitches);
+                const headerMessage = `${view.I18n.t('registration', {subjectName: 'Individual'})} - ${view.I18n.t('summaryAndRecommendations')}`;
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null, stitches);
             },
             movedNext: (state) => {
                 if (state.wizard.isFirstFormPage())
-                    TypedTransition.from(view).with({stitches, onSaveCallback}).to(IndividualRegisterFormView);
+                    TypedTransition.from(view).with({stitches}).to(IndividualRegisterFormView);
             },
             validationFailed: (newState) => {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
@@ -42,9 +42,32 @@ class IndividualRegisterViewsMixin {
             .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
                 ProgramEnrolmentDashboardView, {individualUUID}, true);
     }
+
+    static navigateToRegistration(source, subjectType) {
+        const stitches = {label: source.I18n.t('anotherRegistration', {subject: subjectType.name})};
+        const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
+        stitches.fn = (recommendationsView) => {
+            TypedTransition
+                .from(recommendationsView)
+                .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
+                    target, {params: {stitches}}, true);
+        };
+        CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
+    }
+
+    static navigateToRegistrationThenProgramEnrolmentView(source, program, goBackTo, subjectType) {
+        CHSNavigator.navigateToRegisterView(source, null, {
+            label: source.I18n.t('saveAndEnrol', {program: program.name}),
+            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program)
+        }, subjectType);
+    }
+
+    static navigateToProgramEnrolmentView(source, individual, program) {
+        TypedTransition.from(source).wizardCompleted(
+            [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+            ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual, program})}, true);
+    }
+
 }
 
-export default IndividualRegisterViewsMixin;
-
-//1. enrol only when no enrolment exists
-//2. provide back function to go back to the Initial page. can be MenuPage/SearchPage
+export default Mixin;

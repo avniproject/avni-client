@@ -26,7 +26,7 @@ class IndividualFormElement extends AbstractFormElement {
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 36};
 
     register(){
-        CHSNavigator.navigateToIndividualRegisterView(this);
+        CHSNavigator.navigateToRegisterView(this);
     }
 
     search(){

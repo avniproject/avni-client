@@ -57,7 +57,8 @@ class SubjectRegisterView extends AbstractComponent {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.subject.uuid, null, true);
                 };
                 const headerMessage = `${this.I18n.t('registration', {subjectName:state.subject.subjectType.name})} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
+                    null,null,null, this.props.params.stitches);
             },
             movedNext: this.scrollToTop
         });

@@ -224,5 +224,7 @@
   "percentageDone": "Percentage Done",
   "syncComplete": "Sync Complete ",
   "internetConnectionError" :  "No internet connection. Please connect to internet.",
-  "syncServerError": "An error has occurred. Please try after sometime."
+  "syncServerError": "An error has occurred. Please try after sometime.",
+  "saveAndEnrol": "Save and proceed to {{program}}",
+  "anotherRegistration": "Register another {{subject}}"
 }

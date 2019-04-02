@@ -47,7 +47,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn) {
         const from = TypedTransition.from(source);
         if (isFromWizard) {
-            from.wizardCompleted([SystemRecommendationView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
+            from.wizardCompleted([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
                 individualUUID: individualUUID,
                 enrolmentUUID: selectedEnrolmentUUID
             }, true);
@@ -84,12 +84,9 @@ class CHSNavigator {
         TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
     }
 
-    static navigateToIndividualRegisterView(source, individualUUID, stitches, onSaveCallback) {
-        TypedTransition.from(source).with({individualUUID, stitches, onSaveCallback}).to(IndividualRegisterView);
-    }
-
-    static navigateToIndividualSearchView(source, onIndividualSelection) {
-        TypedTransition.from(source).with({onIndividualSelection: onIndividualSelection}).to(IndividualSearchView, true);
+    static navigateToRegisterView(source, uuid, stitches, subjectType) {
+        const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
+        TypedTransition.from(source).with({subjectUUID: uuid, individualUUID: uuid, editing: !_.isNil(uuid), stitches}).to(target);
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing=false) {
@@ -165,9 +162,6 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(VideoPlayerView, true);
     }
 
-    static navigateToSubjectRegisterView(source, subjectUUID, editing=false) {
-        TypedTransition.from(source).with({subjectUUID, editing}).to(SubjectRegisterView);
-    }
 }
 
 export default CHSNavigator;
