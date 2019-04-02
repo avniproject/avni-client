@@ -986,13 +986,16 @@
     "ACT Tablets": "ऐसीटी",
     "Available malaria treatment tablets": "उपलब्ध मलेरिया औषध",
     "Drug information": "औषध माहिती",
-    "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?"
+    "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?",
+    "saveAndProceedEncounter": "जतन करा आणि {{enc}} वर जा",
+    "saveAndEnrol": "जतन करा आणि {{program}} वर जा",
+    "anotherRegistration": "दुसरी {{subject}} नोंदणी करा"
   },
   "en": {
     "LOGIN": "Login",
     "logout": "Logout",
     "Show password": "Show password",
-    "Forgot Password":"Forgot Password",
+    "Forgot Password": "Forgot Password",
     "logoutConfirmationTitle": "Are You Sure?",
     "logoutConfirmationMessage": "If you log out, you will need to login again with the internet to continue using the app.\n",
     "logoutConfirmed": "Logout",
@@ -1135,13 +1138,15 @@
     "IHMP Pregnancy PNC Complications Counselling": "If a woman reports any postnatal complication at any point of time to the ASHA\n✓ Cousel her regarding solution and refer her to appropriate facility",
     "IHMP ASHA counselling for pregnancy confirmed and not registered for ANC": "Counselling for pregnancy confirmed and not registered for ANC\n✓Use MCH card number 1 and counsel her to get herself registered for antenatal care",
     "IHMP ASHA counselling for monthly antenatal checkup": "Counselling for monthly antenatal checkup\n✓Use MCH card number 2 & 3 - Educate the woman regarding the 11 complications during pregnancy and counsel her to inform the ASHA if she notices any complication. Counsel her that these complications can arise any woman at any time and tell her importance of monthly antenatal check up",
-    "IHMP ASHA counselling during every contact" : "Counselling during every contact\n✓Use MCH card number 4 - Counsel her regarding need specific (refer summary) antenatal services\n✓Use MCH card number 5 to counsel her about  care during pregnancy at household level  - diet, rest, workload and breast care",
-    "IHMP ASHA counselling during every contact post 7th month" : "Counselling during every contact post 7th month\n✓Use MCH card number 6 to counsel the pregnant mother regarding preparations for delivery",
-    "IHMP ASHA counselling regarding preparations for delivery" : "Counselling regarding preparations for delivery\n✓Use MCH card number 6 to counsel the pregnant mother regarding preparations for delivery\n✓Use MCH card number 7 to inform the woman regarding potential complications during delivery and hence importance of hospital delivery",
-    "IHMP ASHA counselling during every contact post registration" : "Counselling during every contact post registration\n✓Use MCH card number 8 to inform the pregnant mother regarding her entitlements such as JSY and Pradhanmantri Matrutva Vandan Yojana",
-    "IHMP ASHA counselling during every contact post 8th month" : "Counselling during every contact post 8th month\n✓Use FP card number 7 and 10 - Counsel pregnant woman to start using FP method such as condom, Copper T, or sterlization operation immediatly after delivery",
+    "IHMP ASHA counselling during every contact": "Counselling during every contact\n✓Use MCH card number 4 - Counsel her regarding need specific (refer summary) antenatal services\n✓Use MCH card number 5 to counsel her about  care during pregnancy at household level  - diet, rest, workload and breast care",
+    "IHMP ASHA counselling during every contact post 7th month": "Counselling during every contact post 7th month\n✓Use MCH card number 6 to counsel the pregnant mother regarding preparations for delivery",
+    "IHMP ASHA counselling regarding preparations for delivery": "Counselling regarding preparations for delivery\n✓Use MCH card number 6 to counsel the pregnant mother regarding preparations for delivery\n✓Use MCH card number 7 to inform the woman regarding potential complications during delivery and hence importance of hospital delivery",
+    "IHMP ASHA counselling during every contact post registration": "Counselling during every contact post registration\n✓Use MCH card number 8 to inform the pregnant mother regarding her entitlements such as JSY and Pradhanmantri Matrutva Vandan Yojana",
+    "IHMP ASHA counselling during every contact post 8th month": "Counselling during every contact post 8th month\n✓Use FP card number 7 and 10 - Counsel pregnant woman to start using FP method such as condom, Copper T, or sterlization operation immediatly after delivery",
     "IHMP Diarrohea Councelling": "✓Give mother ORS \n✓Counsel her how to prepare ORS at home \n✓Counsel her regarding hand washing and food hygiene",
-    "saveAndProceedEncounter": "Save and proceed to {{enc}}"
+    "saveAndProceedEncounter": "Save and proceed to {{enc}}",
+    "saveAndEnrol": "Save and proceed to {{program}}",
+    "anotherRegistration": "Register another {{subject}}"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
@@ -1535,7 +1540,10 @@
     "Have you used Mitra helpline in last 3 months?": "શું તમે છેલ્લા 3 મહિનામાં મિત્ર હેલ્પલાઇન નો ઉપયોગ કર્યો છે?",
     "Used Mitra Helpline": "મિત્ર હેલ્પલાઇન નો ઉપયોગ",
     "Are you satisfied with the counseling service provided through helpline?": "શું તમે હેલ્પલાઇન દ્વારા પૂરી પાડવામાં આવતી સલાહ સેવાથી સંતુષ્ટ છો?",
-    "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ"
+    "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ",
+    "saveAndProceedEncounter": "સાચવો અને {{enc}} પર આગળ વધો",
+    "saveAndEnrol": "સાચવો અને {{program}} પર આગળ વધો",
+    "anotherRegistration": "અન્ય {{subject}} નોંધણી કરો"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
@@ -2905,6 +2913,9 @@
     "Which other facility was pregnancy care received from?": "गर्भावस्था देखभाल कौन सी अन्य संस्था से प्राप्त हुई थी?",
     "Which other facility was weighing service availed from?": "किस अन्य संस्था से वज़न लिया था?",
     "Which other family planning methods are being used?": "कौन सी अन्य परिवार नियोजन विधियों का उपयोग किया जा रहा है?",
-    "Area": "क्षेत्र (एरिया)"
+    "Area": "क्षेत्र (एरिया)",
+    "saveAndProceedEncounter": "सहेजें और {{enc}}} पर आगे बढ़ें",
+    "saveAndEnrol": "सहेजें और {{program}} पर आगे बढ़ें",
+    "anotherRegistration": "एक और रजिस्टर {{subject}}"
   }
 }
