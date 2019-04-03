@@ -22,6 +22,7 @@ import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import moment from "moment";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -38,11 +39,16 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        const {encounterTypeName, enrolmentUUID} = this.props.params;
-        const programEncounter = this.props.params.programEncounter ||
-            this.context.getService(ProgramEncounterService).findDueEncounter({encounterTypeName, enrolmentUUID});
-
-        this.dispatchAction(Actions.ON_LOAD, {programEncounter});
+        const {encounterTypeName, enrolmentUUID, programEncounter} = this.props.params;
+        if (programEncounter) {
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter});
+            return super.componentWillMount();
+        }
+        const programEncounterByType = this.context.getService(ProgramEncounterService)
+            .findDueEncounter({encounterTypeName, enrolmentUUID})
+            .cloneForEdit();
+        programEncounterByType.encounterDateTime = moment().toDate();
+        this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType});
         return super.componentWillMount();
     }
 
