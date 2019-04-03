@@ -59,12 +59,12 @@ class SyncService extends BaseService {
             : steps;
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, dispatch) {
+    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
 
         const onProgressPerEntity = (entityType) => progressBarStatus.onComplete(entityType);
         const onAfterMediaPush = (entityType) => progressBarStatus.onComplete(entityType);
 
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, dispatch);
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
@@ -76,12 +76,12 @@ class SyncService extends BaseService {
         return mediaUploadRequired ?
             firstDataServerSync
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media')))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, dispatch))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush))
                 .then(() => this.dispatchAction(SyncActions.SYNC_COMPLETED))
-                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity, dispatch))
+                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             : firstDataServerSync
                 .then(() => this.dispatchAction(SyncActions.SYNC_COMPLETED))
-                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity, dispatch));
+                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity));
     }
 
     imageSync(statusMessageCallBack) {
@@ -104,7 +104,7 @@ class SyncService extends BaseService {
             .then(() => this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, onProgressPerEntity))
     }
 
-    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, dispatch) {
+    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush) {
 
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
@@ -113,18 +113,18 @@ class SyncService extends BaseService {
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
 
             .then(() => statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity, dispatch))
+            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media.Push"))
 
             .then(() => statusMessageCallBack("downloadForms"))
-            .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity, dispatch))
+            .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getData(allTxEntityMetaData, onProgressPerEntity, dispatch))
+            .then(() => this.getData(allTxEntityMetaData, onProgressPerEntity))
 
     }
 
-    getData(entitiesMetadata, afterAllInEachTypePulled, dispatch) {
+    getData(entitiesMetadata, afterAllInEachTypePulled) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => Object.assign({
