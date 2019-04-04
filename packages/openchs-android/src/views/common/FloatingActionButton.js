@@ -3,7 +3,6 @@ import React from "react";
 import {Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import Colors from "../primitives/Colors";
 import {Button, Icon} from 'native-base'
-import Fonts from "../primitives/Fonts";
 import Styles from "../primitives/Styles";
 
 class FloatingActionButton extends AbstractComponent {
@@ -79,8 +78,8 @@ class FloatingActionButton extends AbstractComponent {
                 }}>
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
-                            {this.renderPrimaryAction()}
-                            {this.renderActions()}
+                            {!_.isEmpty(this.props.primaryAction) && this.renderPrimaryAction()}
+                            {!_.isEmpty(this.props.actions) && this.renderActions()}
                         </View>
                     </View>
                 </TouchableWithoutFeedback>

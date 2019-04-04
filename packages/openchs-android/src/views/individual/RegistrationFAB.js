@@ -45,7 +45,7 @@ export default class RegistrationFAB extends AbstractComponent {
     }
 
     render() {
-        return <FloatingActionButton actions={this.subjectType? this.actions: []} primaryAction={this.primaryAction}/>
+        return <FloatingActionButton actions={this.subjectType? this.actions: []} primaryAction={this.subjectType? this.primaryAction: {}}/>
     }
 
 }
