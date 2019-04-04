@@ -81,7 +81,7 @@
   "confirm": "Confirm",
   "generalHistory": "General History",
   "noEncounters": "No previous visits",
-  "registration": "{{subjectName}} Registration",
+  "registration": "{{type}} Registration",
   "mandatory": "MANDATORY",
   "enrolmentDate": "Enrolment Date",
   "exitDate": "Exit Date",

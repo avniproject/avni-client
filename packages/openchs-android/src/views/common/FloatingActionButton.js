@@ -156,7 +156,7 @@ const styles = {
         bottom: 30,
     },
     actionButton: {
-        backgroundColor: 'none',
+        backgroundColor: 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
     },

@@ -37,6 +37,11 @@ class IndividualRegisterView extends AbstractComponent {
         return 'IndividualRegisterView';
     }
 
+    get registrationType() {
+        console.log('came here', _.get(this.props.params.stitches, 'registrationType', 'Individual'));
+        return _.get(this.props.params.stitches, 'registrationType', 'Individual');
+    }
+
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
         super.componentWillMount();
@@ -52,7 +57,7 @@ class IndividualRegisterView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration', {subjectName:'Individual'})}/>
+                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',

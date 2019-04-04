@@ -15,6 +15,7 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import _ from "lodash";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -26,6 +27,10 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
+    }
+
+    get registrationType() {
+        return _.get(this.props.params.stitches, 'registrationType', 'Individual');
     }
 
     onHardwareBackPress() {
@@ -53,7 +58,7 @@ class IndividualRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration', {subjectName: 'Individual'})}
+                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}

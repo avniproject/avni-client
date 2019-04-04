@@ -31,8 +31,8 @@ export default class RegistrationFAB extends AbstractComponent {
     get actions() {
         return this.state.programs.map(program => ({
             fn: () => IndividualRegisterViewsMixin.navigateToRegistrationThenProgramEnrolmentView(this, program, this.props.parent, this.subjectType),
-            icon: FAB.Action(program.name[0], {backgroundColor: program.colour}),
-            label: program.name,
+            icon: FAB.Action(program.displayName[0], {backgroundColor: program.colour}),
+            label: program.displayName,
         }));
     }
 
