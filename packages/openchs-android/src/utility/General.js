@@ -184,6 +184,10 @@ class General {
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
 
+    static datesAreSame(a, b) {
+        return moment(a).isSame(moment(b), 'day');
+    }
+
     static dateAIsAfterB(a, b) {
         if (_.isNil(a) || _.isNil(b)) return false;
         return moment(General.dateWithoutTime(a)).isAfter(General.dateWithoutTime(b));

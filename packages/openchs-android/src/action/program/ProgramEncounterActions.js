@@ -8,6 +8,7 @@ import {ProgramEncounter, Form, Point} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
+import General from "../../utility/General";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -74,7 +75,23 @@ class ProgramEncounterActions {
 
         context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment);
         const service = context.get(ProgramEncounterService);
-        service.saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
+
+        const scheduledVisits = [];
+        const existingScheduledVisits = newState.programEncounter.getAllScheduledVisits();
+
+        action.nextScheduledVisits.forEach(nextVisit => {
+            const existingVisit = _.find(existingScheduledVisits, e => e.uuid === nextVisit.uuid);
+            if (
+                _.isNil(existingVisit) ||
+                !General.datesAreSame(existingVisit.earliestDate, nextVisit.earliestDate) ||
+                !General.datesAreSame(existingVisit.maxDate, nextVisit.maxDate) ||
+                existingVisit.name !== nextVisit.name
+            ) {
+                scheduledVisits.push(nextVisit);
+            }
+        });
+
+        service.saveOrUpdate(newState.programEncounter, scheduledVisits);
 
         action.cb(newState.programEncounter.programEnrolment);
         return newState;

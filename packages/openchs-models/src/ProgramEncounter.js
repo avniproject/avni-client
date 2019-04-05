@@ -189,6 +189,7 @@ class ProgramEncounter extends AbstractEncounter {
             uuid: this.uuid,
             name: this.name,
             encounterType: this.encounterType,
+            earliestVisitDateTime: this.earliestVisitDateTime,
             maxVisitDateTime: this.maxVisitDateTime,
             encounterDateTime: this.encounterDateTime,
             programEnrolmentUUID: this.programEnrolment.uuid,
