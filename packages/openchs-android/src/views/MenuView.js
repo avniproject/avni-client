@@ -139,7 +139,7 @@ class MenuView extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            const errorMessage = error instanceof ServerError ? this.I18n.t('syncServerError') : error.message;
+            const errorMessage = error instanceof ServerError ? this.I18n.t('syncServerError') : this.I18n.t(error.message);
             Alert.alert(this.I18n.t("syncError"), errorMessage, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
@@ -158,13 +158,8 @@ class MenuView extends AbstractComponent {
     }
 
     onConnectionChange(isConnected) {
-        if (isConnected) {
-            this.setState({isConnected: true})
-        } else if (this.state.syncing) { //if internet disconnects in between sync show the error
-            this.setState({isConnected: false});
-            this._onError(new Error(this.I18n.t('internetConnectionError')))
-        } else {
-            this.setState({isConnected: false})
+        if(!this.state.syncing){
+            isConnected ? this.setState({isConnected: true}) : this.setState({isConnected: false});
         }
     }
 
@@ -193,7 +188,7 @@ class MenuView extends AbstractComponent {
                 (progress) => this.progressBar.update(progress),
                 (message) => this.progressMessage.messageCallBack(message)).catch(onError)
         } else {
-            this._onError(new Error(this.I18n.t('internetConnectionError')))
+            this._onError(new Error('internetConnectionError'))
         }
     }
 

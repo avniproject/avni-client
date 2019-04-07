@@ -24,7 +24,7 @@ const fetchWithTimeOut = (url, options, timeout = 60000) => {
     return Promise.race([
         fetch(url, options),
         new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Sorry it's taking too long. Please try after sometime")), timeout)
+            setTimeout(() => reject(new Error("syncTimeoutError")), timeout)
         )
     ]);
 };
