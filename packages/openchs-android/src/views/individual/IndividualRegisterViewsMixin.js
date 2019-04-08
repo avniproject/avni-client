@@ -42,7 +42,7 @@ class Mixin {
         TypedTransition
             .from(recommendationsView)
             .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
-                ProgramEnrolmentDashboardView, {individualUUID}, true);
+                ProgramEnrolmentDashboardView, {individualUUID, message: recommendationsView.I18n.t("registrationSavedMsg")}, true,);
     }
 
     static navigateToRegistration(source, subjectType) {
@@ -52,7 +52,7 @@ class Mixin {
             TypedTransition
                 .from(recommendationsView)
                 .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
-                    target, {params: {stitches}}, true);
+                    target, {params: {stitches}, message : source.I18n.t('registrationCompleteProceedToNextRegMsg')}, true);
         };
         CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
     }
@@ -61,14 +61,14 @@ class Mixin {
         CHSNavigator.navigateToRegisterView(source, null, {
             registrationType: program.displayName,
             label: source.I18n.t('saveAndEnrol'),
-            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program)
+            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program, source.I18n.t('registrationCompleteProceedToEnrolmentMsg',{enl: program.displayName}))
         }, subjectType);
     }
 
-    static navigateToProgramEnrolmentView(source, individual, program) {
+    static navigateToProgramEnrolmentView(source, individual, program,message) {
         TypedTransition.from(source).wizardCompleted(
             [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
-            ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual, program})}, true);
+            ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual, program}),message}, true);
     }
 
 }

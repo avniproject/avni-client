@@ -25,6 +25,7 @@ import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
+import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 
 
 class CHSNavigator {
@@ -44,12 +45,13 @@ class CHSNavigator {
         }).to(ProgramEnrolmentView, true);
     }
 
-    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn) {
+    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         if (isFromWizard) {
             from.wizardCompleted([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
                 individualUUID: individualUUID,
-                enrolmentUUID: selectedEnrolmentUUID
+                enrolmentUUID: selectedEnrolmentUUID,
+                message,
             }, true);
         } else {
             from.with({individualUUID: individualUUID, backFunction: backFn}).to(ProgramEnrolmentDashboardView, true);
@@ -68,8 +70,8 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter, editing=false, encounterTypeName, enrolmentUUID) {
-        TypedTransition.from(source).with({programEncounter: programEncounter, editing, encounterTypeName, enrolmentUUID}).to(ProgramEncounterView);
+    static navigateToProgramEncounterView(source, programEncounter, editing=false, encounterTypeName, enrolmentUUID, message) {
+        TypedTransition.from(source).with({programEncounter: programEncounter, editing, encounterTypeName, enrolmentUUID, message}).to(ProgramEncounterView);
     }
 
     static navigateToChecklistItemView(source, checklistItem) {
@@ -84,9 +86,9 @@ class CHSNavigator {
         TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
     }
 
-    static navigateToRegisterView(source, uuid, stitches, subjectType) {
+    static navigateToRegisterView(source, uuid, stitches, subjectType, message) {
         const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
-        TypedTransition.from(source).with({subjectUUID: uuid, individualUUID: uuid, editing: !_.isNil(uuid), stitches}).to(target);
+        TypedTransition.from(source).with({subjectUUID: uuid, individualUUID: uuid, editing: !_.isNil(uuid), stitches, message}).to(target);
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing=false) {
@@ -97,11 +99,14 @@ class CHSNavigator {
         }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, message) {
         const onSaveCallback = (source) => {
-            TypedTransition.from(source).popToBookmark();
+            TypedTransition
+                .from(source)
+                .wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
+                    ProgramEnrolmentDashboardView, {individualUUID: encounter.individual.uuid, message}, true,);
         };
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form);
+        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, null);
     }
 
     static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, saveAndProceed) {

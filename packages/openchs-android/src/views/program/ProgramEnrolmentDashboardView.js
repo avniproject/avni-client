@@ -1,4 +1,4 @@
-import {View, ScrollView} from "react-native";
+import {View, ScrollView, ToastAndroid} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -46,6 +46,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
         this.getForm = this.getForm.bind(this);
+        this.state= {displayed:true}
     }
 
     componentWillMount() {
@@ -144,12 +145,20 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             </View>);
     }
 
+    displayMessage(message) {
+        if (message && this.state.displayed){
+            ToastAndroid.show(message, ToastAndroid.SHORT);
+            this.setState({displayed:false})
+        }
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
+        this.displayMessage(this.props.message || this.props.params && this.props.params.message);
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>

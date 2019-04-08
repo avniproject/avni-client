@@ -230,6 +230,13 @@
   "syncTimeoutError": "માફ કરશો તે ખૂબ લાંબો સમય લઈ રહ્યું છે. કૃપા કરીને તમારું ઇન્ટરનેટ કનેક્શન તપાસો.",
   "saveAndProceedEncounter": "સાચવો અને {{enc}} પર આગળ વધો",
   "saveAndEnrol": "પ્રોગ્રામમાં સાચવો અને નોંધણી કરો",
-  "anotherRegistration": "અન્ય {{subject}} નોંધણી કરો"
-
+  "anotherRegistration": "અન્ય {{subject}} નોંધણી કરો",
+  "registrationSavedMsg": "નોંધણી પૂર્ણ થઈ",
+  "registrationCompleteProceedToNextRegMsg" : "નોંધણી પૂર્ણ થઈ",
+  "registrationCompleteProceedToEnrolmentMsg" : "નોંધણી પૂર્ણ થઈ",
+  "enrolmentSavedMsg": "{{programName}} સાચવેલ",
+  "enrolmentExitMsg": "{{programName}} બહાર ગયું",
+  "encounterSavedMsg" : "{{encounterName}} સાચવેલ",
+  "encounterCanceledMsg": "{{encounterName}} રદ કરો",
+  "programSavedProceedEncounterMsg" : "{{programName}} પૂર્ણ"
 }

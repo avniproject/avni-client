@@ -246,5 +246,14 @@
   "syncComplete": "संकालन पूर्ण",
   "internetConnectionError" :  "इंटरनेट कनेक्शन नाही कृपया इंटरनेटशी कनेक्ट करा.",
   "syncServerError": "त्रुटी आढळली आहे. कृपया काही वेळानंतर प्रयत्न करा.",
-  "syncTimeoutError": "क्षमस्व ते खूप वेळ घेत आहे. कृपया आपले इंटरनेट कनेक्शन तपासा."
+  "syncTimeoutError": "क्षमस्व ते खूप वेळ घेत आहे. कृपया आपले इंटरनेट कनेक्शन तपासा.",
+  "tryAgain": "पुन्हा प्रयत्न करा",
+  "registrationSavedMsg": "नोंदणी पूर्ण",
+  "registrationCompleteProceedToNextRegMsg" : "नोंदणी पूर्ण",
+  "registrationCompleteProceedToEnrolmentMsg" : "नोंदणी पूर्ण",
+  "enrolmentSavedMsg": "{{programName}} जतन",
+  "enrolmentExitMsg": "{{programName}} बाहेर आला",
+  "encounterSavedMsg" : "{{encounterName}} जतन",
+  "encounterCanceledMsg": "{{encounterName}} कॅन्सल हुआ",
+  "programSavedProceedEncounterMsg" : "{{programName}} पूर्ण"
 }

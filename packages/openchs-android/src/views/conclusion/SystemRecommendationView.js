@@ -65,7 +65,7 @@ class SystemRecommendationView extends AbstractComponent {
             return {
                 label: this.I18n.t('saveAndProceedEncounter', {enc: applicableScheduledVisit.name}),
                 func: () => this.save((programEnrolment) => {
-                    CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType, programEnrolment.uuid);
+                    CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType, programEnrolment.uuid, this.I18n.t('programSavedProceedEncounterMsg', {programName : programEnrolment.program.name, enc: applicableScheduledVisit.encounterType}));
                 }),
                 visible: this.props.validationErrors.length === 0,
             };
@@ -82,6 +82,7 @@ class SystemRecommendationView extends AbstractComponent {
                 decisions: this.props.decisions,
                 checklists: this.props.checklists,
                 nextScheduledVisits: this.props.nextScheduledVisits,
+                message: this.props.message,
                 cb,
                 error: (message) => this.showError(message)
             });

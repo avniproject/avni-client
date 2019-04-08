@@ -7,6 +7,7 @@ import {ProgramEnrolment} from "openchs-models";
 import ProgramEnrolmentState from "../../action/program/ProgramEnrolmentState";
 import Reducers from "../../reducer";
 import General from "../../utility/General";
+import {ToastAndroid} from "react-native";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -24,6 +25,7 @@ class ProgramEnrolmentView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolment);
+        this.state = {displayed:true};
     }
 
     viewName() {
@@ -50,8 +52,15 @@ class ProgramEnrolmentView extends AbstractComponent {
         
     }
 
+    displayMessage(message) {
+        if (message && this.state.displayed){
+            ToastAndroid.show(message, ToastAndroid.SHORT);
+            this.setState({displayed:false})
+        }
+    }
     render() {
         General.logDebug(this.viewName(), 'render');
+        this.displayMessage(this.props.message);
         return <ProgramFormComponent editing={this.props.editing} state={this.state}
                                      context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}
                                      previous={() => this.previous()}/>;

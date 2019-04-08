@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {ToastAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -31,6 +31,7 @@ class IndividualRegisterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
         this.formRow = {marginTop: Distances.ScaledVerticalSpacingBetweenFormElements};
+        this.state = {displayed:true};
     }
 
     viewName() {
@@ -51,9 +52,17 @@ class IndividualRegisterView extends AbstractComponent {
         return nextState.wizard.isNonFormPage();
     }
 
+    displayMessage(message) {
+        if (message && this.state.displayed){
+            ToastAndroid.show(message, ToastAndroid.SHORT);
+            this.setState({displayed:false})
+        }
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const editing = !_.isNil(this.props.params.individualUUID);
+        {this.displayMessage(this.props.message)}
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>

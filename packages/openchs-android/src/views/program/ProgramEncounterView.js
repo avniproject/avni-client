@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {ToastAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -36,6 +36,7 @@ class ProgramEncounterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounter);
+        this.state = {displayed:true};
     }
 
     componentWillMount() {
@@ -68,7 +69,7 @@ class ProgramEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const onSaveCallback = (source) => {
-                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid, state.programEncounter.programEnrolment.uuid, true);
+                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid, state.programEncounter.programEnrolment.uuid, true,null,this.I18n.t('encounterSavedMsg', {encounterName:state.programEncounter.encounterType.name}));
                 };
                 const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.displayName)}, ${this.I18n.t(state.programEncounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
@@ -83,9 +84,17 @@ class ProgramEncounterView extends AbstractComponent {
         return !_.isNil(nextState.programEncounter);
     }
 
+    displayMessage(message) {
+        if (message && this.state.displayed){
+            ToastAndroid.show(message, ToastAndroid.SHORT);
+            this.setState({displayed:false});
+        }
+    }
+
     render() {
         General.logDebug('ProgramEncounterView', 'render');
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${this.state.programEncounter.name || this.state.programEncounter.encounterType.operationalEncounterTypeName}`;
+        this.displayMessage(this.props.params.message);
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">

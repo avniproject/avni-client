@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {ToastAndroid, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -35,6 +35,7 @@ class SubjectRegisterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.subject);
+        this.state = {displayed: true};
     }
 
     componentWillMount() {
@@ -58,7 +59,7 @@ class SubjectRegisterView extends AbstractComponent {
             completed: (state, decisions, ruleValidationErrors) => {
                 const observations = state.subject.observations;
                 const onSaveCallback = (source) => {
-                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.subject.uuid, null, true);
+                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.subject.uuid, null, true, null, this.I18n.t('registrationSavedMsg'));
                 };
                 const headerMessage = `${this.I18n.t('registration', {type: this.registrationType})} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
@@ -73,8 +74,16 @@ class SubjectRegisterView extends AbstractComponent {
         return !_.isNil(nextState.subject);
     }
 
+    displayMessage(message) {
+        if (message && this.state.displayed) {
+            ToastAndroid.show(message, ToastAndroid.SHORT);
+            this.setState({displayed: false});
+        }
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
+        {this.displayMessage(this.props.message)}
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">
