@@ -1,9 +1,9 @@
-import {ActivityIndicator, Alert, Dimensions, Modal, Text, TouchableOpacity, View, NetInfo} from "react-native";
+import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Path from "../framework/routing/Path";
-import {Icon as NBIcon} from "native-base";
+import {Button, Icon as NBIcon} from "native-base";
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
@@ -21,7 +21,6 @@ import General from "../utility/General";
 import ProgramConfigService from "../service/ProgramConfigService";
 import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
-import Fonts from "./primitives/Fonts";
 import Colors from "./primitives/Colors";
 import MessageService from "../service/MessageService";
 import AuthenticationError from "../service/AuthenticationError";
@@ -34,6 +33,8 @@ import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import UserInfoService from "../service/UserInfoService";
 import ProgressBarView from "./ProgressBarView";
 import ServerError from "../service/ServerError";
+import ProgramService from "../service/program/ProgramService";
+import IndividualRegisterViewsMixin from "./individual/IndividualRegisterViewsMixin";
 
 const {width, height} = Dimensions.get('window');
 
@@ -75,6 +76,16 @@ class MenuView extends AbstractComponent {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
         };
 
+        this.regModalBackground = {
+            width: width * .7,
+            backgroundColor: 'white',
+            flexWrap: 'nowrap',
+            justifyContent: 'flex-start',
+            padding: 20,
+            alignSelf: 'center',
+            borderRadius: 8
+        };
+
         this.syncBackground = {
             width: width * .7,
             flexDirection: 'row',
@@ -95,6 +106,9 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(SettingsView);
     }
 
+    registrationView() {
+        this.setState({regModalVisible: true});
+    }
 
     changePasswordView() {
         CHSNavigator.navigateToChangePasswordView(this);
@@ -158,7 +172,7 @@ class MenuView extends AbstractComponent {
     }
 
     onConnectionChange(isConnected) {
-        if(!this.state.syncing){
+        if (!this.state.syncing) {
             isConnected ? this.setState({isConnected: true}) : this.setState({isConnected: false});
         }
     }
@@ -168,6 +182,9 @@ class MenuView extends AbstractComponent {
         NetInfo.isConnected.fetch().done((isConnected) => {
             this.onConnectionChange(isConnected)
         });
+        const programs = _.map(this.context.getService(ProgramService).findAll(), _.identity);
+        const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
+        this.setState({subjectType, programs});
     }
 
     _handleConnectivityChange = (isConnected) => {
@@ -259,6 +276,67 @@ class MenuView extends AbstractComponent {
         </View>);
     };
 
+    registrationModalItem(key, label, bgColor, onPress) {
+        return (<View key={key} style={{paddingTop: 24,}}>
+            <Button style={{
+                    width: '100%',
+                    backgroundColor: bgColor,
+                    height: 50,
+                    elevation: 2,}}
+                textStyle={{fontSize: 18, lineHeight: 28}}
+                onPress={() => this.setState({regModalVisible: false}, onPress)}>
+                {label}
+            </Button>
+        </View>)
+    }
+
+    renderRegistrationModal() {
+        if (!this.state.regModalVisible) {
+            return
+        }
+        const registrationAction = {
+            fn: () => IndividualRegisterViewsMixin.navigateToRegistration(this, this.state.subjectType),
+            label: this.state.subjectType.name,
+            backgroundColor: Colors.AccentColor,
+        };
+        const programActions = this.state.programs.map(program => ({
+            fn: () => IndividualRegisterViewsMixin.navigateToRegistrationThenProgramEnrolmentView(this, program, this, this.state.subjectType),
+            label: program.displayName,
+            backgroundColor: program.colour,
+        }));
+
+        return (
+            <Modal
+                animationType='fade'
+                transparent={true}
+                presentationStyle='fullScreen'
+                onRequestClose={() => this.setState({regModalVisible: false})}
+                visible={this.state.regModalVisible}>
+                <TouchableWithoutFeedback onPress={() => this.setState({regModalVisible: false})}>
+                    <View style={{
+                        flex: 1,
+                        flexWrap: 'nowrap',
+                        backgroundColor: 'rgba(60,60,60,0.9)',
+                        flexDirection: 'column',
+                    }}>
+                        <View style={{flex: .4}}/>
+                        <View style={[this.regModalBackground]}>
+                            <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
+                                <MCIIcon name={'close'} style={{fontSize: 24}}/>
+                            </View>
+                            <Text style={{fontSize: 20, color: Styles.blackColor}}>{'Register'}</Text>
+                            {_.map([registrationAction].concat(programActions), (action, key) =>
+                                this.registrationModalItem(key, action.label, action.backgroundColor, action.fn)
+                            )}
+
+                        </View>
+                        <View style={{flex: 1}}/>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+        )
+    }
+
     renderSyncModal() {
         return (
             <Modal animationType={'fade'}
@@ -295,7 +373,7 @@ class MenuView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            // [Icon(registerIcon), this.I18n.t("register"), this.registrationView.bind(this)],
+            [Icon(registerIcon), this.I18n.t("register"), this.registrationView.bind(this)],
             [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
@@ -318,6 +396,7 @@ class MenuView extends AbstractComponent {
                     height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground,
                     // paddingBottom: 120
                 }}>
+                    {this.renderRegistrationModal()}
                     {this.renderSyncModal()}
                     {MenuItems}
                 </View>

@@ -64,7 +64,7 @@ class LandingView extends AbstractComponent {
                     />
                     <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
                 </Tabs>
-                <RegistrationFAB parent={this}/>
+                {/*<RegistrationFAB parent={this}/>*/}
             </CHSContainer>
         );
     }
