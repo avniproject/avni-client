@@ -795,6 +795,11 @@
     "dataType": "NA"
   },
   {
+    "name": "Sucking poorly",
+    "uuid": "43f7549c-cbed-42ff-80d6-85b46a396582",
+    "dataType": "NA"
+  },
+  {
     "name": "Child PNC feeding related complaints",
     "uuid": "bc7b0015-ee9a-4089-b0a3-76862a30aa1c",
     "dataType": "Coded",
@@ -802,6 +807,11 @@
       {
         "name": "Sucking well",
         "uuid": "176bf779-21ce-4dff-ad0b-a28d45806ba8"
+      },
+      {
+        "name": "Sucking poorly",
+        "uuid": "43f7549c-cbed-42ff-80d6-85b46a396582",
+        "abnormal": true
       },
       {
         "name": "Not sucking milk at all",
@@ -944,7 +954,8 @@
       {
         "name": "Not sucking milk at all",
         "uuid": "8422c270-11fc-4bf5-85b0-bb3aeb2d39b9",
-        "abnormal": true
+        "abnormal": true,
+        "voided": true
       },
       {
         "name": "Convulsions",
