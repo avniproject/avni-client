@@ -106,11 +106,12 @@ class MediaQueueService extends BaseService {
         }
     }
 
-    uploadMediaQueueItem(mediaQueueItem, auth) {
+    async uploadMediaQueueItem(mediaQueueItem, auth) {
         // Media can get deleted from the system by a user action.
         // The system should still work with missing media.
         // However, we need to find some way of highlighting this to user.
-        if (!this.mediaExists(mediaQueueItem)) {
+        const exists = await this.mediaExists(mediaQueueItem);
+        if (!exists) {
             General.logDebug("MediaQueueService", `mediaQueueItem ${mediaQueueItem.fileName} does not exist. Ignoring...`);
             return;
         }
