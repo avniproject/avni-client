@@ -228,7 +228,7 @@
   "syncTimeoutError": "Sorry it's taking too long. Please check your internet connection.",
   "saveAndProceedEncounter": "Save and proceed to {{enc}}",
   "saveAndEnrol": "Save and enrol into program",
-  "anotherRegistration": "Register another {{subject}}"
+  "anotherRegistration": "Register another {{subject}}",
   "registrationSavedMsg": "Registration Saved",
   "registrationCompleteProceedToNextRegMsg" : "Registration Saved",
   "registrationCompleteProceedToEnrolmentMsg" : "Registration Saved",
