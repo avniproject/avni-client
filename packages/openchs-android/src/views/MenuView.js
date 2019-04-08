@@ -118,7 +118,7 @@ class MenuView extends AbstractComponent {
         this.setState({syncing: true, error: false, syncMessage: "syncingData"});
     }
 
-    _postSync() {
+    reset() {
         this.context.getService(RuleEvaluationService).init();
         this.context.getService(ProgramConfigService).init();
         this.context.getService(MessageService).init();
@@ -130,6 +130,10 @@ class MenuView extends AbstractComponent {
 
         //To re-render LandingView after sync
         this.dispatchAction(LandingViewActions.ON_LOAD);
+    }
+
+    _postSync() {
+        this.reset();
 
         const userInfoService = this.context.getService(UserInfoService);
         const userSettings = userInfoService.getUserSettings();
@@ -182,9 +186,6 @@ class MenuView extends AbstractComponent {
         NetInfo.isConnected.fetch().done((isConnected) => {
             this.onConnectionChange(isConnected)
         });
-        const programs = _.map(this.context.getService(ProgramService).findAll(), _.identity);
-        const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
-        this.setState({subjectType, programs});
     }
 
     _handleConnectivityChange = (isConnected) => {
@@ -254,6 +255,7 @@ class MenuView extends AbstractComponent {
                         authService.logout().then(() => {
                             service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
                             entitySyncStatusService.setup(EntityMetaData.model());
+                            this.reset();
                         });
                     }
                 },
@@ -279,12 +281,13 @@ class MenuView extends AbstractComponent {
     registrationModalItem(key, label, bgColor, onPress) {
         return (<View key={key} style={{paddingTop: 24,}}>
             <Button style={{
-                    width: '100%',
-                    backgroundColor: bgColor,
-                    height: 50,
-                    elevation: 2,}}
-                textStyle={{fontSize: 18, lineHeight: 28}}
-                onPress={() => this.setState({regModalVisible: false}, onPress)}>
+                width: '100%',
+                backgroundColor: bgColor,
+                height: 50,
+                elevation: 2,
+            }}
+                    textStyle={{fontSize: 18, lineHeight: 28}}
+                    onPress={() => this.setState({regModalVisible: false}, onPress)}>
                 {label}
             </Button>
         </View>)
@@ -294,13 +297,14 @@ class MenuView extends AbstractComponent {
         if (!this.state.regModalVisible) {
             return
         }
+        const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
         const registrationAction = {
-            fn: () => IndividualRegisterViewsMixin.navigateToRegistration(this, this.state.subjectType),
-            label: this.state.subjectType.name,
+            fn: () => IndividualRegisterViewsMixin.navigateToRegistration(this, subjectType),
+            label: subjectType.name,
             backgroundColor: Colors.AccentColor,
         };
-        const programActions = this.state.programs.map(program => ({
-            fn: () => IndividualRegisterViewsMixin.navigateToRegistrationThenProgramEnrolmentView(this, program, this, this.state.subjectType),
+        const programActions = this.context.getService(ProgramService).findAll().map(program => ({
+            fn: () => IndividualRegisterViewsMixin.navigateToRegistrationThenProgramEnrolmentView(this, program, this, subjectType),
             label: program.displayName,
             backgroundColor: program.colour,
         }));
@@ -373,7 +377,7 @@ class MenuView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            [Icon(registerIcon), this.I18n.t("register"), this.registrationView.bind(this)],
+            [Icon(registerIcon), this.I18n.t("register"), () => subjectTypes[0] && this.setState({regModalVisible: true})],
             [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
