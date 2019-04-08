@@ -225,5 +225,9 @@
   "syncComplete": "Sync Complete ",
   "internetConnectionError" :  "No internet connection. Please connect to internet.",
   "syncServerError": "An error has occurred. Please try after sometime.",
-  "syncTimeoutError": "Sorry it's taking too long. Please check your internet connection."
+  "syncTimeoutError": "Sorry it's taking too long. Please check your internet connection.",
+  "saveAndProceedEncounter": "Save and proceed to {{enc}}",
+  "saveAndEnrol": "Save and enrol into program",
+  "anotherRegistration": "Register another {{subject}}"
+
 }
