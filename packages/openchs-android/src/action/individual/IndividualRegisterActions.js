@@ -1,10 +1,11 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Gender, Form, Individual, Point, SubjectType} from "openchs-models";
+import {Gender, Form, Individual, Point, SubjectType, ObservationsHolder} from "openchs-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
 import GeolocationActions from "../common/GeolocationActions";
+import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -22,6 +23,10 @@ export class IndividualRegisterActions {
         if (_.isEmpty(individual.subjectType.name)) {
             individual.subjectType = state.individualSubjectType;
         }
+
+        //Populate identifiers much before form elements are hidden or sent to rules.
+        //This will enable the value to be used in rules
+        context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(individual.observations));
 
         const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
         IndividualRegisterActions.setAgeState(newState);

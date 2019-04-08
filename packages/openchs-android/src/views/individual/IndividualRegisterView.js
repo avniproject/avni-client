@@ -39,7 +39,6 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     get registrationType() {
-        console.log('came here', _.get(this.props.params.stitches, 'registrationType', 'Individual'));
         return _.get(this.props.params.stitches, 'registrationType', 'Individual');
     }
 

@@ -65,6 +65,8 @@ import MediaQueue from "./src/MediaQueue";
 import Point from "./src/geo/Point";
 import SubjectType from "./src/SubjectType";
 import SyncTelemetry from "./src/SyncTelemetry";
+import IdentifierSource from './src/IdentifierSource';
+import IdentifierAssignment from './src/IdentifierAssignment';
 
 export {
     AbstractEncounter,
@@ -133,5 +135,7 @@ export {
     VisitScheduleInterval,
     Point,
     SubjectType,
-    SyncTelemetry
+    SyncTelemetry,
+    IdentifierSource,
+    IdentifierAssignment,
 }

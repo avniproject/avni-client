@@ -74,6 +74,7 @@ export default class Concept {
         NA: 'NA',
         Image: 'Image',
         Video: 'Video',
+        Id: 'Id',
         get Media() {return [this.Image, this.Video]},
     };
 

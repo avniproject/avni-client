@@ -59,6 +59,10 @@ class FormElementGroup {
         return this.displayOrder === 1;
     }
 
+    getFormElementsOfType(type) {
+        return _.filter(this.formElements, (formElement) => formElement.concept.datatype === type || formElement.type === type);
+    }
+
     validate(observationHolder, filteredFormElements) {
         const validationResults = [];
         filteredFormElements.forEach((formElement) => {

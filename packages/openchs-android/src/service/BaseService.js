@@ -57,7 +57,7 @@ class BaseService {
         return this.getReturnValue(allEntities);
     }
 
-    findByKey(keyName, value, schemaName) {
+    findByKey(keyName, value, schemaName = this.getSchema()) {
         const entities = this.findAllByKey(keyName, value, schemaName);
         return this.getReturnValue(entities);
     }
@@ -87,6 +87,7 @@ class BaseService {
     }
 
     createEntities(schema, entities) {
+        console.log('saving for schema', schema);
         return entities.map((entity) => () => {
             this.db.create(schema, entity, true)
         });

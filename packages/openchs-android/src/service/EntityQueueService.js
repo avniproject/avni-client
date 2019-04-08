@@ -31,6 +31,7 @@ class EntityQueueService extends BaseService {
             .filtered("entity = $0", entityMetadata.entityName)
             .sorted("savedAt")
             .slice(), 'entityUUID');
+
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
         return {
             metaData: entityMetadata,

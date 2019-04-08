@@ -2,10 +2,11 @@ import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import GeolocationActions from "../common/GeolocationActions";
 import EntityService from "../../service/EntityService";
-import {Form, Individual, SubjectType, Point} from "openchs-models";
+import {Form, Individual, SubjectType, Point, ObservationsHolder} from "openchs-models";
 import SubjectRegistrationState from '../../state/SubjectRegistrationState';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -26,6 +27,11 @@ export class SubjectRegisterActions {
         if (_.isEmpty(subject.subjectType.name)) {
             subject.subjectType = state.subjectType;
         }
+
+        //Populate identifiers much before form elements are hidden or sent to rules.
+        //This will enable the value to be used in rules
+        let observationsHolder = new ObservationsHolder(subject.observations);
+        context.get(IdentifierAssignmentService).populateIdentifiers(state.form, observationsHolder);
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(state.form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
@@ -57,7 +63,6 @@ export class SubjectRegisterActions {
     static enterSubjectAddressLevel(state, action) {
         const newState = state.clone();
         newState.subject.lowestAddressLevel = action.value;
-        console.log('SubjectRegisterActions.enterSubjectAddressLevel',newState.subject.lowestAddressLevel);
         newState.handleValidationResult(newState.subject.validateAddress());
         return newState;
     }

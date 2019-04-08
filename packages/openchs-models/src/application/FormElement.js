@@ -98,7 +98,7 @@ class FormElement {
         else if (this.isMultiSelect() && !_.isEmpty(value)) {
             return this._validateMultiSelect(value);
         }
-        else if (this.concept.datatype === Concept.dataType.DateTime 
+        else if (this.concept.datatype === Concept.dataType.DateTime
             && General.hoursAndMinutesOfDateAreZero(value)) {
           failure.messageKey = "timeValueValidation";
         }
@@ -127,7 +127,8 @@ class FormElement {
         Select: 'Select',
         TrueValue: 'TrueValue',
         FalseValue: 'FalseValue',
-        ExcludedAnswers: 'ExcludedAnswers'
+        ExcludedAnswers: 'ExcludedAnswers',
+        IdSourceUUID: 'idSourceUUID',
     };
 
     static values = {

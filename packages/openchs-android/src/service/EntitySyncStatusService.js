@@ -31,12 +31,14 @@ class EntitySyncStatusService extends BaseService {
 
     geAllSyncStatus() {
         const entityQueueService = this.getService(EntityQueueService);
-        const entities = _.map(this.findAll(), entitySyncStatus => ({
-            entityName: entitySyncStatus.entityName,
-            loadedSince: moment(entitySyncStatus.loadedSince).format("DD-MM-YYYY HH:MM:SS"),
-            queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName),
-            type: EntityMetaData.findByName(entitySyncStatus.entityName).type
-        }));
+        const entities = _.map(this.findAll(), entitySyncStatus => {
+            return {
+                entityName: entitySyncStatus.entityName,
+                loadedSince: moment(entitySyncStatus.loadedSince).format("DD-MM-YYYY HH:MM:SS"),
+                queuedCount: entityQueueService.getQueuedItemCount(entitySyncStatus.entityName),
+                type: EntityMetaData.findByName(entitySyncStatus.entityName).type
+            }
+        });
         const mediaQueueService = this.getService(MediaQueueService);
         const mediaGroups = _.groupBy(mediaQueueService.findAll(), 'type');
         const mediaEntities = _.map(mediaGroups, (list, mediaType) => ({
@@ -52,7 +54,7 @@ class EntitySyncStatusService extends BaseService {
 
     getLastLoaded() {
         return moment(_.max(this.findAll(EntitySyncStatus.schema.name)
-            .map((entitySyncStatus)=>entitySyncStatus.loadedSince))).format("DD-MM-YYYY HH:MM:SS");
+            .map((entitySyncStatus) => entitySyncStatus.loadedSince))).format("DD-MM-YYYY HH:MM:SS");
     }
 
     setup(entityMetaDataModel) {
