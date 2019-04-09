@@ -243,5 +243,6 @@
   "enrolmentExitMsg": "{{programName}} से बाहर हुआ",
   "encounterSavedMsg" : "{{encounterName}} सेव हुआ",
   "encounterCanceledMsg": "{{encounterName}} कॅन्सल हुआ",
-  "programSavedProceedEncounterMsg" : "{{programName}} पूरा हुआ"
+  "programSavedProceedEncounterMsg" : "{{programName}} पूरा हुआ",
+  "saved": "सेव हुआ"
 }

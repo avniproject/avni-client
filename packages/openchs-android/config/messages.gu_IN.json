@@ -238,5 +238,6 @@
   "enrolmentExitMsg": "{{programName}} બહાર ગયું",
   "encounterSavedMsg" : "{{encounterName}} સાચવેલ",
   "encounterCanceledMsg": "{{encounterName}} રદ કરો",
-  "programSavedProceedEncounterMsg" : "{{programName}} પૂર્ણ"
+  "programSavedProceedEncounterMsg" : "{{programName}} પૂર્ણ",
+  "saved": "સાચવેલ"
 }

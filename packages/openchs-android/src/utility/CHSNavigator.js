@@ -106,10 +106,10 @@ class CHSNavigator {
                 .wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
                     ProgramEnrolmentDashboardView, {individualUUID: encounter.individual.uuid, message}, true,);
         };
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, null);
+        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, null, message);
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, saveAndProceed) {
+    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, saveAndProceed, message) {
         TypedTransition.from(source).with({
             form: form,
             decisions: decisions,
@@ -122,6 +122,7 @@ class CHSNavigator {
             checklists: _.isNil(checklists) ? [] : checklists,
             nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits,
             saveAndProceed: saveAndProceed,
+            message: message,
         }).to(SystemRecommendationView, true);
     }
 
