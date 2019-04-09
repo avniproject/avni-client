@@ -234,10 +234,10 @@
   "registrationSavedMsg": "નોંધણી પૂર્ણ થઈ",
   "registrationCompleteProceedToNextRegMsg" : "નોંધણી પૂર્ણ થઈ",
   "registrationCompleteProceedToEnrolmentMsg" : "નોંધણી પૂર્ણ થઈ",
-  "enrolmentSavedMsg": "{{programName}} સાચવેલ",
-  "enrolmentExitMsg": "{{programName}} બહાર ગયું",
-  "encounterSavedMsg" : "{{encounterName}} સાચવેલ",
-  "encounterCanceledMsg": "{{encounterName}} રદ કરો",
-  "programSavedProceedEncounterMsg" : "{{programName}} પૂર્ણ",
+  "enrolmentSavedMsg": "{{programName}} એનરોલમેન્ટ સાચવેલ",
+  "enrolmentExitMsg": "{{programName}} પ્રોગ્રામમાંથી બહાર ગયું",
+  "encounterSavedMsg" : "{{encounterName}} એન્કાઉન્ટર સાચવેલ",
+  "encounterCanceledMsg": "{{encounterName}} એન્કાઉન્ટર રદ કરો",
+  "programSavedProceedEncounterMsg" : "{{programName}} પ્રોગ્રામ પૂર્ણ",
   "saved": "સાચવેલ"
 }

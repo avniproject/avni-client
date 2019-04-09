@@ -251,10 +251,10 @@
   "registrationSavedMsg": "नोंदणी पूर्ण",
   "registrationCompleteProceedToNextRegMsg" : "नोंदणी पूर्ण",
   "registrationCompleteProceedToEnrolmentMsg" : "नोंदणी पूर्ण",
-  "enrolmentSavedMsg": "{{programName}} जतन",
-  "enrolmentExitMsg": "{{programName}} बाहेर आला",
-  "encounterSavedMsg" : "{{encounterName}} जतन",
-  "encounterCanceledMsg": "{{encounterName}} कॅन्सल हुआ",
-  "programSavedProceedEncounterMsg" : "{{programName}} पूर्ण",
+  "enrolmentSavedMsg": "{{programName}} एनरोलमेण्ट जतन",
+  "enrolmentExitMsg": "{{programName}} प्रोग्रामधून बाहेर आला",
+  "encounterSavedMsg" : "{{encounterName}} एंकॉउंटर जतन",
+  "encounterCanceledMsg": "{{encounterName}} एंकॉउंटर कॅन्सल केले",
+  "programSavedProceedEncounterMsg" : "{{programName}} प्रोग्राम पूर्ण",
   "saved": "जतन"
 }

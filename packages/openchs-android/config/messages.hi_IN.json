@@ -239,10 +239,10 @@
   "registrationSavedMsg": "रजिसस्ट्रेशन पूरा हुआ",
   "registrationCompleteProceedToNextRegMsg" : "रजिसस्ट्रेशन पूरा हुआ",
   "registrationCompleteProceedToEnrolmentMsg" : "रजिसस्ट्रेशन पूरा हुआ",
-  "enrolmentSavedMsg": "{{programName}} सेव हुआ",
-  "enrolmentExitMsg": "{{programName}} से बाहर हुआ",
-  "encounterSavedMsg" : "{{encounterName}} सेव हुआ",
-  "encounterCanceledMsg": "{{encounterName}} कॅन्सल हुआ",
-  "programSavedProceedEncounterMsg" : "{{programName}} पूरा हुआ",
+  "enrolmentSavedMsg": "{{programName}} एनरोलमेण्ट सेव हुआ",
+  "enrolmentExitMsg": "{{programName}} प्रोग्राम से बाहर हुआ",
+  "encounterSavedMsg" : "{{encounterName}} एन्काउंटर सेव हुआ",
+  "encounterCanceledMsg": "{{encounterName}} एन्काउंटर कॅन्सल हुआ",
+  "programSavedProceedEncounterMsg" : "{{programName}} प्रोग्राम पूरा हुआ",
   "saved": "सेव हुआ"
 }
