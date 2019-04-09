@@ -87,7 +87,7 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        <Button title={this.I18n.t("search")} color={Styles.accentColor} style={{marginTop: 30}}
+                        <Button title={this.I18n.t("search")} color={Styles.accentColor} style={{marginTop: 30, elevation:2}}
                                 onPress={() => this.searchIndividual()}/>
                     </View>
                 </CHSContent>
