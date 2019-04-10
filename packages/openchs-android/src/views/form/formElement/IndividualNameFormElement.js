@@ -1,17 +1,18 @@
 import {View, StyleSheet, Text} from 'react-native';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
 import TextFormElement from "./TextFormElement";
 import StaticFormElement from "../../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
-import PrimitiveValue from "../../../../../openchs-models/src/observation/PrimitiveValue";
-import Individual from "../../../../../openchs-models/src/Individual";
+import {  PrimitiveValue  } from 'openchs-models';
+import {  Individual  } from 'openchs-models';
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
 import Distances from "../../primitives/Distances";
 
 class IndividualNameFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

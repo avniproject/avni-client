@@ -237,8 +237,6 @@
   "anotherRegistration": "एक और रजिस्टर {{subject}}",
   "syncTimeoutError": "क्षमा करें यह बहुत समय ले रहा है। कृपया अपने इंटरनेट कनेक्शन की जाँच करें।",
   "registrationSavedMsg": "रजिसस्ट्रेशन पूरा हुआ",
-  "registrationCompleteProceedToNextRegMsg" : "रजिसस्ट्रेशन पूरा हुआ",
-  "registrationCompleteProceedToEnrolmentMsg" : "रजिसस्ट्रेशन पूरा हुआ",
   "enrolmentSavedMsg": "{{programName}} एनरोलमेण्ट सेव हुआ",
   "enrolmentExitMsg": "{{programName}} प्रोग्राम से बाहर हुआ",
   "encounterSavedMsg" : "{{encounterName}} एन्काउंटर सेव हुआ",

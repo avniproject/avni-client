@@ -2,7 +2,7 @@ import {expect, assert} from "chai";
 import {ProgramEnrolmentActions} from "../../src/action/program/ProgramEnrolmentActions";
 import ProgramEnrolmentState from "../../src/action/program/ProgramEnrolmentState";
 import TestContext from "./views/testframework/TestContext";
-import {ProgramEnrolment, Individual} from "openchs-models";
+import {ProgramEnrolment, Individual} from 'openchs-models';
 
 describe('ProgramEnrolmentActionsTest', () => {
     it('next without filling enrolmentDateTime', () => {

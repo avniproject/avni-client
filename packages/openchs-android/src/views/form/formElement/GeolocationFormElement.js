@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import Styles from "../../primitives/Styles";
@@ -13,11 +14,11 @@ import UserInfoService from "../../../service/UserInfoService";
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {
-        actionName: React.PropTypes.string.isRequired,
-        errorActionName: React.PropTypes.string.isRequired,
-        location: React.PropTypes.object,
-        editing: React.PropTypes.bool.isRequired,
-        validationResult: React.PropTypes.object
+        actionName: PropTypes.string.isRequired,
+        errorActionName: PropTypes.string.isRequired,
+        location: PropTypes.object,
+        editing: PropTypes.bool.isRequired,
+        validationResult: PropTypes.object
     };
 
     constructor(props, context) {
@@ -65,7 +66,7 @@ class GeolocationFormElement extends AbstractComponent {
                 },
                 error => {
                     this.dispatchAction(this.props.errorActionName, {value: error});
-                    General.logError("GeolocationFormElement", error);
+                    General.logWarn("GeolocationFormElement", error);
                 },
                 {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
             );

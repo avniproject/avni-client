@@ -1,5 +1,5 @@
 import AbstractDataEntryState from "../../src/state/AbstractDataEntryState";
-import {ObservationsHolder} from "openchs-models";
+import {ObservationsHolder} from 'openchs-models';
 
 class StubbedDataEntryState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, observations) {

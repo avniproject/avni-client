@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -9,8 +10,8 @@ import CHSNavigator from "../../utility/CHSNavigator";
 
 class FunctionalHeader extends AbstractComponent {
     static propTypes = {
-        title: React.PropTypes.string.isRequired,
-        func: React.PropTypes.func,
+        title: PropTypes.string.isRequired,
+        func: PropTypes.func,
     };
 
     constructor(props, context) {

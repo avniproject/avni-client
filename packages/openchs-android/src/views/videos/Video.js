@@ -1,10 +1,11 @@
-import React, {Component, PropTypes} from "react";
+import PropTypes from 'prop-types';
+import React, {Component} from "react";
 import {ListView, Text, View, TouchableNativeFeedback} from "react-native";
 import {Icon} from "native-base";
-import General from "openchs-models/src/utility/General";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
+import General from "../../utility/General";
 
 export class VideoList extends AbstractComponent {
 

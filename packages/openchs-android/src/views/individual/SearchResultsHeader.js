@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -8,8 +9,8 @@ import Distances from "../primitives/Distances";
 
 class SearchResultsHeader extends AbstractComponent {
     static propTypes = {
-        totalCount: React.PropTypes.number.isRequired,
-        displayedCount: React.PropTypes.number.isRequired,
+        totalCount: PropTypes.number.isRequired,
+        displayedCount: PropTypes.number.isRequired,
     };
 
     static SearchResultsLimit = 50;

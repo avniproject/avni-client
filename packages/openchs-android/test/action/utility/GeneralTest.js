@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import General from "../../../src/utility/General";
-import {Duration} from "openchs-models";
+import {Duration} from 'openchs-models';
 
 describe('General', () => {
     it('replaceAndroidIncompatibleChars', () => {

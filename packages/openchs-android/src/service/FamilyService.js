@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {EntityQueue, Family, ObservationsHolder} from "openchs-models";
+import {EntityQueue, Family, ObservationsHolder} from 'openchs-models';
 import _ from 'lodash';
 
 @Service("familyService")

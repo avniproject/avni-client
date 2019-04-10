@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
@@ -15,7 +16,7 @@ import General from "../utility/General";
 @Path('/changePasswordView')
 class ChangePasswordView extends AbstractComponent {
     static propTypes = {
-        user: React.PropTypes.object
+        user: PropTypes.object
     };
 
     constructor(props, context) {

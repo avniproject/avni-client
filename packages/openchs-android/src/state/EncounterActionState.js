@@ -1,6 +1,6 @@
 import _ from "lodash";
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import {AbstractEncounter, ObservationsHolder, Encounter} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, Encounter} from 'openchs-models';
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 

@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import FormQueryResult from "../../src/service/FormQueryResult";
-import {Program, FormMapping, Form} from "openchs-models";
+import {Program, FormMapping, Form} from 'openchs-models';
 import General from "../../src/utility/General";
 
 const createForm = (formType) => {

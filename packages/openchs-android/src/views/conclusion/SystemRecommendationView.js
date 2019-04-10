@@ -1,4 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import PropTypes from 'prop-types';
 import React from "react";
 import {View, Alert} from "react-native";
 import Path from "../../framework/routing/Path";
@@ -17,7 +18,7 @@ import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import {Individual} from "openchs-models";
+import {Individual} from 'openchs-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import moment from 'moment';
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -25,17 +26,17 @@ import CHSNavigator from "../../utility/CHSNavigator";
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
     static propTypes = {
-        individual: React.PropTypes.object.isRequired,
-        saveActionName: React.PropTypes.string.isRequired,
-        onSaveCallback: React.PropTypes.func.isRequired,
-        decisions: React.PropTypes.any,
-        observations: React.PropTypes.array.isRequired,
-        validationErrors: React.PropTypes.array.isRequired,
-        headerMessage: React.PropTypes.string,
-        checklists: React.PropTypes.array,
-        nextScheduledVisits: React.PropTypes.array,
-        form: React.PropTypes.object,
-        saveAndProceed: React.PropTypes.object,
+        individual: PropTypes.object.isRequired,
+        saveActionName: PropTypes.string.isRequired,
+        onSaveCallback: PropTypes.func.isRequired,
+        decisions: PropTypes.any,
+        observations: PropTypes.array.isRequired,
+        validationErrors: PropTypes.array.isRequired,
+        headerMessage: PropTypes.string,
+        checklists: PropTypes.array,
+        nextScheduledVisits: PropTypes.array,
+        form: PropTypes.object,
+        saveAndProceed: PropTypes.object,
     };
 
     static styles = {
@@ -64,8 +65,14 @@ class SystemRecommendationView extends AbstractComponent {
         if (applicableScheduledVisit) {
             return {
                 label: this.I18n.t('saveAndProceedEncounter', {enc: applicableScheduledVisit.name}),
-                func: () => this.save((programEnrolment) => {
-                    CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType, programEnrolment.uuid, this.I18n.t('programSavedProceedEncounterMsg', {programName : programEnrolment.program.name, enc: applicableScheduledVisit.encounterType}));
+                func: () => this.save((entity, isEnrolment) => {
+                    if(isEnrolment) {
+                        CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType,
+                            entity.uuid, this.I18n.t('programSavedProceedEncounterMsg', {program : entity.program.name}));
+                    } else {
+                        CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType,
+                            entity.programEnrolment.uuid, this.I18n.t('encounterSavedProceedEncounterMsg', {encounter: entity.name || entity.encounterType.name}));
+                    }
                 }),
                 visible: this.props.validationErrors.length === 0,
             };

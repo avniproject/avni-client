@@ -1,4 +1,5 @@
 import {Text, View, TouchableOpacity} from 'react-native';
+import PropTypes from 'prop-types';
 import React from 'react';
 import Styles from "../../primitives/Styles";
 import Distances from "../../primitives/Distances";
@@ -13,10 +14,10 @@ import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 
 class IndividualFormElement extends AbstractFormElement {
     static propTypes = {
-        individualNameValue: React.PropTypes.string,
-        inputChangeActionName: React.PropTypes.string.isRequired,
-        validationResult: React.PropTypes.object,
-        searchHeaderMessage: React.PropTypes.string.isRequired,
+        individualNameValue: PropTypes.string,
+        inputChangeActionName: PropTypes.string.isRequired,
+        validationResult: PropTypes.object,
+        searchHeaderMessage: PropTypes.string.isRequired,
     };
 
     constructor(props, context) {

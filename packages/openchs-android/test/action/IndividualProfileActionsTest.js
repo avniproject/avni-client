@@ -1,8 +1,8 @@
 import {expect} from "chai";
 import {IndividualProfileActions as IPA} from "../../src/action/individual/IndividualProfileActions";
 import TestContext from "./views/testframework/TestContext";
-import {Individual} from "openchs-models";
-import EntityFactory from 'openchs-models/test/EntityFactory';
+import {Individual} from 'openchs-models';
+import EntityFactory from "openchs-models/test/EntityFactory";
 
 describe('IndividualProfileActionsTest', () => {
     it('programEnrolmentFlow', () => {

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult} from "openchs-models";
+import {BaseEntity, ValidationResult} from 'openchs-models';
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";

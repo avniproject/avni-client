@@ -1,4 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import PropTypes from 'prop-types';
 import React from "react";
 import {View} from "react-native";
 import Path from "../../framework/routing/Path";
@@ -9,7 +10,7 @@ import {IndividualEncounterViewActions as Actions} from "../../action/individual
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, Form} from "openchs-models";
+import {ObservationsHolder, Form} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";

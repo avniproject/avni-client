@@ -1,8 +1,9 @@
 import {ListView, Text, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
-import {Concept, Observation} from "openchs-models";
+import {Concept, Observation} from 'openchs-models';
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
@@ -17,11 +18,11 @@ const renderTypes = {
 
 class Observations extends AbstractComponent {
     static propTypes = {
-        observations: React.PropTypes.any.isRequired,
-        style: React.PropTypes.object,
-        title: React.PropTypes.string,
-        highlight: React.PropTypes.bool,
-        form: React.PropTypes.object
+        observations: PropTypes.any.isRequired,
+        style: PropTypes.object,
+        title: PropTypes.string,
+        highlight: PropTypes.bool,
+        form: PropTypes.object
     };
 
     constructor(props, context) {

@@ -4,7 +4,7 @@ import _ from "lodash";
 import {
     Concept, Gender, Observation, PrimitiveValue, ProgramEncounter,
     ProgramEnrolment, Individual
-} from "openchs-models";
+} from 'openchs-models';
 import {getDecisions} from "../../../health_modules/child/anthropometricDecision";
 import EntityFactory from "openchs-models/test/EntityFactory";
 import moment from "moment";

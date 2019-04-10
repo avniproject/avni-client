@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import {Text, TouchableNativeFeedback, View, ToastAndroid} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -19,7 +20,7 @@ import General from "../../utility/General";
 class StartProgramView extends AbstractComponent {
 
     static propTypes = {
-        params: React.PropTypes.object.isRequired,
+        params: PropTypes.object.isRequired,
     };
 
     constructor(props, context) {

@@ -1,7 +1,7 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import _ from "lodash";
-import {Family, ObservationsHolder, StaticFormElementGroup} from "openchs-models";
+import {Family, ObservationsHolder, StaticFormElementGroup} from 'openchs-models';
 
 class FamilyRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, family, isNewEntity, filteredFormElements) {

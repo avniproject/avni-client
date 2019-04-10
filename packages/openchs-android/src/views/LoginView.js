@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
@@ -6,7 +7,7 @@ import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
 import {LoginActionsNames as Actions} from '../action/LoginActions';
 import Distances from './primitives/Distances';
-import {PrimitiveValue} from "openchs-models";
+import {PrimitiveValue} from 'openchs-models';
 import Reducers from "../reducer";
 import CHSNavigator from "../utility/CHSNavigator";
 import CHSContainer from "./common/CHSContainer";

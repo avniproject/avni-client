@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import {ListView, StyleSheet, Text, View, Dimensions} from 'react-native';
 import {Button} from 'native-base';
@@ -5,7 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import Filter from "openchs-models/src/application/Filter";
+import {  Filter  } from 'openchs-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 

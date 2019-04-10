@@ -1,4 +1,5 @@
 import {DatePickerAndroid, TimePickerAndroid, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
@@ -11,12 +12,12 @@ import Fonts from '../primitives/Fonts';
 
 class DatePicker extends AbstractComponent {
     static propTypes = {
-        dateValue: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        actionName: React.PropTypes.string.isRequired,
-        actionObject: React.PropTypes.object.isRequired,
-        pickTime: React.PropTypes.bool,
-        nonRemovable: React.PropTypes.bool
+        dateValue: PropTypes.object,
+        validationResult: PropTypes.object,
+        actionName: PropTypes.string.isRequired,
+        actionObject: PropTypes.object.isRequired,
+        pickTime: PropTypes.bool,
+        nonRemovable: PropTypes.bool
     };
 
     constructor(props, context) {

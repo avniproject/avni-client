@@ -1,9 +1,10 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ProgramFormComponent from './ProgramFormComponent';
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
-import {ProgramEnrolment} from "openchs-models";
+import {ProgramEnrolment} from 'openchs-models';
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import Reducers from "../../reducer";
 import General from "../../utility/General";
@@ -11,7 +12,7 @@ import General from "../../utility/General";
 @Path('/ProgramExitView')
 class ProgramExitView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

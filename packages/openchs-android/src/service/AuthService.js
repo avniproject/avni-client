@@ -1,4 +1,4 @@
-import {AuthenticationDetails, CognitoUserPool, CognitoUser} from 'react-native-aws-cognito-js';
+import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import SettingsService from "./SettingsService";
@@ -7,7 +7,6 @@ import {getJSON} from '../framework/http/requests';
 import AuthenticationError from "./AuthenticationError";
 import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
-
 
 @Service("authService")
 class AuthService extends BaseService {
@@ -236,6 +235,7 @@ class AuthService extends BaseService {
 
         const authenticationDetails = new AuthenticationDetails({Username: userId, Password: password});
         const cognitoUser = AuthService._createCognitoUser(settings, userId);
+        General.logDebug('AuthService.Authenticating', cognitoUser);
         return new Promise((resolve, reject) => {
             cognitoUser.authenticateUser(authenticationDetails, {
                 onSuccess: function (session) {

@@ -1,9 +1,10 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
-import {Tabs} from "native-base";
+import {Tabs, Tab} from "native-base";
 import themes from "./primitives/themes";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
@@ -21,8 +22,8 @@ import RegistrationFAB from "./individual/RegistrationFAB";
 @Path('/landingView')
 class LandingView extends AbstractComponent {
     static propTypes = {
-        tabIndex: React.PropTypes.number,
-        menuProps: React.PropTypes.object
+        tabIndex: PropTypes.number,
+        menuProps: PropTypes.object
     };
 
     static defaultProps = {
@@ -47,22 +48,22 @@ class LandingView extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    componentDidMount() {
-        this._tabs.goToPage(this.props.tabIndex);
-    }
-
     render() {
         General.logDebug("LandingView", "render");
         return (
             <CHSContainer theme={themes}>
                 <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                <Tabs ref={ t => this._tabs = t }>
-                    <IndividualSearchView
-                        tabLabel={this.I18n.t('home')}
-                        tabStyle={{backgroundColor: 'red'}}
-                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                    />
-                    <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
+                <Tabs>
+                    <Tab heading={this.I18n.t('home')}>
+                        <IndividualSearchView
+                            tabLabel={this.I18n.t('home')}
+                            tabStyle={{backgroundColor: 'red'}}
+                            onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                        />
+                    </Tab>
+                    <Tab heading={this.I18n.t('menu')}>
+                        <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
+                    </Tab>
                 </Tabs>
                 {/*<RegistrationFAB parent={this}/>*/}
             </CHSContainer>

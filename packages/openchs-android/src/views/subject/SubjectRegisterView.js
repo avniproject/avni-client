@@ -1,4 +1,5 @@
 import {ToastAndroid, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -8,7 +9,7 @@ import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, PrimitiveValue, AbstractEncounter, Individual} from "openchs-models";
+import {ObservationsHolder, PrimitiveValue, AbstractEncounter, Individual} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -26,7 +27,7 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

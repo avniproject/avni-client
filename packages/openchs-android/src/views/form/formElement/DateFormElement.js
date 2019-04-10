@@ -1,20 +1,21 @@
 import {View} from "react-native";
 import {Text} from "native-base"
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import DatePicker from "../../primitives/DatePicker";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
-import {Concept} from "openchs-models";
+import {Concept} from 'openchs-models';
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        dateValue: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        style: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        dateValue: PropTypes.object,
+        validationResult: PropTypes.object,
+        style: PropTypes.object
     };
 
     constructor(props, context) {

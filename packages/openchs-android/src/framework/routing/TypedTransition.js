@@ -42,7 +42,7 @@ export default class TypedTransition {
 
     safeDismissKeyboard() {
         try {
-            require("dismissKeyboard")();
+            // require("dismissKeyboard")();
         } catch (e) {
         }
     }

@@ -10,32 +10,17 @@
     "preset": "react-native",
     "testMatch": [
       "<rootDir>/test/**/*Test.js"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!react-native|OpenCHSClient)/",
-      "node_modules/(realm)/"
-    ],
-    "haste": {
-      "defaultPlatform": "android",
-      "platforms": [
-        "android",
-        "ios"
-      ],
-      "providesModuleNodeModules": [
-        "react",
-        "react-native"
-      ]
-    }
+    ]
   },
   "license": "AGPL-3.0",
   "scripts": {
     "start": "node --max-old-space-size=2048 node_modules/react-native/local-cli/cli.js start --reset-cache",
-    "test": "jest --forceExit",
+    "test": "jest",
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
-    "postinstall": "bash patches/scripts/apply-patches.sh",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')"
   },
   "dependencies": {
+    "amazon-cognito-identity-js": "^3.0.11",
     "base-64": "0.1.0",
     "bugsnag-react-native": "^2.10.3",
     "color": "2.0.0",
@@ -43,42 +28,45 @@
     "invariant": "2.2.2",
     "lodash": "4.14.0",
     "moment": "2.18.1",
-    "native-base": "0.5.22",
+    "native-base": "2.12.1",
     "openchs-health-modules": "0.0.2",
     "openchs-models": "0.0.2",
-    "react": "15.4.2",
-    "react-native": "0.42.3",
-    "react-native-aws-cognito-js": "0.0.7",
+    "react": "16.8.3",
+    "react-native": "^0.59.5",
     "react-native-background-task": "^0.2.1",
     "react-native-charts-wrapper": "0.4.2",
     "react-native-config": "0.10.0",
+    "react-native-deprecated-custom-components": "^0.1.2",
     "react-native-fs": "^2.11.17",
+    "react-native-geolocation-service": "1.1.0",
     "react-native-i18n": "0.1.1",
     "react-native-image-picker": "^0.28.0",
     "react-native-image-zoom-viewer": "^2.2.24",
+    "react-native-mime-types": "^2.2.1",
     "react-native-vector-icons": "^6.1.0",
-    "react-native-video": "3.0.0",
+    "react-native-video": "4.4.1",
     "react-native-video-player": "0.10.0",
+    "react-native-device-info": "^1.6.0",
     "realm": "2.0.12",
     "redux": "3.6.0",
     "rn-fetch-blob": "^0.10.15",
     "stacktrace-js": "2.0.0",
-    "transducers-js": "0.4.174",
-    "react-native-mime-types": "^2.2.1",
-    "react-native-geolocation-service": "1.1.0"
+    "transducers-js": "0.4.174"
   },
   "devDependencies": {
-    "babel-jest": "20.0.1",
-    "babel-preset-es2015": "6.24.1",
-    "babel-preset-react-native": "1.9.2",
-    "babel-preset-react-native-stage-0": "1.0.1",
+    "@babel/core": "7.4.4",
+    "@babel/runtime": "7.4.4",
+    "@babel/plugin-proposal-decorators": "7.4.4",
+    "@babel/plugin-proposal-class-properties": "7.4.4",
+    "babel-jest": "24.7.1",
     "bugsnag-sourcemaps": "1.0.4",
     "chai": "4.1.2",
     "enzyme": "2.4.1",
     "faker": "4.1.0",
-    "jest": "20.0.1",
+    "jest": "24.7.1",
+    "metro-react-native-babel-preset": "0.53.1",
+    "react-test-renderer": "16.8.3",
     "react-addons-test-utils": "15.4.1",
-    "react-dom": "15.4.2",
-    "react-test-renderer": "15.4.2"
+    "react-dom": "15.4.2"
   }
 }

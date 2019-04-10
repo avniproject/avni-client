@@ -1,8 +1,8 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import _ from "lodash";
-import Individual from "openchs-models/src/Individual";
-import EntityQueue from "openchs-models/src/EntityQueue";
+import {  Individual  } from 'openchs-models';
+import {  EntityQueue  } from 'openchs-models';
 
 @Service("entityService")
 class EntityService extends BaseService {

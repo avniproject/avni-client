@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -12,7 +13,7 @@ import Reducers from "../../reducer";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import _ from "lodash";
 import General from "../../utility/General";
-import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter} from "openchs-models";
+import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";
@@ -27,8 +28,8 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
     static propTypes = {
-        encounter: React.PropTypes.object,
-        individualUUID: React.PropTypes.string
+        encounter: PropTypes.object,
+        individualUUID: PropTypes.string
     };
 
     viewName() {

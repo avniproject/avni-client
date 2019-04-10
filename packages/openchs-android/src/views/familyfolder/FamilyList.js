@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import {Text, View, StyleSheet, ListView, TouchableNativeFeedback} from 'react-native';
 import _ from 'lodash';

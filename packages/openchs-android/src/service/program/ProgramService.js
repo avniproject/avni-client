@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Program} from "../../../../openchs-models";
+import {Program} from 'openchs-models';
 
 @Service("ProgramService")
 class ProgramService extends BaseService {

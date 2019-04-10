@@ -1,10 +1,10 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {SingleSelectFilter} from "openchs-models";
+import {SingleSelectFilter} from 'openchs-models';
 import _ from 'lodash';
 import ProgramConfigService from "./ProgramConfigService";
 import IndividualService from "./IndividualService";
-import MultiSelectFilter from "openchs-models/src/application/MultiSelectFilter";
+import {  MultiSelectFilter  } from 'openchs-models';
 import ProgramService from "./program/ProgramService";
 import FormMappingService from "./FormMappingService";
 

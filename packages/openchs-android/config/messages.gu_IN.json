@@ -232,8 +232,6 @@
   "saveAndEnrol": "પ્રોગ્રામમાં સાચવો અને નોંધણી કરો",
   "anotherRegistration": "અન્ય {{subject}} નોંધણી કરો",
   "registrationSavedMsg": "નોંધણી પૂર્ણ થઈ",
-  "registrationCompleteProceedToNextRegMsg" : "નોંધણી પૂર્ણ થઈ",
-  "registrationCompleteProceedToEnrolmentMsg" : "નોંધણી પૂર્ણ થઈ",
   "enrolmentSavedMsg": "{{programName}} એનરોલમેન્ટ સાચવેલ",
   "enrolmentExitMsg": "{{programName}} પ્રોગ્રામમાંથી બહાર ગયું",
   "encounterSavedMsg" : "{{encounterName}} એન્કાઉન્ટર સાચવેલ",

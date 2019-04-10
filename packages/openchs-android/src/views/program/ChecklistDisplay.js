@@ -1,7 +1,8 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import {View} from "react-native";
 import {Button, Text} from "native-base";
-import {Duration} from "openchs-models";
+import {Duration} from 'openchs-models';
 import DGS from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";

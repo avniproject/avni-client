@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Text, CheckBox } from 'native-base';
@@ -8,10 +9,10 @@ import Distances from "../../primitives/Distances";
 
 class CheckBoxFormElement extends Component {
     static propTypes = {
-        label: React.PropTypes.string.isRequired,
-        checkBoxText: React.PropTypes.string.isRequired,
-        checked: React.PropTypes.bool.isRequired,
-        onPress: React.PropTypes.func.isRequired
+        label: PropTypes.string.isRequired,
+        checkBoxText: PropTypes.string.isRequired,
+        checked: PropTypes.bool.isRequired,
+        onPress: PropTypes.func.isRequired
     };
 
     render() {

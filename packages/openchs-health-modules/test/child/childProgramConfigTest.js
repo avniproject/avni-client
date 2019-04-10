@@ -1,7 +1,7 @@
 import config from "../../health_modules/child/childProgramConfig";
 const expect = require('chai').expect;
 import _ from "lodash";
-import {ProgramEnrolment, Gender, Individual} from "openchs-models";
+import {ProgramEnrolment, Gender, Individual} from 'openchs-models';
 import wfa_boys from "../../health_modules/child/anthropometry/wfa_boys";
 
 

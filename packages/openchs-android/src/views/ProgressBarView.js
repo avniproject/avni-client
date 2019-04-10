@@ -1,5 +1,6 @@
 import {ProgressBarAndroid, Text, View, Button} from "react-native";
 import Fonts from "./primitives/Fonts";
+import PropTypes from 'prop-types';
 import React from "react";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
@@ -8,10 +9,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class ProgressBarView extends AbstractComponent {
     static propType = {
-        progressBar: React.PropTypes.func,
-        progressMessage: React.PropTypes.func,
-        onProgressComplete: React.PropTypes.func,
-        onPress: React.PropTypes.func.isRequired,
+        progressBar: PropTypes.func,
+        progressMessage: PropTypes.func,
+        onProgressComplete: PropTypes.func,
+        onPress: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {

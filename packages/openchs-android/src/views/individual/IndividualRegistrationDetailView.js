@@ -1,4 +1,5 @@
 import {View, Alert, Text} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -24,7 +25,7 @@ import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

@@ -1,4 +1,5 @@
 import {View, Text} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -13,6 +14,7 @@ import Colors from "../primitives/Colors";
 import Actions from "../../action/VideoListViewActions";
 import CHSNavigator from "../../utility/CHSNavigator";
 import GlobalStyles from "../primitives/GlobalStyles";
+import General from "../../utility/General";
 
 @Path('/VideoListView')
 class VideoListView extends AbstractComponent {
@@ -70,6 +72,7 @@ class VideoListView extends AbstractComponent {
     };
 
     render() {
+        General.logDebug('VideoListView', 'render');
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('Videos')}/>

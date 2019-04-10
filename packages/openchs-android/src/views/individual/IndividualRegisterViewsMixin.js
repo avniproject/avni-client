@@ -5,10 +5,9 @@ import IndividualRegisterView from "./IndividualRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import {BaseEntity} from "openchs-models";
+import {BaseEntity,ProgramEnrolment} from 'openchs-models';
 import ProgramEnrolmentDashboardView from "../program/ProgramEnrolmentDashboardView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
-import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
 import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 
 class Mixin {
@@ -52,7 +51,7 @@ class Mixin {
             TypedTransition
                 .from(recommendationsView)
                 .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
-                    target, {params: {stitches}, message : source.I18n.t('registrationCompleteProceedToNextRegMsg')}, true);
+                    target, {params: {stitches}, message : source.I18n.t('registrationSavedMsg')}, true);
         };
         CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
     }
@@ -61,7 +60,7 @@ class Mixin {
         CHSNavigator.navigateToRegisterView(source, null, {
             registrationType: program.displayName,
             label: source.I18n.t('saveAndEnrol'),
-            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program, source.I18n.t('registrationCompleteProceedToEnrolmentMsg',{enl: program.displayName}))
+            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program, source.I18n.t('registrationSavedMsg'))
         }, subjectType);
     }
 

@@ -1,4 +1,5 @@
-import {ToastAndroid, Alert, BackAndroid} from "react-native";
+import {ToastAndroid, Alert, BackHandler} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -16,7 +17,7 @@ import ChecklistDisplay from "./ChecklistDisplay";
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
     static propTypes = {
-        enrolmentUUID: React.PropTypes.string.isRequired
+        enrolmentUUID: PropTypes.string.isRequired
     };
 
     viewName() {
@@ -30,7 +31,7 @@ class ChecklistView extends AbstractComponent {
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         this.backFunction = () => this.goBack();
-        BackAndroid.addEventListener('hardwareBackPress', this.backFunction);
+        BackHandler.addEventListener('backPress', this.backFunction);
         return super.componentWillMount();
     }
 
@@ -42,7 +43,7 @@ class ChecklistView extends AbstractComponent {
 
     componentWillUnmount() {
         super.componentWillUnmount();
-        BackAndroid.removeEventListener('hardwareBackPress', this.backFunction);
+        BackHandler.removeEventListener('backPress', this.backFunction);
     }
 
     goBack() {

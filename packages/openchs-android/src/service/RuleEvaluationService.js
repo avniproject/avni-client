@@ -8,7 +8,7 @@ import {
     Encounter,
     ProgramEncounter,
     ProgramEnrolment
-} from "openchs-models";
+} from 'openchs-models';
 import {
     encounterDecision,
     programEncounterDecision,
@@ -16,19 +16,19 @@ import {
     individualRegistrationDecision,
     familyRegistrationDecision,
     RuleRegistry
-} from "openchs-health-modules";
+} from 'openchs-health-modules';
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
-import Decision from "../../../openchs-models/src/Decision";
+import {  Decision  } from 'openchs-models';
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
 import RuleService from "./RuleService";
-import ChecklistDetail from "../../../openchs-models/src/ChecklistDetail";
+import {  ChecklistDetail  } from 'openchs-models';
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import IndividualEncounterService from "./IndividualEncounterService";
-import Individual from "openchs-models/src/Individual";
+import {  Individual  } from 'openchs-models';
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {

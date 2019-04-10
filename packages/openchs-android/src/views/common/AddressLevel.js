@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -11,11 +12,11 @@ import Distances from "../primitives/Distances";
 
 class AddressLevel extends AbstractComponent {
     static propTypes = {
-        multiSelect: React.PropTypes.bool,
-        levelType: React.PropTypes.string,
-        validationError: React.PropTypes.object,
-        mandatory: React.PropTypes.bool,
-        onToggle: React.PropTypes.func
+        multiSelect: PropTypes.bool,
+        levelType: PropTypes.string,
+        validationError: PropTypes.object,
+        mandatory: PropTypes.bool,
+        onToggle: PropTypes.func
     };
 
     viewName() {

@@ -1,4 +1,5 @@
 import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
@@ -44,11 +45,11 @@ const DEFAULT_DURATION_LIMIT = 60;
 
 export default class MediaFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        extraStyle: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object,
+        extraStyle: PropTypes.object
     };
     static defaultProps = {
         style: {}

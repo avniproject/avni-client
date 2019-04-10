@@ -1,4 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import PropTypes from 'prop-types';
 import React from "react";
 import {Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import Colors from "../primitives/Colors";
@@ -8,8 +9,8 @@ import Styles from "../primitives/Styles";
 class FloatingActionButton extends AbstractComponent {
 
     static propTypes = {
-        actions: React.PropTypes.array.isRequired,
-        primaryAction: React.PropTypes.object.isRequired,
+        actions: PropTypes.array.isRequired,
+        primaryAction: PropTypes.object.isRequired,
     };
 
     constructor(props, context) {

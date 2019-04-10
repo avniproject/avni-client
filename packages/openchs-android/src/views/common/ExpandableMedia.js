@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import ExpandableVideo from "./ExpandableVideo";
 import ExpandableImage from "./ExpandableImage";
@@ -10,8 +11,8 @@ import Colors from "../primitives/Colors";
 
 export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
-        source: React.PropTypes.string,
-        type: React.PropTypes.string
+        source: PropTypes.string,
+        type: PropTypes.string
     };
 
     constructor(props, context) {

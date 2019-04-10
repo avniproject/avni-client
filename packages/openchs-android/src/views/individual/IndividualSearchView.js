@@ -1,4 +1,5 @@
 import {View, Button, Text} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -11,7 +12,7 @@ import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
 import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
-import {PrimitiveValue} from "openchs-models";
+import {PrimitiveValue} from 'openchs-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
@@ -22,9 +23,9 @@ import RegistrationFAB from './RegistrationFAB';
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
     static propTypes = {
-        onIndividualSelection: React.PropTypes.func.isRequired,
-        showHeader: React.PropTypes.bool,
-        headerMessage: React.PropTypes.string
+        onIndividualSelection: PropTypes.func.isRequired,
+        showHeader: PropTypes.bool,
+        headerMessage: PropTypes.string
     };
 
     constructor(props, context) {

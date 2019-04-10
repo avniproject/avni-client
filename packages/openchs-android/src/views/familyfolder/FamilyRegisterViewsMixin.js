@@ -5,7 +5,7 @@ import FamilyRegisterView from "./FamilyRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import {BaseEntity} from "openchs-models";
+import {BaseEntity} from 'openchs-models';
 import FamilyFolderView from "../familyfolder/FamilyFolderView";
 
 class FamilyRegisterViewsMixin {

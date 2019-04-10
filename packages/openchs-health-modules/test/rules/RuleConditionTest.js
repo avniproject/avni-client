@@ -2,7 +2,7 @@ import {assert} from "chai";
 import {
     ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue, MultipleCodedValues,
     Individual, Gender
-} from "openchs-models";
+} from 'openchs-models';
 import EntityFactory from "openchs-models/test/EntityFactory";
 import {RuleCondition} from "rules-config/rules";
 import AddressLevel from "openchs-models/src/AddressLevel";

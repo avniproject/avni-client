@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -10,7 +11,7 @@ import AppHeader from "../common/AppHeader";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
 import FamilyRegisterViewsMixin from "./FamilyRegisterViewsMixin";
-import {ObservationsHolder} from "openchs-models";
+import {ObservationsHolder} from 'openchs-models';
 import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";

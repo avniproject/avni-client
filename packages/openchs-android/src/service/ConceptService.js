@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Concept, Observation} from "openchs-models";
+import {Concept, Observation} from 'openchs-models';
 import _ from 'lodash';
 import General from "../utility/General";
 

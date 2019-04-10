@@ -1,4 +1,5 @@
 import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from 'lodash';
@@ -8,7 +9,7 @@ import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
-import {EntityMetaData, SubjectType} from "openchs-models";
+import {EntityMetaData, SubjectType} from 'openchs-models';
 import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
@@ -41,7 +42,7 @@ const {width, height} = Dimensions.get('window');
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     static propType = {
-        startSync: React.PropTypes.bool
+        startSync: PropTypes.bool
     };
 
     static defaultProps = {
@@ -279,18 +280,16 @@ class MenuView extends AbstractComponent {
     };
 
     registrationModalItem(key, label, bgColor, onPress) {
-        return (<View key={key} style={{paddingTop: 24,}}>
-            <Button style={{
-                width: '100%',
-                backgroundColor: bgColor,
-                height: 50,
-                elevation: 2,
-            }}
-                    textStyle={{fontSize: 18, lineHeight: 28}}
-                    onPress={() => this.setState({regModalVisible: false}, onPress)}>
-                {label}
-            </Button>
-        </View>)
+        return <View key={key} style={{paddingTop: 24,}}>
+            <Button textStyle={{fontSize: 18, lineHeight: 28}}
+                    style={{
+                        width: '100%',
+                        backgroundColor: bgColor,
+                        height: 50,
+                        elevation: 2,
+                    }}
+                    onPress={() => this.setState({regModalVisible: false}, onPress)}><Text>{label}</Text></Button>
+        </View>;
     }
 
     renderRegistrationModal() {
@@ -332,7 +331,6 @@ class MenuView extends AbstractComponent {
                             {_.map([registrationAction].concat(programActions), (action, key) =>
                                 this.registrationModalItem(key, action.label, action.backgroundColor, action.fn)
                             )}
-
                         </View>
                         <View style={{flex: 1}}/>
                     </View>

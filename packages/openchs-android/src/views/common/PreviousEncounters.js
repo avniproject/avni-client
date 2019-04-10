@@ -1,4 +1,5 @@
 import {View, ListView, TouchableNativeFeedback} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import {Text, Button} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -19,12 +20,12 @@ import General from "../../utility/General";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
-        encounters: React.PropTypes.any.isRequired,
-        formType: React.PropTypes.string.isRequired,
-        style: React.PropTypes.object,
-        onShowMore: React.PropTypes.func.isRequired,
-        showCount: React.PropTypes.number,
-        showPartial: React.PropTypes.bool.isRequired
+        encounters: PropTypes.any.isRequired,
+        formType: PropTypes.string.isRequired,
+        style: PropTypes.object,
+        onShowMore: PropTypes.func.isRequired,
+        showCount: PropTypes.number,
+        showPartial: PropTypes.bool.isRequired
     };
 
     constructor(props, context) {

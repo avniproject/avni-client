@@ -4,10 +4,10 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
-import {StaticFormElementGroup, ProgramEnrolment} from "openchs-models";
+import {StaticFormElementGroup, ProgramEnrolment} from 'openchs-models';
 import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Point} from "openchs-models";
+import {Point} from 'openchs-models';
 import GeolocationActions from "../common/GeolocationActions";
 
 export class ProgramEnrolmentActions {
@@ -112,7 +112,7 @@ export class ProgramEnrolmentActions {
                 .addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
             service.exit(newState.enrolment);
         }
-        action.cb(newState.enrolment);
+        action.cb(newState.enrolment,true);
         return newState;
     }
 }

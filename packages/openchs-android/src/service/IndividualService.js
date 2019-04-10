@@ -1,11 +1,11 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {EntityQueue, ObservationsHolder, Program} from "openchs-models";
+import {EntityQueue, ObservationsHolder, Program} from 'openchs-models';
 import _ from 'lodash';
-import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
+import {  ProgramEncounter  } from 'openchs-models';
 import moment from 'moment';
-import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
-import Individual from "openchs-models/src/Individual";
+import {  ProgramEnrolment  } from 'openchs-models';
+import {  Individual  } from 'openchs-models';
 import MediaQueueService from "./MediaQueueService";
 
 @Service("individualService")

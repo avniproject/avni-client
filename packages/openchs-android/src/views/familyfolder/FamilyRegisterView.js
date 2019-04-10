@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -9,7 +10,7 @@ import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import {Family, PrimitiveValue} from "openchs-models";
+import {Family, PrimitiveValue} from 'openchs-models';
 import General from "../../utility/General";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Distances from "../primitives/Distances";
@@ -25,7 +26,7 @@ import Styles from "../primitives/Styles";
 @Path('/familyRegister')
 class FamilyRegisterView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

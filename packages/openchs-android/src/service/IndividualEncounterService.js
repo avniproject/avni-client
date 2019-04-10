@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {Encounter, Individual, EntityQueue, ObservationsHolder} from "openchs-models";
+import {Encounter, Individual, EntityQueue, ObservationsHolder} from 'openchs-models';
 import MediaQueueService from "./MediaQueueService";
 
 @Service("individualEncounterService")

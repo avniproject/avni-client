@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import {EncounterActions} from "../../src/action/individual/EncounterActions";
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
-import {Encounter, Observation, Individual, FormElement, Concept, ConceptAnswer, PrimitiveValue} from "openchs-models";
+import {Encounter, Observation, Individual, FormElement, Concept, ConceptAnswer, PrimitiveValue} from 'openchs-models';
 import EntityFactory from "openchs-models/test/EntityFactory";
 import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";

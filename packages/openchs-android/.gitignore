@@ -1,0 +1,18 @@
+build/
+*.iml
+.idea
+node_modules/
+npm-debug.log
+
+.idea/
+.tmp/
+
+
+# https://docs.fastlane.tools/best-practices/source-control/
+
+*/fastlane/report.xml
+*/fastlane/Preview.html
+*/fastlane/screenshots
+
+# Bundle artifact
+*.jsbundle

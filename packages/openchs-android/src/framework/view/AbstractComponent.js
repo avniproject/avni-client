@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component, Text, View} from "react";
 import {Alert, StyleSheet} from "react-native";
 import _ from "lodash";
@@ -8,9 +9,9 @@ import TypedTransition from "../routing/TypedTransition";
 
 class AbstractComponent extends Component {
     static contextTypes = {
-        navigator: React.PropTypes.func.isRequired,
-        getService: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func
+        navigator: PropTypes.func.isRequired,
+        getService: PropTypes.func.isRequired,
+        getStore: PropTypes.func
     };
 
     constructor(props, context, topLevelStateVariable) {
@@ -21,15 +22,12 @@ class AbstractComponent extends Component {
     }
 
     changeFocus() {
-        General.logDebug("AbstractComponent", "CHANGE FOCUS");
     }
 
     willFocus() {
-        General.logDebug("AbstractComponent", "WILL FOCUS");
     }
 
     didFocus() {
-        General.logDebug("AbstractComponent", "DID FOCUS");
     }
 
     static styles = StyleSheet.create({
@@ -84,9 +82,7 @@ class AbstractComponent extends Component {
     }
 
     scrollToTop() {
-        // Mihir: Trust me this is required. 
-        this.refs.scroll._scrollview.scrollToPosition(0, 10, true);
-        this.refs.scroll._scrollview.scrollToPosition(0, 1, true);
+        this.refs.scroll._root.scrollToPosition(0, 1, true);
     }
 
     componentWillUnmount() {

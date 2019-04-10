@@ -1,4 +1,5 @@
 import {TimePickerAndroid, View, Text} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from "lodash";
@@ -10,10 +11,10 @@ import Fonts from '../primitives/Fonts';
 
 class TimePicker extends AbstractComponent {
     static propTypes = {
-        timeValue: React.PropTypes.string,
-        validationResult: React.PropTypes.object,
-        actionName: React.PropTypes.string.isRequired,
-        actionObject: React.PropTypes.object.isRequired,
+        timeValue: PropTypes.string,
+        validationResult: PropTypes.object,
+        actionName: PropTypes.string.isRequired,
+        actionObject: PropTypes.object.isRequired,
     };
 
     constructor(props, context) {

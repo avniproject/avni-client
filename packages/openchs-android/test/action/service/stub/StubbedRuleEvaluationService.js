@@ -1,4 +1,4 @@
-import {FormElementStatus, ValidationResult} from "openchs-models";
+import {FormElementStatus, ValidationResult} from 'openchs-models';
 
 class StubbedRuleEvaluationService {
     validateAgainstRule(entity) {

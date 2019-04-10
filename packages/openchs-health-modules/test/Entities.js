@@ -1,5 +1,5 @@
 var moment = require('moment');
-import {ObservationsHolder, ProgramEncounter, ProgramEnrolment, Encounter, EncounterType, Individual, Gender} from "openchs-models";
+import {ObservationsHolder, ProgramEncounter, ProgramEnrolment, Encounter, EncounterType, Individual, Gender} from 'openchs-models';
 import {findConcept} from "./Concepts";
 
 const getObservationValue = function (conceptName) {

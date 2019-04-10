@@ -1,6 +1,6 @@
 import BaseService from "./../BaseService";
 import Service from "../../framework/bean/Service";
-import {IndividualRelationshipType} from "openchs-models";
+import {IndividualRelationshipType} from 'openchs-models';
 import _ from 'lodash';
 import IndividualRelationGenderMappingService from "./IndividualRelationGenderMappingService";
 import General from "../../utility/General";

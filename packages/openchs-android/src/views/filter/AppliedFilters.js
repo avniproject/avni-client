@@ -1,4 +1,5 @@
 import {StyleSheet, Text, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from 'react';
 import {Badge} from 'native-base';
 import Colors from "../primitives/Colors";

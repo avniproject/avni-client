@@ -1,4 +1,5 @@
 import {StyleSheet, View} from "react-native";
+import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppHeader from "../common/AppHeader";
@@ -9,7 +10,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/formElement/DateFormElement";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {PrimitiveValue, ProgramEnrolment} from "openchs-models";
+import {PrimitiveValue, ProgramEnrolment} from 'openchs-models';
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
@@ -21,10 +22,10 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
-        context: React.PropTypes.object.isRequired,
-        state: React.PropTypes.object.isRequired,
-        backFunction: React.PropTypes.func.isRequired,
-        editing: React.PropTypes.bool.isRequired
+        context: PropTypes.object.isRequired,
+        state: PropTypes.object.isRequired,
+        backFunction: PropTypes.func.isRequired,
+        editing: PropTypes.bool.isRequired
     };
 
     next() {

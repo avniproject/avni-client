@@ -1,7 +1,8 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {Schema, EntityMetaData} from "openchs-models";
+import {Schema, EntityMetaData} from 'openchs-models';
 import './views';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import themes from "./views/primitives/themes";
@@ -35,10 +36,10 @@ export default class App extends Component {
     }
 
     static childContextTypes = {
-        getService: React.PropTypes.func.isRequired,
-        getDB: React.PropTypes.func.isRequired,
-        getStore: React.PropTypes.func.isRequired,
-        navigator: React.PropTypes.func.isRequired,
+        getService: PropTypes.func.isRequired,
+        getDB: PropTypes.func.isRequired,
+        getStore: PropTypes.func.isRequired,
+        navigator: PropTypes.func.isRequired,
     };
 
     handleError(error, stacktrace) {

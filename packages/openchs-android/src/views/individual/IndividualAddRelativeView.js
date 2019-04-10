@@ -1,4 +1,5 @@
 import {Alert, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -9,7 +10,7 @@ import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import {IndividualRelative} from "openchs-models";
+import {IndividualRelative} from 'openchs-models';
 import _ from "lodash";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import AppHeader from "../common/AppHeader";
@@ -22,7 +23,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 @Path('/individualAddRelative')
 class IndividualAddRelativeView extends AbstractComponent {
     static propTypes = {
-        individual: React.PropTypes.object
+        individual: PropTypes.object
     };
 
     constructor(props, context) {

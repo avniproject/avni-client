@@ -2,7 +2,7 @@ import {expect, assert} from "chai";
 import {
     Concept, MultipleCodedValues, Observation, PrimitiveValue, ProgramEncounter,
     ProgramEnrolment
-} from "openchs-models";
+} from 'openchs-models';
 import {getDecisions} from "../health_modules/mother/pncEncounterDecision";
 import * as C from "../health_modules/common";
 import EntityFactory from "openchs-models/test/EntityFactory";

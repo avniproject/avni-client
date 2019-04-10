@@ -230,12 +230,11 @@
   "saveAndEnrol": "Save and enrol into program",
   "anotherRegistration": "Register another {{subject}}",
   "registrationSavedMsg": "Registration Saved",
-  "registrationCompleteProceedToNextRegMsg" : "Registration Saved",
-  "registrationCompleteProceedToEnrolmentMsg" : "Registration Saved",
   "enrolmentSavedMsg": "{{programName}} Enrolment Saved",
   "enrolmentExitMsg": "Exited From {{programName}} Program",
   "encounterSavedMsg" : "{{encounterName}} Encounter Saved",
   "encounterCanceledMsg": "{{encounterName}} Encounter Canceled",
-  "programSavedProceedEncounterMsg" : "{{programName}} Enrolment Saved",
+  "programSavedProceedEncounterMsg" : "{{program}} Enrolment Saved",
+  "encounterSavedProceedEncounterMsg" : "{{encounter}} Encounter Saved",
   "saved": "Saved"
 }

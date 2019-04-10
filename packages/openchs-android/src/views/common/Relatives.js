@@ -1,4 +1,5 @@
 import {TouchableNativeFeedback, ListView, Text, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Fonts from "../primitives/Fonts";
@@ -7,12 +8,12 @@ import Styles from "../primitives/Styles";
 import {Icon, Button} from "native-base";
 class Relatives extends AbstractComponent {
     static propTypes = {
-        relatives: React.PropTypes.array.isRequired,
-        style: React.PropTypes.object,
-        title: React.PropTypes.string,
-        highlight: React.PropTypes.bool,
-        onRelativeSelection: React.PropTypes.func.isRequired,
-        onRelativeDeletion: React.PropTypes.func.isRequired
+        relatives: PropTypes.array.isRequired,
+        style: PropTypes.object,
+        title: PropTypes.string,
+        highlight: PropTypes.bool,
+        onRelativeSelection: PropTypes.func.isRequired,
+        onRelativeDeletion: PropTypes.func.isRequired
     };
 
     constructor(props, context) {

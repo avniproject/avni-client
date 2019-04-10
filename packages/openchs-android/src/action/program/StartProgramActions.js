@@ -3,7 +3,7 @@ import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
 import MessageService from "../../service/MessageService";
 import moment from "moment";
-import {ProgramEncounter} from "openchs-models";
+import {ProgramEncounter} from 'openchs-models';
 import General from "../../utility/General";
 
 class StartProgramActions {

@@ -2,8 +2,7 @@ import C from '../common';
 import _ from "lodash";
 import {gestationalAgeAsOfToday} from './calculations';
 import {complicationsBuilder as ComplicationsBuilder} from "rules-config/rules";
-
-const getNextScheduledVisits = require('./motherVisitSchedule').getNextScheduledVisits;
+import {getNextScheduledVisits} from './motherVisitSchedule';
 
 const getDecisions = function (programEnrolment, today, programEncounter) {
     var decisions = [];

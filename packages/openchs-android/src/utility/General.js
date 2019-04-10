@@ -1,4 +1,4 @@
-import {Duration, Observation, Concept} from "openchs-models";
+import {Duration, Observation, Concept} from 'openchs-models';
 import _ from 'lodash';
 import moment from "moment";
 
@@ -220,11 +220,12 @@ class General {
 
     static log(source, message, level) {
         try {
-            if (level >= General.getCurrentLogLevel()) {
-                console.log(`[${source}][${_.findKey(General.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
-            }
+            let levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
+            let logMessage = `[${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
+            if (level >= General.getCurrentLogLevel())
+                console[levelName.toLowerCase()](logMessage);
         } catch (e) {
-            General.log('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
+            console.error('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
         }
     }
 

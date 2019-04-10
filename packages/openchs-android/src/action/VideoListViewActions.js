@@ -1,6 +1,5 @@
-import {Video} from "openchs-models";
 import VideoService from "../service/VideoService";
-import VideoTelemetric from "openchs-models/src/videos/VideoTelemetric";
+import { Video, VideoTelemetric  } from 'openchs-models';
 import EntityService from "../service/EntityService";
 import General from "../utility/General";
 

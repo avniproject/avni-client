@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
 import Fonts from '../primitives/Fonts';
@@ -8,9 +9,9 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 
 class TitleNumberBlock extends AbstractComponent {
     static propTypes = {
-        title: React.PropTypes.string,
-        number: React.PropTypes.number,
-        highlight: React.PropTypes.bool
+        title: PropTypes.string,
+        number: PropTypes.number,
+        highlight: PropTypes.bool
     };
 
     static styles = StyleSheet.create({

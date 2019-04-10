@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {IndividualRelationGenderMapping} from "openchs-models";
+import {IndividualRelationGenderMapping} from 'openchs-models';
 
 @Service("individualRelationGenderMappingService")
 class IndividualRelationGenderMappingService extends BaseService {

@@ -1,6 +1,6 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
-import ValidationResult from "openchs-models/src/application/ValidationResult";
+import {  ValidationResult  } from 'openchs-models';
 
 class LoginActions {
     static getInitialState() {
@@ -39,7 +39,7 @@ class LoginActions {
                 },
                 (error) => {
                     General.logError("LoginActions", error);
-                    const errorMsg = _.includes(error.message,"Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.message;
+                    const errorMsg = _.includes(error.message,"Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
                     action.failure(errorMsg);
                     return;
                 },

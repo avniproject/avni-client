@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {UserInfo} from "openchs-models";
+import {UserInfo} from 'openchs-models';
 
 @Service("userInfoService")
 class UserInfoService extends BaseService {

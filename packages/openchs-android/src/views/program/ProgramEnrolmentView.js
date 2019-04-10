@@ -1,9 +1,10 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ProgramFormComponent from "./ProgramFormComponent";
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
-import {ProgramEnrolment} from "openchs-models";
+import {ProgramEnrolment} from 'openchs-models';
 import ProgramEnrolmentState from "../../action/program/ProgramEnrolmentState";
 import Reducers from "../../reducer";
 import General from "../../utility/General";
@@ -12,7 +13,7 @@ import {ToastAndroid} from "react-native";
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
     static propTypes = {
-        enrolment: React.PropTypes.object.isRequired
+        enrolment: PropTypes.object.isRequired
     };
 
     static usageContext = {

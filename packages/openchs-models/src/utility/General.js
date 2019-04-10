@@ -209,7 +209,10 @@ class General {
 
     static log(source, message, level) {
         if (level >= General.getCurrentLogLevel()) {
-            console.log(`[${source}][${_.findKey(General.LogLevel, (value) => value === level)}] ${General.getDisplayableMessage(message)}`);
+            let levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
+            let logMessage = `[${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
+            if (level >= General.getCurrentLogLevel())
+                console[levelName.toLowerCase()](logMessage);
         }
     }
 

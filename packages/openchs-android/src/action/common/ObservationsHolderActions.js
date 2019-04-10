@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {Concept, Duration} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {FormElementGroup} from "openchs-models";
+import {FormElementGroup} from 'openchs-models';
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {

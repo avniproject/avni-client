@@ -2,17 +2,17 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import General from "../utility/General";
 import _ from 'lodash';
-import AddressLevel from "../../../openchs-models/src/AddressLevel";
-import Program from "../../../openchs-models/src/Program";
-import ProgramEncounter from "../../../openchs-models/src/ProgramEncounter";
-import Gender from "../../../openchs-models/src/Gender";
-import EncounterType from "../../../openchs-models/src/EncounterType";
-import Individual from "../../../openchs-models/src/Individual";
-import ProgramEnrolment from "../../../openchs-models/src/ProgramEnrolment";
+import {  AddressLevel  } from 'openchs-models';
+import {  Program  } from 'openchs-models';
+import {  ProgramEncounter  } from 'openchs-models';
+import {  Gender  } from 'openchs-models';
+import {  EncounterType  } from 'openchs-models';
+import {  Individual  } from 'openchs-models';
+import {  ProgramEnrolment  } from 'openchs-models';
 import faker from 'faker';
 import moment from 'moment';
-import {Observation} from "openchs-models";
-import Concept from "../../../openchs-models/src/Concept";
+import {Observation} from 'openchs-models';
+import {  Concept  } from 'openchs-models';
 
 @Service("fakeDataService")
 class FakeDataService extends BaseService {

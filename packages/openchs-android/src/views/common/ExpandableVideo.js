@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import {Image, Modal, TouchableNativeFeedback, View} from "react-native";
 import VideoPlayerWrapper from "../videos/VideoPlayerWrapper";
@@ -8,7 +9,7 @@ export default class ExpandableVideo extends React.Component {
     }
 
     static propTypes = {
-        source: React.PropTypes.string,
+        source: PropTypes.string,
     };
 
     componentWillMount() {

@@ -1,4 +1,5 @@
 import {Text, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
@@ -9,10 +10,10 @@ import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 
 class SelectFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        isSelected: React.PropTypes.func.isRequired,
-        validationResult: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        isSelected: PropTypes.func.isRequired,
+        validationResult: PropTypes.object
     };
 
     constructor(props, context) {

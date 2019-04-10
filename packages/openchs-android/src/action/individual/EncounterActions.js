@@ -5,7 +5,7 @@ import _ from "lodash";
 import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter, Form, Point} from "openchs-models";
+import {Encounter, Form, Point} from 'openchs-models';
 import GeolocationActions from "../common/GeolocationActions";
 
 export class EncounterActions {

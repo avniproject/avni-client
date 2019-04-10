@@ -1,4 +1,5 @@
 import {Text, TouchableOpacity, View, StyleSheet} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {CheckBox, Radio} from "native-base";
@@ -16,14 +17,14 @@ class PresetOptionItem extends AbstractComponent {
     };
 
     static propTypes = {
-        multiSelect: React.PropTypes.bool.isRequired,
-        checked: React.PropTypes.bool.isRequired,
-        onPress: React.PropTypes.func,
-        displayText: React.PropTypes.string.isRequired,
-        validationResult: React.PropTypes.object,
-        abnormal: React.PropTypes.bool,
-        style: React.PropTypes.object,
-        chunked: React.PropTypes.bool
+        multiSelect: PropTypes.bool.isRequired,
+        checked: PropTypes.bool.isRequired,
+        onPress: PropTypes.func,
+        displayText: PropTypes.string.isRequired,
+        validationResult: PropTypes.object,
+        abnormal: PropTypes.bool,
+        style: PropTypes.object,
+        chunked: PropTypes.bool
     };
 
     static styles = StyleSheet.create({

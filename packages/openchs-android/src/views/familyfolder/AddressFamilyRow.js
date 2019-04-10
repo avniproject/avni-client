@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import _ from 'lodash';
@@ -10,8 +11,8 @@ import FamilyList from "./FamilyList";
 
 class AddressFamilyRow extends AbstractComponent {
     static propTypes = {
-        address: React.PropTypes.object.isRequired,
-        familiesSummary: React.PropTypes.object.isRequired,
+        address: PropTypes.object.isRequired,
+        familiesSummary: PropTypes.object.isRequired,
     };
 
     static styles = StyleSheet.create({

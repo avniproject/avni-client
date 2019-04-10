@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
 import {Badge} from 'native-base';
@@ -12,8 +13,8 @@ import _ from "lodash";
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
-        address: React.PropTypes.object,
-        backFunction: React.PropTypes.func.isRequired
+        address: PropTypes.object,
+        backFunction: PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({

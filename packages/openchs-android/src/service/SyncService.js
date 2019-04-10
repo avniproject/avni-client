@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntitySyncStatus, SyncTelemetry} from "openchs-models";
+import { EntitySyncStatus, SyncTelemetry } from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";

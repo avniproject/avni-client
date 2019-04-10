@@ -4,7 +4,7 @@ var riskPredictor = require('../health_modules/ncd/cvdRiskPredictor');
 const ProgramEncounter = require("./Entities").ProgramEncounter;
 const Individual = require("./Entities").Individual;
 const C = require('../health_modules/common');
-import {Gender} from "openchs-models";
+import {Gender} from 'openchs-models';
 
 describe('Make Decision', function () {
     var programEncounter;

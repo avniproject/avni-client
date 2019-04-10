@@ -8,7 +8,7 @@ import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
 import Messages_gu_IN from '../../config/messages.gu_IN.json';
 import {EntityMetaData} from 'openchs-models';
-import {customMessages} from "openchs-health-modules";
+import {customMessages} from 'openchs-health-modules';
 import UserInfoService from "./UserInfoService";
 
 @Service("messageService")

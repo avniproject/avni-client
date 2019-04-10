@@ -1,4 +1,5 @@
-import {View} from "react-native";
+import {View, Text} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import {Button} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -11,10 +12,10 @@ class WizardButtons extends AbstractComponent {
     }
 
     static propTypes = {
-        previous: React.PropTypes.object,
-        next: React.PropTypes.object,
-        style: React.PropTypes.object,
-        nextAndMore: React.PropTypes.object,
+        previous: PropTypes.object,
+        next: PropTypes.object,
+        style: PropTypes.object,
+        nextAndMore: PropTypes.object,
     };
 
     getButtonProps(buttonProps) {
@@ -37,7 +38,7 @@ class WizardButtons extends AbstractComponent {
                     <Button primary
                             style={{flex: 1}}
                             onPress={() => nextAndMore.func()}>
-                        {nextAndMore.label}</Button>
+                        <Text>{nextAndMore.label}</Text></Button>
                     : null
                 }
             </View>
@@ -50,12 +51,12 @@ class WizardButtons extends AbstractComponent {
                                 backgroundColor: Colors.SecondaryActionButtonColor
                             }}
                             textStyle={{color: '#212121'}}
-                            onPress={() => previousButton.func()}>{previousButton.label}</Button> :
+                            onPress={() => previousButton.func()}><Text>{previousButton.label}</Text></Button> :
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
                             style={{flex: 0.5, marginLeft: 8}}
-                            onPress={() => nextButton.func()}>{nextButton.label}</Button> : <View style={{flex: 0.5}}/>}
+                            onPress={() => nextButton.func()}><Text>{nextButton.label}</Text></Button> : <View style={{flex: 0.5}}/>}
             </View>
         </View>);
     }

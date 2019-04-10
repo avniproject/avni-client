@@ -1,4 +1,5 @@
 import {ToastAndroid, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -9,7 +10,7 @@ import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import {Individual} from "openchs-models";
+import {Individual} from 'openchs-models';
 import General from "../../utility/General";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -25,7 +26,7 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     constructor(props, context) {
@@ -39,7 +40,6 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     get registrationType() {
-        console.log('came here', _.get(this.props.params.stitches, 'registrationType', 'Individual'));
         return _.get(this.props.params.stitches, 'registrationType', 'Individual');
     }
 

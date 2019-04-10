@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {AbstractEncounter, ObservationsHolder, ChecklistItem} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, ChecklistItem} from 'openchs-models';
 
 
 class ChecklistItemState extends AbstractDataEntryState {

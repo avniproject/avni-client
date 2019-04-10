@@ -1,5 +1,6 @@
 import {View} from "react-native";
 import {Text} from "native-base"
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import TimePicker from "../../primitives/TimePicker";
@@ -9,11 +10,11 @@ import Styles from "../../primitives/Styles";
 
 class TimeFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        timeValue: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        style: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        timeValue: PropTypes.object,
+        validationResult: PropTypes.object,
+        style: PropTypes.object
     };
 
     constructor(props, context) {

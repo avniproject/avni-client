@@ -1,9 +1,9 @@
 import EntityService from "../../service/EntityService";
-import {AddressLevel} from "openchs-models";
+import {AddressLevel} from 'openchs-models';
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
-import SubjectType from "../../../../openchs-models/src/SubjectType";
+import {  SubjectType  } from 'openchs-models';
 
 class MyDashboardActions {
     static getInitialState() {

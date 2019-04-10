@@ -1,4 +1,5 @@
 import {Text, TextInput, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import {Radio} from "native-base";
 import _ from "lodash";
@@ -7,15 +8,15 @@ import DGS from "../../primitives/DynamicGlobalStyles";
 import Colors from '../../primitives/Colors';
 import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
-import Duration from "../../../../../openchs-models/src/Duration";
+import {  Duration  } from 'openchs-models';
 
 class DurationFormElement extends AbstractFormElement {
     static propTypes = {
-        label: React.PropTypes.string.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        compositeDuration: React.PropTypes.object.isRequired,
-        validationResult: React.PropTypes.object,
-        element: React.PropTypes.object.isRequired,
+        label: PropTypes.string.isRequired,
+        actionName: PropTypes.string.isRequired,
+        compositeDuration: PropTypes.object.isRequired,
+        validationResult: PropTypes.object,
+        element: PropTypes.object.isRequired,
     };
 
     constructor(props, context) {

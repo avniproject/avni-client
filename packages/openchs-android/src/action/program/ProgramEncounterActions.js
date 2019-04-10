@@ -4,7 +4,7 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {ProgramEncounter, Form, Point} from "openchs-models";
+import {ProgramEncounter, Form, Point} from 'openchs-models';
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
@@ -93,7 +93,7 @@ class ProgramEncounterActions {
 
         service.saveOrUpdate(newState.programEncounter, scheduledVisits);
 
-        action.cb(newState.programEncounter.programEnrolment);
+        action.cb(newState.programEncounter, false);
         return newState;
     }
 

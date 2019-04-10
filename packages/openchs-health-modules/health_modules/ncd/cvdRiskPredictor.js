@@ -1,5 +1,5 @@
-var C = require('../common');
-var riskChartCVD = require('./metadata/riskPredictionChartCVD.json');
+import C from '../common';
+import riskChartCVD from './metadata/riskPredictionChartCVD.json';
 
 const getCvdRisk = function (programEncounter) {
 

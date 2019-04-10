@@ -1,12 +1,13 @@
 import {View, StyleSheet, Text} from 'react-native';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 
 class Separator extends AbstractComponent {
     static propTypes = {
-        style: React.PropTypes.object,
-        height: React.PropTypes.number,
-        backgroundColor: React.PropTypes.string
+        style: PropTypes.object,
+        height: PropTypes.number,
+        backgroundColor: PropTypes.string
     };
 
     static defaultProps = {

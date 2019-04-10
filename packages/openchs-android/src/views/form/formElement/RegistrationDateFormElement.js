@@ -1,15 +1,16 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import StaticFormElement from "../../viewmodel/StaticFormElement";
-import PrimitiveValue from "../../../../../openchs-models/src/observation/PrimitiveValue";
+import {  PrimitiveValue  } from 'openchs-models';
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
-import Individual from "../../../../../openchs-models/src/Individual";
+import {  Individual  } from 'openchs-models';
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
 import DateFormElement from "./DateFormElement";
 
 class RegistrationDateFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

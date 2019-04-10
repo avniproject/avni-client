@@ -3,6 +3,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import * as React from "react";
 import {LineChart} from 'react-native-charts-wrapper';
 import {Button} from "native-base";
+import PropTypes from 'prop-types';
 
 import {
     Text,
@@ -17,7 +18,7 @@ import Styles from "../primitives/Styles";
 @Path('/GrowthChartView')
 class GrowthChartView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     states = {
@@ -260,14 +261,13 @@ class GrowthChartView extends AbstractComponent {
         return (
             <View style={{flex: 1, paddingHorizontal: 8, flexDirection: 'column'}}>
                 <View style={{flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between'}}>
-
                     <Button
                         style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForAge).self]}
                         textStyle={this.getGraphStyle(this.states.weightForAge).text}
                         onPress={() => {
                             this.onGraphSelected(this.states.weightForAge)
                         }}>
-                        {this.states.weightForAge}
+                        <Text>{this.states.weightForAge}</Text>
                     </Button>
 
                     <Button
@@ -276,7 +276,7 @@ class GrowthChartView extends AbstractComponent {
                         onPress={() => {
                             this.onGraphSelected(this.states.heightForAge)
                         }}>
-                        {this.states.heightForAge}
+                        <Text>{this.states.heightForAge}</Text>
                     </Button>
 
                     <Button
@@ -285,7 +285,7 @@ class GrowthChartView extends AbstractComponent {
                         onPress={() => {
                             this.onGraphSelected(this.states.weightForHeight)
                         }}>
-                        {this.states.weightForHeight}
+                        <Text>{this.states.weightForHeight}</Text>
                     </Button>
                 </View>
 

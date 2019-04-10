@@ -1,4 +1,5 @@
 import {Text, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button} from "native-base";
@@ -8,9 +9,9 @@ import _ from "lodash";
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
-        enrolments: React.PropTypes.array.isRequired,
-        selectedEnrolment: React.PropTypes.object.isRequired,
-        onProgramSelect: React.PropTypes.func.isRequired
+        enrolments: PropTypes.array.isRequired,
+        selectedEnrolment: PropTypes.object.isRequired,
+        onProgramSelect: PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -64,7 +65,7 @@ class ProgramList extends AbstractComponent {
                             return <Button key={enrolment.uuid}
                                            style={[ProgramList.style.programButton.self, buttonStyle.self]}
                                            textStyle={buttonStyle.text}
-                                           onPress={() => this.props.onProgramSelect(enrolment)}>{this.I18n.t(enrolment.program.displayName)}</Button>
+                                           onPress={() => this.props.onProgramSelect(enrolment)}><Text>{this.I18n.t(enrolment.program.displayName)}</Text></Button>
                         })}
                 </View>
             </View>

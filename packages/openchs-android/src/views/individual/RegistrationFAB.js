@@ -1,16 +1,17 @@
 import FloatingActionButton, * as FAB from "../common/FloatingActionButton";
 import {Text, TouchableOpacity} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ProgramService from "../../service/program/ProgramService";
 import Colors from "../primitives/Colors";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import EntityService from "../../service/EntityService";
-import SubjectType from "openchs-models/src/SubjectType";
+import { SubjectType } from 'openchs-models';
 
 export default class RegistrationFAB extends AbstractComponent {
     static propTypes = {
-        parent: React.PropTypes.object.isRequired
+        parent: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

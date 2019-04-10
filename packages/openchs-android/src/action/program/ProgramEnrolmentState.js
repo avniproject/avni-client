@@ -2,7 +2,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {ProgramEnrolment, ObservationsHolder} from 'openchs-models';
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
-import ProgramConfig from "../../../../openchs-models/src/ProgramConfig";
+import {  ProgramConfig  } from 'openchs-models';
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {

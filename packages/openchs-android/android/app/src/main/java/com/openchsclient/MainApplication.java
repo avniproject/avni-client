@@ -1,10 +1,11 @@
 package com.openchsclient;
 
 import android.app.Application;
-import com.airlabsinc.RNAWSCognitoPackage;
 import com.brentvatne.react.ReactVideoPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.facebook.react.ReactApplication;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import com.amazonaws.RNAWSCognitoPackage;
 import com.jamesisaac.rnbackgroundtask.BackgroundTaskPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -18,7 +19,7 @@ import com.i18n.reactnativei18n.ReactNativeI18n;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
-import com.openchsclient.module.DeviceInfoPackage;
+//import com.openchsclient.module.DeviceInfoPackage;
 import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 
@@ -37,6 +38,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+            new RNDeviceInfo(),
                     new BackgroundTaskPackage(),
                     new RNFetchBlobPackage(),
                     new ImagePickerPackage(),
@@ -50,8 +52,8 @@ public class MainApplication extends Application implements ReactApplication {
                     new ReactNativeI18n(),
                     new RealmReactPackage(),
                     new RestartPackage(),
-                    new RNFusedLocationPackage(),
-                    new DeviceInfoPackage()
+                    new RNFusedLocationPackage()
+//                    new DeviceInfoPackage()
             );
         }
     };

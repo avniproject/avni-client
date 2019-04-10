@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
@@ -11,9 +12,9 @@ import General from "../../utility/General";
 
 class FamilyProfile extends AbstractComponent {
     static propTypes = {
-        family: React.PropTypes.object.isRequired,
-        viewContext: React.PropTypes.string.isRequired,
-        style: React.PropTypes.object
+        family: PropTypes.object.isRequired,
+        viewContext: PropTypes.string.isRequired,
+        style: PropTypes.object
     };
 
     static viewContext = {

@@ -14,7 +14,7 @@ import {
     SingleCodedValue,
     MultipleCodedValues,
     Individual
-} from "openchs-models";
+} from 'openchs-models';
 import EntityFactory from "openchs-models/test/EntityFactory";
 import moment from "moment";
 import SubjectType from "../../../openchs-models/src/SubjectType";

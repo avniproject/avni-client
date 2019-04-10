@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -8,7 +9,7 @@ import AppHeader from "../common/AppHeader";
 import {ChecklistItemActionNames as Actions} from "../../action/program/ChecklistItemActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, PrimitiveValue, AbstractEncounter} from "openchs-models";
+import {ObservationsHolder, PrimitiveValue, AbstractEncounter} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -23,7 +24,7 @@ import CHSContent from "../common/CHSContent";
 @Path('/ChecklistItemView')
 class ChecklistItemView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

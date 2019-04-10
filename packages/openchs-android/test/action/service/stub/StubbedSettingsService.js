@@ -1,5 +1,5 @@
 import StubbedBaseService from "./StubbedBaseService";
-import {Settings} from "openchs-models";
+import {Settings} from 'openchs-models';
 
 class StubbedSettingsService extends StubbedBaseService {
     constructor(serviceData) {

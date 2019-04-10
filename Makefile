@@ -139,6 +139,12 @@ release-offline-vivek: ##
 log:  ##
 	adb logcat *:S ReactNative:V ReactNativeJS:V
 
+log_info:
+	adb logcat *:S ReactNative:W ReactNativeJS:I
+
+log_all:
+	adb logcat
+
 clear-log: ##
 	adb logcat -c
 # </log>
@@ -205,17 +211,25 @@ scp_apk:
 
 # <env>
 clean_packager_cache:
-	watchman watch-del-all && rm -rf $TMPDIR/react-*
+	watchman watch-del-all && rm -rf $(TMPDIR)/react-*
+	rm -rf /tmp/metro-bundler-cache-*
+	rm -rf /tmp/haste-map-react-native-packager-*
 
 clean_env:  ##
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-models/node_modules
+	rm -rf packages/openchs-org/node_modules
+	rm -rf packages/unminifiy/node_modules
+	rm -rf packages/utilities/node_modules
 
-clean_all:  clean_env
+clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-android/package-lock.json
 	rm -rf packages/openchs-health-modules/package-lock.json
 	rm -rf packages/openchs-models/package-lock.json
+	rm -rf packages/openchs-org/package-lock.json
+	rm -rf packages/unminifiy/package-lock.json
+	rm -rf packages/utilities/package-lock.json
 
 setup_env: ##
 	npm install -g jest@20.0.1
@@ -265,16 +279,13 @@ run_app_live:
 
 open_app_bundle:
 	cd ..
-	mkdir ./temp
-	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ./temp/output.txt
+	-mkdir ./temp
+	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&minify=false" -o ./temp/output.txt
 	vi ./temp/output.txt
+
 # sometimes there are errors for which we need to run the following to get the exact problem
 run_app_debug: setup_hosts  ##
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
-
-open_app_bundle:
-	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&hot=false&minify=false" -o ../temp/output.txt
-	vi ../temp/output.txt
 
 kill_app:
 	adb shell am force-stop com.openchsclient

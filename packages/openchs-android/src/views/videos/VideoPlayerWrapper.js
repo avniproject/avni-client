@@ -1,4 +1,5 @@
-import React, {PropTypes} from "react";
+import PropTypes from 'prop-types';
+import React from "react";
 import General from "../../utility/General";
 import VideoPlayer from 'react-native-video-player';
 import {Text, TouchableHighlight, View} from 'react-native';

@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -8,7 +9,7 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterCancelActionsNames as Actions} from "../../action/program/ProgramEncounterCancelActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, ProgramEncounter} from "openchs-models";
+import {ObservationsHolder, ProgramEncounter} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -21,14 +22,14 @@ import EncounterService from "../../service/EncounterService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import DateFormElement from "../form/formElement/DateFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import PrimitiveValue from "../../../../openchs-models/src/observation/PrimitiveValue";
+import {  PrimitiveValue  } from 'openchs-models';
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import AbstractEncounter from "../../../../openchs-models/src/AbstractEncounter";
+import {  AbstractEncounter  } from 'openchs-models';
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

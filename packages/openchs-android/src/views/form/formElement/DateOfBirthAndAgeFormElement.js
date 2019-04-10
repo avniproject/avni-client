@@ -1,10 +1,11 @@
 import {View, StyleSheet, Text, TextInput, DatePickerAndroid} from 'react-native';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
 import DGS from "../../primitives/DynamicGlobalStyles";
-import Individual from "../../../../../openchs-models/src/Individual";
+import {  Individual  } from 'openchs-models';
 import Colors from "../../primitives/Colors";
 import Fonts from "../../primitives/Fonts";
 import {CheckBox, Radio} from "native-base";
@@ -14,7 +15,7 @@ import {Actions} from "../../../action/individual/IndividualRegisterActions";
 
 class DateOfBirthAndAgeFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

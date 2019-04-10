@@ -1,4 +1,5 @@
 import {ToastAndroid, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -8,7 +9,7 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterActionsNames as Actions} from "../../action/program/ProgramEncounterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, ObservationsHolder, PrimitiveValue, ProgramEncounter} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, PrimitiveValue, ProgramEncounter} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -27,7 +28,7 @@ import moment from "moment";
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired,
+        params: PropTypes.object.isRequired,
     };
 
     viewName() {
@@ -68,13 +69,17 @@ class ProgramEncounterView extends AbstractComponent {
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
+                const {programEncounter} = state;
+                const {programEnrolment} = programEncounter;
+                const encounterName = programEncounter.name || programEncounter.encounterType.name;
                 const onSaveCallback = (source) => {
-                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid, state.programEncounter.programEnrolment.uuid, true,null,this.I18n.t('encounterSavedMsg', {encounterName:state.programEncounter.encounterType.name}));
+                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, programEnrolment.individual.uuid, programEnrolment.uuid, true,
+                        null,this.I18n.t('encounterSavedMsg', {encounterName}));
                 };
-                const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.displayName)}, ${this.I18n.t(state.programEncounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
+                const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
             },
             movedNext: this.scrollToTop
         });

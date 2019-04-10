@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -14,7 +15,7 @@ import AppHeader from "../common/AppHeader";
 @Path('/FamilyDashboardView')
 class FamilyDashboardView extends AbstractComponent {
     static propTypes = {
-        familyUUID: React.PropTypes.string.isRequired
+        familyUUID: PropTypes.string.isRequired
     };
 
     viewName() {

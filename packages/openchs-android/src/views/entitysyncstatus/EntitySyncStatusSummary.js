@@ -1,11 +1,12 @@
 import {Text, View} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Styles from "../primitives/Styles";
+import PropTypes from 'prop-types';
 import React from 'react';
 
 class EntitySyncSummary extends AbstractComponent {
     static propTypes = {
-        totalQueueCount: React.PropTypes.number
+        totalQueueCount: PropTypes.number
     };
 
     static defaultProps = {

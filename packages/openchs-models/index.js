@@ -35,6 +35,7 @@ import KeyValue from "./src/application/KeyValue"
 import LocaleMapping from "./src/LocaleMapping"
 import MultipleCodedValues from "./src/observation/MultipleCodedValues"
 import MultiSelectFilter from "./src/application/MultiSelectFilter"
+import ModelGeneral from './src/utility/General'
 import NullProgramEnrolment from "./src/application/NullProgramEnrolment"
 import Observation from "./src/Observation"
 import ObservationsHolder from "./src/ObservationsHolder"
@@ -105,6 +106,7 @@ export {
     MediaQueue,
     MultipleCodedValues,
     MultiSelectFilter,
+    ModelGeneral,
     NullProgramEnrolment,
     Observation,
     ObservationsHolder,

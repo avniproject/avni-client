@@ -2,7 +2,7 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import _ from "lodash";
 import ConceptService from "../service/ConceptService";
-import {StaticFormElementGroup, Individual, ObservationsHolder, ValidationResult} from "openchs-models";
+import {StaticFormElementGroup, Individual, ObservationsHolder, ValidationResult} from 'openchs-models';
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType) {

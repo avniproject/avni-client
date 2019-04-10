@@ -1,14 +1,15 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
 import Distances from "../../primitives/Distances";
-import Individual from "../../../../../openchs-models/src/Individual";
+import {  Individual  } from 'openchs-models';
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
 
 class GenderFormElement extends AbstractComponent {
     static propTypes = {
-        state: React.PropTypes.object.isRequired
+        state: PropTypes.object.isRequired
     };
 
     constructor(props, context) {

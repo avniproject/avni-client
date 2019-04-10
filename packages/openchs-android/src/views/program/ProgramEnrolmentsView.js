@@ -1,4 +1,5 @@
 import {View, } from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -16,7 +17,7 @@ import CHSContent from "../common/CHSContent";
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

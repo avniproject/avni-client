@@ -1,4 +1,5 @@
 import {Text, TextInput, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import {Radio} from "native-base";
 import _ from "lodash";
@@ -11,13 +12,13 @@ import Styles from "../../primitives/Styles";
 
 class DurationDateFormElement extends AbstractFormElement {
     static propTypes = {
-        label: React.PropTypes.string.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        duration: React.PropTypes.object.isRequired,
-        durationOptions: React.PropTypes.array.isRequired,
-        validationResult: React.PropTypes.object,
-        element: React.PropTypes.object.isRequired,
-        dateValue : React.PropTypes.object
+        label: PropTypes.string.isRequired,
+        actionName: PropTypes.string.isRequired,
+        duration: PropTypes.object.isRequired,
+        durationOptions: PropTypes.array.isRequired,
+        validationResult: PropTypes.object,
+        element: PropTypes.object.isRequired,
+        dateValue : PropTypes.object
     };
 
     constructor(props, context) {

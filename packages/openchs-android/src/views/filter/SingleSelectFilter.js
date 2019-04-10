@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import {View, Text} from 'react-native';
 import BaseFilter from "./BaseFilter";

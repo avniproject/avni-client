@@ -1,5 +1,6 @@
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {View, TouchableNativeFeedback, Text} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -20,9 +21,9 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     static propTypes = {
-        programDashboardButtons: React.PropTypes.array.isRequired,
-        enrolment: React.PropTypes.object.isRequired,
-        encounterTypes: React.PropTypes.array.isRequired
+        programDashboardButtons: PropTypes.array.isRequired,
+        enrolment: PropTypes.object.isRequired,
+        encounterTypes: PropTypes.array.isRequired
     };
 
     startEncounter() {

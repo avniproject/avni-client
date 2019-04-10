@@ -3,10 +3,10 @@ import IndividualService from "../../../src/service/IndividualService";
 import TestContext from '../views/testframework/TestContext'
 
 import Realm from 'realm';
-import {Schema, Individual, Gender} from "openchs-models";
+import {Schema, Individual, Gender} from 'openchs-models';
 import EntityFactory from "openchs-models/test/EntityFactory";
 import IndividualSearchCriteria from "../../../src/service/query/IndividualSearchCriteria";
-import General from "openchs-models/src/utility/General";
+import General from '../../../src/utility/General';
 
 describe('IndividualServiceTest', () => {
     let individualService;

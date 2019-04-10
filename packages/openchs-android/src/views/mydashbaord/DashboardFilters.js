@@ -1,4 +1,5 @@
 import {Text, View, StyleSheet} from "react-native";
+import PropTypes from 'prop-types';
 import React from 'react';
 import DatePicker from "../primitives/DatePicker";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";

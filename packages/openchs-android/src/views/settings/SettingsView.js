@@ -1,4 +1,5 @@
 import {Alert, Switch, Text, TouchableNativeFeedback, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -19,7 +20,7 @@ import config from 'react-native-config';
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import Rule from "openchs-models/src/Rule";
+import {  Rule  } from 'openchs-models';
 import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import EntityQueueService from "../../service/EntityQueueService";

@@ -1,4 +1,5 @@
 import {View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
@@ -7,10 +8,10 @@ import Fonts from "../primitives/Fonts";
 
 class ObservationsSectionTitle extends AbstractComponent {
     static propTypes = {
-        title: React.PropTypes.string.isRequired,
-        primaryAction: React.PropTypes.object,
-        contextActions: React.PropTypes.array.isRequired,
-        style: React.PropTypes.object
+        title: PropTypes.string.isRequired,
+        primaryAction: PropTypes.object,
+        contextActions: PropTypes.array.isRequired,
+        style: PropTypes.object
     };
 
     constructor(props, context) {

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import {Image, Modal, TouchableNativeFeedback, View} from "react-native";
 import {ImageViewer} from "react-native-image-zoom-viewer";
@@ -9,7 +10,7 @@ export default class ExpandableImage extends React.Component {
     }
 
     static propTypes = {
-        source: React.PropTypes.string,
+        source: PropTypes.string,
     };
 
     showModal() {

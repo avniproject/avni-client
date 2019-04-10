@@ -1,4 +1,4 @@
-var C = require('./common');
+import C from './common';
 
 var getNextGroup = function (encounter, currentFormElementGroup) {
     var formName = currentFormElementGroup.name;

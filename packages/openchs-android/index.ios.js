@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  */
 
+import PropTypes from 'prop-types';
 import React, {
   AppRegistry,
   Component,

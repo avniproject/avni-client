@@ -1,4 +1,5 @@
 import {ListView, StyleSheet, Text, View} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Fonts from "../primitives/Fonts";
@@ -9,9 +10,9 @@ import moment from "moment";
 
 class NextScheduledVisits extends AbstractComponent {
     static propTypes = {
-        nextScheduledVisits: React.PropTypes.any.isRequired,
-        style: React.PropTypes.object,
-        title: React.PropTypes.string
+        nextScheduledVisits: PropTypes.any.isRequired,
+        style: PropTypes.object,
+        title: PropTypes.string
     };
 
     constructor(props, context) {

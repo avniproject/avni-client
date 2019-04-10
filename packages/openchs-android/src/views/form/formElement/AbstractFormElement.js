@@ -1,6 +1,7 @@
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../../primitives/Colors';
+import PropTypes from 'prop-types';
 import React from "react";
 import {Text} from "native-base";
 import Styles from "../../primitives/Styles";

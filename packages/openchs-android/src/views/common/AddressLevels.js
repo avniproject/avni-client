@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import _ from 'lodash';
 import {View} from 'react-native';
@@ -14,11 +15,11 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
-        multiSelect: React.PropTypes.bool,
-        onSelect: React.PropTypes.func,
-        onLowestLevel: React.PropTypes.func,
-        validationError: React.PropTypes.object,
-        mandatory: React.PropTypes.bool,
+        multiSelect: PropTypes.bool,
+        onSelect: PropTypes.func,
+        onLowestLevel: PropTypes.func,
+        validationError: PropTypes.object,
+        mandatory: PropTypes.bool,
     };
 
     viewName() {

@@ -1,11 +1,11 @@
 import {expect} from "chai";
-import {ValidationResult, Observation, PrimitiveValue, Concept} from "openchs-models";
+import {ValidationResult, Observation, PrimitiveValue, Concept} from 'openchs-models';
 import Wizard from "../../src/state/Wizard";
 import WizardNextActionStub from "./WizardNextActionStub";
 import StubbedDataEntryState from "./StubbedDataEntryState";
 import ObservationsHolderActions from '../../src/action/common/ObservationsHolderActions';
 import TestContext from "./views/testframework/TestContext";
-import EntityFactory from "../../../openchs-models/test/EntityFactory";
+import EntityFactory from "openchs-models/test/EntityFactory";
 
 describe('AbstractDataEntryStateTest', () => {
     var formElementGroup;

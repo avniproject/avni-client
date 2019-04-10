@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {FormMapping, Form, EncounterType} from "openchs-models";
+import {FormMapping, Form, EncounterType} from 'openchs-models';
 import _ from 'lodash';
 import FormQueryResult from "./FormQueryResult";
 

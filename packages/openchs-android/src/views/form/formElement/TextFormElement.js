@@ -1,5 +1,6 @@
 import {TextInput, View} from "react-native";
 import {Text} from 'native-base';
+import PropTypes from 'prop-types';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
@@ -9,12 +10,12 @@ import Colors from "../../primitives/Colors";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        multiline: React.PropTypes.bool.isRequired,
-        extraStyle: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object,
+        multiline: PropTypes.bool.isRequired,
+        extraStyle: PropTypes.object
     };
     static defaultProps = {
         style: {}

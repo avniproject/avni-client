@@ -2,7 +2,6 @@ import BaseService from './BaseService.js'
 import _ from 'lodash';
 import Service from '../framework/bean/Service';
 import {AddressLevel} from 'openchs-models';
-import {common, motherCalculations} from "openchs-health-modules";
 
 @Service("addressLevelService")
 class AddressLevelService extends BaseService {

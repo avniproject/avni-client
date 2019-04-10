@@ -1,4 +1,5 @@
 import {View, ScrollView, ToastAndroid} from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -34,9 +35,9 @@ import _ from "lodash";
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
     static propTypes = {
-        enrolmentUUID: React.PropTypes.string,
-        individualUUID: React.PropTypes.string.isRequired,
-        backFunction: React.PropTypes.func
+        enrolmentUUID: PropTypes.string,
+        individualUUID: PropTypes.string.isRequired,
+        backFunction: PropTypes.func
     };
 
     viewName() {

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -19,7 +20,7 @@ import {Form} from 'openchs-models';
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
     static propTypes = {
-        params: React.PropTypes.object.isRequired
+        params: PropTypes.object.isRequired
     };
 
     viewName() {

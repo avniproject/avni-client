@@ -2,7 +2,7 @@ import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
-import {SubjectType} from "openchs-models";
+import {SubjectType} from 'openchs-models';
 import _ from "lodash";
 
 export class IndividualSearchActions {

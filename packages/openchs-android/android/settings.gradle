@@ -1,4 +1,8 @@
 rootProject.name = 'OpenCHS'
+include ':react-native-device-info'
+project(':react-native-device-info').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-info/android')
+include ':amazon-cognito-identity-js'
+project(':amazon-cognito-identity-js').projectDir = new File(rootProject.projectDir, '../node_modules/amazon-cognito-identity-js/android')
 include ':react-native-background-task'
 project(':react-native-background-task').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-task/android')
 include ':rn-fetch-blob'
@@ -17,8 +21,6 @@ include ':react-native-charts-wrapper'
 project(':react-native-charts-wrapper').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-charts-wrapper/android')
 include ':react-native-config'
 project(':react-native-config').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-config/android')
-include ':react-native-aws-cognito-js'
-project(':react-native-aws-cognito-js').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-aws-cognito-js/android')
 include ':react-native-vector-icons'
 project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
 

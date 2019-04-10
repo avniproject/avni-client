@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {MediaQueue, Individual, Encounter, ProgramEncounter, ProgramEnrolment} from "openchs-models";
+import {MediaQueue, Individual, Encounter, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import General from "../utility/General";
 import SettingsService from "./SettingsService";
 import _ from 'lodash';

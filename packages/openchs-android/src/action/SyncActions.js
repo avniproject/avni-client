@@ -1,14 +1,14 @@
-import {SyncTelemetry} from "openchs-models";
+import {SyncTelemetry} from 'openchs-models';
 import _ from "lodash";
-import DeviceInfo from "../framework/device-info";
 import EntityService from "../service/EntityService";
+import DeviceInfo from 'react-native-device-info';
 
 class SyncActions {
     static getInitialState() {
         const syncTelemetry = SyncTelemetry.newInstance();
-        syncTelemetry.appVersion = DeviceInfo.versionName;
-        syncTelemetry.androidVersion = DeviceInfo.releaseVersion;
-        syncTelemetry.deviceName = DeviceInfo.deviceName;
+        syncTelemetry.appVersion = DeviceInfo.getVersion();
+        syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
+        syncTelemetry.deviceName = DeviceInfo.getDeviceId();
         return {syncTelemetry};
     }
 
