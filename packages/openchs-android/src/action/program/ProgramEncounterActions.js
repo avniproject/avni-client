@@ -93,7 +93,7 @@ class ProgramEncounterActions {
 
         service.saveOrUpdate(newState.programEncounter, scheduledVisits);
 
-        action.cb(newState.programEncounter.programEnrolment);
+        action.cb(newState.programEncounter, false);
         return newState;
     }
 

@@ -52,7 +52,7 @@ class Mixin {
             TypedTransition
                 .from(recommendationsView)
                 .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
-                    target, {params: {stitches}, message : source.I18n.t('registrationCompleteProceedToNextRegMsg')}, true);
+                    target, {params: {stitches}, message : source.I18n.t('registrationSavedMsg')}, true);
         };
         CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
     }
@@ -61,7 +61,7 @@ class Mixin {
         CHSNavigator.navigateToRegisterView(source, null, {
             registrationType: program.displayName,
             label: source.I18n.t('saveAndEnrol'),
-            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program, source.I18n.t('registrationCompleteProceedToEnrolmentMsg',{enl: program.displayName}))
+            fn: recommendationView => Mixin.navigateToProgramEnrolmentView(goBackTo, recommendationView.props.individual, program, source.I18n.t('registrationSavedMsg'))
         }, subjectType);
     }
 
