@@ -43,7 +43,7 @@ class IndividualService extends BaseService {
     register(individual) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
-        let registrationForm = this.getService(FormMappingService).findRegistrationForm();
+        const registrationForm = this.getService(FormMappingService).findRegistrationForm();
         this.db.write(() => {
             db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));

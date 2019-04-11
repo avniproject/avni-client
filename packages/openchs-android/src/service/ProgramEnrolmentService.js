@@ -6,6 +6,8 @@ import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
 import ChecklistService from "./ChecklistService";
 import MediaQueueService from "./MediaQueueService";
+import FormMappingService from "./FormMappingService";
+import IdentifierAssignmentService from "./IdentifierAssignmentService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -39,6 +41,7 @@ class ProgramEnrolmentService extends BaseService {
         const db = this.db;
         const entityQueueItems = [];
         const programEncounterService = this.getService(ProgramEncounterService);
+
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
@@ -58,6 +61,9 @@ class ProgramEnrolmentService extends BaseService {
             const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
             individual.addEnrolment(programEnrolment);
             General.logDebug('ProgramEnrolmentService', 'ProgramEnrolment added to Individual');
+
+            const enrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program);
+            this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(enrolmentForm, programEnrolment.observations, null, programEnrolment);
 
             entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
         });
