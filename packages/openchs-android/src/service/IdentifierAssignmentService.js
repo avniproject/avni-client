@@ -30,6 +30,18 @@ class IdentifierAssignmentService extends BaseService {
         return observationHolder;
     }
 
+    /**
+     * It is possible that a rule could modify the original id created. We assume here that only one id of a specific
+     * id source type can be created per form.
+     *
+     * Therefore, we pick the next identifier and assign the individual/program enrolment to it, assuming it was the same
+     * id that was given to the form when we started filling it.
+     *
+     * @param form
+     * @param observations
+     * @param individual
+     * @param programEnrolment
+     */
     assignPopulatedIdentifiersFromObservations(form, observations, individual, programEnrolment) {
         const db = this.db;
         const identifiersToBeSaved = [];
