@@ -26,7 +26,7 @@ export class IndividualRegisterActions {
 
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
-        context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(individual.observations));
+        context.get(IdentifierAssignmentService).populateIdentifiers(state.form, new ObservationsHolder(individual.observations));
 
         const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
         IndividualRegisterActions.setAgeState(newState);
