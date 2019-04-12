@@ -63,6 +63,17 @@ class ChecklistItem {
         return !_.isNil(this.completionDate);
     }
 
+    expired(currentDate) {
+        return !_.isNil(this.detail.expiresAfter) && currentDate.isSameOrAfter(this.expiryDate);
+
+    }
+
+    get expiryDate() {
+        return _.isNil(this.detail.expiresAfter)
+            ? null
+            : moment(this.checklist.baseDate).add(this.detail.expiresAfter, "day");
+    }
+
     get firstState() {
         return this.detail.stateConfig.find(status => status.displayOrder === 1);
     }
@@ -73,9 +84,17 @@ class ChecklistItem {
             : null;
     }
 
+    get conceptName() {
+        return this.detail.concept.name;
+    }
+
     calculateApplicableState(currentDate = moment()) {
         if (this.completed) {
             return {status: ChecklistItemStatus.completed, statusDate: this.completionDate};
+        }
+        //console.log(`0 ${this.conceptName} ${this.checklist.baseDate} ${this.detail.expiresAfter} ${this.expiryDate} ${moment(this.checklist.baseDate).add(this.detail.expiresAfter, "day").toDate()}`);
+        if (this.expired(currentDate)) {
+            return {status: ChecklistItemStatus.expired, statusDate: this.expiryDate};
         }
 
         let isLeadingItemExpired = false;
@@ -94,41 +113,57 @@ class ChecklistItem {
 
         let nonCompletedState = this.detail.stateConfig.find((status, index) => {
             if (!this.isDependent) {
-                const minDate = moment(this.checklist.baseDate).add(status.from.value, status.from.key).startOf("day");
-                const maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key).endOf("day");
+                const minDate = moment(this.checklist.baseDate)
+                    .add(status.start, "day")
+                    .startOf("day");
+                const maxDate = moment(this.checklist.baseDate)
+                    .add(status.end, "day")
+                    .endOf("day");
+                //console.log(`a ${this.conceptName} ${status.state} ${minDate.toDate()} ${maxDate.toDate()}`);
+
                 if (currentDate.isBetween(minDate, maxDate, null, '[]')) {
                     statusDate = minDate.toDate();
                     return true;
                 }
             } else if (leadingItem.completed) {
-                const minDaysFromStartDate = this.detail.minDaysFromStartDate;
-                const daysSinceCompleted = moment(leadingItem.completionDate).diff(this.checklist.baseDate, "day");
-                const gap = status.to.value - status.from.value;
-                let startAfter = Math.max(daysSinceCompleted + this.firstState.from.value, minDaysFromStartDate);
                 let minDate, maxDate;
 
-                if (!_.isNil(lastSetDate)) {
-                    minDate = moment(lastSetDate);
-                    maxDate = moment(lastSetDate).add(gap, "day");
-                } else {
-                    minDate = moment(this.checklist.baseDate).add(startAfter, "day").startOf("day");
-                    maxDate = moment(this.checklist.baseDate).add(startAfter, "day").add(gap, "day").endOf("day");
-                }
-                lastSetDate = maxDate;
+                minDate = moment.max(
+                    moment(this.checklist.baseDate)
+                        .add(this.detail.minDaysFromStartDate, "day")
+                        .add(status.start, "day"),
+                    moment(leadingItem.completionDate)
+                        .add(this.detail.minDaysFromDependent, "day")
+                        .add(status.start, "day")
+                );
 
-                if(this.detail.stateConfig.length-1 === index)
-                    maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key);
+                maxDate = moment.max(
+                    moment(this.checklist.baseDate)
+                        .add(this.detail.minDaysFromStartDate, "day")
+                        .add(status.end, "day"),
+                    moment(leadingItem.completionDate)
+                        .add(this.detail.minDaysFromDependent, "day")
+                        .add(status.end, "day")
+                );
 
+                //console.log(`b ${this.conceptName} ${status.state} ${minDate.toDate()} ${maxDate.toDate()}`);
                 if (currentDate.isBetween(minDate, maxDate, null, '[]')) {
                     statusDate = minDate.toDate();
+                    //console.log(`b ${statusDate}`);
                     return true;
                 }
             }
             else if (isLeadingItemExpired) {
-                const minDaysFromStartDate = this.detail.minDaysFromStartDate;
-                const diff = minDaysFromStartDate - this.firstState.from.value;
-                const minDate = moment(this.checklist.baseDate).add(status.from.value, status.from.key).add(diff, "day").startOf("day");
-                const maxDate = moment(this.checklist.baseDate).add(status.to.value, status.to.key).add(diff, "day").endOf("day");
+                const minDate = moment(this.checklist.baseDate)
+                    .add(this.detail.minDaysFromStartDate, "day")
+                    .add(status.start, "day")
+                    .startOf("day");
+                const maxDate = moment(this.checklist.baseDate)
+                    .add(this.detail.minDaysFromStartDate, "day")
+                    .add(status.end, "day")
+                    .endOf("day");
+                //console.log(`c ${this.conceptName} ${status.state} ${this.detail.minDaysFromStartDate} ${minDate.toDate()} ${maxDate.toDate()}`);
+
                 if (currentDate.isBetween(minDate, maxDate, null, '[]')) {
                     statusDate = minDate.toDate();
                     return true;
@@ -144,6 +179,7 @@ class ChecklistItem {
 
         return {status: null, statusDate: null};
     }
+
 
     get isDependent() {
         return this.detail.isDependent;

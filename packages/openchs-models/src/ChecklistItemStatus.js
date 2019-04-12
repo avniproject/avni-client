@@ -11,12 +11,18 @@ class ChecklistItemStatus {
             from: 'StringKeyNumericValue',
             to: 'StringKeyNumericValue',
             color: {type: 'string', default: 'yellow'},
-            displayOrder: 'double'
+            displayOrder: 'double',
+            start: 'int',
+            end: 'int'
         }
     };
 
     static fromResource(resource, entityService) {
-        const checklistItemStatus = General.assignFields(resource, new ChecklistItemStatus(), ['state', 'color', 'displayOrder']);
+        const checklistItemStatus = General.assignFields(
+            resource,
+            new ChecklistItemStatus(),
+            ['state', 'color', 'displayOrder', 'start', 'end']
+        );
         const [toK, toV] = Object.entries(resource["to"])[0];
         const [fromK, fromV] = Object.entries(resource["from"])[0];
         checklistItemStatus.to = StringKeyNumericValue.fromResource(toK, toV);
@@ -24,28 +30,18 @@ class ChecklistItemStatus {
         return checklistItemStatus;
     }
 
-    isApplicable(baseDate) {
-        const currentDate = moment();
-        const minDate = moment(baseDate).add(this.from.value, this.from.key).startOf("day");
-        const maxDate = moment(baseDate).add(this.to.value, this.to.key).endOf("day");
-        return currentDate.isBetween(minDate, maxDate);
-    }
-
-    hasNotStarted(baseDate) {
-        const currentDate = moment();
-        const minDate = moment(baseDate).add(this.from.value, this.from.key).startOf("day");
-        return currentDate.isBefore(minDate);
-    }
-
-    static VALID_KEYS = ['day', 'week', 'month', 'year']
-        .map((k) => [`${k}s`, k])
-        .reduce((acc, ks) => acc.concat(ks), []);
-
     static get completed() {
         const completed = new ChecklistItemStatus();
         completed.color = 'green';
         completed.state = 'Completed';
         return completed;
+    }
+
+    static get expired() {
+        const expired = new ChecklistItemStatus();
+        expired.color = "grey";
+        expired.state = "Expired";
+        return expired;
     }
 
     static na(years) {

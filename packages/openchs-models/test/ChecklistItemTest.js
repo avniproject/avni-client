@@ -3,36 +3,32 @@ import Checklist from "../src/Checklist";
 import moment from "moment";
 import ChecklistItemStatus from "../src/ChecklistItemStatus";
 import ChecklistItemDetail from "../src/ChecklistItemDetail";
-import StringKeyNumericValue from "../src/application/StringKeyNumericValue";
 
 describe("ChecklistItemTest", () => {
-    let checklist;
-    let checklistItem;
-    let polio0, polio1;
+    let checklist, checklistItem, polio0, polio1;
 
     beforeEach(() => {
         checklist = new Checklist();
 
-        polio0 = createChecklistItem(checklist, "Polio 0");
+        polio0 = createChecklistItem(checklist, "Polio 0", null, null, null, null, 15);
         polio0.detail.stateConfig = [
             createChecklistItemStatus(0, 15, "day", "Due", 1),
-            createChecklistItemStatus(15, 1825, "day", "Expired", 2)
         ];
 
-        polio1 = createChecklistItem(checklist, "Polio 1", polio0, true, 42);
+        polio1 = createChecklistItem(checklist, "Polio 1", polio0, true, 42, 28);
         polio1.detail.concept = {name: "Polio 0"};
         polio1.detail.stateConfig = [
-            createChecklistItemStatus(28, 49, "day", "Due", 1),
-            createChecklistItemStatus(49, 56, "day", "Critical", 2),
-            createChecklistItemStatus(56, 1095, "day", "Overdue", 2)
+            createChecklistItemStatus(0, 21, "day", "Due", 1),
+            createChecklistItemStatus(21, 28, "day", "Critical", 2),
+            createChecklistItemStatus(28, 1095, "day", "Overdue", 2)
         ];
         checklist.items = [polio0, polio1];
 
         checklistItem = createChecklistItem(checklist);
         checklistItem.detail.stateConfig = [
-            createChecklistItemStatus(6, 9, "week", "Due", 1),
-            createChecklistItemStatus(9, 10, "week", "Critical", 2),
-            createChecklistItemStatus(10, 20, "week", "Overdue", 3)
+            createChecklistItemStatus(42, 63, "week", "Due", 1),
+            createChecklistItemStatus(63, 70, "week", "Critical", 2),
+            createChecklistItemStatus(70, 140, "week", "Overdue", 3)
         ];
     });
 
@@ -42,9 +38,10 @@ describe("ChecklistItemTest", () => {
      * @param [dependentOn]
      * @param [scheduleOnExpiryOfDependency]
      * @param [minDaysFromStartDate]
+     * @param [expiresAfter]
      * @return ChecklistItem
      */
-    function createChecklistItem(checklist, conceptName, dependentOn, scheduleOnExpiryOfDependency, minDaysFromStartDate) {
+    function createChecklistItem(checklist, conceptName, dependentOn, scheduleOnExpiryOfDependency, minDaysFromStartDate, minDaysFromDependent, expiresAfter) {
         const item = new ChecklistItem();
         item.checklist = checklist;
         item.detail = new ChecklistItemDetail();
@@ -52,6 +49,8 @@ describe("ChecklistItemTest", () => {
         item.detail.dependentOn = dependentOn;
         item.detail.scheduleOnExpiryOfDependency = scheduleOnExpiryOfDependency;
         item.detail.minDaysFromStartDate = minDaysFromStartDate;
+        item.detail.minDaysFromDependent = minDaysFromDependent;
+        item.detail.expiresAfter = expiresAfter;
         return item;
     }
 
@@ -59,15 +58,8 @@ describe("ChecklistItemTest", () => {
         let checklistItemStatus = new ChecklistItemStatus();
         checklistItemStatus.state = state;
         checklistItemStatus.displayOrder = displayOrder;
-        let stringKeyNumericValue = new StringKeyNumericValue();
-        checklistItemStatus.from = stringKeyNumericValue;
-        stringKeyNumericValue.key = unit;
-        stringKeyNumericValue.value = from;
-
-        stringKeyNumericValue = new StringKeyNumericValue();
-        checklistItemStatus.to = stringKeyNumericValue;
-        stringKeyNumericValue.key = unit;
-        stringKeyNumericValue.value = to;
+        checklistItemStatus.start = from;
+        checklistItemStatus.end = to;
         return checklistItemStatus;
     }
 
@@ -89,9 +81,9 @@ describe("ChecklistItemTest", () => {
         let status = polio1.calculateApplicableState(currentDate).status;
         expect(status).toBeNull();
 
-        currentDate = moment(checklist.baseDate).add(43, "days").startOf("day");
+        currentDate = moment(checklist.baseDate).add(71, "days").startOf("day");
         status = polio1.calculateApplicableState(currentDate).status;
-        expect(status.state).toBe("Due");
+        expect(status.state).toBe("Critical");
     });
 
     it("is calculating state if lead item is expired", () => {
