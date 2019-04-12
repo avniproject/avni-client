@@ -3,7 +3,7 @@ import _ from "lodash";
 import DeviceInfo from "../framework/device-info";
 import EntityService from "../service/EntityService";
 
-class SyncActions {
+class SyncTelemetryActions {
     static getInitialState() {
         const syncTelemetry = SyncTelemetry.newInstance();
         syncTelemetry.appVersion = DeviceInfo.versionName;
@@ -17,7 +17,7 @@ class SyncActions {
     }
 
     static recordPushTodoTelemetry(state, {entitiesToPost}, context) {
-        const newState = SyncActions.clone(state);
+        const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
         const entityStatus = syncTelemetry.getEntityStatus();
         entitiesToPost.forEach(entities => {
@@ -29,7 +29,7 @@ class SyncActions {
     }
 
     static entityPushCompleted(state, action, context) {
-        const newState = SyncActions.clone(state);
+        const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
 
         const entityStatus = syncTelemetry.getEntityStatus();
@@ -41,7 +41,7 @@ class SyncActions {
     }
 
     static recordFirstPageOfPull(state, action, context) {
-        const newState = SyncActions.clone(state);
+        const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
 
         const entityStatus = syncTelemetry.getEntityStatus();
@@ -53,7 +53,7 @@ class SyncActions {
     }
 
     static entityPullCompleted(state, {entityName, numberOfPulledEntities}, context) {
-        const newState = SyncActions.clone(state);
+        const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
 
         const entityStatus = syncTelemetry.getEntityStatus();
@@ -65,7 +65,7 @@ class SyncActions {
     }
 
     static syncCompleted(state, action, context) {
-        const newState = SyncActions.clone(state);
+        const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
         syncTelemetry.syncStatus = "complete";
         syncTelemetry.syncEndTime = new Date();
@@ -77,7 +77,7 @@ class SyncActions {
     }
 
     static syncFailed(state, action, context) {
-        const newState = SyncActions.clone(state);
+        const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
         const entityService = context.get(EntityService);
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
@@ -85,28 +85,28 @@ class SyncActions {
     }
 }
 
-const SyncActionNames = {
-    RECORD_PUSH_TODO_TELEMETRY: 'SyncActions.RECORD_PUSH_TODO_TELEMETRY',
-    ENTITY_PUSH_COMPLETED: 'SyncActions.ENTITY_PUSH_COMPLETED',
-    RECORD_FIRST_PAGE_OF_PULL: 'SyncActions.RECORD_FIRST_PAGE_OF_PULL',
-    ENTITY_PULL_COMPLETED: 'SyncActions.ENTITY_PULL_COMPLETED',
-    SYNC_COMPLETED: 'SyncActions.SYNC_COMPLETED',
-    SYNC_FAILED: 'SyncActions.SYNC_FAILED',
-    START_SYNC: 'SyncActions.START_SYNC'
+const SyncTelemetryActionNames = {
+    RECORD_PUSH_TODO_TELEMETRY: 'SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY',
+    ENTITY_PUSH_COMPLETED: 'SyncTelemetryActions.ENTITY_PUSH_COMPLETED',
+    RECORD_FIRST_PAGE_OF_PULL: 'SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL',
+    ENTITY_PULL_COMPLETED: 'SyncTelemetryActions.ENTITY_PULL_COMPLETED',
+    SYNC_COMPLETED: 'SyncTelemetryActions.SYNC_COMPLETED',
+    SYNC_FAILED: 'SyncTelemetryActions.SYNC_FAILED',
+    START_SYNC: 'SyncTelemetryActions.START_SYNC'
 };
 
-const SyncActionsMap = new Map([
-    [SyncActionNames.RECORD_PUSH_TODO_TELEMETRY, SyncActions.recordPushTodoTelemetry],
-    [SyncActionNames.ENTITY_PUSH_COMPLETED, SyncActions.entityPushCompleted],
-    [SyncActionNames.RECORD_FIRST_PAGE_OF_PULL, SyncActions.recordFirstPageOfPull],
-    [SyncActionNames.ENTITY_PULL_COMPLETED, SyncActions.entityPullCompleted],
-    [SyncActionNames.SYNC_COMPLETED, SyncActions.syncCompleted],
-    [SyncActionNames.SYNC_FAILED, SyncActions.syncFailed],
-    [SyncActionNames.START_SYNC, SyncActions.getInitialState],
+const SyncTelemetryActionsMap = new Map([
+    [SyncTelemetryActionNames.RECORD_PUSH_TODO_TELEMETRY, SyncTelemetryActions.recordPushTodoTelemetry],
+    [SyncTelemetryActionNames.ENTITY_PUSH_COMPLETED, SyncTelemetryActions.entityPushCompleted],
+    [SyncTelemetryActionNames.RECORD_FIRST_PAGE_OF_PULL, SyncTelemetryActions.recordFirstPageOfPull],
+    [SyncTelemetryActionNames.ENTITY_PULL_COMPLETED, SyncTelemetryActions.entityPullCompleted],
+    [SyncTelemetryActionNames.SYNC_COMPLETED, SyncTelemetryActions.syncCompleted],
+    [SyncTelemetryActionNames.SYNC_FAILED, SyncTelemetryActions.syncFailed],
+    [SyncTelemetryActionNames.START_SYNC, SyncTelemetryActions.getInitialState],
 ]);
 
 export {
-    SyncActions,
-    SyncActionNames,
-    SyncActionsMap
+    SyncTelemetryActions,
+    SyncTelemetryActionNames,
+    SyncTelemetryActionsMap
 };

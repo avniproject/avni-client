@@ -29,7 +29,7 @@ import RuleService from "../service/RuleService";
 import bugsnag from "../utility/bugsnag";
 import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
 import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
-import {SyncActionNames as SyncActions} from "../action/SyncActions";
+import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
 import UserInfoService from "../service/UserInfoService";
 import ProgressBarView from "./ProgressBarView";
 import ServerError from "../service/ServerError";
@@ -145,7 +145,7 @@ class MenuView extends AbstractComponent {
 
     _onError(error) {
         General.logError(`${this.viewName()}-Sync`, error);
-        this.dispatchAction(SyncActions.SYNC_FAILED);
+        this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         bugsnag.notify(error);
         this.setState({syncing: false});
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
