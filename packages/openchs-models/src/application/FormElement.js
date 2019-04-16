@@ -62,6 +62,10 @@ class FormElement {
         return _.find(this.keyValues, (keyValue) => keyValue.key === key);
     }
 
+    recordValueByKey(key) {
+        return _.invoke(_.find(this.keyValues, it => it.key === key), 'getValue');
+    }
+
     isSingleSelect() {
         return this.type === Filter.types.SingleSelect || _.isNil(this.type);
     }
@@ -128,7 +132,7 @@ class FormElement {
         TrueValue: 'TrueValue',
         FalseValue: 'FalseValue',
         ExcludedAnswers: 'ExcludedAnswers',
-        IdSourceUUID: 'idSourceUUID',
+        IdSourceUUID: 'IdSourceUUID',
     };
 
     static values = {

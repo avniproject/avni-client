@@ -1,6 +1,6 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
-import {IdentifierAssignment, Concept, EntityQueue, FormElement, ObservationsHolder} from 'openchs-models';
+import {Concept, EntityQueue, FormElement, IdentifierAssignment, ObservationsHolder} from 'openchs-models';
 import _ from "lodash";
 
 @Service("identifierAssignmentService")
@@ -13,20 +13,23 @@ class IdentifierAssignmentService extends BaseService {
         return IdentifierAssignment.schema.name;
     }
 
-    getNextIdentifier(identifierSourceUUID) {
-        let filter = `voided = false AND identifierSource.uuid = ${identifierSourceUUID} AND individual = null and programEnrolment = null`;
+    getNextIdentifierAssignment(identifierSourceUUID) {
         return this.findAll()
-            .filtered(filter)
+            .filtered('voided = false AND individual = null AND programEnrolment = null')
+            .filtered('identifierSource.uuid = $0', identifierSourceUUID)
             .sorted("assignmentOrder", false)[0];
     }
 
+    getNextIdentifier(identifierSourceUUID) {
+        return _.get(this.getNextIdentifierAssignment(identifierSourceUUID), 'identifier');
+    }
+
     populateIdentifiers(form, observationHolder) {
-        _.each(form.getFormElementsOfType(Concept.dataType.Id), (formElement) => {
-            if (!observationHolder.findObservation(formElement.concept)) {
-                observationHolder.addOrUpdateObservation(formElement.concept,
-                    this.getNextIdentifier(formElement.recordByKey(FormElement.keys.IdSourceUUID).value).identifier);
-            }
-        });
+        _.filter(form.getFormElementsOfType(Concept.dataType.Id), fe => _.isNil(observationHolder.findObservation(fe.concept)))
+            .forEach(fe => {
+                const nextIdentifier = this.getNextIdentifier(fe.recordValueByKey(FormElement.keys.IdSourceUUID));
+                observationHolder.addOrUpdateObservation(fe.concept, nextIdentifier);
+            });
         return observationHolder;
     }
 
@@ -50,11 +53,11 @@ class IdentifierAssignmentService extends BaseService {
 
         _.each(form.getFormElementsOfType(Concept.dataType.Id), (formElement) => {
             if (observationsHolder.findObservation(formElement.concept)) {
-                const identifier = this.getNextIdentifier(formElement.recordByKey(FormElement.keys.IdSourceUUID).value);
-                identifier.individual = individual;
-                identifier.programEnrolment = programEnrolment;
-                identifiersToBeSaved.push(identifier);
-                entityQueueItems.push(EntityQueue.create(identifier, IdentifierAssignment.schema.name));
+                const identifierAssignment = this.getNextIdentifierAssignment(formElement.recordValueByKey(FormElement.keys.IdSourceUUID));
+                identifierAssignment.individual = individual;
+                identifierAssignment.programEnrolment = programEnrolment;
+                identifiersToBeSaved.push(identifierAssignment);
+                entityQueueItems.push(EntityQueue.create(identifierAssignment, IdentifierAssignment.schema.name));
             }
         });
 
