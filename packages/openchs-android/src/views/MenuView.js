@@ -299,12 +299,12 @@ class MenuView extends AbstractComponent {
         }
         const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
         const registrationAction = {
-            fn: () => IndividualRegisterViewsMixin.navigateToRegistration(this, subjectType),
+            fn: () => CHSNavigator.navigateToRegistration(this, subjectType),
             label: subjectType.name,
             backgroundColor: Colors.AccentColor,
         };
         const programActions = this.context.getService(ProgramService).findAll().map(program => ({
-            fn: () => IndividualRegisterViewsMixin.navigateToRegistrationThenProgramEnrolmentView(this, program, this, subjectType),
+            fn: () => CHSNavigator.navigateToRegistrationThenProgramEnrolmentView(this, program, this, subjectType),
             label: program.displayName,
             backgroundColor: program.colour,
         }));

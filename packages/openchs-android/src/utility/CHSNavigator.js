@@ -26,6 +26,8 @@ import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
+import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
+import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
 
 
 class CHSNavigator {
@@ -168,6 +170,37 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(VideoPlayerView, true);
     }
 
+    static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
+        TypedTransition
+            .from(recommendationsView)
+            .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+                ProgramEnrolmentDashboardView, {individualUUID, message: recommendationsView.I18n.t("registrationSavedMsg")}, true,);
+    }
+
+    static navigateToRegistrationThenProgramEnrolmentView(source, program, goBackTo, subjectType) {
+        CHSNavigator.navigateToRegisterView(source, null, {
+            registrationType: program.displayName,
+            label: source.I18n.t('saveAndEnrol'),
+            fn: recommendationView => {
+                TypedTransition
+                    .from(goBackTo)
+                    .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+                        ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual: recommendationView.props.individual, program}),message: source.I18n.t('registrationSavedMsg')}, true);
+            }
+        }, subjectType);
+    }
+
+    static navigateToRegistration(source, subjectType) {
+        const stitches = {label: source.I18n.t('anotherRegistration', {subject: subjectType.name})};
+        const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
+        stitches.fn = (recommendationsView) => {
+            TypedTransition
+                .from(recommendationsView)
+                .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
+                    target, {params: {stitches}, message : source.I18n.t('registrationSavedMsg')}, true);
+        };
+        CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
+    }
 }
 
 export default CHSNavigator;
