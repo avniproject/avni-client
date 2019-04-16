@@ -24,7 +24,7 @@ class ChecklistItemDetail extends BaseEntity {
         }
     };
 
-    static fromResource(checklistItemResource, entityService, entitiesInCurrentPage) {
+    static fromResource(checklistItemResource, entityService, resourcesInCurrentPage) {
         const checklistDetail = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistDetailUUID"), ChecklistDetail.schema.name);
         const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "formUUID"), Form.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
@@ -35,11 +35,18 @@ class ChecklistItemDetail extends BaseEntity {
         checklistItemDetail.form = form;
         checklistItemDetail.concept = concept;
         const leadDetailUUID = ResourceUtil.getUUIDFor(checklistItemResource, "leadDetailUUID");
-        const createdLeadChecklistItemDetail = entityService.findByKey("uuid", leadDetailUUID, ChecklistItemDetail.schema.name);
-        if (_.isNil(createdLeadChecklistItemDetail)) {
-            checklistItemDetail.dependentOn = entitiesInCurrentPage.find(entity => entity.uuid === leadDetailUUID);
-        } else {
-            checklistItemDetail.dependentOn = createdLeadChecklistItemDetail;
+        if(!_.isNil(leadDetailUUID)) {
+            const createdLeadChecklistItemDetail = entityService.findByKey("uuid", leadDetailUUID, ChecklistItemDetail.schema.name);
+            if (_.isNil(createdLeadChecklistItemDetail)) {
+                let leadDetail = resourcesInCurrentPage.find(entity => entity.uuid === leadDetailUUID);
+                checklistItemDetail.dependentOn = ChecklistItemDetail.fromResource(
+                    leadDetail,
+                    entityService,
+                    resourcesInCurrentPage
+                );
+            } else {
+                checklistItemDetail.dependentOn = createdLeadChecklistItemDetail;
+            }
         }
         return checklistItemDetail;
     }

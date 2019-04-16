@@ -102,9 +102,8 @@ class SyncService extends BaseService {
 
     persistAll(entityMetaData, entityResources) {
         if (_.isEmpty(entityResources)) return;
-        const entityService = this.getService(EntityService);
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
-        const entities = entityResources.reduce((acc, entity) => acc.concat([entityMetaData.entityClass.fromResource(entity, entityService, acc)]), []);
+        const entities = entityResources.reduce((acc, resource) => acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]), []);
         let entitiesToCreateFns = this.createEntities(entityMetaData.entityName, entities);
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
@@ -115,7 +114,7 @@ class SyncService extends BaseService {
         //`<A Model>.associateChild()` called many times as many children
         if (!_.isEmpty(entityMetaData.parent)) {
             const parentEntities = _.zip(entityResources, entities)
-                .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, entityService));
+                .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
             const mergedParentEntities =
                 _.values(_.groupBy(parentEntities, 'uuid'))
                     .map(entityMetaData.parent.entityClass.merge(entityMetaData.entityClass));

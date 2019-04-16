@@ -10,7 +10,7 @@ class StubbedEntityService extends StubbedBaseService {
     }
 
     findByKey() {
-        return {};
+        return null;
     }
 }
 
