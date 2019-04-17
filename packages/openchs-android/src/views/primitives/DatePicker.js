@@ -14,6 +14,7 @@ class DatePicker extends AbstractComponent {
         dateValue: React.PropTypes.object,
         validationResult: React.PropTypes.object,
         actionName: React.PropTypes.string.isRequired,
+        datePickerMode: React.PropTypes.string,
         actionObject: React.PropTypes.object.isRequired,
         pickTime: React.PropTypes.bool,
         nonRemovable: React.PropTypes.bool
@@ -73,7 +74,7 @@ class DatePicker extends AbstractComponent {
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showDatePicker.bind(this, {date: date})}
+                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : this.props.datePickerMode})}
                           style={[{
                               fontSize: Fonts.Large,
                               color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError
