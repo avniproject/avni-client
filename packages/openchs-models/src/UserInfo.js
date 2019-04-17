@@ -18,11 +18,9 @@ class UserInfo {
         let userInfo = new UserInfo();
         userInfo.uuid = UserInfo.UUID;
         userInfo.organisationName = resource.organisationName;
-        console.log(`resource.settings ${JSON.stringify(resource.settings)}`);
         userInfo.settings = _.isNil(resource.settings)
             ? UserInfo.DEFAULT_SETTINGS
             : JSON.stringify(resource.settings);
-        console.log(`userInfo ${JSON.stringify(userInfo)}`);
         return userInfo;
     }
 

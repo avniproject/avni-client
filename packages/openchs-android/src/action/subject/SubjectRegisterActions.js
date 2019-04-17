@@ -57,7 +57,6 @@ export class SubjectRegisterActions {
     static enterSubjectAddressLevel(state, action) {
         const newState = state.clone();
         newState.subject.lowestAddressLevel = action.value;
-        console.log('SubjectRegisterActions.enterSubjectAddressLevel',newState.subject.lowestAddressLevel);
         newState.handleValidationResult(newState.subject.validateAddress());
         return newState;
     }
