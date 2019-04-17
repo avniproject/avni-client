@@ -52,9 +52,8 @@ ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cu
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short HEAD)
 setup_hosts:
-	cp packages/openchs-android/.sample.env packages/openchs-android/.env
-	sed -i '/dev.openchs.org/d' packages/openchs-android/.env
-	echo "\nSERVER_URL=http://$(ip):8021" >> packages/openchs-android/.env
+	grep -v 'SERVER_URL=' packages/openchs-android/.sample.env > packages/openchs-android/.env
+	echo "SERVER_URL=http://$(ip):8021" >> packages/openchs-android/.env
 
 # <test>
 test-health-modules: ##
