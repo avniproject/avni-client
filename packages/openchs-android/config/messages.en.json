@@ -236,5 +236,8 @@
   "encounterCanceledMsg": "{{encounterName}} Encounter Canceled",
   "programSavedProceedEncounterMsg" : "{{program}} Enrolment Saved",
   "encounterSavedProceedEncounterMsg" : "{{encounter}} Encounter Saved",
-  "saved": "Saved"
+  "saved": "Saved",
+  "NotEnoughId": "Not Enough Identifiers available. Please sync",
+  "syncNow": "Sync now",
+  "syncLater": "Sync later"
 }

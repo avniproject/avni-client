@@ -132,6 +132,10 @@ class BaseService {
         }
         return this.db.write(fn);
     }
+
+    existsByUuid(uuid, schema = this.getSchema()) {
+        return this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
+    }
 }
 
 export default BaseService;

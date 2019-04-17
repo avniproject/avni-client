@@ -22,6 +22,9 @@ import CHSContent from "../common/CHSContent";
 import TextFormElement from "../form/formElement/TextFormElement";
 import AddressLevels from "../common/AddressLevels";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
+import EntityService from "../../service/EntityService";
+import Form from "openchs-models/src/application/Form";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -36,6 +39,19 @@ class SubjectRegisterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.subject);
         this.state = {displayed: true};
+    }
+
+    static canLoad({uuid}, parent) {
+        const editing = !_.isNil(uuid);
+        if (editing) return true;
+        const identifierAssignmentService = parent.context.getService(IdentifierAssignmentService);
+        const entityService = parent.context.getService(EntityService);
+        const form = entityService.findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
+        if (identifierAssignmentService.haveEnoughIdentifiers(form)) {
+            return true;
+        }
+        parent.handleError({syncRequiredError: 'NotEnoughId'});
+        return false;
     }
 
     componentWillMount() {

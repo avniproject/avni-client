@@ -2,7 +2,6 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDashboardView";
 import ProgramExitView from "../views/program/ProgramExitView";
-import ProgramEnrolmentState from "../action/program/ProgramEnrolmentState";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
 import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";
@@ -19,7 +18,6 @@ import SetPasswordView from "../views/SetPasswordView";
 import ResetForgottenPasswordView from "../views/ResetForgottenPasswordView";
 import ChangePasswordView from "../views/ChangePasswordView";
 import ProgramEncounterCancelView from "../views/program/ProgramEncounterCancelView";
-import IndividualSearchView from "../views/individual/IndividualSearchView";
 import IndividualAddRelativeView from "../views/individual/IndividualAddRelativeView";
 import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
@@ -40,11 +38,13 @@ class CHSNavigator {
     }
 
     static navigateToProgramEnrolmentView(source, enrolment, backFunction, editing=false) {
-        TypedTransition.from(source).with({
-            enrolment: enrolment,
-            backFunction: backFunction,
-            editing
-        }).to(ProgramEnrolmentView, true);
+        if(ProgramEnrolmentView.canLoad({enrolment}, source)) {
+            TypedTransition.from(source).with({
+                enrolment: enrolment,
+                backFunction: backFunction,
+                editing
+            }).to(ProgramEnrolmentView, true);
+        }
     }
 
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
@@ -89,8 +89,22 @@ class CHSNavigator {
     }
 
     static navigateToRegisterView(source, uuid, stitches, subjectType, message) {
-        const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
-        TypedTransition.from(source).with({subjectUUID: uuid, individualUUID: uuid, editing: !_.isNil(uuid), stitches, message}).to(target);
+        const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
+        if (target.canLoad({uuid}, source)) {
+            TypedTransition.from(source).with({
+                subjectUUID: uuid,
+                individualUUID: uuid,
+                editing: !_.isNil(uuid),
+                stitches,
+                message
+            }).to(target)
+        }
+    }
+
+    static validateAndNavigate(parent, target, args, onSuccess) {
+        if (target.canLoad(args, parent)) {
+            onSuccess();
+        }
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing=false) {
@@ -194,10 +208,14 @@ class CHSNavigator {
         const stitches = {label: source.I18n.t('anotherRegistration', {subject: subjectType.name})};
         const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
         stitches.fn = (recommendationsView) => {
-            TypedTransition
-                .from(recommendationsView)
-                .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
-                    target, {params: {stitches}, message : source.I18n.t('registrationSavedMsg')}, true);
+            const uuid = recommendationsView.state.individual.uuid;
+            console.log('uuiduuiduuiduuiduuiduuid', uuid);
+            if(target.canLoad({uuid}, recommendationsView)) {
+                TypedTransition
+                    .from(recommendationsView)
+                    .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
+                        target, {params: {stitches}, message : source.I18n.t('registrationSavedMsg')}, true);
+            }
         };
         CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
     }

@@ -13,15 +13,26 @@ class IdentifierAssignmentService extends BaseService {
         return IdentifierAssignment.schema.name;
     }
 
-    getNextIdentifierAssignment(identifierSourceUUID) {
+    getFreeIdentifiers(identifierSourceUUID) {
         return this.findAll()
             .filtered('voided = false AND individual = null AND programEnrolment = null')
             .filtered('identifierSource.uuid = $0', identifierSourceUUID)
-            .sorted("assignmentOrder", false)[0];
+            .sorted("assignmentOrder", false);
+    }
+
+    getNextIdentifierAssignment(identifierSourceUUID) {
+        return this.getFreeIdentifiers(identifierSourceUUID)[0];
     }
 
     getNextIdentifier(identifierSourceUUID) {
         return _.get(this.getNextIdentifierAssignment(identifierSourceUUID), 'identifier');
+    }
+
+    haveEnoughIdentifiers(form) {
+        const formElements = form.getFormElementsOfType(Concept.dataType.Id);
+        const idSources = _.uniq(_.map(formElements, (fe)=> fe.recordValueByKey(FormElement.keys.IdSourceUUID)));
+        const totalFreeIds = _.sum(_.map(idSources, (idSource)=> this.getFreeIdentifiers(idSource).length));
+        return totalFreeIds >= _.size(formElements);
     }
 
     populateIdentifiers(form, observationHolder) {
