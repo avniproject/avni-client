@@ -35,6 +35,7 @@ class DateFormElement extends AbstractFormElement {
                          }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
                         <DatePicker dateValue={this.props.dateValue.getValue()}
                                     validationResult={this.props.validationResult}
+                                    datePickerMode={this.props.element.datePickerMode}
                                     pickTime={concept && concept.datatype === Concept.dataType.DateTime}
                                     actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
 }

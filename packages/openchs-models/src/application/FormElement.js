@@ -154,6 +154,11 @@ class FormElement {
         return _.isNil(editable) ? true : editable.getValue();
     }
 
+    get datePickerMode() {
+        const datePickerMode = this.recordByKey('datePickerMode');
+        return _.isNil(datePickerMode) ? 'calendar' : datePickerMode.getValue();
+    }
+
     matches(elementNameOrUUID) {
         return this.name === elementNameOrUUID || this.uuid === elementNameOrUUID;
     }
