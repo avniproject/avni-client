@@ -46,7 +46,7 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {syncing: false, error: false, hideRegister:false};
+        this.state = {syncing: false, error: false, hideRegister:context.getService(UserInfoService).getUserSettings().hideRegister};
         this.createStyles();
         this.renderSyncModal = this.renderSyncModal.bind(this);
     }
