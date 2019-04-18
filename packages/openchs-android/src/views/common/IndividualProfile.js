@@ -14,6 +14,8 @@ import General from "../../utility/General";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import EntityTypeSelector from "./EntityTypeSelector";
+import ProgramService from "../../service/program/ProgramService";
+import ActionSelector from "./ActionSelector";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -39,7 +41,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     componentDidMount() {
-        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {value: this.props.individual}), 300);
+        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual: this.props.individual}), 300);
     }
 
     viewProfile() {
@@ -81,6 +83,15 @@ class IndividualProfile extends AbstractComponent {
 
     render() {
         General.logDebug('IndividualProfile', 'render');
+        const programActions = this.state.eligiblePrograms.map(program => ({
+            fn: () => {
+                this.state.enrolment.program = program;
+                CHSNavigator.navigateToProgramEnrolmentView(this, this.state.enrolment);
+            },
+            label: program.displayName,
+            backgroundColor: program.colour,
+        }));
+
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <View style={{
@@ -89,11 +100,12 @@ class IndividualProfile extends AbstractComponent {
                     marginVertical: 28,
                     backgroundColor: Styles.defaultBackground
                 }}>
-                    <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState}
-                                        selectedEntityType={this.state.entity.program}
-                                        actions={Actions} labelKey='selectProgram'
-                                        getEntityLabel={(program)=> program.displayName }
-                                        onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
+                    <ActionSelector
+                        title={this.I18n.t("enrolInProgram")}
+                        hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
+                        visible={this.state.displayActionSelector}
+                        actions={programActions}
+                    />
                     <View style={{justifyContent: 'center', alignSelf: 'center'}}>
                         <Icon name={this.props.individual.icon()} style={{
                             justifyContent: 'center',
@@ -152,7 +164,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     launchChooseProgram() {
-        this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
+        this.dispatchAction(Actions.LAUNCH_ACTION_SELECTOR);
     }
 
     voidIndividual() {

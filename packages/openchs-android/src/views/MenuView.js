@@ -1,10 +1,10 @@
-import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
-import _ from 'lodash';
+import _ from "lodash";
 import Path from "../framework/routing/Path";
 import {Button, Icon as NBIcon} from "native-base";
-import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
@@ -34,7 +34,7 @@ import UserInfoService from "../service/UserInfoService";
 import ProgressBarView from "./ProgressBarView";
 import ServerError from "../service/ServerError";
 import ProgramService from "../service/program/ProgramService";
-import IndividualRegisterViewsMixin from "./individual/IndividualRegisterViewsMixin";
+import ActionSelector from "./common/ActionSelector";
 
 const {width, height} = Dimensions.get('window');
 
@@ -50,7 +50,7 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {syncing: false, error: false, isConnected: true};
+        this.state = {syncing: false, error: false, isConnected: true, displayActionSelector: false};
         this.createStyles();
         this.renderSyncModal = this.renderSyncModal.bind(this);
     }
@@ -284,7 +284,7 @@ class MenuView extends AbstractComponent {
                 width: '100%',
                 backgroundColor: bgColor,
                 height: 50,
-                elevation: 2,
+                elevation: 2
             }}
                     textStyle={{fontSize: 18, lineHeight: 28}}
                     onPress={() => this.setState({regModalVisible: false}, onPress)}>
@@ -294,8 +294,8 @@ class MenuView extends AbstractComponent {
     }
 
     renderRegistrationModal() {
-        if (!this.state.regModalVisible) {
-            return
+        if (!this.state.displayActionSelector) {
+            return null;
         }
         const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
         const registrationAction = {
@@ -310,35 +310,13 @@ class MenuView extends AbstractComponent {
         }));
 
         return (
-            <Modal
-                animationType='fade'
-                transparent={true}
-                presentationStyle='fullScreen'
-                onRequestClose={() => this.setState({regModalVisible: false})}
-                visible={this.state.regModalVisible}>
-                <TouchableWithoutFeedback onPress={() => this.setState({regModalVisible: false})}>
-                    <View style={{
-                        flex: 1,
-                        flexWrap: 'nowrap',
-                        backgroundColor: 'rgba(60,60,60,0.9)',
-                        flexDirection: 'column',
-                    }}>
-                        <View style={{flex: .4}}/>
-                        <View style={[this.regModalBackground]}>
-                            <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
-                                <MCIIcon name={'close'} style={{fontSize: 24}}/>
-                            </View>
-                            <Text style={{fontSize: 20, color: Styles.blackColor}}>{'Register'}</Text>
-                            {_.map([registrationAction].concat(programActions), (action, key) =>
-                                this.registrationModalItem(key, action.label, action.backgroundColor, action.fn)
-                            )}
-
-                        </View>
-                        <View style={{flex: 1}}/>
-                    </View>
-                </TouchableWithoutFeedback>
-            </Modal>
-        )
+          <ActionSelector
+              visible={this.state.displayActionSelector}
+              hide={() => this.setState({displayActionSelector: false})}
+              actions={[registrationAction].concat(programActions)}
+              title={"Register"}
+          />
+        );
     }
 
     renderSyncModal() {
@@ -377,7 +355,7 @@ class MenuView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         let menuItemsData = [
-            [Icon(registerIcon), this.I18n.t("register"), () => subjectTypes[0] && this.setState({regModalVisible: true})],
+            [Icon(registerIcon), this.I18n.t("register"), () => subjectTypes[0] && this.setState({displayActionSelector: true})],
             [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
@@ -400,7 +378,7 @@ class MenuView extends AbstractComponent {
                     height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground,
                     // paddingBottom: 120
                 }}>
-                    {this.renderRegistrationModal()}
+                    {subjectTypes[0] && this.renderRegistrationModal()}
                     {this.renderSyncModal()}
                     {MenuItems}
                 </View>
