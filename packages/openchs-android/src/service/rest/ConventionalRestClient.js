@@ -40,7 +40,6 @@ class ConventionalRestClient {
         return () => {
             const chainedRequest = new ChainedRequests();
             entities.entities.map((entity) => {
-                console.log(entity);
                 return chainedRequest.push(chainedRequest.post(url, entity.resource, authToken, onComplete(entities.metaData, entity.resource.uuid)))
             });
             return chainedRequest.fire();
