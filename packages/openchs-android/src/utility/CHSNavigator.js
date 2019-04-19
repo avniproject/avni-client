@@ -187,7 +187,7 @@ class CHSNavigator {
     static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
         TypedTransition
             .from(recommendationsView)
-            .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+            .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
                 ProgramEnrolmentDashboardView, {individualUUID, message: recommendationsView.I18n.t("registrationSavedMsg")}, true,);
     }
 
@@ -206,15 +206,15 @@ class CHSNavigator {
 
     static navigateToRegistration(source, subjectType) {
         const stitches = {label: source.I18n.t('anotherRegistration', {subject: subjectType.name})};
-        const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
+        const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
         stitches.fn = (recommendationsView) => {
-            const uuid = recommendationsView.state.individual.uuid;
-            console.log('uuiduuiduuiduuiduuiduuid', uuid);
-            if(target.canLoad({uuid}, recommendationsView)) {
+            if (target.canLoad({customMessage: 'NotEnoughIdForAnotherRegistration'}, recommendationsView)) {
                 TypedTransition
                     .from(recommendationsView)
                     .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
-                        target, {params: {stitches}, message : source.I18n.t('registrationSavedMsg')}, true);
+                        target, {params: {stitches}, message: source.I18n.t('registrationSavedMsg')}, true);
+            } else {
+                CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, recommendationsView.individual.uuid);
             }
         };
         CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);

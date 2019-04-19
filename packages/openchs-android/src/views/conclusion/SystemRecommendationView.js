@@ -50,6 +50,10 @@ class SystemRecommendationView extends AbstractComponent {
         super(props, context);
     }
 
+    get individual() {
+        return this.props.individual;
+    }
+
     get nextAndMore() {
         if (this.props.saveAndProceed) {
             return {

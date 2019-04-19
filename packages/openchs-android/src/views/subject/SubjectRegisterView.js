@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, PrimitiveValue, AbstractEncounter, Individual} from "openchs-models";
+import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -41,7 +41,7 @@ class SubjectRegisterView extends AbstractComponent {
         this.state = {displayed: true};
     }
 
-    static canLoad({uuid}, parent) {
+    static canLoad({uuid,customMessage}, parent) {
         const editing = !_.isNil(uuid);
         if (editing) return true;
         const identifierAssignmentService = parent.context.getService(IdentifierAssignmentService);
@@ -50,7 +50,7 @@ class SubjectRegisterView extends AbstractComponent {
         if (identifierAssignmentService.haveEnoughIdentifiers(form)) {
             return true;
         }
-        parent.handleError({syncRequiredError: 'NotEnoughId'});
+        parent.handleError({syncRequiredError: customMessage || 'NotEnoughId'});
         return false;
     }
 

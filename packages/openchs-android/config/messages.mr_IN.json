@@ -254,5 +254,9 @@
   "encounterSavedMsg" : "{{encounterName}} एंकॉउंटर जतन",
   "encounterCanceledMsg": "{{encounterName}} एंकॉउंटर कॅन्सल केले",
   "programSavedProceedEncounterMsg" : "{{programName}} प्रोग्राम पूर्ण",
-  "saved": "जतन"
+  "saved": "जतन",
+  "NotEnoughId": "पुरेसे ओळखक उपलब्ध नाहीत. कृपया मेनू मिळवा आणि सिंक दाबा",
+  "NotEnoughIdForAnotherRegistration": "इतर नोंदणीसाठी पुरेसे अभिज्ञापक उपलब्ध नाहीत. कृपया मेनू मिळवा आणि सिंक दाबा",
+  "syncNow": "आता संकालन करा",
+  "syncLater": "नंतर संकालन करा"
 }

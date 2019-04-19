@@ -62,8 +62,8 @@ class IndividualRegisterView extends AbstractComponent {
         }
     }
 
-    static canLoad({uuid}, parent) {
-        return SubjectRegisterView.canLoad({uuid}, parent);
+    static canLoad(args, parent) {
+        return SubjectRegisterView.canLoad(args, parent);
     }
 
     render() {

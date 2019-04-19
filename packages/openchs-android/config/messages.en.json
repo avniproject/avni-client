@@ -237,7 +237,8 @@
   "programSavedProceedEncounterMsg" : "{{program}} Enrolment Saved",
   "encounterSavedProceedEncounterMsg" : "{{encounter}} Encounter Saved",
   "saved": "Saved",
-  "NotEnoughId": "Not Enough Identifiers available. Please sync",
+  "NotEnoughId": "Not Enough Identifiers available. Please goto Menu and press Sync",
+  "NotEnoughIdForAnotherRegistration": "Not Enough Identifiers available for another Registration. Please goto Menu and press Sync",
   "syncNow": "Sync now",
   "syncLater": "Sync later"
 }
