@@ -71,10 +71,11 @@ class DatePicker extends AbstractComponent {
 
     render() {
         const date = _.isNil(this.props.dateValue) ? new Date() : this.props.dateValue;
+        const mode = _.isNil(this.props.datePickerMode) ? 'calendar' : this.props.datePickerMode;
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : this.props.datePickerMode})}
+                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : mode})}
                           style={[{
                               fontSize: Fonts.Large,
                               color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError

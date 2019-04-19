@@ -156,7 +156,7 @@ class FormElement {
 
     get datePickerMode() {
         const datePickerMode = this.recordByKey('datePickerMode');
-        return _.isNil(datePickerMode) ? 'calendar' : datePickerMode.getValue();
+        return _.isNil(datePickerMode) ? null : datePickerMode.getValue();
     }
 
     matches(elementNameOrUUID) {
