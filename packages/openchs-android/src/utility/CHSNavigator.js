@@ -199,7 +199,7 @@ class CHSNavigator {
                 TypedTransition
                     .from(goBackTo)
                     .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
-                        ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual: recommendationView.props.individual, program}),message: source.I18n.t('registrationSavedMsg')}, true);
+                        [ProgramEnrolmentDashboardView, ProgramEnrolmentView], [{individualUUID: recommendationView.props.individual.uuid}, {enrolment: ProgramEnrolment.createEmptyInstance({individual: recommendationView.props.individual, program}),message: source.I18n.t('registrationSavedMsg')}], true);
             }
         }, subjectType);
     }
@@ -230,6 +230,11 @@ class CHSNavigator {
             .from(source)
             .resetStack([SystemRecommendationView, ProgramEncounterView, ProgramEnrolmentView],
                 ProgramEncounterView, {params:{encounterTypeName, enrolmentUUID, message,editing:false}}, true);
+    }
+
+    static navigateToFirstPage(source, itemsToBeRemoved){
+        TypedTransition.from(source)
+            .resetStack(itemsToBeRemoved, null)
     }
 }
 

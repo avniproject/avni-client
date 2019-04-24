@@ -12,6 +12,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from '../../utility/CHSNavigator';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import ProgramEnrolmentView from "./ProgramEnrolmentView";
 
 @Path('/ProgramEnrolmentsView')
 class ProgramEnrolmentsView extends AbstractComponent {
@@ -44,7 +45,8 @@ class ProgramEnrolmentsView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
-                    <AppHeader title={`${this.I18n.t('allEnrolmentsInProgram')}: ${this.state.programName}`}/>
+                    <AppHeader title={`${this.I18n.t('allEnrolmentsInProgram')}: ${this.state.programName}`}
+                               func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView])}/>
                     <View style={{paddingHorizontal: DGS.resizeWidth(12)}}>
                         <TabularListView data={this.state.enrolments}
                                          tableTitle={''}

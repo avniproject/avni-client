@@ -81,7 +81,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.nameString}
-                               func={() => this.previous()}/>
+                               func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterCancelView])}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() &&
                             <GeolocationFormElement

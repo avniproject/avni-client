@@ -63,18 +63,19 @@ export default class TypedTransition {
     resetStack(itemsToBeRemoved, newViewClass, params, isTyped) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
-        const wizardCount = _.sumBy(currentRoutes, (route) => _.some(itemsToBeRemoved, (wizardViewClass) => wizardViewClass.path() === route.path ? 1 : 0));
-        var newRouteStack;
-        if (_.isNil(newViewClass)) {
-            this._popN(wizardCount);
-            General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Wizard: ${wizardCount}`);
+        const newRouteStack = _.filter(currentRoutes, (route) => !_.some(itemsToBeRemoved, item => item.path() === route.path));
+
+        if (_.isArray(newViewClass)) {
+            _.forEach(_.zip(newViewClass, params), ([view, param]) => newRouteStack.push(this.createRoute(view, param, isTyped)))
+        } else if (_.isNil(newViewClass)) {
+            this._popN(currentRoutes.length - newRouteStack.length);
+            return;
         } else {
-            const existingNewViewClassCount = _.sumBy(currentRoutes, (route) => newViewClass.path() === route.path ? 1 : 0);
-            newRouteStack = _.dropRight(currentRoutes, wizardCount + existingNewViewClassCount);
             newRouteStack.push(this.createRoute(newViewClass, params, isTyped));
-            this.navigator.immediatelyResetRouteStack(newRouteStack);
-            General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Wizard: ${wizardCount}, Final: ${newRouteStack.length}`);
         }
+
+        this.navigator.immediatelyResetRouteStack(_.uniq(newRouteStack));
+        General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Final: ${newRouteStack.length}`);
     }
 
     _popN(n) {

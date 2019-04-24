@@ -14,6 +14,7 @@ import EntityService from "../../service/EntityService";
 import Form from "openchs-models/src/application/Form";
 import FormMappingService from "../../service/FormMappingService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -81,7 +82,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         this.displayMessage(this.props.message);
         return <ProgramFormComponent editing={this.props.editing} state={this.state}
-                                     context={ProgramEnrolmentView.usageContext} backFunction={() => this.onBack()}
+                                     context={ProgramEnrolmentView.usageContext} backFunction={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView])}
                                      previous={() => this.previous()}/>;
     }
 }

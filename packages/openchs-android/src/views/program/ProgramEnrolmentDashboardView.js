@@ -66,6 +66,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         }
     }
 
+    didFocus(){
+        super.didFocus();
+        this.dispatchOnLoad();
+    }
+
     editEnrolment() {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
             enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
@@ -179,7 +184,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         actions={encounterActions}
                     />
                     <View>
-                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.state.backFunction}/>
+                        <AppHeader title={this.I18n.t('individualDashboard')} func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentDashboardView])}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
                                            viewContext={IndividualProfile.viewContext.Program}
                                            programsAvailable={this.state.programsAvailable}/>
