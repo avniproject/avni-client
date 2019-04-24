@@ -68,14 +68,8 @@ class SystemRecommendationView extends AbstractComponent {
         if (applicableScheduledVisit) {
             return {
                 label: this.I18n.t('saveAndProceedEncounter', {enc: applicableScheduledVisit.name}),
-                func: () => this.save((entity, isEnrolment) => {
-                    if(isEnrolment) {
-                        CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType,
-                            entity.uuid, this.I18n.t('programSavedProceedEncounterMsg', {program : entity.program.name}));
-                    } else {
-                        CHSNavigator.navigateToProgramEncounterView(this, null, null, applicableScheduledVisit.encounterType,
-                            entity.programEnrolment.uuid, this.I18n.t('encounterSavedProceedEncounterMsg', {encounter: entity.name || entity.encounterType.name}));
-                    }
+                func: () => this.save((savingEntity, isEnrolment) => {
+                    CHSNavigator.navigateToScheduledProgramEncounterView(this, applicableScheduledVisit.encounterType, savingEntity, isEnrolment);
                 }),
                 visible: this.props.validationErrors.length === 0,
             };

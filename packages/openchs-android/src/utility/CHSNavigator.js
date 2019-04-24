@@ -219,6 +219,18 @@ class CHSNavigator {
         };
         CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
     }
+
+    static navigateToScheduledProgramEncounterView(source, encounterTypeName, savingEntity, isEnrolment) {
+        const enrolmentUUID = isEnrolment? savingEntity.uuid: savingEntity.programEnrolment.uuid;
+        const message = isEnrolment?
+            source.I18n.t('programSavedProceedEncounterMsg', {program : savingEntity.program.name}):
+            source.I18n.t('encounterSavedProceedEncounterMsg', {encounter: savingEntity.name || savingEntity.encounterType.name});
+
+        TypedTransition
+            .from(source)
+            .wizardCompleted([SystemRecommendationView, ProgramEncounterView, ProgramEnrolmentView],
+                ProgramEncounterView, {params:{encounterTypeName, enrolmentUUID, message,editing:false}}, true);
+    }
 }
 
 export default CHSNavigator;

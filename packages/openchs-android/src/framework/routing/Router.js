@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {BackAndroid, Navigator, View} from 'react-native';
+import General from "../../utility/General";
 // import {Navigator} from 'react-native-deprecated-custom-components';
 
 export default class Router extends Component {
@@ -88,6 +89,7 @@ export default class Router extends Component {
         if (!_.isNil(element) && _.isFunction(element.didFocus)) {
             element.didFocus();
         }
+        // General.logDebug('Navigator.paths', JSON.stringify(_.map(_.invoke(this.navigator,'getCurrentRoutes'), 'path'),null,2));
     }
 
     render() {
