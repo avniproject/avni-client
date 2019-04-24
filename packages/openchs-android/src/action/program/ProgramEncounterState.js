@@ -1,8 +1,7 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {AbstractEncounter, ObservationsHolder, ProgramEncounter} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
-import ProgramConfig from "../../../../openchs-models/src/ProgramConfig";
 import _ from 'lodash';
 
 class ProgramEncounterState extends AbstractDataEntryState {

@@ -1,8 +1,6 @@
-import IndividualService from "../../service/IndividualService";
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import _ from "lodash";
-import {ProgramEnrolment} from "openchs-models";
-import Individual from "../../../../openchs-models/src/Individual";
+import {Individual} from "openchs-models";
 
 export class FamilyProfileActions {
 

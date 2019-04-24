@@ -3,7 +3,6 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
 import {SubjectType} from "openchs-models";
-import _ from "lodash";
 
 export class IndividualSearchActions {
     static clone(state) {
