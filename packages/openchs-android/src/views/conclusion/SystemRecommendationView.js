@@ -21,6 +21,13 @@ import {Individual} from "openchs-models";
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import moment from 'moment';
 import CHSNavigator from "../../utility/CHSNavigator";
+import IndividualRegisterView from "../individual/IndividualRegisterView";
+import IndividualRegisterFormView from "../individual/IndividualRegisterFormView";
+import ProgramEncounterView from "../program/ProgramEncounterView";
+import ProgramEncounterCancelView from "../program/ProgramEncounterCancelView";
+import ProgramExitView from "../program/ProgramExitView";
+import StartProgramView from "../program/StartProgramView";
+import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -62,7 +69,7 @@ class SystemRecommendationView extends AbstractComponent {
                 visible: this.props.validationErrors.length === 0,
             }
         }
-        const applicableScheduledVisit = this.props.nextScheduledVisits.find((visit)=> {
+        const applicableScheduledVisit = this.props.nextScheduledVisits.find((visit) => {
             return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
         });
         if (applicableScheduledVisit) {
@@ -117,10 +124,13 @@ class SystemRecommendationView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
+        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, StartProgramView,
+            ProgramEnrolmentView];
         return (
             <CHSContainer theme={themes}>
                 <CHSContent>
-                    <AppHeader title={this.props.headerMessage}/>
+                    <AppHeader title={this.props.headerMessage}
+                               func={() => CHSNavigator.navigateToFirstPage(this, wizardViews)}/>
                     <View style={{flexDirection: 'column'}}>
                         {this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>

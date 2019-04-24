@@ -7,6 +7,7 @@ import {ProgramEnrolment} from "openchs-models";
 import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
 import Reducers from "../../reducer";
 import General from "../../utility/General";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/ProgramExitView')
 class ProgramExitView extends AbstractComponent {
@@ -58,7 +59,7 @@ class ProgramExitView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return <ProgramFormComponent editing={this.props.params.editing} state={this.state}
-                                     context={ProgramExitView.context} backFunction={() => this.onBack()}
+                                     context={ProgramExitView.context} backFunction={() => CHSNavigator.navigateToFirstPage(this, [ProgramExitView])}
                                      previous={() => this.previous()}/>;
     }
 }
