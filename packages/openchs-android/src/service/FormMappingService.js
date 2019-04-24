@@ -3,7 +3,6 @@ import Service from "../framework/bean/Service";
 import {EncounterType, Form, FormMapping} from "openchs-models";
 import _ from 'lodash';
 import FormQueryResult from "./FormQueryResult";
-import ProgramEnrolmentState from "../action/program/ProgramEnrolmentState";
 
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
@@ -25,11 +24,8 @@ class FormMappingService extends BaseService {
         return _.isNil(formMapping) ? null : formMapping.form;
     }
 
-    findFormForProgramEnrolment(program, usage = ProgramEnrolmentState.UsageKeys.Enrol) {
-        if (usage === ProgramEnrolmentState.UsageKeys.Enrol) {
-            return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment);
-        }
-        return this.findFormForProgramExit(program);
+    findFormForProgramEnrolment(program) {
+        return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment);
     }
 
     findFormForProgramExit(program) {
