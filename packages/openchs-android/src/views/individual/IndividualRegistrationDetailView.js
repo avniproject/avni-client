@@ -42,7 +42,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     getRelativeActions() {
         return [new ContextAction('add', () => {CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
-            (source) => TypedTransition.from(source).wizardCompleted([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
+            (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
         )})];
     }
 

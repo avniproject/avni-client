@@ -60,10 +60,10 @@ export default class TypedTransition {
         return this;
     }
 
-    wizardCompleted(wizardViewClasses, newViewClass, params, isTyped) {
+    resetStack(itemsToBeRemoved, newViewClass, params, isTyped) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
-        const wizardCount = _.sumBy(currentRoutes, (route) => _.some(wizardViewClasses, (wizardViewClass) => wizardViewClass.path() === route.path ? 1 : 0));
+        const wizardCount = _.sumBy(currentRoutes, (route) => _.some(itemsToBeRemoved, (wizardViewClass) => wizardViewClass.path() === route.path ? 1 : 0));
         var newRouteStack;
         if (_.isNil(newViewClass)) {
             this._popN(wizardCount);

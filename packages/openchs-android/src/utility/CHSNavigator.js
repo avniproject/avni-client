@@ -50,7 +50,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         if (isFromWizard) {
-            from.wizardCompleted([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
+            from.resetStack([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
                 individualUUID: individualUUID,
                 enrolmentUUID: selectedEnrolmentUUID,
                 message,
@@ -119,7 +119,7 @@ class CHSNavigator {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
-                .wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
+                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
                     ProgramEnrolmentDashboardView, {individualUUID: encounter.individual.uuid, message}, true,);
         };
         CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, null, message);
@@ -187,7 +187,7 @@ class CHSNavigator {
     static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
         TypedTransition
             .from(recommendationsView)
-            .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
+            .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
                 ProgramEnrolmentDashboardView, {individualUUID, message: recommendationsView.I18n.t("registrationSavedMsg")}, true,);
     }
 
@@ -198,7 +198,7 @@ class CHSNavigator {
             fn: recommendationView => {
                 TypedTransition
                     .from(goBackTo)
-                    .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+                    .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
                         ProgramEnrolmentView, {enrolment: ProgramEnrolment.createEmptyInstance({individual: recommendationView.props.individual, program}),message: source.I18n.t('registrationSavedMsg')}, true);
             }
         }, subjectType);
@@ -211,7 +211,7 @@ class CHSNavigator {
             if (target.canLoad({customMessage: 'NotEnoughIdForAnotherRegistration'}, recommendationsView)) {
                 TypedTransition
                     .from(recommendationsView)
-                    .wizardCompleted([SystemRecommendationView, IndividualRegisterFormView],
+                    .resetStack([SystemRecommendationView, IndividualRegisterFormView],
                         target, {params: {stitches}, message: source.I18n.t('registrationSavedMsg')}, true);
             } else {
                 CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, recommendationsView.individual.uuid);
@@ -228,7 +228,7 @@ class CHSNavigator {
 
         TypedTransition
             .from(source)
-            .wizardCompleted([SystemRecommendationView, ProgramEncounterView, ProgramEnrolmentView],
+            .resetStack([SystemRecommendationView, ProgramEncounterView, ProgramEnrolmentView],
                 ProgramEncounterView, {params:{encounterTypeName, enrolmentUUID, message,editing:false}}, true);
     }
 }
