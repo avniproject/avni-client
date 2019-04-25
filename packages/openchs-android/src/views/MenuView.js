@@ -50,7 +50,7 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {syncing: false, error: false, isConnected: true, displayActionSelector: false};
+        this.state = {syncing: false, error: false, isConnected: true, displayActionSelector: false, hideRegister:context.getService(UserInfoService).getUserSettings().hideRegister};
         this.createStyles();
         this.renderSyncModal = this.renderSyncModal.bind(this);
     }
@@ -138,8 +138,7 @@ class MenuView extends AbstractComponent {
         const userInfoService = this.context.getService(UserInfoService);
         const userSettings = userInfoService.getUserSettings();
 
-        this.setState({syncing: false, error: false});
-
+        this.setState({syncing: false, error: false, hideRegister: userSettings.hideRegister});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
@@ -354,8 +353,8 @@ class MenuView extends AbstractComponent {
         General.logDebug("MenuView", "render");
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
-        let menuItemsData = [
-            [Icon(registerIcon), this.I18n.t("register"), () => subjectTypes[0] && this.setState({displayActionSelector: true})],
+        const registerMenuItem = !this.state.hideRegister ? [[Icon(registerIcon), this.I18n.t("register"), () => subjectTypes[0] && this.setState({displayActionSelector: true})]] : [];
+        let otherMenuItems = [
             [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
             [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
             [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
@@ -367,6 +366,7 @@ class MenuView extends AbstractComponent {
             [Icon("settings"), this.I18n.t("settings"), this.settingsView.bind(this)],
             [Icon("delete"), "Delete Data", this.onDelete.bind(this), () => __DEV__]
         ];
+        const menuItemsData = _.concat(registerMenuItem, otherMenuItems);
         const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
         const MenuItems = menuItemsData
             .filter(([icon, display, cb, shouldRender]) => shouldRender === undefined || shouldRender())

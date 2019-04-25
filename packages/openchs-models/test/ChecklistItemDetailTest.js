@@ -21,7 +21,7 @@ describe("ChecklistItemTest", () => {
         entityService = {
             findByKey: jest.fn().mockReturnValue(null)
         };
-    })
+    });
 
     it("fromResource sets dependencies properly regardless of their order in a single page", () => {
         const resourcesInCurrentPage = [
