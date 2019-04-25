@@ -236,7 +236,7 @@
   "enrolmentExitMsg": "{{programName}} પ્રોગ્રામમાંથી બહાર ગયું",
   "encounterSavedMsg" : "{{encounterName}} એન્કાઉન્ટર સાચવેલ",
   "encounterCanceledMsg": "{{encounterName}} એન્કાઉન્ટર રદ કરો",
-  "programSavedProceedEncounterMsg" : "{{programName}} પ્રોગ્રામ પૂર્ણ",
+  "programSavedProceedEncounterMsg" : "{{program}} પ્રોગ્રામ પૂર્ણ",
   "encounterSavedProceedEncounterMsg" : "{{encounter}} એન્કાઉન્ટર સાચવેલ",
   "saved": "સાચવેલ",
   "NotEnoughId": "પૂરતી ઓળખકર્તાઓ ઉપલબ્ધ નથી. મહેરબાની કરી મેનૂ અને સિંક દબાવો",

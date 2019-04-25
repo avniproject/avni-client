@@ -241,7 +241,7 @@
   "enrolmentExitMsg": "{{programName}} प्रोग्राम से बाहर हुआ",
   "encounterSavedMsg" : "{{encounterName}} एन्काउंटर सेव हुआ",
   "encounterCanceledMsg": "{{encounterName}} एन्काउंटर कॅन्सल हुआ",
-  "programSavedProceedEncounterMsg" : "{{programName}} प्रोग्राम पूरा हुआ",
+  "programSavedProceedEncounterMsg" : "{{program}} प्रोग्राम पूरा हुआ",
   "encounterSavedProceedEncounterMsg" : "{{encounter}} एन्काउंटर सेव हुआ",
   "saved": "सेव हुआ",
   "NotEnoughId": "पर्याप्त पहचानकर्ता उपलब्ध नहीं हैं। कृपया गोटो मेनू और सिंक दबाएं",
