@@ -17,6 +17,7 @@ import EntityTypeSelector from "./EntityTypeSelector";
 import ProgramService from "../../service/program/ProgramService";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
+import {ProgramEnrolment} from "openchs-models";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -87,8 +88,11 @@ class IndividualProfile extends AbstractComponent {
         General.logDebug('IndividualProfile', 'render');
         const programActions = this.state.eligiblePrograms.map(program => ({
             fn: () => {
-                this.state.enrolment.program = program;
-                CHSNavigator.navigateToProgramEnrolmentView(this, this.state.enrolment);
+                const enrolment = ProgramEnrolment.createEmptyInstance({
+                    individual: this.props.individual,
+                    program: program
+                });
+                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
             },
             label: program.displayName,
             backgroundColor: program.colour,

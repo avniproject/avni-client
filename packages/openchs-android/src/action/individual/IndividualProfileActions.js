@@ -1,13 +1,11 @@
 import IndividualService from "../../service/IndividualService";
 import _ from "lodash";
-import {ProgramEnrolment} from "openchs-models";
 
 export class IndividualProfileActions {
 
     static getInitialState() {
         return {
             eligiblePrograms: [],
-            enrolment: ProgramEnrolment.createEmptyInstance(),
             displayActionSelector: false
         };
     }
@@ -15,7 +13,6 @@ export class IndividualProfileActions {
     static clone(state) {
         return {
             eligiblePrograms: state.eligiblePrograms.slice(),
-            enrolment: state.enrolment.cloneForEdit(),
             displayActionSelector: state.displayActionSelector
         }
     }
@@ -37,7 +34,6 @@ export class IndividualProfileActions {
         if (_.isNil(individualService.findByUUID(action.individual.uuid))) return state;
 
         const newState = IndividualProfileActions.clone(state);
-        newState.enrolment.individual = action.individual;
         newState.eligiblePrograms = individualService.eligiblePrograms(action.individual.uuid);
         return newState;
     }
