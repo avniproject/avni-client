@@ -5,6 +5,7 @@ import MessageService from "../../service/MessageService";
 import moment from "moment";
 import {ProgramEncounter} from "openchs-models";
 import General from "../../utility/General";
+import UserInfoService from "../../service/UserInfoService";
 
 class StartProgramActions {
     static clone(state) {
@@ -83,6 +84,7 @@ class StartProgramActions {
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 
         newState.selectedEncounter = StartProgramActions.selectedEncounter(newState);
+        newState.hideUnplanned = context.get(UserInfoService).getUserSettings().hideUnplanned;
 
         return newState;
     }

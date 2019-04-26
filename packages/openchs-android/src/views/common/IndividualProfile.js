@@ -16,12 +16,14 @@ import Styles from "../primitives/Styles";
 import EntityTypeSelector from "./EntityTypeSelector";
 import ProgramService from "../../service/program/ProgramService";
 import ActionSelector from "./ActionSelector";
+import _ from "lodash";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
         individual: React.PropTypes.object.isRequired,
         viewContext: React.PropTypes.string.isRequired,
         programsAvailable: React.PropTypes.bool,
+        hideEnrol: React.PropTypes.bool,
         style: React.PropTypes.object
     };
 
@@ -126,7 +128,7 @@ class IndividualProfile extends AbstractComponent {
                                 this.viewProfile()
                             })
                         }
-                        {this.props.programsAvailable ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
+                        {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
                         {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}

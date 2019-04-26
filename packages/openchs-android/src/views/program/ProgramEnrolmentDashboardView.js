@@ -115,7 +115,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     getPrimaryEnrolmentContextAction() {
-        if (this.state.enrolment.isActive) {
+        if (!this.state.hideExit && this.state.enrolment.isActive) {
             return new ContextAction('exitProgram', () => this.exitProgram());
         }
     }
@@ -187,7 +187,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         <AppHeader title={this.I18n.t('individualDashboard')} func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentDashboardView])}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
                                            viewContext={IndividualProfile.viewContext.Program}
-                                           programsAvailable={this.state.programsAvailable}/>
+                                           programsAvailable={this.state.programsAvailable}
+                                           hideEnrol={this.state.hideEnrol}
+                        />
                         <ScrollView style={{
                             flexDirection: 'column',
                             borderRadius: 5,

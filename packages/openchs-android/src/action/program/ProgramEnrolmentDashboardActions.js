@@ -10,6 +10,7 @@ import ProgramConfigService from "../../service/ProgramConfigService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ProgramService from "../../service/program/ProgramService";
 import SettingsService from "../../service/SettingsService";
+import UserInfoService from "../../service/UserInfoService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -64,7 +65,9 @@ class ProgramEnrolmentDashboardActions {
             programsAvailable: state.programsAvailable,
             showCount: state.showCount,
             dashboardButtons: state.dashboardButtons,
-            enrolmentSummary: state.enrolmentSummary
+            enrolmentSummary: state.enrolmentSummary,
+            hideExit: state.hideExit,
+            hideEnrol: state.hideEnrol
         };
     }
 
@@ -84,6 +87,10 @@ class ProgramEnrolmentDashboardActions {
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
+        //TODO This hiding buttons this way is a temporary fix to avoid flood of issues from DDM.
+        // TODO Proper solution will roles and privilege based
+        newState.hideExit = context.get(UserInfoService).getUserSettings().hideExit;
+        newState.hideEnrol = context.get(UserInfoService).getUserSettings().hideEnrol;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
