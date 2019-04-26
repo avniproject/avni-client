@@ -234,7 +234,7 @@
   "syncServerError": "कुछ त्रुटि हुई है। कृपया कुछ देर बाद प्रयास करें।",
   "saveAndProceedEncounter": "सेव करें और {{enc}}} पर आगे बढ़ें",
   "saveAndEnrol": "कार्यक्रम में सेव करें और नामांकन करें",
-  "anotherRegistration": "एक और रजिस्टर {{subject}}",
+  "saveAndAnotherRegistration": "सेव करें एक और रजिस्टर {{subject}}",
   "syncTimeoutError": "क्षमा करें यह बहुत समय ले रहा है। कृपया अपने इंटरनेट कनेक्शन की जाँच करें।",
   "registrationSavedMsg": "रजिसस्ट्रेशन पूरा हुआ",
   "enrolmentSavedMsg": "{{programName}} एनरोलमेण्ट सेव हुआ",

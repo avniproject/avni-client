@@ -205,7 +205,7 @@ class CHSNavigator {
     }
 
     static navigateToRegistration(source, subjectType) {
-        const stitches = {label: source.I18n.t('anotherRegistration', {subject: subjectType.name})};
+        const stitches = {label: source.I18n.t('saveAndAnotherRegistration', {subject: subjectType.name})};
         const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
         stitches.fn = (recommendationsView) => {
             if (target.canLoad({customMessage: 'NotEnoughIdForAnotherRegistration'}, recommendationsView)) {
