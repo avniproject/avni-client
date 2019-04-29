@@ -88,10 +88,9 @@ class IndividualProfile extends AbstractComponent {
         General.logDebug('IndividualProfile', 'render');
         const programActions = this.state.eligiblePrograms.map(program => ({
             fn: () => {
-                const enrolment = ProgramEnrolment.createEmptyInstance({
-                    individual: this.props.individual,
-                    program: program
-                });
+                const enrolment = ProgramEnrolment.createEmptyInstance();
+                enrolment.individual = this.props.individual;
+                enrolment.program = program;
                 CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
             },
             label: program.displayName,
