@@ -7,6 +7,8 @@ import IndividualService from "./IndividualService";
 import MultiSelectFilter from "openchs-models/src/application/MultiSelectFilter";
 import ProgramService from "./program/ProgramService";
 import FormMappingService from "./FormMappingService";
+import AddressLevelService from "./AddressLevelService";
+import AddressLevelsState from "../action/common/AddressLevelsState";
 
 @Service("FilterService")
 class FilterService extends BaseService {
@@ -34,8 +36,18 @@ class FilterService extends BaseService {
         return new MultiSelectFilter("Visit Type", new Map(), filterMap);
     }
 
+    locations() {
+        const addressLevelService = this.getService(AddressLevelService);
+        const highestAddressLevels = addressLevelService.highestLevel();
+        const addLevelState = new AddressLevelsState(highestAddressLevels);
+        return addLevelState.levels.map(([levelType, levels], idx) => {
+            const sbc = levels.reduce((acc, adr) => acc.set(adr.name, ` address.uuid = '${adr.uuid}' `), new Map());
+            return new MultiSelectFilter(levelType, new Map(), sbc)
+        })
+    }
+
     getAllFilters() {
-        return [this.atRisk(), this.visitType()];
+        return [ /*...this.locations(),*/ this.atRisk(), this.visitType()];
     }
 }
 

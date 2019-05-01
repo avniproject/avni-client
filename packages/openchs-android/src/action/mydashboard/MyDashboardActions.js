@@ -11,10 +11,9 @@ class MyDashboardActions {
             individuals: {data: []},
             date: {value: new Date()},
             showFilters: false,
-            filters: new Map()
+            filters: new Map(),
         };
     }
-
 
     static clone(state) {
         return {};
@@ -26,7 +25,7 @@ class MyDashboardActions {
     }
 
     static queryAdditions(filters) {
-        return [...filters.values()].map(f => f.orQuery()).filter((q) => !_.isEmpty(q)).join(" AND ");
+        return [...filters.values()].map(f => f.orQuery()).filter((q) => !_.isEmpty(q) && !q.contains('address.uuid')).join(" AND ");
     }
 
     static onLoad(state, action, context) {
@@ -41,6 +40,10 @@ class MyDashboardActions {
             const filterService = context.get(FilterService);
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
         }
+        /*const filteredLocation = _.flatMap(filters._mapData, (e) => e[1].selectedOptions);
+        if (filteredLocation.length > 0) {
+            allAddressLevels = _.filter(allAddressLevels, (address) => filteredLocation.indexOf(address.name) !== -1);
+        }*/
         const queryAdditions = MyDashboardActions.queryAdditions(filters);
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
@@ -120,6 +123,12 @@ class MyDashboardActions {
         const newFilters = MyDashboardActions.cloneFilters(state.filters.set(action.filter.label, action.filter));
         return {...state, filters: newFilters};
     }
+
+    static assignFilters(state, action) {
+        const newFilters = MyDashboardActions.cloneFilters(action.filters);
+        return {...state, filters: newFilters};
+    }
+
 }
 
 const MyDashboardPrefix = "MyD";
@@ -130,7 +139,8 @@ const MyDashboardActionNames = {
     RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`,
     ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
     ON_FILTERS: `${MyDashboardPrefix}.ON_FILTERS`,
-    ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`
+    ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`,
+    APPLY_FILTERS: `${MyDashboardPrefix}.APPLY_FILTERS`,
 };
 
 const MyDashboardActionsMap = new Map([
@@ -140,6 +150,7 @@ const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
     [MyDashboardActionNames.ON_FILTERS, MyDashboardActions.onFilters],
     [MyDashboardActionNames.ADD_FILTER, MyDashboardActions.addFilter],
+    [MyDashboardActionNames.APPLY_FILTERS, MyDashboardActions.assignFilters],
 ]);
 
 export {

@@ -26,6 +26,7 @@ import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
 import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
+import FilterView from "../views/filter/FiltersView";
 
 
 class CHSNavigator {
@@ -235,6 +236,10 @@ class CHSNavigator {
     static navigateToFirstPage(source, itemsToBeRemoved){
         TypedTransition.from(source)
             .resetStack(itemsToBeRemoved, null)
+    }
+
+    static navigateToFilterView(source, props) {
+        TypedTransition.from(source).with(props).to(FilterView, true);
     }
 }
 
