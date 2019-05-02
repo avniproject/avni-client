@@ -26,7 +26,6 @@ import General from "../utility/General";
 import RuleService from "./RuleService";
 import {  ChecklistDetail  } from 'openchs-models';
 import IndividualService from "./IndividualService";
-import EncounterService from "./EncounterService";
 import IndividualEncounterService from "./IndividualEncounterService";
 import {  Individual  } from 'openchs-models';
 

@@ -1,8 +1,7 @@
 import BaseService from './BaseService.js'
 import _ from 'lodash';
 import Service from '../framework/bean/Service';
-import {  Rule  } from 'openchs-models';
-import {  RuleDependency  } from 'openchs-models';
+import {RuleDependency, Rule} from "openchs-models";
 import General from "../utility/General";
 import {common, motherCalculations} from 'openchs-health-modules';
 
