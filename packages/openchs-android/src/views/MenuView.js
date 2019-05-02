@@ -304,7 +304,7 @@ class MenuView extends AbstractComponent {
         };
         const programActions = this.context.getService(ProgramService).findAll().map(program => ({
             fn: () => CHSNavigator.navigateToRegistrationThenProgramEnrolmentView(this, program, this, subjectType),
-            label: program.displayName,
+            label: program.beneficiaryName,
             backgroundColor: program.colour,
         }));
 

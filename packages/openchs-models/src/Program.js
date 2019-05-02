@@ -11,7 +11,8 @@ class Program extends ReferenceEntity {
             name: 'string',
             operationalProgramName: {type: 'string', optional: true},
             displayName: 'string',
-            colour: 'string'
+            colour: 'string',
+            beneficiaryName: 'string',
         }
     };
 
@@ -22,7 +23,7 @@ class Program extends ReferenceEntity {
         program.operationalProgramName = operationalProgram.name;
         program.colour = _.isNil(operationalProgram.colour)? Program.randomColour() : operationalProgram.colour;
         program.displayName = _.isEmpty(program.operationalProgramName) ? program.name : program.operationalProgramName;
-
+        program.beneficiaryName = operationalProgram.beneficiaryName || operationalProgram.name || program.name;
         return program;
     }
 
