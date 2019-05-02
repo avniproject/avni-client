@@ -29,6 +29,7 @@ class IdentifierAssignmentService extends BaseService {
     }
 
     haveEnoughIdentifiers(form) {
+        if (_.isNil(form)) return true;
         const formElements = form.getFormElementsOfType(Concept.dataType.Id);
         const idSources = _.uniq(_.map(formElements, (fe)=> fe.recordValueByKey(FormElement.keys.IdSourceUUID)));
         const totalFreeIds = _.sum(_.map(idSources, (idSource)=> this.getFreeIdentifiers(idSource).length));
@@ -36,6 +37,7 @@ class IdentifierAssignmentService extends BaseService {
     }
 
     populateIdentifiers(form, observationHolder) {
+        if (_.isNil(form)) return observationHolder;
         _.filter(form.getFormElementsOfType(Concept.dataType.Id), fe => _.isNil(observationHolder.findObservation(fe.concept)))
             .forEach(fe => {
                 const nextIdentifier = this.getNextIdentifier(fe.recordValueByKey(FormElement.keys.IdSourceUUID));
