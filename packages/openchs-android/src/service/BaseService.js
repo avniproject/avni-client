@@ -87,7 +87,6 @@ class BaseService {
     }
 
     createEntities(schema, entities) {
-        console.log('saving for schema', schema);
         return entities.map((entity) => () => {
             this.db.create(schema, entity, true)
         });
