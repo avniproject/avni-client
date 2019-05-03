@@ -12,13 +12,13 @@ import Fonts from '../primitives/Fonts';
 
 class DatePicker extends AbstractComponent {
     static propTypes = {
-        dateValue: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        actionName: React.PropTypes.string.isRequired,
-        datePickerMode: React.PropTypes.string,
-        actionObject: React.PropTypes.object.isRequired,
-        pickTime: React.PropTypes.bool,
-        nonRemovable: React.PropTypes.bool
+        dateValue: PropTypes.object,
+        validationResult: PropTypes.object,
+        actionName: PropTypes.string.isRequired,
+        datePickerMode: PropTypes.string,
+        actionObject: PropTypes.object.isRequired,
+        pickTime: PropTypes.bool,
+        nonRemovable: PropTypes.bool
     };
 
     constructor(props, context) {

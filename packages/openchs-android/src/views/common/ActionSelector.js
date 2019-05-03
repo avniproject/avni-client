@@ -6,6 +6,7 @@ import {
     TouchableWithoutFeedback,
     View
 } from "react-native";
+import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -30,10 +31,10 @@ const styles = {
 class ActionSelector extends AbstractComponent {
 
     static propTypes = {
-        actions: React.PropTypes.array.isRequired,
-        visible: React.PropTypes.bool.isRequired,
-        hide: React.PropTypes.func.isRequired,
-        title: React.PropTypes.string.isRequired
+        actions: PropTypes.array.isRequired,
+        visible: PropTypes.bool.isRequired,
+        hide: PropTypes.func.isRequired,
+        title: PropTypes.string.isRequired
     };
 
 

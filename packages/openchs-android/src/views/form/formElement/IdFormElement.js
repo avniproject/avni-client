@@ -1,16 +1,17 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import TextFormElement from "./TextFormElement";
 
 class IdFormElement extends AbstractFormElement {
     static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        actionName: React.PropTypes.string.isRequired,
-        value: React.PropTypes.object,
-        validationResult: React.PropTypes.object,
-        multiline: React.PropTypes.bool.isRequired,
-        extraStyle: React.PropTypes.object
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object,
+        multiline: PropTypes.bool.isRequired,
+        extraStyle: PropTypes.object
     };
     static defaultProps = {
         style: {}
