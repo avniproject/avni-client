@@ -1,14 +1,11 @@
 import {Text, TextInput, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
-import {Radio} from "native-base";
-import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import DGS from "../../primitives/DynamicGlobalStyles";
 import Colors from '../../primitives/Colors';
 import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
-import {  Duration  } from 'openchs-models';
 
 class DurationFormElement extends AbstractFormElement {
     static propTypes = {

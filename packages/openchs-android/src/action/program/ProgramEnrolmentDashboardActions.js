@@ -10,6 +10,7 @@ import ProgramConfigService from "../../service/ProgramConfigService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ProgramService from "../../service/program/ProgramService";
 import SettingsService from "../../service/SettingsService";
+import UserInfoService from "../../service/UserInfoService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -24,8 +25,10 @@ class ProgramEnrolmentDashboardActions {
     static getInitialState() {
         return {
             programEncounterTypeState: new EntityTypeChoiceState(ProgramEncounter.createEmptyInstance(), ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity),
-            encounterTypeState: new EntityTypeChoiceState(Encounter.create(), ProgramEnrolmentDashboardActions.setEncounterType, ProgramEnrolmentDashboardActions.cloneEntity),
-            enrolment: ProgramEnrolment.createEmptyInstance()
+            enrolment: ProgramEnrolment.createEmptyInstance(),
+            encounter: Encounter.create(),
+            encounterTypes: [],
+            displayActionSelector: false
         };
     }
 
@@ -35,22 +38,36 @@ class ProgramEnrolmentDashboardActions {
         const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
         newState.programEncounterTypeState.entityParentSelected(programEncounterTypes, programEncounter);
 
-        const encounter = Encounter.create();
-        encounter.individual = newState.enrolment.individual;
-        const encounterTypes = context.get(FormMappingService).findEncounterTypesForEncounter();
-        newState.encounterTypeState.entityParentSelected(encounterTypes, encounter);
+        newState.encounter.individual = newState.enrolment.individual;
+        newState.encounterTypes = context.get(FormMappingService).findEncounterTypesForEncounter();
+        return newState;
+    }
+
+    static launchEncounterSelector(state) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.displayActionSelector = true;
+        return newState;
+    }
+
+    static hideEncounterSelector(state) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.displayActionSelector = false;
         return newState;
     }
 
     static clone(state) {
         return {
             programEncounterTypeState: state.programEncounterTypeState.clone(),
-            encounterTypeState: state.encounterTypeState.clone(),
             enrolment: state.enrolment,
+            encounter: state.encounter.cloneForEdit(),
+            encounterTypes: state.encounterTypes.slice(),
+            displayActionSelector: state.displayActionSelector,
             programsAvailable: state.programsAvailable,
             showCount: state.showCount,
             dashboardButtons: state.dashboardButtons,
-            enrolmentSummary: state.enrolmentSummary
+            enrolmentSummary: state.enrolmentSummary,
+            hideExit: state.hideExit,
+            hideEnrol: state.hideEnrol
         };
     }
 
@@ -70,6 +87,10 @@ class ProgramEnrolmentDashboardActions {
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
+        //TODO This hiding buttons this way is a temporary fix to avoid flood of issues from DDM.
+        // TODO Proper solution will roles and privilege based
+        newState.hideExit = context.get(UserInfoService).getUserSettings().hideExit;
+        newState.hideEnrol = context.get(UserInfoService).getUserSettings().hideEnrol;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
@@ -184,7 +205,9 @@ const ProgramEnrolmentDashboardActionsNames = {
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
     ON_ENROLMENT_CHANGE: 'PEDA.ON_ENROLMENT_CHANGE',
     RESET: 'PEDA.RESET',
-    SHOW_MORE: 'PEDA.SHOW_MORE'
+    SHOW_MORE: 'PEDA.SHOW_MORE',
+    LAUNCH_ENCOUNTER_SELECTOR: "PEDA.LAUNCH_ENCOUNTER_SELECTOR",
+    HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR"
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -196,6 +219,8 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_CHANGE, ProgramEnrolmentDashboardActions.onEnrolmentChange],
+    [ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.launchEncounterSelector],
+    [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

@@ -7,7 +7,7 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
-import {EncounterTypeChoiceActionNames} from "../../action/program/ProgramEnrolmentDashboardActions";
+import {EncounterTypeChoiceActionNames, ProgramEnrolmentDashboardActionsNames} from "../../action/program/ProgramEnrolmentDashboardActions";
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
@@ -28,7 +28,7 @@ class ProgramActionsView extends AbstractComponent {
 
     startEncounter() {
         this.dispatchAction(Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY);
-        this.dispatchAction(EncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE);
+        this.dispatchAction(ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR);
     }
 
     startProgramEncounter() {

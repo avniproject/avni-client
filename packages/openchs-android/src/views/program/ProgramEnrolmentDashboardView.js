@@ -7,9 +7,7 @@ import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import {
-    ProgramEnrolmentDashboardActionsNames as Actions,
-    EncounterTypeChoiceActionNames,
-    ProgramEncounterTypeChoiceActionNames
+    ProgramEnrolmentDashboardActionsNames as Actions
 } from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
 import {Text, Card} from "native-base";
@@ -31,6 +29,7 @@ import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
 import {Form} from 'openchs-models';
 import _ from "lodash";
+import ActionSelector from "../common/ActionSelector";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -66,6 +65,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         if (this.state.possibleExternalStateChange) {
             this.dispatchOnLoad();
         }
+    }
+
+    didFocus(){
+        super.didFocus();
+        this.dispatchOnLoad();
     }
 
     editEnrolment() {
@@ -112,7 +116,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     getPrimaryEnrolmentContextAction() {
-        if (this.state.enrolment.isActive) {
+        if (!this.state.hideExit && this.state.enrolment.isActive) {
             return new ContextAction('exitProgram', () => this.exitProgram());
         }
     }
@@ -156,34 +160,37 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
-        const encounterTypeState = this.state.encounterTypeState;
         const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
+        const encounterActions = this.state.encounterTypes.map(encounterType => ({
+            fn: () => {
+                this.state.encounter.encounterType = encounterType;
+                CHSNavigator.navigateToIndividualEncounterLandingView(
+                    this,
+                    this.state.enrolment.individual.uuid,
+                    this.state.encounter
+                );
+            },
+            label: encounterType.displayName,
+            backgroundColor: Colors.ActionButtonColor
+        }));
         this.displayMessage(this.props.message || this.props.params && this.props.params.message);
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
-                    <EntityTypeSelector actions={ProgramEncounterTypeChoiceActionNames}
-                                        flowState={programEncounterTypeState.flowState}
-                                        entityTypes={programEncounterTypeState.entityTypes}
-                                        labelKey='followupTypes'
-                                        getEntityLabel={(encounterType) => encounterType.displayName}
-                                        selectedEntityType={programEncounterTypeState.entity.encounterType}
-                                        onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToProgramEncounterView(this, entityTypeSelectorState.entity)}/>
-
-
-                    <EntityTypeSelector actions={EncounterTypeChoiceActionNames}
-                                        flowState={encounterTypeState.flowState}
-                                        entityTypes={encounterTypeState.entityTypes}
-                                        labelKey='followupTypes'
-                                        getEntityLabel={(program) => program.displayName}
-                                        selectedEntityType={encounterTypeState.entity.encounterType}
-                                        onEntityTypeSelectionConfirmed={(entityTypeSelectorState) => CHSNavigator.navigateToIndividualEncounterLandingView(this, this.state.enrolment.individual.uuid, entityTypeSelectorState.entity)}/>
+                    <ActionSelector
+                        title={this.I18n.t("followupTypes")}
+                        hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
+                        visible={this.state.displayActionSelector}
+                        actions={encounterActions}
+                    />
                     <View>
-                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.state.backFunction}/>
+                        <AppHeader title={this.I18n.t('individualDashboard')} func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentDashboardView])}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
                                            viewContext={IndividualProfile.viewContext.Program}
-                                           programsAvailable={this.state.programsAvailable}/>
+                                           programsAvailable={this.state.programsAvailable}
+                                           hideEnrol={this.state.hideEnrol}
+                        />
                         <ScrollView style={{
                             flexDirection: 'column',
                             borderRadius: 5,
@@ -215,7 +222,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     <ProgramActionsView programDashboardButtons={dashboardButtons}
                                                         enrolment={this.state.enrolment}
                                                         onOpenChecklist={() => this.openChecklist()}
-                                                        encounterTypes={encounterTypeState.entityTypes}
+                                                        encounterTypes={this.state.encounterTypes}
                                     />
                                 </View>
                             </View>

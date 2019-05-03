@@ -32,6 +32,8 @@ import Video from "./videos/Video";
 import VideoTelemetric from "./videos/VideoTelemetric";
 import SubjectType from "./SubjectType";
 import SyncTelemetry from "./SyncTelemetry";
+import IdentifierSource from "./IdentifierSource";
+import IdentifierAssignment from "./IdentifierAssignment";
 
 const refData = (clazz, {res, filter, translated, parent} = {}) => ({
     entityName: clazz.schema.name,
@@ -77,6 +79,7 @@ const formElementGroup = refDataNameTranslated(FormElementGroup, {parent: form})
 const formElement = refDataNameTranslated(FormElement, {parent: formElementGroup});
 const conceptAnswer = refData(ConceptAnswer, {parent: concept});
 const locationMapping = refData(LocationMapping, {filter: 'byCatchmentAndLastModified', parent: addressLevel});
+const identifierSource = refData(IdentifierSource);
 
 const individual = txData(Individual);
 const encounter = txData(Encounter, {parent: individual});
@@ -88,9 +91,10 @@ const individualRelationship = txData(IndividualRelationship, {parent: individua
 const videoTelemetric = txData(VideoTelemetric, {res: 'videotelemetric', parent: video});
 const syncTelemetry = txData(SyncTelemetry, {resUrl: 'syncTelemetry'});
 const userInfo = txData(UserInfo, {resUrl: 'me', apiVersion: 'v2'});
+const identifierAssignment = txData(IdentifierAssignment);
+
 
 class EntityMetaData {
-
     //order is important. last entity in each (tx and ref) with be executed first. parent should be synced before the child.
     static model() {
         return [
@@ -107,6 +111,7 @@ class EntityMetaData {
             formElement,
             formElementGroup,
             form,
+            identifierSource,
 
             locationMapping,
             addressLevel,
@@ -123,11 +128,12 @@ class EntityMetaData {
             checklistItem,
             checklist,
             encounter,
+            identifierAssignment,
             programEncounter,
             programEnrolment,
             individual,
             userInfo,
-            syncTelemetry
+            syncTelemetry,
         ];
     }
 

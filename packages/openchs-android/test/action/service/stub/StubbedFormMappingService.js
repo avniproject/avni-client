@@ -13,6 +13,10 @@ class StubbedFormMappingService {
         return form;
     }
 
+    findRegistrationForm() {
+        return Form.safeInstance();
+    }
+
     findEncounterTypesForProgram(program) {
         return this.serviceData.programEncounterTypes;
     }

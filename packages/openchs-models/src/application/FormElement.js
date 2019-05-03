@@ -62,6 +62,10 @@ class FormElement {
         return _.find(this.keyValues, (keyValue) => keyValue.key === key);
     }
 
+    recordValueByKey(key) {
+        return _.invoke(_.find(this.keyValues, it => it.key === key), 'getValue');
+    }
+
     isSingleSelect() {
         return this.type === Filter.types.SingleSelect || _.isNil(this.type);
     }
@@ -98,7 +102,7 @@ class FormElement {
         else if (this.isMultiSelect() && !_.isEmpty(value)) {
             return this._validateMultiSelect(value);
         }
-        else if (this.concept.datatype === Concept.dataType.DateTime 
+        else if (this.concept.datatype === Concept.dataType.DateTime
             && General.hoursAndMinutesOfDateAreZero(value)) {
           failure.messageKey = "timeValueValidation";
         }
@@ -127,7 +131,8 @@ class FormElement {
         Select: 'Select',
         TrueValue: 'TrueValue',
         FalseValue: 'FalseValue',
-        ExcludedAnswers: 'ExcludedAnswers'
+        ExcludedAnswers: 'ExcludedAnswers',
+        IdSourceUUID: 'IdSourceUUID',
     };
 
     static values = {
@@ -147,6 +152,11 @@ class FormElement {
     get editable() {
         const editable = this.recordByKey('editable');
         return _.isNil(editable) ? true : editable.getValue();
+    }
+
+    get datePickerMode() {
+        const datePickerMode = this.recordByKey('datePickerMode');
+        return _.isNil(datePickerMode) ? null : datePickerMode.getValue();
     }
 
     matches(elementNameOrUUID) {

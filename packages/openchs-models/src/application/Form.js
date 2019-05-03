@@ -60,6 +60,10 @@ class Form {
         return this.getFormElementGroups()[currentIndex + 1];
     }
 
+    getFormElementsOfType(type) {
+        return _.reduce(this.formElementGroups, (idElements, feg) => _.concat(idElements, feg.getFormElementsOfType(type)), []);
+    }
+
     getPrevFormElement(displayOrder) {
         const currentIndex = _.findIndex(this.getFormElementGroups(), (feg) => feg.displayOrder === displayOrder);
         return this.getFormElementGroups()[currentIndex - 1];

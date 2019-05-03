@@ -57,7 +57,7 @@ class BaseService {
         return this.getReturnValue(allEntities);
     }
 
-    findByKey(keyName, value, schemaName) {
+    findByKey(keyName, value, schemaName = this.getSchema()) {
         const entities = this.findAllByKey(keyName, value, schemaName);
         return this.getReturnValue(entities);
     }
@@ -130,6 +130,10 @@ class BaseService {
             return fn();
         }
         return this.db.write(fn);
+    }
+
+    existsByUuid(uuid, schema = this.getSchema()) {
+        return this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
     }
 }
 

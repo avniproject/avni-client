@@ -1,12 +1,12 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {EntityQueue, ObservationsHolder, Program} from 'openchs-models';
+import {EntityQueue, ObservationsHolder, Program, Concept, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import _ from 'lodash';
-import {  ProgramEncounter  } from 'openchs-models';
 import moment from 'moment';
-import {  ProgramEnrolment  } from 'openchs-models';
-import {  Individual  } from 'openchs-models';
+import Individual from "openchs-models/src/Individual";
 import MediaQueueService from "./MediaQueueService";
+import IdentifierAssignmentService from "./IdentifierAssignmentService";
+import FormMappingService from "./FormMappingService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -43,10 +43,12 @@ class IndividualService extends BaseService {
     register(individual) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
+        const registrationForm = this.getService(FormMappingService).findRegistrationForm();
         this.db.write(() => {
             db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
+            this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, individual);
         });
     }
 

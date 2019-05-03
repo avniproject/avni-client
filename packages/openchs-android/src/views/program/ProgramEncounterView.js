@@ -24,6 +24,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import moment from "moment";
+import StartProgramView from "./StartProgramView";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -104,7 +105,7 @@ class ProgramEncounterView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
-                               func={() => this.previous()}/>
+                               func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, StartProgramView])}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>

@@ -17,6 +17,8 @@ import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import _ from "lodash";
+import IndividualRegisterView from "./IndividualRegisterView";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -60,7 +62,7 @@ class IndividualRegisterFormView extends AbstractComponent {
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}
-                               func={() => this.previous()}/>
+                               func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView])}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}

@@ -12,12 +12,13 @@ import Fonts from '../primitives/Fonts';
 
 class DatePicker extends AbstractComponent {
     static propTypes = {
-        dateValue: PropTypes.object,
-        validationResult: PropTypes.object,
-        actionName: PropTypes.string.isRequired,
-        actionObject: PropTypes.object.isRequired,
-        pickTime: PropTypes.bool,
-        nonRemovable: PropTypes.bool
+        dateValue: React.PropTypes.object,
+        validationResult: React.PropTypes.object,
+        actionName: React.PropTypes.string.isRequired,
+        datePickerMode: React.PropTypes.string,
+        actionObject: React.PropTypes.object.isRequired,
+        pickTime: React.PropTypes.bool,
+        nonRemovable: React.PropTypes.bool
     };
 
     constructor(props, context) {
@@ -71,10 +72,11 @@ class DatePicker extends AbstractComponent {
 
     render() {
         const date = _.isNil(this.props.dateValue) ? new Date() : this.props.dateValue;
+        const mode = _.isNil(this.props.datePickerMode) ? 'calendar' : this.props.datePickerMode;
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showDatePicker.bind(this, {date: date})}
+                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : mode})}
                           style={[{
                               fontSize: Fonts.Large,
                               color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError

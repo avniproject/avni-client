@@ -13,7 +13,7 @@ class FamilyRegisterViewsMixin {
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors) => {
                 const onSaveCallback = (source) => {
-                    TypedTransition.from(source).wizardCompleted([SystemRecommendationView, FamilyRegisterFormView, FamilyRegisterView], FamilyFolderView, {familyUUID: view.state.family.uuid}, true);
+                    TypedTransition.from(source).resetStack([SystemRecommendationView, FamilyRegisterFormView, FamilyRegisterView], FamilyFolderView, {familyUUID: view.state.family.uuid}, true);
                 };
                 const headerMessage = `${view.I18n.t('familyRegistration')} - ${view.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.family, state.family.observations, Actions.SAVE, onSaveCallback, headerMessage);

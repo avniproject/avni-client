@@ -26,6 +26,8 @@ class Colors {
     static ChecklistItemFulfilled = 'green';
     static ChecklistItemExpired = 'red';
 
+    static FilterBar = '#114486';
+
     static getCode(colorName) {
         return color[colorName];
     }

@@ -20,26 +20,42 @@ class ChecklistItemDetail extends BaseEntity {
             voided: {type: 'bool', default: false},
             dependentOn: {type: 'ChecklistItemDetail', optional: true},
             scheduleOnExpiryOfDependency: {type: 'bool', default: false},
-            minDaysFromStartDate: {type: 'int', optional: true}
+            minDaysFromStartDate: {type: 'int', optional: true},
+            minDaysFromDependent: {type: 'int', optional: true},
+            expiresAfter: {type: 'int', optional: true}
         }
     };
 
-    static fromResource(checklistItemResource, entityService, entitiesInCurrentPage) {
+    static fromResource(checklistItemResource, entityService, resourcesInCurrentPage) {
         const checklistDetail = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "checklistDetailUUID"), ChecklistDetail.schema.name);
         const form = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "formUUID"), Form.schema.name);
         const concept = entityService.findByKey("uuid", ResourceUtil.getUUIDFor(checklistItemResource, "conceptUUID"), Concept.schema.name);
-        const checklistItemDetail = General.assignFields(checklistItemResource, new ChecklistItemDetail(), ["uuid", "voided", "scheduleOnExpiryOfDependency", "minDaysFromStartDate"]);
+        const checklistItemDetail = General.assignFields(checklistItemResource, new ChecklistItemDetail(), [
+            "uuid",
+            "voided",
+            "scheduleOnExpiryOfDependency",
+            "minDaysFromStartDate",
+            "minDaysFromDependent",
+            "expiresAfter"
+        ]);
         checklistItemDetail.stateConfig = _.get(checklistItemResource, "checklistItemStatus", [])
             .map(itemStatus => ChecklistItemStatus.fromResource(itemStatus, entityService));
         checklistItemDetail.checklistDetail = checklistDetail;
         checklistItemDetail.form = form;
         checklistItemDetail.concept = concept;
         const leadDetailUUID = ResourceUtil.getUUIDFor(checklistItemResource, "leadDetailUUID");
-        const createdLeadChecklistItemDetail = entityService.findByKey("uuid", leadDetailUUID, ChecklistItemDetail.schema.name);
-        if (_.isNil(createdLeadChecklistItemDetail)) {
-            checklistItemDetail.dependentOn = entitiesInCurrentPage.find(entity => entity.uuid === leadDetailUUID);
-        } else {
-            checklistItemDetail.dependentOn = createdLeadChecklistItemDetail;
+        if(!_.isNil(leadDetailUUID)) {
+            const createdLeadChecklistItemDetail = entityService.findByKey("uuid", leadDetailUUID, ChecklistItemDetail.schema.name);
+            if (_.isNil(createdLeadChecklistItemDetail)) {
+                let leadDetail = resourcesInCurrentPage.find(entity => entity.uuid === leadDetailUUID);
+                checklistItemDetail.dependentOn = ChecklistItemDetail.fromResource(
+                    leadDetail,
+                    entityService,
+                    resourcesInCurrentPage
+                );
+            } else {
+                checklistItemDetail.dependentOn = createdLeadChecklistItemDetail;
+            }
         }
         return checklistItemDetail;
     }

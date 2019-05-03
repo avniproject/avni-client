@@ -2,7 +2,7 @@ import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
-import {SubjectType} from 'openchs-models';
+import {SubjectType} from "openchs-models";
 import _ from "lodash";
 
 export class IndividualSearchActions {
@@ -66,7 +66,6 @@ export class IndividualSearchActions {
     }
 
     static reset(state) {
-        console.log(`ISA.RESET called`);
         return {...IndividualSearchActions.getInitialState(), key: Math.random()};
     }
 }

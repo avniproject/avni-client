@@ -1,7 +1,6 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {ObservationsHolder, Form, ProgramEncounter} from 'openchs-models';
-import _ from "lodash";
+import {ObservationsHolder, Form, ProgramEncounter} from "openchs-models";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter, filteredFormElements) {

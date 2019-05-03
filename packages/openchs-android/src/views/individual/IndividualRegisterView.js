@@ -22,6 +22,10 @@ import IndividualNameFormElement from "../form/formElement/IndividualNameFormEle
 import DateOfBirthAndAgeFormElement from "../form/formElement/DateOfBirthAndAgeFormElement";
 import GenderFormElement from "../form/formElement/GenderFormElement";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
+import EntityService from "../../service/EntityService";
+import Form from "openchs-models/src/application/Form";
+import SubjectRegisterView from "../subject/SubjectRegisterView";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -57,6 +61,10 @@ class IndividualRegisterView extends AbstractComponent {
             ToastAndroid.show(message, ToastAndroid.SHORT);
             this.setState({displayed:false})
         }
+    }
+
+    static canLoad(args, parent) {
+        return SubjectRegisterView.canLoad(args, parent);
     }
 
     render() {

@@ -17,6 +17,7 @@ import Separator from '../primitives/Separator';
 import Filters from "../filter/FiltersView";
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -70,9 +71,18 @@ class MyDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.ON_FILTERS);
     }
 
-    _onClose() {
+    _onApply() {
         this.dispatchAction(Actions.ON_FILTERS);
         this.dispatchAction(Actions.ON_LOAD);
+        CHSNavigator.goBack(this);
+    }
+
+    _addFilter(filter) {
+        this.dispatchAction(Actions.ADD_FILTER, {filter: filter})
+    }
+
+    _onBack() {
+        CHSNavigator.goBack(this);
     }
 
     render() {
@@ -82,18 +92,14 @@ class MyDashboardView extends AbstractComponent {
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}/>
                 <CHSContent>
-                    <Modal
-                        animationType={'fade'}
-                        transparent={true}
-                        visible={this.state.showFilters}
-                        onRequestClose={() => this._onClose()}>
-                        <Filters
-                            applyFn={() => this._onClose()}
-                            filters={this.state.filters}
-                            onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
-                    </Modal>
-                    <View style={MyDashboardView.styles.container}>
-                        <DashboardFilters date={date} filters={this.state.filters}/>
+                    <View>
+                        <DashboardFilters date={date} filters={this.state.filters}
+                                          onPress={() => CHSNavigator.navigateToFilterView(this, {
+                                              applyFn: this._onApply.bind(this),
+                                              filters: this.state.filters,
+                                              onBack: this._onBack.bind(this),
+                                              actionName: Actions.APPLY_FILTERS
+                                          })}/>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
@@ -104,12 +110,6 @@ class MyDashboardView extends AbstractComponent {
                                   />}/>
                     </View>
                 </CHSContent>
-                <TouchableOpacity activeOpacity={0.5}
-                                  onPress={() => this._onPress()}
-                                  style={MyDashboardView.styles.floatingButton}>
-                    <Icon name='filter-list' size={40}
-                          style={MyDashboardView.styles.floatingButtonIcon}/>
-                </TouchableOpacity>
             </CHSContainer>
         );
     }

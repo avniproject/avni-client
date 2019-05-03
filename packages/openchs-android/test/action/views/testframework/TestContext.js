@@ -21,6 +21,8 @@ import UserInfoService from "../../../../src/service/UserInfoService";
 import StubbedUserInfoService from "../../service/stub/StubbedUserInfoService";
 import MediaQueueService from "../../../../src/service/MediaQueueService";
 import StubbedMediaQueueService from "../../service/stub/StubbedMediaQueueService";
+import IdentifierAssignmentService from "../../../../src/service/IdentifierAssignmentService";
+import StubbedIdentifierAssignmentService from "../../service/stub/StubbedIdentifierAssignmentService";
 
 class TestContext {
     static stubs = new Map([
@@ -34,7 +36,8 @@ class TestContext {
         [EntityService, (serviceData) => new StubbedEntityService(serviceData)],
         [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)],
         [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)],
-        [MediaQueueService, (serviceData) => new StubbedMediaQueueService(serviceData)]
+        [MediaQueueService, (serviceData) => new StubbedMediaQueueService(serviceData)],
+        [IdentifierAssignmentService, (serviceData) => new StubbedIdentifierAssignmentService(serviceData)]
     ]);
 
     constructor(serviceData) {

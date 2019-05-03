@@ -1,41 +1,11 @@
-import {createStore, combineReducers, applyMiddleware} from 'redux';
+import {createStore, combineReducers} from 'redux';
 import Reducers from '../reducer';
-import General from "../utility/General";
-import ErrorHandler from "../utility/ErrorHandler";
-import Config from 'react-native-config';
 
 class AppStore {
-    static create(beans, errorCallback) {
-        const combinedReducers = this.createCombinedReducer(beans);
-        return Config.ENV === 'dev' ?
-            createStore(combinedReducers) :
-            createStore(combinedReducers, applyMiddleware(AppStore.middlewareFactory(AppStore.errorHandler, errorCallback)));
-    }
-
-    static errorHandler(error, errorCallback, getState, lastAction, dispatch) {
-        General.logError('AppStore', 'Posting error');
-        ErrorHandler.postError(error, true, errorCallback);
-        General.logError('AppStore', 'Posted error');
-    }
-
-    static createCombinedReducer(beans) {
+    static create(beans) {
         const reducers = Reducers.createReducers(beans);
-        return combineReducers(reducers);
-    }
-
-    static middlewareFactory(errorHandler, errorCallback) {
-        return function (store) {
-            return function (next) {
-                return function (action) {
-                    try {
-                        return next(action);
-                    } catch (err) {
-                        errorHandler(err, errorCallback, store.getState, action, store.dispatch);
-                        return err;
-                    }
-                };
-            };
-        };
+        const combinedReducers = combineReducers(reducers);
+        return createStore(combinedReducers);
     }
 }
 

@@ -6,6 +6,10 @@ class StubbedBaseService {
     findByUUID(uuid) {
         return this.serviceData[uuid];
     }
+
+    existsByUuid(uuid) {
+        return !!this.serviceData[uuid];
+    }
 }
 
 export default StubbedBaseService;

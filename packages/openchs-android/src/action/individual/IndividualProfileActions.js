@@ -1,73 +1,62 @@
 import IndividualService from "../../service/IndividualService";
-import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import _ from "lodash";
-import {ProgramEnrolment} from 'openchs-models';
-import {  Individual  } from 'openchs-models';
 
 export class IndividualProfileActions {
-    static setProgram(entityType) {
-        this.entity.program = entityType;
-    }
-
-    static cloneEntity(entity) {
-        if (!_.isNil(entity))
-            return entity.cloneForEdit();
-    }
 
     static getInitialState() {
-        return new EntityTypeChoiceState(Individual.createEmptyInstance(), IndividualProfileActions.setProgram, IndividualProfileActions.cloneEntity);
+        return {
+            eligiblePrograms: [],
+            displayActionSelector: false
+        };
     }
 
-    static individualSelected(state, action, beans) {
-        const individualService = beans.get(IndividualService);
-        if (_.isNil(individualService.findByUUID(action.value.uuid))) return state;
-
-        const newState = state.clone();
-        const enrolment = ProgramEnrolment.createEmptyInstance();
-        enrolment.individual = action.value;
-        return newState.entityParentSelected(individualService.eligiblePrograms(action.value.uuid), enrolment);
+    static clone(state) {
+        return {
+            eligiblePrograms: state.eligiblePrograms.slice(),
+            displayActionSelector: state.displayActionSelector
+        }
     }
 
-    static launchChooseProgram(state, action) {
-        return state.clone().launchChooseEntityType();
+    static launchActionSelector(state) {
+        const newState = IndividualProfileActions.clone(state);
+        newState.displayActionSelector = true;
+        return newState;
     }
 
-    static selectedProgram(state, action) {
-        return state.clone().selectedEntityType(action.value);
+    static hideActionSelector(state) {
+        const newState = IndividualProfileActions.clone(state);
+        newState.displayActionSelector = false;
+        return newState;
     }
 
-    static cancelledProgramSelection(state) {
-        return state.clone().cancelledEntityTypeSelection();
-    }
+    static individualSelected(state, action, context) {
+        const individualService = context.get(IndividualService);
+        if (_.isNil(individualService.findByUUID(action.individual.uuid))) return state;
 
-    static programSelectionConfirmed(state, action) {
-        return state.clone().entityTypeSelectionConfirmed(action);
+        const newState = IndividualProfileActions.clone(state);
+        newState.eligiblePrograms = individualService.eligiblePrograms(action.individual.uuid);
+        return newState;
     }
 
     static voidIndividual(state, action, beans) {
         const individualService = beans.get(IndividualService);
         individualService.voidIndividual(action.individualUUID);
         action.cb();
-        return state.clone();
+        return state;
     }
 }
 
 const actions = {
     INDIVIDUAL_SELECTED: "IPA.INDIVIDUAL_SELECTED",
-    LAUNCH_CHOOSE_ENTITY_TYPE: "IPA.LAUNCH_CHOOSE_ENTITY_TYPE",
-    ENTITY_TYPE_SELECTED: "IPA.ENTITY_TYPE_SELECTED",
-    CANCELLED_ENTITY_TYPE_SELECTION: "IPA.CANCELLED_ENTITY_TYPE_SELECTION",
-    ENTITY_TYPE_SELECTION_CONFIRMED: "IPA.ENTITY_TYPE_SELECTION_CONFIRMED",
-    VIEW_GENERAL_HISTORY: "IPA.VIEW_GENERAL_HISTORY",
+    LAUNCH_ACTION_SELECTOR: "IPA.LAUNCH_ACTION_SELECTOR",
+    HIDE_ACTION_SELECTOR: "IPA.HIDE_ACTION_SELECTOR",
     VOID_INDIVIDUAL: "IPA.VOID_INDIVIDUAL"
 };
 
 export default new Map([
     [actions.INDIVIDUAL_SELECTED, IndividualProfileActions.individualSelected],
-    [actions.LAUNCH_CHOOSE_ENTITY_TYPE, IndividualProfileActions.launchChooseProgram],
-    [actions.ENTITY_TYPE_SELECTED, IndividualProfileActions.selectedProgram],
-    [actions.CANCELLED_ENTITY_TYPE_SELECTION, IndividualProfileActions.cancelledProgramSelection],
-    [actions.ENTITY_TYPE_SELECTION_CONFIRMED, IndividualProfileActions.programSelectionConfirmed],
+    [actions.LAUNCH_ACTION_SELECTOR, IndividualProfileActions.launchActionSelector],
+    [actions.HIDE_ACTION_SELECTOR, IndividualProfileActions.hideActionSelector],
     [actions.VOID_INDIVIDUAL, IndividualProfileActions.voidIndividual]
 ]);
 

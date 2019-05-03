@@ -111,6 +111,14 @@ class AbstractComponent extends Component {
     goBack() {
         TypedTransition.from(this).goBack();
     }
+
+    handleError({syncRequiredError}) {
+        if (syncRequiredError) {
+            Alert.alert(this.I18n.t("syncRequired"), this.I18n.t(syncRequiredError), [
+                {text: this.I18n.t('okay'), onPress: _.noop}
+            ]);
+        }
+    }
 }
 
 export default AbstractComponent;

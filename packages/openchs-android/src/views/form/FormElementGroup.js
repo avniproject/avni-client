@@ -21,8 +21,9 @@ import {
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
-import DurationFormElement from "./formElement/DurationFormElement";
 import MediaFormElement from "./formElement/MediaFormElement";
+import IdFormElement from "./formElement/IdFormElement";
+import DurationFormElement from "./formElement/DurationFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -149,6 +150,15 @@ class FormElementGroup extends AbstractComponent {
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
+                            />, idx);
+                        } else if (formElement.concept.datatype === Concept.dataType.Id) {
+                            return this.wrap(<IdFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}
+                                multiline={false}
                             />, idx);
                         }
                     })

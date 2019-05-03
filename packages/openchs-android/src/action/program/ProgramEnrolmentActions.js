@@ -4,11 +4,11 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
-import {StaticFormElementGroup, ProgramEnrolment} from 'openchs-models';
+import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "openchs-models";
 import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Point} from 'openchs-models';
 import GeolocationActions from "../common/GeolocationActions";
+import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -22,9 +22,12 @@ export class ProgramEnrolmentActions {
                 action.usage === ProgramEnrolmentState.UsageKeys.Enrol
                     ? formMappingService.findFormForProgramEnrolment(action.enrolment.program)
                     : formMappingService.findFormForProgramExit(action.enrolment.program);
-            const isNewEnrolment = _.isNil(action.enrolment.uuid)
-                ? true
-                : _.isNil(context.get(ProgramEnrolmentService).findByUUID(action.enrolment.uuid));
+
+            //Populate identifiers much before form elements are hidden or sent to rules.
+            //This will enable the value to be used in rules
+            context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(action.enrolment.observations));
+
+            const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(action.enrolment.uuid);
             const formElementGroup = _.isNil(form) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
             let formElementStatuses = context

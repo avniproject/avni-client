@@ -34,6 +34,22 @@ describe('IndividualServiceTest', () => {
     };
 
     describe("search", () => {
+        xit("FIXME | should work with special characters", () => {
+            //https://github.com/realm/realm-js/issues/500#issuecomment-228076173
+            //Due to some bug in realmjs sdk special characters are not supported in 'criteria query with inline values'
+            //The solution is to use the argument placeholder approach. That means IndividualSearchCriteria class is useless.
+            const individualSearchCriteria = IndividualSearchCriteria.empty();
+            individualSearchCriteria.addObsCriteria('ABCD\\10');
+
+            const individual = createIndividual(false);
+            individual.observations.push({valueJSON:'ABCD\\10'});
+            individualService.register(individual);
+
+            const searchResult = individualService.search(individualSearchCriteria);
+            const numberOfResults = searchResult.results.length;
+            assert.equal(numberOfResults, 1);
+            assert.equal(searchResult.count, 1);
+        });
         it("should cap the results at 50", () => {
             const individualSearchCriteria = IndividualSearchCriteria.empty();
 

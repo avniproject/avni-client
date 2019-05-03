@@ -11,6 +11,7 @@ import {
 } from '../action/program/ProgramEnrolmentDashboardActions';
 import {FamilyDashboardActions, FamilyDashboardActionsMap} from '../action/familyFolder/FamilyDashboardActions';
 import {MyDashboardActions, MyDashboardActionsMap, MyDashboardPrefix} from '../action/mydashboard/MyDashboardActions';
+import {FiltersActions, ActionPrefix, FilterActionMap} from '../action/mydashboard/FiltersActions'
 import {FamilyFolderActions, FamilyFolderActionsMap} from '../action/familyFolder/FamilyFolderActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {
@@ -34,7 +35,7 @@ import VideoListActions from '../action/VideoListViewActions';
 import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
 import SubjectRegisterActionsMap, {SubjectRegisterActions} from "../action/subject/SubjectRegisterActions";
 import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewActions";
-import {SyncActions, SyncActionsMap} from "../action/SyncActions";
+import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelemetryActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -65,7 +66,8 @@ export default class Reducers {
         entitySyncStatusList: 'entitySyncStatusList',
         subject: 'subject',
         landingView: 'landingView',
-        syncActions: "syncActions"
+        syncTelemetryActions: "syncTelemetryActions",
+        FilterAction: "FilterAction"
     };
 
     static createReducers(beanStore) {
@@ -87,6 +89,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.startProgramActions] = Reducers._add(StartProgramActionsMap, StartProgramActions, beanStore);
         reducerMap[Reducers.reducerKeys.loginActions] = Reducers._add(LoginActionsMap, LoginActions, beanStore);
         reducerMap[Reducers.reducerKeys.myDashboard] = Reducers._add(MyDashboardActionsMap, MyDashboardActions, beanStore, MyDashboardPrefix);
+        reducerMap[Reducers.reducerKeys.FilterAction] = Reducers._add(FilterActionMap, FiltersActions, beanStore, ActionPrefix);
         reducerMap[Reducers.reducerKeys.familyFolder] = Reducers._add(FamilyFolderActionsMap, FamilyFolderActions, beanStore, FamilyFolderActions);
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore, 'FRA');
@@ -96,7 +99,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.entitySyncStatusList] = Reducers._add(EntitySyncStatusActions.Map, EntitySyncStatusActions, beanStore);
         reducerMap[Reducers.reducerKeys.subject] = Reducers._add(SubjectRegisterActionsMap, SubjectRegisterActions, beanStore);
         reducerMap[Reducers.reducerKeys.landingView] = Reducers._add(LandingViewActionsMap, LandingViewActions, beanStore);
-        reducerMap[Reducers.reducerKeys.syncActions] = Reducers._add(SyncActionsMap, SyncActions, beanStore);
+        reducerMap[Reducers.reducerKeys.syncTelemetryActions] = Reducers._add(SyncTelemetryActionsMap, SyncTelemetryActions, beanStore);
         return reducerMap;
     };
 

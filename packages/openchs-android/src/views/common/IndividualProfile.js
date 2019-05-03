@@ -15,13 +15,18 @@ import General from "../../utility/General";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import EntityTypeSelector from "./EntityTypeSelector";
+import ProgramService from "../../service/program/ProgramService";
+import ActionSelector from "./ActionSelector";
+import _ from "lodash";
+import {ProgramEnrolment} from "openchs-models";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
-        individual: PropTypes.object.isRequired,
-        viewContext: PropTypes.string.isRequired,
-        programsAvailable: PropTypes.bool,
-        style: PropTypes.object
+        individual: React.PropTypes.object.isRequired,
+        viewContext: React.PropTypes.string.isRequired,
+        programsAvailable: React.PropTypes.bool,
+        hideEnrol: React.PropTypes.bool,
+        style: React.PropTypes.object
     };
 
     static viewContext = {
@@ -40,7 +45,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     componentDidMount() {
-        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {value: this.props.individual}), 300);
+        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual: this.props.individual}), 300);
     }
 
     viewProfile() {
@@ -82,6 +87,17 @@ class IndividualProfile extends AbstractComponent {
 
     render() {
         General.logDebug('IndividualProfile', 'render');
+        const programActions = this.state.eligiblePrograms.map(program => ({
+            fn: () => {
+                const enrolment = ProgramEnrolment.createEmptyInstance();
+                enrolment.individual = this.props.individual;
+                enrolment.program = program;
+                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
+            },
+            label: program.displayName,
+            backgroundColor: program.colour,
+        }));
+
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <View style={{
@@ -90,11 +106,12 @@ class IndividualProfile extends AbstractComponent {
                     marginVertical: 28,
                     backgroundColor: Styles.defaultBackground
                 }}>
-                    <EntityTypeSelector entityTypes={this.state.entityTypes} flowState={this.state.flowState}
-                                        selectedEntityType={this.state.entity.program}
-                                        actions={Actions} labelKey='selectProgram'
-                                        getEntityLabel={(program)=> program.displayName }
-                                        onEntityTypeSelectionConfirmed={(newState) => CHSNavigator.navigateToProgramEnrolmentView(this, newState.entity)}/>
+                    <ActionSelector
+                        title={this.I18n.t("enrolInProgram")}
+                        hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
+                        visible={this.state.displayActionSelector}
+                        actions={programActions}
+                    />
                     <View style={{justifyContent: 'center', alignSelf: 'center'}}>
                         <Icon name={this.props.individual.icon()} style={{
                             justifyContent: 'center',
@@ -115,7 +132,7 @@ class IndividualProfile extends AbstractComponent {
                                 this.viewProfile()
                             })
                         }
-                        {this.props.programsAvailable ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
+                        {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
                         {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
@@ -153,7 +170,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     launchChooseProgram() {
-        this.dispatchAction(Actions.LAUNCH_CHOOSE_ENTITY_TYPE);
+        this.dispatchAction(Actions.LAUNCH_ACTION_SELECTOR);
     }
 
     voidIndividual() {

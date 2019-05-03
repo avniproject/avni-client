@@ -113,7 +113,7 @@ class IndividualList extends AbstractComponent {
                             filters={this.state.filters}
                             onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
                     </Modal>
-                    <DashboardFilters date={this.state.date} filters={this.state.filters}/>
+                    {/*<DashboardFilters date={this.state.date} filters={this.state.filters} onPress={() => this._onPress()}/>*/}
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
@@ -131,12 +131,12 @@ class IndividualList extends AbstractComponent {
                         renderRow={(individual) => <IndividualDetails individual={individual}
                                                                       backFunction={() => this.onBackCallback()}/>}/>
                 </CHSContent>
-                <TouchableOpacity activeOpacity={0.5}
+                {/*<TouchableOpacity activeOpacity={0.5}
                                   onPress={() => this._onPress()}
                                   style={IndividualList.styles.floatingButton}>
                     <Icon name='filter-list' size={40}
                           style={IndividualList.styles.floatingButtonIcon}/>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
             </CHSContainer>
         );
     }

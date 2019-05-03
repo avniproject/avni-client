@@ -15,8 +15,7 @@ export class FamilyRegisterActions {
     static onLoad(state, action, context) {
         const family = _.isNil(action.familyUUID) ?
             Family.createEmptyInstance() : context.get(FamilyService).findByUUID(action.familyUUID);
-        const newState = FamilyRegistrationState.createLoadState(state.form, state.genders, family);
-        return newState;
+        return FamilyRegistrationState.createLoadState(state.form, state.genders, family);
     }
 
     static enterRegistrationDate(state, action) {

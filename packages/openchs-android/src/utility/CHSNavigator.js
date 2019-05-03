@@ -2,7 +2,6 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDashboardView";
 import ProgramExitView from "../views/program/ProgramExitView";
-import ProgramEnrolmentState from "../action/program/ProgramEnrolmentState";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
 import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";
@@ -19,13 +18,15 @@ import SetPasswordView from "../views/SetPasswordView";
 import ResetForgottenPasswordView from "../views/ResetForgottenPasswordView";
 import ChangePasswordView from "../views/ChangePasswordView";
 import ProgramEncounterCancelView from "../views/program/ProgramEncounterCancelView";
-import IndividualSearchView from "../views/individual/IndividualSearchView";
 import IndividualAddRelativeView from "../views/individual/IndividualAddRelativeView";
 import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
+import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
+import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
+import FilterView from "../views/filter/FiltersView";
 
 
 class CHSNavigator {
@@ -38,17 +39,19 @@ class CHSNavigator {
     }
 
     static navigateToProgramEnrolmentView(source, enrolment, backFunction, editing=false) {
-        TypedTransition.from(source).with({
-            enrolment: enrolment,
-            backFunction: backFunction,
-            editing
-        }).to(ProgramEnrolmentView, true);
+        if(ProgramEnrolmentView.canLoad({enrolment}, source)) {
+            TypedTransition.from(source).with({
+                enrolment: enrolment,
+                backFunction: backFunction,
+                editing
+            }).to(ProgramEnrolmentView, true);
+        }
     }
 
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         if (isFromWizard) {
-            from.wizardCompleted([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
+            from.resetStack([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
                 individualUUID: individualUUID,
                 enrolmentUUID: selectedEnrolmentUUID,
                 message,
@@ -87,8 +90,22 @@ class CHSNavigator {
     }
 
     static navigateToRegisterView(source, uuid, stitches, subjectType, message) {
-        const target = subjectType.isIndividual()? IndividualRegisterView: SubjectRegisterView;
-        TypedTransition.from(source).with({subjectUUID: uuid, individualUUID: uuid, editing: !_.isNil(uuid), stitches, message}).to(target);
+        const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
+        if (target.canLoad({uuid}, source)) {
+            TypedTransition.from(source).with({
+                subjectUUID: uuid,
+                individualUUID: uuid,
+                editing: !_.isNil(uuid),
+                stitches,
+                message
+            }).to(target)
+        }
+    }
+
+    static validateAndNavigate(parent, target, args, onSuccess) {
+        if (target.canLoad(args, parent)) {
+            onSuccess();
+        }
     }
 
     static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing=false) {
@@ -103,7 +120,7 @@ class CHSNavigator {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
-                .wizardCompleted([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
+                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
                     ProgramEnrolmentDashboardView, {individualUUID: encounter.individual.uuid, message}, true,);
         };
         CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, null, message);
@@ -168,6 +185,62 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(VideoPlayerView, true);
     }
 
+    static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
+        TypedTransition
+            .from(recommendationsView)
+            .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
+                ProgramEnrolmentDashboardView, {individualUUID, message: recommendationsView.I18n.t("registrationSavedMsg")}, true,);
+    }
+
+    static navigateToRegistrationThenProgramEnrolmentView(source, program, goBackTo, subjectType) {
+        CHSNavigator.navigateToRegisterView(source, null, {
+            registrationType: program.beneficiaryName,
+            label: source.I18n.t('saveAndEnrol'),
+            fn: recommendationView => {
+                TypedTransition
+                    .from(goBackTo)
+                    .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
+                        [ProgramEnrolmentDashboardView, ProgramEnrolmentView], [{individualUUID: recommendationView.props.individual.uuid}, {enrolment: ProgramEnrolment.createEmptyInstance({individual: recommendationView.props.individual, program}),message: source.I18n.t('registrationSavedMsg')}], true);
+            }
+        }, subjectType);
+    }
+
+    static navigateToRegistration(source, subjectType) {
+        const stitches = {label: source.I18n.t('saveAndAnotherRegistration', {subject: subjectType.name})};
+        const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
+        stitches.fn = (recommendationsView) => {
+            if (target.canLoad({customMessage: 'NotEnoughIdForAnotherRegistration'}, recommendationsView)) {
+                TypedTransition
+                    .from(recommendationsView)
+                    .resetStack([SystemRecommendationView, IndividualRegisterFormView],
+                        target, {params: {stitches}, message: source.I18n.t('registrationSavedMsg')}, true);
+            } else {
+                CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, recommendationsView.individual.uuid);
+            }
+        };
+        CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
+    }
+
+    static navigateToScheduledProgramEncounterView(source, encounterTypeName, savingEntity, isEnrolment) {
+        const enrolmentUUID = isEnrolment? savingEntity.uuid: savingEntity.programEnrolment.uuid;
+        const message = isEnrolment?
+            source.I18n.t('programSavedProceedEncounterMsg', {program : savingEntity.program.name}):
+            source.I18n.t('encounterSavedProceedEncounterMsg', {encounter: savingEntity.name || savingEntity.encounterType.name});
+
+        TypedTransition
+            .from(source)
+            .resetStack([SystemRecommendationView, ProgramEncounterView, ProgramEnrolmentView],
+                ProgramEncounterView, {params:{encounterTypeName, enrolmentUUID, message,editing:false}}, true);
+    }
+
+    static navigateToFirstPage(source, itemsToBeRemoved){
+        TypedTransition.from(source)
+            .resetStack(itemsToBeRemoved, null)
+    }
+
+    static navigateToFilterView(source, props) {
+        TypedTransition.from(source).with(props).to(FilterView, true);
+    }
 }
 
 export default CHSNavigator;

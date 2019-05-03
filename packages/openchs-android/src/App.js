@@ -30,6 +30,7 @@ export default class App extends Component {
     constructor(props, context) {
         let error; // RNUPGRADE
         super(props, context);
+
         try {  // RNUPGRADE
             FileSystem.init();
             this.handleError = this.handleError.bind(this);
@@ -37,7 +38,7 @@ export default class App extends Component {
             if (db === undefined) {
                 db = new Realm(Schema);
                 beans = BeanRegistry.init(db, this);
-                reduxStore = AppStore.create(beans, this.handleError);
+                reduxStore = AppStore.create(beans);
                 beans.forEach(bean => bean.setReduxStore(reduxStore));
                 routes = PathRegistry.routes();
                 const entitySyncStatusService = beans.get(EntitySyncStatusService);
