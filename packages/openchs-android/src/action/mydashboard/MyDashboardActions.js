@@ -3,6 +3,8 @@ import {AddressLevel, SubjectType} from "openchs-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
+import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
+import AddressLevelState from '../common/AddressLevelsState';
 
 class MyDashboardActions {
     static getInitialState() {
@@ -12,6 +14,11 @@ class MyDashboardActions {
             date: {value: new Date()},
             showFilters: false,
             filters: new Map(),
+            locationSearchCriteria: IndividualSearchCriteria.empty(),
+            encounterLocationFilters: [],
+            individualLocationFilters: [],
+            selectedLocations: [],
+            addressLevelState: new AddressLevelState(),
         };
     }
 
@@ -25,57 +32,56 @@ class MyDashboardActions {
     }
 
     static queryAdditions(filters) {
-        return [...filters.values()].map(f => f.orQuery()).filter((q) => !_.isEmpty(q) && !q.contains('address.uuid')).join(" AND ");
+        return [...filters.values()].map(f => f.orQuery()).filter((q) => !_.isEmpty(q)).join(" AND ");
     }
 
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
         const subjectType = entityService.getAll(SubjectType.schema.name)[0];
-        const allAddressLevels = entityService.getAll(AddressLevel.schema.name);
-        const nameAndID = ({name, uuid}) => ({name, uuid});
         const results = {};
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
             const filterService = context.get(FilterService);
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
         }
-        /*const filteredLocation = _.flatMap(filters._mapData, (e) => e[1].selectedOptions);
-        if (filteredLocation.length > 0) {
-            allAddressLevels = _.filter(allAddressLevels, (address) => filteredLocation.indexOf(address.name) !== -1);
-        }*/
+        //get all the lowest level address UUIDs for the selected locations
+        const addressUUIDs = state.locationSearchCriteria.getAllAddressLevelUUIDs();
+        let individualLocationFilters = [];
+        let encounterLocationFilters = [];
+        addressUUIDs.forEach((addressLevel) => {
+            individualLocationFilters.push(`lowestAddressLevel.uuid = "${addressLevel}"`);
+            encounterLocationFilters.push(`programEnrolment.individual.lowestAddressLevel.uuid = "${addressLevel}"`)
+        });
+        const individualFilters = individualLocationFilters.length > 0 ? individualLocationFilters.join(" OR ") : undefined;
+        const encountersFilters = encounterLocationFilters.length > 0 ? encounterLocationFilters.join(" OR ") : undefined;
         const queryAdditions = MyDashboardActions.queryAdditions(filters);
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
             allIndividualsWithCompletedVisits,
             allIndividuals] =
-            [individualService.allScheduledVisitsIn(state.date.value, queryAdditions),
-                individualService.allOverdueVisitsIn(state.date.value, queryAdditions),
-                individualService.allCompletedVisitsIn(state.date.value, queryAdditions),
-                individualService.allIn(state.date.value, queryAdditions)].map(MyDashboardActions.applyFilters(filters));
-        const individualsWithScheduledVisits = _.groupBy(allIndividualsWithScheduledVisits, 'lowestAddressLevel.uuid');
-        const individualsWithOverdueVisits = _.groupBy(allIndividualsWithOverDueVisits, 'lowestAddressLevel.uuid');
-        const individualsWithCompletedVisits = _.groupBy(allIndividualsWithCompletedVisits, 'lowestAddressLevel.uuid');
-        const allIndividualsGrouped = _.groupBy(allIndividuals, 'lowestAddressLevel.uuid');
-        allAddressLevels.map((addressLevel) => {
-            const address = nameAndID(addressLevel);
-            let existingResultForAddress = {
-                address: address,
-                visits: {
-                    scheduled: {count: 0, abnormal: false},
-                    overdue: {count: 0, abnormal: false},
-                    completedVisits: {count: 0, abnormal: false},
-                    total: {count: 0, abnormal: false}
-                },
-                ...results[addressLevel.uuid],
-            };
-            existingResultForAddress.visits.scheduled.count = _.get(individualsWithScheduledVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.overdue.count = _.get(individualsWithOverdueVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.completedVisits.count = _.get(individualsWithCompletedVisits, addressLevel.uuid, []).length;
-            existingResultForAddress.visits.total.count = _.get(allIndividualsGrouped, addressLevel.uuid, []).length;
-            results[addressLevel.uuid] = existingResultForAddress;
-        });
-        return {...state, visits: results, filters: filters, subjectType:subjectType};
+            [individualService.allScheduledVisitsIn(state.date.value, queryAdditions, encountersFilters),
+                individualService.allOverdueVisitsIn(state.date.value, queryAdditions, encountersFilters),
+                individualService.allCompletedVisitsIn(state.date.value, queryAdditions, encountersFilters),
+                individualService.allIn(state.date.value, queryAdditions, individualFilters)
+            ].map(MyDashboardActions.applyFilters(filters));
+        let existingResultForAddress = {
+            visits: {
+                scheduled: {count: 0, abnormal: false},
+                overdue: {count: 0, abnormal: false},
+                completedVisits: {count: 0, abnormal: false},
+                total: {count: 0, abnormal: false}
+            }
+        };
+        existingResultForAddress.visits.scheduled.count = allIndividualsWithScheduledVisits.length;
+        existingResultForAddress.visits.overdue.count = allIndividualsWithOverDueVisits.length;
+        existingResultForAddress.visits.completedVisits.count = allIndividualsWithCompletedVisits.length;
+        existingResultForAddress.visits.total.count = allIndividuals.length;
+        results['33490f6b-21b7-462f-a356-daea14f4893e'] = existingResultForAddress;
+        return {
+            ...state, visits: results, filters: filters, subjectType: subjectType,
+            individualLocationFilters: individualFilters, encounterLocationFilters: encountersFilters
+        };
     }
 
     static onListLoad(state, action, context) {
@@ -86,8 +92,9 @@ class MyDashboardActions {
             ["completedVisits", individualService.allCompletedVisitsIn],
             ["total", individualService.allIn]
         ]);
+        const filters = action.listType === 'total' ? state.individualLocationFilters : state.encounterLocationFilters;
         const queryAdditions = MyDashboardActions.queryAdditions(state.filters);
-        const allIndividuals = methodMap.get(action.listType)(state.date.value, queryAdditions, action.address)
+        const allIndividuals = methodMap.get(action.listType)(state.date.value, queryAdditions, filters)
             .map(({uuid}) => individualService.findByUUID(uuid));
         return {
             ...state,
@@ -124,9 +131,17 @@ class MyDashboardActions {
         return {...state, filters: newFilters};
     }
 
-    static assignFilters(state, action) {
+    static assignFilters(state, action, context) {
         const newFilters = MyDashboardActions.cloneFilters(action.filters);
-        return {...state, filters: newFilters};
+        const newState = {
+            ...state,
+            filters: newFilters,
+            locationSearchCriteria: action.locationSearchCriteria.clone(),
+            selectedLocations: action.selectedLocations,
+            addressLevelState: action.addressLevelState.clone(),
+            date: {value: action.filterDate},
+        };
+        return MyDashboardActions.onLoad(newState, {}, context);
     }
 
 }

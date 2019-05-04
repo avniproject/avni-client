@@ -43,7 +43,7 @@ class AddressVisitRow extends AbstractComponent {
                          number={numberObj.count}/>));
         return (
             <View style={AddressVisitRow.styles.container}>
-                <AddressHeader address={this.props.address}/>
+                {this.props.address && <AddressHeader address={this.props.address}/>}
                 <View style={AddressVisitRow.styles.visitBlockContainer}>
                     {visitBlocks}
                 </View>

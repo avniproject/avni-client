@@ -1,7 +1,6 @@
 import React from "react";
 import {ListView, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import _ from 'lodash';
-import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -13,7 +12,6 @@ import CHSContent from "../common/CHSContent";
 import AddressVisitRow from './AddressVisitRow';
 import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
-import Filters from "../filter/FiltersView";
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -81,7 +79,7 @@ class MyDashboardView extends AbstractComponent {
     }
 
     _onBack() {
-        CHSNavigator.goBack(this);
+        this.goBack();
     }
 
     render() {
@@ -93,11 +91,15 @@ class MyDashboardView extends AbstractComponent {
                 <CHSContent>
                     <View>
                         <DashboardFilters date={date} filters={this.state.filters}
+                                          selectedLocations={this.state.selectedLocations}
                                           onPress={() => CHSNavigator.navigateToFilterView(this, {
                                               applyFn: this._onApply.bind(this),
                                               filters: this.state.filters,
+                                              locationSearchCriteria: this.state.locationSearchCriteria,
+                                              addressLevelState: this.state.addressLevelState,
                                               onBack: this._onBack.bind(this),
-                                              actionName: Actions.APPLY_FILTERS
+                                              actionName: Actions.APPLY_FILTERS,
+                                              filterDate: date
                                           })}/>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}

@@ -47,6 +47,10 @@ class IndividualSearchCriteria {
         return criteria.join(" AND ");
     }
 
+    getAllAddressLevelUUIDs() {
+        return _.map(this.lowestAddressLevels, 'uuid');
+    }
+
     addAgeCriteria(age) {
         this.ageInYears = age;
     }

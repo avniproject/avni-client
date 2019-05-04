@@ -1,6 +1,5 @@
 import React from "react";
-import {ListView, StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
-import {Button} from 'native-base';
+import {StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
@@ -13,9 +12,11 @@ import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
 import CHSContent from "../common/CHSContent";
-import CHSNavigator from "../../utility/CHSNavigator";
 import Reducers from "../../reducer";
-import {FilterActionNames, FiltersActions} from "../../action/mydashboard/FiltersActions";
+import {FilterActionNames} from "../../action/mydashboard/FiltersActions";
+import AddressLevels from "../common/AddressLevels";
+import _ from "lodash";
+import DatePicker from "../primitives/DatePicker";
 
 
 @Path('/FilterView')
@@ -27,13 +28,18 @@ class FilterView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.FilterAction);
+        super(props, context, Reducers.reducerKeys.filterAction);
         this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
             [Filter.types.MultiSelect, MultiSelectFilter]]);
     }
 
     componentWillMount() {
-        this.dispatchAction(FilterActionNames.ON_LOAD, {filters: this.props.filters});
+        this.dispatchAction(FilterActionNames.ON_LOAD, {
+            filters: this.props.filters,
+            locationSearchCriteria: this.props.locationSearchCriteria,
+            addressLevelState: this.props.addressLevelState,
+            filterDate: this.props.filterDate,
+        });
         super.componentWillMount();
     }
 
@@ -63,7 +69,9 @@ class FilterView extends AbstractComponent {
     onSelect(filter, idx) {
         return (val) => {
             const newFilter = filter.selectOption(val);
-            this.dispatchAction(FilterActionNames.ADD_FILTER, {filter: newFilter});
+            if (!_.isNil(newFilter)) {
+                this.dispatchAction(FilterActionNames.ADD_FILTER, {filter: newFilter});
+            }
         }
     }
 
@@ -76,8 +84,14 @@ class FilterView extends AbstractComponent {
     }
 
     onApply() {
-        this.dispatchAction(this.props.actionName, {filters: this.state.filters});
-        CHSNavigator.goBack(this);
+        this.dispatchAction(this.props.actionName, {
+            filters: this.state.filters,
+            locationSearchCriteria: this.state.locationSearchCriteria,
+            addressLevelState: this.state.addressLevelState,
+            selectedLocations: this.state.addressLevelState.selectedAddresses,
+            filterDate: this.state.filterDate.value,
+        });
+        this.goBack();
     }
 
     render() {
@@ -89,7 +103,24 @@ class FilterView extends AbstractComponent {
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>
                         <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
+                            <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
+                                <Text style={{fontSize: 15, color: Styles.greyText}}>Date</Text>
+                                <DatePicker
+                                    nonRemovable={true}
+                                    actionName={FilterActionNames.ON_DATE}
+                                    actionObject={this.state.filterDate}
+                                    pickTime={false}
+                                    dateValue={this.state.filterDate.value}/>
+                            </View>
                             {_.map(filters, (f, idx) => this.renderFilter(f, idx))}
+                            <AddressLevels
+                                addressLevelState={this.state.addressLevelState}
+                                onSelect={(addressLevelState) => {
+                                    this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
+                                        addressLevelState: addressLevelState
+                                    })
+                                }}
+                                multiSelect={true}/>
                         </View>
                     </View>
                 </CHSContent>

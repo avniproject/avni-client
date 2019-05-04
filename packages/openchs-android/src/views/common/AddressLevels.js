@@ -19,6 +19,7 @@ class AddressLevels extends AbstractComponent {
         onLowestLevel: React.PropTypes.func,
         validationError: React.PropTypes.object,
         mandatory: React.PropTypes.bool,
+        addressLevelState: React.PropTypes.object,
     };
 
     viewName() {
@@ -28,7 +29,6 @@ class AddressLevels extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.addressLevelService = context.getService(AddressLevelService);
-        this.state = {data: new AddressLevelsState()};
     }
 
     defaultState() {
@@ -67,18 +67,33 @@ class AddressLevels extends AbstractComponent {
     }
 
     componentWillMount() {
-        const selectedLowestLevel = this.props.selectedLowestLevel;
-        const exists = !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid);
-        const newState = this.onLoad(exists ? selectedLowestLevel : undefined);
-        this.setState(newState);
+        if (this.props.addressLevelState && this.props.multiSelect) {
+            if (this.props.addressLevelState.selectedAddresses.length > 0) {
+                const onLowest = !_.isEmpty(this.props.addressLevelState.lowestSelectedAddresses)
+                    && this.addressLevelService.minLevel() === this.props.addressLevelState.lowestSelectedAddresses[0].level;
+                this.setState({
+                    data: this.props.addressLevelState,
+                    onLowest: onLowest
+                });
+                return;
+            }
+            this.setState(this.onLoad());
+        } else {
+            this.setState({data: new AddressLevelsState()}, () => {
+                const selectedLowestLevel = this.props.selectedLowestLevel;
+                const exists = !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid);
+                const newState = this.onLoad(exists ? selectedLowestLevel : undefined);
+                this.setState(newState);
+            });
+        }
     }
 
     _invokeCallbacks(oldState, newState) {
         if (_.isFunction(this.props.onSelect)) {
-            this.props.onSelect(newState.data.lowestSelectedAddresses);
+            this.props.onSelect(newState.data);
         }
         if (_.isFunction(this.props.onLowestLevel)) {
-            this.props.onLowestLevel(newState.onLowest? newState.data.lowestSelectedAddresses: []);
+            this.props.onLowestLevel(newState.onLowest ? newState.data.lowestSelectedAddresses : []);
         }
     }
 

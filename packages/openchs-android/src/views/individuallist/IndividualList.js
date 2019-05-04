@@ -1,7 +1,5 @@
 import React from "react";
 import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal} from 'react-native';
-import _ from 'lodash';
-import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -16,9 +14,6 @@ import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import Filters from "../filter/FiltersView";
-import DashboardFilters from "../mydashbaord/DashboardFilters";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -99,20 +94,9 @@ class IndividualList extends AbstractComponent {
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
-                    title={`${this.props.params.address.name} - ${visitType}`}
+                    title={`${visitType}`}
                     func={this.props.params.backFunction}/>
                 <CHSContent>
-                    <Modal
-                        animationType={'none'}
-                        transparent={false}
-                        visible={this.state.showFilters}
-                        onRequestClose={() => this._onClose()}>
-                        <Filters
-                            applyFn={() => this._onClose()}
-                            filters={this.state.filters}
-                            onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
-                    </Modal>
-                    {/*<DashboardFilters date={this.state.date} filters={this.state.filters} onPress={() => this._onPress()}/>*/}
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
@@ -130,12 +114,6 @@ class IndividualList extends AbstractComponent {
                         renderRow={(individual) => <IndividualDetails individual={individual}
                                                                       backFunction={() => this.onBackCallback()}/>}/>
                 </CHSContent>
-                {/*<TouchableOpacity activeOpacity={0.5}
-                                  onPress={() => this._onPress()}
-                                  style={IndividualList.styles.floatingButton}>
-                    <Icon name='filter-list' size={40}
-                          style={IndividualList.styles.floatingButtonIcon}/>
-                </TouchableOpacity>*/}
             </CHSContainer>
         );
     }

@@ -5,6 +5,6 @@
   "pageSize": 100,
   "dev": {
     "pageSize": 1000,
-    "skipValidation": true
+    "skipValidation": false
   }
 }
