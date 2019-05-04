@@ -1,0 +1,1 @@
+Bug fix : Encounter data should not get overwritten when multiple users add data against the same individual

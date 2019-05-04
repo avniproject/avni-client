@@ -1,0 +1,6 @@
+- Support case management of non individuals e.g. Dam
+- Image, Video datatypes (Requires new user permissions)
+- Ability to track geolocation in every form (Requires new user permissions)
+- MyDashboard better perf and Scheduled and Overdue do not show exited 
+- Sync related - App to not log out when sync pressed not in network, Messages during sync
+- User settings locale and trackLocation are synced and retained across installations

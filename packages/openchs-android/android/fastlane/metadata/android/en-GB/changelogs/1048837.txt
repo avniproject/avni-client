@@ -1,0 +1,4 @@
+- Multiple levels of individual location supported (e.g. State, District, Block, Village)
+- In MyDashboard filter by Visit types
+- Immunization schedule and vaccinations configurable per organization
+- Better support for date, time and duration in the form

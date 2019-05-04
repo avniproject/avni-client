@@ -1,0 +1,1 @@
+Application for field health workers in India and other developing countries. Allows for screening, survey, registration of individuals, enrolment into programs and followup. Provides decisions support as per national and WHO health guidelines.

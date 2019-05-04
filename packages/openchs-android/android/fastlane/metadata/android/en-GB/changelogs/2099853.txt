@@ -1,0 +1,5 @@
+* Counselling videos can now be shown from the app
+* Forms not allowed to be filled on future date
+* Logged in username shown on settings page
+* Displaying results count on search results page
+* Village on registration and search page shown alphabetically sorted

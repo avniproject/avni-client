@@ -82,6 +82,7 @@ gradlew.bat
 packages/openchs-android/.env
 packages/openchs-android/.env.devs.*
 packages/openchs-health-modules/package.json.lerna_backup
-packages/utilities/t9n-candidates.json
+packages/utilities/t9n-candidates.json/
 tmp/
 packages/openchs-android/android/app/src/main/res/drawable-*
+packages/openchs-android/android/Gemfile
