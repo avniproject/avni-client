@@ -34,6 +34,7 @@
 		FA57F0706485444C85249CBD /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7838E9E6BAB54701A918FA0E /* libRNImagePicker.a */; };
 		FA0A68B4292945EA9872F7F5 /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A904ED10297E49F98BAA6EB5 /* libRNFetchBlob.a */; };
 		19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6402978875342EC987316EF /* libRNDeviceInfo.a */; };
+		2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2A833E80D084DFE91FEAE8A /* libCodePush.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -178,6 +179,8 @@
 		A904ED10297E49F98BAA6EB5 /* libRNFetchBlob.a */ = {isa = PBXFileReference; name = "libRNFetchBlob.a"; path = "libRNFetchBlob.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		48B4C72F2A5843C1B201F88C /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; name = "RNDeviceInfo.xcodeproj"; path = "../node_modules/react-native-device-info/ios/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		F6402978875342EC987316EF /* libRNDeviceInfo.a */ = {isa = PBXFileReference; name = "libRNDeviceInfo.a"; path = "libRNDeviceInfo.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		7570135693C746B1A3F23DB6 /* CodePush.xcodeproj */ = {isa = PBXFileReference; name = "CodePush.xcodeproj"; path = "../node_modules/react-native-code-push/ios/CodePush.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		B2A833E80D084DFE91FEAE8A /* libCodePush.a */ = {isa = PBXFileReference; name = "libCodePush.a"; path = "libCodePush.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,6 +217,7 @@
 				FA57F0706485444C85249CBD /* libRNImagePicker.a in Frameworks */,
 				FA0A68B4292945EA9872F7F5 /* libRNFetchBlob.a in Frameworks */,
 				19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */,
+				2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -356,6 +360,7 @@
 				E199E16A33AA44858C0EE0BE /* RNImagePicker.xcodeproj */,
 				132D1913DDDA45B683345F9A /* RNFetchBlob.xcodeproj */,
 				48B4C72F2A5843C1B201F88C /* RNDeviceInfo.xcodeproj */,
+				7570135693C746B1A3F23DB6 /* CodePush.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -712,6 +717,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -728,6 +734,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -760,6 +767,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
 				);
 			};
 			name = Debug;
@@ -787,6 +795,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
 				);
 			};
 			name = Release;

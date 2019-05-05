@@ -85,29 +85,30 @@ upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
 # </bugsnag>
 
 # <release>
-release: ##
+release_clean: ##
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/android/app/build
 	rm -rf packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
-	cd packages/openchs-android; \
-	react-native bundle \
-		--platform android \
-		--dev false \
-		--entry-file index.android.js \
-		--bundle-output android/app/src/main/assets/index.android.bundle \
-		--assets-dest android/app/src/main/res/ \
-		--sourcemap-output android/app/build/generated/sourcemap.js
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease -x bundleReleaseJsAndAssets --stacktrace
+#	cd packages/openchs-android; \
+#	react-native bundle \
+#		--platform android \
+#		--dev false \
+#		--entry-file index.android.js \
+#		--bundle-output android/app/src/main/assets/index.android.bundle \
+#		--assets-dest android/app/src/main/res/ \
+#		--sourcemap-output android/app/build/generated/sourcemap.js
+
+release_only:
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace
+
+release: release_clean release_only
 
 release-inpremise:
 	ENVFILE=.env.inpremise make release
 	$(call _upload_release_sourcemap)
-
-release-vivek: ##
-	ENVFILE=.env.devs.vivek make release
 
 release-arjun: ##
 	ENVFILE=.env.devs.arjun make release

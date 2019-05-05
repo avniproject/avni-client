@@ -13,6 +13,7 @@ import _ from "lodash";
 import FileSystem from "./model/FileSystem";
 import BackgroundTask from 'react-native-background-task';
 import PruneMedia from "./task/PruneMedia";
+import codePush from "react-native-code-push";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
@@ -26,7 +27,7 @@ BackgroundTask.define(() => {
     );
 });
 
-export default class App extends Component {
+class App extends Component {
     constructor(props, context) {
         let error; // RNUPGRADE
         super(props, context);
@@ -100,3 +101,7 @@ export default class App extends Component {
         return (<Text>Something Went Wrong</Text>);
     }
 }
+
+let codePushOptions = { checkFrequency: codePush.CheckFrequency.ON_APP_RESUME };
+
+export default codePush(App);

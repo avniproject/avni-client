@@ -1,5 +1,12 @@
 <resources>
-
-
+	<string moduleConfig="true" name="reactNativeCodePush_androidDeploymentKey">-----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwxrZnWTB9xC70n3V3JpB
+        ND8FAB1oKbYZJkSZXM6ZdxfZ9KTrVeSd65o2Ahesz4Tx+DZzdTKBFgGKwcfdMVRo
+        jM0M/GB5EZkmIfxiux3EbItHlXoD3Eg+9XtHcEoVWpVAJjsu3z0R7VelP166UdTz
+        Hkrc+Fl+W9OG4SAkk1HgPzLjyrZDbIfDHvSqWM4PHOvDfk4YL+n/Bh4XEj50dfkS
+        x/STYAMrqSbJpWC7hO+KevlY8c/GO8qEiyuW0EktJkBBT33tA5gsltQnF5EQ6/Ih
+        CsncV8cA1XVGMiz7DuH9rKmv/FJUOeVxbqqmEHVZVsjOtV4QsF+cexQcdBvnk5pr
+        oQIDAQAB
+        -----END PUBLIC KEY-----</string>
     <string name="app_name">OpenCHS</string>
 </resources>

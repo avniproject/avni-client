@@ -85,4 +85,4 @@ packages/openchs-health-modules/package.json.lerna_backup
 packages/utilities/t9n-candidates.json/
 tmp/
 packages/openchs-android/android/app/src/main/res/drawable-*
-packages/openchs-android/android/Gemfile
+packages/openchs-android/android/fastlane/README.md
