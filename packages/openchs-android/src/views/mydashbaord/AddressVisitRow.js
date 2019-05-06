@@ -7,6 +7,7 @@ import TitleNumberBlock from './TitleNumberBlock';
 import DGS from "../primitives/DynamicGlobalStyles";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualList from "../individuallist/IndividualList";
+import Distances from "../primitives/Distances";
 
 class AddressVisitRow extends AbstractComponent {
     static propTypes = {
@@ -22,6 +23,7 @@ class AddressVisitRow extends AbstractComponent {
             flexWrap: 'nowrap',
             justifyContent: 'space-between',
             alignItems: 'center',
+            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
         }
     });
 
