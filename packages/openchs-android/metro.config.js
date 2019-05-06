@@ -12,8 +12,8 @@ module.exports = {
 
     resolver: {
         extraNodeModules: {
-            "openchs-models": path.resolve(__dirname, "node_modules/openchs-models"),
-            "openchs-health-modules": path.resolve(__dirname, "node_modules/openchs-health-modules"),
+            "openchs-models": path.resolve(__dirname, "../openchs-models"),
+            "openchs-health-modules": path.resolve(__dirname, "../openchs-health-modules"),
         }
     },
 
