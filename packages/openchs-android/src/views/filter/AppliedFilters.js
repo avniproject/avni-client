@@ -26,7 +26,7 @@ export default class AppliedFilters extends AbstractComponent {
                 </View>);
         const allUniqueTypes = _.uniqBy(_.map(this.props.selectedLocations, ({type}) => ({type})), 'type');
         const locations = _.map(allUniqueTypes, (l) => {
-            return `${l.type}|${_.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => (locations.name)).join(", ")}`;
+            return `${l.type} - ${_.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => (locations.name)).join(", ")}`;
         });
 
         return (
@@ -37,7 +37,7 @@ export default class AppliedFilters extends AbstractComponent {
                             fontSize: 14,
                             color: Colors.TextOnPrimaryColor,
                             marginRight: 4
-                        }}>Locations - {locations.join(" , ")} </Text>
+                        }}>{locations.join(" | ")} </Text>
                     </View>) :
                     <View/>
                 }

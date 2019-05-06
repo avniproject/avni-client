@@ -54,6 +54,7 @@ class FilterView extends AbstractComponent {
         floatingButton: {
             position: 'absolute',
             width: '100%',
+            height: 50,
             alignSelf: 'stretch',
             alignItems: 'center',
             justifyContent: 'center',
