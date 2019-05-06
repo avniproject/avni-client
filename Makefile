@@ -146,13 +146,6 @@ clear-log: ##
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 dat := $(shell /bin/date "+%Y-%m-%d-%H-%M-%S")
 
-# <deploy>
-deploy: ## Deploy apk to bintray
-	make deps
-	make release
-	@curl -T packages/openchs-android/android/app/build/outputs/apk/app-release.apk -umihirk:$(BINTRAY_API_KEY) https://api.bintray.com/content/openchs/generic/openchs-client/dev/openchs-client-$(ts).apk?publish=1
-# <deploy>
-
 # <db>
 get_db: ## Get realmdb and copy to ../
 	mkdir -p ../db; adb pull /data/data/com.openchsclient/files/default.realm ../db
