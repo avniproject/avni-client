@@ -239,12 +239,7 @@ setup_env: ##
 build_env: ##
 	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
-	cd packages/openchs-android && npm install
-	cd packages/openchs-health-modules && npm install
-	cd packages/openchs-models && npm install
-	cd packages/openchs-org && npm install
-	cd packages/unminifiy && npm install
-	cd packages/utilities && npm install
+	npm run bootstrap
 # </env>
 
 
@@ -255,7 +250,9 @@ build_env_ci: ##
 
 # <packager>
 run_packager: ##
-	cd packages/openchs-android && REACT_EDITOR=$(if $(REACT_EDITOR),$(REACT_EDITOR),subl) npm start
+	cd packages/openchs-android
+	REACT_EDITOR=$([ "$REACT_EDITOR" == "" ] && echo "subl" || echo "$REACT_EDITOR")
+	npm start
 # </packager>
 
 

@@ -99,7 +99,7 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-code-push')
+    implementation project(':react-native-code-push')
     implementation project(':amazon-cognito-identity-js')
     compile project(':react-native-background-task')
     compile project(':rn-fetch-blob')
