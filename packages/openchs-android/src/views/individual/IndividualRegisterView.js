@@ -25,6 +25,7 @@ import IdentifierAssignmentService from "../../service/IdentifierAssignmentServi
 import EntityService from "../../service/EntityService";
 import Form from "openchs-models/src/application/Form";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -73,7 +74,8 @@ class IndividualRegisterView extends AbstractComponent {
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}/>
+                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}
+                               func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView])}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
