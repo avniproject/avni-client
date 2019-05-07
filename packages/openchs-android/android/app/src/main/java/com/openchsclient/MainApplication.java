@@ -16,7 +16,6 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
-import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
@@ -46,7 +45,6 @@ public class MainApplication extends Application implements ReactApplication {
                     new ReactVideoPackage(),
                     BugsnagReactNative.getPackage(),
                     new MPAndroidChartPackage(),
-                    new ReactNativeConfigPackage(),
                     new RNAWSCognitoPackage(),
                     new VectorIconsPackage(),
                     new ReactNativeI18n(),

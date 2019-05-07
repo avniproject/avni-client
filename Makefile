@@ -12,14 +12,9 @@ help:
 	done
 # </makefile>
 
-
-define _setBuildVersion
-	cd packages/openchs-android/ && cp .env.template .env;
-	git describe --tags>>packages/openchs-android/.env;
+define _open_resource
+	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
 endef
-
-setenv:
-	$(call _setBuildVersion)
 
 ci:
 	$(eval ci_flag_set:=true)
@@ -51,9 +46,10 @@ ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cu
 #for default Andoird Emulator
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short HEAD)
-setup_hosts:
-	grep -v 'SERVER_URL=' packages/openchs-android/.sample.env > packages/openchs-android/.env
-	echo "SERVER_URL=http://$(ip):8021" >> packages/openchs-android/.env
+
+define _setup_hosts
+	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
+endef
 
 # <test>
 test-health-modules: ##
@@ -69,7 +65,19 @@ test: test-models test-health-modules test-android  ##
 # </test>
 
 # <bugsnag>
-define _upload_release_sourcemap ## Uploads release sourcemap to Bugsnag
+
+define _create_sourcemap
+	cd packages/openchs-android; \
+    		react-native bundle \
+    			--platform android \
+    			--dev false \
+    			--entry-file index.android.js \
+    			--bundle-output android/app/src/main/assets/index.android.bundle \
+    			--assets-dest android/app/src/main/res/ \
+    			--sourcemap-output android/app/build/generated/sourcemap.js
+endef
+
+define _upload_release_sourcemap
 	cd packages/openchs-android && npx bugsnag-sourcemaps upload \
 		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
 		--app-version $(shell cat packages/openchs-android/android/app/build.gradle | sed -n  's/versionName \"\(.*\)\"/\1/p' | xargs echo | sed -e "s/\(.*\)/\"\1\"/") \
@@ -78,13 +86,21 @@ define _upload_release_sourcemap ## Uploads release sourcemap to Bugsnag
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
+	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/openchs-client/source-maps)
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
+	$(call _create_sourcemap)
 	$(call _upload_release_sourcemap)
 # </bugsnag>
 
 # <release>
+
+define _create_config
+	@echo "Creating config for $1"
+	@echo "import config from \"../../config/env/$1.json\";export default config;" > packages/openchs-android/src/framework/Config.js
+endef
+
 release: ##
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/android/app/build
@@ -93,46 +109,43 @@ release: ##
 	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
 	cd packages/openchs-android; \
-	react-native bundle \
-		--platform android \
-		--dev false \
-		--entry-file index.android.js \
-		--bundle-output android/app/src/main/assets/index.android.bundle \
-		--assets-dest android/app/src/main/res/ \
-		--sourcemap-output android/app/build/generated/sourcemap.js
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease -x bundleReleaseJsAndAssets --stacktrace
+    		react-native bundle \
+    			--platform android \
+    			--dev false \
+    			--entry-file index.android.js \
+    			--bundle-output android/app/src/main/assets/index.android.bundle \
+    			--assets-dest android/app/src/main/res/
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace
 
-release-inpremise:
-	ENVFILE=.env.inpremise make release
+release_dev: ##
+	$(call _setup_hosts)
+	$(call _create_config,dev)
+	make release
+
+release_prod: ##
+	$(call _create_config,prod)
+	make clean_env deps release
+	$(call _create_sourcemap)
 	$(call _upload_release_sourcemap)
 
-release-vivek: ##
-	ENVFILE=.env.devs.vivek make release
+release_staging: ##
+	$(call _create_config,staging)
+	make clean_env deps release
 
-release-arjun: ##
-	ENVFILE=.env.devs.arjun make release
-
-release-live: ##
-	ENVFILE=.env.live make clean_env deps release
-	$(call _upload_release_sourcemap)
-
-release-staging: ##
-	ENVFILE=.env.staging make clean_env deps release
-
-release-staging-without-clean: ##
+release_staging_without_clean: ##
+	$(call _create_config,staging)
 	ENVFILE=.env.staging make deps release
 
-release-uat: ##
-	ENVFILE=.env.uat make clean_env deps release
+release_uat: ##
+	$(call _create_config,uat)
+	make clean_env deps release
 
-release-prerelease:
-	ENVFILE=.env.prerelease make clean_env deps release
+release_prerelease:
+	$(call _create_config,prerelease)
+	make clean_env deps release
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
-
-release-offline-vivek: ##
-	cd packages/openchs-android/android; ENVFILE=.env.devs.vivek ./gradlew --offline assembleRelease
 # </release>
 
 # <log>
@@ -175,14 +188,7 @@ kill_realm_browser:
 	pkill "Realm Browser" || true
 
 open_db: rm_db get_db ## Open realmdb in Realm Browser
-	$(if $(shell command -v xdg-open 2> /dev/null),make xdg-opendb,make mac-opendb)
-
-mac-opendb:
-	open ../db/default.realm
-
-xdg-opendb:
-	xdg-open ../db/default.realm >/dev/null 2>&1
-
+	$(call _open_resource,../db/default.realm)
 # </db>
 
 
@@ -230,6 +236,7 @@ clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-org/package-lock.json
 	rm -rf packages/unminifiy/package-lock.json
 	rm -rf packages/utilities/package-lock.json
+	rm packages/openchs-android/android/app/src/main/assets/index.android.bundle
 
 setup_env: ##
 	npm install -g jest@20.0.1
@@ -256,26 +263,30 @@ run_packager: ##
 
 
 # <app>
-run_app: setup_hosts ##
-	cd packages/openchs-android && ENVFILE=.env react-native run-android
+run_app: ##
+	$(call _setup_hosts)
+	$(call _create_config,dev)
+	cd packages/openchs-android && react-native run-android
 
-run_app_release: setup_hosts
+run_app_release:
+	$(call _create_config,dev)
 	cd packages/openchs-android && react-native run-android --variant=release
 
-run_app_staging_dev:
-	cd packages/openchs-android && ENVFILE=.env.staging.dev react-native run-android
-
 run_app_staging:
-	cd packages/openchs-android && ENVFILE=.env.staging react-native run-android
+	$(call _create_config,staging)
+	cd packages/openchs-android && react-native run-android
 
 run_app_prerelease:
-	cd packages/openchs-android && ENVFILE=.env.prerelease react-native run-android
+	$(call _create_config,prerelease)
+	cd packages/openchs-android && react-native run-android
 
 run_app_uat:
-	cd packages/openchs-android && ENVFILE=.env.uat react-native run-android
+	$(call _create_config,uat)
+	cd packages/openchs-android && react-native run-android
 
-run_app_live:
-	cd packages/openchs-android && ENVFILE=.env.live react-native run-android
+run_app_prod:
+	$(call _create_config,prod)
+	cd packages/openchs-android && react-native run-android
 
 open_app_bundle:
 	cd ..
@@ -284,11 +295,15 @@ open_app_bundle:
 	vi ./temp/output.txt
 
 # sometimes there are errors for which we need to run the following to get the exact problem
-run_app_debug: setup_hosts  ##
+run_app_debug: ##
+	$(call _setup_hosts)
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
 
 kill_app:
 	adb shell am force-stop com.openchsclient
+
+start_app:
+	adb shell am start -n com.openchsclient/com.openchsclient.MainActivity
 # </app>
 
 

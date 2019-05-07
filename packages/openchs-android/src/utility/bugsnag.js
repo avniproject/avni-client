@@ -4,7 +4,7 @@
 //-------------------------------------------------------------------------------------------------
 
 import { Client, Configuration } from 'bugsnag-react-native';
-import Config from 'react-native-config';
+import Config from '../framework/Config';
 
 const configuration = new Configuration();
 configuration.autoNotify = false;
