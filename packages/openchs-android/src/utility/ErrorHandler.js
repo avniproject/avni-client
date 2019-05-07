@@ -1,6 +1,6 @@
 import StackTrace from 'stacktrace-js';
 import bugsnag from './bugsnag';
-import Config from 'react-native-config';
+import Config from '../framework/Config';
 import General from "./General";
 
 export default class ErrorHandler {

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {AppRegistry, StyleSheet, View} from 'react-native';
 import App from "./App";
 import Playground from "./Playground";
-import Config from 'react-native-config';
+import Config from './framework/Config';
 
 export default class OpenCHS extends Component {
 

@@ -1,5 +1,5 @@
 apply plugin: "com.android.application"
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
 
 import com.android.build.OutputFile
 
@@ -111,7 +111,6 @@ dependencies {
     compile project(':bugsnag-react-native')
     compile project(':react-native-geolocation-service')
     compile project(':react-native-charts-wrapper')
-    compile project(':react-native-config')
     compile project(':react-native-vector-icons')
     compile project(':react-native-i18n')
     compile project(':realm')

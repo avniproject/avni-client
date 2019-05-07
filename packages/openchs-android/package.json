@@ -35,7 +35,6 @@
     "react-native": "^0.59.5",
     "react-native-background-task": "^0.2.1",
     "react-native-charts-wrapper": "0.4.2",
-    "react-native-config": "0.10.0",
     "react-native-deprecated-custom-components": "^0.1.2",
     "react-native-fs": "^2.11.17",
     "react-native-geolocation-service": "1.1.0",

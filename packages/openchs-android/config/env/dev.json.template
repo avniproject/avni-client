@@ -1,0 +1,5 @@
+{
+  "SERVER_URL": "http://SERVER_URL_VAR:8021",
+  "ENV": "dev",
+  "CLIENT_ID": "dummy"
+}

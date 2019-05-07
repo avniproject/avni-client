@@ -16,3 +16,5 @@ npm-debug.log
 
 # Bundle artifact
 *.jsbundle
+src/framework/Config.js
+config/env/dev.json

@@ -16,7 +16,7 @@ import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import I18n from 'react-native-i18n';
 import {Schema} from 'openchs-models';
-import config from 'react-native-config';
+import DeviceInfo from 'react-native-device-info';
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
@@ -158,7 +158,7 @@ class SettingsView extends AbstractComponent {
                             <Text style={Styles.textList}>Database Schema : <Text
                                 style={{color: 'black', fontSize: Styles.normalTextSize}}>{Schema.schemaVersion}</Text></Text>
                             <Text style={Styles.textList}>BuildVersion: <Text
-                                style={{color: 'black', fontSize: Styles.normalTextSize}}>{config.BUILD_VERSION}</Text></Text>
+                                style={{color: 'black', fontSize: Styles.normalTextSize}}>{DeviceInfo.getVersion()}</Text></Text>
                         </View>
 
                         <Text style={Styles.formLabel}>{this.I18n.t('location')}</Text>

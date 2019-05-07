@@ -26,7 +26,6 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FFF05AE4806E4237A36107D8 /* libRCTRestart.a */; };
 		1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */; };
-		9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */; };
 		3DDCF0A7128E443987F45403 /* libBugsnagReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 970476CB132D4972A85BB37C /* libBugsnagReactNative.a */; };
 		C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E47E37208FA44B70A06226F0 /* libz.tbd */; };
 		3A8427A3ACD64871B47806D9 /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 17769CA63BB44843A062279F /* libRCTVideo.a */; };
@@ -164,8 +163,6 @@
 		AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */ = {isa = PBXFileReference; name = "RCTRestart.xcodeproj"; path = "../node_modules/react-native-restart/ios/RCTRestart.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		FFF05AE4806E4237A36107D8 /* libRCTRestart.a */ = {isa = PBXFileReference; name = "libRCTRestart.a"; path = "libRCTRestart.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		52F8BA1372EC449A93A8FAC2 /* libRNAWSCognito.a */ = {isa = PBXFileReference; name = "libRNAWSCognito.a"; path = "libRNAWSCognito.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
-		ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativeConfig.xcodeproj"; path = "../node_modules/react-native-config/ios/ReactNativeConfig.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		AD8EBC6954CF48AE9C08680B /* libReactNativeConfig.a */ = {isa = PBXFileReference; name = "libReactNativeConfig.a"; path = "libReactNativeConfig.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		AA4D6F2CE2BB4CA0AEA6AB81 /* BugsnagReactNative.xcodeproj */ = {isa = PBXFileReference; name = "BugsnagReactNative.xcodeproj"; path = "../node_modules/bugsnag-react-native/cocoa/BugsnagReactNative.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		970476CB132D4972A85BB37C /* libBugsnagReactNative.a */ = {isa = PBXFileReference; name = "libBugsnagReactNative.a"; path = "libBugsnagReactNative.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		E47E37208FA44B70A06226F0 /* libz.tbd */ = {isa = PBXFileReference; name = "libz.tbd"; path = "usr/lib/libz.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
@@ -209,7 +206,6 @@
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				6DC4908986BA470A9554361E /* libRCTRestart.a in Frameworks */,
 				1D2AA99F8E3C458D8EE05552 /* libRNAWSCognito.a in Frameworks */,
-				9DD878A366E64F79AA8DD299 /* libReactNativeConfig.a in Frameworks */,
 				3DDCF0A7128E443987F45403 /* libBugsnagReactNative.a in Frameworks */,
 				C6C47D20535E445EA4D0A362 /* libz.tbd in Frameworks */,
 				3A8427A3ACD64871B47806D9 /* libRCTVideo.a in Frameworks */,
@@ -353,7 +349,6 @@
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
 				AC005F4FC1B64425BCB764DC /* RCTRestart.xcodeproj */,
 				7ED014B83C29406D91ED7984 /* RNAWSCognito.xcodeproj */,
-				ED987012B0284CDE9F8DFB1D /* ReactNativeConfig.xcodeproj */,
 				AA4D6F2CE2BB4CA0AEA6AB81 /* BugsnagReactNative.xcodeproj */,
 				02B515B63B614853BB04D64C /* RCTVideo.xcodeproj */,
 				2876191146ED4A668206288F /* RNFS.xcodeproj */,
@@ -760,7 +755,6 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
 					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 					"$(SRCROOT)/../node_modules/react-native-video/ios",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
@@ -788,7 +782,6 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-config/ios/ReactNativeConfig",
 					"$(SRCROOT)/../node_modules/bugsnag-react-native/cocoa/**",
 					"$(SRCROOT)/../node_modules/react-native-video/ios",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
