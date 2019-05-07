@@ -11,21 +11,17 @@ export default class DashboardFilters extends AbstractComponent {
     static styles = StyleSheet.create({
         itemContent: {
             flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
+            flexDirection: 'column',
             borderBottomWidth: 1,
             borderColor: Colors.InputBorderNormal,
             backgroundColor: Colors.FilterBar,
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
         },
-        filterContainer: {
-            borderBottomWidth: 1,
-            borderColor: Colors.InputBorderNormal,
-            backgroundColor: Colors.FilterBar,
-            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+        buttons: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent:"space-between"
         },
     });
 
@@ -33,30 +29,32 @@ export default class DashboardFilters extends AbstractComponent {
         return (
             <View>
                 <View style={DashboardFilters.styles.itemContent}>
-                    <View style={{flex: 1}}>
-                        <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>Date</Text>
-                        <DatePicker
-                            nonRemovable={true}
-                            actionName={Actions.ON_DATE}
-                            actionObject={this.props.date}
-                            pickTime={false}
-                            dateValue={this.props.date.value}/>
+                    <View style={DashboardFilters.styles.buttons}>
+                        <View>
+                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>Date</Text>
+                            <DatePicker
+                                nonRemovable={true}
+                                actionName={Actions.ON_DATE}
+                                actionObject={this.props.date}
+                                pickTime={false}
+                                dateValue={this.props.date.value}/>
+                        </View>
+                        <View style={{alignSelf: "flex-end"}}>
+                            <TouchableOpacity
+                                style={{
+                                    width: 80,
+                                    height: 30,
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: Colors.ActionButtonColor,
+                                    borderRadius: 3
+                                }}
+                                onPress={this.props.onPress}>
+                                <Text style={{color: Colors.TextOnPrimaryColor}}>FILTER</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                    <TouchableOpacity
-                        style={{
-                            width: 80,
-                            height: 30,
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: Colors.ActionButtonColor,
-                            borderRadius: 3
-                        }}
-                        onPress={this.props.onPress}>
-                        <Text style={{color: Colors.TextOnPrimaryColor}}>FILTER</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={DashboardFilters.styles.filterContainer}>
                     <AppliedFilters filters={this.props.filters} selectedLocations={this.props.selectedLocations}/>
                 </View>
             </View>

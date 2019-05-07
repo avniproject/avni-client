@@ -17,6 +17,7 @@ import {FilterActionNames} from "../../action/mydashboard/FiltersActions";
 import AddressLevels from "../common/AddressLevels";
 import _ from "lodash";
 import DatePicker from "../primitives/DatePicker";
+import Separator from "../primitives/Separator";
 
 
 @Path('/FilterView')
@@ -122,6 +123,7 @@ class FilterView extends AbstractComponent {
                                     })
                                 }}
                                 multiSelect={true}/>
+                            <Separator height={50}/>
                         </View>
                     </View>
                 </CHSContent>

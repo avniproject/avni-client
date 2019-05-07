@@ -19,6 +19,7 @@ class AddressVisitRow extends AbstractComponent {
     static styles = StyleSheet.create({
         container: {marginBottom: DGS.resizeHeight(25), marginTop: DGS.resizeHeight(16)},
         visitBlockContainer: {
+            marginTop : 20,
             flexDirection: 'row',
             flexWrap: 'nowrap',
             justifyContent: 'space-between',
@@ -44,12 +45,9 @@ class AddressVisitRow extends AbstractComponent {
                          title={_.has(numberObj, "label") ? numberObj.label : title}
                          number={numberObj.count}/>));
         return (
-            <View style={AddressVisitRow.styles.container}>
-                {this.props.address && <AddressHeader address={this.props.address}/>}
                 <View style={AddressVisitRow.styles.visitBlockContainer}>
                     {visitBlocks}
                 </View>
-            </View>
         );
     }
 }
