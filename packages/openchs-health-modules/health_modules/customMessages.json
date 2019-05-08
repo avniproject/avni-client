@@ -96,6 +96,7 @@
     "Hindu": "हिंदू",
     "Muslim": "मुस्लीम",
     "Christian": "ख्रिसचन",
+    "Bauddha" : "बुद्ध",
     "Sikh": "सिख",
     "Jain": "जैन",
     "Religion": "धर्म",
@@ -989,7 +990,24 @@
     "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?",
     "saveAndProceedEncounter": "जतन करा आणि {{enc}} वर जा",
     "saveAndEnrol": "प्रोग्राममध्ये जतन करा आणि नोंदणी करा",
-    "anotherRegistration": "दुसरी {{subject}} नोंदणी करा"
+    "anotherRegistration": "दुसरी {{subject}} नोंदणी करा",
+    "Do you want to conceive?":"तुला गर्भधारणा करायची आहे का?",
+    "What type of family do you stay in?": "आपण कोणत्या प्रकारच्या कुटुंबात रहात आहात?",
+    "Nuclear":"विभक्त",
+    "Joint":"संयुक्त",
+    "Cell Number":"भ्रमणध्वनी क्रमांक",
+    "Total members in the family":"कुटुंबातील एकूण सदस्य",
+    "What is level of your education?":"तुमच्या शिक्षणाची पातळी काय आहे?",
+    "What was your age at marriage?":"लग्नात तुझे वय काय होते?",
+    "Did you marry within relation?":"आपण संबंध आत ​​लग्न केले?",
+    "Counsel her about effects of consanguineous marrriage and congenital anomalies" : "एकरक्तसंबंधी विवाह आणि जन्मजात विसंगती यांच्या प्रभावांबद्दल सल्ला घ्या",
+    "Counsel her to delay pregnancy by using contraceptives as age is less than 20":"गर्भधारणेचा वापर करून गर्भधारणेस विलंब करावा यासाठी वय 20 वर्षांपेक्षा कमी आहे",
+    "Counsel her and refer her to PHC RH CH for further investigations and treatment as age is greater than 30":
+    "तिचा सल्ला घ्या आणि पुढील तपास आणि उपचारांसाठी वय 30 पेक्षा जास्त असल्याच्या रूपात तिला पीएचसी आरएच सीएचकडे पहा",
+    "What is your occupation?": "काय काम करतात?",
+    "Family Income (in Rs.)": "कौटुंबिक उत्पन्न (रु.)",
+    "Age is outside range 15-49 yrs":"वय 15-49 वर्षे बाह्य आहे"
+
   },
   "en": {
     "LOGIN": "Login",
@@ -1145,7 +1163,10 @@
     "IHMP ASHA counselling during every contact post 8th month": "Counselling during every contact post 8th month\n✓Use FP card number 7 and 10 - Counsel pregnant woman to start using FP method such as condom, Copper T, or sterlization operation immediatly after delivery",
     "IHMP Diarrohea Counselling": "✓Give mother ORS \n✓Counsel her how to prepare ORS at home \n✓Counsel her regarding hand washing and food hygiene",
     "IHMP NNC Exclusive breastfeeding counselling": "Use MCH card number 13 to counsel mother on immediate and exclusive breastfeeding, avoid all other top feeds including water unless there is failure of lactation.",
-    "IHMP NNC Low Weight Counselling": "Use MCH card number 11,12  and 13 - Counsel mother regarding cleanliness, keep neonate covered with warm cloths, cord care, breastfeeding every two hours, monitor weight of the child"
+    "IHMP NNC Low Weight Counselling": "Use MCH card number 11,12  and 13 - Counsel mother regarding cleanliness, keep neonate covered with warm cloths, cord care, breastfeeding every two hours, monitor weight of the child",
+    "UNICEF Preconception counselling for consanguineous marriage":"Counsel her about effects of consanguineous marrriage and congenital anomalies",
+    "UNICEF Preconception counselling for age less than 20":"Counsel her to delay pregnancy by using contraceptives as age is less than 20",
+    "UNICEF Preconception counselling for age greater than 30":"Counsel her and refer her to PHC/RH/CH for further investigations and treatment as age is greater than 30"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
@@ -1161,6 +1182,7 @@
     "Muslim": "મુસ્લિમ",
     "Sikh": "શીખ",
     "Christian": "ખ્રિસ્તી",
+    "Bauddha" : "બૌધ્ધ",
     "Jain": "જૈન",
     "ST": "ST",
     "SC": "SC",
@@ -1539,7 +1561,22 @@
     "Have you used Mitra helpline in last 3 months?": "શું તમે છેલ્લા 3 મહિનામાં મિત્ર હેલ્પલાઇન નો ઉપયોગ કર્યો છે?",
     "Used Mitra Helpline": "મિત્ર હેલ્પલાઇન નો ઉપયોગ",
     "Are you satisfied with the counseling service provided through helpline?": "શું તમે હેલ્પલાઇન દ્વારા પૂરી પાડવામાં આવતી સલાહ સેવાથી સંતુષ્ટ છો?",
-    "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ"
+    "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ",
+    "Do you want to conceive?":"क्या आप गर्भधारण करना चाहती हैं?",
+    "What type of family do you stay in?": "તમે કયા પ્રકારનાં કુટુંબમાં રહો છો?",
+    "Nuclear":"વિભક્ત",
+    "Joint":"સંયુક્ત",
+    "Cell Number":"મોબાઇલ નંંબર",
+    "Total members in the family":"પરિવારમાં કુલ સભ્યો",
+    "What is level of your education?":"તમારી શિક્ષણનું સ્તર શું છે?",
+    "What was your age at marriage?":"લગ્નમાં તમારી ઉંમર શું હતી?",
+    "Did you marry within relation?":"તમે સંબંધમાં લગ્ન કર્યા હતા?",
+    "Counsel her about effects of consanguineous marrriage and congenital anomalies" : "તેણીના સહાનુભૂતિના લગ્ન અને જન્મજાત ફેરફારોની અસરો વિશે સલાહ લો",
+    "Counsel her to delay pregnancy by using contraceptives as age is less than 20":"ગર્ભનિરોધકનો ઉપયોગ કરીને ગર્ભાવસ્થામાં વિલંબ કરવા માટે સલાહ આપો કારણ કે ઉંમર 20 થી ઓછી છે",
+    "Counsel her and refer her to PHC RH CH for further investigations and treatment as age is greater than 30":
+    "તેની સલાહ લો અને તેને વધુ તપાસ અને સારવાર માટે પી.એચ.સી. આર.એચ.એચ.ચ.એચ.નો સંદર્ભ લો કારણ કે ઉંમર 30 કરતા વધારે છે",
+    "Family Income (in Rs.)": "કૌટુંબિક આવક (રૂપિયામાં)",
+    "Age is outside range 15-49 yrs":"ઉંમર 15 થી 49 વર્ષની ઉંમરની બહાર છે"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
@@ -1984,6 +2021,7 @@
     "Child was first breast fed": "बच्चे को पहले स्तनपान किया गया था",
     "Childbirth / Puerperium": "बच्चे का जन्म  / प्रसवोत्तर पहला ६ हफ़्ता",
     "Christian": "क्रिस्चियन",
+    "Bauddha" : "बुद्ध",
     "Cleft Lip": "कटा हुआ होंठ",
     "Cleft Palate": "फांक हुआ  तालु",
     "Clinical advice": "रोग विषयक परामर्श",
@@ -2909,6 +2947,22 @@
     "Which other facility was pregnancy care received from?": "गर्भावस्था देखभाल कौन सी अन्य संस्था से प्राप्त हुई थी?",
     "Which other facility was weighing service availed from?": "किस अन्य संस्था से वज़न लिया था?",
     "Which other family planning methods are being used?": "कौन सी अन्य परिवार नियोजन विधियों का उपयोग किया जा रहा है?",
-    "Area": "क्षेत्र (एरिया)"
+    "Area": "क्षेत्र (एरिया)",
+    "Do you want to conceive?":"क्या आप गर्भधारण करना चाहती हैं?",
+    "What type of family do you stay in?": "आप किस प्रकार के परिवार में रहते हैं?",
+    "Nuclear":"एकल",
+    "Joint":"संयुक्त",
+    "Cell Number":"मोबाइल नम्बर",
+    "Total members in the family":"परिवार में कुल सदस्य",
+    "What is level of your education?":"आपकी शिक्षा का स्तर क्या है",
+    "What was your age at marriage?":"शादी में आपकी उम्र क्या थी?",
+    "Did you marry within relation?":"क्या आपने रिश्तेदारी में शादी की?",
+    "Counsel her about effects of consanguineous marrriage and congenital anomalies" : "परामर्श उसे वैवाहिक विवाह और जन्मजात विसंगतियों के प्रभावों के बारे में बताता है",
+    "Counsel her to delay pregnancy by using contraceptives as age is less than 20":"गर्भनिरोधक का उपयोग करके गर्भावस्था में देरी करने के लिए उसकी सलाह लें क्योंकि उम्र 20 से कम है",
+    "Counsel her and refer her to PHC RH CH for further investigations and treatment as age is greater than 30":
+    "उसकी काउंसलिंग करें और उसे आगे की जांच और उपचार के लिए PHC RH CH में रेफर करें क्योंकि उम्र 30 से अधिक है",
+    "Family Income (in Rs.)": "पारिवारिक आय (रु। में)",
+    "Age is outside range 15-49 yrs":"आयु सीमा 15-49 वर्ष है"
+
   }
 }
