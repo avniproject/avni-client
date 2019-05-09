@@ -66,7 +66,7 @@
   "confirm": "कन्फर्म",
   "generalHistory": "सामान्य विवरन",
   "noEncounters": "कोई विजिट नहीं",
-  "registration": "रजिसट्रेशन",
+  "registration": "{{type}} रजिसट्रेशन",
   "mandatory": "भरना अनिवार्य है",
   "enrolmentDate": "इंरोलमेंट तारीख",
   "exitDate": "निकास तारीख",
