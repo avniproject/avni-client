@@ -17,6 +17,7 @@ export class IndividualRegisterActions {
     }
 
     static onLoad(state, action, context) {
+        console.log('individual register actions load');
         const individual = _.isNil(action.individualUUID) ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
 
@@ -28,7 +29,7 @@ export class IndividualRegisterActions {
         //This will enable the value to be used in rules
         context.get(IdentifierAssignmentService).populateIdentifiers(state.form, new ObservationsHolder(individual.observations));
 
-        const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual);
+        const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual, action.workLists);
         IndividualRegisterActions.setAgeState(newState);
         return newState;
     }

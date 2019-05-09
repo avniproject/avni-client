@@ -10,8 +10,9 @@ describe('WorkList', () => {
         aSampleWorkItem = new WorkItem('0d3b8afa-6d4b-4e4b-9eb6-79467e3d9da4', WorkItem.type.REGISTRATION);
         anotherSampleWorkItem = new WorkItem("4f46533e-00b9-4e71-b0ab-75dd9996e481", WorkItem.type.PROGRAM_ENROLMENT,
             {
-                individualUUID: 'b05d37e5-4c1e-42a9-abd2-f9140695bcc9',
-                programEnrolmentUUID: 'a66b2503-7a73-480d-b4fd-c012fc1e8000'
+                subjectUUID: 'b05d37e5-4c1e-42a9-abd2-f9140695bcc9',
+                programEnrolmentUUID: 'a66b2503-7a73-480d-b4fd-c012fc1e8000',
+                programName: 'Mother Programme'
             });
         workList.addWorkItems(aSampleWorkItem, anotherSampleWorkItem);
     });

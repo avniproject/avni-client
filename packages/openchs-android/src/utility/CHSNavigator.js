@@ -25,25 +25,32 @@ import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
-import ProgramEnrolment from "openchs-models/src/ProgramEnrolment";
 import FilterView from "../views/filter/FiltersView";
+import {ProgramEnrolment, WorkItem} from "openchs-models";
+import ProgramService from "../service/program/ProgramService";
+import IndividualService from "../service/IndividualService";
+import ProgramEnrolmentService from "../service/ProgramEnrolmentService";
+import General from "./General";
 
 
 class CHSNavigator {
     static navigateToLoginView(source, allowSkipLogin, backFunction) {
-        TypedTransition.from(source).with({allowSkipLogin: allowSkipLogin, backFunction: backFunction}).to(LoginView, true, _.isNil(backFunction));
+        TypedTransition.from(source).with({
+            allowSkipLogin: allowSkipLogin,
+            backFunction: backFunction
+        }).to(LoginView, true, _.isNil(backFunction));
     }
 
     static navigateToLandingView(source, replace, props) {
         TypedTransition.from(source).with(props).to(LandingView, true, replace);
     }
 
-    static navigateToProgramEnrolmentView(source, enrolment, backFunction, editing=false) {
-        if(ProgramEnrolmentView.canLoad({enrolment}, source)) {
+    static navigateToProgramEnrolmentView(source, enrolment, workLists, editing = false) {
+        if (ProgramEnrolmentView.canLoad({enrolment}, source)) {
             TypedTransition.from(source).with({
                 enrolment: enrolment,
-                backFunction: backFunction,
-                editing
+                editing,
+                workLists
             }).to(ProgramEnrolmentView, true);
         }
     }
@@ -61,7 +68,7 @@ class CHSNavigator {
         }
     }
 
-    static navigateToExitProgram(source, enrolment, editing=false) {
+    static navigateToExitProgram(source, enrolment, editing = false) {
         TypedTransition.from(source).with({enrolment: enrolment, editing}).to(ProgramExitView);
     }
 
@@ -73,42 +80,47 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter, editing=false, encounterTypeName, enrolmentUUID, message) {
-        TypedTransition.from(source).with({programEncounter: programEncounter, editing, encounterTypeName, enrolmentUUID, message}).to(ProgramEncounterView);
+    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message) {
+        TypedTransition.from(source).with({
+            programEncounter: programEncounter,
+            editing,
+            encounterTypeName,
+            enrolmentUUID,
+            message
+        }).to(ProgramEncounterView);
     }
 
     static navigateToChecklistItemView(source, checklistItem) {
         TypedTransition.from(source).with({checklistItem: checklistItem}).to(ChecklistItemView);
     }
 
-    static navigateToProgramEncounterCancelView(source, programEncounter, editing=false) {
+    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false) {
         TypedTransition.from(source).with({programEncounter: programEncounter, editing}).to(ProgramEncounterCancelView);
     }
 
     static navigateToIndividualRegistrationDetails(source, individual, backFunction) {
-        TypedTransition.from(source).with({individualUUID: individual.uuid, backFunction: backFunction}).to(IndividualRegistrationDetailView);
+        TypedTransition.from(source).with({
+            individualUUID: individual.uuid,
+            backFunction: backFunction
+        }).to(IndividualRegistrationDetailView);
     }
 
-    static navigateToRegisterView(source, uuid, stitches, subjectType, message) {
-        const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
+    static navigateToRegisterView(source, workLists, message) {
+        const workItem = workLists.getCurrentWorkItem();
+        const uuid = workItem.parameters.uuid;
+        const target = workItem.parameters.subjectTypeName === 'Individual' ? IndividualRegisterView : SubjectRegisterView;
         if (target.canLoad({uuid}, source)) {
             TypedTransition.from(source).with({
                 subjectUUID: uuid,
                 individualUUID: uuid,
                 editing: !_.isNil(uuid),
-                stitches,
+                workLists,
                 message
             }).to(target)
         }
     }
 
-    static validateAndNavigate(parent, target, args, onSuccess) {
-        if (target.canLoad(args, parent)) {
-            onSuccess();
-        }
-    }
-
-    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing=false) {
+    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing = false) {
         TypedTransition.from(source).bookmark().with({
             encounter: encounter,
             individualUUID: individualUUID,
@@ -116,30 +128,30 @@ class CHSNavigator {
         }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, message) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
                 .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
                     ProgramEnrolmentDashboardView, {individualUUID: encounter.individual.uuid, message}, true,);
         };
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, null, message);
+        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, workListState, message);
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, saveAndProceed, message) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message) {
         TypedTransition.from(source).with({
-            form: form,
-            decisions: decisions,
-            individual: individual,
-            saveActionName: saveActionName,
-            onSaveCallback: onSaveCallback,
-            observations: observations,
-            validationErrors: ruleValidationErrors,
-            headerMessage: headerMessage,
+            form,
+            decisions,
+            individual,
+            saveActionName,
+            onSaveCallback,
+            observations,
+            validationErrors,
+            headerMessage,
             checklists: _.isNil(checklists) ? [] : checklists,
             nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits,
-            saveAndProceed: saveAndProceed,
-            message: message,
+            message,
+            workListState
         }).to(SystemRecommendationView, true);
     }
 
@@ -174,7 +186,10 @@ class CHSNavigator {
     }
 
     static navigateToAddRelativeView(source, individual, onSaveCallback) {
-        TypedTransition.from(source).with({individual: individual, onSaveCallback: onSaveCallback}).to(IndividualAddRelativeView, true);
+        TypedTransition.from(source).with({
+            individual: individual,
+            onSaveCallback: onSaveCallback
+        }).to(IndividualAddRelativeView, true);
     }
 
     static navigateToFamilyDashboardView(source, familyUUID) {
@@ -189,51 +204,86 @@ class CHSNavigator {
         TypedTransition
             .from(recommendationsView)
             .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
-                ProgramEnrolmentDashboardView, {individualUUID, message: recommendationsView.I18n.t("registrationSavedMsg")}, true,);
+                ProgramEnrolmentDashboardView, {
+                    individualUUID,
+                    message: recommendationsView.I18n.t("registrationSavedMsg")
+                }, true,);
     }
 
-    static navigateToRegistrationThenProgramEnrolmentView(source, program, goBackTo, subjectType) {
-        CHSNavigator.navigateToRegisterView(source, null, {
-            registrationType: `REG_ENROL_DISPLAY-${program.programSubjectLabel}`,
-            label: source.I18n.t('saveAndEnrol'),
-            fn: recommendationView => {
-                TypedTransition
-                    .from(goBackTo)
-                    .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView],
-                        [ProgramEnrolmentDashboardView, ProgramEnrolmentView], [{individualUUID: recommendationView.props.individual.uuid}, {enrolment: ProgramEnrolment.createEmptyInstance({individual: recommendationView.props.individual, program}),message: source.I18n.t('registrationSavedMsg')}], true);
+    static performNextWorkItemFromRecommendationsView(recommendationsView, workListState, context) {
+        const nextWorkItem = workListState.getNextWorkItem();
+        switch (nextWorkItem.type) {
+            case WorkItem.type.REGISTRATION: {
+                TypedTransition.from(recommendationsView)
+                    .resetStack([
+                            SystemRecommendationView,
+                            IndividualRegisterFormView,
+                            IndividualRegisterView,
+                            SubjectRegisterView,
+                            ProgramEncounterView,
+                            ProgramEnrolmentView
+                        ],
+                    );
+                CHSNavigator.navigateToRegisterView(recommendationsView, workListState.workLists);
+                break;
             }
-        }, subjectType);
-    }
-
-    static navigateToRegistration(source, subjectType) {
-        const stitches = {label: source.I18n.t('saveAndAnotherRegistration', {subject: subjectType.name})};
-        const target = subjectType.isIndividual() ? IndividualRegisterView : SubjectRegisterView;
-        stitches.fn = (recommendationsView) => {
-            if (target.canLoad({customMessage: 'NotEnoughIdForAnotherRegistration'}, recommendationsView)) {
-                TypedTransition
-                    .from(recommendationsView)
-                    .resetStack([SystemRecommendationView, IndividualRegisterFormView],
-                        target, {params: {stitches}, message: source.I18n.t('registrationSavedMsg')}, true);
-            } else {
-                CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, recommendationsView.individual.uuid);
+            case WorkItem.type.PROGRAM_ENROLMENT: {
+                const individual = context.getService(IndividualService).findByUUID(nextWorkItem.parameters.subjectUUID);
+                const program = context.getService(ProgramService).allPrograms().find((program) => program.name === nextWorkItem.parameters.programName);
+                const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
+                TypedTransition.from(recommendationsView)
+                    .resetStack([
+                            SystemRecommendationView,
+                            IndividualRegisterFormView,
+                            IndividualRegisterView,
+                            SubjectRegisterView,
+                            ProgramEncounterView,
+                            ProgramEnrolmentView
+                        ],
+                        [ProgramEnrolmentDashboardView, ProgramEnrolmentView],
+                        [{individualUUID: nextWorkItem.parameters.subjectUUID},
+                            {
+                                enrolment: enrolment,
+                                workLists: workListState.workLists,
+                                message: recommendationsView.I18n.t('registrationSavedMsg')}], true);
+                break;
             }
-        };
-        CHSNavigator.navigateToRegisterView(source, null, stitches, subjectType);
+            case WorkItem.type.PROGRAM_ENCOUNTER: {
+                const enrolment = context.getService(ProgramEnrolmentService).findByUUID(nextWorkItem.parameters.programEnrolmentUUID);
+                TypedTransition.from(recommendationsView)
+                    .resetStack([
+                            SystemRecommendationView,
+                            IndividualRegisterFormView,
+                            IndividualRegisterView,
+                            SubjectRegisterView,
+                            ProgramEncounterView,
+                            ProgramEnrolmentView
+                        ],
+                        [ProgramEnrolmentDashboardView, ProgramEncounterView],
+                        [{individualUUID: nextWorkItem.parameters.subjectUUID},
+                            {params: {
+                                enrolmentUUID: enrolment.uuid,
+                                encounterType: nextWorkItem.parameters.encounterType,
+                                workLists: workListState.workLists,
+                                message: recommendationsView.I18n.t('registrationSavedMsg')}}], true);
+                break;
+            }
+            default: {
+                General.logError('CHSNavigator', 'Cannot navigate to this work item. Resetting view.');
+                TypedTransition.from(recommendationsView)
+                    .resetStack([
+                            SystemRecommendationView,
+                            IndividualRegisterFormView,
+                            IndividualRegisterView,
+                            SubjectRegisterView,
+                            ProgramEncounterView,
+                            ProgramEnrolmentView
+                        ]);
+            }
+        }
     }
 
-    static navigateToScheduledProgramEncounterView(source, encounterTypeName, savingEntity, isEnrolment) {
-        const enrolmentUUID = isEnrolment? savingEntity.uuid: savingEntity.programEnrolment.uuid;
-        const message = isEnrolment?
-            source.I18n.t('programSavedProceedEncounterMsg', {program : savingEntity.program.name}):
-            source.I18n.t('encounterSavedProceedEncounterMsg', {encounter: savingEntity.name || savingEntity.encounterType.name});
-
-        TypedTransition
-            .from(source)
-            .resetStack([SystemRecommendationView, ProgramEncounterView, ProgramEnrolmentView],
-                ProgramEncounterView, {params:{encounterTypeName, enrolmentUUID, message,editing:false}}, true);
-    }
-
-    static navigateToFirstPage(source, itemsToBeRemoved){
+    static navigateToFirstPage(source, itemsToBeRemoved) {
         TypedTransition.from(source)
             .resetStack(itemsToBeRemoved, null)
     }

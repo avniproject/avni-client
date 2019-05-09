@@ -68,6 +68,9 @@ import SubjectType from "./src/SubjectType";
 import SyncTelemetry from "./src/SyncTelemetry";
 import IdentifierSource from './src/IdentifierSource';
 import IdentifierAssignment from './src/IdentifierAssignment';
+import WorkList from './src/application/WorkList';
+import WorkLists from './src/application/WorkLists';
+import WorkItem from './src/application/WorkItem';
 
 export {
     AbstractEncounter,
@@ -140,4 +143,8 @@ export {
     SyncTelemetry,
     IdentifierSource,
     IdentifierAssignment,
+
+    WorkLists,
+    WorkList,
+    WorkItem,
 }

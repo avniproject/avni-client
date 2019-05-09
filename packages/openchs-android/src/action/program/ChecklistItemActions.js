@@ -1,7 +1,7 @@
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import ChecklistItemState from "./ChecklistItemState";
+import ChecklistItemState from "../../state/ChecklistItemState";
 import {ChecklistItem} from "openchs-models";
 import ChecklistService from "../../service/ChecklistService";
 

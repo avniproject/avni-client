@@ -1,15 +1,15 @@
-import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from "lodash";
 import Path from "../framework/routing/Path";
-import {Button, Icon as NBIcon} from "native-base";
+import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SettingsView from "./settings/SettingsView";
 import SyncService from "../service/SyncService";
-import {EntityMetaData, SubjectType} from 'openchs-models';
+import {EntityMetaData, SubjectType, WorkLists, WorkList} from "openchs-models";
 import EntityService from "../service/EntityService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
@@ -51,7 +51,13 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {syncing: false, error: false, isConnected: true, displayActionSelector: false, hideRegister:context.getService(UserInfoService).getUserSettings().hideRegister};
+        this.state = {
+            syncing: false,
+            error: false,
+            isConnected: true,
+            displayActionSelector: false,
+            hideRegister: context.getService(UserInfoService).getUserSettings().hideRegister
+        };
         this.createStyles();
         this.renderSyncModal = this.renderSyncModal.bind(this);
     }
@@ -263,13 +269,18 @@ class MenuView extends AbstractComponent {
         }
         const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
         const registrationAction = {
-            fn: () => CHSNavigator.navigateToRegistration(this, subjectType),
-            label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
+            fn: () => CHSNavigator.navigateToRegisterView(this,
+                new WorkLists(new WorkList(this.I18n.t(`REG_DISPLAY-${subjectType.name}`)).withRegistration(subjectType.name))),
+        label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         };
         const programActions = this.context.getService(ProgramService).findAll().map(program => ({
-            fn: () => CHSNavigator.navigateToRegistrationThenProgramEnrolmentView(this, program, this, subjectType),
-            label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
+            fn: () => CHSNavigator.navigateToRegisterView(this,
+                new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
+                    .withRegistration(subjectType.name)
+                    .withEnrolment(program.name)
+                )),
+        label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
             backgroundColor: program.colour,
         }));
 

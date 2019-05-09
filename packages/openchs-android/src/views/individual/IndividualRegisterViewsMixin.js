@@ -10,8 +10,6 @@ class Mixin {
         if (view.scrollToTop)
             view.scrollToTop();
 
-        const {stitches} = view.props.params;
-
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const onSaveCallback = ((source) => {
@@ -19,11 +17,11 @@ class Mixin {
                 });
                 const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null, stitches);
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null, state.workListState);
             },
             movedNext: (state) => {
                 if (state.wizard.isFirstFormPage())
-                    TypedTransition.from(view).with({stitches}).to(IndividualRegisterFormView);
+                    TypedTransition.from(view).with({}).to(IndividualRegisterFormView);
             },
             validationFailed: (newState) => {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {

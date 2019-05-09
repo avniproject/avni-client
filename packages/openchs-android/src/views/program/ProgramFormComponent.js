@@ -13,7 +13,7 @@ import WizardButtons from "../common/WizardButtons";
 import {PrimitiveValue, ProgramEnrolment} from 'openchs-models';
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
-import ProgramEnrolmentState from '../../action/program/ProgramEnrolmentState';
+import ProgramEnrolmentState from '../../state/ProgramEnrolmentState';
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -39,7 +39,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
             movedNext: this.scrollToTop
         });

@@ -2,11 +2,12 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import _ from "lodash";
 import ConceptService from "../service/ConceptService";
-import {StaticFormElementGroup, Individual, ObservationsHolder, ValidationResult} from 'openchs-models';
+import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem} from "openchs-models";
+import General from "../utility/General";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
+    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
@@ -22,9 +23,9 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createLoadState(form, genders, individual) {
+    static createLoadState(form, genders, individual, workLists) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType);
+        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType, workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))));
         individualRegistrationState.form = form;
         return individualRegistrationState;
     }
@@ -40,6 +41,13 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.individualSubjectType = this.individualSubjectType.clone();
         super.clone(newState);
         return newState;
+    }
+
+    getWorkContext() {
+        return {
+            subjectTypeName: "Individual",
+            subjectUUID: this.individual.uuid,
+        };
     }
 
     get observationsHolder() {

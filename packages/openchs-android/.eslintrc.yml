@@ -1,0 +1,32 @@
+extends: airbnb
+parser: babel-eslint
+
+plugins:
+  - react
+
+env:
+  jest: true
+  jasmine: true
+
+globals:
+  render: false
+  shallow: false
+
+rules:
+  # ignores
+  no-else-return: 0
+  no-confusing-arrow: 0
+  import/no-unresolved: 0
+  no-spaced-func: 0
+  arrow-body-style: 0
+
+  # warnings
+  react/prefer-stateless-function: 1
+
+  # errors
+  react/prop-types: 1
+  object-property-newline: 0
+  no-undefined: 2
+  no-unused-vars:
+    - 2
+    - varsIgnorePattern: '^_[a-z0-9]+'

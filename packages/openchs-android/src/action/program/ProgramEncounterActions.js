@@ -1,10 +1,10 @@
-import ProgramEncounterState from "./ProgramEncounterState";
+import ProgramEncounterState from "../../state/ProgramEncounterState";
 import FormMappingService from "../../service/FormMappingService";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {ProgramEncounter, Form, Point} from 'openchs-models';
+import {ProgramEncounter, Form, Point, WorkList, WorkLists} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
@@ -45,7 +45,12 @@ class ProgramEncounterActions {
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
-        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses);
+        const workLists = action.workLists || new WorkLists(new WorkList('Enrolment').withEncounter({
+            encounterType: action.programEncounter.encounterType.name,
+            subjectUUID: action.programEncounter.programEnrolment.individual.uuid,
+            programName: action.programEncounter.programEnrolment.program.name,
+        }));
+        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
     }
 
     static onNext(state, action, context) {

@@ -5,8 +5,8 @@ import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
     }
@@ -28,6 +28,12 @@ class EncounterActionState extends AbstractDataEntryState {
         }
         super.clone(newState);
         return newState;
+    }
+
+    getWorkContext() {
+        return {
+            subjectUUID: this.encounter.individual.uuid,
+        };
     }
 
     get observationsHolder() {

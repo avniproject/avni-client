@@ -21,6 +21,7 @@ export class SubjectRegisterActions {
     };
 
     static onLoad(state, action, context) {
+        console.log('subject register actions');
         let isNewEntity = _.isNil(action.subjectUUID);
         const subject = isNewEntity ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.subjectUUID);
@@ -44,7 +45,7 @@ export class SubjectRegisterActions {
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
 
-        return SubjectRegistrationState.createOnLoad(subject, state.form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses);
+        return SubjectRegistrationState.createOnLoad(subject, state.form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists);
     }
 
     static enterRegistrationDate(state, action) {

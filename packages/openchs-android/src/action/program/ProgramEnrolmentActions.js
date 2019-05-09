@@ -1,4 +1,4 @@
-import ProgramEnrolmentState from "./ProgramEnrolmentState";
+import ProgramEnrolmentState from "../../state/ProgramEnrolmentState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
@@ -41,7 +41,8 @@ export class ProgramEnrolmentActions {
                 action.usage,
                 action.enrolment,
                 isNewEnrolment,
-                filteredElements
+                filteredElements,
+                action.workLists
             );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);

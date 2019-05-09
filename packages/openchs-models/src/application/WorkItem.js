@@ -17,26 +17,24 @@ export default class WorkItem {
         assertTrue(id, 'Id is mandatory');
         this.id = id;
         this.type = type;
-        this.parameters = parameters;
+        this.parameters = parameters || {};
     }
 
     validate(){
         assertTrue(WorkItem.type[this.type], 'Work item must be one of WorkItem.type');
         if (this.type !== WorkItem.type.REGISTRATION) {
-            assertTrue(_.get(this.parameters, 'individualUUID'), this.wrapErrorMessage('individualUUID is mandatory'));
+            assertTrue(_.get(this.parameters, 'subjectUUID'), this.wrapErrorMessage('subjectUUID is mandatory'));
         }
         if (this.type === WorkItem.type.PROGRAM_ENROLMENT) {
             assertTrue(_.get(this.parameters, 'programName'), this.wrapErrorMessage('programName is mandatory'));
         }
 
         if (this.type === WorkItem.type.PROGRAM_ENCOUNTER) {
-            assertTrue(_.get(this.parameters, 'programName'), this.wrapErrorMessage('programName is mandatory'));
+            assertTrue(_.get(this.parameters, 'encounterType'), this.wrapErrorMessage('encounterType is mandatory'));
         }
     }
 
     wrapErrorMessage(message) {
-        let s = `Work Item id: ${this.id}, type: ${this.type}, parameters: ${JSON.stringify(this.parameters)}, errorMessage: ${message}`;
-        console.log(s);
-        return s;
+        return `Work Item id: ${this.id}, type: ${this.type}, parameters: ${JSON.stringify(this.parameters)}, errorMessage: ${message}`;
     }
 }

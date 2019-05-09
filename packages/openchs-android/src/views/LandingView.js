@@ -7,7 +7,6 @@ import MenuView from "./MenuView";
 import {Tabs, Tab,Text} from "native-base";
 import themes from "./primitives/themes";
 import CHSContainer from "./common/CHSContainer";
-import CHSContent from "./common/CHSContent";
 import {StatusBar} from "react-native";
 import Styles from "./primitives/Styles";
 import CHSNavigator from "../utility/CHSNavigator";

@@ -1,18 +1,15 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import _ from "lodash";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ProgramFormComponent from "./ProgramFormComponent";
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
-import {ProgramEnrolment} from 'openchs-models';
-import ProgramEnrolmentState from "../../action/program/ProgramEnrolmentState";
+import {ProgramEnrolment} from "openchs-models";
+import ProgramEnrolmentState from "../../state/ProgramEnrolmentState";
 import Reducers from "../../reducer";
 import General from "../../utility/General";
 import {ToastAndroid} from "react-native";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
-import EntityService from "../../service/EntityService";
-import Form from "openchs-models/src/application/Form";
 import FormMappingService from "../../service/FormMappingService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -44,7 +41,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         const editing = parent.context.getService(ProgramEnrolmentService).existsByUuid(enrolment.uuid);
         if (editing) return true;
         const identifierAssignmentService = parent.context.getService(IdentifierAssignmentService);
-        const entityService = parent.context.getService(EntityService);
+
         const form = parent.context.getService(FormMappingService).findFormForProgramEnrolment(enrolment.program);
         if (identifierAssignmentService.haveEnoughIdentifiers(form)) {
             return true;
@@ -54,7 +51,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage});
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage, workLists: this.props.workLists});
         return super.componentWillMount();
     }
 
@@ -70,7 +67,7 @@ class ProgramEnrolmentView extends AbstractComponent {
 
     previous() {
         this.state.wizard.isFirstPage() ? this.onBack() : this.dispatchAction(Actions.PREVIOUS);
-        
+
     }
 
     displayMessage(message) {
@@ -82,7 +79,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         this.displayMessage(this.props.message);
-        return <ProgramFormComponent editing={this.props.editing} state={this.state}
+        return <ProgramFormComponent editing={this.state.isNewEnrolment} state={this.state}
                                      context={ProgramEnrolmentView.usageContext} backFunction={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView])}
                                      previous={() => this.previous()}/>;
     }

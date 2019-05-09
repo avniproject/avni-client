@@ -22,9 +22,6 @@ import IndividualNameFormElement from "../form/formElement/IndividualNameFormEle
 import DateOfBirthAndAgeFormElement from "../form/formElement/DateOfBirthAndAgeFormElement";
 import GenderFormElement from "../form/formElement/GenderFormElement";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
-import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
-import EntityService from "../../service/EntityService";
-import Form from "openchs-models/src/application/Form";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 
@@ -45,11 +42,11 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     get registrationType() {
-        return _.get(this.props.params.stitches, 'registrationType', 'REG_DISPLAY-Individual');
+        return _.get(this, 'props.params.workLists.currentWorkList.name') || 'REG_DISPLAY-Individual';
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
+        this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID, workLists: this.props.params.workLists});
         super.componentWillMount();
     }
 

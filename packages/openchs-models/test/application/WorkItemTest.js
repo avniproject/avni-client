@@ -10,24 +10,24 @@ describe('WorkItem', () => {
         });
         new WorkItem(
             '185d334d-7a80-4b3b-8404-fdcba0e074b1',
-            WorkItem.type.ENCOUNTER, {individualUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc'});
+            WorkItem.type.ENCOUNTER, {subjectUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc'});
         new WorkItem(
             '185d334d-7a80-4b3b-8404-fdcba0e074b1',
             WorkItem.type.PROGRAM_ENROLMENT, {
-            individualUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc',
+            subjectUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc',
             programName: 'Mother Programme'
         });
         new WorkItem(
             '185d334d-7a80-4b3b-8404-fdcba0e074b1',
             WorkItem.type.PROGRAM_ENCOUNTER, {
-            individualUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc',
+            subjectUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc',
             programEnrolmentUUID: '88878496-45d9-4348-a5da-3255e1cfcfd8',
-            encounterTypeName: 'Child'
+            encounterType: 'Child'
         });
         new WorkItem(
             '185d334d-7a80-4b3b-8404-fdcba0e074b1',
             WorkItem.type.ENCOUNTER, {
-            individualUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc'
+            subjectUUID: '25479684-7ae4-44d8-bfd2-d5321dbc28bc'
         });
     });
 
@@ -42,11 +42,11 @@ describe('WorkItem', () => {
             '185d334d-7a80-4b3b-8404-fdcba0e074b1',
             WorkItem.type.PROGRAM_ENCOUNTER, {
             programEnrolmentUUID: '88878496-45d9-4348-a5da-3255e1cfcfd8',
-            encounterTypeName: 'Child'
+            encounterType: 'Child'
         }).validate();
         expect(workItemWithoutId).toThrow('Id is mandatory');
         expect(workItemWithoutType).toThrow('Work item must be one of WorkItem.type');
-        expect(encounterWithoutIndividual).toThrow('individualUUID is mandatory');
-        expect(programEncounterWithoutIndividual).toThrow('individualUUID is mandatory');
+        expect(encounterWithoutIndividual).toThrow('subjectUUID is mandatory');
+        expect(programEncounterWithoutIndividual).toThrow('subjectUUID is mandatory');
     })
 });

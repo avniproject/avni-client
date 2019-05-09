@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React from "react";
 import {View, Alert} from "react-native";
 import Path from "../../framework/routing/Path";
-import themes from "../primitives/themes";
 import IndividualProfile from "../common/IndividualProfile";
 import FamilyProfile from "../familyfolder/FamilyProfile";
 import {Text} from "native-base";
@@ -20,7 +19,6 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import {Individual} from 'openchs-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
-import moment from 'moment';
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualRegisterView from "../individual/IndividualRegisterView";
 import IndividualRegisterFormView from "../individual/IndividualRegisterFormView";
@@ -44,6 +42,7 @@ class SystemRecommendationView extends AbstractComponent {
         nextScheduledVisits: PropTypes.array,
         form: PropTypes.object,
         saveAndProceed: PropTypes.object,
+        workListState: PropTypes.object,
     };
 
     static styles = {
@@ -63,26 +62,18 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     get nextAndMore() {
-        if (this.props.saveAndProceed) {
-            return {
-                label: this.I18n.t(this.props.saveAndProceed.label),
-                func: () => this.save(() => this.props.saveAndProceed.fn(this)),
-                visible: this.props.validationErrors.length === 0,
-            }
-        }
-        const applicableScheduledVisit = this.props.nextScheduledVisits.find((visit) => {
-            return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
-        });
-        if (applicableScheduledVisit) {
-            return {
-                label: this.I18n.t('saveAndProceedEncounter', {enc: applicableScheduledVisit.name}),
-                func: () => this.save((savingEntity, isEnrolment) => {
-                    CHSNavigator.navigateToScheduledProgramEncounterView(this, applicableScheduledVisit.encounterType, savingEntity, isEnrolment);
-                }),
-                visible: this.props.validationErrors.length === 0,
-            };
-        }
-        return {}
+        let nextWorkItem = this.props.workListState.peekNextWorkItem();
+        if (!nextWorkItem) return {};
+
+        const workItemLabel = this.props.workListState.saveAndProceedButtonLabel(this.I18n);
+
+        return {
+            label: workItemLabel,
+            func: () => this.save(() => {
+                CHSNavigator.performNextWorkItemFromRecommendationsView(this, this.props.workListState, this.context);
+            }),
+            visible: this.props.validationErrors.length === 0,
+        };
     }
 
     save(cb) {

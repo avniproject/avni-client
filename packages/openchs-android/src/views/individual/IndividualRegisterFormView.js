@@ -33,7 +33,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     get registrationType() {
-        return _.get(this.props.params.stitches, 'registrationType', 'REG_DISPLAY-Individual');
+        return _.get(this.state, 'workListState.workLists.currentWorkList.name') || 'REG_DISPLAY-Individual';
     }
 
     onHardwareBackPress() {

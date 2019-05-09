@@ -1,12 +1,12 @@
-import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import Wizard from "../../state/Wizard";
+import AbstractDataEntryState from "./AbstractDataEntryState";
+import Wizard from "./Wizard";
 import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig} from "openchs-models";
-import ConceptService from "../../service/ConceptService";
+import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements) {
-        super([], formElementGroup, wizard, isNewEntity, filteredFormElements);
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists) {
+        super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.programEncounter = programEncounter;
     }
 
@@ -18,17 +18,25 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ProgramEncounter.schema.name;
     }
 
-    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses) {
+    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists) {
         const formElementGroupPageNumber = formElementGroup.displayOrder;
-        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, programEncounter, filteredFormElements);
+        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, programEncounter, filteredFormElements, workLists);
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
         return state;
     }
 
     clone() {
-        const programEncounterState = new ProgramEncounterState(this.formElementGroup, this.wizard.clone(), this.isNewEntity, this.programEncounter.cloneForEdit(), this.filteredFormElements);
+        const programEncounterState = super.clone(new ProgramEncounterState());
         programEncounterState.locationError = this.locationError;
+        programEncounterState.programEncounter = this.programEncounter;
         return programEncounterState;
+    }
+
+    getWorkContext() {
+        return {
+            subjectUUID: this.programEncounter.programEnrolment.individual.uuid,
+            programEnrolmentUUID: this.programEncounter.programEnrolment.uuid,
+        };
     }
 
     get observationsHolder() {

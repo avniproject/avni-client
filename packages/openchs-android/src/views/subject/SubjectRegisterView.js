@@ -56,12 +56,12 @@ class SubjectRegisterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {subjectUUID: this.props.params.subjectUUID});
+        this.dispatchAction(Actions.ON_LOAD, {subjectUUID: this.props.params.subjectUUID, workLists: this.props.params.workLists});
         return super.componentWillMount();
     }
 
     get registrationType() {
-        return _.get(this.props.params.stitches, 'registrationType', `REG_DISPLAY-${this.state.subject.subjectType.name}`);
+        return _.get(this, 'props.params.workLists.currentWorkList.name') || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
     }
 
     previous() {
@@ -81,7 +81,7 @@ class SubjectRegisterView extends AbstractComponent {
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null,null,null, this.props.params.stitches);
+                    null,null,null, state.workListState);
             },
             movedNext: this.scrollToTop
         });

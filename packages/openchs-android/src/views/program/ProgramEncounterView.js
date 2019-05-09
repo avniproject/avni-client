@@ -42,13 +42,13 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        const {encounterTypeName, enrolmentUUID, programEncounter} = this.props.params;
+        const {encounterType, enrolmentUUID, programEncounter, workLists} = this.props.params;
         if (programEncounter) {
-            this.dispatchAction(Actions.ON_LOAD, {programEncounter});
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists});
             return super.componentWillMount();
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
-            .findDueEncounter({encounterTypeName, enrolmentUUID})
+            .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType});
@@ -80,7 +80,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
             movedNext: this.scrollToTop
         });

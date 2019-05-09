@@ -1,8 +1,7 @@
-import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import {ProgramEnrolment, ObservationsHolder} from 'openchs-models';
+import AbstractDataEntryState from "./AbstractDataEntryState";
+import {ProgramConfig, ProgramEnrolment, ObservationsHolder} from 'openchs-models';
 import _ from 'lodash';
-import ConceptService from "../../service/ConceptService";
-import {  ProgramConfig  } from 'openchs-models';
+import ConceptService from "../service/ConceptService";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {
@@ -10,8 +9,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         Exit: 'Exit'
     };
 
-    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements) {
-        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements);
+    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists) {
+        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists);
         this.usage = usage;
         this.enrolment = enrolment;
         if (!_.isNil(enrolment)) {
@@ -35,6 +34,14 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         newState.usage = this.usage;
         newState.applicableObservationsHolder = new ObservationsHolder(this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);
         return newState;
+    }
+
+    getWorkContext() {
+        return {
+            subjectUUID: this.enrolment.individual.uuid,
+            programEnrolmentUUID: this.enrolment.uuid,
+            programName: this.enrolment.program.name,
+        };
     }
 
     get observationsHolder() {

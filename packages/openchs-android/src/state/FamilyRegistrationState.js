@@ -4,8 +4,8 @@ import _ from "lodash";
 import {Family, ObservationsHolder, StaticFormElementGroup} from 'openchs-models';
 
 class FamilyRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, genders, family, isNewEntity, filteredFormElements) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
+    constructor(validationResults, formElementGroup, wizard, genders, family, isNewEntity, filteredFormElements, workLists) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.genders = genders;
         this.family = family;
     }
@@ -31,6 +31,12 @@ class FamilyRegistrationState extends AbstractDataEntryState {
         newState.form = this.form;
         super.clone(newState);
         return newState;
+    }
+
+    getWorkContext() {
+        return {
+            familyUUID: this.family.uuid,
+        };
     }
 
     get observationsHolder() {

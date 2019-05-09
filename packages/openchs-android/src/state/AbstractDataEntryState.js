@@ -1,16 +1,18 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult} from 'openchs-models';
+import {BaseEntity, ValidationResult, WorkItem} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
 import Geo from "../framework/geo";
 import UserInfoService from "../service/UserInfoService";
+import WorkListState from "./WorkListState";
+import moment from "moment/moment";
 
 class AbstractDataEntryState {
     locationError;
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements) {
-        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {});
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists) {
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {}, workLists);
     }
 
     clone(newState) {
@@ -23,7 +25,12 @@ class AbstractDataEntryState {
         newState.wizard = _.isNil(this.wizard) ? this.wizard : this.wizard.clone();
         newState.formElementsUserState = this.formElementsUserState;
         newState.locationError = this.locationError;
+        newState.workListState = this.workListState;
         return newState;
+    }
+
+    getWorkContext() {
+        return {};
     }
 
     getEntity() {
@@ -105,6 +112,7 @@ class AbstractDataEntryState {
                 decisions = this.executeRule(ruleService, context);
                 checklists = this.getChecklists(ruleService, context);
                 nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
+                this.workListState = new WorkListState(this.updateWorkLists(this.workListState.workLists, nextScheduledVisits),() => this.getWorkContext());
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
@@ -119,6 +127,22 @@ class AbstractDataEntryState {
             if (_.isFunction(action.movedNext)) action.movedNext(this);
         }
         return this;
+    }
+
+    updateWorkLists(oldWorkLists, nextScheduledVisits) {
+        if (_.isEmpty(nextScheduledVisits)) return oldWorkLists;
+
+        const applicableScheduledVisit = nextScheduledVisits.find((visit) => {
+            return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
+        });
+        if (applicableScheduledVisit) {
+            oldWorkLists.currentWorkList.addWorkItems(
+                new WorkItem(
+                    General.randomUUID(),
+                    WorkItem.type.PROGRAM_ENCOUNTER,
+                    applicableScheduledVisit));
+        }
+        return oldWorkLists;
     }
 
     moveToLastPageWithFormElements(action, context) {
@@ -163,13 +187,14 @@ class AbstractDataEntryState {
         return [];
     }
 
-    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState, workLists) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
         this.isNewEntity = isNewEntity;
         this.filteredFormElements = filteredFormElements;
         this.formElementsUserState = formElementsUserState;
+        this.workListState = new WorkListState(workLists, () => this.getWorkContext());
     }
 
     hasNoFormElements() {

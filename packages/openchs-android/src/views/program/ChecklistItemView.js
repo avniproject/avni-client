@@ -54,7 +54,7 @@ class ChecklistItemView extends AbstractComponent {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.checklistItem.checklist.programEnrolment.individual.uuid, state.checklistItem.checklist.programEnrolment.uuid, true,null, `${this.I18n.t(state.checklistItem.checklist.detail.name)} ${this.I18n.t('saved')}`);
                 };
                 const headerMessage = `${this.I18n.t(state.checklistItem.checklist.programEnrolment.program.displayName)}, ${this.I18n.t(state.checklistItem.checklist.detail.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.checklistItem.checklist.programEnrolment.individual, state.checklistItem.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, state.checklistItem.detail.form);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.checklistItem.checklist.programEnrolment.individual, state.checklistItem.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, state.checklistItem.detail.form, null, null, null, state.workListState);
             },
             movedNext: this.scrollToTop
         });

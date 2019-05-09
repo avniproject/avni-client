@@ -1,5 +1,5 @@
-import {View, TouchableNativeFeedback, Alert} from "react-native";
 import PropTypes from 'prop-types';
+import {View, Alert, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -14,11 +14,9 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
-import EntityTypeSelector from "./EntityTypeSelector";
-import ProgramService from "../../service/program/ProgramService";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
-import {ProgramEnrolment} from "openchs-models";
+import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "openchs-models";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -53,7 +51,13 @@ class IndividualProfile extends AbstractComponent {
     }
 
     editProfile() {
-        CHSNavigator.navigateToRegisterView(this, this.props.individual.uuid, null, this.props.individual.subjectType);
+        CHSNavigator.navigateToRegisterView(this, new WorkLists(
+            new WorkList('Register',
+                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                    {
+                        uuid: this.props.individual.uuid,
+                        subjectTypeName: this.props.individual.subjectType.name
+                    })])));
     }
 
     renderViewEnrolmentsIfNecessary() {
@@ -63,9 +67,12 @@ class IndividualProfile extends AbstractComponent {
     }
 
 
-    programProfileHeading(){
-        return     this.props.individual.subjectType.isIndividual() ?
-            <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> : <Text style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+    programProfileHeading() {
+        return this.props.individual.subjectType.isIndividual() ?
+            <Text
+                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> :
+            <Text
+                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -89,10 +96,16 @@ class IndividualProfile extends AbstractComponent {
         General.logDebug('IndividualProfile', 'render');
         const programActions = this.state.eligiblePrograms.map(program => ({
             fn: () => {
-                const enrolment = ProgramEnrolment.createEmptyInstance();
-                enrolment.individual = this.props.individual;
-                enrolment.program = program;
-                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment);
+                const enrolment = ProgramEnrolment.createEmptyInstance({
+                    individual: this.props.individual,
+                    program: program
+                });
+                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, new WorkLists(new WorkList('Enrol', [
+                    new WorkItem(General.randomUUID(), WorkItem.type.PROGRAM_ENROLMENT, {
+                        programName: program.name,
+                        subjectUUID: this.props.individual.uuid
+                    })
+                ])));
             },
             label: program.displayName,
             backgroundColor: program.colour,
@@ -137,8 +150,8 @@ class IndividualProfile extends AbstractComponent {
                             <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
                         {this.props.viewContext === IndividualProfile.viewContext.Individual &&
-                            !this.props.individual.voided &&
-                            this.renderProfileActionButton('delete', 'void', () => this.voidIndividual())
+                        !this.props.individual.voided &&
+                        this.renderProfileActionButton('delete', 'void', () => this.voidIndividual())
                         }
                     </View>
                 </View>
@@ -180,16 +193,18 @@ class IndividualProfile extends AbstractComponent {
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(Actions.VOID_INDIVIDUAL, 
-                            { 
+                        this.dispatchAction(Actions.VOID_INDIVIDUAL,
+                            {
                                 individualUUID: this.props.individual.uuid,
-                                cb: () => {}
+                                cb: () => {
+                                }
                             },
                         );
                     }
                 },
                 {
-                    text: this.I18n.t('no'), onPress: () => {},
+                    text: this.I18n.t('no'), onPress: () => {
+                    },
                     style: 'cancel'
                 }
             ]

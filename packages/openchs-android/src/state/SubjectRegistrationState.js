@@ -7,8 +7,8 @@ import {  ValidationResult  } from 'openchs-models';
 import Geo from "../framework/geo";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements);
+    constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.subject = subject;
         this.subjectType = subjectType;
     }
@@ -21,7 +21,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses) {
+    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists) {
         const formElementGroupPageNumber = formElementGroup.displayOrder;
         let state = new SubjectRegistrationState(
             [],
@@ -30,7 +30,8 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             subject,
             isNewEntity,
             filteredFormElements,
-            subject.subjectType
+            subject.subjectType,
+            workLists
         );
         state.form = form;
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
@@ -45,6 +46,13 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.filteredFormElements = this.filteredFormElements;
         super.clone(newState);
         return newState;
+    }
+
+    getWorkContext() {
+        return {
+            subjectTypeName: this.subjectType.name,
+            subjectUUID: this.subject.uuid,
+        };
     }
 
     get observationsHolder() {
