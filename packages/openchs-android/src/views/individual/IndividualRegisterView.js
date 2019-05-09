@@ -70,11 +70,12 @@ class IndividualRegisterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         const editing = !_.isNil(this.props.params.individualUUID);
+        const title = this.I18n.t(`REG_ENROL_DISPLAY-${this.registrationType}`) + this.I18n.t('registration');
         {this.displayMessage(this.props.message)}
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}
+                    <AppHeader title={title}
                                func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView])}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,

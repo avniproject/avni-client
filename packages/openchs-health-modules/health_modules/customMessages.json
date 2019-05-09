@@ -989,7 +989,17 @@
     "Has the child passed meconium since birth?": "बाळाने जन्मानंतर शी केली ?",
     "saveAndProceedEncounter": "सेव्ह करा आणि {{enc}} वर जा",
     "saveAndEnrol": "सेव्ह करा आणि प्रोग्राममध्ये एनरॉल करा",
-    "saveAndAnotherRegistration": "सेव्ह करा आणि दुसरी {{subject}} नोंदणी करा"
+    "saveAndAnotherRegistration": "सेव्ह करा आणि दुसरी {{subject}} नोंदणी करा",
+    "REG_ENROL_DISPLAY-Individual": "Individual ",
+    "REG_ENROL_DISPLAY-Waterbody": "Waterbody ",
+    "REG_ENROL_DISPLAY-Adolescent": "किशोरवयीन ",
+    "REG_ENROL_DISPLAY-Child": "बाल ",
+    "REG_ENROL_DISPLAY-GDGS 2019": "GDGS 2019 ",
+    "REG_ENROL_DISPLAY-Mother": "आई ",
+    "REG_ENROL_DISPLAY-Phulwari": "Phulwari ",
+    "REG_ENROL_DISPLAY-Pregnancy": "गर्भधारणा ",
+    "REG_ENROL_DISPLAY-Sickle Cell Screening": "विळा सेल स्क्रीनिंग ",
+    "REG_ENROL_DISPLAY-Maternal Death": "माता मृत्यू "
   },
   "en": {
     "LOGIN": "Login",
@@ -1146,7 +1156,17 @@
     "IHMP Diarrohea Counselling": "✓Give mother ORS \n✓Counsel her how to prepare ORS at home \n✓Counsel her regarding hand washing and food hygiene",
     "IHMP NNC Exclusive breastfeeding counselling": "Use MCH card number 13 to counsel mother on immediate and exclusive breastfeeding, avoid all other top feeds including water unless there is failure of lactation.",
     "IHMP NNC Low Weight Counselling": "Use MCH card number 11,12  and 13 - Counsel mother regarding cleanliness, keep neonate covered with warm cloths, cord care, breastfeeding every two hours, monitor weight of the child",
-    "IHMP NNC Complication counselling": "Take neonate directly to the hospital within 24 hours,  or in case treatment is going on then continue it"
+    "IHMP NNC Complication counselling": "Take neonate directly to the hospital within 24 hours,  or in case treatment is going on then continue it",
+    "REG_ENROL_DISPLAY-Individual": "Individual ",
+    "REG_ENROL_DISPLAY-Waterbody": "Waterbody ",
+    "REG_ENROL_DISPLAY-Adolescent": "Adolescent ",
+    "REG_ENROL_DISPLAY-Child": "Child ",
+    "REG_ENROL_DISPLAY-GDGS 2019": "GDGS 2019 ",
+    "REG_ENROL_DISPLAY-Mother": "Mother ",
+    "REG_ENROL_DISPLAY-Phulwari": "Phulwari ",
+    "REG_ENROL_DISPLAY-Pregnancy": "Pregnancy ",
+    "REG_ENROL_DISPLAY-Sickle Cell Screening": "Sickle Cell Screening ",
+    "REG_ENROL_DISPLAY-Maternal Death": "Maternal Death "
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
@@ -1540,7 +1560,17 @@
     "Have you used Mitra helpline in last 3 months?": "શું તમે છેલ્લા 3 મહિનામાં મિત્ર હેલ્પલાઇન નો ઉપયોગ કર્યો છે?",
     "Used Mitra Helpline": "મિત્ર હેલ્પલાઇન નો ઉપયોગ",
     "Are you satisfied with the counseling service provided through helpline?": "શું તમે હેલ્પલાઇન દ્વારા પૂરી પાડવામાં આવતી સલાહ સેવાથી સંતુષ્ટ છો?",
-    "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ"
+    "Satisfied with Mitra counseling service": "હેલ્પલાઇન સેવાથી સંતુષ્ટ",
+    "REG_ENROL_DISPLAY-Individual": "Individual ",
+    "REG_ENROL_DISPLAY-Waterbody": "Waterbody ",
+    "REG_ENROL_DISPLAY-Adolescent": "કિશોર ",
+    "REG_ENROL_DISPLAY-Child": "બાળક ",
+    "REG_ENROL_DISPLAY-GDGS 2019": "GDGS 2019 ",
+    "REG_ENROL_DISPLAY-Mother": "મધર ",
+    "REG_ENROL_DISPLAY-Phulwari": "Phulwari ",
+    "REG_ENROL_DISPLAY-Pregnancy": "ગર્ભાવસ્થા ",
+    "REG_ENROL_DISPLAY-Sickle Cell Screening": "સિકલ સેલ સ્ક્રિનિંગ ",
+    "REG_ENROL_DISPLAY-Maternal Death": "માતાના મૃત્યુ "
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
@@ -2910,6 +2940,16 @@
     "Which other facility was pregnancy care received from?": "गर्भावस्था देखभाल कौन सी अन्य संस्था से प्राप्त हुई थी?",
     "Which other facility was weighing service availed from?": "किस अन्य संस्था से वज़न लिया था?",
     "Which other family planning methods are being used?": "कौन सी अन्य परिवार नियोजन विधियों का उपयोग किया जा रहा है?",
-    "Area": "क्षेत्र (एरिया)"
+    "Area": "क्षेत्र (एरिया)",
+    "REG_ENROL_DISPLAY-Individual": "Individual ",
+    "REG_ENROL_DISPLAY-Waterbody": "Waterbody ",
+    "REG_ENROL_DISPLAY-Adolescent": "किशोर ",
+    "REG_ENROL_DISPLAY-Child": "बच्चा ",
+    "REG_ENROL_DISPLAY-GDGS 2019": "GDGS 2019 ",
+    "REG_ENROL_DISPLAY-Mother": "मां ",
+    "REG_ENROL_DISPLAY-Phulwari": "फुलवारी ",
+    "REG_ENROL_DISPLAY-Pregnancy": "गर्भावस्था ",
+    "REG_ENROL_DISPLAY-Sickle Cell Screening": "सिकल सेल स्क्रीनिंग ",
+    "REG_ENROL_DISPLAY-Maternal Death": "मातृ मृत्यु "
   }
 }

@@ -77,7 +77,8 @@ class SubjectRegisterView extends AbstractComponent {
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.subject.uuid, null, true, null, this.I18n.t('registrationSavedMsg'));
                 };
-                const headerMessage = `${this.I18n.t('registration', {type: this.registrationType})} - ${this.I18n.t('summaryAndRecommendations')}`;
+                const registrationTitle = this.I18n.t(`REG_ENROL_DISPLAY-${this.registrationType}`) + this.I18n.t('registration');
+                const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
                     null,null,null, this.props.params.stitches);
             },
@@ -100,10 +101,11 @@ class SubjectRegisterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         {this.displayMessage(this.props.message)}
+        const title = this.I18n.t(`REG_ENROL_DISPLAY-${this.registrationType}`) + this.I18n.t('registration');
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref="scroll">
-                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}
+                    <AppHeader title={title}
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (

@@ -57,10 +57,11 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
+        const title = this.I18n.t(`REG_ENROL_DISPLAY-${this.registrationType}`) + this.I18n.t('registration');
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>
-                    <AppHeader title={this.I18n.t('registration', {type: this.registrationType})}
+                    <AppHeader title={title}
                                func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView])}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
