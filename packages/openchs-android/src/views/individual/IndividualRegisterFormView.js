@@ -32,7 +32,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     get registrationType() {
-        return _.get(this.props.params.stitches, 'registrationType', 'Individual');
+        return _.get(this.props.params.stitches, 'registrationType', 'REG_DISPLAY-Individual');
     }
 
     onHardwareBackPress() {
@@ -57,7 +57,7 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
-        const title = this.I18n.t(`REG_ENROL_DISPLAY-${this.registrationType}`) + this.I18n.t('registration');
+        const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         return (
             <CHSContainer theme={themes}>
                 <CHSContent ref='scroll'>

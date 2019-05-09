@@ -44,7 +44,7 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     get registrationType() {
-        return _.get(this.props.params.stitches, 'registrationType', 'Individual');
+        return _.get(this.props.params.stitches, 'registrationType', 'REG_DISPLAY-Individual');
     }
 
     componentWillMount() {
@@ -70,7 +70,7 @@ class IndividualRegisterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         const editing = !_.isNil(this.props.params.individualUUID);
-        const title = this.I18n.t(`REG_ENROL_DISPLAY-${this.registrationType}`) + this.I18n.t('registration');
+        const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         {this.displayMessage(this.props.message)}
         return (
             <CHSContainer theme={themes}>
