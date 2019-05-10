@@ -29,31 +29,6 @@ class MyDashboardView extends AbstractComponent {
         this.ds = new ListView.DataSource({rowHasChanged: () => false});
     }
 
-    static styles = StyleSheet.create({
-        container: {
-            marginRight: Distances.ScaledContentDistanceFromEdge,
-            marginLeft: Distances.ScaledContentDistanceFromEdge
-        },
-        filterButton: {
-            alignSelf: 'flex-end'
-        },
-        floatingButton: {
-            position: 'absolute',
-            width: 60,
-            height: 60,
-            alignItems: 'center',
-            justifyContent: 'center',
-            right: 30,
-            bottom: 30,
-            borderRadius: 150,
-            backgroundColor: Colors.AccentColor
-        },
-
-        floatingButtonIcon: {
-            color: Colors.TextOnPrimaryColor
-        }
-    });
-
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
         super.componentWillMount();
@@ -82,8 +57,17 @@ class MyDashboardView extends AbstractComponent {
         this.goBack();
     }
 
+    renderHeader() {
+        return <Text style={{
+            paddingTop: 10,
+            textAlign: 'center',
+            fontSize: 20,
+            color: Colors.DefaultPrimaryColor,
+        }}>Individuals</Text>
+    }
+
     render() {
-        const dataSource = this.ds.cloneWithRows(_.values(this.state.visits));
+        const dataSource = this.ds.cloneWithRows((this.state.visits));
         const date = this.state.date;
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
@@ -92,11 +76,17 @@ class MyDashboardView extends AbstractComponent {
                     <View>
                         <DashboardFilters date={date} filters={this.state.filters}
                                           selectedLocations={this.state.selectedLocations}
+                                          selectedPrograms={this.state.selectedPrograms}
+                                          selectedEncounterTypes={this.state.selectedEncounterTypes}
                                           onPress={() => CHSNavigator.navigateToFilterView(this, {
                                               applyFn: this._onApply.bind(this),
                                               filters: this.state.filters,
                                               locationSearchCriteria: this.state.locationSearchCriteria,
                                               addressLevelState: this.state.addressLevelState,
+                                              programs: this.state.programs,
+                                              selectedPrograms: this.state.selectedPrograms,
+                                              encounterTypes: this.state.encounterTypes,
+                                              selectedEncounterTypes: this.state.selectedEncounterTypes,
                                               onBack: this._onBack.bind(this),
                                               actionName: Actions.APPLY_FILTERS,
                                               filterDate: date
@@ -104,7 +94,7 @@ class MyDashboardView extends AbstractComponent {
                         <ListView dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
-                                  renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}
+                                  renderHeader={() => this.renderHeader()}
                                   renderRow={(rowData) => <AddressVisitRow address={rowData.address}
                                                                            visits={rowData.visits}
                                                                            backFunction={() => this.onBackCallback()}

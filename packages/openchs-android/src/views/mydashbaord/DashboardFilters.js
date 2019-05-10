@@ -1,11 +1,13 @@
-import {Text, View, StyleSheet, Button, TouchableOpacity} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity, DatePickerAndroid} from "react-native";
 import React from 'react';
-import DatePicker from "../primitives/DatePicker";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import Distances from "../primitives/Distances";
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import AppliedFilters from "../filter/AppliedFilters";
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import _ from "lodash";
+import General from "../../utility/General";
 
 export default class DashboardFilters extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -21,41 +23,62 @@ export default class DashboardFilters extends AbstractComponent {
         buttons: {
             flexDirection: "row",
             alignItems: "center",
-            justifyContent:"space-between"
+            justifyContent: "space-between",
+            paddingTop: 4,
         },
     });
 
+    dateDisplay(date) {
+        return _.isNil(date) ? this.I18n.t("chooseADate") : General.formatDate(date);
+    }
+
+    async showPicker(stateKey, options) {
+        const {action, year, month, day} = await DatePickerAndroid.open(options);
+        if (action !== DatePickerAndroid.dismissedAction) {
+            this.dispatchAction(Actions.ON_DATE, {value: new Date(year, month, day)});
+        }
+    }
+
     render() {
+        const iconStyle = {
+            color: Colors.ActionButtonColor,
+            opacity: 0.8,
+            alignSelf: 'center',
+            fontSize: 25
+        };
         return (
             <View>
                 <View style={DashboardFilters.styles.itemContent}>
                     <View style={DashboardFilters.styles.buttons}>
-                        <View>
-                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>Date</Text>
-                            <DatePicker
-                                nonRemovable={true}
-                                actionName={Actions.ON_DATE}
-                                actionObject={this.props.date}
-                                pickTime={false}
-                                dateValue={this.props.date.value}/>
-                        </View>
-                        <View style={{alignSelf: "flex-end"}}>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>As on date
+                                : {this.dateDisplay(this.props.date.value)}</Text>
                             <TouchableOpacity
-                                style={{
-                                    width: 80,
-                                    height: 30,
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: Colors.ActionButtonColor,
-                                    borderRadius: 3
-                                }}
-                                onPress={this.props.onPress}>
-                                <Text style={{color: Colors.TextOnPrimaryColor}}>FILTER</Text>
+                                onPress={this.showPicker.bind(this, 'simple', {
+                                    date: this.props.date.value,
+                                    mode: 'calendar'
+                                })}>
+                                <MCIIcon name={'calendar'} style={iconStyle}/>
                             </TouchableOpacity>
                         </View>
+                        <TouchableOpacity
+                            style={{
+                                width: 80,
+                                height: 30,
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: Colors.ActionButtonColor,
+                                borderRadius: 3
+                            }}
+                            onPress={this.props.onPress}>
+                            <Text style={{color: Colors.TextOnPrimaryColor}}>FILTER</Text>
+                        </TouchableOpacity>
                     </View>
-                    <AppliedFilters filters={this.props.filters} selectedLocations={this.props.selectedLocations}/>
+                    <AppliedFilters filters={this.props.filters}
+                                    selectedLocations={this.props.selectedLocations}
+                                    selectedPrograms={this.props.selectedPrograms}
+                                    selectedEncounterTypes={this.props.selectedEncounterTypes}/>
                 </View>
             </View>
         );

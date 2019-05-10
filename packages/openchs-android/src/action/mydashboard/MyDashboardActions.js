@@ -5,6 +5,7 @@ import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelState from '../common/AddressLevelsState';
+import FormMappingService from "../../service/FormMappingService";
 
 class MyDashboardActions {
     static getInitialState() {
@@ -15,10 +16,15 @@ class MyDashboardActions {
             showFilters: false,
             filters: new Map(),
             locationSearchCriteria: IndividualSearchCriteria.empty(),
-            encounterLocationFilters: [],
-            individualLocationFilters: [],
+            individualFilters: [],
+            encountersFilters: [],
+            enrolmentFilters: [],
             selectedLocations: [],
             addressLevelState: new AddressLevelState(),
+            programs: [],
+            selectedPrograms: [],
+            encounterTypes: [],
+            selectedEncounterTypes: [],
         };
     }
 
@@ -35,11 +41,15 @@ class MyDashboardActions {
         return [...filters.values()].map(f => f.orQuery()).filter((q) => !_.isEmpty(q)).join(" AND ");
     }
 
+    static orQuery(array) {
+        return array.length > 0 ? '( ' + array.join(' OR ') + ' )' : ''
+    }
+
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
+        const formMappingService = context.get(FormMappingService);
         const subjectType = entityService.getAll(SubjectType.schema.name)[0];
-        const results = {};
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
             const filterService = context.get(FilterService);
@@ -49,38 +59,72 @@ class MyDashboardActions {
         const addressUUIDs = state.locationSearchCriteria.getAllAddressLevelUUIDs();
         let individualLocationFilters = [];
         let encounterLocationFilters = [];
+        let enrolmentLocationFilters = [];
         addressUUIDs.forEach((addressLevel) => {
-            individualLocationFilters.push(`lowestAddressLevel.uuid = "${addressLevel}"`);
-            encounterLocationFilters.push(`programEnrolment.individual.lowestAddressLevel.uuid = "${addressLevel}"`)
+            individualLocationFilters.push(`lowestAddressLevel.uuid = \'${addressLevel}\'`);
+            encounterLocationFilters.push(`programEnrolment.individual.lowestAddressLevel.uuid = \'${addressLevel}\'`);
+            enrolmentLocationFilters.push(`individual.lowestAddressLevel.uuid = \'${addressLevel}\'`);
         });
-        const individualFilters = individualLocationFilters.length > 0 ? individualLocationFilters.join(" OR ") : undefined;
-        const encountersFilters = encounterLocationFilters.length > 0 ? encounterLocationFilters.join(" OR ") : undefined;
-        const queryAdditions = MyDashboardActions.queryAdditions(filters);
+        const visitQuery = _.isEmpty(state.selectedEncounterTypes) ?
+            _.flatten(state.selectedPrograms.map((program) => formMappingService.findEncounterTypesForProgram(program)))
+                .map((encounter) => `encounterType.uuid = \'${encounter.uuid}\'`) :
+            state.selectedEncounterTypes.map((encounter) => `encounterType.uuid = \'${encounter.uuid}\'`);
+
+        const selectedPrograms = _.map(state.selectedPrograms, (prog) => `program.uuid = \'${prog.uuid}\'`);
+        const individualFilters = MyDashboardActions.orQuery(individualLocationFilters);
+        const encountersFilters = [MyDashboardActions.orQuery(encounterLocationFilters), MyDashboardActions.orQuery(visitQuery)].filter(Boolean).join(" AND ");
+        const enrolmentFilters = [MyDashboardActions.orQuery(enrolmentLocationFilters), MyDashboardActions.orQuery(selectedPrograms)].filter(Boolean).join(" AND ");
+
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
-            allIndividualsWithCompletedVisits,
+            allIndividualsWithRecentlyCompletedVisits,
+            allIndividualsWithRecentRegistrations,
+            allIndividualsWithRecentEnrolments,
             allIndividuals] =
-            [individualService.allScheduledVisitsIn(state.date.value, queryAdditions, encountersFilters),
-                individualService.allOverdueVisitsIn(state.date.value, queryAdditions, encountersFilters),
-                individualService.allCompletedVisitsIn(state.date.value, queryAdditions, encountersFilters),
-                individualService.allIn(state.date.value, queryAdditions, individualFilters)
+            [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
+                individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
+                individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
+                individualService.recentlyRegistered(state.date.value, individualFilters),
+                individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
+                individualService.allIn(state.date.value, individualFilters)
             ].map(MyDashboardActions.applyFilters(filters));
-        let existingResultForAddress = {
+        let row1 = {
             visits: {
-                scheduled: {count: 0, abnormal: false},
-                overdue: {count: 0, abnormal: false},
-                completedVisits: {count: 0, abnormal: false},
+                scheduled: {count: 0, abnormal: false, visitInfo: {}},
+                overdue: {count: 0, abnormal: false, visitInfo: {}},
+            }
+        };
+        let row2 = {
+            visits: {
+                recentlyCompletedRegistration: {count: 0, abnormal: false, label: 'Recent Registration'},
+                recentlyCompletedEnrolment: {count: 0, abnormal: false, label: 'Recent Enrollment'},
+                recentlyCompletedVisits: {count: 0, abnormal: false, label: 'Recent Visits'},
+            }
+        };
+        let row3 = {
+            visits: {
                 total: {count: 0, abnormal: false}
             }
         };
-        existingResultForAddress.visits.scheduled.count = allIndividualsWithScheduledVisits.length;
-        existingResultForAddress.visits.overdue.count = allIndividualsWithOverDueVisits.length;
-        existingResultForAddress.visits.completedVisits.count = allIndividualsWithCompletedVisits.length;
-        existingResultForAddress.visits.total.count = allIndividuals.length;
-        results['33490f6b-21b7-462f-a356-daea14f4893e'] = existingResultForAddress;
+        row1.visits.scheduled.count = allIndividualsWithScheduledVisits.length;
+        row1.visits.scheduled.visitInfo = _.map(allIndividualsWithScheduledVisits, ({visitInfo}) => visitInfo);
+        row1.visits.overdue.count = allIndividualsWithOverDueVisits.length;
+        row1.visits.overdue.visitInfo = _.map(allIndividualsWithOverDueVisits, ({visitInfo}) => visitInfo);
+        row2.visits.recentlyCompletedVisits.count = allIndividualsWithRecentlyCompletedVisits.length;
+        row2.visits.recentlyCompletedRegistration.count = allIndividualsWithRecentRegistrations.length;
+        row2.visits.recentlyCompletedEnrolment.count = allIndividualsWithRecentEnrolments.length;
+        row3.visits.total.count = allIndividuals.length;
+
+        const results = [row1, row2, row3];
+
         return {
-            ...state, visits: results, filters: filters, subjectType: subjectType,
-            individualLocationFilters: individualFilters, encounterLocationFilters: encountersFilters
+            ...state,
+            visits: results,
+            filters: filters,
+            subjectType: subjectType,
+            individualFilters,
+            encountersFilters,
+            enrolmentFilters
         };
     }
 
@@ -89,13 +133,18 @@ class MyDashboardActions {
         const methodMap = new Map([
             ["scheduled", individualService.allScheduledVisitsIn],
             ["overdue", individualService.allOverdueVisitsIn],
-            ["completedVisits", individualService.allCompletedVisitsIn],
+            ["recentlyCompletedVisits", individualService.recentlyCompletedVisitsIn],
+            ["recentlyCompletedRegistration", individualService.recentlyRegistered],
+            ["recentlyCompletedEnrolment", individualService.recentlyEnrolled],
             ["total", individualService.allIn]
         ]);
-        const filters = action.listType === 'total' ? state.individualLocationFilters : state.encounterLocationFilters;
-        const queryAdditions = MyDashboardActions.queryAdditions(state.filters);
-        const allIndividuals = methodMap.get(action.listType)(state.date.value, queryAdditions, filters)
-            .map(({uuid}) => individualService.findByUUID(uuid));
+        const filters = action.listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
+            (action.listType === 'total' || action.listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
+        const allIndividuals = methodMap.get(action.listType)(state.date.value, filters)
+            .map((individual) => {
+                const ind = _.isNil(individual.visitInfo) ? individual : individual.individual;
+                return individualService.findByUUID(ind.uuid)
+            });
         return {
             ...state,
             individuals: {
@@ -140,6 +189,10 @@ class MyDashboardActions {
             selectedLocations: action.selectedLocations,
             addressLevelState: action.addressLevelState.clone(),
             date: {value: action.filterDate},
+            programs: action.programs,
+            selectedPrograms: action.selectedPrograms,
+            encounterTypes: action.encounterTypes,
+            selectedEncounterTypes: action.selectedEncounterTypes,
         };
         return MyDashboardActions.onLoad(newState, {}, context);
     }

@@ -18,6 +18,9 @@ import AddressLevels from "../common/AddressLevels";
 import _ from "lodash";
 import DatePicker from "../primitives/DatePicker";
 import Separator from "../primitives/Separator";
+import ProgramFilter from "../common/ProgramFilter";
+import ProgramService from "../../service/program/ProgramService";
+import FormMappingService from "../../service/FormMappingService";
 
 
 @Path('/FilterView')
@@ -32,6 +35,8 @@ class FilterView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.filterAction);
         this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
             [Filter.types.MultiSelect, MultiSelectFilter]]);
+        this.programService = context.getService(ProgramService);
+        this.formMappingService = context.getService(FormMappingService);
     }
 
     componentWillMount() {
@@ -40,6 +45,10 @@ class FilterView extends AbstractComponent {
             locationSearchCriteria: this.props.locationSearchCriteria,
             addressLevelState: this.props.addressLevelState,
             filterDate: this.props.filterDate,
+            programs: this.programService.allPrograms(),
+            selectedPrograms: this.props.selectedPrograms,
+            encounterTypes: this.props.encounterTypes,
+            selectedEncounterTypes: this.props.selectedEncounterTypes,
         });
         super.componentWillMount();
     }
@@ -92,8 +101,52 @@ class FilterView extends AbstractComponent {
             addressLevelState: this.state.addressLevelState,
             selectedLocations: this.state.addressLevelState.selectedAddresses,
             filterDate: this.state.filterDate.value,
+            programs: this.state.programs,
+            selectedPrograms: this.state.selectedPrograms,
+            encounterTypes: this.state.encounterTypes,
+            selectedEncounterTypes: this.state.selectedEncounterTypes,
         });
         this.goBack();
+    }
+
+    onVisitSelect(name, uuid) {
+        this.dispatchAction(FilterActionNames.ADD_VISITS, {encounterUUID: uuid})
+    }
+
+    onProgramSelect(name, uuid) {
+        const encounters = this.formMappingService.findEncounterTypesForProgram({uuid});
+        this.dispatchAction(FilterActionNames.LOAD_ENCOUNTERS, {encounters: encounters});
+        this.dispatchAction(FilterActionNames.ADD_PROGRAM, {programUUID: uuid});
+    }
+
+    renderProgramEncounterList() {
+        const programs = <ProgramFilter
+            onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
+            visits={this.state.programs}
+            multiSelect={true}
+            selectionFn={(uuid) => this.state.selectedPrograms.filter((prog) => prog.uuid === uuid).length > 0}
+            name={'Program'}/>;
+        const encounters = this.state.encounterTypes.length > 0 ? <ProgramFilter
+            onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
+            visits={this.state.encounterTypes}
+            multiSelect={true}
+            selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
+            name={'Visits'}/> : <View/>;
+
+        return <View style={{
+            marginTop: Styles.VerticalSpacingBetweenFormElements,
+            marginBottom: Styles.VerticalSpacingBetweenFormElements,
+        }}>
+            <View style={{
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: Colors.InputBorderNormal,
+                paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+            }}>
+                {programs}
+                {encounters}
+            </View>
+        </View>
     }
 
     render() {
@@ -115,6 +168,7 @@ class FilterView extends AbstractComponent {
                                     dateValue={this.state.filterDate.value}/>
                             </View>
                             {_.map(filters, (f, idx) => this.renderFilter(f, idx))}
+                            {this.renderProgramEncounterList()}
                             <AddressLevels
                                 addressLevelState={this.state.addressLevelState}
                                 onSelect={(addressLevelState) => {

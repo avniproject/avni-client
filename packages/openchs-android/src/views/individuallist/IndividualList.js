@@ -14,6 +14,8 @@ import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
+import SearchResultsHeader from "../individual/SearchResultsHeader";
+import _ from 'lodash';
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -88,30 +90,25 @@ class IndividualList extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
-        const visitType = this.I18n.t(this.props.params.listType);
-        const subjectTypeName = this.state.subjectType.name;
+        const dataSource = this.ds.cloneWithRows(this.state.individuals.data.slice(0, 50));
+        const visitType = this.I18n.t(this.props.params.cardTitle);
+        const visitInfo = this.props.params.visitInfo;
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
                     title={`${visitType}`}
                     func={this.props.params.backFunction}/>
+                <SearchResultsHeader totalCount={this.state.individuals.data.length}
+                                     displayedCount={this.state.individuals.data.slice(0, 50).length}/>
                 <CHSContent>
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
                         enableEmptySections={true}
-                        renderHeader={() => (
-                            <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
-                                {`${this.I18n.t("patientCountForVisitType", {
-                                    visitType: visitType,
-                                    count: this.state.individuals.data.length,
-                                    subjectTypeName: subjectTypeName
-                                })}`}
-                            </Text>)}
                         removeClippedSubviews={true}
                         dataSource={dataSource}
                         renderRow={(individual) => <IndividualDetails individual={individual}
+                                                                      visitInfo={_.filter(visitInfo, (visits) => visits.uuid === individual.uuid)}
                                                                       backFunction={() => this.onBackCallback()}/>}/>
                 </CHSContent>
             </CHSContainer>
