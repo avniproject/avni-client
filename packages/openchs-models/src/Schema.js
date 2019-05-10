@@ -276,7 +276,7 @@ export default {
         if(oldDB.schemaVersion < 102) {
             const programs = newDB.objects('Program');
             _.forEach(programs, program => {
-                program.programRegistrationLabel = program.operationalProgramName || program.name;
+                program.programSubjectLabel = program.operationalProgramName || program.name;
             });
         }
     }

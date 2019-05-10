@@ -194,7 +194,7 @@ class CHSNavigator {
 
     static navigateToRegistrationThenProgramEnrolmentView(source, program, goBackTo, subjectType) {
         CHSNavigator.navigateToRegisterView(source, null, {
-            registrationType: `REG_ENROL_DISPLAY-${program.programRegistrationLabel}`,
+            registrationType: `REG_ENROL_DISPLAY-${program.programSubjectLabel}`,
             label: source.I18n.t('saveAndEnrol'),
             fn: recommendationView => {
                 TypedTransition
