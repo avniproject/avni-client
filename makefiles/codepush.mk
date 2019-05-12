@@ -1,0 +1,23 @@
+# App Center: https://docs.microsoft.com/en-us/appcenter/distribution/codepush/cli
+# Code Push: https://github.com/Microsoft/react-native-code-push
+# Terminology. Organisation = Samanvay.
+# 	It can have multiple apps. Each app has an attribute which can be used for alpha, beta, etc.
+#	Each app has two deployments - staging and production. More deployments can be created depending the development team's workflow. Promotion is used to move them. A deployment can be rolledback.
+#	Each deployment has multiple releases.
+#	Each release can be patched
+
+codepush_help:
+	@echo "Before running any command you need to run codepush_setup target. For performing any operations with appcenter portal, you need to run 'appcenter login'. It will launch browser and guide you through the process."
+
+codepush_setup:
+	npm install -g appcenter-cli
+	appcenter apps set-current Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha
+
+codepush_deploy_to_internal_test:
+	appcenter codepush release-react -a Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha -d internal
+
+codepush_metrics:
+	appcenter codepush deployment list
+
+codepush_release_staging: ## Make parameters, version=APK Version
+	appcenter codepush release-react -d Staging

@@ -1,7 +1,0 @@
-- Form Stitching
-- Feedback to users when a form is saved
-- Auto ID generation
-- Spinner as date picker based on setting
-- Ability to hide register, enrolment, exit and unplanned visit based on setting
-- Sync progress bar
-- Other under the hood improvements

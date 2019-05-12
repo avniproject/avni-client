@@ -12,11 +12,11 @@
 default_platform(:android)
 
 platform :android do
-    lane :alpha_deploy do
-        gradle(
-            task: 'assemble',
-            build_type: 'Release'
-          )
-        upload_to_play_store(track: 'alpha')
+    lane :upload_to_internal_test do
+        upload_to_play_store(track: 'internal')
+    end
+
+    lane :upload_to_alpha do
+        upload_to_play_store(track: 'alpha', apk_paths: ["app/build/outputs/apk/release/app-x86-release.apk", "app/build/outputs/apk/release/app-arm64-v8a-release.apk","app/build/outputs/apk/release/app-armeabi-v7a-release.apk", "app/build/outputs/apk/release/app-x86_64-release.apk"])
     end
 end

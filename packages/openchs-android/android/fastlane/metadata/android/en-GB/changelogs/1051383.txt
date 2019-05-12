@@ -1,1 +1,0 @@
-Hide Register button based on setting

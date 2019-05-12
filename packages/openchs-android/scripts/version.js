@@ -1,0 +1,1 @@
+console.log(parseInt(1048576 * process.argv[3]) + parseInt(process.argv[2]));

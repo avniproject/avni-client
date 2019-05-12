@@ -1,5 +1,10 @@
 # Objects: env, apk, packager, app
 # <makefile>
+
+include makefiles/codepush.mk
+include makefiles/fastlane.mk
+include makefiles/androidDevice.mk
+
 help:
 	@IFS=$$'\n' ; \
 	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//'`); \
@@ -101,21 +106,40 @@ define _create_config
 	@echo "import config from \"../../config/env/$1.json\";export default config;" > packages/openchs-android/src/framework/Config.js
 endef
 
-release: ##
+release_clean:
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/android/app/build
 	rm -rf packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
+
+create_bundle:
 	cd packages/openchs-android; \
-    		react-native bundle \
-    			--platform android \
-    			--dev false \
-    			--entry-file index.android.js \
-    			--bundle-output android/app/src/main/assets/index.android.bundle \
-    			--assets-dest android/app/src/main/res/
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace
+		react-native bundle \
+			--platform android \
+			--dev false \
+			--entry-file index.android.js \
+			--bundle-output android/app/src/main/assets/index.android.bundle \
+			--assets-dest android/app/src/main/res/
+
+define _copy_release_notes
+	$(eval abiVersion:=$(shell node packages/openchs-android/scripts/version.js $(version) $1))
+	cp packages/openchs-android/android/fastlane/metadata/android/en-GB/source-changelog/$(version).txt packages/openchs-android/android/fastlane/metadata/android/en-GB/changelogs/$(abiVersion).txt
+endef
+
+define _copy_all_release_notes
+	$(call _copy_release_notes,1)
+	$(call _copy_release_notes,2)
+	$(call _copy_release_notes,3)
+	$(call _copy_release_notes,4)
+endef
+
+create_apk:
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace -w
+
+release: release_clean create_bundle create_apk
+	$(call _copy_all_release_notes)
 
 release_dev: ##
 	$(call _setup_hosts)
@@ -124,25 +148,25 @@ release_dev: ##
 
 release_prod: ##
 	$(call _create_config,prod)
-	make clean_env deps release
+	make release
 	$(call _create_sourcemap)
 	$(call _upload_release_sourcemap)
 
 release_staging: ##
 	$(call _create_config,staging)
-	make clean_env deps release
+	make release
 
 release_staging_without_clean: ##
 	$(call _create_config,staging)
-	ENVFILE=.env.staging make deps release
+	make release
 
 release_uat: ##
 	$(call _create_config,uat)
-	make clean_env deps release
+	make release
 
 release_prerelease:
 	$(call _create_config,prerelease)
-	make clean_env deps release
+	make release
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
@@ -191,29 +215,11 @@ open_db: rm_db get_db ## Open realmdb in Realm Browser
 	$(call _open_resource,../db/default.realm)
 # </db>
 
-
-# <apk>
-uninstall_apk: ##
-	adb uninstall com.openchsclient
-
-install_apk: ##
-	adb install packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
-	adb shell am start -n com.openchsclient/com.openchsclient.MainActivity
-
-reinstall_apk: uninstall_apk install_apk ##
-
-reinstall: uninstall_apk run_app ##
-
 local_deploy_apk: ##
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
 
 openlocation_apk: ##
 	open packages/openchs-android/android/app/build/outputs/apk
-
-scp_apk:
-	scp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk $(host):~/Downloads/
-# </apk>
-
 
 # <env>
 clean_packager_cache:
@@ -262,48 +268,10 @@ run_packager: ##
 # </packager>
 
 
-# <app>
-run_app: ##
-	$(call _setup_hosts)
-	$(call _create_config,dev)
-	cd packages/openchs-android && react-native run-android
-
-run_app_release:
-	$(call _create_config,dev)
-	cd packages/openchs-android && react-native run-android --variant=release
-
-run_app_staging:
-	$(call _create_config,staging)
-	cd packages/openchs-android && react-native run-android
-
-run_app_prerelease:
-	$(call _create_config,prerelease)
-	cd packages/openchs-android && react-native run-android
-
-run_app_uat:
-	$(call _create_config,uat)
-	cd packages/openchs-android && react-native run-android
-
-run_app_prod:
-	$(call _create_config,prod)
-	cd packages/openchs-android && react-native run-android
-
-open_app_bundle:
-	cd ..
-	-mkdir ./temp
-	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&minify=false" -o ./temp/output.txt
-	vi ./temp/output.txt
-
 # sometimes there are errors for which we need to run the following to get the exact problem
 run_app_debug: ##
 	$(call _setup_hosts)
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
-
-kill_app:
-	adb shell am force-stop com.openchsclient
-
-start_app:
-	adb shell am start -n com.openchsclient/com.openchsclient.MainActivity
 # </app>
 
 
