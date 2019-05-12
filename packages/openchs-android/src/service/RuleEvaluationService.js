@@ -79,6 +79,11 @@ class RuleEvaluationService extends BaseService {
         return this.getEntityDecision(form, entity, context);
     }
 
+    updateWorkLists(workLists, context) {
+        const additionalRules = this.getService(RuleService).getRulesByType('WorkListUpdation');
+        return _.reduce(additionalRules, (newWorkLists, rule) => rule.fn.exec(workLists, context), workLists);
+    }
+
     getEnrolmentSummary(enrolment, entityName='ProgramEnrolment', context) {
         const summaries = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
         const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", 'program')

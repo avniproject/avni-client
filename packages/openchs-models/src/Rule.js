@@ -35,9 +35,9 @@ class Rule extends ReferenceEntity {
         rule.data = JSON.stringify(resource['data']);
         if (resource._links.hasOwnProperty('programUUID')) {
             rule.program = entityService.findByUUID(ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
-        }
-        else
+        } else if (resource._links.hasOwnProperty('formUUID')) {
             rule.form = entityService.findByUUID(ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
+        }
         rule.voided = resource['voided'] || false;
         return rule;
     }

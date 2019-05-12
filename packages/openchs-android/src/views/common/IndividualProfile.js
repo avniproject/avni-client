@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {View, Alert, TouchableNativeFeedback, View} from "react-native";
+import {View, Alert, TouchableNativeFeedback} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";

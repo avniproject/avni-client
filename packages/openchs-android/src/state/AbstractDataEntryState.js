@@ -112,7 +112,7 @@ class AbstractDataEntryState {
                 decisions = this.executeRule(ruleService, context);
                 checklists = this.getChecklists(ruleService, context);
                 nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
-                this.workListState = new WorkListState(this.updateWorkLists(this.workListState.workLists, nextScheduledVisits),() => this.getWorkContext());
+                this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits),() => this.getWorkContext());
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
@@ -129,20 +129,26 @@ class AbstractDataEntryState {
         return this;
     }
 
-    updateWorkLists(oldWorkLists, nextScheduledVisits) {
-        if (_.isEmpty(nextScheduledVisits)) return oldWorkLists;
+    updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits) {
+        let workLists = oldWorkLists;
+        if (!_.isEmpty(nextScheduledVisits)) {
+            workLists = this._addNextScheduledVisitToWorkList(workLists);
+        }
+        return ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
+    }
 
+    _addNextScheduledVisitToWorkList(workLists, nextScheduledVisits) {
         const applicableScheduledVisit = nextScheduledVisits.find((visit) => {
             return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
         });
         if (applicableScheduledVisit) {
-            oldWorkLists.currentWorkList.addWorkItems(
+            workLists.currentWorkList.addWorkItems(
                 new WorkItem(
                     General.randomUUID(),
                     WorkItem.type.PROGRAM_ENCOUNTER,
                     applicableScheduledVisit));
         }
-        return oldWorkLists;
+        return workLists;
     }
 
     moveToLastPageWithFormElements(action, context) {
