@@ -124,23 +124,10 @@ create_bundle:
 			--bundle-output android/app/src/main/assets/index.android.bundle \
 			--assets-dest android/app/src/main/res/
 
-define _copy_release_notes
-	$(call _get_abi_version,$1)
-	cp packages/openchs-android/android/fastlane/metadata/android/en-GB/source-changelog/$(version).txt packages/openchs-android/android/fastlane/metadata/android/en-GB/changelogs/$(abiVersion).txt
-endef
-
-define _copy_all_release_notes
-	$(call _copy_release_notes,1)
-	$(call _copy_release_notes,2)
-	$(call _copy_release_notes,3)
-	$(call _copy_release_notes,4)
-endef
-
 create_apk:
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace -w
 
 release: release_clean create_bundle create_apk
-	$(call _copy_all_release_notes)
 
 release_dev: ##
 	$(call _setup_hosts)

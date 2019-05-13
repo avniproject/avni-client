@@ -13,7 +13,7 @@ default_platform(:android)
 
 platform :android do
     lane :upload_to_internal_test do
-        upload_to_play_store(track: 'internal')
+        upload_to_play_store(track: 'internal', apk_paths: ["app/build/outputs/apk/release/app-x86-release.apk", "app/build/outputs/apk/release/app-arm64-v8a-release.apk","app/build/outputs/apk/release/app-armeabi-v7a-release.apk", "app/build/outputs/apk/release/app-x86_64-release.apk"])
     end
 
     lane :upload_to_alpha do

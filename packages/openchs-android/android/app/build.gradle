@@ -41,7 +41,7 @@ android {
         applicationId "com.openchsclient"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode System.getenv("version") ?: 1
+        versionCode System.getenv("version") ? System.getenv("version").toInteger() : 1
         //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
         versionName "2.9 - 104"
 
