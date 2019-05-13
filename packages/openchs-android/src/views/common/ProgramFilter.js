@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from "react";
 import General from "../../utility/General";
@@ -9,8 +10,8 @@ import FormMappingService from "../../service/FormMappingService";
 
 class ProgramFilter extends AbstractComponent {
     static propTypes = {
-        multiSelect: React.PropTypes.bool,
-        onToggle: React.PropTypes.func,
+        multiSelect: PropTypes.bool,
+        onToggle: PropTypes.func,
     };
 
     viewName() {
