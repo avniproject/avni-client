@@ -35,7 +35,7 @@ import SyncTelemetry from "./SyncTelemetry";
 import IdentifierSource from "./IdentifierSource";
 import IdentifierAssignment from "./IdentifierAssignment";
 
-const refData = (clazz, {res, filter, translated, parent} = {}) => ({
+const refData = (clazz, {res, filter, translated, parent, syncWeight} = {}) => ({
     entityName: clazz.schema.name,
     entityClass: clazz,
     resourceName: res || _.camelCase(clazz.schema.name),
@@ -43,10 +43,11 @@ const refData = (clazz, {res, filter, translated, parent} = {}) => ({
     nameTranslated: translated || false,
     resourceSearchFilterURL: filter || 'lastModified',
     parent: parent,
+    syncWeight: syncWeight,
 });
 const refDataNameTranslated = (clazz, attrs = {}) => refData(clazz, ({...attrs, translated: true}));
 
-const txData = (clazz, {res, resUrl, parent, apiVersion} = {}) => ({
+const txData = (clazz, {res, resUrl, parent, apiVersion, syncWeight} = {}) => ({
     entityName: clazz.schema.name,
     entityClass: clazz,
     resourceName: res || _.camelCase(clazz.schema.name),
@@ -55,43 +56,52 @@ const txData = (clazz, {res, resUrl, parent, apiVersion} = {}) => ({
     nameTranslated: false,
     parent: parent,
     apiVersion,
+    syncWeight: syncWeight,
 });
 
-const checklistDetail = refData(ChecklistDetail);
-const rule = refData(Rule);
-const ruleDependency = refData(RuleDependency);
-const form = refData(Form);
-const formMapping = refData(FormMapping);
-const addressLevel = refDataNameTranslated(AddressLevel, {res: 'locations', filter: 'byCatchmentAndLastModified'});
-const encounterType = refDataNameTranslated(EncounterType, {res: 'operationalEncounterType'});
-const program = refDataNameTranslated(Program, {res: 'operationalProgram'});
-const programOutcome = refDataNameTranslated(ProgramOutcome);
-const gender = refDataNameTranslated(Gender);
-const individualRelation = refDataNameTranslated(IndividualRelation);
-const individualRelationGenderMapping = refDataNameTranslated(IndividualRelationGenderMapping);
-const individualRelationshipType = refDataNameTranslated(IndividualRelationshipType);
-const concept = refDataNameTranslated(Concept);
-const programConfig = refDataNameTranslated(ProgramConfig);
-const video = refDataNameTranslated(Video);
-const subjectType = refDataNameTranslated(SubjectType, {res: 'operationalSubjectType'});
-const checklistItemDetail = refData(ChecklistItemDetail, {parent: checklistDetail});
-const formElementGroup = refDataNameTranslated(FormElementGroup, {parent: form});
-const formElement = refDataNameTranslated(FormElement, {parent: formElementGroup});
-const conceptAnswer = refData(ConceptAnswer, {parent: concept});
-const locationMapping = refData(LocationMapping, {filter: 'byCatchmentAndLastModified', parent: addressLevel});
-const identifierSource = refData(IdentifierSource);
+const checklistDetail = refData(ChecklistDetail, {syncWeight: 6});
+const rule = refData(Rule, {syncWeight: 3});
+const ruleDependency = refData(RuleDependency, {syncWeight: 3});
+const form = refData(Form, {syncWeight: 4});
+const formMapping = refData(FormMapping, {syncWeight: 4});
+const addressLevel = refDataNameTranslated(AddressLevel, {
+    res: 'locations',
+    filter: 'byCatchmentAndLastModified',
+    syncWeight: 4
+});
+const encounterType = refDataNameTranslated(EncounterType, {res: 'operationalEncounterType', syncWeight: 4});
+const program = refDataNameTranslated(Program, {res: 'operationalProgram', syncWeight: 3});
+const programOutcome = refDataNameTranslated(ProgramOutcome, {syncWeight: 3});
+const gender = refDataNameTranslated(Gender, {syncWeight: 1});
+const individualRelation = refDataNameTranslated(IndividualRelation, {syncWeight: 3});
+const individualRelationGenderMapping = refDataNameTranslated(IndividualRelationGenderMapping, {syncWeight: 3});
+const individualRelationshipType = refDataNameTranslated(IndividualRelationshipType, {syncWeight: 3});
+const concept = refDataNameTranslated(Concept, {syncWeight: 4});
+const programConfig = refDataNameTranslated(ProgramConfig, {syncWeight: 3});
+const video = refDataNameTranslated(Video, {syncWeight: 0});
+const subjectType = refDataNameTranslated(SubjectType, {res: 'operationalSubjectType', syncWeight: 1});
+const checklistItemDetail = refData(ChecklistItemDetail, {parent: checklistDetail, syncWeight: 3});
+const formElementGroup = refDataNameTranslated(FormElementGroup, {parent: form, syncWeight: 3});
+const formElement = refDataNameTranslated(FormElement, {parent: formElementGroup, syncWeight: 5});
+const conceptAnswer = refData(ConceptAnswer, {parent: concept, syncWeight: 4});
+const locationMapping = refData(LocationMapping, {
+    filter: 'byCatchmentAndLastModified',
+    parent: addressLevel,
+    syncWeight: 4
+});
+const identifierSource = refData(IdentifierSource, {syncWeight: 0});
 
-const individual = txData(Individual);
-const encounter = txData(Encounter, {parent: individual});
-const programEnrolment = txData(ProgramEnrolment, {parent: individual});
-const programEncounter = txData(ProgramEncounter, {parent: programEnrolment});
-const checklist = txData(Checklist, {res: 'txNewChecklistEntity', parent: programEnrolment});
-const checklistItem = txData(ChecklistItem, {res: 'txNewChecklistItemEntity', parent: checklist});
-const individualRelationship = txData(IndividualRelationship, {parent: individual});
-const videoTelemetric = txData(VideoTelemetric, {res: 'videotelemetric', parent: video});
-const syncTelemetry = txData(SyncTelemetry, {resUrl: 'syncTelemetry'});
-const userInfo = txData(UserInfo, {resUrl: 'me', apiVersion: 'v2'});
-const identifierAssignment = txData(IdentifierAssignment);
+const individual = txData(Individual, {syncWeight: 5});
+const encounter = txData(Encounter, {parent: individual, syncWeight: 7});
+const programEnrolment = txData(ProgramEnrolment, {parent: individual, syncWeight: 3});
+const programEncounter = txData(ProgramEncounter, {parent: programEnrolment, syncWeight: 5});
+const checklist = txData(Checklist, {res: 'txNewChecklistEntity', parent: programEnrolment, syncWeight: 3});
+const checklistItem = txData(ChecklistItem, {res: 'txNewChecklistItemEntity', parent: checklist, syncWeight: 2});
+const individualRelationship = txData(IndividualRelationship, {parent: individual, syncWeight: 2});
+const videoTelemetric = txData(VideoTelemetric, {res: 'videotelemetric', parent: video, syncWeight: 0});
+const syncTelemetry = txData(SyncTelemetry, {resUrl: 'syncTelemetry', syncWeight: 1});
+const userInfo = txData(UserInfo, {resUrl: 'me', apiVersion: 'v2', syncWeight: 1});
+const identifierAssignment = txData(IdentifierAssignment, {syncWeight: 0});
 
 
 class EntityMetaData {
