@@ -31,7 +31,7 @@ class ConventionalRestClient {
             (acc, entities) => {
                 return acc
                     .then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost))
-                    .then(() => onComplete(entities.metaData.entityName + ".PUSH"));
+                    .then(() => onComplete(entities.metaData.entityName, 0));
             },
             Promise.resolve());
     }
@@ -46,7 +46,7 @@ class ConventionalRestClient {
         }
     }
 
-    getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage) {
+    getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity) {
         const token = this.token;
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? `search/${entityMetadata.resourceSearchFilterURL}` : '';
         let settings = this.settingsService.getSettings();
@@ -64,7 +64,11 @@ class ConventionalRestClient {
             size: size,
             page: page
         });
-        const processResponse = (resp) => onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
+        const processResponse = (resp) => {
+            onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
+            afterGetOfEntity(entityMetadata.entityName, resp["page"]["totalPages"])
+        };
+
         const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
         return getJSON(endpoint(), token).then((response) => {
             //first page
@@ -83,12 +87,11 @@ class ConventionalRestClient {
         });
     }
 
-    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfAllEntities) {
+    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity) {
         return _.reduce(entitiesMetadataWithSyncStatus,
             (acc, entityMetadataWithSyncStatus) => {
                 return acc
-                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage))
-                    .then(() => afterGetOfAllEntities(entityMetadataWithSyncStatus.entityName + ".PULL"));
+                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity));
             },
             Promise.resolve());
     }
