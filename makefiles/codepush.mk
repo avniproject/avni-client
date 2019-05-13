@@ -10,7 +10,7 @@
 # Deployment name like Staging, Production
 # Abi number based on scheme of OpenCHS, viz. 1, 2, 3, 4
 
-include common.mk
+include makefiles/common.mk
 
 define _codepush_release_an_abi ## $1 = Deployment name; $2 =
 	$(call _get_abi_version,1)
@@ -26,6 +26,7 @@ codepush_help:
 
 codepush_setup:
 	npm install -g appcenter-cli
+	appcenter login
 	appcenter apps set-current Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha
 
 codepush_deploy_to_internal_test:
