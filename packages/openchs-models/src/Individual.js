@@ -379,7 +379,9 @@ class Individual extends BaseEntity {
     }
 
     get firstActiveOrRecentEnrolment() {
-        return _.find(_.reverse(_.sortBy(this.nonVoidedEnrolments(), (enrolment) => enrolment.enrolmentDateTime), (enrolment) => enrolment.isActive));
+        return _(this.nonVoidedEnrolments())
+            .sortBy('enrolmentDateTime')
+            .findLast('isActive');
     }
 
     get hasEnrolments() {
