@@ -120,6 +120,7 @@ class AddressLevels extends AbstractComponent {
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
+                    borderRadius: 1,
                     borderColor: Colors.InputBorderNormal,
                     paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
                     // paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,

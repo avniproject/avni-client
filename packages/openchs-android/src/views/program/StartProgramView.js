@@ -57,6 +57,7 @@ class StartProgramView extends AbstractComponent {
                     backgroundColor: '#ffffff',
                     borderWidth: 1,
                     borderStyle: 'dashed',
+                    borderRadius: 1,
                     borderColor: Styles.InputBorderNormal,
                 }}>
                     <Text style={Styles.formGroupLabel}>{heading}</Text>

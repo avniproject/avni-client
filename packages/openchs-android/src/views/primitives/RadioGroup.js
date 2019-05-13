@@ -81,15 +81,16 @@ class RadioGroup extends AbstractComponent {
             <View style={this.appendedStyle({})}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 {this.props.labelValuePairs.length > 0 ?
-                <View style={[{
-                    borderWidth: 1,
-                    borderStyle: 'dashed',
-                    borderColor: Colors.InputBorderNormal,
-                    paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                    paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                }, this.props.borderStyle]}>
-                    {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                </View> : <View/> }
+                    <View style={[{
+                        borderWidth: 1,
+                        borderRadius: 1,
+                        borderStyle: 'dashed',
+                        borderColor: Colors.InputBorderNormal,
+                        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                        paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+                    }, this.props.borderStyle]}>
+                        {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
+                    </View> : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>

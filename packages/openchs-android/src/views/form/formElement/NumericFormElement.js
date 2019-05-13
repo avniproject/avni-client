@@ -58,7 +58,7 @@ class NumericFormElement extends AbstractFormElement {
         let labelText = this.label;
         return (
             <View>
-                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
+                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1}}>
                     <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
                 </View>
                 <View>

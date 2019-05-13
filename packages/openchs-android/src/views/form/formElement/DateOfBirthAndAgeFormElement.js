@@ -51,7 +51,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                                 marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
                                 color: AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.DarkPrimaryColor
                             }]}>{this.dateDisplay(this.props.state.individual.dateOfBirth)}</Text>
-                    <View style={{flexDirection: 'column-reverse'}}>
+                    <View style={{flexDirection: 'column-reverse', justifyContent: 'center'}}>
                         <CheckBox checked={this.props.state.individual.dateOfBirthVerified}
                                   onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.props.state.individual.dateOfBirthVerified})}/>
                     </View>

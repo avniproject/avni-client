@@ -29,12 +29,13 @@ class DurationDateFormElement extends AbstractFormElement {
         let labelText = this.label;
         return (
             <View>
-                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
+                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1}}>
                     <Text style={Styles.formLabel}>{labelText}</Text>
                 </View>
             <View style={{
                 borderWidth: 1,
                 borderStyle: 'dashed',
+                borderRadius: 1,
                 borderColor: Colors.InputBorderNormal,
                 paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                 paddingVertical: 5

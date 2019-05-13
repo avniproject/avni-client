@@ -263,6 +263,7 @@ Styles.basicSecondaryButtonView = {
 
 Styles.listContainer= {
     borderWidth: 1,
+    borderRadius: 1,
     borderStyle: 'dashed',
     borderColor: Colors.InputBorderNormal,
     paddingHorizontal: Distances.ScaledContentDistanceFromEdge,

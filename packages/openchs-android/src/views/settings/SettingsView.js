@@ -167,6 +167,7 @@ class SettingsView extends AbstractComponent {
                             justifyContent: 'space-between',
                             borderWidth: 1,
                             borderStyle: 'dashed',
+                            borderRadius: 1,
                             borderColor: Colors.InputBorderNormal,
                             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems

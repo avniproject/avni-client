@@ -52,11 +52,12 @@ class DurationFormElement extends AbstractFormElement {
         const durationView = compositeDuration.durations.map((duration, idx) => this.renderDuration(duration, idx));
         return (
             <View>
-                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed'}}>
+                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1,}}>
                     <Text style={Styles.formLabel}>{labelText}</Text>
                 </View>
                 <View style={{
                     borderWidth: 1,
+                    borderRadius: 1,
                     borderStyle: 'dashed',
                     borderColor: Colors.InputBorderNormal,
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge,

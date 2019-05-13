@@ -76,6 +76,8 @@ export default {
     checkboxBgColor: Colors.AccentColor,
     checkboxSize: 16,
     checkboxTickColor: '#fff',
+    CheckboxBorderWidth: Platform.OS === "ios" ? 1 : 1,
+    CheckboxPaddingLeft: Platform.OS === "ios" ? 4 : 1,
 
 
     // Color
