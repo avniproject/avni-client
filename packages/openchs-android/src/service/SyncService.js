@@ -21,6 +21,13 @@ class SyncService extends BaseService {
         this.persistAll = this.persistAll.bind(this);
     }
 
+    getFormattedMetadata(metadata, reduceWeightBy) {
+        return _.map(metadata, (data) => ({
+            name: data.entityName,
+            syncWeight: data.syncWeight / reduceWeightBy
+        }))
+    }
+
     init() {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
@@ -40,30 +47,55 @@ class SyncService extends BaseService {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
-        const entitiesToPost = allTxEntityMetaData
-            .map(this.entityQueueService.getAllQueuedItems)
-            .filter((entities) => !_.isEmpty(entities.entities)).map((it) => it.metaData.entityName + ".PUSH");
-
-        const steps = _.concat(
-            allReferenceDataMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
-            allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL"),
-            entitiesToPost
-        );
-
-        return this.mediaQueueService.isMediaUploadRequired()
-            ? _.concat(
-                steps,
-                ['Media', 'After_Media.Push'],
-                allTxEntityMetaData.map((entityMetaData) => entityMetaData.entityName + ".PULL")
-            )
-            : steps;
+        if (this.mediaQueueService.isMediaUploadRequired()) {
+            //entities will be used two times during sync
+            const txMetaData = this.getFormattedMetadata(allTxEntityMetaData, 2);
+            //entities will be used three times during sync
+            const queuedItems = allTxEntityMetaData
+                .map(this.entityQueueService.getAllQueuedItems)
+                .filter((entities) => !_.isEmpty(entities.entities)).map((it) => ({name: it.metaData.entityName}));
+            const entityQueueData = _.map(_.intersectionBy(this.getFormattedMetadata(allTxEntityMetaData, 1), queuedItems, 'name'), (data) => ({
+                name: data.name,
+                syncWeight: data.syncWeight / 3
+            }));
+            //reduce some weights from ref data for media it will used two times during sync
+            const refDataWithWeightsReduced = allReferenceDataMetaData.map((entityMetaData) => ({
+                name: entityMetaData.entityName,
+                syncWeight: (entityMetaData.syncWeight - 0.1) / 2
+            }));
+            const mediaEntities = ['Media', 'After_Media'].map((media) => ({
+                name: media,
+                syncWeight: (allReferenceDataMetaData.length * 0.1) / 2
+            }));
+            return _.concat(
+                entityQueueData,
+                _.differenceBy(txMetaData, entityQueueData, 'name'),
+                mediaEntities,
+                refDataWithWeightsReduced,
+            );
+        } else {
+            //entities will be used once during sync
+            const txMetaData = this.getFormattedMetadata(allTxEntityMetaData, 1);
+            const queuedItems = allTxEntityMetaData
+                .map(this.entityQueueService.getAllQueuedItems)
+                .filter((entities) => !_.isEmpty(entities.entities)).map((it) => ({name: it.metaData.entityName}));
+            //entities will be used twice during sync
+            const entityQueueData = _.map(_.intersectionBy(txMetaData, queuedItems, 'name'), (data) => ({
+                name: data.name,
+                syncWeight: data.syncWeight / 2
+            }));
+            return _.concat(
+                this.getFormattedMetadata(allReferenceDataMetaData, 1),
+                entityQueueData,
+                _.differenceBy(txMetaData, entityQueueData, 'name')
+            );
+        }
     }
 
     sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
 
-        const onProgressPerEntity = (entityType) => progressBarStatus.onComplete(entityType);
-        const onAfterMediaPush = (entityType) => progressBarStatus.onComplete(entityType);
-
+        const onProgressPerEntity = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
+        const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
         const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
@@ -75,7 +107,7 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         return mediaUploadRequired ?
             firstDataServerSync
-                .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media')))
+                .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
                 .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush))
                 .then(() => this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
                 .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
@@ -114,7 +146,7 @@ class SyncService extends BaseService {
 
             .then(() => statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
-            .then(() => onAfterMediaPush("After_Media.Push"))
+            .then(() => onAfterMediaPush("After_Media", 0))
 
             .then(() => statusMessageCallBack("downloadForms"))
             .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity))
@@ -124,7 +156,7 @@ class SyncService extends BaseService {
 
     }
 
-    getData(entitiesMetadata, afterAllInEachTypePulled) {
+    getData(entitiesMetadata, afterEachPagePulled) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => Object.assign({
@@ -135,7 +167,7 @@ class SyncService extends BaseService {
         const onGetOfFirstPage = (entityName, page) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {entityName, totalElements: page.totalElements});
 
-        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterAllInEachTypePulled);
+        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled);
     }
 
     persistAll(entityMetaData, entityResources) {

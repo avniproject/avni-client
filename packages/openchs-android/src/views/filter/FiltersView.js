@@ -41,14 +41,17 @@ class FilterView extends AbstractComponent {
     }
 
     componentWillMount() {
+        const programs = this.programService.allPrograms();
+        const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
+        const encounters = programs.length === 1 ? this.formMappingService.findEncounterTypesForProgram(_.first(programs)) : this.props.encounterTypes;
         this.dispatchAction(FilterActionNames.ON_LOAD, {
             filters: this.props.filters,
             locationSearchCriteria: this.props.locationSearchCriteria,
             addressLevelState: this.props.addressLevelState,
             filterDate: this.props.filterDate,
-            programs: this.programService.allPrograms(),
-            selectedPrograms: this.props.selectedPrograms,
-            encounterTypes: this.props.encounterTypes,
+            programs: programs,
+            selectedPrograms: selectedPrograms,
+            encounterTypes: encounters,
             selectedEncounterTypes: this.props.selectedEncounterTypes,
         });
         super.componentWillMount();
@@ -144,8 +147,19 @@ class FilterView extends AbstractComponent {
                 borderColor: Colors.InputBorderNormal,
                 paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
             }}>
-                {programs}
-                {encounters}
+                {this.state.programs.length === 1 ?
+                    <ProgramFilter
+                        onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
+                        visits={this.state.encounterTypes}
+                        multiSelect={true}
+                        selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
+                        name={'Visits'}/>
+                    :
+                    <View>
+                        {programs}
+                        {encounters}
+                    </View>
+                }
             </View>
         </View>
     }
@@ -154,7 +168,7 @@ class FilterView extends AbstractComponent {
         const {width} = Dimensions.get('window');
         const filters = this.state.filters ? Array.from(this.state.filters.values()) : [];
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer theme={themes} style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('Filter')} func={this.props.onBack}/>
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>
@@ -178,7 +192,7 @@ class FilterView extends AbstractComponent {
                                     })
                                 }}
                                 multiSelect={true}/>
-                            <Separator height={50}/>
+                            <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>
                     </View>
                 </CHSContent>

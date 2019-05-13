@@ -192,7 +192,7 @@ class ProgramEnrolmentDashboardActions {
         newState.enrolment = newState.enrolment.individual.findEnrolment(action.enrolmentUUID);
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
-        newState.showCount = ProgramEnrolmentDashboardActions.IncrementalEncounterDisplayCount;
+        newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }

@@ -37,7 +37,7 @@ export default class AppliedFilters extends AbstractComponent {
     }
 
     renderFilteredPrograms() {
-        if (this.props.selectedPrograms.length > 0) {
+        if (this.props.programs.length > 1 && this.props.selectedPrograms.length > 0) {
             const programNames = this.props.selectedPrograms.map((prog) => prog.name);
             return this.renderContent('Program', programNames.join(', '))
         }

@@ -30,6 +30,10 @@ class AbstractComponent extends Component {
     didFocus() {
     }
 
+    componentDidUpdate() {
+        // General.logDebug((this.viewName ? this.viewName() : this.constructor.name), "DID UPDATE");
+    }
+
     static styles = StyleSheet.create({
         spinner: {
             justifyContent: 'center',
