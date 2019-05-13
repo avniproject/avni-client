@@ -124,7 +124,7 @@ create_bundle:
 			--assets-dest android/app/src/main/res/
 
 define _copy_release_notes
-	$(eval abiVersion:=$(shell node packages/openchs-android/scripts/version.js $(version) $1))
+	$(call _get_abi_version,$1)
 	cp packages/openchs-android/android/fastlane/metadata/android/en-GB/source-changelog/$(version).txt packages/openchs-android/android/fastlane/metadata/android/en-GB/changelogs/$(abiVersion).txt
 endef
 

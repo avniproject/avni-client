@@ -6,6 +6,21 @@
 #	Each deployment has multiple releases.
 #	Each release can be patched
 
+# Terms
+# Deployment name like Staging, Production
+# Abi number based on scheme of OpenCHS, viz. 1, 2, 3, 4
+
+include common.mk
+
+define _codepush_release_an_abi ## $1 = Deployment name; $2 =
+	$(call _get_abi_version,1)
+	appcenter codepush release-react -d $1 -t $(abiVersion)
+endef
+
+define _codepush_release ## $1 = Deployment name
+	$(call _codepush_release_an_abi,$1,$2)
+endef
+
 codepush_help:
 	@echo "Before running any command you need to run codepush_setup target. For performing any operations with appcenter portal, you need to run 'appcenter login'. It will launch browser and guide you through the process."
 
@@ -20,4 +35,3 @@ codepush_metrics:
 	appcenter codepush deployment list
 
 codepush_release_staging: ## Make parameters, version=APK Version
-	appcenter codepush release-react -d Staging
