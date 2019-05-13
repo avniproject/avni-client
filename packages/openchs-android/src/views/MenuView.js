@@ -91,7 +91,7 @@ class MenuView extends AbstractComponent {
             width: width * .7,
             flexDirection: 'row',
             flexWrap: 'nowrap',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             alignItems: 'center',
             padding: 20,
             alignSelf: 'center',
@@ -331,7 +331,7 @@ class MenuView extends AbstractComponent {
                       key={`spinner_${Date.now()}`}>
                     <View style={{flex: .4}}/>
                     <View style={this.syncBackground}>
-                        <View style={{flex: .7}}>
+                        <View style={{flex: .9}}>
                             <ProgressBarView
                                 progressBar={(pb) => this.progressBar = pb}
                                 progressMessage={(pm) => this.progressMessage = pm}

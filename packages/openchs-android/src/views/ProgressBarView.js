@@ -39,14 +39,13 @@ class ProgressBarView extends AbstractComponent {
     createStyles() {
         this.container = {
             flexDirection: 'row',
-            flexWrap: 'nowrap',
             justifyContent: 'center',
             alignItems: 'center',
         };
         this.syncTextContent = {
             color: Colors.TextOnPrimaryColor,
-            lineHeight: 20,
-            height: 40,
+            lineHeight: 30,
+            height: 50,
         };
         this.percentageText = {
             color: Colors.TextOnPrimaryColor,
@@ -75,7 +74,7 @@ class ProgressBarView extends AbstractComponent {
                     (<View>
                         <View style={this.container}>
                             <Text
-                                style={[this.syncTextContent, {paddingTop: 7}, Fonts.typography("paperFontSubhead")]}>
+                                style={[Fonts.typography("paperFontSubhead"),{color: Colors.TextOnPrimaryColor}]}>
                                 {this.I18n.t("syncComplete")}
                             </Text>
                             <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
