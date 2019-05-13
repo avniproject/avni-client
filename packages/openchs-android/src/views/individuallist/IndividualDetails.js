@@ -6,10 +6,9 @@ import Fonts from '../primitives/Fonts';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Separator from "../primitives/Separator";
-import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
-
+import Colors from "../primitives/Colors"
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
@@ -36,6 +35,11 @@ class IndividualDetails extends AbstractComponent {
             justifyContent: 'flex-end',
             alignItems: 'center',
             flexWrap: 'nowrap'
+        },
+        visitBadgeList: {
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            flexWrap: 'wrap',
         },
         nameContainer: {
             flexDirection: 'row',
@@ -76,6 +80,9 @@ class IndividualDetails extends AbstractComponent {
         const individualDetail2 = this.props.individual.detail2(this.I18n);
         const badges = this.props.individual.nonVoidedEnrolments().map(({program}, idx) =>
             <Badge key={idx} style={{backgroundColor: program.colour}}>{this.I18n.t(program.displayName)}</Badge>);
+        const visitBadges = !_.isEmpty(this.props.visitInfo) ? _.head(this.props.visitInfo).visitName.map((visitName, idx) =>
+                <Badge key={idx} style={{backgroundColor: Colors.DarkPrimaryColor, marginTop: 2}}>{visitName}</Badge>) :
+            <View/>;
         return (
             <TouchableNativeFeedback
                 onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid, "", false, this.props.backFunction)}
@@ -93,8 +100,13 @@ class IndividualDetails extends AbstractComponent {
                     </View>
                     <Separator style={{alignSelf: 'stretch'}} height={2}/>
                     <View style={IndividualDetails.styles.attributesContainer}>
-                        {!_.isEmpty(individualDetail1) ? this.renderAttribute(individualDetail1.label, individualDetail1.value) : <View/>}
-                        {!_.isEmpty(individualDetail2) ? this.renderAttribute(individualDetail2.label, individualDetail2.value) : <View/>}
+                        {!_.isEmpty(individualDetail1) ? this.renderAttribute(individualDetail1.label, individualDetail1.value) :
+                            <View/>}
+                        {!_.isEmpty(individualDetail2) ? this.renderAttribute(individualDetail2.label, individualDetail2.value) :
+                            <View/>}
+                    </View>
+                    <View style={IndividualDetails.styles.visitBadgeList}>
+                        {visitBadges}
                     </View>
                 </View>
             </TouchableNativeFeedback>

@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {ListView, StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
-import {Button} from 'native-base';
+import {StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
@@ -14,9 +13,15 @@ import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
 import CHSContent from "../common/CHSContent";
-import CHSNavigator from "../../utility/CHSNavigator";
 import Reducers from "../../reducer";
-import {FilterActionNames, FiltersActions} from "../../action/mydashboard/FiltersActions";
+import {FilterActionNames} from "../../action/mydashboard/FiltersActions";
+import AddressLevels from "../common/AddressLevels";
+import _ from "lodash";
+import DatePicker from "../primitives/DatePicker";
+import Separator from "../primitives/Separator";
+import ProgramFilter from "../common/ProgramFilter";
+import ProgramService from "../../service/program/ProgramService";
+import FormMappingService from "../../service/FormMappingService";
 
 
 @Path('/FilterView')
@@ -28,13 +33,24 @@ class FilterView extends AbstractComponent {
     }
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.FilterAction);
+        super(props, context, Reducers.reducerKeys.filterAction);
         this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
             [Filter.types.MultiSelect, MultiSelectFilter]]);
+        this.programService = context.getService(ProgramService);
+        this.formMappingService = context.getService(FormMappingService);
     }
 
     componentWillMount() {
-        this.dispatchAction(FilterActionNames.ON_LOAD, {filters: this.props.filters});
+        this.dispatchAction(FilterActionNames.ON_LOAD, {
+            filters: this.props.filters,
+            locationSearchCriteria: this.props.locationSearchCriteria,
+            addressLevelState: this.props.addressLevelState,
+            filterDate: this.props.filterDate,
+            programs: this.programService.allPrograms(),
+            selectedPrograms: this.props.selectedPrograms,
+            encounterTypes: this.props.encounterTypes,
+            selectedEncounterTypes: this.props.selectedEncounterTypes,
+        });
         super.componentWillMount();
     }
 
@@ -49,6 +65,7 @@ class FilterView extends AbstractComponent {
         floatingButton: {
             position: 'absolute',
             width: '100%',
+            height: 50,
             alignSelf: 'stretch',
             alignItems: 'center',
             justifyContent: 'center',
@@ -64,7 +81,9 @@ class FilterView extends AbstractComponent {
     onSelect(filter, idx) {
         return (val) => {
             const newFilter = filter.selectOption(val);
-            this.dispatchAction(FilterActionNames.ADD_FILTER, {filter: newFilter});
+            if (!_.isNil(newFilter)) {
+                this.dispatchAction(FilterActionNames.ADD_FILTER, {filter: newFilter});
+            }
         }
     }
 
@@ -77,8 +96,58 @@ class FilterView extends AbstractComponent {
     }
 
     onApply() {
-        this.dispatchAction(this.props.actionName, {filters: this.state.filters});
-        CHSNavigator.goBack(this);
+        this.dispatchAction(this.props.actionName, {
+            filters: this.state.filters,
+            locationSearchCriteria: this.state.locationSearchCriteria,
+            addressLevelState: this.state.addressLevelState,
+            selectedLocations: this.state.addressLevelState.selectedAddresses,
+            filterDate: this.state.filterDate.value,
+            programs: this.state.programs,
+            selectedPrograms: this.state.selectedPrograms,
+            encounterTypes: this.state.encounterTypes,
+            selectedEncounterTypes: this.state.selectedEncounterTypes,
+        });
+        this.goBack();
+    }
+
+    onVisitSelect(name, uuid) {
+        this.dispatchAction(FilterActionNames.ADD_VISITS, {encounterUUID: uuid})
+    }
+
+    onProgramSelect(name, uuid) {
+        const encounters = this.formMappingService.findEncounterTypesForProgram({uuid});
+        this.dispatchAction(FilterActionNames.LOAD_ENCOUNTERS, {encounters: encounters});
+        this.dispatchAction(FilterActionNames.ADD_PROGRAM, {programUUID: uuid});
+    }
+
+    renderProgramEncounterList() {
+        const programs = <ProgramFilter
+            onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
+            visits={this.state.programs}
+            multiSelect={true}
+            selectionFn={(uuid) => this.state.selectedPrograms.filter((prog) => prog.uuid === uuid).length > 0}
+            name={'Program'}/>;
+        const encounters = this.state.encounterTypes.length > 0 ? <ProgramFilter
+            onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
+            visits={this.state.encounterTypes}
+            multiSelect={true}
+            selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
+            name={'Visits'}/> : <View/>;
+
+        return <View style={{
+            marginTop: Styles.VerticalSpacingBetweenFormElements,
+            marginBottom: Styles.VerticalSpacingBetweenFormElements,
+        }}>
+            <View style={{
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: Colors.InputBorderNormal,
+                paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+            }}>
+                {programs}
+                {encounters}
+            </View>
+        </View>
     }
 
     render() {
@@ -90,7 +159,26 @@ class FilterView extends AbstractComponent {
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>
                         <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
+                            <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
+                                <Text style={{fontSize: 15, color: Styles.greyText}}>Date</Text>
+                                <DatePicker
+                                    nonRemovable={true}
+                                    actionName={FilterActionNames.ON_DATE}
+                                    actionObject={this.state.filterDate}
+                                    pickTime={false}
+                                    dateValue={this.state.filterDate.value}/>
+                            </View>
                             {_.map(filters, (f, idx) => this.renderFilter(f, idx))}
+                            {this.renderProgramEncounterList()}
+                            <AddressLevels
+                                addressLevelState={this.state.addressLevelState}
+                                onSelect={(addressLevelState) => {
+                                    this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
+                                        addressLevelState: addressLevelState
+                                    })
+                                }}
+                                multiSelect={true}/>
+                            <Separator height={50}/>
                         </View>
                     </View>
                 </CHSContent>

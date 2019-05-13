@@ -98,6 +98,10 @@ class AddressLevelsState {
     defaultTo(state) {
         return _.isEmpty(this.selectedAddresses) ? state : this;
     }
+
+    clone() {
+        return new AddressLevelsState(Array.from(this._asList()));
+    }
 }
 
 export default AddressLevelsState;

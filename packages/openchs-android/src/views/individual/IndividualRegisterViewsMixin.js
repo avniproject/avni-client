@@ -17,7 +17,8 @@ class Mixin {
                 const onSaveCallback = ((source) => {
                     CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
                 });
-                const headerMessage = `${view.I18n.t('registration', {type: view.registrationType})} - ${view.I18n.t('summaryAndRecommendations')}`;
+                const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
+                const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null, stitches);
             },
             movedNext: (state) => {

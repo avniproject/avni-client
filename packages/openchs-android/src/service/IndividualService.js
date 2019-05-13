@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {EntityQueue, ObservationsHolder, Program, Concept, ProgramEncounter, ProgramEnrolment} from "openchs-models";
+import {EntityQueue, ObservationsHolder, Program, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import _ from 'lodash';
 import moment from 'moment';
 import Individual from "openchs-models/src/Individual";
@@ -16,6 +16,9 @@ class IndividualService extends BaseService {
         this.allCompletedVisitsIn = this.allCompletedVisitsIn.bind(this);
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
+        this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
+        this.recentlyRegistered = this.recentlyRegistered.bind(this);
+        this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
         this.allIn = this.allIn.bind(this);
     }
 
@@ -63,17 +66,30 @@ class IndividualService extends BaseService {
         return individuals;
     }
 
-    allIn(ignored, ignored2, addressLevel) {
+    _uniqIndividualWithVisitName(individualsWithVisits, individualWithVisit) {
+        individualsWithVisits.has(individualWithVisit.individual.uuid) ?
+            individualsWithVisits.set(individualWithVisit.individual.uuid,
+                {
+                    individual: individualWithVisit.individual,
+                    visitInfo: {
+                        uuid: individualWithVisit.individual.uuid,
+                        visitName: [...individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName, ...individualWithVisit.visitInfo.visitName]
+                    }
+                })
+            : individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
+        return individualsWithVisits;
+    }
+
+    allIn(ignored, addressQuery) {
         return [...this.db.objects(Individual.schema.name)
-            .filtered('voided = false ' +
-                (_.isNil(addressLevel) ? '' : 'AND lowestAddressLevel.uuid = $0'),
-                (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+            .filtered('voided = false ')
+            .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
             .map(_.identity);
     }
 
-    allScheduledVisitsIn(date, queryAdditions, addressLevel) {
+    allScheduledVisitsIn(date, queryAdditions) {
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
@@ -81,17 +97,16 @@ class IndividualService extends BaseService {
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
                 'AND cancelDateTime = null ' +
-                'AND programEnrolment.programExitDateTime = null ' +
-                (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $2'),
+                'AND programEnrolment.programExitDateTime = null ',
                 dateMidnight,
-                dateMorning,
-                (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+                dateMorning)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return individual;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
+                return {individual, visitInfo: {uuid: individual.uuid, visitName: [visitName]}};
             })
-            .reduce(this._uniqIndividualsFrom, new Map())
+            .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -124,22 +139,21 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(date, queryAdditions, addressLevel) {
+    allOverdueVisitsIn(date, queryAdditions) {
         const dateMorning = moment(date).startOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
-                'AND programEnrolment.programExitDateTime = null ' +
-                (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $1'),
-                dateMorning,
-                (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+                'AND programEnrolment.programExitDateTime = null ',
+                dateMorning)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                return individual;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
+                return {individual, visitInfo: {uuid: individual.uuid, visitName: [visitName]}};
             })
-            .reduce(this._uniqIndividualsFrom, new Map())
+            .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -165,20 +179,67 @@ class IndividualService extends BaseService {
         return this.overdueVisits(program, addressLevel, encounterType).length;
     }
 
-    allCompletedVisitsIn(date, queryAdditions, addressLevel) {
+    allCompletedVisitsIn(date, queryAdditions) {
         let fromDate = moment(date).startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('encounterDateTime <= $0 ' +
-                'AND encounterDateTime >= $1 ' +
-                (_.isNil(addressLevel) ? '' : 'AND programEnrolment.individual.lowestAddressLevel.uuid = $2'),
+                'AND encounterDateTime >= $1 ',
                 tillDate,
-                fromDate,
-                (_.isNil(addressLevel) ? undefined : addressLevel.uuid))
+                fromDate)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 return individual;
+            })
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
+            .map(_.identity);
+    }
+
+    recentlyCompletedVisitsIn(date, queryAdditions) {
+        let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
+        let tillDate = moment(date).endOf('day').toDate();
+        return [...this.db.objects(ProgramEncounter.schema.name)
+            .filtered('encounterDateTime <= $0 ' +
+                'AND encounterDateTime >= $1 ',
+                tillDate,
+                fromDate)
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .map((enc) => {
+                return enc.programEnrolment.individual;
+            })
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
+            .map(_.identity);
+    }
+
+    recentlyRegistered(date, addressQuery) {
+        let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
+        let tillDate = moment(date).endOf('day').toDate();
+        return [...this.db.objects(Individual.schema.name)
+            .filtered('voided = false ' +
+                'AND registrationDate <= $0 ' +
+                'AND registrationDate >= $1 ',
+                tillDate,
+                fromDate)
+            .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
+            .reduce(this._uniqIndividualsFrom, new Map())
+            .values()]
+            .map(_.identity);
+    }
+
+    recentlyEnrolled(date, queryAdditions) {
+        let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
+        let tillDate = moment(date).endOf('day').toDate();
+        return [...this.db.objects(ProgramEnrolment.schema.name)
+            .filtered('enrolmentDateTime <= $0 ' +
+                'AND enrolmentDateTime >= $1 ',
+                tillDate,
+                fromDate)
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .map((enc) => {
+                return enc.individual;
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -235,15 +296,19 @@ class IndividualService extends BaseService {
     }
 
     atRiskFilter(atRiskConcepts) {
-        return (individuals) => individuals.filter((individual) =>
-            individual.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
-                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name))));
+        return (individuals) => individuals.filter((individual) => {
+            const ind = _.isNil(individual.visitInfo) ? individual : individual.individual;
+            return ind.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
+                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name)))
+        });
     }
 
     notAtRiskFilter(atRiskConcepts) {
-        return (individuals) => individuals.filter((individual) =>
-            !individual.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
-                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name))));
+        return (individuals) => individuals.filter((individual) => {
+            const ind = _.isNil(individual.visitInfo) ? individual : individual.individual;
+            return !ind.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
+                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name)))
+        });
     }
 
     totalHighRisk(program, addressLevel) {

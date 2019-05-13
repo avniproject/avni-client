@@ -300,12 +300,12 @@ class MenuView extends AbstractComponent {
         const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
         const registrationAction = {
             fn: () => CHSNavigator.navigateToRegistration(this, subjectType),
-            label: subjectType.name,
+            label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         };
         const programActions = this.context.getService(ProgramService).findAll().map(program => ({
             fn: () => CHSNavigator.navigateToRegistrationThenProgramEnrolmentView(this, program, this, subjectType),
-            label: program.beneficiaryName,
+            label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
             backgroundColor: program.colour,
         }));
 
@@ -314,7 +314,7 @@ class MenuView extends AbstractComponent {
               visible={this.state.displayActionSelector}
               hide={() => this.setState({displayActionSelector: false})}
               actions={[registrationAction].concat(programActions)}
-              title={"Register"}
+              title={this.I18n.t("register")}
           />
         );
     }

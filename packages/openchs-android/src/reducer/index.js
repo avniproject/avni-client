@@ -67,7 +67,7 @@ export default class Reducers {
         subject: 'subject',
         landingView: 'landingView',
         syncTelemetryActions: "syncTelemetryActions",
-        FilterAction: "FilterAction"
+        filterAction: "filterAction"
     };
 
     static createReducers(beanStore) {
@@ -89,7 +89,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.startProgramActions] = Reducers._add(StartProgramActionsMap, StartProgramActions, beanStore);
         reducerMap[Reducers.reducerKeys.loginActions] = Reducers._add(LoginActionsMap, LoginActions, beanStore);
         reducerMap[Reducers.reducerKeys.myDashboard] = Reducers._add(MyDashboardActionsMap, MyDashboardActions, beanStore, MyDashboardPrefix);
-        reducerMap[Reducers.reducerKeys.FilterAction] = Reducers._add(FilterActionMap, FiltersActions, beanStore, ActionPrefix);
+        reducerMap[Reducers.reducerKeys.filterAction] = Reducers._add(FilterActionMap, FiltersActions, beanStore, ActionPrefix);
         reducerMap[Reducers.reducerKeys.familyFolder] = Reducers._add(FamilyFolderActionsMap, FamilyFolderActions, beanStore, FamilyFolderActions);
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore, 'FRA');

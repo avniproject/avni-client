@@ -78,8 +78,8 @@ class IndividualSearchView extends AbstractComponent {
                                          value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)} multiline={false}/> : null}
                         <AddressLevels
                             key={this.state.key}
-                            onSelect={(selectedAddressLevels) =>
-                                this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: selectedAddressLevels})
+                            onSelect={(addressLevelState) =>
+                                this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState.lowestSelectedAddresses})
                             }
                             multiSelect={true}/>
                         <CheckBoxFormElement

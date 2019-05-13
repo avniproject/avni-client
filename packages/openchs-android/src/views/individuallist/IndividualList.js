@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal} from 'react-native';
-import _ from 'lodash';
-import {Header, Icon} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -17,9 +15,8 @@ import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import Filters from "../filter/FiltersView";
-import DashboardFilters from "../mydashbaord/DashboardFilters";
+import SearchResultsHeader from "../individual/SearchResultsHeader";
+import _ from 'lodash';
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -94,49 +91,27 @@ class IndividualList extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dataSource = this.ds.cloneWithRows(this.state.individuals.data);
-        const visitType = this.I18n.t(this.props.params.listType);
-        const subjectTypeName = this.state.subjectType.name;
+        const dataSource = this.ds.cloneWithRows(this.state.individuals.data.slice(0, 50));
+        const visitType = this.I18n.t(this.props.params.cardTitle);
+        const visitInfo = this.props.params.visitInfo;
         return (
             <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
-                    title={`${this.props.params.address.name} - ${visitType}`}
+                    title={`${visitType}`}
                     func={this.props.params.backFunction}/>
+                <SearchResultsHeader totalCount={this.state.individuals.data.length}
+                                     displayedCount={this.state.individuals.data.slice(0, 50).length}/>
                 <CHSContent>
-                    <Modal
-                        animationType={'none'}
-                        transparent={false}
-                        visible={this.state.showFilters}
-                        onRequestClose={() => this._onClose()}>
-                        <Filters
-                            applyFn={() => this._onClose()}
-                            filters={this.state.filters}
-                            onSelect={(filter) => this.dispatchAction(Actions.ADD_FILTER, {filter: filter})}/>
-                    </Modal>
-                    {/*<DashboardFilters date={this.state.date} filters={this.state.filters} onPress={() => this._onPress()}/>*/}
                     <ListView
                         style={IndividualList.styles.container}
                         initialListSize={20}
                         enableEmptySections={true}
-                        renderHeader={() => (
-                            <Text style={[Fonts.typography("paperFontTitle"), IndividualList.styles.header]}>
-                                {`${this.I18n.t("patientCountForVisitType", {
-                                    visitType: visitType,
-                                    count: this.state.individuals.data.length,
-                                    subjectTypeName: subjectTypeName
-                                })}`}
-                            </Text>)}
                         removeClippedSubviews={true}
                         dataSource={dataSource}
                         renderRow={(individual) => <IndividualDetails individual={individual}
+                                                                      visitInfo={_.filter(visitInfo, (visits) => visits.uuid === individual.uuid)}
                                                                       backFunction={() => this.onBackCallback()}/>}/>
                 </CHSContent>
-                {/*<TouchableOpacity activeOpacity={0.5}
-                                  onPress={() => this._onPress()}
-                                  style={IndividualList.styles.floatingButton}>
-                    <Icon name='filter-list' size={40}
-                          style={IndividualList.styles.floatingButtonIcon}/>
-                </TouchableOpacity>*/}
             </CHSContainer>
         );
     }
