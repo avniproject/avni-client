@@ -192,6 +192,8 @@ export default {
         return Color(this.radioColor).darken(0.2).hex();
     },
 
+    radioSelectedColorAndroid: Color("#009688").darken(0.2).hex(),
+
 
     // Spinner
     defaultSpinnerColor: '#45D56E',
