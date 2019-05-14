@@ -102,7 +102,7 @@ class ProgramEncounterView extends AbstractComponent {
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${this.state.programEncounter.name || this.state.programEncounter.encounterType.operationalEncounterTypeName}`;
         this.displayMessage(this.props.params.message);
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
                                func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, StartProgramView])}/>

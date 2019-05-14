@@ -169,7 +169,7 @@ class FilterView extends AbstractComponent {
         const {width} = Dimensions.get('window');
         const filters = this.state.filters ? Array.from(this.state.filters.values()) : [];
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Styles.whiteColor}}>
+            <CHSContainer  style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('Filter')} func={this.props.onBack}/>
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>

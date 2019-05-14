@@ -82,7 +82,7 @@ class IndividualAddRelativeView extends AbstractComponent {
         const headerMessage = `${this.I18n.t(this.props.individual.nameString)} - ${this.I18n.t('addARelative')}`;
         const searchHeaderMessage = `${headerMessage} - ${this.I18n.t('search')}`;
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={headerMessage}/>
                     <View style={{

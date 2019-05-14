@@ -28,7 +28,7 @@ class CheckBoxFormElement extends Component {
                     <View style={container}>
                         <View style={{ flex: 0.9, flexDirection: 'row', alignItems: 'center' }}>
                             <CheckBox
-                                theme={themes}
+
                                 checked={checked}
                                 onPress={onPress} />
                             <Text style={[Styles.formBodyText, { 

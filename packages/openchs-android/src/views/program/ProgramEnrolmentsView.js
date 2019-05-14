@@ -44,7 +44,7 @@ class ProgramEnrolmentsView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={`${this.I18n.t('allEnrolmentsInProgram')}: ${this.state.programName}`}
                                func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView])}/>

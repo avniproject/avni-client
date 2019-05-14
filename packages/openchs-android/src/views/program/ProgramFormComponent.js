@@ -51,7 +51,7 @@ class ProgramFormComponent extends AbstractComponent {
             ? ProgramEnrolment.validationKeys.ENROLMENT_LOCATION
             : ProgramEnrolment.validationKeys.EXIT_LOCATION
 
-        return (<CHSContainer theme={themes}>
+        return (<CHSContainer>
             <CHSContent ref="scroll">
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.displayName})}

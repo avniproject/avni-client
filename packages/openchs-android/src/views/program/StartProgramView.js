@@ -94,7 +94,7 @@ class StartProgramView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
 
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}/>
 

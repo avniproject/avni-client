@@ -67,7 +67,7 @@ class ChecklistItemView extends AbstractComponent {
     render() {
         General.logDebug('ChecklistItemView', 'render');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.checklistItem.checklist.programEnrolment.individual.nameString}
                                func={() => this.previous()}/>

@@ -54,7 +54,7 @@ class IndividualSearchView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     {this.props.showHeader ? <AppHeader
                         title={this.props.headerMessage ? this.props.headerMessage : this.I18n.t("search")}/> : <View/>}

@@ -73,7 +73,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <View style={{
                         padding: 72,

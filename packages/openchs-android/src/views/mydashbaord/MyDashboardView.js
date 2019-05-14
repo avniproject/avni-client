@@ -71,7 +71,7 @@ class MyDashboardView extends AbstractComponent {
         const dataSource = this.ds.cloneWithRows((this.state.visits));
         const date = this.state.date;
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer  style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}/>
                 <CHSContent>
                     <View>

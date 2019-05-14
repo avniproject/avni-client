@@ -69,7 +69,7 @@ class IndividualEncounterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t(this.state.encounter.encounterType.displayName)}
                                func={() => this.previous()}/>

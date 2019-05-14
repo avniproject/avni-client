@@ -66,7 +66,7 @@ class FamilyList extends AbstractComponent {
         const dataSource = this.ds.cloneWithRows(this.state.familiesList.data);
         const familyType = this.I18n.t(this.props.params.listType);
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <AppHeader
                     title={`${this.props.params.address.name} - ${familyType}`}/>
                 <CHSContent>

@@ -128,7 +128,7 @@ class SystemRecommendationView extends AbstractComponent {
         const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, StartProgramView,
             ProgramEnrolmentView];
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
                                func={() => CHSNavigator.navigateToFirstPage(this, wizardViews)}/>

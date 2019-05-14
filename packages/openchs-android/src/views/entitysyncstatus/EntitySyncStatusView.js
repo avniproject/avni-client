@@ -61,7 +61,7 @@ class EntitySyncStatusView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('entitySyncStatus')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>

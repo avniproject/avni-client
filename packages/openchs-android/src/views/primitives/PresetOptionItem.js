@@ -39,10 +39,10 @@ class PresetOptionItem extends AbstractComponent {
 
     getSelectComponent() {
         if (this.props.multiSelect)
-            return (<CheckBox theme={themes} checked={this.props.checked}
+            return (<CheckBox  checked={this.props.checked}
                               onPress={() => this.props.onPress()}/>);
         else
-            return (<Radio theme={themes} selected={this.props.checked}
+            return (<Radio  selected={this.props.checked}
                            onPress={() => this.props.onPress()} color={Colors.AccentColor}/>);
     }
 

@@ -8,15 +8,14 @@ import customVariables from "./../../../native-base-theme/variables/platform";
 
 class CHSContainer extends React.Component {
 
-    //Capuchin patch. Container does not allow custom Contents within them.
-    renderContent() {
-        return this.props.children;
-    }
+    static propTypes = {
+        style: PropTypes.object,
+    };
 
     render() {
         return (
             <StyleProvider style={getTheme({...customVariables, ...themes})}>
-                <Container>
+                <Container style={this.props.style}>
                     {this.props.children}
                 </Container>
             </StyleProvider>

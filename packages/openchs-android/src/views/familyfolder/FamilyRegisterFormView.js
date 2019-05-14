@@ -45,7 +45,7 @@ class FamilyRegisterFormView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>

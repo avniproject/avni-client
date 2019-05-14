@@ -101,7 +101,7 @@ class LoginView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
                     <View style={{

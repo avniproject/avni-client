@@ -61,7 +61,7 @@ export default class App extends Component {
     }
 
     render() {
-        return (<CHSContainer theme={themes}>
+        return (<CHSContainer>
             <CHSContent>
                 <Text>
                     This is your playground to try out new components.

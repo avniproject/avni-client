@@ -79,7 +79,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
     render() {
         General.logDebug('ProgramEncounterCancelView', 'render');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.programEncounter.programEnrolment.individual.nameString}
                                func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterCancelView])}/>

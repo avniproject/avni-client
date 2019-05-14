@@ -133,7 +133,7 @@ class SettingsView extends AbstractComponent {
     render() {
         const localeLabelValuePairs = this.state.localeMappings.map((localeMapping) => new RadioLabelValue(localeMapping.displayText, localeMapping));
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>

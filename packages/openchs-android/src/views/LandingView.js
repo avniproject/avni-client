@@ -54,7 +54,7 @@ class LandingView extends AbstractComponent {
     render() {
         General.logDebug("LandingView", "render");
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
                 <Tabs ref={(c) => { this.tabs = c}}>
                     <Tab heading={this.I18n.t('home')}>

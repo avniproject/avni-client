@@ -95,7 +95,7 @@ class IndividualList extends AbstractComponent {
         const visitType = this.I18n.t(this.props.params.cardTitle);
         const visitInfo = this.props.params.visitInfo;
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer  style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
                     title={`${visitType}`}
                     func={this.props.params.backFunction}/>

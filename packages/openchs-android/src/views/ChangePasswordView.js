@@ -98,7 +98,7 @@ class ChangePasswordView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <View style={{
                         padding: 72,

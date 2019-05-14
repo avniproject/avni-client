@@ -60,7 +60,7 @@ class IndividualRegisterFormView extends AbstractComponent {
         General.logDebug(this.viewName(), `render`);
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
                                func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView])}/>

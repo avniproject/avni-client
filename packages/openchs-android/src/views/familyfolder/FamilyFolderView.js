@@ -66,7 +66,7 @@ class FamilyFolderView extends AbstractComponent {
     render() {
         const dataSource = this.ds.cloneWithRows(_.values(this.state.familiesSummary));
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer  style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('familyFolder')}/>
                 <CHSContent>
                     <View style={FamilyFolderView.styles.container}>

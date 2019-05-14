@@ -42,7 +42,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
                     <AppHeader title={this.I18n.t('generalHistory')}/>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual} style={DGS.common.content}

@@ -51,7 +51,7 @@ class FamilyRegisterView extends AbstractComponent {
         General.logDebug(this.viewName(), `render`);
         const headOfFamilySearchHeaderMessage = `Head of Family - ${this.I18n.t('search')}`;
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('familyRegistration')}/>
                     <View style={{

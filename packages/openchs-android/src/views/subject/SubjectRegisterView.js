@@ -104,7 +104,7 @@ class SubjectRegisterView extends AbstractComponent {
         {this.displayMessage(this.props.message)}
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         return (
-            <CHSContainer theme={themes}>
+            <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
                                func={() => this.previous()}/>

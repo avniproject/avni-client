@@ -74,7 +74,7 @@ class VideoListView extends AbstractComponent {
     render() {
         General.logDebug('VideoListView', 'render');
         return (
-            <CHSContainer theme={themes} style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer  style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('Videos')}/>
                 <CHSContent>
                     <VideoList videos={this.state.videos} onPlay={this.onPlay}/>
