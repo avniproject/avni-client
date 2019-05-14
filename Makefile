@@ -26,6 +26,7 @@ ci:
 
 define test
 	$(call _setup_hosts)
+	$(call _create_config,dev)
 	cd packages/openchs-$1; npm run $(if $(ci_flag_set),test-ci,test)
 endef
 
