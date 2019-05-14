@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import Styles from "../../primitives/Styles";
-import {PermissionsAndroid, Platform, Text, View} from "react-native";
+import {PermissionsAndroid, Platform, View} from "react-native";
 import Geolocation from "react-native-geolocation-service";
 import Colors from "../../primitives/Colors";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import General from "../../../utility/General";
 import Distances from "../../primitives/Distances";
-import {Button, Icon} from "native-base";
+import {Button, Text, Icon} from "native-base";
 import Geo from "../../../framework/geo";
 import UserInfoService from "../../../service/UserInfoService";
 

@@ -1,18 +1,14 @@
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import * as React from "react";
-import {LineChart} from 'react-native-charts-wrapper';
-import {Button} from "native-base";
-import PropTypes from 'prop-types';
+import {LineChart} from "react-native-charts-wrapper";
+import {Button, Text} from "native-base";
+import PropTypes from "prop-types";
 
-import {
-    Text,
-    View,
-    processColor, StyleSheet
-} from 'react-native';
+import {View, processColor, StyleSheet} from "react-native";
 import moment from "moment";
 
-import _ from 'lodash';
+import _ from "lodash";
 import Styles from "../primitives/Styles";
 
 @Path('/GrowthChartView')
