@@ -82,8 +82,8 @@ class Relatives extends AbstractComponent {
     renderRelativeActionButton(individualRelative) {
         return (<View>
         <View style={{flex:0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-    <Button transparent textStyle={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-            paddingHorizontal: 5}} onPress={() => this.props.onRelativeDeletion(individualRelative)}>delete</Button>
+    <Button transparent onPress={() => this.props.onRelativeDeletion(individualRelative)}><Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
+        paddingHorizontal: 5}}>delete</Text></Button>
 
     </View>
         </View>);

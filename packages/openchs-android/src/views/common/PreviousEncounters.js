@@ -38,11 +38,9 @@ class PreviousEncounters extends AbstractComponent {
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
         if (encounter.getName() === 'Encounter') {
             CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter, editing);
-        }
-        else if (encounter.isCancelled()) {
+        } else if (encounter.isCancelled()) {
             CHSNavigator.navigateToProgramEncounterCancelView(this, encounter, editing);
-        }
-        else {
+        } else {
             CHSNavigator.navigateToProgramEncounterView(this, encounter, editing);
         }
 
@@ -111,10 +109,12 @@ class PreviousEncounters extends AbstractComponent {
         return (
             <View>
                 {(showingPartial) ?
-                    <Button onPress={() => this.props.onShowMore()} style={[Styles.basicSecondaryButtonView, {alignSelf: 'center'}]} textStyle={{
-                        fontSize: Fonts.Medium,
-                        color: Colors.DarkPrimaryColor
-                    }}>{this.I18n.t('showMoreVisits')}</Button> : null
+                    <Button onPress={() => this.props.onShowMore()}
+                            style={[Styles.basicSecondaryButtonView, {alignSelf: 'center'}]}><Text
+                        style={{
+                            fontSize: Fonts.Medium,
+                            color: Colors.DarkPrimaryColor
+                        }}>{this.I18n.t('showMoreVisits')}</Text></Button> : null
                 }
                 {renderable}
             </View>

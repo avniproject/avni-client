@@ -24,10 +24,10 @@ class Individual extends BaseEntity {
             subjectType: "SubjectType",
             name: "string",
             firstName: "string",
-            lastName: {type:'string',optional:true},
-            dateOfBirth: {type:"date", optional:true},
-            dateOfBirthVerified: {type:'bool', optional:true},
-            gender: {type:'Gender', optional:true},
+            lastName: {type: 'string', optional: true},
+            dateOfBirth: {type: "date", optional: true},
+            dateOfBirthVerified: {type: 'bool', optional: true},
+            gender: {type: 'Gender', optional: true},
             registrationDate: "date",
             lowestAddressLevel: 'AddressLevel',
             voided: {type: 'bool', default: false},
@@ -73,13 +73,13 @@ class Individual extends BaseEntity {
 
     get toResource() {
         const resource = _.pick(this, ["uuid", "firstName", "lastName", "dateOfBirthVerified", "voided"]);
-        resource.dateOfBirth = this.dateOfBirth? moment(this.dateOfBirth).format('YYYY-MM-DD'): null;
+        resource.dateOfBirth = this.dateOfBirth ? moment(this.dateOfBirth).format('YYYY-MM-DD') : null;
         resource.registrationDate = moment(this.registrationDate).format('YYYY-MM-DD');
         resource["genderUUID"] = this.gender ? this.gender.uuid : null;
         resource["addressLevelUUID"] = this.lowestAddressLevel.uuid;
         resource["subjectTypeUUID"] = this.subjectType.uuid;
 
-        if(!_.isNil(this.registrationLocation)) {
+        if (!_.isNil(this.registrationLocation)) {
             resource["registrationLocation"] = this.registrationLocation.toResource;
         }
 
@@ -126,7 +126,7 @@ class Individual extends BaseEntity {
         individual.gender = gender;
         individual.lowestAddressLevel = addressLevel;
         individual.name = `${individual.firstName} ${individual.lastName}`;
-        if(!_.isNil(individualResource.registrationLocation))
+        if (!_.isNil(individualResource.registrationLocation))
             individual.registrationLocation = Point.fromResource(individualResource.registrationLocation);
         individual.subjectType = subjectType;
         return individual;
@@ -265,7 +265,7 @@ class Individual extends BaseEntity {
         if (validationResult.success && this.isRegistrationBeforeDateOfBirth) {
             return ValidationResult.failure(Individual.validationKeys.REGISTRATION_DATE, 'registrationBeforeDateOfBirth');
         }
-        if(validationResult.success && General.dateIsAfterToday(this.registrationDate)) {
+        if (validationResult.success && General.dateIsAfterToday(this.registrationDate)) {
             return ValidationResult.failure(Individual.validationKeys.REGISTRATION_DATE, 'registrationDateInFuture');
         }
         return validationResult;
@@ -291,7 +291,7 @@ class Individual extends BaseEntity {
         //validationResults.push(this.validateRegistrationLocation());
         validationResults.push(this.validateFirstName());
 
-        if(this.subjectType.isIndividual()){
+        if (this.subjectType.isIndividual()) {
             validationResults.push(this.validateLastName());
             validationResults.push(this.validateDateOfBirth());
             validationResults.push(this.validateGender());
@@ -450,29 +450,29 @@ class Individual extends BaseEntity {
     }
 
     //TODO use polymorphism to avoid if checks based on this
-    isIndividual(){
+    isIndividual() {
         //TODO this nil check is not required when migration works properly
         return (_.isNil(this.subjectType) || this.subjectType.isIndividual());
     }
 
-    userProfileSubtext1(i18n){
+    userProfileSubtext1(i18n) {
         return this.isIndividual() ? i18n.t(this.gender.name) : "";
     }
 
-    userProfileSubtext2(i18n){
+    userProfileSubtext2(i18n) {
         return this.isIndividual() ? this.getDisplayAge(i18n) : "";
     }
 
-    icon(){
+    icon() {
         return this.isIndividual() ? 'person-pin' : 'account-balance';
     }
 
     //TODO these methods are slightly differece because of differece in UI on search result and my dashboard listing. Not taking the hit right now.
-    detail1(i18n){
-        return this.isIndividual() ? {label: "Age", value:this.getDisplayAge(i18n)} : {};
+    detail1(i18n) {
+        return this.isIndividual() ? {label: "Age", value: this.getDisplayAge(i18n)} : {};
     }
 
-    detail2(i18n){
+    detail2(i18n) {
         return this.isIndividual() ? {label: "Gender", value: i18n.t(this.gender.name)} : {};
     }
 
