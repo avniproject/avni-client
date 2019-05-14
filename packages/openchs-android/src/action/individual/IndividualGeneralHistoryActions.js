@@ -16,7 +16,7 @@ export class IndividualGeneralHistoryActions {
     }
 
     static clone(state) {
-        const newState = {
+        return {
             individual: state.individual,
             programsAvailable: state.programsAvailable,
             showCount: state.showCount

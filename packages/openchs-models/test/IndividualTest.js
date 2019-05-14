@@ -68,4 +68,28 @@ describe('IndividualTest', () => {
         assert.equal(individual.getPreviousEnrolment('FooProgram', programEnrolment1.uuid), null);
         assert.equal(individual.getPreviousEnrolment('BarProgram', programEnrolment2.uuid), null);
     });
+
+    it('firstActiveOrRecentEnrolment', () => {
+        const individual = Individual.createEmptyInstance();
+
+        let addEnrolment = function (uuid, program, enrolmentDateTime, programExitDateTime) {
+            const enrolment = EntityFactory.createEnrolment({uuid, program, enrolmentDateTime, programExitDateTime});
+            individual.addEnrolment(enrolment);
+            return enrolment;
+        };
+
+        const fooProgram = EntityFactory.createProgram({name: 'FooProgram'});
+        const fooEnrol1 = addEnrolment(100, fooProgram, new Date(2001, 1, 1), new Date(2001, 5, 5));
+        const fooEnrol2 = addEnrolment(200, fooProgram, new Date(2002, 1, 1), new Date(2002, 5, 5));
+        assert.equal(individual.firstActiveOrRecentEnrolment.uuid, 200);
+
+        const fooEnrol3 = addEnrolment(300, fooProgram, new Date(2003, 1, 1));
+        assert.equal(individual.firstActiveOrRecentEnrolment.uuid, 300);
+
+        delete fooEnrol1.programExitDateTime;
+        assert.equal(individual.firstActiveOrRecentEnrolment.uuid, 300);
+
+        fooEnrol3.programExitDateTime = new Date(2003, 2, 2);
+        assert.equal(individual.firstActiveOrRecentEnrolment.uuid, 100);
+    });
 });

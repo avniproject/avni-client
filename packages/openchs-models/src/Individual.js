@@ -11,7 +11,7 @@ import Duration from "./Duration";
 import _ from "lodash";
 import ValidationResult from "./application/ValidationResult";
 import ObservationsHolder from "./ObservationsHolder";
-import { findMediaObservations } from './Media';
+import {findMediaObservations} from './Media';
 import Point from "./geo/Point";
 import SubjectType from './SubjectType';
 
@@ -379,9 +379,7 @@ class Individual extends BaseEntity {
     }
 
     get firstActiveOrRecentEnrolment() {
-        return _(this.nonVoidedEnrolments())
-            .sortBy('enrolmentDateTime')
-            .findLast('isActive');
+        return _(this.nonVoidedEnrolments()).sortBy(['isActive', 'enrolmentDateTime']).last();
     }
 
     get hasEnrolments() {

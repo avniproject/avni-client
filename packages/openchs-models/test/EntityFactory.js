@@ -111,12 +111,14 @@ class EntityFactory {
         return programEncounter;
     }
 
-    static createEnrolment({enrolmentDateTime = new Date(), program = null, observations = [], individual}) {
+    static createEnrolment({enrolmentDateTime = new Date(), uuid, programExitDateTime, program = null, observations = [], individual}) {
         const programEnrolment = ProgramEnrolment.createEmptyInstance();
         programEnrolment.enrolmentDateTime = enrolmentDateTime;
         programEnrolment.program = program;
+        programEnrolment.programExitDateTime = programExitDateTime;
         programEnrolment.observations = observations;
         programEnrolment.individual = individual;
+        programEnrolment.uuid = uuid || programEnrolment.uuid;
         return programEnrolment;
     }
 
