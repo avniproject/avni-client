@@ -76,17 +76,6 @@ class MenuView extends AbstractComponent {
             flexWrap: 'nowrap',
             backgroundColor: "rgba(0, 0, 0, 0.5)",
         };
-
-        this.regModalBackground = {
-            width: width * .7,
-            backgroundColor: 'white',
-            flexWrap: 'nowrap',
-            justifyContent: 'flex-start',
-            padding: 20,
-            alignSelf: 'center',
-            borderRadius: 8
-        };
-
         this.syncBackground = {
             width: width * .7,
             flexDirection: 'row',
@@ -97,20 +86,11 @@ class MenuView extends AbstractComponent {
             alignSelf: 'center',
             backgroundColor: Colors.getCode("paperGrey900").color,
         };
-        this.syncTextContent = {
-            color: Colors.TextOnPrimaryColor
-        };
-
     }
 
     settingsView() {
         TypedTransition.from(this).to(SettingsView);
     }
-
-    registrationView() {
-        this.setState({regModalVisible: true});
-    }
-
     changePasswordView() {
         CHSNavigator.navigateToChangePasswordView(this);
     }
@@ -277,22 +257,6 @@ class MenuView extends AbstractComponent {
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
     };
-
-    registrationModalItem(key, label, bgColor, onPress) {
-        return (<View key={key} style={{paddingTop: 24,}}>
-            <Button style={{
-                width: '100%',
-                backgroundColor: bgColor,
-                height: 50,
-                elevation: 2
-            }}
-                    textStyle={{fontSize: 18, lineHeight: 28}}
-                    onPress={() => this.setState({regModalVisible: false}, onPress)}>
-                <Text>{label}</Text>
-            </Button>
-        </View>)
-    }
-
     renderRegistrationModal() {
         if (!this.state.displayActionSelector) {
             return null;

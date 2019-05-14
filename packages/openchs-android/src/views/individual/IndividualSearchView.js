@@ -18,7 +18,6 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
-import RegistrationFAB from './RegistrationFAB';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {

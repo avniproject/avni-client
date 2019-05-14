@@ -16,7 +16,6 @@ import bugsnag from "../utility/bugsnag";
 import General from "../utility/General";
 import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
-import RegistrationFAB from "./individual/RegistrationFAB";
 
 
 @Path('/landingView')
@@ -69,7 +68,6 @@ class LandingView extends AbstractComponent {
                         <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
                     </Tab>
                 </Tabs>
-                {/*<RegistrationFAB parent={this}/>*/}
             </CHSContainer>
         );
     }
