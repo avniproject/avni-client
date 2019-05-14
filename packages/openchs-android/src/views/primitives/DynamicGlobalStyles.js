@@ -7,7 +7,7 @@ class DynamicGlobalStyles {
         this.windowWidth = Dimensions.get('window').width;
         this.windowHeight = Dimensions.get('window').height;
 
-        this.formElementLabel = {fontSize: Fonts.Normal, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)'};
+        this.formElementLabel = {fontSize: Fonts.Normal, textAlignVertical: 'center', color: 'rgba(15, 15, 15, 0.75)', marginLeft: 4};
         this.formElementTextInput = {flex: 1, fontSize: Fonts.Large};
         this.formRadioText = {fontSize: Fonts.Large, marginLeft: this.resizeWidth(10)};
 

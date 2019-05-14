@@ -67,7 +67,7 @@ class DurationDateFormElement extends AbstractFormElement {
                                    onPress={() => this.dispatchAction(this.props.actionName, {
                                        formElement: this.props.element,
                                        duration: this.props.duration.changeUnit(durationOption)
-                                   })}/>
+                                   })} color={Colors.AccentColor}/>
                             <Text style={DGS.formRadioText}>{this.I18n.t(durationOption)}</Text>
                         </View>
                     })}

@@ -32,8 +32,7 @@ class CheckBoxFormElement extends Component {
                                 checked={checked}
                                 onPress={onPress} />
                             <Text style={[Styles.formBodyText, { 
-                                marginLeft: 11, 
-                                color: Colors.InputNormal, 
+                                marginLeft: 13,
                                 flex: .95, 
                                 color: Colors.InputNormal 
                             }]}>

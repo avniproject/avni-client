@@ -10,7 +10,6 @@ import themes from "./themes"
 import General from "../../utility/General";
 
 class PresetOptionItem extends AbstractComponent {
-    static inputTextStyle = {marginLeft: 11, color: Colors.InputNormal};
 
     static defaultProps = {
         chunked: false
@@ -44,7 +43,7 @@ class PresetOptionItem extends AbstractComponent {
                               onPress={() => this.props.onPress()}/>);
         else
             return (<Radio theme={themes} selected={this.props.checked}
-                           onPress={() => this.props.onPress()}/>);
+                           onPress={() => this.props.onPress()} color={Colors.AccentColor}/>);
     }
 
     shouldComponentUpdate(nextProps) {
@@ -56,6 +55,8 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
+        const marginLeft = this.props.multiSelect ? 14 : 8;
+        const inputTextStyle = {marginLeft: marginLeft, color: Colors.InputNormal};
         General.logDebug("PresetOptionItem", "render");
         const color = _.isNil(this.props.validationResult)
             ? this.props.checked && this.props.abnormal
@@ -77,7 +78,7 @@ class PresetOptionItem extends AbstractComponent {
                     <View>
                         {this.getSelectComponent()}
                     </View>
-                    <Text style={[Styles.formBodyText, PresetOptionItem.inputTextStyle, {color: color}]}>
+                    <Text style={[Styles.formBodyText, inputTextStyle, {color: color}]}>
                         {this.props.displayText}
                     </Text>
                 </View>

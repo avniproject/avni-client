@@ -101,7 +101,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
                         })}>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <CheckBox checked={this.state.showPassword}/>
-                                <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show password"}</Text>
+                                <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show password"}</Text>
                             </View>
                         </TouchableNativeFeedback>
 

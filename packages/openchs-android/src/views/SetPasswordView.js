@@ -97,7 +97,7 @@ class SetPasswordView extends AbstractComponent {
                             <CheckBox checked={this.state.showPassword} onPress={() => this.setState((oldState) => {
                                 return {showPassword: !oldState.showPassword}
                             })}/>
-                            <Text style={[Styles.formLabel, {paddingLeft: 8}]}>{"Show password"}</Text>
+                            <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show password"}</Text>
                         </View>
 
                         <TouchableNativeFeedback onPress={() => {

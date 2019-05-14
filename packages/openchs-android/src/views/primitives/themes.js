@@ -76,9 +76,9 @@ export default {
     checkboxBgColor: Colors.AccentColor,
     checkboxSize: 16,
     checkboxTickColor: '#fff',
-    CheckboxBorderWidth: Platform.OS === "ios" ? 1 : 1,
+    CheckboxBorderWidth: Platform.OS === "ios" ? 1 : 2,
     CheckboxPaddingLeft: Platform.OS === "ios" ? 4 : 1,
-
+    CheckboxIconMarginTop:  Platform.OS === "ios" ? undefined : 0,
 
     // Color
     brandPrimary: Colors.AccentColor,
@@ -189,12 +189,8 @@ export default {
     // Radio Button
     radioBtnSize: (Platform.OS === 'ios') ? 25 : 25,
     radioColor: '#009688',
-
-    get radioSelectedColor() {
-        return Color(this.radioColor).darken(0.2).hex();
-    },
-
     radioSelectedColorAndroid: Color("#009688").darken(0.2).hex(),
+    radioBtnLineHeight: Platform.OS === "ios" ? 29 : 28,
 
 
     // Spinner
