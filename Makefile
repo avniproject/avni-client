@@ -126,7 +126,7 @@ create_bundle:
 			--assets-dest android/app/src/main/res/
 
 create_apk:
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace -w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease -x bundleReleaseJsAndAssets --stacktrace --w
 
 release: release_clean create_bundle create_apk
 
