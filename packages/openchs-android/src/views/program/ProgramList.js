@@ -1,8 +1,8 @@
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Button} from "native-base";
+import {Button, Text} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
