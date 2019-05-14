@@ -55,7 +55,7 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const marginLeft = this.props.multiSelect ? 14 : 8;
+        const marginLeft = this.props.multiSelect ? 16 : 8;
         const inputTextStyle = {marginLeft: marginLeft, color: Colors.InputNormal};
         General.logDebug("PresetOptionItem", "render");
         const color = _.isNil(this.props.validationResult)

@@ -4,7 +4,7 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
-import {Tabs, Tab} from "native-base";
+import {Tabs, Tab,Text} from "native-base";
 import themes from "./primitives/themes";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
@@ -48,12 +48,16 @@ class LandingView extends AbstractComponent {
         return super.componentWillMount();
     }
 
+    componentDidMount() {
+        setTimeout(this.tabs.goToPage.bind(this.tabs, this.props.tabIndex));
+    }
+
     render() {
         General.logDebug("LandingView", "render");
         return (
             <CHSContainer theme={themes}>
                 <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                <Tabs>
+                <Tabs ref={(c) => { this.tabs = c}}>
                     <Tab heading={this.I18n.t('home')}>
                         <IndividualSearchView
                             tabLabel={this.I18n.t('home')}

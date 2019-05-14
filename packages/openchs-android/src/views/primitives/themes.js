@@ -79,6 +79,8 @@ export default {
     CheckboxBorderWidth: Platform.OS === "ios" ? 1 : 2,
     CheckboxPaddingLeft: Platform.OS === "ios" ? 4 : 1,
     CheckboxIconMarginTop:  Platform.OS === "ios" ? undefined : 0,
+    CheckboxPaddingBottom: 2,
+    CheckboxRadius: 3,
 
     // Color
     brandPrimary: Colors.AccentColor,
