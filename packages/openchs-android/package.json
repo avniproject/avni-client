@@ -48,7 +48,7 @@
     "react-native-vector-icons": "^6.1.0",
     "react-native-video": "4.4.1",
     "react-native-video-player": "0.10.0",
-    "realm": "2.0.12",
+    "realm": "2.26.1",
     "redux": "3.6.0",
     "rn-fetch-blob": "^0.10.15",
     "stacktrace-js": "2.0.0",
