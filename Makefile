@@ -244,9 +244,8 @@ build_env_ci: ##
 
 # <packager>
 run_packager: ##
-	cd packages/openchs-android
 	REACT_EDITOR=$([ "$REACT_EDITOR" == "" ] && echo "subl" || echo "$REACT_EDITOR")
-	npm start
+	cd packages/openchs-android && npm start
 # </packager>
 
 

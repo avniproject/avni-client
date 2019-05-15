@@ -8,7 +8,6 @@
   },
   "scripts": {
     "link": "lerna link",
-    "start": "lerna run --stream start --scope openchs-android",
     "bootstrap": "lerna bootstrap",
     "bootstrap-ci": "lerna bootstrap --concurrency=2"
   },

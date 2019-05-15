@@ -14,7 +14,7 @@
   },
   "license": "AGPL-3.0",
   "scripts": {
-    "start": "node --max-old-space-size=2048 node_modules/react-native/local-cli/cli.js start --reset-cache",
+    "start": "react-native start",
     "test": "jest",
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')"
