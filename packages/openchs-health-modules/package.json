@@ -13,7 +13,7 @@
     "test-ci": "jest --forceExit --maxWorkers=2 --ci"
   },
   "dependencies": {
-    "lodash": "4.14.0",
+    "lodash": "4.17.11",
     "moment": "2.18.1",
     "rules-config": "github:openchs/rules-config#7199aa118e22f84267c1fa04f7974c15881c3d8d"
   },
