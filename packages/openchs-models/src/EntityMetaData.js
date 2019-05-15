@@ -64,11 +64,6 @@ const rule = refData(Rule, {syncWeight: 3});
 const ruleDependency = refData(RuleDependency, {syncWeight: 3});
 const form = refData(Form, {syncWeight: 4});
 const formMapping = refData(FormMapping, {syncWeight: 4});
-const addressLevel = refDataNameTranslated(AddressLevel, {
-    res: 'locations',
-    filter: 'byCatchmentAndLastModified',
-    syncWeight: 4
-});
 const encounterType = refDataNameTranslated(EncounterType, {res: 'operationalEncounterType', syncWeight: 4});
 const program = refDataNameTranslated(Program, {res: 'operationalProgram', syncWeight: 3});
 const programOutcome = refDataNameTranslated(ProgramOutcome, {syncWeight: 3});
@@ -84,14 +79,12 @@ const checklistItemDetail = refData(ChecklistItemDetail, {parent: checklistDetai
 const formElementGroup = refDataNameTranslated(FormElementGroup, {parent: form, syncWeight: 3});
 const formElement = refDataNameTranslated(FormElement, {parent: formElementGroup, syncWeight: 5});
 const conceptAnswer = refData(ConceptAnswer, {parent: concept, syncWeight: 4});
-const locationMapping = refData(LocationMapping, {
-    filter: 'byCatchmentAndLastModified',
-    parent: addressLevel,
-    syncWeight: 4
-});
 const identifierSource = refData(IdentifierSource, {syncWeight: 0});
-
 const individual = txData(Individual, {syncWeight: 5});
+
+const addressLevel = refDataNameTranslated(AddressLevel, {res: 'locations', syncWeight: 4});
+const locationMapping = refData(LocationMapping, {parent: addressLevel, syncWeight: 4});
+
 const encounter = txData(Encounter, {parent: individual, syncWeight: 7});
 const programEnrolment = txData(ProgramEnrolment, {parent: individual, syncWeight: 3});
 const programEncounter = txData(ProgramEncounter, {parent: programEnrolment, syncWeight: 5});

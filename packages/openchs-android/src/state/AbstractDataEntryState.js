@@ -138,7 +138,7 @@ class AbstractDataEntryState {
     }
 
     _addNextScheduledVisitToWorkList(workLists, nextScheduledVisits) {
-        const applicableScheduledVisit = nextScheduledVisits.find((visit) => {
+        const applicableScheduledVisit = _.find(nextScheduledVisits, (visit) => {
             return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
         });
         if (applicableScheduledVisit) {
