@@ -224,7 +224,7 @@ clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-org/package-lock.json
 	rm -rf packages/unminifiy/package-lock.json
 	rm -rf packages/utilities/package-lock.json
-	rm packages/openchs-android/android/app/src/main/assets/index.android.bundle
+	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
 
 setup_env: ##
 	npm install -g jest@20.0.1
