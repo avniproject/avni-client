@@ -17,6 +17,9 @@ class StubbedRuleEvaluationService {
     getNextScheduledVisits() {
         return null;
     }
+    updateWorkLists(workLists, context) {
+        return workLists;
+    }
 }
 
 export default StubbedRuleEvaluationService;
