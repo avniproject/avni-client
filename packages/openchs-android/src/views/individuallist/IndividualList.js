@@ -34,7 +34,8 @@ class IndividualList extends AbstractComponent {
     static styles = StyleSheet.create({
         container: {
             marginRight: Distances.ScaledContentDistanceFromEdge,
-            marginLeft: Distances.ScaledContentDistanceFromEdge
+            marginLeft: Distances.ScaledContentDistanceFromEdge,
+            marginTop: Distances.ScaledContentDistanceFromEdge
         },
         header: {
             fontWeight: "500",

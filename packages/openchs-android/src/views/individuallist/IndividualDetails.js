@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
-import {Badge} from 'native-base';
+import {View, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import {Badge, Text} from 'native-base';
 import Fonts from '../primitives/Fonts';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -79,9 +79,9 @@ class IndividualDetails extends AbstractComponent {
         const individualDetail1 = this.props.individual.detail1(this.I18n);
         const individualDetail2 = this.props.individual.detail2(this.I18n);
         const badges = this.props.individual.nonVoidedEnrolments().map(({program}, idx) =>
-            <Badge key={idx} style={{backgroundColor: program.colour}}>{this.I18n.t(program.displayName)}</Badge>);
+            <Badge key={idx} style={{backgroundColor: program.colour}}><Text>{this.I18n.t(program.displayName)}</Text></Badge>);
         const visitBadges = !_.isEmpty(this.props.visitInfo) ? _.head(this.props.visitInfo).visitName.map((visitName, idx) =>
-                <Badge key={idx} style={{backgroundColor: Colors.DarkPrimaryColor, marginTop: 2}}>{visitName}</Badge>) :
+                <Badge key={idx} style={{backgroundColor: Colors.DarkPrimaryColor, marginTop: 2}}><Text>{visitName}</Text></Badge>) :
             <View/>;
         return (
             <TouchableNativeFeedback
