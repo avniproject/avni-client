@@ -231,6 +231,7 @@ setup_env: ##
 	npm install -g jest-cli@20.0.1
 
 build_env: ##
+	npm i -g react-native-cli
 	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
 	npm run bootstrap
