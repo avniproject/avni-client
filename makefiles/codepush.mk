@@ -29,7 +29,7 @@ codepush_setup:
 	appcenter login
 	appcenter apps set-current Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha
 
-codepush_deploy_to_internal_test:
+codepush_deploy_to_alpha:
 	$(call _get_abi_version,1)
 	appcenter codepush release-react -a Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha -d Staging
 

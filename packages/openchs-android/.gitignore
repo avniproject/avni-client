@@ -18,4 +18,4 @@ npm-debug.log
 *.jsbundle
 src/framework/Config.js
 config/env/dev.json
-# android/fastlane/metadata/android/en-GB/changelogs
+android/fastlane/metadata/android/en-GB/changelogs

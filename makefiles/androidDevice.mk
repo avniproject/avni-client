@@ -16,16 +16,25 @@ install_universal_apk: ##
 install_apk:
 	$(call _install_apk,app-x86-release.apk)
 
-reinstall: uninstall_apk run_app
+reinstall_app: uninstall_apk run_app
+
+# Manage app already installed on the device
+define _kill_app
+	adb shell am force-stop $1
+endef
 
 kill_app:
-	adb shell am force-stop com.openchsclient
+	$(call _kill_app,com.openchsclient)
 
 start_app:
 	$(call _start_app)
 
+open_playstore_openchs:
+	$(call _kill_app,com.google.android.gms)
+	adb shell am start -a android.intent.action.VIEW -d 'market://details?id=com.openchsclient'
 
-# <app>
+
+# Run application from the code
 run_app: ##
 	$(call _setup_hosts)
 	$(call _create_config,dev)
@@ -50,6 +59,7 @@ run_app_uat:
 run_app_prod:
 	$(call _create_config,prod)
 	cd packages/openchs-android && react-native run-android
+
 
 open_app_bundle:
 	cd ..
