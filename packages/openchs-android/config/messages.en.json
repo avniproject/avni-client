@@ -227,7 +227,7 @@
   "syncServerError": "An error has occurred. Please try after sometime.",
   "syncTimeoutError": "Sorry it's taking too long. Please check your internet connection.",
   "saveAndProceedEncounter": "Save and proceed to {{enc}}",
-  "saveAndEnrol": "Save and enrol into program",
+  "saveAndEnrol": "Save and enrol into {{program}}",
   "saveAndAnotherRegistration": "Save and register another {{subject}}",
   "registrationSavedMsg": "Registration Saved",
   "enrolmentSavedMsg": "{{programName}} Enrolment Saved",
