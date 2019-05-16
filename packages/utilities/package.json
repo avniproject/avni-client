@@ -12,6 +12,6 @@
   },
   "license": "AGPL-3.0",
   "dependencies": {
-    "lodash": "4.14.0"
+    "lodash": "4.17.11"
   }
 }
