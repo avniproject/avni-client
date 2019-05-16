@@ -1,7 +1,7 @@
 {
   "name": "openchs-models",
   "description": "Model of OpenCHS that will be used by clients and health modules",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "repository": {
     "type": "git",
