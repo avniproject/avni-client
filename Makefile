@@ -206,8 +206,8 @@ openlocation_apk: ##
 # <env>
 clean_packager_cache:
 	watchman watch-del-all && rm -rf $(TMPDIR)/react-*
-	rm -rf /tmp/metro-bundler-cache-*
-	rm -rf /tmp/haste-map-react-native-packager-*
+	rm -rf /tmp/metro-*
+	rm -rf /tmp/haste-*
 
 clean_env:  ##
 	rm -rf packages/openchs-android/node_modules

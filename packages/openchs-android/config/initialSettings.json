@@ -1,5 +1,4 @@
 {
-  "serverURL": "http://192.168.56.1:8021",
   "logLevel": 4,
   "locale": "en",
   "pageSize": 100,

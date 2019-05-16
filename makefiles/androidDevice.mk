@@ -16,6 +16,8 @@ install_universal_apk: ##
 install_apk:
 	$(call _install_apk,app-x86-release.apk)
 
+reinstall: uninstall_apk run_app
+
 kill_app:
 	adb shell am force-stop com.openchsclient
 
