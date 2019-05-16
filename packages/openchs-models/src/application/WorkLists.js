@@ -23,4 +23,8 @@ export default class WorkLists {
     getCurrentWorkItem() {
         return _.get(this.currentWorkList, 'currentWorkItem');
     }
+
+    addItemsToCurrentWorkList(...workItems) {
+        this.currentWorkList.addWorkItems(...workItems);
+    }
 }
