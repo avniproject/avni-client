@@ -245,7 +245,7 @@ class CHSNavigator {
                             {
                                 enrolment: enrolment,
                                 workLists: workListState.workLists,
-                                message: recommendationsView.I18n.t('registrationSavedMsg')}], true);
+                                message: recommendationsView.I18n.t('enrolmentSavedMsg')}], true);
                 break;
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
@@ -265,7 +265,7 @@ class CHSNavigator {
                                 enrolmentUUID: enrolment.uuid,
                                 encounterType: nextWorkItem.parameters.encounterType,
                                 workLists: workListState.workLists,
-                                message: recommendationsView.I18n.t('registrationSavedMsg')}}], true);
+                                message: recommendationsView.I18n.t('encounterSavedMsg')}}], true);
                 break;
             }
             default: {
