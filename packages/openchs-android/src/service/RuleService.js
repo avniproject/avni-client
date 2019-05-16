@@ -4,6 +4,7 @@ import Service from '../framework/bean/Service';
 import {RuleDependency, Rule} from "openchs-models";
 import General from "../utility/General";
 import {common, motherCalculations} from 'openchs-health-modules';
+import * as models from 'openchs-models';
 
 @Service("ruleService")
 class RuleService extends BaseService {
@@ -22,7 +23,8 @@ class RuleService extends BaseService {
         let ruleServiceLibraryInterfaceForSharingModules = {
             log: console.log,
             common: common,
-            motherCalculations: motherCalculations
+            motherCalculations: motherCalculations,
+            models: models
         };
         eval(RuleDependency.getCode(ruleDependency));
         /**********/
