@@ -34,7 +34,7 @@ export default class WorkListState {
                 return i18n.t('saveAndAnotherRegistration', {subject: nextWorkItem.parameters.subjectTypeName});
             }
             case WorkItem.type.PROGRAM_ENROLMENT: {
-                return i18n.t('saveAndEnrol');
+                return i18n.t('saveAndEnrol', {program: nextWorkItem.parameters.programName});
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
                 return i18n.t('saveAndProceedEncounter', {enc: nextWorkItem.parameters.encounterType});
