@@ -12,13 +12,16 @@
 
 include makefiles/common.mk
 
-define _codepush_release_an_abi ## $1 = Deployment name; $2 =
-	$(call _get_abi_version,1)
-	appcenter codepush release-react -d $1 -t $(abiVersion)
+define _codepush_release_an_abi ## $1 = Deployment name; $2 = OpenCHS Abi Number, $3 App name
+	$(call _get_abi_version,$2)
+	cd packages/openchs-android && appcenter codepush release-react -a $3 -d $1 -t $(abiVersion)
 endef
 
-define _codepush_release ## $1 = Deployment name
-	$(call _codepush_release_an_abi,$1,$2)
+define _codepush_release ## $1 = Deployment name, $2 App name
+	$(call _codepush_release_an_abi,$1,1,$2)
+	$(call _codepush_release_an_abi,$1,2,$2)
+	$(call _codepush_release_an_abi,$1,3,$2)
+	$(call _codepush_release_an_abi,$1,4,$2)
 endef
 
 codepush_help:
@@ -30,8 +33,7 @@ codepush_setup:
 	appcenter apps set-current Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha
 
 codepush_deploy_to_alpha:
-	$(call _get_abi_version,1)
-	appcenter codepush release-react -a Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha -d Staging
+	$(call _codepush_release,Staging,Samanvay-Research-and-Development-Foundation/OpenCHS-Field-App-Alpha)
 
 codepush_metrics:
 	appcenter codepush deployment list
