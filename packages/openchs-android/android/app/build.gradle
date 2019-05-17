@@ -4,7 +4,10 @@ apply plugin: "com.android.application"
 import com.android.build.OutputFile
 
 project.ext.react = [
-        extraPackagerArgs  : ["--sourcemap-output", "$buildDir/generated/sourcemap.js"]
+        entryFile: "index.js",
+        extraPackagerArgs  : ["--sourcemap-output", "$buildDir/generated/sourcemap.js"],
+        jsBundleDirRelease : "$projectDir/src/main/assets",
+        resourcesDirRelease: "$projectDir/src/main/res"
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"

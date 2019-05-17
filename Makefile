@@ -73,11 +73,22 @@ test: test-models test-health-modules test-android  ##
 
 # <bugsnag>
 
+define _create_sourcemap
+	cd packages/openchs-android; \
+    		react-native bundle \
+    			--platform android \
+    			--dev false \
+    			--entry-file index.android.js \
+    			--bundle-output android/app/src/main/assets/index.android.bundle \
+    			--assets-dest android/app/src/main/res/ \
+    			--sourcemap-output android/app/build/generated/sourcemap.js
+endef
+
 define _upload_release_sourcemap
 	cd packages/openchs-android && npx bugsnag-sourcemaps upload \
 		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
 		--app-version $(shell cat packages/openchs-android/android/app/build.gradle | sed -n  's/versionName \"\(.*\)\"/\1/p' | xargs echo | sed -e "s/\(.*\)/\"\1\"/") \
-		--minified-file android/app/build/generated/assets/react/release/index.android.bundle \
+		--minified-file android/app/src/main/assets/index.android.bundle \
 		--source-map android/app/build/generated/sourcemap.js \
 		--overwrite \
 		--minified-url "index.android.bundle" \
@@ -86,6 +97,7 @@ define _upload_release_sourcemap
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
+	$(call _create_sourcemap)
 	$(call _upload_release_sourcemap)
 # </bugsnag>
 
@@ -102,14 +114,21 @@ release_clean:
 	rm -rf packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/build/generated
-	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
-	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
 	rm -rf packages/openchs-android/default.realm.*
+
+create_bundle:
+	cd packages/openchs-android; \
+		react-native bundle \
+			--platform android \
+			--dev false \
+			--entry-file index.android.js \
+			--bundle-output android/app/src/main/assets/index.android.bundle \
+			--assets-dest android/app/src/main/res/
 
 create_apk:
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --w
 
-release: release_clean create_apk
+release: release_clean create_bundle create_apk
 
 release_dev: ##
 	$(call _setup_hosts)
@@ -119,6 +138,7 @@ release_dev: ##
 release_prod: ##
 	$(call _create_config,prod)
 	make release
+	$(call _create_sourcemap)
 	$(call _upload_release_sourcemap)
 
 release_staging: ##
