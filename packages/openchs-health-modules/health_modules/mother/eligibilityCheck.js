@@ -10,6 +10,6 @@ import {EnrolmentEligibilityCheck} from 'rules-config/rules';
 })
 class MotherProgramEnrolmentEligibility {
     static exec({individual}) {
-        return individual.isFemale() || individual.getAgeInYears() < 5;
+        return individual.isFemale() && individual.getAgeInYears() > 5;
     }
 }

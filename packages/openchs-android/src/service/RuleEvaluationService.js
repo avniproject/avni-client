@@ -142,12 +142,12 @@ class RuleEvaluationService extends BaseService {
 
     getAllRuleItemsFor(entity, type, fieldNameInRule='form', entityType) {
         const applicableRules = RuleRegistry.getRulesFor(entity.uuid, type, entityType);
-        const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, fieldNameInRule);
+        const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, fieldNameInRule, entityType);
         return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
 
     isEligibleForProgram(individual, program) {
-        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", undefined, "Program");
+        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", 'program', "Program");
         return _.isEmpty(applicableRules)? true: _.last(applicableRules).fn.exec({individual});
     }
 
