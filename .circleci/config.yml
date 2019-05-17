@@ -2,7 +2,7 @@ version: 2
 jobs:
   test_android:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:8.14.0
 
     working_directory: ~/openchs-client
 
@@ -35,7 +35,7 @@ jobs:
 
   test_health_modules:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:8.14.0
 
     working_directory: ~/openchs-client
 
@@ -67,7 +67,7 @@ jobs:
 
   test_models:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:8.14.0
 
     working_directory: ~/openchs-client
 
