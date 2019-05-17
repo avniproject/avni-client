@@ -82,6 +82,10 @@ class AddressLevelService extends BaseService {
         const children = this.getChildrenParent(parentUuid);
         return children;
     }
+
+    isOnLowestLevel(lowestSelectedAddresses) {
+        return _.every(lowestSelectedAddresses, (al) => _.isEmpty(this.getChildrenParent(al.uuid)));
+    }
 }
 
 export default AddressLevelService;

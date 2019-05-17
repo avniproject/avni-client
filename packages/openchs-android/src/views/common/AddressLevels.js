@@ -43,7 +43,7 @@ class AddressLevels extends AbstractComponent {
         const data = exclusive ? state.data.selectLevel(levelType, selectedLevel, newLevels) :
             state.data.addLevel(levelType, selectedLevel, newLevels);
         const onLowest = !_.isEmpty(data.lowestSelectedAddresses)
-            && this.addressLevelService.minLevel() === data.lowestSelectedAddresses[0].level;
+            && this.addressLevelService.isOnLowestLevel(data.lowestSelectedAddresses);
         return {
             data: data,
             onLowest: onLowest
@@ -71,7 +71,7 @@ class AddressLevels extends AbstractComponent {
         if (this.props.addressLevelState && this.props.multiSelect) {
             if (this.props.addressLevelState.selectedAddresses.length > 0) {
                 const onLowest = !_.isEmpty(this.props.addressLevelState.lowestSelectedAddresses)
-                    && this.addressLevelService.minLevel() === this.props.addressLevelState.lowestSelectedAddresses[0].level;
+                    && this.addressLevelService.isOnLowestLevel(this.props.addressLevelState.lowestSelectedAddresses);
                 this.setState({
                     data: this.props.addressLevelState,
                     onLowest: onLowest
