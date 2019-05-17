@@ -15,7 +15,7 @@
   "dependencies": {
     "lodash": "4.17.11",
     "moment": "2.19.3",
-    "rules-config": "github:openchs/rules-config#7199aa118e22f84267c1fa04f7974c15881c3d8d"
+    "rules-config": "github:openchs/rules-config#f86d4a81013242bd70c0ee302746e71017a35d02"
   },
   "devDependencies": {
     "amazon-cognito-identity-js": "1.28.0",

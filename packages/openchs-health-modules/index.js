@@ -9,6 +9,7 @@ import customMessages from "./health_modules/customMessages.json";
 import * as rules from 'rules-config/rules';
 import * as common from './health_modules/common.js';
 import * as motherCalculations from './health_modules/mother/calculations';
+import * as motherEligibilityCheckJustForEvaluation from './health_modules/mother/eligibilityCheck';
 
 module.exports = _.merge({
     encounterDecision,

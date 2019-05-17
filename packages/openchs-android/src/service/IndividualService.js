@@ -7,6 +7,7 @@ import Individual from "openchs-models/src/Individual";
 import MediaQueueService from "./MediaQueueService";
 import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import FormMappingService from "./FormMappingService";
+import RuleEvaluationService from "./RuleEvaluationService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -58,7 +59,9 @@ class IndividualService extends BaseService {
     eligiblePrograms(individualUUID) {
         const programs = this.getAll(Program.schema.name);
         const individual = this.findByUUID(individualUUID);
-        return individual.eligiblePrograms(programs);
+        const nonEnrolledPrograms = individual.eligiblePrograms(programs);
+        const ruleEvaluationService = this.getService(RuleEvaluationService);
+        return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program));
     }
 
     _uniqIndividualsFrom(individuals, individual) {
