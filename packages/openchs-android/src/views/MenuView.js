@@ -350,9 +350,8 @@ class MenuView extends AbstractComponent {
         return (
             <CHSContent>
                 <View style={{
-                    flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
-                    height: Dimensions.get('window').height, backgroundColor: Styles.defaultBackground,
-                    // paddingBottom: 120
+                    flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center',
+                    justifyContent: 'center', backgroundColor: Styles.defaultBackground,
                 }}>
                     {subjectTypes[0] && this.renderRegistrationModal()}
                     {this.renderSyncModal()}
