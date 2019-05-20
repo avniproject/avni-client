@@ -64,8 +64,7 @@ class ProgramList extends AbstractComponent {
                             const buttonStyle = this.getButtonStyle(enrolment);
                             return <Button key={enrolment.uuid}
                                            style={[ProgramList.style.programButton.self, buttonStyle.self]}
-                                           textStyle={buttonStyle.text}
-                                           onPress={() => this.props.onProgramSelect(enrolment)}><Text>{this.I18n.t(enrolment.program.displayName)}</Text></Button>
+                                           onPress={() => this.props.onProgramSelect(enrolment)}><Text style={buttonStyle.text}>{this.I18n.t(enrolment.program.displayName)}</Text></Button>
                         })}
                 </View>
             </View>
