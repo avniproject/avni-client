@@ -21,6 +21,7 @@ class AddressVisitRow extends AbstractComponent {
             justifyContent: 'center',
             alignItems: 'center',
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+            marginBottom:2,
         }
     });
 
@@ -39,7 +40,7 @@ class AddressVisitRow extends AbstractComponent {
         const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) => {
             const cardTitle = _.has(numberObj, "label") ? numberObj.label : title;
             const visitInfo = _.has(numberObj, 'visitInfo') ? numberObj.visitInfo : [];
-            return (<View style={{paddingLeft: 4}} key={idx}>
+            return (<View style={{paddingLeft: 8}} key={idx}>
                 <TitleNumberBlock
                                   highlight={numberObj.abnormal}
                                   onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count, this.props.backFunction, cardTitle, visitInfo)}

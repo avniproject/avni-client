@@ -83,7 +83,6 @@ class IndividualService extends BaseService {
     allIn(ignored, addressQuery) {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
-            .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
             .map(_.identity);

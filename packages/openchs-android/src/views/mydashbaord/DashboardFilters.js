@@ -44,7 +44,7 @@ export default class DashboardFilters extends AbstractComponent {
             color: Colors.ActionButtonColor,
             opacity: 0.8,
             alignSelf: 'center',
-            fontSize: 25
+            fontSize: 30
         };
         return (
             <View>
@@ -63,8 +63,8 @@ export default class DashboardFilters extends AbstractComponent {
                         </View>
                         <TouchableOpacity
                             style={{
-                                width: 80,
-                                height: 30,
+                                width: 90,
+                                height: 40,
                                 flexDirection: 'row',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -72,7 +72,7 @@ export default class DashboardFilters extends AbstractComponent {
                                 borderRadius: 3
                             }}
                             onPress={this.props.onPress}>
-                            <Text style={{color: Colors.TextOnPrimaryColor}}>FILTER</Text>
+                            <Text style={{color: Colors.TextOnPrimaryColor, fontSize: 20}}>FILTER</Text>
                         </TouchableOpacity>
                     </View>
                     <AppliedFilters filters={this.props.filters}

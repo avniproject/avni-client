@@ -100,6 +100,7 @@ class MyDashboardView extends AbstractComponent {
                                                                            visits={rowData.visits}
                                                                            backFunction={() => this.onBackCallback()}
                                   />}/>
+                        <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>
                 </CHSContent>
             </CHSContainer>
