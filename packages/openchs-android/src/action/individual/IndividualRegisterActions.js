@@ -17,7 +17,6 @@ export class IndividualRegisterActions {
     }
 
     static onLoad(state, action, context) {
-        console.log('individual register actions load');
         const individual = _.isNil(action.individualUUID) ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
 

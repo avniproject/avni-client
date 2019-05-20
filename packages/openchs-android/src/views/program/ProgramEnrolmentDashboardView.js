@@ -27,7 +27,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
-import {Form} from 'openchs-models';
+import {Form, WorkItem, WorkList, WorkLists} from 'openchs-models';
 import _ from "lodash";
 import ActionSelector from "../common/ActionSelector";
 
@@ -75,7 +75,16 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     editEnrolment() {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
             enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
-                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, true);
+                let workLists = new WorkLists(
+                    new WorkList('Enrolment',
+                        [new WorkItem(General.randomUUID(),
+                            WorkItem.type.PROGRAM_ENROLMENT,
+                            {
+                                subjectUUID: enrolment.individual.uuid,
+                                programName: enrolment.program.name,
+                            })
+                        ]));
+                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true);
             }
         });
     }

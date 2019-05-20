@@ -21,7 +21,6 @@ export class SubjectRegisterActions {
     };
 
     static onLoad(state, action, context) {
-        console.log('subject register actions');
         let isNewEntity = _.isNil(action.subjectUUID);
         const subject = isNewEntity ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.subjectUUID);
