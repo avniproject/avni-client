@@ -22,7 +22,8 @@ class FilterService extends BaseService {
     }
 
     getAllFilters() {
-        return [this.atRisk()];
+        //hiding at risk filter for now.
+        return [/*this.atRisk()*/];
     }
 }
 

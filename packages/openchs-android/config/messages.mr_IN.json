@@ -259,5 +259,10 @@
   "NotEnoughId": "पुरेसे ओळखक उपलब्ध नाहीत. कृपया मेनू मिळवा आणि सिंक दाबा",
   "NotEnoughIdForAnotherRegistration": "इतर नोंदणीसाठी पुरेसे अभिज्ञापक उपलब्ध नाहीत. कृपया मेनू मिळवा आणि सिंक दाबा",
   "syncNow": "आता संकालन करा",
-  "syncLater": "नंतर संकालन करा"
+  "syncLater": "नंतर संकालन करा",
+  "RecentRegistration": "अलीकडील नोंदणी",
+  "RecentEnrollment": "अलीकडील एनरोलमेण्ट",
+  "RecentVisits": "अलीकडील भेटी",
+  "overdue": "अतिदेय",
+  "total": "एकूण"
 }

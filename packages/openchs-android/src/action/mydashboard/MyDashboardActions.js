@@ -96,9 +96,9 @@ class MyDashboardActions {
         };
         let row2 = {
             visits: {
-                recentlyCompletedRegistration: {count: 0, abnormal: false, label: 'Recent Registration'},
-                recentlyCompletedEnrolment: {count: 0, abnormal: false, label: 'Recent Enrollment'},
-                recentlyCompletedVisits: {count: 0, abnormal: false, label: 'Recent Visits'},
+                recentlyCompletedRegistration: {count: 0, abnormal: false, label: 'RecentRegistration'},
+                recentlyCompletedEnrolment: {count: 0, abnormal: false, label: 'RecentEnrollment'},
+                recentlyCompletedVisits: {count: 0, abnormal: false, label: 'RecentVisits'},
             }
         };
         let row3 = {
