@@ -29,9 +29,9 @@ export default class AppliedFilters extends AbstractComponent {
     renderFilteredLocations() {
         if (this.props.selectedLocations.length > 0) {
             const allUniqueTypes = _.uniqBy(_.map(this.props.selectedLocations, ({type}) => ({type})), 'type');
-            return allUniqueTypes.map((l) => this.renderContent(l.type,
-                _.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => (locations.name)).join(", "), ' | ')
-            );
+            return allUniqueTypes.map((l, index) => this.renderContent(l.type,
+                _.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => (locations.name)).join(", "),
+                index === this.props.selectedLocations.length - 1 ? ' ' : ' | '));
         }
     }
 

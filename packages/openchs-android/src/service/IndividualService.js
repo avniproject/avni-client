@@ -80,9 +80,10 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allIn(ignored, addressQuery) {
+    allIn(ignored, queryAdditions) {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
             .map(_.identity);

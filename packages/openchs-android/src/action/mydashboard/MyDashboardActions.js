@@ -57,23 +57,17 @@ class MyDashboardActions {
         }
         //get all the lowest level address UUIDs for the selected locations
         const addressUUIDs = state.locationSearchCriteria.getAllAddressLevelUUIDs();
-        let individualLocationFilters = [];
-        let encounterLocationFilters = [];
-        let enrolmentLocationFilters = [];
-        addressUUIDs.forEach((addressLevel) => {
-            individualLocationFilters.push(`lowestAddressLevel.uuid = \'${addressLevel}\'`);
-            encounterLocationFilters.push(`programEnrolment.individual.lowestAddressLevel.uuid = \'${addressLevel}\'`);
-            enrolmentLocationFilters.push(`individual.lowestAddressLevel.uuid = \'${addressLevel}\'`);
-        });
-        const visitQuery = _.isEmpty(state.selectedEncounterTypes) ?
+        const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
+        const visitQuery = (path) => _.isEmpty(state.selectedEncounterTypes) ?
             _.flatten(state.selectedPrograms.map((program) => formMappingService.findEncounterTypesForProgram(program)))
-                .map((encounter) => `encounterType.uuid = \'${encounter.uuid}\'`) :
-            state.selectedEncounterTypes.map((encounter) => `encounterType.uuid = \'${encounter.uuid}\'`);
+                .map((encounter) => `${path} = \'${encounter.uuid}\'`) :
+            state.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`);
+        const programQuery = (path) => _.map(state.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`);
 
-        const selectedPrograms = _.map(state.selectedPrograms, (prog) => `program.uuid = \'${prog.uuid}\'`);
-        const individualFilters = MyDashboardActions.orQuery(individualLocationFilters);
-        const encountersFilters = [MyDashboardActions.orQuery(encounterLocationFilters), MyDashboardActions.orQuery(visitQuery)].filter(Boolean).join(" AND ");
-        const enrolmentFilters = [MyDashboardActions.orQuery(enrolmentLocationFilters), MyDashboardActions.orQuery(selectedPrograms)].filter(Boolean).join(" AND ");
+        const indFilterForProgramOrEncounter = _.isEmpty(state.selectedEncounterTypes) ? MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')) : MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid'));
+        const individualFilters = [MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')), indFilterForProgramOrEncounter].filter(Boolean).join(" AND ");
+        const encountersFilters = [MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))].filter(Boolean).join(" AND ");
+        const enrolmentFilters = [MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(programQuery('program.uuid'))].filter(Boolean).join(" AND ");
 
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
