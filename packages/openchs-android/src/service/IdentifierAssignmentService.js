@@ -46,18 +46,12 @@ class IdentifierAssignmentService extends BaseService {
         return observationHolder;
     }
 
-    /**
-     * It is possible that a rule could modify the original id created. We assume here that only one id of a specific
-     * id source type can be created per form.
-     *
-     * Therefore, we pick the next identifier and assign the individual/program enrolment to it, assuming it was the same
-     * id that was given to the form when we started filling it.
-     *
-     * @param form
-     * @param observations
-     * @param individual
-     * @param programEnrolment
-     */
+    getIdentifierByIdAndSource(id, identifierSource) {
+        return this.getAll()
+            .filtered('identifier = $0', id)
+            .filtered('identifierSource.uuid = $0', identifierSource)[0];
+    }
+
     assignPopulatedIdentifiersFromObservations(form, observations, individual, programEnrolment) {
         const db = this.db;
         const identifiersToBeSaved = [];
@@ -65,8 +59,12 @@ class IdentifierAssignmentService extends BaseService {
         const observationsHolder = new ObservationsHolder(observations);
 
         _.each(form.getFormElementsOfType(Concept.dataType.Id), (formElement) => {
-            if (observationsHolder.findObservation(formElement.concept)) {
-                const identifierAssignment = this.getNextIdentifierAssignment(formElement.recordValueByKey(FormElement.keys.IdSourceUUID));
+            let observation = observationsHolder.findObservation(formElement.concept);
+            if (observation) {
+                const id = observation.getValue();
+                const identifierSource = formElement.recordValueByKey(FormElement.keys.IdSourceUUID);
+                const identifierAssignment = this.getIdentifierByIdAndSource(id, identifierSource);
+                
                 identifierAssignment.individual = individual;
                 identifierAssignment.programEnrolment = programEnrolment;
                 identifiersToBeSaved.push(identifierAssignment);
