@@ -116,26 +116,26 @@ release_dev: ##
 	$(call _create_config,dev)
 	make release
 
-release_prod: ##
+release_prod: renew_env
 	$(call _create_config,prod)
 	make release
 	$(call _upload_release_sourcemap)
 
-release_staging: ##
+release_staging: renew_env
 	$(call _create_config,staging)
-	make release
+	enableSeparateBuildPerCPUArchitecture=false make release
 
 release_staging_without_clean: ##
 	$(call _create_config,staging)
 	make release
 
-release_uat: ##
+release_uat: renew_env
 	$(call _create_config,uat)
-	make release
+	enableSeparateBuildPerCPUArchitecture=false make release
 
-release_prerelease:
+release_prerelease: renew_env
 	$(call _create_config,prerelease)
-	make release
+	enableSeparateBuildPerCPUArchitecture=false make release
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
