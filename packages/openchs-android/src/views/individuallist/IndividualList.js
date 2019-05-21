@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal} from 'react-native';
+import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal, SectionList} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -42,24 +42,6 @@ class IndividualList extends AbstractComponent {
             color: Colors.InputNormal,
             marginTop: DynamicGlobalStyles.resizeHeight(16),
             marginBottom: DynamicGlobalStyles.resizeHeight(16)
-        },
-        filterButton: {
-            alignSelf: 'flex-end'
-        },
-        floatingButton: {
-            position: 'absolute',
-            width: 60,
-            height: 60,
-            alignItems: 'center',
-            justifyContent: 'center',
-            right: 30,
-            bottom: 30,
-            borderRadius: 150,
-            backgroundColor: Colors.AccentColor
-        },
-
-        floatingButtonIcon: {
-            color: Colors.TextOnPrimaryColor
         }
     });
 
@@ -92,26 +74,39 @@ class IndividualList extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dataSource = this.ds.cloneWithRows(this.state.individuals.data.slice(0, 50));
-        const visitType = this.I18n.t(this.props.params.cardTitle);
-        const visitInfo = this.props.params.visitInfo;
+        const individualsWithMetadata = _.orderBy(this.state.individuals.data, ({visitInfo}) => visitInfo.sortingBy,'desc').slice(0, 50);
+        const allUniqueGroups = _.uniqBy(_.map(individualsWithMetadata, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
+        const data = allUniqueGroups.map(({groupingBy}) => {
+            return {
+                title: groupingBy,
+                data: _.get(_.groupBy(individualsWithMetadata, 'visitInfo.groupingBy'), groupingBy, [])
+            }
+        });
+
+        const renderHeader = (title) => {
+            return <Text
+                style={[Fonts.typography("paperFontTitle"), {color: "rgba(0, 0, 0, 0.87)"}]}>{_.isEmpty(title) ? 'Individual List' : title}</Text>
+        };
+
         return (
-            <CHSContainer  style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader
-                    title={`${visitType}`}
+                    title={`${this.I18n.t(this.props.params.cardTitle)}`}
                     func={this.props.params.backFunction}/>
                 <SearchResultsHeader totalCount={this.state.individuals.data.length}
-                                     displayedCount={this.state.individuals.data.slice(0, 50).length}/>
+                                     displayedCount={individualsWithMetadata.length}/>
                 <CHSContent>
-                    <ListView
-                        style={IndividualList.styles.container}
-                        initialListSize={20}
-                        enableEmptySections={true}
-                        removeClippedSubviews={true}
-                        dataSource={dataSource}
-                        renderRow={(individual) => <IndividualDetails individual={individual}
-                                                                      visitInfo={_.filter(visitInfo, (visits) => visits.uuid === individual.uuid)}
-                                                                      backFunction={() => this.onBackCallback()}/>}/>
+                    <View style={{flex: 1, paddingTop: 20}}>
+                        <SectionList
+                            style={IndividualList.styles.container}
+                            sections={data}
+                            renderSectionHeader={({section: {title}}) => renderHeader(title)}
+                            renderItem={(individualWithMetadata) => <IndividualDetails
+                                individualWithMetadata={individualWithMetadata.item}
+                                backFunction={() => this.onBackCallback()}/>}
+                            keyExtractor={(item, index) => item.uuid + index}
+                        />
+                    </View>
                 </CHSContent>
             </CHSContainer>
         );

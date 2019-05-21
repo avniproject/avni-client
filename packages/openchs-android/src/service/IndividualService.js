@@ -8,6 +8,7 @@ import MediaQueueService from "./MediaQueueService";
 import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import FormMappingService from "./FormMappingService";
 import RuleEvaluationService from "./RuleEvaluationService";
+import General from "../utility/General";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -76,7 +77,9 @@ class IndividualService extends BaseService {
                     individual: individualWithVisit.individual,
                     visitInfo: {
                         uuid: individualWithVisit.individual.uuid,
-                        visitName: [...individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName, ...individualWithVisit.visitInfo.visitName]
+                        visitName: [...individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName, ...individualWithVisit.visitInfo.visitName],
+                        groupingBy: individualWithVisit.visitInfo.groupingBy,
+                        sortingBy: individualWithVisit.visitInfo.sortingBy
                     }
                 })
             : individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
@@ -87,7 +90,11 @@ class IndividualService extends BaseService {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
-            .reduce(this._uniqIndividualsFrom, new Map())
+            .map((individual) => {
+                const registrationDate = individual.registrationDate;
+                return {individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}};
+            })
+            .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -107,7 +114,17 @@ class IndividualService extends BaseService {
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                return {individual, visitInfo: {uuid: individual.uuid, visitName: [visitName]}};
+                const programName = enc.programEnrolment.program.name || enc.programEnrolment.program.operationalProgramName;
+                const earliestVisitDateTime = enc.earliestVisitDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [programName + ', ' + visitName],
+                        groupingBy: General.formatDate(earliestVisitDateTime),
+                        sortingBy: earliestVisitDateTime
+                    }
+                };
             })
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
@@ -154,7 +171,17 @@ class IndividualService extends BaseService {
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                return {individual, visitInfo: {uuid: individual.uuid, visitName: [visitName]}};
+                const programName = enc.programEnrolment.program.name || enc.programEnrolment.program.operationalProgramName;
+                const earliestVisitDateTime = enc.earliestVisitDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [programName + ', ' + visitName],
+                        groupingBy: General.formatDate(earliestVisitDateTime),
+                        sortingBy: earliestVisitDateTime
+                    }
+                };
             })
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
@@ -210,9 +237,19 @@ class IndividualService extends BaseService {
                 fromDate)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
-                return enc.programEnrolment.individual;
+                const individual = enc.programEnrolment.individual;
+                const encounterDateTime = enc.encounterDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [],
+                        groupingBy: General.formatDate(encounterDateTime),
+                        sortingBy: encounterDateTime
+                    }
+                };
             })
-            .reduce(this._uniqIndividualsFrom, new Map())
+            .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -227,7 +264,19 @@ class IndividualService extends BaseService {
                 tillDate,
                 fromDate)
             .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
-            .reduce(this._uniqIndividualsFrom, new Map())
+            .map((individual) => {
+                const registrationDate = individual.registrationDate;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [],
+                        groupingBy: General.formatDate(registrationDate),
+                        sortingBy: registrationDate
+                    }
+                };
+            })
+            .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -242,7 +291,17 @@ class IndividualService extends BaseService {
                 fromDate)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
-                return enc.individual;
+                const individual = enc.individual;
+                const enrolmentDateTime = enc.enrolmentDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [],
+                        groupingBy: General.formatDate(enrolmentDateTime),
+                        sortingBy: enrolmentDateTime
+                    }
+                };
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]

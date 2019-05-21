@@ -476,6 +476,10 @@ class Individual extends BaseEntity {
         return this.isIndividual() ? {label: "Gender", value: i18n.t(this.gender.name)} : {};
     }
 
+    address(i18n) {
+        return this.isIndividual() ? {label: "Address", value: i18n.t(this.lowestAddressLevel.name)} : {};
+    }
+
     toJSON() {
         return {
             uuid: this.uuid,

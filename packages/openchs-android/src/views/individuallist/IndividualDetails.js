@@ -12,7 +12,7 @@ import Colors from "../primitives/Colors"
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
-        address: PropTypes.object,
+        individualWithMetadata: PropTypes.object,
         backFunction: PropTypes.func.isRequired
     };
 
@@ -44,8 +44,15 @@ class IndividualDetails extends AbstractComponent {
         nameContainer: {
             flexDirection: 'row',
             justifyContent: "space-between",
-            alignItems: "stretch",
+            alignItems: "center",
             flexWrap: "nowrap",
+            marginBottom: DGS.resizeHeight(8),
+        },
+        visitsContainer: {
+            flexDirection: 'row',
+            justifyContent:'flex-start',
+            alignItems: "center",
+            flexWrap: "wrap",
             marginBottom: DGS.resizeHeight(8),
         },
         attributeContainer: {
@@ -62,51 +69,46 @@ class IndividualDetails extends AbstractComponent {
         }
     });
 
-    renderAttribute(key, value) {
+    renderAttribute(attribute) {
         return (
-            <View key={key} style={IndividualDetails.styles.attributeContainer}>
-                <Text style={[Fonts.typography("paperFontSubhead"), {color: "rgba(0, 0, 0, 0.54)"}]}>
-                    {`${key} : `}
-                </Text>
-                <Text style={[Fonts.typography("paperFontSubhead"), {color: "rgba(0, 0, 0, 0.87)"}]}>
-                    {value}
-                </Text>
+            <View key={attribute.key} style={IndividualDetails.styles.attributeContainer}>
+                {!_.isEmpty(attribute) ?
+                    <Text style={[Fonts.typography("paperFontSubhead"), {color: "rgba(0, 0, 0, 0.87)"}]}>
+                        {attribute.value}
+                    </Text> :
+                    <View/>}
             </View>
         );
     }
 
     render() {
-        const individualDetail1 = this.props.individual.detail1(this.I18n);
-        const individualDetail2 = this.props.individual.detail2(this.I18n);
-        const badges = this.props.individual.nonVoidedEnrolments().map(({program}, idx) =>
-            <Badge key={idx} style={{backgroundColor: program.colour}}><Text>{this.I18n.t(program.displayName)}</Text></Badge>);
-        const visitBadges = !_.isEmpty(this.props.visitInfo) ? _.head(this.props.visitInfo).visitName.map((visitName, idx) =>
-                <Badge key={idx} style={{backgroundColor: Colors.DarkPrimaryColor, marginTop: 2}}><Text>{visitName}</Text></Badge>) :
-            <View/>;
+        const individualAge = this.props.individualWithMetadata.individual.detail1(this.I18n);
+        const individualGender = this.props.individualWithMetadata.individual.detail2(this.I18n);
+        const individualAddress = this.props.individualWithMetadata.individual.address(this.I18n);
+
+        const visits = this.props.individualWithMetadata.visitInfo.visitName.map((visit) =>
+                <Text style={[Fonts.typography("paperFontSubhead"), {color: "rgba(0, 0, 0, 0.87)"}]}>{visit}</Text>
+        );
+
         return (
             <TouchableNativeFeedback
-                onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid, "", false, this.props.backFunction)}
+                onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individualWithMetadata.individual.uuid, "", false, this.props.backFunction)}
                 background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={IndividualDetails.styles.container}>
                     <View style={IndividualDetails.styles.nameContainer}>
-                        <View style={{flex: 1}}>
-                            <Text style={[Fonts.typography("paperFontTitle"), IndividualDetails.styles.name]}>
-                                {this.props.individual.nameString}
-                            </Text>
-                        </View>
-                        <View style={IndividualDetails.styles.badgeList}>
-                            {badges}
-                        </View>
+                        <Text
+                            style={[Fonts.typography("paperFontSubhead"), IndividualDetails.styles.name, {fontWeight: 'bold'}]}>
+                            {this.props.individualWithMetadata.individual.nameString}
+                        </Text>
+                        <Text>{', '}</Text>
+                        {this.renderAttribute(individualAge)}
+                        <Text>{', '}</Text>
+                        {this.renderAttribute(individualGender)}
                     </View>
+                    {this.renderAttribute(individualAddress)}
                     <Separator style={{alignSelf: 'stretch'}} height={2}/>
-                    <View style={IndividualDetails.styles.attributesContainer}>
-                        {!_.isEmpty(individualDetail1) ? this.renderAttribute(individualDetail1.label, individualDetail1.value) :
-                            <View/>}
-                        {!_.isEmpty(individualDetail2) ? this.renderAttribute(individualDetail2.label, individualDetail2.value) :
-                            <View/>}
-                    </View>
-                    <View style={IndividualDetails.styles.visitBadgeList}>
-                        {visitBadges}
+                    <View style={IndividualDetails.styles.visitsContainer}>
+                        {visits}
                     </View>
                 </View>
             </TouchableNativeFeedback>

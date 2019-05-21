@@ -84,8 +84,8 @@ class MyDashboardActions {
             ].map(MyDashboardActions.applyFilters(filters));
         let row1 = {
             visits: {
-                scheduled: {count: 0, abnormal: false, visitInfo: {}},
-                overdue: {count: 0, abnormal: false, visitInfo: {}},
+                scheduled: {count: 0, abnormal: false},
+                overdue: {count: 0, abnormal: false},
             }
         };
         let row2 = {
@@ -101,9 +101,7 @@ class MyDashboardActions {
             }
         };
         row1.visits.scheduled.count = allIndividualsWithScheduledVisits.length;
-        row1.visits.scheduled.visitInfo = _.map(allIndividualsWithScheduledVisits, ({visitInfo}) => visitInfo);
         row1.visits.overdue.count = allIndividualsWithOverDueVisits.length;
-        row1.visits.overdue.visitInfo = _.map(allIndividualsWithOverDueVisits, ({visitInfo}) => visitInfo);
         row2.visits.recentlyCompletedVisits.count = allIndividualsWithRecentlyCompletedVisits.length;
         row2.visits.recentlyCompletedRegistration.count = allIndividualsWithRecentRegistrations.length;
         row2.visits.recentlyCompletedEnrolment.count = allIndividualsWithRecentEnrolments.length;
@@ -134,11 +132,7 @@ class MyDashboardActions {
         ]);
         const filters = action.listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (action.listType === 'total' || action.listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
-        const allIndividuals = methodMap.get(action.listType)(state.date.value, filters)
-            .map((individual) => {
-                const ind = _.isNil(individual.visitInfo) ? individual : individual.individual;
-                return individualService.findByUUID(ind.uuid)
-            });
+        const allIndividuals = methodMap.get(action.listType)(state.date.value, filters);
         return {
             ...state,
             individuals: {
