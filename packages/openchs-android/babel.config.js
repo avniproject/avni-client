@@ -7,8 +7,7 @@ module.exports = function (api) {
         "module:metro-react-native-babel-preset"
     ];
     const plugins = [
-            ["@babel/plugin-proposal-decorators", { "legacy": true }],
-            ["@babel/plugin-proposal-class-properties", {"loose": true}]
+            ["@babel/plugin-proposal-decorators", { "legacy": true }]
         ]
     ;
 
