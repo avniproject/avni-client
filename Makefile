@@ -74,11 +74,11 @@ test: test-models test-health-modules test-android  ##
 # <bugsnag>
 
 define _upload_release_sourcemap
-	cd packages/openchs-android && npx bugsnag-sourcemaps upload \
+	cd packages/openchs-android/android/app/build/generated && npx bugsnag-sourcemaps upload \
 		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
-		--app-version $(shell cat packages/openchs-android/android/app/build.gradle | sed -n  's/versionName \"\(.*\)\"/\1/p' | xargs echo | sed -e "s/\(.*\)/\"\1\"/") \
-		--minified-file android/app/build/generated/assets/react/release/index.android.bundle \
-		--source-map android/app/build/generated/sourcemap.js \
+		--app-version $(versionName) \
+		--minified-file assets/react/release/index.android.bundle \
+		--source-map sourcemap.js \
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
