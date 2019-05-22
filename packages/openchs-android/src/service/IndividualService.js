@@ -208,6 +208,8 @@ class IndividualService extends BaseService {
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('voided = false ' +
+                'AND programEnrolment.voided = false ' +
+                'AND programEnrolment.individual.voided = false ' +
                 'AND encounterDateTime <= $0 ' +
                 'AND encounterDateTime >= $1 ',
                 tillDate,
@@ -241,6 +243,7 @@ class IndividualService extends BaseService {
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEnrolment.schema.name)
             .filtered('voided = false ' +
+                'AND individual.voided = false ' +
                 'AND enrolmentDateTime <= $0 ' +
                 'AND enrolmentDateTime >= $1 ',
                 tillDate,
