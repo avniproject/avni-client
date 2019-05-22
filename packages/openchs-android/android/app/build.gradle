@@ -32,7 +32,7 @@ android {
     dexOptions {
         javaMaxHeapSize "2g"
     }
-
+    
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
