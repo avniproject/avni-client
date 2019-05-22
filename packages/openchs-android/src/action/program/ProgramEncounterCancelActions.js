@@ -4,7 +4,7 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {ProgramEncounter, Point} from 'openchs-models';
+import {Point, ProgramEncounter, WorkList, WorkLists} from 'openchs-models';
 import EntityService from "../../service/EntityService";
 import GeolocationActions from "../common/GeolocationActions";
 
@@ -36,8 +36,13 @@ class ProgramEncounterCancelActions {
             throw new Error("No form element group with visible form element");
         }
         let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, programEncounter);
+        const workLists = action.workLists || new WorkLists(new WorkList('Encounter').withCancelledEncounter({
+            encounterType: action.programEncounter.encounterType.name,
+            subjectUUID: action.programEncounter.programEnrolment.individual.uuid,
+            programName: action.programEncounter.programEnrolment.program.name,
+        }));
 
-        return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements);
+        return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements, workLists);
     }
 
     static onNext(state, action, context) {

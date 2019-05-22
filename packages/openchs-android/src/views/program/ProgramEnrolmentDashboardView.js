@@ -1,4 +1,4 @@
-import {View, ScrollView, ToastAndroid} from "react-native";
+import {ScrollView, ToastAndroid, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -6,18 +6,15 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
-import {
-    ProgramEnrolmentDashboardActionsNames as Actions
-} from "../../action/program/ProgramEnrolmentDashboardActions";
+import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
-import {Text, Card} from "native-base";
+import {Card, Text} from "native-base";
 import ProgramList from "./ProgramList";
 import moment from "moment";
 import PreviousEncounters from "../common/PreviousEncounters";
 import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
-import EntityTypeSelector from "../common/EntityTypeSelector";
 import ContextAction from "../viewmodel/ContextAction";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Fonts from '../primitives/Fonts';
@@ -74,33 +71,20 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     editEnrolment() {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
-            enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
-                let workLists = new WorkLists(
-                    new WorkList('Enrolment',
-                        [new WorkItem(General.randomUUID(),
-                            WorkItem.type.PROGRAM_ENROLMENT,
-                            {
-                                subjectUUID: enrolment.individual.uuid,
-                                programName: enrolment.program.name,
-                            })
-                        ]));
-                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true);
-            }
+            cb: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true)
         });
     }
 
     editExit() {
-        this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
-            enrolmentUUID: this.state.enrolment.uuid, cb: (enrolment) => {
-                CHSNavigator.navigateToExitProgram(this, enrolment, true);
-            }
+        this.dispatchAction(Actions.ON_EDIT_ENROLMENT_EXIT, {
+            cb: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true)
         });
     }
 
     exitProgram() {
-        const enrolmentToBeEdited = this.state.enrolment.cloneForEdit();
-        enrolmentToBeEdited.programExitDateTime = new Date();
-        CHSNavigator.navigateToExitProgram(this, enrolmentToBeEdited);
+        this.dispatchAction(Actions.ON_EXIT_ENROLMENT, {
+            cb: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists)
+        });
     }
 
     enrolmentSelect(enrolmentUUID) {

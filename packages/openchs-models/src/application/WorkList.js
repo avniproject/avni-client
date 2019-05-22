@@ -65,6 +65,11 @@ class WorkList {
         this.addWorkItems(new WorkItem(General.randomUUID(), WorkItem.type.PROGRAM_ENCOUNTER, params));
         return this;
     }
+
+    withCancelledEncounter(params) {
+        this.addWorkItems(new WorkItem(General.randomUUID(), WorkItem.type.CANCELLED_ENCOUNTER, params));
+        return this;
+    }
 }
 
 export default WorkList;

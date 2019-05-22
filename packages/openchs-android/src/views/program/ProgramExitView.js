@@ -29,7 +29,11 @@ class ProgramExitView extends AbstractComponent {
     };
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.params.enrolment, usage: ProgramExitView.context.usage});
+        this.dispatchAction(Actions.ON_LOAD, {
+            enrolment: this.props.params.enrolment,
+            usage: ProgramExitView.context.usage,
+            workLists: this.props.params.workLists,
+        });
         return super.componentWillMount();
     }
 

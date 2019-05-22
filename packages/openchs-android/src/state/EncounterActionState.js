@@ -44,8 +44,8 @@ class EncounterActionState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
-    static createOnLoadState(form, encounter, isNewEncounter, filteredFormElements) {
-        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter, filteredFormElements);
+    static createOnLoadState(form, encounter, isNewEncounter, filteredFormElements, workLists) {
+        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter, filteredFormElements, workLists);
     }
 
     validateEntityAgainstRule(ruleService) {

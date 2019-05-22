@@ -70,8 +70,8 @@ class CHSNavigator {
         }
     }
 
-    static navigateToExitProgram(source, enrolment, editing = false) {
-        TypedTransition.from(source).with({enrolment: enrolment, editing}).to(ProgramExitView);
+    static navigateToExitProgram(source, enrolment, workLists, editing = false) {
+        TypedTransition.from(source).with({enrolment, workLists, editing}).to(ProgramExitView);
     }
 
     static navigateToStartProgramView(source, enrolmentUUID) {

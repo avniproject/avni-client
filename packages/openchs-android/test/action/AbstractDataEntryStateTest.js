@@ -6,6 +6,9 @@ import StubbedDataEntryState from "./StubbedDataEntryState";
 import ObservationsHolderActions from '../../src/action/common/ObservationsHolderActions';
 import TestContext from "./views/testframework/TestContext";
 import EntityFactory from "openchs-models/test/EntityFactory";
+import WorkItem from "openchs-models/src/application/WorkItem";
+import WorkLists from "openchs-models/src/application/WorkLists";
+import WorkList from "openchs-models/src/application/WorkList";
 
 describe('AbstractDataEntryStateTest', () => {
     var formElementGroup;
@@ -21,17 +24,23 @@ describe('AbstractDataEntryStateTest', () => {
         const formElement = EntityFactory.createFormElement('bar', true, concept);
         formElementGroup.addFormElement(formElement);
 
-        var dataEntryState = new StubbedDataEntryState([ValidationResult.failureForEmpty('h')], formElementGroup, new Wizard(1, 1), []);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID:'100100100',
+            encounter:{},
+        })]));
+
+        var dataEntryState = new StubbedDataEntryState([ValidationResult.failureForEmpty('h')], formElementGroup, new Wizard(1, 1), [], workLists);
         var action = WizardNextActionStub.forValidationFailed();
         dataEntryState.handleNext(action, testContext);
         action.assert();
 
-        dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), []);
+        dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), [], workLists);
         action = WizardNextActionStub.forValidationFailed();
         dataEntryState.handleNext(action, testContext);
         action.assert();
 
-        dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), [Observation.create(concept, new PrimitiveValue(true))]);
+        const obs = [Observation.create(concept, new PrimitiveValue(true))];
+        dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), obs, workLists);
         action = WizardNextActionStub.forCompleted();
         dataEntryState.handleNext(action, testContext);
         action.assert();
@@ -43,7 +52,12 @@ describe('AbstractDataEntryStateTest', () => {
         const formElement = EntityFactory.createFormElement('bar', true, concept);
         formElementGroup.addFormElement(formElement);
 
-        var dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), []);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID:'100100100',
+            encounter:{},
+        })]));
+
+        var dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
         dataEntryState = ObservationsHolderActions.toggleSingleSelectAnswer(dataEntryState, {formElement: formElement, answerUUID: concept.getPossibleAnswerConcept('a1').uuid}, testContext)
         const observation = dataEntryState.observationsHolder.findObservation(concept);
         expect(observation.getValueWrapper().getConceptUUID()).is.equal(concept.getPossibleAnswerConcept('a1').uuid);

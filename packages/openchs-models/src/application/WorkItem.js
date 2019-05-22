@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 const assertTrue = (value, message) => {
     if (!value) {
         throw new Error(message);
@@ -10,7 +11,9 @@ export default class WorkItem {
         REGISTRATION: 'REGISTRATION',
         ENCOUNTER: 'ENCOUNTER',
         PROGRAM_ENROLMENT: 'PROGRAM_ENROLMENT',
-        PROGRAM_ENCOUNTER: 'PROGRAM_ENCOUNTER'
+        PROGRAM_EXIT: 'PROGRAM_EXIT',
+        PROGRAM_ENCOUNTER: 'PROGRAM_ENCOUNTER',
+        CANCELLED_ENCOUNTER: 'CANCELLED_ENCOUNTER',
     };
 
     constructor(id, type, parameters) {
@@ -20,21 +23,30 @@ export default class WorkItem {
         this.parameters = parameters || {};
     }
 
-    validate(){
+    validate() {
         assertTrue(WorkItem.type[this.type], 'Work item must be one of WorkItem.type');
         if (this.type !== WorkItem.type.REGISTRATION) {
-            assertTrue(_.get(this.parameters, 'subjectUUID'), this.wrapErrorMessage('subjectUUID is mandatory'));
+            this.ensureFieldExists('subjectUUID');
         }
         if (this.type === WorkItem.type.PROGRAM_ENROLMENT) {
-            assertTrue(_.get(this.parameters, 'programName'), this.wrapErrorMessage('programName is mandatory'));
+            this.ensureFieldExists('programName');
         }
-
         if (this.type === WorkItem.type.PROGRAM_ENCOUNTER) {
-            assertTrue(_.get(this.parameters, 'encounterType'), this.wrapErrorMessage('encounterType is mandatory'));
+            this.ensureFieldExists('encounterType');
+        }
+        if (this.type === WorkItem.type.ENCOUNTER) {
+            this.ensureFieldExists('encounter');
         }
     }
 
-    wrapErrorMessage(message) {
-        return `Work Item id: ${this.id}, type: ${this.type}, parameters: ${JSON.stringify(this.parameters)}, errorMessage: ${message}`;
+    fieldMissingError(field) {
+        return `Work Item id: ${this.id}, type: ${this.type}, ` +
+            `parameters: {${Object.keys(this.parameters)}}, ` +
+            `'${field}: ${this.parameters[field]}', ` +
+            `errorMessage: '${field} is mandatory'`;
+    }
+
+    ensureFieldExists(field) {
+        assertTrue(_.get(this.parameters, field), this.fieldMissingError(field));
     }
 }

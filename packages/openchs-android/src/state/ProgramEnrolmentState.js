@@ -27,8 +27,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     clone() {
-        const newState = new ProgramEnrolmentState();
-        super.clone(newState);
+        const newState = super.clone();
         newState.enrolment = this.enrolment.cloneForEdit();
         newState.newEnrolment = this.newEnrolment;
         newState.usage = this.usage;

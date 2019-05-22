@@ -15,7 +15,7 @@ export class ProgramEnrolmentActions {
         return {};
     }
 
-    static onLoad(state, action, context) {
+    static onLoad(state: ProgramEnrolmentState, action, context) {
         if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action) || action.forceLoad) {
             const formMappingService = context.get(FormMappingService);
             const form =

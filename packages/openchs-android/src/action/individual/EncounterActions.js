@@ -1,12 +1,14 @@
 import IndividualEncounterService from "../../service/IndividualEncounterService";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
-import _ from "lodash";
-import IndividualService from "../../service/IndividualService";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Encounter, Form, Point} from 'openchs-models';
 import GeolocationActions from "../common/GeolocationActions";
+import WorkLists from "openchs-models/src/application/WorkLists";
+import WorkList from "openchs-models/src/application/WorkList";
+import WorkItem from "openchs-models/src/application/WorkItem";
+import General from "../../utility/General";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -27,7 +29,13 @@ export class EncounterActions {
             .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
-        let encounterActionState = EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements);
+        const workLists = new WorkLists(new WorkList('Encounter', [new WorkItem(
+            General.randomUUID(),
+            WorkItem.type.ENCOUNTER,
+            {encounter, subjectUUID: encounter.individual.uuid})
+        ]));
+
+        let encounterActionState = EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements, workLists);
         encounterActionState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
         return encounterActionState;
     }

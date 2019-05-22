@@ -11,6 +11,9 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ProgramService from "../../service/program/ProgramService";
 import SettingsService from "../../service/SettingsService";
 import UserInfoService from "../../service/UserInfoService";
+import WorkLists from "openchs-models/src/application/WorkLists";
+import WorkList from "openchs-models/src/application/WorkList";
+import WorkItem from "openchs-models/src/application/WorkItem";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -173,9 +176,48 @@ class ProgramEnrolmentDashboardActions {
     //Encounter Type
 
     static onEditEnrolment(state, action, context) {
-        const newState = ProgramEnrolmentDashboardActions.clone(state);
-        const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
-        action.cb(enrolment);
+        const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
+        let workLists = new WorkLists(
+            new WorkList('Enrolment',
+                [new WorkItem(General.randomUUID(),
+                    WorkItem.type.PROGRAM_ENROLMENT,
+                    {
+                        subjectUUID: enrolment.individual.uuid,
+                        programName: enrolment.program.name,
+                    })
+                ]));
+        action.cb(enrolment, workLists);
+        return state;
+    }
+
+    static onEditEnrolmentExit(state, action, context) {
+        const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
+        const workLists = new WorkLists(
+            new WorkList('Exit',
+                [new WorkItem(General.randomUUID(),
+                    WorkItem.type.PROGRAM_ENROLMENT,
+                    {
+                        subjectUUID: enrolment.individual.uuid,
+                        programName: enrolment.program.name,
+                    })
+                ]));
+        action.cb(enrolment, workLists);
+        return state;
+    }
+
+    static onExitEnrolment(state, action, context) {
+        const enrolment = state.enrolment.cloneForEdit();
+        enrolment.programExitDateTime = new Date();
+        const workLists = new WorkLists(
+            new WorkList('Exit',
+                [new WorkItem(General.randomUUID(),
+                    WorkItem.type.PROGRAM_EXIT,
+                    {
+                        subjectUUID: enrolment.individual.uuid,
+                        programName: enrolment.program.name,
+                    })
+                ]));
+        action.cb(enrolment, workLists);
         return state;
     }
 
@@ -203,6 +245,8 @@ class ProgramEnrolmentDashboardActions {
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
+    ON_EDIT_ENROLMENT_EXIT: 'PEDA.ON_EDIT_ENROLMENT_EXIT',
+    ON_EXIT_ENROLMENT: 'PEDA.ON_EXIT_ENROLMENT',
     ON_ENROLMENT_CHANGE: 'PEDA.ON_ENROLMENT_CHANGE',
     RESET: 'PEDA.RESET',
     SHOW_MORE: 'PEDA.SHOW_MORE',
@@ -218,6 +262,8 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
     [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
+    [ProgramEnrolmentDashboardActionsNames.ON_EXIT_ENROLMENT, ProgramEnrolmentDashboardActions.onExitEnrolment],
+    [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT_EXIT, ProgramEnrolmentDashboardActions.onEditEnrolmentExit],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_CHANGE, ProgramEnrolmentDashboardActions.onEnrolmentChange],
     [ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.launchEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],

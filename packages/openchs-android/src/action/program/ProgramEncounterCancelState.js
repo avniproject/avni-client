@@ -1,10 +1,10 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {ObservationsHolder, Form, ProgramEncounter} from "openchs-models";
+import {Form, ObservationsHolder, ProgramEncounter} from "openchs-models";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, programEncounter, filteredFormElements) {
-        super([], formElementGroup, wizard, false, filteredFormElements);
+    constructor(formElementGroup, wizard, programEncounter, filteredFormElements, workLists) {
+        super([], formElementGroup, wizard, false, filteredFormElements, workLists);
         this.programEncounter = programEncounter;
     }
 
@@ -20,13 +20,15 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [ProgramEncounter.validationKeys.CANCEL_LOCATION] : [];
     }
 
-    static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements) {
-        let formElementGroupPageNumber = formElementGroup.displayOrder;
-        return new ProgramEncounterCancelState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), programEncounter, filteredFormElements);
+    static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements, workLists) {
+        const wizard = new Wizard(form.numberOfPages, formElementGroup.displayOrder, formElementGroup.displayOrder);
+        return new ProgramEncounterCancelState(formElementGroup, wizard, programEncounter, filteredFormElements, workLists);
     }
 
     clone() {
-        return new ProgramEncounterCancelState(this.formElementGroup, this.wizard.clone(), this.programEncounter.cloneForEdit(), this.filteredFormElements);
+        const newState = super.clone();
+        newState.programEncounter = this.programEncounter.cloneForEdit();
+        return newState;
     }
 
     get observationsHolder() {
