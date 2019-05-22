@@ -352,6 +352,7 @@ class MenuView extends AbstractComponent {
                 <View style={{
                     flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center',
                     justifyContent: 'center', backgroundColor: Styles.defaultBackground,
+                    height: Dimensions.get('window').height
                 }}>
                     {subjectTypes[0] && this.renderRegistrationModal()}
                     {this.renderSyncModal()}
