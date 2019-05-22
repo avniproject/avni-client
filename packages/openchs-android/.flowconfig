@@ -1,4 +1,8 @@
 [ignore]
+
+.*/native-base-theme/.*
+.*/node_modules/.*
+
 ; We fork some components by platform
 .*/*[.]android.js
 
@@ -68,4 +72,4 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
 [version]
-^0.92.0
+^0.98.1
