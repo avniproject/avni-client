@@ -20,7 +20,7 @@ export default class WorkListState {
     }
 
     peekNextWorkItem() {
-        return this.workLists.currentWorkList.nextWorkItem();
+        return this.workLists.peekNextWorkItem();
     }
 
     get currentWorkList() {

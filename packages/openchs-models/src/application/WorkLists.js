@@ -20,6 +20,10 @@ export default class WorkLists {
         }
     }
 
+    peekNextWorkItem() {
+        return this.currentWorkList.nextWorkItem();
+    }
+
     getCurrentWorkItem() {
         return _.get(this.currentWorkList, 'currentWorkItem');
     }

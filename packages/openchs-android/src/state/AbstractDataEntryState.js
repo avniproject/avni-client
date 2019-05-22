@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult, WorkItem, SubjectType} from "openchs-models";
+import {BaseEntity, ValidationResult, WorkItem, SubjectType, WorkLists} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
@@ -135,12 +135,16 @@ class AbstractDataEntryState {
         if (!_.isEmpty(nextScheduledVisits)) {
             workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
         }
-        //const subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0];
-        //workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: subjectType.name}));
+
+        if(!workLists.peekNextWorkItem() && workLists.getCurrentWorkItem().type === WorkItem.type.REGISTRATION) {
+            const subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0];
+            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: subjectType.name}));
+        }
+
         return ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
     }
 
-    _addNextScheduledVisitToWorkList(workLists, nextScheduledVisits) {
+    _addNextScheduledVisitToWorkList(workLists: WorkLists, nextScheduledVisits): WorkLists {
         if (_.isEmpty(nextScheduledVisits)) return workLists;
 
         const applicableScheduledVisit = _.find(nextScheduledVisits, (visit) => {
