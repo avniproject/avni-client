@@ -1,9 +1,10 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult, WorkItem} from "openchs-models";
+import {BaseEntity, ValidationResult, WorkItem, SubjectType} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
+import EntityService from "../service/EntityService";
 import Geo from "../framework/geo";
 import UserInfoService from "../service/UserInfoService";
 import WorkListState from "./WorkListState";
@@ -112,7 +113,7 @@ class AbstractDataEntryState {
                 decisions = this.executeRule(ruleService, context);
                 checklists = this.getChecklists(ruleService, context);
                 nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
-                this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits),() => this.getWorkContext());
+                this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context),() => this.getWorkContext());
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
@@ -129,11 +130,13 @@ class AbstractDataEntryState {
         return this;
     }
 
-    updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits) {
+    updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits, context) {
         let workLists = oldWorkLists;
         if (!_.isEmpty(nextScheduledVisits)) {
-            workLists = this._addNextScheduledVisitToWorkList(workLists);
+            workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
         }
+        //const subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0];
+        //workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: subjectType.name}));
         return ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
     }
 

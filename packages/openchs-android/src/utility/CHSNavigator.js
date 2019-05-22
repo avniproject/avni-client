@@ -1,3 +1,4 @@
+// @flow
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDashboardView";
@@ -31,6 +32,7 @@ import ProgramService from "../service/program/ProgramService";
 import IndividualService from "../service/IndividualService";
 import ProgramEnrolmentService from "../service/ProgramEnrolmentService";
 import General from "./General";
+import WorkListState from "../state/WorkListState";
 
 
 class CHSNavigator {
@@ -210,10 +212,28 @@ class CHSNavigator {
                 }, true,);
     }
 
-    static performNextWorkItemFromRecommendationsView(recommendationsView, workListState, context) {
-        const nextWorkItem = workListState.getNextWorkItem();
+    static getMessage(i18n, workItem: WorkItem) {
+        switch (workItem.type) {
+            case WorkItem.type.REGISTRATION:
+                return i18n.t("registrationSavedMsg")
+            case WorkItem.type.PROGRAM_ENROLMENT:
+                return i18n.t("enrolmentSavedMsg", {programName: workItem.parameters.programName});
+            case WorkItem.type.PROGRAM_ENCOUNTER:
+                return i18n.t("encounterSavedMsg", {encounterName: workItem.parameters.encounterType});
+            default:
+                throw new Error("Invalid WorkItemType");
+        }
+    }
+
+    static performNextWorkItemFromRecommendationsView(recommendationsView, workListState: WorkListState, context) {
+        const currentWorkItem = workListState.currentWorkItem;
+        const message = this.getMessage(recommendationsView.I18n, currentWorkItem);
+        console.log(`performNextWorkItemFromRecommendationsView ${message}`);
+        const nextWorkItem = workListState.moveToNextWorkItem();
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
+                const uuid = nextWorkItem.parameters.uuid;
+                const target = nextWorkItem.parameters.subjectTypeName === 'Individual' ? IndividualRegisterView : SubjectRegisterView;
                 TypedTransition.from(recommendationsView)
                     .resetStack([
                             SystemRecommendationView,
@@ -223,8 +243,15 @@ class CHSNavigator {
                             ProgramEncounterView,
                             ProgramEnrolmentView
                         ],
+                        [target],
+                        [{
+                            subjectUUID: uuid,
+                            individualUUID: uuid,
+                            editing: !_.isNil(uuid),
+                            workLists: workListState.workLists,
+                            message: message
+                        }]
                     );
-                CHSNavigator.navigateToRegisterView(recommendationsView, workListState.workLists);
                 break;
             }
             case WorkItem.type.PROGRAM_ENROLMENT: {
@@ -245,7 +272,8 @@ class CHSNavigator {
                             {
                                 enrolment: enrolment,
                                 workLists: workListState.workLists,
-                                message: recommendationsView.I18n.t('enrolmentSavedMsg')}], true);
+                                message: message}], true
+                    );
                 break;
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
@@ -265,7 +293,7 @@ class CHSNavigator {
                                 enrolmentUUID: enrolment.uuid,
                                 encounterType: nextWorkItem.parameters.encounterType,
                                 workLists: workListState.workLists,
-                                message: recommendationsView.I18n.t('encounterSavedMsg')}}], true);
+                                message: message}}], true);
                 break;
             }
             default: {

@@ -69,7 +69,7 @@ class IndividualRegisterView extends AbstractComponent {
         General.logDebug(this.viewName(), `render`);
         const editing = !_.isNil(this.props.params.individualUUID);
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
-        {this.displayMessage(this.props.message)}
+        {this.displayMessage(this.props.params.message)}
         return (
             <CHSContainer>
                 <CHSContent ref='scroll'>

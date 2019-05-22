@@ -1,7 +1,7 @@
 import { WorkLists, WorkList, WorkItem } from 'openchs-models';
 
 export default class WorkListState {
-    constructor(workLists, getParametersFn) {
+    constructor(workLists: WorkLists, getParametersFn) {
         this.workLists = workLists;
         this.workLists && this.workLists.setFirstWorkListAsCurrent();
         this.getParametersFn = getParametersFn;
@@ -11,7 +11,7 @@ export default class WorkListState {
         this.workLists.setCurrentWorkListByName(name);
     }
 
-    getNextWorkItem() {
+    moveToNextWorkItem() {
         const parameters = this.getParametersFn();
         let nextWorkItem = this.workLists.currentWorkList.nextWorkItem();
         nextWorkItem.parameters = _.merge({}, parameters, nextWorkItem.parameters);
@@ -25,6 +25,10 @@ export default class WorkListState {
 
     get currentWorkList() {
         return this.workLists.currentWorkList;
+    }
+
+    get currentWorkItem() {
+        return this.workLists.getCurrentWorkItem();
     }
 
     saveAndProceedButtonLabel(i18n) {
