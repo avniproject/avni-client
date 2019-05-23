@@ -1162,7 +1162,17 @@
     "IHMP NNC Low Weight Counselling": "Use MCH card number 11,12  and 13 - Counsel mother regarding cleanliness, keep neonate covered with warm cloths, cord care, breastfeeding every two hours, monitor weight of the child",
     "UNICEF Preconception counselling for consanguineous marriage":"Counsel her about effects of consanguineous marrriage and congenital anomalies",
     "UNICEF Preconception counselling for age less than 20":"Counsel her to delay pregnancy by using contraceptives as age is less than 20",
-    "UNICEF Preconception counselling for age greater than 30":"Counsel her and refer her to PHC/RH/CH for further investigations and treatment as age is greater than 30"
+    "UNICEF Preconception counselling for age greater than 30":"Counsel her and refer her to PHC/RH/CH for further investigations and treatment as age is greater than 30",
+    "Preconception baseline advice for diet":"Diet advice to decrease or increase weight as per diet chart provided",
+    "Preconception baseline counselling for parity":"Counsel her about different sterilization methods",
+    "Preconception baseline counselling for parity and age":"Counsel her to visit PHC/RH/CH",
+    "Preconception baseline counselling for child spacing":"Counsel her about need of child spacing and using different sterilization methods",
+    "Preconception baseline counselling for other than live birth":"Counsel her about need of proper preconception care and refer her to PHC",
+    "Preconception baseline counselling for congenital anomalies":"Counsel her about need of proper preconception care",
+    "Preconception baseline counselling for tobacco consumption":"Counsel her about effects of tobacco consumption on newborn and counsel her to quit tobacco consumption",
+    "Preconception baseline counselling for alcohol consumption":"Counsel her about effects of alcohol consumption  on newborn and counsel her to quit alcohol consumption",
+    "Preconception baseline counselling for calorie intake":"Counsel her to increase whole cereals in diet",
+    "Preconception baseline counselling for protein intake":"Counsel her to increase proteins- pulses, fruits, vegetables, soya, egg in diet"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
