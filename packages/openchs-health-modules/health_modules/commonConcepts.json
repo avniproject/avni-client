@@ -2568,5 +2568,12 @@
         "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
       }
     ]
+  },
+  {
+    "name": "Refer to the hospital immediately for",
+    "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
+    "dataType": "Coded",
+    "answers": [
+    ]
   }
 ]

@@ -1065,5 +1065,26 @@
     "uuid": "e97d83a0-0519-4dc3-9673-705b66c95e08",
     "name": "Other things fed to the baby",
     "dataType": "Text"
+  },
+  {
+    "name": "Refer to the hospital immediately for",
+    "uuid": "c59da618-20d8-4384-b32b-e0e31013581f",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "comment": "Child PNC cry related complaints",
+        "uuid": "d6a0c77e-840d-40a2-9282-d22db7ede007",
+        "abnormal": true
+      },
+      {
+        "comment": "Child PNC urination related complaints",
+        "uuid": "43a78b5a-f4da-440d-9614-80af65090e1f",
+        "abnormal": true
+      },
+      {
+        "name": "Child PNC eye problems",
+        "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8"
+      }
+    ]
   }
 ]
