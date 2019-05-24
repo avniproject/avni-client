@@ -18,7 +18,13 @@ const OPDEncounterForm = require('../health_modules/outpatient/metadata/encounte
 import {Concept} from "openchs-models";
 
 
-const IMPORTED_CONCEPTS = _.flatten([CommonConcepts, ChildConcepts, MotherConcepts, OPDConcepts]);
+const IMPORTED_CONCEPTS = _([CommonConcepts, ChildConcepts, MotherConcepts, OPDConcepts])
+    .flatten()
+    .groupBy('uuid')
+    .values()
+    .map(concepts => _.merge({}, concepts[0], {answers: _.flatMap(concepts, 'answers')}))
+    .value();
+
 const FORM_CONCEPTS = _.flatten(_.flatten([ChildProgramEncounterForm, ChildProgramEnrolmentForm, ChildProgramExitForm, MotherAbortionForm, MotherANCForm, MotherDeliveryForm, MotherPNCForm, MotherProgramEnrolmentForm, MotherProgramExitForm, OPDEncounterForm]
     .map((formDef) => formDef.formElementGroups.map((fegs) => fegs.formElements))));
 
