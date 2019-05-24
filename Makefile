@@ -127,7 +127,7 @@ release_staging: renew_env
 
 release_staging_without_clean: ##
 	$(call _create_config,staging)
-	make release
+	enableSeparateBuildPerCPUArchitecture=false make release
 
 release_uat: renew_env
 	$(call _create_config,uat)
