@@ -44,6 +44,7 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
           - v1-dependencies-
       - run: sudo apt-get install make
+      - run: make deps_ci
       - run: make ci test-android
 
   test_health_modules:
@@ -58,6 +59,7 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
           - v1-dependencies-
       - run: sudo apt-get install make
+      - run: make deps_ci
       - run: make ci test-health-modules
 
   test_models:
@@ -72,6 +74,7 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-models/package.json" }}
           - v1-dependencies-
       - run: sudo apt-get install make
+      - run: make deps_ci
       - run: make ci test-models
 
   release_android_staging:
@@ -93,6 +96,7 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: make deps_ci
       - run: make release_staging
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
@@ -127,6 +131,7 @@ jobs:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
         - run: sudo chmod a+x packages/openchs-android/android/gradlew
+        - run: make deps_ci
         - run: make release
         - save_cache:
             key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
