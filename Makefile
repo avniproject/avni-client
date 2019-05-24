@@ -185,7 +185,7 @@ openlocation_apk: ##
 
 # <env>
 clean_packager_cache:
-	watchman watch-del-all && rm -rf $(TMPDIR)/react-*
+	-watchman watch-del-all && rm -rf $(TMPDIR)/react-*
 	rm -rf /tmp/metro-*
 	rm -rf /tmp/haste-*
 
