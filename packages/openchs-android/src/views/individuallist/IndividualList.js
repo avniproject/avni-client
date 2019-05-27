@@ -17,6 +17,8 @@ import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
 import SearchResultsHeader from "../individual/SearchResultsHeader";
 import _ from 'lodash';
+import Styles from "../primitives/Styles";
+import Separator from "../primitives/Separator";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -74,7 +76,7 @@ class IndividualList extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const individualsWithMetadata = _.orderBy(this.state.individuals.data, ({visitInfo}) => visitInfo.sortingBy,'desc').slice(0, 50);
+        const individualsWithMetadata = _.orderBy(this.state.individuals.data, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
         const allUniqueGroups = _.uniqBy(_.map(individualsWithMetadata, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
         const data = allUniqueGroups.map(({groupingBy}) => {
             return {
@@ -84,29 +86,38 @@ class IndividualList extends AbstractComponent {
         });
 
         const renderHeader = (title) => {
-            return <Text
-                style={[Fonts.typography("paperFontTitle"), {color: "rgba(0, 0, 0, 0.87)"}]}>{_.isEmpty(title) ? 'Individual List' : title}</Text>
+            return <Text style={[Fonts.typography("paperFontTitle"), {
+                color: "rgba(0, 0, 0, 0.87)",
+                fontWeight: 'normal',
+                fontSize: 15,
+                paddingTop: 15
+            }]}>{_.isEmpty(title) ? 'Individual List' : title}</Text>
         };
 
         return (
-            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer>
                 <AppHeader
                     title={`${this.I18n.t(this.props.params.cardTitle)}`}
                     func={this.props.params.backFunction}/>
                 <SearchResultsHeader totalCount={this.state.individuals.data.length}
                                      displayedCount={individualsWithMetadata.length}/>
-                <CHSContent>
-                    <View style={{flex: 1, paddingTop: 20}}>
-                        <SectionList
-                            style={IndividualList.styles.container}
-                            sections={data}
-                            renderSectionHeader={({section: {title}}) => renderHeader(title)}
-                            renderItem={(individualWithMetadata) => <IndividualDetails
+                <CHSContent style={{backgroundColor: '#f7f7f7'}}>
+                    <SectionList
+                        contentContainerStyle={{
+                            marginRight: Distances.ScaledContentDistanceFromEdge,
+                            marginLeft: Distances.ScaledContentDistanceFromEdge,
+                            marginTop: Distances.ScaledContentDistanceFromEdge,
+                        }}
+                        sections={data}
+                        renderSectionHeader={({section: {title}}) => renderHeader(title)}
+                        renderItem={(individualWithMetadata) =>
+                            <IndividualDetails
                                 individualWithMetadata={individualWithMetadata.item}
+                                header={individualWithMetadata.section.title}
                                 backFunction={() => this.onBackCallback()}/>}
-                            keyExtractor={(item, index) => item.uuid + index}
-                        />
-                    </View>
+                        SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
+                            <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
+                        keyExtractor={(item, index) => item.uuid + index}/>
                 </CHSContent>
             </CHSContainer>
         );

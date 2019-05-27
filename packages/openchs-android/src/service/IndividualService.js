@@ -9,6 +9,7 @@ import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import FormMappingService from "./FormMappingService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import General from "../utility/General";
+import Colors from "../views/primitives/Colors";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -71,18 +72,20 @@ class IndividualService extends BaseService {
     }
 
     _uniqIndividualWithVisitName(individualsWithVisits, individualWithVisit) {
-        individualsWithVisits.has(individualWithVisit.individual.uuid) ?
+        if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
+            const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
+            const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
             individualsWithVisits.set(individualWithVisit.individual.uuid,
                 {
                     individual: individualWithVisit.individual,
                     visitInfo: {
                         uuid: individualWithVisit.individual.uuid,
                         visitName: [...individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName, ...individualWithVisit.visitInfo.visitName],
-                        groupingBy: individualWithVisit.visitInfo.groupingBy,
-                        sortingBy: individualWithVisit.visitInfo.sortingBy
+                        groupingBy: General.formatDate(smallerDate),
+                        sortingBy: smallerDate,
                     }
                 })
-            : individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
+        } else individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
         return individualsWithVisits;
     }
 
@@ -120,7 +123,11 @@ class IndividualService extends BaseService {
                     individual,
                     visitInfo: {
                         uuid: individual.uuid,
-                        visitName: [programName + ', ' + visitName],
+                        visitName: [{
+                            visit: [programName , visitName , General.formatDate(earliestVisitDateTime)],
+                            encounter: enc,
+                            color: Colors.AccentColor,
+                        }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime
                     }
@@ -172,14 +179,18 @@ class IndividualService extends BaseService {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.name || enc.programEnrolment.program.operationalProgramName;
-                const earliestVisitDateTime = enc.earliestVisitDateTime;
+                const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,
                     visitInfo: {
                         uuid: individual.uuid,
-                        visitName: [programName + ', ' + visitName],
-                        groupingBy: General.formatDate(earliestVisitDateTime),
-                        sortingBy: earliestVisitDateTime
+                        visitName: [{
+                            visit: [programName , visitName , General.formatDate(maxVisitDateTime)],
+                            encounter: enc,
+                            color: '#d0011b',
+                        }],
+                        groupingBy: General.formatDate(maxVisitDateTime),
+                        sortingBy: maxVisitDateTime
                     }
                 };
             })

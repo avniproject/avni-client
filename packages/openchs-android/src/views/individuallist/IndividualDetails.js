@@ -9,111 +9,194 @@ import Separator from "../primitives/Separator";
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 import Colors from "../primitives/Colors"
+import Styles from "../primitives/Styles";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Distances from "../primitives/Distances";
+import moment from "moment";
+
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
         individualWithMetadata: PropTypes.object,
         backFunction: PropTypes.func.isRequired
     };
-
+    static containerBackgroundColor = 'white';
     static styles = StyleSheet.create({
         container: {
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            flexWrap: 'nowrap',
-            marginBottom: DGS.resizeHeight(16),
-            paddingTop: DGS.resizeHeight(20),
-            paddingBottom: DGS.resizeHeight(16),
-            paddingLeft: DGS.resizeWidth((600 / 360) * 16),
-            paddingRight: DGS.resizeWidth((600 / 360) * 16),
-            backgroundColor: 'white',
-            elevation: 2
-        },
-        badgeList: {
             flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            flexWrap: 'nowrap'
-        },
-        visitBadgeList: {
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            flexWrap: 'wrap',
+            backgroundColor: IndividualDetails.containerBackgroundColor,
+            flexDirection: 'column',
+            alignSelf: 'flex-start'
         },
         nameContainer: {
+            paddingVertical: 4,
+            padding: Distances.ScaledContentDistanceFromEdge,
             flexDirection: 'row',
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "nowrap",
-            marginBottom: DGS.resizeHeight(8),
-        },
-        visitsContainer: {
-            flexDirection: 'row',
-            justifyContent:'flex-start',
-            alignItems: "center",
-            flexWrap: "wrap",
-            marginBottom: DGS.resizeHeight(8),
+            justifyContent: "flex-start",
+            backgroundColor: IndividualDetails.containerBackgroundColor,
         },
         attributeContainer: {
+            paddingVertical: 4,
+            padding: Distances.ScaledContentDistanceFromEdge,
             flexDirection: 'row',
             justifyContent: "flex-start",
             alignItems: "stretch",
             flexWrap: "nowrap",
-        },
-        name: {
-            color: "rgba(0, 0, 0, 0.87)",
+            backgroundColor: IndividualDetails.containerBackgroundColor,
         },
         attributesContainer: {
             marginTop: DGS.resizeHeight(8),
+        },
+        individualContainerTextColor: {
+            color: 'black'
         }
     });
 
     renderAttribute(attribute) {
         return (
-            <View key={attribute.key} style={IndividualDetails.styles.attributeContainer}>
+            <Text key={attribute.key} style={IndividualDetails.styles.attributeContainer}>
                 {!_.isEmpty(attribute) ?
-                    <Text style={[Fonts.typography("paperFontSubhead"), {color: "rgba(0, 0, 0, 0.87)"}]}>
+                    <Text
+                        style={[IndividualDetails.styles.individualContainerTextColor, Fonts.typography("paperFontSubhead")]}>
                         {attribute.value}
                     </Text> :
                     <View/>}
-            </View>
+            </Text>
         );
+    }
+
+    renderVisits(type, color) {
+        return type.map((info, i) => {
+            const row = info.visit.map((item, index) => (<Text
+                style={[Fonts.typography("paperFontSubhead"), {
+                    color: color
+                }]}>{(index ? ', ' : '') + item}</Text>));
+            return <TouchableNativeFeedback onPress={() => this.proceed(info.encounter)}
+                                            background={TouchableNativeFeedback.SelectableBackground()}>
+                <View key={i}>
+                    <View style={styles.container}>
+                        <View style={[styles.strip, {backgroundColor: info.color}]}/>
+                        <Text style={styles.textContainer}>
+                            {row}
+                        </Text>
+                        <Icon style={[{color: info.color}, styles.iconStyle]} name='chevron-right'/>
+                    </View>
+                </View>
+            </TouchableNativeFeedback>;
+        });
+    }
+
+    proceed(encounter) {
+        let programEncounter = encounter.cloneForEdit();
+        programEncounter.encounterDateTime = moment().toDate();
+        CHSNavigator.navigateToProgramEncounterView(this, programEncounter);
     }
 
     render() {
         const individualAge = this.props.individualWithMetadata.individual.detail1(this.I18n);
         const individualGender = this.props.individualWithMetadata.individual.detail2(this.I18n);
         const individualAddress = this.props.individualWithMetadata.individual.address(this.I18n);
-
-        const visits = this.props.individualWithMetadata.visitInfo.visitName.map((visit) =>
-                <Text style={[Fonts.typography("paperFontSubhead"), {color: "rgba(0, 0, 0, 0.87)"}]}>{visit}</Text>
-        );
+        const sameDateVisits = _.map(this.props.individualWithMetadata.visitInfo.visitName.filter((info) => _.includes(info.visit, this.props.header)), (info) => {
+            return {visit: info.visit.slice(0, -1), encounter: info.encounter, color: info.color};
+        });
+        const diffDateVisits = _.map(this.props.individualWithMetadata.visitInfo.visitName.filter((info) => !_.includes(info.visit, this.props.header)), (info) => {
+            return {visit: info.visit, encounter: info.encounter, color: info.color};
+        });
 
         return (
-            <TouchableNativeFeedback
-                onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individualWithMetadata.individual.uuid, "", false, this.props.backFunction)}
-                background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={IndividualDetails.styles.container}>
-                    <View style={IndividualDetails.styles.nameContainer}>
-                        <Text
-                            style={[Fonts.typography("paperFontSubhead"), IndividualDetails.styles.name, {fontWeight: 'bold'}]}>
-                            {this.props.individualWithMetadata.individual.nameString}
-                        </Text>
-                        <Text>{', '}</Text>
-                        {this.renderAttribute(individualAge)}
-                        <Text>{', '}</Text>
-                        {this.renderAttribute(individualGender)}
-                    </View>
-                    {this.renderAttribute(individualAddress)}
-                    <Separator style={{alignSelf: 'stretch'}} height={2}/>
-                    <View style={IndividualDetails.styles.visitsContainer}>
-                        {visits}
-                    </View>
+            <View style={{
+                margin: 4,
+                elevation: 3,
+                minHeight: 48,
+                marginVertical: 8,
+                backgroundColor: IndividualDetails.containerBackgroundColor,
+                flexDirection: 'column',
+                alignItems: 'center',
+                borderRadius: 10,
+            }}>
+                <View style={{
+                    marginVertical: 7,
+                    marginRight: 3.5,
+                    marginLeft: 3.5,
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}>
+                    <TouchableNativeFeedback
+                        onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individualWithMetadata.individual.uuid, "", false, this.props.backFunction)}
+                        background={TouchableNativeFeedback.SelectableBackground()}>
+                        <View style={{
+                            flexDirection: 'row',
+                            backgroundColor: IndividualDetails.containerBackgroundColor,
+                        }}>
+                            <View style={IndividualDetails.styles.container}>
+                                <Text style={IndividualDetails.styles.nameContainer}>
+                                    <Text
+                                        style={[Fonts.typography("paperFontSubhead"), {fontWeight: 'bold'}, IndividualDetails.styles.individualContainerTextColor]}>
+                                        {this.props.individualWithMetadata.individual.nameString}
+                                    </Text>
+                                    <Text style={IndividualDetails.styles.individualContainerTextColor}>{', '}</Text>
+                                    {this.renderAttribute(individualAge)}
+                                    <Text style={IndividualDetails.styles.individualContainerTextColor}>{', '}</Text>
+                                    {this.renderAttribute(individualGender)}
+                                </Text>
+                                {this.renderAttribute(individualAddress)}
+                            </View>
+                        </View>
+                    </TouchableNativeFeedback>
+                    {this.renderVisits(sameDateVisits, "rgba(0, 0, 0, 0.87)")}
+                    {this.renderVisits(diffDateVisits, Styles.greyText)}
                 </View>
-            </TouchableNativeFeedback>
+            </View>
         );
     }
 }
 
 export default IndividualDetails;
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#fefefe',
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'center',
+        borderWidth: 1,
+        borderColor: "#00000012",
+    },
+    textContainer: {
+        flex: 1,
+        paddingVertical: 4,
+        padding: Distances.ScaledContentDistanceFromEdge,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    encounterStyle: {
+        color: Colors.DefaultPrimaryColor,
+        fontWeight: 'normal',
+        fontSize: 13,
+        alignSelf: 'flex-start',
+        textAlignVertical: 'center',
+    },
+    dateStyle: {
+        color: Styles.greyText,
+        fontWeight: 'normal',
+        fontSize: 13,
+        alignSelf: 'flex-end',
+        marginLeft: 'auto',
+        textAlignVertical: 'center',
+    },
+    headerStyle: {
+        color: "rgba(0, 0, 0, 0.87)",
+        fontWeight: 'normal',
+        fontSize: 15,
+        paddingTop: 15
+    },
+    iconStyle: {
+        opacity: 0.8,
+        alignSelf: 'center',
+        fontSize: 40
+    },
+    strip: {
+        width: 8,
+        height: '100%'
+    },
+});
