@@ -50,9 +50,6 @@ class SettingsView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.context.getService(AuthService).getUserName().then(username => {
-            this.setState(state => ({...state, username: username}));
-        });
         super.componentWillMount();
     }
 
@@ -139,8 +136,8 @@ class SettingsView extends AbstractComponent {
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         <Text style={Styles.settingsTitle}>
                             {this.state.userInfo.organisationName ?
-                                this.state.username ?
-                                    `${this.state.username} (${this.state.userInfo.organisationName})`
+                                this.state.userInfo.username ?
+                                    `${this.state.userInfo.username} (${this.state.userInfo.organisationName})`
                                     : this.state.userInfo.organisationName
                                 : I18n.t('syncRequired')
                             }

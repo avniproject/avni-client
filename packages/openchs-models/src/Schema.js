@@ -59,7 +59,7 @@ export default {
         ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue, Point, SyncTelemetry, IdentifierSource,
         IdentifierAssignment
     ],
-    schemaVersion: 102,
+    schemaVersion: 103,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -277,6 +277,13 @@ export default {
             const programs = newDB.objects('Program');
             _.forEach(programs, program => {
                 program.programSubjectLabel = program.operationalProgramName || program.name;
+            });
+        }
+
+        if(oldDB.schemaVersion < 103) {
+            _.forEach(newDB.objects(UserInfo.schema.name), userInfo => {
+                userInfo.username = '';
+                newDB.create(EntityQueue.schema.name, EntityQueue.create(userInfo, UserInfo.schema.name));
             });
         }
     }
