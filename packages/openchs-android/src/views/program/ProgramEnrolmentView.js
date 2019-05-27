@@ -51,7 +51,12 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage, workLists: this.props.workLists});
+        this.dispatchAction(Actions.ON_LOAD, {
+            enrolment: this.props.enrolment,
+            usage: ProgramEnrolmentView.usageContext.usage,
+            workLists: this.props.workLists,
+            forceLoad: this.props.editing,
+        });
         return super.componentWillMount();
     }
 
