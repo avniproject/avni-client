@@ -18,11 +18,16 @@ import Colors from "./primitives/Colors";
 import _ from "lodash";
 import {CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
+import UserInfoService from "../service/UserInfoService";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.loginActions);
+    }
+
+    componentDidMount() {
+        this.dispatchAction(Actions.ON_LOAD);
     }
 
     loginComplete(response) {

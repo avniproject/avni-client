@@ -1,10 +1,16 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
 import {  ValidationResult  } from 'openchs-models';
+import UserInfoService from "../service/UserInfoService";
 
 class LoginActions {
     static getInitialState() {
         return {userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false, validationResult: ValidationResult.successful()};
+    }
+
+    static onLoad(state, action, context) {
+        const userInfo = context.get(UserInfoService).getUserInfo();
+        return Object.assign({}, state, userInfo ? {userId: userInfo.username}: {});
     }
 
     static changeValue(state, key, value) {
@@ -63,6 +69,7 @@ const LoginActionsNames = {
     ON_LOGIN: 'ff805a17-8397-4a2a-ab13-e01117a8c113',
     ON_STATE_CHANGE: '3da34606-897a-43ac-b41f-0ef31abc7a01',
     ON_TOGGLE_SHOW_PASSWORD: "9afb6cdc-aa96-4377-b092-44b218c6d9af",
+    ON_LOAD: '8c4b600f-f000-4b9b-80d2-423069bf52b7',
 };
 
 const LoginActionsMap = new Map([
@@ -70,7 +77,8 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_PASSWORD_CHANGE, LoginActions.onPasswordChange],
     [LoginActionsNames.ON_LOGIN, LoginActions.onLoginStarted],
     [LoginActionsNames.ON_STATE_CHANGE, LoginActions.onStateChange],
-    [LoginActionsNames.ON_TOGGLE_SHOW_PASSWORD, LoginActions.onToggleShowPassword]
+    [LoginActionsNames.ON_TOGGLE_SHOW_PASSWORD, LoginActions.onToggleShowPassword],
+    [LoginActionsNames.ON_LOAD, LoginActions.onLoad],
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;
