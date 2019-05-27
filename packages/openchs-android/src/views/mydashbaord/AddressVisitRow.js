@@ -32,7 +32,8 @@ class AddressVisitRow extends AbstractComponent {
             listType: title,
             total: count,
             backFunction: backFunction,
-            cardTitle: cardTitle
+            cardTitle: cardTitle,
+            onBack: this.props.onBack,
         }).to(IndividualList);
     }
 

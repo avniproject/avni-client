@@ -5,7 +5,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {  Filter  } from 'openchs-models';
+import {Filter} from 'openchs-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -109,6 +109,7 @@ class FilterView extends AbstractComponent {
             selectedPrograms: this.state.selectedPrograms,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
+            listType: this.props.listType
         });
         this.goBack();
     }
@@ -169,7 +170,7 @@ class FilterView extends AbstractComponent {
         const {width} = Dimensions.get('window');
         const filters = this.state.filters ? Array.from(this.state.filters.values()) : [];
         return (
-            <CHSContainer  style={{backgroundColor: Styles.whiteColor}}>
+            <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('Filter')} func={this.props.onBack}/>
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>

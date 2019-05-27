@@ -55,32 +55,18 @@ class MyDashboardActions {
             const filterService = context.get(FilterService);
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
         }
-        //get all the lowest level address UUIDs for the selected locations
-        const addressUUIDs = state.locationSearchCriteria.getAllAddressLevelUUIDs();
-        const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
-        const visitQuery = (path) => _.isEmpty(state.selectedEncounterTypes) ?
-            _.flatten(state.selectedPrograms.map((program) => formMappingService.findEncounterTypesForProgram(program)))
-                .map((encounter) => `${path} = \'${encounter.uuid}\'`) :
-            state.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`);
-        const programQuery = (path) => _.map(state.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`);
-
-        const indFilterForProgramOrEncounter = _.isEmpty(state.selectedEncounterTypes) ? MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')) : MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid'));
-        const individualFilters = [MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')), indFilterForProgramOrEncounter].filter(Boolean).join(" AND ");
-        const encountersFilters = [MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))].filter(Boolean).join(" AND ");
-        const enrolmentFilters = [MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(programQuery('program.uuid'))].filter(Boolean).join(" AND ");
-
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
             allIndividualsWithRecentlyCompletedVisits,
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals] =
-            [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
-                individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
-                individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
-                individualService.recentlyRegistered(state.date.value, individualFilters),
-                individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
-                individualService.allIn(state.date.value, individualFilters)
+            [individualService.allScheduledVisitsIn(state.date.value, state.encountersFilters),
+                individualService.allOverdueVisitsIn(state.date.value, state.encountersFilters),
+                individualService.recentlyCompletedVisitsIn(state.date.value, state.encountersFilters),
+                individualService.recentlyRegistered(state.date.value, state.individualFilters),
+                individualService.recentlyEnrolled(state.date.value, state.enrolmentFilters),
+                individualService.allIn(state.date.value, state.individualFilters)
             ].map(MyDashboardActions.applyFilters(filters));
         let row1 = {
             visits: {
@@ -114,9 +100,6 @@ class MyDashboardActions {
             visits: results,
             filters: filters,
             subjectType: subjectType,
-            individualFilters,
-            encountersFilters,
-            enrolmentFilters
         };
     }
 
@@ -169,7 +152,23 @@ class MyDashboardActions {
     }
 
     static assignFilters(state, action, context) {
+        const formMappingService = context.get(FormMappingService);
         const newFilters = MyDashboardActions.cloneFilters(action.filters);
+
+        //get all the lowest level address UUIDs for the selected locations
+        const addressUUIDs = action.locationSearchCriteria.clone().getAllAddressLevelUUIDs();
+        const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
+        const visitQuery = (path) => _.isEmpty(action.selectedEncounterTypes) ?
+            _.flatten(action.selectedPrograms.map((program) => formMappingService.findEncounterTypesForProgram(program)))
+                .map((encounter) => `${path} = \'${encounter.uuid}\'`) :
+            action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`);
+        const programQuery = (path) => _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`);
+
+        const indFilterForProgramOrEncounter = _.isEmpty(action.selectedEncounterTypes) ? MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')) : MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid'));
+        const individualFilters = [MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')), indFilterForProgramOrEncounter].filter(Boolean).join(" AND ");
+        const encountersFilters = [MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))].filter(Boolean).join(" AND ");
+        const enrolmentFilters = [MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(programQuery('program.uuid'))].filter(Boolean).join(" AND ");
+
         const newState = {
             ...state,
             filters: newFilters,
@@ -181,10 +180,12 @@ class MyDashboardActions {
             selectedPrograms: action.selectedPrograms,
             encounterTypes: action.encounterTypes,
             selectedEncounterTypes: action.selectedEncounterTypes,
+            individualFilters,
+            encountersFilters,
+            enrolmentFilters
         };
-        return MyDashboardActions.onLoad(newState, {}, context);
+        return _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
     }
-
 }
 
 const MyDashboardPrefix = "MyD";

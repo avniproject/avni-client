@@ -43,7 +43,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
         this.getForm = this.getForm.bind(this);
-        this.state= {displayed:true}
+        this.state = {displayed: true}
     }
 
     componentWillMount() {
@@ -64,7 +64,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         }
     }
 
-    didFocus(){
+    didFocus() {
         super.didFocus();
         this.dispatchOnLoad();
     }
@@ -144,9 +144,9 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     displayMessage(message) {
-        if (message && this.state.displayed){
+        if (message && this.state.displayed) {
             ToastAndroid.show(message, ToastAndroid.SHORT);
-            this.setState({displayed:false})
+            this.setState({displayed: false})
         }
     }
 
@@ -178,7 +178,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         actions={encounterActions}
                     />
                     <View>
-                        <AppHeader title={this.I18n.t('individualDashboard')} func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentDashboardView])}/>
+                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                         <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
                                            viewContext={IndividualProfile.viewContext.Program}
                                            programsAvailable={this.state.programsAvailable}
@@ -232,7 +232,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                       style={{marginVertical: DGS.resizeHeight(8)}}/>
                                     </View>
                                     <PreviousEncounters encounters={this.state.enrolment.nonVoidedEncounters()}
-                                                        formType={Form.formTypes.ProgramEncounter} onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
+                                                        formType={Form.formTypes.ProgramEncounter}
+                                                        onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
                                                         showCount={this.state.showCount} showPartial={true}/>
                                 </View>}
                         </ScrollView>

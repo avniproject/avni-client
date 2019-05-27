@@ -19,6 +19,7 @@ import SearchResultsHeader from "../individual/SearchResultsHeader";
 import _ from 'lodash';
 import Styles from "../primitives/Styles";
 import Separator from "../primitives/Separator";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -59,19 +60,20 @@ class IndividualList extends AbstractComponent {
         super.componentWillMount();
     }
 
-    componentWillUnmount() {
-        General.logDebug("IndividualList", "Component Will UnMount");
-        this.dispatchAction(Actions.RESET_LIST);
-        super.componentWillUnmount();
-    }
-
-    _onPress() {
-        this.dispatchAction(Actions.ON_FILTERS);
-    }
-
-    _onClose() {
-        this.dispatchAction(Actions.ON_FILTERS);
-        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
+    _onFilterPress() {
+        CHSNavigator.navigateToFilterView(this, {
+            filters: this.state.filters,
+            locationSearchCriteria: this.state.locationSearchCriteria,
+            addressLevelState: this.state.addressLevelState,
+            programs: this.state.programs,
+            selectedPrograms: this.state.selectedPrograms,
+            encounterTypes: this.state.encounterTypes,
+            selectedEncounterTypes: this.state.selectedEncounterTypes,
+            onBack: this.props.params.onBack,
+            actionName: Actions.APPLY_FILTERS,
+            filterDate: this.state.date,
+            listType: this.props.params.listType
+        });
     }
 
     render() {
@@ -98,7 +100,7 @@ class IndividualList extends AbstractComponent {
             <CHSContainer>
                 <AppHeader
                     title={`${this.I18n.t(this.props.params.cardTitle)}`}
-                    func={this.props.params.backFunction}/>
+                    func={this.props.params.backFunction} icon={"filter"} iconFunc={() => this._onFilterPress()}/>
                 <SearchResultsHeader totalCount={this.state.individuals.data.length}
                                      displayedCount={individualsWithMetadata.length}/>
                 <CHSContent style={{backgroundColor: '#f7f7f7'}}>
@@ -117,7 +119,7 @@ class IndividualList extends AbstractComponent {
                                 backFunction={() => this.onBackCallback()}/>}
                         SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
                             <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
-                        keyExtractor={(item, index) => item.uuid + index}/>
+                        keyExtractor={(item, index) =>  index}/>
                 </CHSContent>
             </CHSContainer>
         );

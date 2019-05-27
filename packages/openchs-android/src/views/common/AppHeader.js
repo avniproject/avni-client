@@ -3,6 +3,7 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Icon} from "native-base";
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {Text, TouchableNativeFeedback, View, Platform} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
@@ -11,7 +12,9 @@ import CHSNavigator from "../../utility/CHSNavigator";
 class AppHeader extends AbstractComponent {
     static propTypes = {
         title: PropTypes.string.isRequired,
-        func: PropTypes.func
+        func: PropTypes.func,
+        icon: PropTypes.string,
+        iconFunc: PropTypes.func,
     };
 
     constructor(props, context) {
@@ -60,8 +63,9 @@ class AppHeader extends AbstractComponent {
                     <Text style={{color: Colors.TextOnPrimaryColor, fontSize: 20}}>{this.props.title}</Text>
                 </View>
 
-                <TouchableNativeFeedback onPress={() => this.onHome()}
-                                         background={this.background()}>
+                <TouchableNativeFeedback
+                    onPress={() => (_.isNil(this.props.iconFunc) ? this.onHome() : this.props.iconFunc())}
+                    background={this.background()}>
                     <View style={{
                         flexDirection: 'column',
                         justifyContent: 'center',
@@ -70,7 +74,9 @@ class AppHeader extends AbstractComponent {
                         width: 72,
                         paddingHorizontal: 16
                     }}>
-                        <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='home'/>
+                        {_.isNil(this.props.icon) ?
+                            <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='home'/> :
+                            <MCIIcon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name={this.props.icon}/>}
                     </View>
                 </TouchableNativeFeedback>
             </View>

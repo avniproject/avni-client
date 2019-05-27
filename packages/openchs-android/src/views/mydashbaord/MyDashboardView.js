@@ -44,12 +44,6 @@ class MyDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.ON_FILTERS);
     }
 
-    _onApply() {
-        this.dispatchAction(Actions.ON_FILTERS);
-        this.dispatchAction(Actions.ON_LOAD);
-        CHSNavigator.goBack(this);
-    }
-
     _addFilter(filter) {
         this.dispatchAction(Actions.ADD_FILTER, {filter: filter})
     }
@@ -81,7 +75,6 @@ class MyDashboardView extends AbstractComponent {
                                           selectedEncounterTypes={this.state.selectedEncounterTypes}
                                           programs={this.state.programs}
                                           onPress={() => CHSNavigator.navigateToFilterView(this, {
-                                              applyFn: this._onApply.bind(this),
                                               filters: this.state.filters,
                                               locationSearchCriteria: this.state.locationSearchCriteria,
                                               addressLevelState: this.state.addressLevelState,
@@ -100,6 +93,7 @@ class MyDashboardView extends AbstractComponent {
                                   renderRow={(rowData) => <AddressVisitRow address={rowData.address}
                                                                            visits={rowData.visits}
                                                                            backFunction={() => this.onBackCallback()}
+                                                                           onBack={() => this._onBack()}
                                   />}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>

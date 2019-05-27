@@ -67,11 +67,11 @@ class IndividualDetails extends AbstractComponent {
 
     renderVisits(type, color) {
         return type.map((info, i) => {
-            const row = info.visit.map((item, index) => (<Text
+            const row = info.visit.map((item, index) => (<Text key={index}
                 style={[Fonts.typography("paperFontSubhead"), {
                     color: color
                 }]}>{(index ? ', ' : '') + item}</Text>));
-            return <TouchableNativeFeedback onPress={() => this.proceed(info.encounter)}
+            return <TouchableNativeFeedback onPress={() => this.proceed(info.encounter)} key={i}
                                             background={TouchableNativeFeedback.SelectableBackground()}>
                 <View key={i}>
                     <View style={styles.container}>

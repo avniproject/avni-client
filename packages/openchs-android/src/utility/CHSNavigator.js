@@ -64,6 +64,7 @@ class CHSNavigator {
                 individualUUID: individualUUID,
                 enrolmentUUID: selectedEnrolmentUUID,
                 message,
+                backFunction: backFn
             }, true);
         } else {
             from.with({individualUUID: individualUUID, backFunction: backFn}).to(ProgramEnrolmentDashboardView, true);
@@ -82,13 +83,14 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message) {
+    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message, backFn) {
         TypedTransition.from(source).with({
             programEncounter: programEncounter,
             editing,
             encounterTypeName,
             enrolmentUUID,
-            message
+            message,
+            backFunction: backFn
         }).to(ProgramEncounterView);
     }
 
@@ -272,7 +274,8 @@ class CHSNavigator {
                             {
                                 enrolment: enrolment,
                                 workLists: workListState.workLists,
-                                message: message}], true
+                                message: message
+                            }], true
                     );
                 break;
             }
@@ -289,24 +292,27 @@ class CHSNavigator {
                         ],
                         [ProgramEnrolmentDashboardView, ProgramEncounterView],
                         [{individualUUID: nextWorkItem.parameters.subjectUUID},
-                            {params: {
-                                enrolmentUUID: enrolment.uuid,
-                                encounterType: nextWorkItem.parameters.encounterType,
-                                workLists: workListState.workLists,
-                                message: message}}], true);
+                            {
+                                params: {
+                                    enrolmentUUID: enrolment.uuid,
+                                    encounterType: nextWorkItem.parameters.encounterType,
+                                    workLists: workListState.workLists,
+                                    message: message
+                                }
+                            }], true);
                 break;
             }
             default: {
                 General.logError('CHSNavigator', 'Cannot navigate to this work item. Resetting view.');
                 TypedTransition.from(recommendationsView)
                     .resetStack([
-                            SystemRecommendationView,
-                            IndividualRegisterFormView,
-                            IndividualRegisterView,
-                            SubjectRegisterView,
-                            ProgramEncounterView,
-                            ProgramEnrolmentView
-                        ]);
+                        SystemRecommendationView,
+                        IndividualRegisterFormView,
+                        IndividualRegisterView,
+                        SubjectRegisterView,
+                        ProgramEncounterView,
+                        ProgramEnrolmentView
+                    ]);
             }
         }
     }
