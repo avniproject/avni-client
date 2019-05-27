@@ -52,12 +52,11 @@ class IndividualDetails extends AbstractComponent {
         }
     });
 
-    renderAttribute(attribute) {
+    renderAttribute(attribute, style) {
         return (
-            <Text key={attribute.key} style={IndividualDetails.styles.attributeContainer}>
+            <Text key={attribute.key} style={style}>
                 {!_.isEmpty(attribute) ?
-                    <Text
-                        style={[IndividualDetails.styles.individualContainerTextColor, Fonts.typography("paperFontSubhead")]}>
+                    <Text key={attribute.key} style={style}>
                         {attribute.value}
                     </Text> :
                     <View/>}
@@ -89,7 +88,7 @@ class IndividualDetails extends AbstractComponent {
     proceed(encounter) {
         let programEncounter = encounter.cloneForEdit();
         programEncounter.encounterDateTime = moment().toDate();
-        CHSNavigator.navigateToProgramEncounterView(this, programEncounter);
+        CHSNavigator.navigateToProgramEncounterView(this, programEncounter, false, null, null, null, this.props.backFunction);
     }
 
     render() {
@@ -124,22 +123,44 @@ class IndividualDetails extends AbstractComponent {
                     <TouchableNativeFeedback
                         onPress={() => CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individualWithMetadata.individual.uuid, "", false, this.props.backFunction)}
                         background={TouchableNativeFeedback.SelectableBackground()}>
-                        <View style={{
-                            flexDirection: 'row',
-                            backgroundColor: IndividualDetails.containerBackgroundColor,
-                        }}>
-                            <View style={IndividualDetails.styles.container}>
-                                <Text style={IndividualDetails.styles.nameContainer}>
+                        <View>
+                            <View style={{
+                                flexDirection: 'row',
+                                flexWrap: 'nowrap',
+                                alignItems: 'center',
+                                alignSelf: 'center',
+                                paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                                paddingBottom: Distances.ScaledContentDistanceFromEdge,
+                            }}>
+                                <View
+                                    style={{
+                                        flexDirection: 'column',
+                                        alignItems: 'flex-start',
+                                        flex: 1
+                                    }}>
                                     <Text
-                                        style={[Fonts.typography("paperFontSubhead"), {fontWeight: 'bold'}, IndividualDetails.styles.individualContainerTextColor]}>
+                                        style={[Fonts.typography("paperFontSubhead"), {fontWeight: 'bold'}, Styles.textStyle]}>
                                         {this.props.individualWithMetadata.individual.nameString}
                                     </Text>
-                                    <Text style={IndividualDetails.styles.individualContainerTextColor}>{', '}</Text>
-                                    {this.renderAttribute(individualAge)}
-                                    <Text style={IndividualDetails.styles.individualContainerTextColor}>{', '}</Text>
-                                    {this.renderAttribute(individualGender)}
-                                </Text>
-                                {this.renderAttribute(individualAddress)}
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'flex-start',
+                                        alignItems: 'flex-start'
+                                    }}>
+                                        {this.renderAttribute(individualAge, Styles.userProfileSubtext)}
+                                        {this.renderAttribute(individualGender, Styles.userProfileSubtext)}
+                                    </View>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'flex-end',
+                                    flex: 1
+                                }}>
+                                    <View style={{justifyContent: 'flex-end'}}>
+                                        {this.renderAttribute(individualAddress, Styles.textStyle)}
+                                    </View>
+                                </View>
                             </View>
                         </View>
                     </TouchableNativeFeedback>
@@ -164,7 +185,7 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         flex: 1,
-        paddingVertical: 4,
+        paddingVertical: 8,
         padding: Distances.ScaledContentDistanceFromEdge,
         flexDirection: 'row',
         flexWrap: 'wrap',
