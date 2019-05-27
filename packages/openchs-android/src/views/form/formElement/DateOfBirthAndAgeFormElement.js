@@ -68,10 +68,11 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                 <View style={{flexDirection: 'row'}}>
                     <TextInput
                         style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
+                        keyboardType='numeric'
                         underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
                         value={_.isNil(this.props.state.age) ? "" : this.props.state.age}
                         onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
-                    <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
+                    <View sty   le={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
                         <Radio selected={this.props.state.ageProvidedInYears} color={Colors.AccentColor}
                                onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
                     </View>
