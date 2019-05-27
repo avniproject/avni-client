@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {StatusBar, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, StatusBar, Text, TouchableNativeFeedback, View} from "react-native";
 import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
 import {LoginActionsNames as Actions} from '../action/LoginActions';
@@ -12,18 +11,17 @@ import Reducers from "../reducer";
 import CHSNavigator from "../utility/CHSNavigator";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
-import themes from "./primitives/themes";
 import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
 import {CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
-import UserInfoService from "../service/UserInfoService";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.loginActions);
+        this.startLogin = this.startLogin.bind(this);
     }
 
     componentDidMount() {
@@ -179,11 +177,7 @@ class LoginView extends AbstractComponent {
                                 :
                                 <View/>
                             }
-                            <TouchableNativeFeedback onPress={() => {
-                                if (this.state.validationResult.success) {
-                                    this.startLogin()
-                                }
-                            }} background={TouchableNativeFeedback.SelectableBackground()}>
+                            <TouchableNativeFeedback onPress={this.startLogin} background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
                                     <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>
                                 </View>
@@ -196,6 +190,18 @@ class LoginView extends AbstractComponent {
     }
 
     startLogin() {
+        if (!this.state.validationResult.success) {
+            return;
+        }
+        if (this.state.loggedInUser && this.state.loggedInUser !== this.state.userId) {
+            Alert.alert(
+                this.I18n.t("cannotChangeUserTitle", {newUser: this.state.userId}),
+                this.I18n.t("cannotChangeUserDesc", {oldUser: this.state.loggedInUser, newUser: this.state.userId}),
+                [
+                    {text: this.I18n.t('okay'), onPress: _.noop},
+                ]);
+            return;
+        }
         this.dispatchAction(Actions.ON_LOGIN, {
             success: this.loginComplete.bind(this),
             failure: this.loginFailure.bind(this),

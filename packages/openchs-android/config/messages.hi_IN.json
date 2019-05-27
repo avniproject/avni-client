@@ -250,5 +250,7 @@
   "syncLater": "बाद में सिंक करें",
   "RecentRegistration": "हाल का रजिसस्ट्रेशन",
   "RecentEnrollment": "हाल का एनरोलमेण्ट",
-  "RecentVisits": "हाल का विजिट"
+  "RecentVisits": "हाल का विजिट",
+  "cannotChangeUserTitle": "उपयोगकर्ता '{{newUser}}' के रूप में लॉग इन नहीं कर सकता",
+  "cannotChangeUserDesc": "उपयोगकर्ता '{{oldUser}}' पहले लॉग इन किया गया था। कृपया डेटा हटाएं और '{{newUser}}' के रूप में लॉग इन करने का प्रयास करें। ध्यान दें कि आप '{{oldUser}}' उपयोगकर्ता से कोई भी अन-सिंक किए गए डेटा को खो सकते हैं।"
 }

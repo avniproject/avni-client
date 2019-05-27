@@ -243,5 +243,7 @@
   "syncLater": "Sync later",
   "RecentRegistration": "Recent Registration",
   "RecentEnrollment": "Recent Enrolment",
-  "RecentVisits": "Recent Visits"
+  "RecentVisits": "Recent Visits",
+  "cannotChangeUserTitle": "વપરાશકર્તા '{{newUser}}' તરીકે લૉગ ઇન કરી શકતા નથી",
+  "cannotChangeUserDesc": "વપરાશકર્તા '{{oldUser}}' અગાઉ લૉગ ઇન થયો હતો. કૃપા કરીને ડેટાને કાઢી નાખો અને '{{newUser}}' તરીકે લૉગ ઇન કરવાનો પ્રયાસ કરો. નોંધ લો કે તમે '{{oldUser}}' વપરાશકર્તામાંથી કોઈપણ અન-સમન્વયિત ડેટાને ગુમાવો છો."
 }

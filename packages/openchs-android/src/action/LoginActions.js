@@ -5,12 +5,12 @@ import UserInfoService from "../service/UserInfoService";
 
 class LoginActions {
     static getInitialState() {
-        return {userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false, validationResult: ValidationResult.successful()};
+        return {loggedInUser: '', userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false, validationResult: ValidationResult.successful()};
     }
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return Object.assign({}, state, userInfo ? {userId: userInfo.username}: {});
+        return Object.assign({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username}: {});
     }
 
     static changeValue(state, key, value) {
