@@ -1726,7 +1726,9 @@
     "REG_ENROL_DISPLAY-Pregnancy": "Pregnancy ",
     "REG_ENROL_DISPLAY-Sickle Cell Screening": "Sickle Cell Screening ",
     "REG_ENROL_DISPLAY-Maternal Death": "Maternal Death ",
-    "REG_ENROL_DISPLAY-Eligible couple": "Eligible couple"
+    "REG_ENROL_DISPLAY-Eligible couple": "Eligible couple",
+    "REG_ENROL_DISPLAY-Preconception": "Preconception"
+
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
