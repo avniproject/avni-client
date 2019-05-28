@@ -141,11 +141,7 @@ class EntityMetaData {
     }
 
     static entitiesLoadedFromServer() {
-        return _.differenceWith(AllSchema.schema, [Settings, LocaleMapping, UserInfo], (first, second) => {
-            if (_.isNil(second)) return false;
-
-            return first.schema.name === second.schema.name;
-        });
+        return _.differenceBy(AllSchema.schema, [Settings, LocaleMapping], 'schema.name');
     }
 
     static findByName(entityName) {
