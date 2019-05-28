@@ -64,9 +64,8 @@ class MyDashboardActions {
             state.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`);
         const programQuery = (path) => _.map(state.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`);
 
-        const indFilterForProgramOrEncounter = _.isEmpty(state.selectedEncounterTypes) ? MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')) : MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid'));
-        const individualFilters = [MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')), indFilterForProgramOrEncounter].filter(Boolean).join(" AND ");
-        const encountersFilters = [MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))].filter(Boolean).join(" AND ");
+        const individualFilters = [MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')), MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')), MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid'))].filter(Boolean).join(" AND ");
+        const encountersFilters = [MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(programQuery('programEnrolment.program.uuid')), MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))].filter(Boolean).join(" AND ");
         const enrolmentFilters = [MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')), MyDashboardActions.orQuery(programQuery('program.uuid'))].filter(Boolean).join(" AND ");
 
         const [allIndividualsWithScheduledVisits,

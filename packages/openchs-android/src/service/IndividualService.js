@@ -106,7 +106,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
+                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
                 return {individual, visitInfo: {uuid: individual.uuid, visitName: [visitName]}};
             })
             .reduce(this._uniqIndividualWithVisitName, new Map())
@@ -156,7 +156,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
+                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
                 return {individual, visitInfo: {uuid: individual.uuid, visitName: [visitName]}};
             })
             .reduce(this._uniqIndividualWithVisitName, new Map())
