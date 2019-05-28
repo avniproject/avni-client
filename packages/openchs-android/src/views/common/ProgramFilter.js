@@ -25,7 +25,7 @@ class ProgramFilter extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const valueLabelPairs = this.props.visits.map(({uuid, name}) => new RadioLabelValue(name, uuid, false));
+        const valueLabelPairs = this.props.visits.map(({uuid, operationalProgramName, operationalEncounterTypeName, name}) => new RadioLabelValue(operationalProgramName || operationalEncounterTypeName || name, uuid, false));
         return (
             <RadioGroup
                 multiSelect={this.props.multiSelect}

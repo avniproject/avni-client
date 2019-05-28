@@ -116,8 +116,8 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                const programName = enc.programEnrolment.program.name || enc.programEnrolment.program.operationalProgramName;
+                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const earliestVisitDateTime = enc.earliestVisitDateTime;
                 return {
                     individual,
@@ -177,8 +177,8 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                const programName = enc.programEnrolment.program.name || enc.programEnrolment.program.operationalProgramName;
+                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const programName =  enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,

@@ -38,14 +38,14 @@ export default class AppliedFilters extends AbstractComponent {
 
     renderFilteredPrograms() {
         if (this.props.programs.length > 1 && this.props.selectedPrograms.length > 0) {
-            const programNames = this.props.selectedPrograms.map((prog) => prog.name);
+            const programNames = this.props.selectedPrograms.map((prog) => prog.operationalProgramName || prog.name);
             return this.renderContent('Program', programNames.join(', '))
         }
     }
 
     renderFilteredVisits() {
         if (this.props.selectedEncounterTypes.length > 0) {
-            const visitNames = this.props.selectedEncounterTypes.map((enc) => enc.name);
+            const visitNames = this.props.selectedEncounterTypes.map((enc) => _.isNil(enc.encounterType) ? enc.name : enc.encounterType.operationalEncounterTypeName);
             return this.renderContent('Visit', visitNames.join(', '))
         }
     }
