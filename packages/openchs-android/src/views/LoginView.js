@@ -1,7 +1,16 @@
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Alert, StatusBar, Text, TouchableNativeFeedback, View} from "react-native";
+import {
+    Alert,
+    Dimensions,
+    Modal,
+    StatusBar,
+    Text,
+    TouchableNativeFeedback,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
 import {LoginActionsNames as Actions} from '../action/LoginActions';
@@ -14,18 +23,30 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
-import {CheckBox, Spinner} from "native-base";
+import {Button, CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
+import AuthService from "../service/AuthService";
+import ConfirmationModal from "./common/ConfirmationModal";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.loginActions);
-        this.startLogin = this.startLogin.bind(this);
+        this.safeLogin = this.safeLogin.bind(this);
+        this.clearDataAndLogin = this.clearDataAndLogin.bind(this);
     }
 
     componentDidMount() {
         this.dispatchAction(Actions.ON_LOAD);
+    }
+
+    reset() {
+        const userIdBeforeReset = this.state.userId;
+        const passwdBeforeReset = this.state.password;
+        this.dispatchAction('RESET');
+        this.dispatchAction(Actions.ON_LOAD);
+        this.dispatchAction(Actions.ON_USER_ID_CHANGE, {value: userIdBeforeReset});
+        this.dispatchAction(Actions.ON_PASSWORD_CHANGE, {value: passwdBeforeReset});
     }
 
     loginComplete(response) {
@@ -101,11 +122,23 @@ class LoginView extends AbstractComponent {
         ) : <View/>
     }
 
+    renderMultiUserLoginFailure() {
+        return (<ConfirmationModal
+            visible={this.state.showMultiUserLoginWarning}
+            hide={(actionFn) => this.setState({showMultiUserLoginWarning: false}, actionFn)}
+            negative={{action: this.clearDataAndLogin, label: this.I18n.t('clearDataAndLogin')}}
+            positive={{action: _.noop, label: this.I18n.t('cancel')}}
+            title={this.I18n.t("cannotChangeUserTitle", {newUser: this.state.userId})}
+            desc={this.I18n.t("cannotChangeUserDesc", {oldUser: this.state.loggedInUser, newUser: this.state.userId})}
+        />);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContainer>
                 <CHSContent>
+                    {this.renderMultiUserLoginFailure()}
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
                     <View style={{
                         padding: 72,
@@ -177,7 +210,7 @@ class LoginView extends AbstractComponent {
                                 :
                                 <View/>
                             }
-                            <TouchableNativeFeedback onPress={this.startLogin} background={TouchableNativeFeedback.SelectableBackground()}>
+                            <TouchableNativeFeedback onPress={this.safeLogin} background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
                                     <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>
                                 </View>
@@ -189,19 +222,24 @@ class LoginView extends AbstractComponent {
         );
     }
 
-    startLogin() {
+    clearDataAndLogin() {
+        this.getService(AuthService).clearData()
+            .then(()=> this.reset())
+            .then(()=> this.justLogin());
+    }
+
+    safeLogin() {
         if (!this.state.validationResult.success) {
             return;
         }
         if (this.state.loggedInUser && this.state.loggedInUser !== this.state.userId) {
-            Alert.alert(
-                this.I18n.t("cannotChangeUserTitle", {newUser: this.state.userId}),
-                this.I18n.t("cannotChangeUserDesc", {oldUser: this.state.loggedInUser, newUser: this.state.userId}),
-                [
-                    {text: this.I18n.t('okay'), onPress: _.noop},
-                ]);
+            this.setState({showMultiUserLoginWarning: true});
             return;
         }
+        this.justLogin();
+    }
+
+    justLogin() {
         this.dispatchAction(Actions.ON_LOGIN, {
             success: this.loginComplete.bind(this),
             failure: this.loginFailure.bind(this),
