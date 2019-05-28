@@ -38,11 +38,11 @@ class ProgramEnrolmentDashboardActions {
     static _setEncounterTypeState(newState, context) {
         const programEncounter = ProgramEncounter.createEmptyInstance();
         programEncounter.programEnrolment = newState.enrolment;
-        const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program);
+        const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program, newState.enrolment.individual.subjectType);
         newState.programEncounterTypeState.entityParentSelected(programEncounterTypes, programEncounter);
 
         newState.encounter.individual = newState.enrolment.individual;
-        newState.encounterTypes = context.get(FormMappingService).findEncounterTypesForEncounter();
+        newState.encounterTypes = context.get(FormMappingService).findEncounterTypesForEncounter(newState.encounter.individual.subjectType);
         return newState;
     }
 

@@ -24,6 +24,11 @@ class FormQueryResult {
         return this;
     }
 
+    forSubjectType(subjectType) {
+        this.formMappings = _.filter(this.formMappings, (formMapping) => formMapping.subjectType.uuid === subjectType.uuid);
+        return this;
+    }
+
     unVoided() {
         this.formMappings = _.filter(this.formMappings, (formMapping)=> !_.get(formMapping, 'voided'));
         return this;
@@ -38,19 +43,18 @@ class FormQueryResult {
     }
 
     _weight(filter, item) {
-        return this.programFilter && !_.isNil(item) ? 1 : 0;
+        return filter && !_.isNil(item) ? 1 : 0;
     }
 
     _totalWeight(formMapping) {
         return this._weight(this.encounterTypeFilter, formMapping.observationsTypeEntityUuid)
         + this._weight(this.programFilter, formMapping.entityUUID)
-        + this._weight(this.formTypeFilter, _.get(formMapping, 'form.formType'))
+        + this._weight(this.formTypeFilter, _.get(formMapping, 'form.formType'));
     }
 
     _sortedMappings() {
         return _.sortBy(this.formMappings, (formMapping) => this._totalWeight(formMapping));
     }
-
 }
 
 export default FormQueryResult;

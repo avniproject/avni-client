@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import themes from "../primitives/themes";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualEncounterView from "./IndividualEncounterView";
 import FormElementGroup from "../form/FormElementGroup";
@@ -13,7 +12,7 @@ import Reducers from "../../reducer";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import _ from "lodash";
 import General from "../../utility/General";
-import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter} from 'openchs-models';
+import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter, Form} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";
@@ -59,7 +58,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
             completed: (newState, encounterDecisions, ruleValidationErrors) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType);
+                const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter, this.state.encounter.individual.subjectType);
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage, form, newState.workListState, this.I18n.t('encounterSavedMsg', {encounterName:this.state.encounter.encounterType.name}));
             }
         });

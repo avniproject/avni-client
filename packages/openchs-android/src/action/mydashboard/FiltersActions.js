@@ -82,6 +82,7 @@ class FiltersActions {
             }
     }
 
+    //todo: vinay evaluate formMappingService usage
     static addProgram(state, action, context) {
         const isPresent = FiltersActions.isPresent(state.selectedPrograms, action.programUUID);
         const program = _.filter(state.programs, (program) => program.uuid === action.programUUID);

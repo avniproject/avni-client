@@ -103,6 +103,10 @@ class AbstractEncounter extends BaseEntity {
     hasObservation(conceptName) {
         return !_.isNil(this.getObservationValue(conceptName));
     }
+
+    get subjectType() {
+        return _.get(this, this.getName() === 'Encounter'? 'individual.subjectType': 'programEnrolment.individual.subjectType');
+    }
 }
 
 export default AbstractEncounter;

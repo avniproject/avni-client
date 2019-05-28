@@ -42,7 +42,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         if (editing) return true;
         const identifierAssignmentService = parent.context.getService(IdentifierAssignmentService);
 
-        const form = parent.context.getService(FormMappingService).findFormForProgramEnrolment(enrolment.program);
+        const form = parent.context.getService(FormMappingService).findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType);
         if (identifierAssignmentService.haveEnoughIdentifiers(form)) {
             return true;
         }

@@ -6,29 +6,33 @@ import IndividualRegistrationState from "../../state/IndividualRegistrationState
 import _ from 'lodash';
 import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
+import FormMappingService from "../../service/FormMappingService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
         const genders = context.get(EntityService).getAll(Gender.schema.name);
         const gendersSortedByName = _.sortBy(genders, "name");
-        const subjectTypes = context.get(EntityService).getAll(SubjectType.schema.name);
-        return {form: form, genders: gendersSortedByName, individualSubjectType: subjectTypes[0]};
+
+        return {genders: gendersSortedByName};
     }
 
     static onLoad(state, action, context) {
         const individual = _.isNil(action.individualUUID) ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
 
+        const currentWorkItem = action.workLists.getCurrentWorkItem();
+        const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
+
         if (_.isEmpty(individual.subjectType.name)) {
-            individual.subjectType = state.individualSubjectType;
+            individual.subjectType = subjectType;
         }
+        const form = context.get(FormMappingService).findRegistrationForm(subjectType);
 
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
-        context.get(IdentifierAssignmentService).populateIdentifiers(state.form, new ObservationsHolder(individual.observations));
+        context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(individual.observations));
 
-        const newState = IndividualRegistrationState.createLoadState(state.form, state.genders, individual, action.workLists);
+        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists);
         IndividualRegisterActions.setAgeState(newState);
         return newState;
     }

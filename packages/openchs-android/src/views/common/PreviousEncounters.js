@@ -17,6 +17,7 @@ import {Badge} from "../filter/AppliedFilters";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
+import { Form } from 'openchs-models';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -103,7 +104,7 @@ class PreviousEncounters extends AbstractComponent {
                         primaryAction={this.cancelVisitAction(encounter)}
                         title={this.getTitle(encounter)}/>
                     <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
-                        this.props.formType)} observations={encounter.getObservations()}/>
+                        this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
                 </View>}
             />);
         return (

@@ -7,12 +7,11 @@ import SubjectRegistrationState from '../../state/SubjectRegistrationState';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
+import FormMappingService from "../../service/FormMappingService";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
-        const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
-        const subjectTypes = context.get(EntityService).getAll(SubjectType.schema.name);
-        return {form: form, subjectType: subjectTypes[0]};
+        return {};
     }
 
     static filterFormElements(formElementGroup, context, subject) {
@@ -24,16 +23,21 @@ export class SubjectRegisterActions {
         let isNewEntity = _.isNil(action.subjectUUID);
         const subject = isNewEntity ?
             Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.subjectUUID);
+
+        const currentWorkItem = action.workLists.getCurrentWorkItem();
+        const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
+
         if (_.isEmpty(subject.subjectType.name)) {
-            subject.subjectType = state.subjectType;
+            subject.subjectType = subjectType;
         }
+        const form = context.get(FormMappingService).findRegistrationForm(subjectType);
 
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
         let observationsHolder = new ObservationsHolder(subject.observations);
-        context.get(IdentifierAssignmentService).populateIdentifiers(state.form, observationsHolder);
+        context.get(IdentifierAssignmentService).populateIdentifiers(form, observationsHolder);
 
-        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(state.form.nonVoidedFormElementGroups(), [function (o) {
+        let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => SubjectRegisterActions.filterFormElements(formElementGroup, context, subject).length !== 0);
 
@@ -44,7 +48,7 @@ export class SubjectRegisterActions {
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
 
-        return SubjectRegistrationState.createOnLoad(subject, state.form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists);
+        return SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists);
     }
 
     static enterRegistrationDate(state, action) {

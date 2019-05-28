@@ -1,7 +1,8 @@
+// @flow
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {EncounterType, Form, FormMapping} from "openchs-models";
-import _ from 'lodash';
+import {EncounterType, Form, FormMapping, Program, SubjectType} from "openchs-models";
+import _ from "lodash";
 import FormQueryResult from "./FormQueryResult";
 
 @Service("FormMappingService")
@@ -14,48 +15,62 @@ class FormMappingService extends BaseService {
         return FormMapping.schema.name;
     }
 
-    findForm(entity) {
-        const formMapping = this.findByKey('voided = false AND entityUUID', entity.uuid);
-        return formMapping.form;
-    }
-
-    _findProgramRelatedForm(program, formType) {
-        const formMapping = this.findByCriteria(`voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}"`);
+    _findProgramRelatedForm(program: Program, formType: string, subjectType: SubjectType) {
+        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}" and subjectType.uuid = "${subjectType.uuid}"`;
+        const formMapping = this.findByCriteria(criteria);
         return _.isNil(formMapping) ? null : formMapping.form;
     }
 
-    findFormForProgramEnrolment(program) {
-        return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment);
+    findFormForProgramEnrolment(program: Program, subjectType: SubjectType) {
+        return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment, subjectType);
     }
 
-    findFormForProgramExit(program) {
-        return this._findProgramRelatedForm(program, Form.formTypes.ProgramExit);
+    findProgramsForSubjectType(subjectType: SubjectType): Form {
+        const enrolmentFormMappingsForSubjectType = this.allFormMappings()
+            .unVoided()
+            .forFormType(Form.formTypes.ProgramEnrolment)
+            .forSubjectType(subjectType)
+            .all();
+
+        const programs = enrolmentFormMappingsForSubjectType.map(
+            (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name));
+
+        return _.compact(programs);
+    }
+
+    findFormForProgramExit(program: Program, subjectType: SubjectType) {
+        return this._findProgramRelatedForm(program, Form.formTypes.ProgramExit, subjectType);
     }
 
     _findEncounterTypesForFormMapping = (formMapping) => {
         return this.findByUUID(formMapping.observationsTypeEntityUUID, EncounterType.schema.name);
     };
 
-    findEncounterTypesForProgram(program) {
-        const formMappings = this.findAllByCriteria(`voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`);
+    findEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
+        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}" and subjectType.uuid="${subjectType.uuid}"`;
+        const formMappings = this.findAllByCriteria(criteria);
         return formMappings
             .map(this._findEncounterTypesForFormMapping)
             .filter(this.unVoided)
             .filter(et => !_.isEmpty(et));
     }
 
-    findEncounterTypesForEncounter() {
+    findEncounterTypesForEncounter(subjectType: SubjectType): Array<EncounterType> {
         //TODO: There are some encounter types whose mapping is synchronised to the client but the encounter types themselves are not, as form mapping API doesn't return mappings based on the organisation yet.
-        const formMappings = this.findAllByCriteria(`voided = false AND form.formType="${Form.formTypes.Encounter}"`);
+        let criteria = `voided = false AND form.formType="${Form.formTypes.Encounter}" and subjectType.uuid="${subjectType.uuid}"`;
+
+        const formMappings = this.findAllByCriteria(criteria);
         return formMappings.map(this._findEncounterTypesForFormMapping)
             .filter(this.unVoided)
             .filter(et => !_.isEmpty(et));
     }
 
-    findFormForEncounterType(encounterType, formType = Form.formTypes.ProgramEncounter) {
+    findFormForEncounterType(encounterType: EncounterType, formType: string = Form.formTypes.ProgramEncounter, subjectType: SubjectType): Form {
+        let criteria = "voided = false AND observationsTypeEntityUUID = $0 AND form.formType = $1 and subjectType.uuid = $2";
+        let params = [encounterType.uuid, formType, subjectType.uuid];
         const formMapping = this.db.objects(FormMapping.schema.name)
-            .filtered("voided = false AND observationsTypeEntityUUID = $0 AND form.formType = $1", encounterType.uuid, formType)[0];
-        return _.get(formMapping,'form');
+            .filtered(criteria, ...params)[0];
+        return _.get(formMapping, 'form');
     }
 
     allFormMappings() {
@@ -63,16 +78,20 @@ class FormMappingService extends BaseService {
         return new FormQueryResult(formMappings);
     }
 
-    findRegistrationForm() {
-        return this.findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
+    findRegistrationForm(subjectType: SubjectType) {
+        let criteria = `voided = false AND form.formType = "${Form.formTypes.IndividualProfile}" and subjectType.uuid = "${subjectType.uuid}"`;
+        const formMapping = this.db.objects(FormMapping.schema.name)
+            .filtered(criteria)[0];
+        return _.get(formMapping, 'form');
     }
 
-    findFormForCancellingEncounterType(encounterType, program) {
+    findFormForCancellingEncounterType(encounterType: EncounterType, program: Program, subjectType: SubjectType) {
         let matchingFormMapping = this.allFormMappings()
             .unVoided()
             .forFormType(Form.formTypes.ProgramEncounterCancellation)
             .forEncounterType(encounterType)
             .forProgram(program)
+            .forSubjectType(subjectType)
             .bestMatch();
         return _.isNil(matchingFormMapping) ? null : matchingFormMapping.form;
     }

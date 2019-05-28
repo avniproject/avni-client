@@ -26,7 +26,7 @@ export class EncounterActions {
         }
 
         const form = context.get(FormMappingService)
-            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter);
+            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter, encounter.individual.subjectType);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
         let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
         const workLists = new WorkLists(new WorkList('Encounter', [new WorkItem(

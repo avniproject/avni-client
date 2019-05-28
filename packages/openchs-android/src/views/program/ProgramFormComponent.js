@@ -38,7 +38,7 @@ class ProgramFormComponent extends AbstractComponent {
                 };
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program);
+                const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
             movedNext: this.scrollToTop

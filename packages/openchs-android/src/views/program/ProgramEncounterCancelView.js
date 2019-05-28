@@ -4,7 +4,6 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import {ProgramEncounterCancelActionsNames as Actions} from "../../action/program/ProgramEncounterCancelActions";
 import FormElementGroup from "../form/FormElementGroup";
@@ -18,13 +17,8 @@ import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
-import EncounterService from "../../service/EncounterService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
-import DateFormElement from "../form/formElement/DateFormElement";
-import StaticFormElement from "../viewmodel/StaticFormElement";
-import {  PrimitiveValue  } from 'openchs-models';
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import {  AbstractEncounter  } from 'openchs-models';
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -65,7 +59,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 };
                 const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.displayName)}, ${this.I18n.t(state.programEncounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForCancellingEncounterType(this.state.programEncounter.encounterType, this.state.programEncounter.programEnrolment.program);
+                const form = formMappingService.findFormForCancellingEncounterType(this.state.programEncounter.encounterType, this.state.programEncounter.programEnrolment.program, this.state.programEncounter.programEnrolment.individual.subjectType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
             movedNext: this.scrollToTop

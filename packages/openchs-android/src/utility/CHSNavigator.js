@@ -112,8 +112,9 @@ class CHSNavigator {
     static navigateToRegisterView(source, workLists, message) {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
+        const subjectTypeName = workItem.parameters.subjectTypeName;
         const target = workItem.parameters.subjectTypeName === 'Individual' ? IndividualRegisterView : SubjectRegisterView;
-        if (target.canLoad({uuid}, source)) {
+        if (target.canLoad({uuid, subjectTypeName}, source)) {
             TypedTransition.from(source).with({
                 subjectUUID: uuid,
                 individualUUID: uuid,
@@ -230,7 +231,6 @@ class CHSNavigator {
     static performNextWorkItemFromRecommendationsView(recommendationsView, workListState: WorkListState, context) {
         const currentWorkItem = workListState.currentWorkItem;
         const message = this.getMessage(recommendationsView.I18n, currentWorkItem);
-        console.log(`performNextWorkItemFromRecommendationsView ${message}`);
         const nextWorkItem = workListState.moveToNextWorkItem();
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {

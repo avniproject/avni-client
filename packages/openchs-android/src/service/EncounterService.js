@@ -16,7 +16,11 @@ class EncounterService extends BaseService {
         }
 
         let formMappingService = this.getService(FormMappingService);
-        let form = formMappingService.findFormForCancellingEncounterType(encounter.encounterType, encounter.programEnrolment.program);
+        let form = formMappingService.findFormForCancellingEncounterType(
+            encounter.encounterType,
+            encounter.programEnrolment.program,
+            encounter.subjectType
+            );
         if (_.isNil(form)) {
             General.logDebug('EncounterService.isEncounterTypeCancellable', `No form associated with ET=${encounter.encounterType.uuid} and Program=${encounter.programEnrolment.program.uuid}`);
             return false;

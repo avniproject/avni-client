@@ -4,12 +4,11 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue} from "openchs-models";
+import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType} from "openchs-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -24,8 +23,9 @@ import TextFormElement from "../form/formElement/TextFormElement";
 import AddressLevels from "../common/AddressLevels";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
-import EntityService from "../../service/EntityService";
 import Form from "openchs-models/src/application/Form";
+import FormMappingService from "../../service/FormMappingService";
+import EntityService from "../../service/EntityService";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -42,12 +42,17 @@ class SubjectRegisterView extends AbstractComponent {
         this.state = {displayed: true};
     }
 
-    static canLoad({uuid,customMessage}, parent) {
+    static canLoad({uuid,customMessage, subjectTypeName}, parent) {
         const editing = !_.isNil(uuid);
         if (editing) return true;
         const identifierAssignmentService = parent.context.getService(IdentifierAssignmentService);
         const entityService = parent.context.getService(EntityService);
-        const form = entityService.findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
+        const subjectType = entityService.findByKey('name', subjectTypeName, SubjectType.schema.name);
+
+        const formMappingService = parent.context.getService(FormMappingService);
+        const form = formMappingService.findRegistrationForm(subjectType);
+
+
         if (identifierAssignmentService.haveEnoughIdentifiers(form)) {
             return true;
         }

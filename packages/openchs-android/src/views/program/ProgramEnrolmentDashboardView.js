@@ -101,7 +101,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     getForm() {
         const formMappingService = this.context.getService(FormMappingService);
-        return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program);
+        return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program, this.state.enrolment.individual.subjectType);
     }
 
     getEnrolmentContextActions(isExit) {

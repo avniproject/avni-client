@@ -20,8 +20,8 @@ export class ProgramEnrolmentActions {
             const formMappingService = context.get(FormMappingService);
             const form =
                 action.usage === ProgramEnrolmentState.UsageKeys.Enrol
-                    ? formMappingService.findFormForProgramEnrolment(action.enrolment.program)
-                    : formMappingService.findFormForProgramExit(action.enrolment.program);
+                    ? formMappingService.findFormForProgramEnrolment(action.enrolment.program, action.enrolment.individual.subjectType)
+                    : formMappingService.findFormForProgramExit(action.enrolment.program, action.enrolment.individual.subjectType);
 
             //Populate identifiers much before form elements are hidden or sent to rules.
             //This will enable the value to be used in rules

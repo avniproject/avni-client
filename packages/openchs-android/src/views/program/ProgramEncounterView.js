@@ -4,12 +4,11 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import {ProgramEncounterActionsNames as Actions} from "../../action/program/ProgramEncounterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, ObservationsHolder, PrimitiveValue, ProgramEncounter} from 'openchs-models';
+import {AbstractEncounter, ObservationsHolder, PrimitiveValue, ProgramEncounter, Form} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -79,7 +78,7 @@ class ProgramEncounterView extends AbstractComponent {
                 };
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType);
+                const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
             movedNext: this.scrollToTop

@@ -36,6 +36,7 @@ import ProgressBarView from "./ProgressBarView";
 import ServerError from "../service/ServerError";
 import ProgramService from "../service/program/ProgramService";
 import ActionSelector from "./common/ActionSelector";
+import FormMappingService from "../service/FormMappingService";
 
 const {width, height} = Dimensions.get('window');
 
@@ -251,32 +252,52 @@ class MenuView extends AbstractComponent {
             <Text style={Styles.menuTitle}>{pad}</Text>
         </View>);
     };
-    renderRegistrationModal() {
-        if (!this.state.displayActionSelector) {
-            return null;
-        }
-        const subjectType = this.context.getService(EntityService).getAll(SubjectType.schema.name)[0];
-        const registrationAction = {
+
+    _addRegistrationAction(subjectType) {
+        return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
                 new WorkLists(new WorkList(this.I18n.t(`REG_DISPLAY-${subjectType.name}`)).withRegistration(subjectType.name))),
-        label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
+            label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
-        };
-        const programActions = this.context.getService(ProgramService).findAll().map(program => ({
+        }
+    }
+
+    _addProgramAction(subjectType, program) {
+        return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
                 new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
                     .withRegistration(subjectType.name)
                     .withEnrolment(program.name)
                 )),
-        label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
+            label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
             backgroundColor: program.colour,
-        }));
+        }
+    }
+
+    _addProgramActions(subjectType, programs) {
+        return _.map(programs, program => this._addProgramAction(subjectType, program));
+    }
+
+    renderRegistrationModal() {
+        if (!this.state.displayActionSelector) {
+            return null;
+        }
+        let actions = [];
+
+        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
+
+        subjectTypes.forEach(subjectType => {
+            actions = actions.concat(this._addRegistrationAction(subjectType));
+            const programs = this.context.getService(FormMappingService).findProgramsForSubjectType(subjectType);
+            actions = actions.concat(this._addProgramActions(subjectType, programs));
+            // console.log(actions);
+        });
 
         return (
           <ActionSelector
               visible={this.state.displayActionSelector}
               hide={() => this.setState({displayActionSelector: false})}
-              actions={[registrationAction].concat(programActions)}
+              actions={actions}
               title={this.I18n.t("register")}
           />
         );

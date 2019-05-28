@@ -59,7 +59,7 @@ export default {
         ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue, Point, SyncTelemetry, IdentifierSource,
         IdentifierAssignment
     ],
-    schemaVersion: 103,
+    schemaVersion: 104,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -279,11 +279,24 @@ export default {
                 program.programSubjectLabel = program.operationalProgramName || program.name;
             });
         }
-
         if(oldDB.schemaVersion < 103) {
             _.forEach(newDB.objects(UserInfo.schema.name), userInfo => {
                 userInfo.username = '';
                 newDB.create(EntityQueue.schema.name, EntityQueue.create(userInfo, UserInfo.schema.name));
+            });
+        }
+        if(oldDB.schemaVersion < 104) {
+            /*
+            Assumption: All existing users have just one subject type
+            Reason for migration: Server has a mandatory subject type on all form mappings.
+            App requires subject type to be present.
+            However, if someone upgrades and does not sync, app will break.
+            This migration fixes this issue.
+             */
+            const subjectType = oldDB.objects('SubjectType')[0];
+            const formMappings = newDB.objects('FormMapping');
+            _.forEach(formMappings, formMapping => {
+                formMapping.subjectType = subjectType;
             });
         }
     }

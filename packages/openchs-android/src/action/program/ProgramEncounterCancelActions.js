@@ -21,7 +21,11 @@ class ProgramEncounterCancelActions {
     static onLoad(state, action, context) {
         let programEncounter = context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name);
         programEncounter = programEncounter.cloneForEdit();
-        const form = context.get(FormMappingService).findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program);
+        const form = context.get(FormMappingService).findFormForCancellingEncounterType(
+            programEncounter.encounterType,
+            programEncounter.programEnrolment.program,
+            programEncounter.programEnrolment.individual.subjectType
+        );
 
         if (_.isNil(form)) {
             throw new Error(`No form setup for EncounterType: ${programEncounter.encounterType}`);

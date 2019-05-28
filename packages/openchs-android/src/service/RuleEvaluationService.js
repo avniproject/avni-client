@@ -44,12 +44,12 @@ class RuleEvaluationService extends BaseService {
             ['ProgramEncounter', new EntityRule(programEncounterDecision)],]);
 
         this.entityFormMap = new Map([
-            ['Individual', (individual) => this.formMappingService.findRegistrationForm(individual)],
-            ['Encounter', (encounter) => this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name)],
-            ['ProgramEnrolment', (programEnrolment) => this.formMappingService.findFormForProgramEnrolment(programEnrolment.program)],
-            ['ProgramEncounter', (programEncounter) => this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name)],
+            ['Individual', (individual) => this.formMappingService.findRegistrationForm(individual.subjectType)],
+            ['Encounter', (encounter) => this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name, encounter.individual.subjectType)],
+            ['ProgramEnrolment', (programEnrolment) => this.formMappingService.findFormForProgramEnrolment(programEnrolment.program, programEnrolment.individual.subjectType)],
+            ['ProgramEncounter', (programEncounter) => this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name, programEncounter.programEnrolment.individual.subjectType)],
             ['ChecklistItem', (checklistItem) => checklistItem.detail.form],
-            ['ProgramEncounterCancellation', (programEncounter) => this.formMappingService.findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program)],
+            ['ProgramEncounterCancellation', (programEncounter) => this.formMappingService.findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program, programEncounter.programEnrolment.individual.subjectType)],
         ]);
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);

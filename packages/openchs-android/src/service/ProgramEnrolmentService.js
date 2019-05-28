@@ -62,7 +62,7 @@ class ProgramEnrolmentService extends BaseService {
             individual.addEnrolment(programEnrolment);
             General.logDebug('ProgramEnrolmentService', 'ProgramEnrolment added to Individual');
 
-            const enrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program);
+            const enrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program, individual.subjectType);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(enrolmentForm, programEnrolment.observations, null, programEnrolment);
 
             entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
