@@ -9,6 +9,9 @@ endef
 uninstall_apk: ##
 	adb uninstall com.openchsclient
 
+clear_app_data:
+	adb shell pm clear com.openchsclient
+
 install_universal_apk: ##
 	$(call _install_apk,app-release.apk)
 	$(call _start_app)
