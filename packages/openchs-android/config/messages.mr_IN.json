@@ -265,6 +265,8 @@
   "RecentVisits": "अलीकडील भेटी",
   "overdue": "अतिदेय",
   "total": "एकूण",
-  "cannotChangeUserTitle": "वापरकर्ता '{{newUser}}' म्हणून लॉग इन करू शकत नाही",
-  "cannotChangeUserDesc": "वापरकर्ता '{{oldUser}}' पूर्वी लॉग इन झाला होता. कृपया डेटा हटवा आणि '{{newUser}}' म्हणून लॉग इन करण्याचा प्रयत्न करा. लक्षात घ्या की आपण '{{oldUser}}' वापरकर्त्याकडील कोणताही विना-समक्रमित डेटा गमावू शकता."
+  "The locale of the switching user is not known. That's why these are in English.": "",
+  "cannotChangeUserTitle": "Multiple users cannot login",
+  "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
+  "clearDataAndLogin": "Delete data and login"
 }

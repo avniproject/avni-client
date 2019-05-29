@@ -251,6 +251,8 @@
   "RecentRegistration": "हाल का रजिसस्ट्रेशन",
   "RecentEnrollment": "हाल का एनरोलमेण्ट",
   "RecentVisits": "हाल का विजिट",
-  "cannotChangeUserTitle": "उपयोगकर्ता '{{newUser}}' के रूप में लॉग इन नहीं कर सकता",
-  "cannotChangeUserDesc": "उपयोगकर्ता '{{oldUser}}' पहले लॉग इन किया गया था। कृपया डेटा हटाएं और '{{newUser}}' के रूप में लॉग इन करने का प्रयास करें। ध्यान दें कि आप '{{oldUser}}' उपयोगकर्ता से कोई भी अन-सिंक किए गए डेटा को खो सकते हैं।"
+  "The locale of the switching user is not known. That's why these are in English.": "",
+  "cannotChangeUserTitle": "Multiple users cannot login",
+  "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
+  "clearDataAndLogin": "Delete data and login"
 }

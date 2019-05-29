@@ -92,7 +92,7 @@ class IndividualService extends BaseService {
     allIn(ignored, queryAdditions) {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions} AND enrolments.voided = false AND enrolments.programExitDateTime = null`))
             .map((individual) => {
                 const registrationDate = individual.registrationDate;
                 return {individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}};
@@ -110,7 +110,10 @@ class IndividualService extends BaseService {
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
                 'AND cancelDateTime = null ' +
-                'AND programEnrolment.programExitDateTime = null ',
+                'AND programEnrolment.programExitDateTime = null ' +
+                'AND programEnrolment.voided = false ' +
+                'AND programEnrolment.individual.voided = false ' +
+                'AND voided = false ',
                 dateMidnight,
                 dateMorning)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
@@ -172,7 +175,10 @@ class IndividualService extends BaseService {
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
-                'AND programEnrolment.programExitDateTime = null ',
+                'AND programEnrolment.programExitDateTime = null ' +
+                'AND programEnrolment.voided = false ' +
+                'AND programEnrolment.individual.voided = false ' +
+                'AND voided = false ',
                 dateMorning)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
@@ -242,7 +248,10 @@ class IndividualService extends BaseService {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEncounter.schema.name)
-            .filtered('encounterDateTime <= $0 ' +
+            .filtered('voided = false ' +
+                'AND programEnrolment.voided = false ' +
+                'AND programEnrolment.individual.voided = false ' +
+                'AND encounterDateTime <= $0 ' +
                 'AND encounterDateTime >= $1 ',
                 tillDate,
                 fromDate)
@@ -296,7 +305,9 @@ class IndividualService extends BaseService {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEnrolment.schema.name)
-            .filtered('enrolmentDateTime <= $0 ' +
+            .filtered('voided = false ' +
+                'AND individual.voided = false ' +
+                'AND enrolmentDateTime <= $0 ' +
                 'AND enrolmentDateTime >= $1 ',
                 tillDate,
                 fromDate)
