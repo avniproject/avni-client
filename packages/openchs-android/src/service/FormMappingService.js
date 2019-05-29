@@ -47,7 +47,10 @@ class FormMappingService extends BaseService {
     };
 
     findEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
-        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}" and subjectType.uuid="${subjectType.uuid}"`;
+        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`;
+        if (subjectType) {
+            criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
+        }
         const formMappings = this.findAllByCriteria(criteria);
         return formMappings
             .map(this._findEncounterTypesForFormMapping)

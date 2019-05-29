@@ -1,11 +1,10 @@
 import PropTypes from 'prop-types';
-import React, {Component} from 'react';
-import {View, StyleSheet, TouchableNativeFeedback} from 'react-native';
-import {Badge, Text} from 'native-base';
+import React from 'react';
+import {StyleSheet, TouchableNativeFeedback, View} from 'react-native';
+import {Text} from 'native-base';
 import Fonts from '../primitives/Fonts';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import DGS from "../primitives/DynamicGlobalStyles";
-import Separator from "../primitives/Separator";
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 import Colors from "../primitives/Colors"
