@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 import React from "react";
-import {StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
+import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
@@ -9,7 +8,6 @@ import {Filter} from 'openchs-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
-import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
 import CHSContent from "../common/CHSContent";

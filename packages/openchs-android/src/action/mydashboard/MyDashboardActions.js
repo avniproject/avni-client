@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {AddressLevel, SubjectType} from "openchs-models";
+import {SubjectType} from "openchs-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
@@ -48,7 +48,6 @@ class MyDashboardActions {
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
-        const formMappingService = context.get(FormMappingService);
         const subjectType = entityService.getAll(SubjectType.schema.name)[0];
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
