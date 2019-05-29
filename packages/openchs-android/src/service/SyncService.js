@@ -13,6 +13,8 @@ import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
 import _ from "lodash";
+import EntityMetaData from "openchs-models/src/EntityMetaData";
+import RuleService from "./RuleService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -37,6 +39,7 @@ class SyncService extends BaseService {
         this.ruleEvaluationService = this.getService(RuleEvaluationService);
         this.mediaQueueService = this.getService(MediaQueueService);
         this.entityQueueService = this.getService(EntityQueueService);
+        this.ruleService = this.getService(RuleService);
     }
 
     authenticate() {
@@ -217,6 +220,14 @@ class SyncService extends BaseService {
         };
 
         return this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, afterEachEntityTypePushed);
+    }
+
+    clearData() {
+        this.entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+        this.entitySyncStatusService.setup(EntityMetaData.model());
+        this.ruleEvaluationService.init();
+        this.messageService.init();
+        this.ruleService.init();
     }
 }
 

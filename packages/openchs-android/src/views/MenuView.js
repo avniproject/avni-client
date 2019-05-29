@@ -240,29 +240,17 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(VideoListView);
     }
 
+    deleteData() {
+        this.getService(AuthService).clearData().then(()=> this.reset());
+    }
 
     onDelete() {
-        const service = this.context.getService(EntityService);
-        const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
-        const authService = this.context.getService(AuthService);
         Alert.alert(
             this.I18n.t('deleteSchemaNoticeTitle'),
             this.I18n.t('deleteSchemaConfirmationMessage'),
             [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        authService.logout().then(() => {
-                            service.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-                            entitySyncStatusService.setup(EntityMetaData.model());
-                            this.reset();
-                        });
-                    }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    },
-                    style: 'cancel'
-                }
+                {text: this.I18n.t('yes'), onPress: () => this.deleteData()},
+                {text: this.I18n.t('no'), onPress: () => {}, style: 'cancel'}
             ]
         )
     };

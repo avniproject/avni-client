@@ -20,6 +20,10 @@ class AbstractComponent extends Component {
         this.scrollToTop = this.scrollToTop.bind(this);
     }
 
+    getService(Class) {
+        return this.context.getService(Class);
+    }
+
     changeFocus() {
         General.logDebug("AbstractComponent", "CHANGE FOCUS");
     }

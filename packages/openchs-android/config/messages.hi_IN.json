@@ -250,5 +250,9 @@
   "syncLater": "बाद में सिंक करें",
   "RecentRegistration": "हाल का रजिसस्ट्रेशन",
   "RecentEnrollment": "हाल का एनरोलमेण्ट",
-  "RecentVisits": "हाल का विजिट"
+  "RecentVisits": "हाल का विजिट",
+  "The locale of the switching user is not known. That's why these are in English.": "",
+  "cannotChangeUserTitle": "Multiple users cannot login",
+  "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
+  "clearDataAndLogin": "Delete data and login"
 }

@@ -9,6 +9,7 @@ class UserInfo {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
+            username: 'string',
             organisationName: "string",
             settings: "string"
         }
@@ -16,6 +17,7 @@ class UserInfo {
 
     static fromResource(resource) {
         let userInfo = new UserInfo();
+        userInfo.username = resource.username;
         userInfo.uuid = UserInfo.UUID;
         userInfo.organisationName = resource.organisationName;
         userInfo.settings = _.isNil(resource.settings)
@@ -40,6 +42,7 @@ class UserInfo {
 
     clone() {
         let userInfo = new UserInfo();
+        userInfo.username = this.username;
         userInfo.uuid = this.uuid;
         userInfo.organisationName = this.organisationName;
         userInfo.settings = this.settings;
