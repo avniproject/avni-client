@@ -12,13 +12,13 @@ import General from "../../utility/General";
 export default class DashboardFilters extends AbstractComponent {
     static styles = StyleSheet.create({
         itemContent: {
-            flex: 1,
             flexDirection: 'column',
             borderBottomWidth: 1,
             borderColor: Colors.InputBorderNormal,
             backgroundColor: Colors.FilterBar,
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+            elevation: 2,
         },
         buttons: {
             flexDirection: "row",

@@ -34,9 +34,11 @@ import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTe
 import UserInfoService from "../service/UserInfoService";
 import ProgressBarView from "./ProgressBarView";
 import ServerError from "../service/ServerError";
-import ProgramService from "../service/program/ProgramService";
-import ActionSelector from "./common/ActionSelector";
-import FormMappingService from "../service/FormMappingService";
+import MenuListView from "./MenuListView";
+import RegisterView from "./RegisterView";
+import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
+import Reducers from "../reducer";
+import {MenuActions} from "../action/MenuViewActions";
 
 const {width, height} = Dimensions.get('window');
 
@@ -51,13 +53,13 @@ class MenuView extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, Reducers.reducerKeys.menuAction);
         this.state = {
             syncing: false,
             error: false,
             isConnected: true,
             displayActionSelector: false,
-            hideRegister: context.getService(UserInfoService).getUserSettings().hideRegister
+            hideRegister: context.getService(UserInfoService).getUserSettings().hideRegister,
         };
         this.createStyles();
         this.renderSyncModal = this.renderSyncModal.bind(this);
@@ -68,6 +70,7 @@ class MenuView extends AbstractComponent {
     }
 
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48, padding: 8};
+    static barIconStyle = {color: 'white', opacity: 0.8, alignSelf: 'center', fontSize: 40};
 
     createStyles() {
         this.columnStyle = {
@@ -98,6 +101,7 @@ class MenuView extends AbstractComponent {
     settingsView() {
         TypedTransition.from(this).to(SettingsView);
     }
+
     changePasswordView() {
         CHSNavigator.navigateToChangePasswordView(this);
     }
@@ -112,6 +116,7 @@ class MenuView extends AbstractComponent {
         this.context.getService(MessageService).init();
         this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD);
 
         //To load subjectType after sync
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
@@ -183,6 +188,14 @@ class MenuView extends AbstractComponent {
         NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
     }
 
+    progressBarUpdate(progress) {
+        this.dispatchAction(MenuActions.ON_UPDATE, {progress})
+    }
+
+    messageCallBack(message) {
+        this.dispatchAction(MenuActions.ON_MESSAGE_CALLBACK, {message})
+    }
+
     sync() {
         if (this.state.isConnected) {
             const syncService = this.context.getService(SyncService);
@@ -190,8 +203,8 @@ class MenuView extends AbstractComponent {
             this._preSync();
             syncService.sync(
                 EntityMetaData.model(),
-                (progress) => this.progressBar.update(progress),
-                (message) => this.progressMessage.messageCallBack(message)).catch(onError)
+                (progress) => this.progressBarUpdate(progress),
+                (message) => this.messageCallBack(message)).catch(onError)
         } else {
             this._onError(new Error('internetConnectionError'))
         }
@@ -220,6 +233,10 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(MyDashboardView);
     }
 
+    home() {
+        CHSNavigator.navigateToLandingView(this, true);
+    }
+
     familyFolder() {
         TypedTransition.from(this).to(FamilyFolderView);
     }
@@ -229,7 +246,28 @@ class MenuView extends AbstractComponent {
     }
 
     deleteData() {
-        this.getService(AuthService).clearData().then(()=> this.reset());
+        this.getService(AuthService).clearData().then(() => this.reset());
+    }
+
+    more() {
+        TypedTransition.from(this).with({
+            icon: (iconName) => Icon(iconName),
+            syncIcon: () => this.syncIcon(),
+            hideRegister: this.state.hideRegister,
+            register: this.register.bind(this),
+            myDashboard: this.myDashboard.bind(this),
+            familyFolder: this.familyFolder.bind(this),
+            videoListView: this.videoListView.bind(this),
+            sync: this.sync.bind(this),
+            logout: this.logout.bind(this),
+            changePasswordView: this.changePasswordView.bind(this),
+            settingsView: this.settingsView.bind(this),
+            onDelete: this.onDelete.bind(this),
+        }).to(MenuListView);
+    }
+
+    register() {
+        TypedTransition.from(this).to(RegisterView);
     }
 
     onDelete() {
@@ -238,70 +276,13 @@ class MenuView extends AbstractComponent {
             this.I18n.t('deleteSchemaConfirmationMessage'),
             [
                 {text: this.I18n.t('yes'), onPress: () => this.deleteData()},
-                {text: this.I18n.t('no'), onPress: () => {}, style: 'cancel'}
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                    }, style: 'cancel'
+                }
             ]
         )
     };
-
-    renderMenuItem = (maxLength) => (icon, menuMessageKey, pressHandler, idx) => {
-        let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
-        return (<View key={idx} style={this.columnStyle}>
-            <TouchableOpacity style={{height: 84, width: 84, justifyContent: 'flex-end'}} onPress={pressHandler}>
-                {icon}
-            </TouchableOpacity>
-            <Text style={Styles.menuTitle}>{pad}</Text>
-        </View>);
-    };
-
-    _addRegistrationAction(subjectType) {
-        return {
-            fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`REG_DISPLAY-${subjectType.name}`)).withRegistration(subjectType.name))),
-            label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
-            backgroundColor: Colors.AccentColor,
-        }
-    }
-
-    _addProgramAction(subjectType, program) {
-        return {
-            fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
-                    .withRegistration(subjectType.name)
-                    .withEnrolment(program.name)
-                )),
-            label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
-            backgroundColor: program.colour,
-        }
-    }
-
-    _addProgramActions(subjectType, programs) {
-        return _.map(programs, program => this._addProgramAction(subjectType, program));
-    }
-
-    renderRegistrationModal() {
-        if (!this.state.displayActionSelector) {
-            return null;
-        }
-        let actions = [];
-
-        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
-
-        subjectTypes.forEach(subjectType => {
-            actions = actions.concat(this._addRegistrationAction(subjectType));
-            const programs = this.context.getService(FormMappingService).findProgramsForSubjectType(subjectType);
-            actions = actions.concat(this._addProgramActions(subjectType, programs));
-            // console.log(actions);
-        });
-
-        return (
-          <ActionSelector
-              visible={this.state.displayActionSelector}
-              hide={() => this.setState({displayActionSelector: false})}
-              actions={actions}
-              title={this.I18n.t("register")}
-          />
-        );
-    }
 
     renderSyncModal() {
         return (
@@ -317,8 +298,8 @@ class MenuView extends AbstractComponent {
                     <View style={this.syncBackground}>
                         <View style={{flex: .9}}>
                             <ProgressBarView
-                                progressBar={(pb) => this.progressBar = pb}
-                                progressMessage={(pm) => this.progressMessage = pm}
+                                progress={this.state.progress}
+                                message={this.state.message}
                                 onPress={this._postSync.bind(this)}/>
                         </View>
                     </View>
@@ -327,67 +308,80 @@ class MenuView extends AbstractComponent {
             </Modal>);
     }
 
-    get syncIcon() {
-        const icon = Icon("sync");
+    syncIcon(style, isSelected) {
+        const icon = Icon("sync", style, isSelected);
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         const totalPending = _.sum(entitySyncStatusService.geAllSyncStatus().map(s => s.queuedCount));
-        return totalPending > 0 ? Badge(totalPending)(icon) : icon;
+        return totalPending > 0 ? Badge(totalPending, style)(icon) : icon;
+    }
+
+    renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {
+        return (<View key={idx} style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column'
+        }}>
+            <TouchableOpacity style={{height: 40, width: 40}} onPress={pressHandler}>
+                {icon}
+            </TouchableOpacity>
+            <Text style={{
+                fontSize: Styles.smallerTextSize,
+                fontStyle: 'normal',
+                color: isSelected ? Colors.ActionButtonColor : 'white',
+                lineHeight: 10,
+                alignSelf: 'center', paddingTop: 4
+            }}>{menuMessageKey}</Text>
+        </View>);
     }
 
     render() {
         General.logDebug("MenuView", "render");
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
-        const registerMenuItem = !this.state.hideRegister ? [[Icon(registerIcon), this.I18n.t("register"), () => subjectTypes[0] && this.setState({displayActionSelector: true})]] : [];
-        let otherMenuItems = [
-            [Icon("view-list"), this.I18n.t("myDashboard"), this.myDashboard.bind(this)],
-            [Icon("account-multiple"), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
-            [Icon("video-library"), this.I18n.t("VideoList"), this.videoListView.bind(this)],
-
-            [this.syncIcon, this.I18n.t("syncData"), this.sync.bind(this)],
-            [Icon("logout"), this.I18n.t("logout"), this.logout.bind(this)],
-            [Icon("account-key"), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
-
-            [Icon("settings"), this.I18n.t("settings"), this.settingsView.bind(this)],
-            [Icon("delete"), "Delete Data", this.onDelete.bind(this), () => __DEV__]
+        const registerMenuItem = !this.state.hideRegister ? [Icon(registerIcon, MenuView.barIconStyle, this.props.registerSelected), this.I18n.t("register"), subjectTypes[0] && this.register.bind(this), this.props.registerSelected] : [];
+        const bottomBarIcons = [
+            [Icon("home", MenuView.barIconStyle, this.props.homeSelected), this.I18n.t("home"), this.home.bind(this), this.props.homeSelected],
+            registerMenuItem,
+            [Icon("view-list", MenuView.barIconStyle, this.props.dashboardSelected), this.I18n.t("Dashboard"), this.myDashboard.bind(this), this.props.dashboardSelected],
+            [this.syncIcon(MenuView.barIconStyle, this.state.syncing), this.I18n.t("Sync"), this.sync.bind(this), this.state.syncing],
+            [Icon("menu", MenuView.barIconStyle, this.props.moreSelected), this.I18n.t("More"), this.more.bind(this), this.props.moreSelected],
         ];
-        const menuItemsData = _.concat(registerMenuItem, otherMenuItems);
-        const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
-        const MenuItems = menuItemsData
-            .filter(([icon, display, cb, shouldRender]) => shouldRender === undefined || shouldRender())
-            .map(([icon, display, cb], idx) => this.renderMenuItem(maxMenuItemDisplay)(icon, display, cb, idx));
         return (
-            <CHSContent>
-                <View style={{
-                    flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center',
-                    justifyContent: 'center', backgroundColor: Styles.defaultBackground,
-                    height: Dimensions.get('window').height
-                }}>
-                    {subjectTypes[0] && this.renderRegistrationModal()}
-                    {this.renderSyncModal()}
-                    {MenuItems}
-                </View>
-            </CHSContent>
+            <View style={{
+                height: 70,
+                position: 'absolute',
+                bottom: 0,
+                width: '100%',
+                backgroundColor: Styles.blackColor,
+                flexDirection: 'row',
+                justifyContent: 'space-around'
+            }}>
+                {this.renderSyncModal()}
+                {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarIcons(icon, display, cb, isSelected, idx))}</View>
         );
     }
 }
 
-function Icon(iconName) {
+function Icon(iconName, iconStyle, isSelected) {
     //Arjun: i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
     //Arjun: TODO someday we need to have one single icon library.
+    const style = iconStyle ? (isSelected ? {
+        ...iconStyle,
+        color: Colors.ActionButtonColor
+    } : iconStyle) : MenuView.iconStyle;
     if (_.startsWith(iconName, 'video')) {
-        return <NBIcon name={iconName} style={MenuView.iconStyle}/>
+        return <NBIcon name={iconName} style={style}/>
     }
-    return <MCIIcon name={iconName} style={MenuView.iconStyle}/>
+    return <MCIIcon name={iconName} style={style}/>
 }
 
-const Badge = (number) => (icon) => {
+const Badge = (number, style) => (icon) => {
     const [height, width, fontSize, paddingLeft] = number > 99 ? [24, 24, 12, 0] : [24, 24, 14, 6];
     return (
-        <View style={{backgroundColor: Styles.defaultBackground}}>
+        <View style={{backgroundColor: _.isNil(style) ? Styles.defaultBackground : Styles.blackColor}}>
             <View style={{
-                height,
-                width,
+                height: _.isNil(style) ? height : height / 2,
+                width: _.isNil(style) ? width : width / 2,
                 position: 'absolute',
                 top: 0,
                 right: 0,
@@ -397,7 +391,7 @@ const Badge = (number) => (icon) => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    fontSize,
+                    fontSize: _.isNil(style) ? fontSize : fontSize / 2,
                     color: 'white',
                     flex: 1,
                     textAlignVertical: 'center',

@@ -1,4 +1,4 @@
-import {View, Button, Text} from "react-native";
+import {View, Text, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -16,8 +16,10 @@ import {PrimitiveValue} from 'openchs-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
-import themes from "../primitives/themes";
 import CHSContainer from "../common/CHSContainer";
+import MenuView from "../MenuView";
+import Separator from "../primitives/Separator";
+import Colors from "../primitives/Colors";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -57,7 +59,9 @@ class IndividualSearchView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     {this.props.showHeader ? <AppHeader
-                        title={this.props.headerMessage ? this.props.headerMessage : this.I18n.t("search")}/> : <View/>}
+                        title={this.props.headerMessage ? this.props.headerMessage : this.I18n.t("search")}
+                        hideBackButton={true}/> : <View/>}
+
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
@@ -67,14 +71,18 @@ class IndividualSearchView extends AbstractComponent {
                                          element={new StaticFormElement('name')}
                                          style={Styles.simpleTextFormElement}
                                          value={new PrimitiveValue(this.state.searchCriteria.name)} multiline={false}/>
-                        {this.state.subjectType.isIndividual() ? <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
-                                         element={new StaticFormElement('age')}
-                                         style={Styles.simpleTextFormElement}
-                                         value={new PrimitiveValue(this.state.searchCriteria.age)} multiline={false}/> : null }
-                        {this.state.subjectType.isIndividual() ? <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
-                                         element={new StaticFormElement('obsKeyword')}
-                                         style={Styles.simpleTextFormElement}
-                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)} multiline={false}/> : null}
+                        {this.state.subjectType.isIndividual() ?
+                            <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
+                                             element={new StaticFormElement('age')}
+                                             style={Styles.simpleTextFormElement}
+                                             value={new PrimitiveValue(this.state.searchCriteria.age)}
+                                             multiline={false}/> : null}
+                        {this.state.subjectType.isIndividual() ?
+                            <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
+                                             element={new StaticFormElement('obsKeyword')}
+                                             style={Styles.simpleTextFormElement}
+                                             value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
+                                             multiline={false}/> : null}
                         <AddressLevels
                             key={this.state.key}
                             onSelect={(addressLevelState) =>
@@ -87,10 +95,30 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        <Button title={this.I18n.t("search")} color={Styles.accentColor} style={{marginTop: 30, elevation:2}}
-                                onPress={() => this.searchIndividual()}/>
                     </View>
+                    <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>
+                <View style={{height: 110, position: 'absolute', bottom: 0, width: '100%'}}>
+                    <TouchableOpacity activeOpacity={0.5}
+                                      onPress={() => this.searchIndividual()}
+                                      style={{
+                                          position: 'absolute',
+                                          width: '100%',
+                                          height: 40,
+                                          alignSelf: 'stretch',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          backgroundColor: Colors.AccentColor,
+                                          elevation: 3,
+                                      }}>
+                        <Text style={{
+                            fontSize: 15,
+                            color: Colors.TextOnPrimaryColor,
+                            alignSelf: "center"
+                        }}>{this.I18n.t("search")}</Text>
+                    </TouchableOpacity>
+                </View>
+                <MenuView homeSelected={true} {...this.props.menuProps}/>
             </CHSContainer>
         );
     }

@@ -4,28 +4,25 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
-import {Tabs, Tab,Text} from "native-base";
-import themes from "./primitives/themes";
 import CHSContainer from "./common/CHSContainer";
-import {StatusBar} from "react-native";
-import Styles from "./primitives/Styles";
 import CHSNavigator from "../utility/CHSNavigator";
 import AuthService from "../service/AuthService";
 import bugsnag from "../utility/bugsnag";
 import General from "../utility/General";
 import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
+import CHSContent from "./common/CHSContent";
+import AppHeader from "./common/AppHeader";
+import Styles from "./primitives/Styles";
+import Separator from "./primitives/Separator";
+import TypedTransition from "../framework/routing/TypedTransition";
+import SettingsView from "./settings/SettingsView";
 
 
 @Path('/landingView')
 class LandingView extends AbstractComponent {
     static propTypes = {
-        tabIndex: PropTypes.number,
         menuProps: PropTypes.object
-    };
-
-    static defaultProps = {
-        tabIndex: 0
     };
 
     constructor(props, context) {
@@ -46,27 +43,14 @@ class LandingView extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    componentDidMount() {
-        setTimeout(this.tabs.goToPage.bind(this.tabs, this.props.tabIndex));
-    }
 
     render() {
         General.logDebug("LandingView", "render");
         return (
             <CHSContainer>
-                <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                <Tabs ref={(c) => { this.tabs = c}}>
-                    <Tab heading={this.I18n.t('home')}>
-                        <IndividualSearchView
-                            tabLabel={this.I18n.t('home')}
-                            tabStyle={{backgroundColor: 'red'}}
-                            onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                        />
-                    </Tab>
-                    <Tab heading={this.I18n.t('menu')}>
-                        <MenuView tabLabel={this.I18n.t('menu')} {...this.props.menuProps}/>
-                    </Tab>
-                </Tabs>
+                <AppHeader title={this.I18n.t('home')} hideBackButton={true} icon={'settings'} iconFunc={()=> TypedTransition.from(this).to(SettingsView)}/>
+                    <IndividualSearchView
+                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}/>
             </CHSContainer>
         );
     }

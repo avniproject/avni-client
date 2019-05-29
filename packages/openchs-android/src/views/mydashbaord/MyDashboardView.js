@@ -1,21 +1,18 @@
-import PropTypes from 'prop-types';
 import React from "react";
-import {ListView, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import _ from 'lodash';
+import {ListView, Text, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AddressVisitRow from './AddressVisitRow';
-import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
+import MenuView from "../MenuView";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -65,27 +62,30 @@ class MyDashboardView extends AbstractComponent {
         const dataSource = this.ds.cloneWithRows((this.state.visits));
         const date = this.state.date;
         return (
-            <CHSContainer  style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}/>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+                <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}
+                           hideBackButton={true} hideIcon={true}/>
+                <View>
+                    <DashboardFilters date={date} filters={this.state.filters}
+                                      selectedLocations={this.state.selectedLocations}
+                                      selectedPrograms={this.state.selectedPrograms}
+                                      selectedEncounterTypes={this.state.selectedEncounterTypes}
+                                      programs={this.state.programs}
+                                      onPress={() => CHSNavigator.navigateToFilterView(this, {
+                                          filters: this.state.filters,
+                                          locationSearchCriteria: this.state.locationSearchCriteria,
+                                          addressLevelState: this.state.addressLevelState,
+                                          programs: this.state.programs,
+                                          selectedPrograms: this.state.selectedPrograms,
+                                          encounterTypes: this.state.encounterTypes,
+                                          selectedEncounterTypes: this.state.selectedEncounterTypes,
+                                          onBack: this._onBack.bind(this),
+                                          actionName: Actions.APPLY_FILTERS,
+                                          filterDate: date
+                                      })}/>
+                </View>
                 <CHSContent>
                     <View>
-                        <DashboardFilters date={date} filters={this.state.filters}
-                                          selectedLocations={this.state.selectedLocations}
-                                          selectedPrograms={this.state.selectedPrograms}
-                                          selectedEncounterTypes={this.state.selectedEncounterTypes}
-                                          programs={this.state.programs}
-                                          onPress={() => CHSNavigator.navigateToFilterView(this, {
-                                              filters: this.state.filters,
-                                              locationSearchCriteria: this.state.locationSearchCriteria,
-                                              addressLevelState: this.state.addressLevelState,
-                                              programs: this.state.programs,
-                                              selectedPrograms: this.state.selectedPrograms,
-                                              encounterTypes: this.state.encounterTypes,
-                                              selectedEncounterTypes: this.state.selectedEncounterTypes,
-                                              onBack: this._onBack.bind(this),
-                                              actionName: Actions.APPLY_FILTERS,
-                                              filterDate: date
-                                          })}/>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
@@ -97,7 +97,9 @@ class MyDashboardView extends AbstractComponent {
                                   />}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>
+                    <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
+                <MenuView dashboardSelected={true}/>
             </CHSContainer>
         );
     }

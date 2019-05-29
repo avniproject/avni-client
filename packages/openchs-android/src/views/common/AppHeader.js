@@ -15,6 +15,8 @@ class AppHeader extends AbstractComponent {
         func: PropTypes.func,
         icon: PropTypes.string,
         iconFunc: PropTypes.func,
+        hideBackButton: PropTypes.bool,
+        hideIcon: PropTypes.bool,
     };
 
     constructor(props, context) {
@@ -43,24 +45,29 @@ class AppHeader extends AbstractComponent {
             <View style={{
                 backgroundColor: Colors.DefaultPrimaryColor,
                 flexDirection: 'row',
-                height: 56
+                height: 56,
+                elevation: 3,
             }}>
-                <TouchableNativeFeedback onPress={() => this.onBack()}
-                                         background={this.background()}>
-                    <View style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'flex-start',
-                        height: 56,
-                        width: 72,
-                        paddingHorizontal: 16
-                    }}>
-                        <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
-                    </View>
-                </TouchableNativeFeedback>
+                {this.props.hideBackButton ? <View/> :
+                    <TouchableNativeFeedback onPress={() => this.onBack()}
+                                             background={this.background()}>
+                        <View style={{
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'flex-start',
+                            height: 56,
+                            width: 72,
+                            paddingHorizontal: 16
+                        }}>
+                            <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
+                        </View>
+                    </TouchableNativeFeedback>}
 
                 <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
-                    <Text style={{color: Colors.TextOnPrimaryColor, fontSize: 20}}>{this.props.title}</Text>
+                    <Text style={[{
+                        color: Colors.TextOnPrimaryColor,
+                        fontSize: 20
+                    }, this.props.hideBackButton && {marginLeft: 20}]}>{this.props.title}</Text>
                 </View>
 
                 <TouchableNativeFeedback
@@ -74,9 +81,10 @@ class AppHeader extends AbstractComponent {
                         width: 72,
                         paddingHorizontal: 16
                     }}>
-                        {_.isNil(this.props.icon) ?
-                            <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='home'/> :
-                            <MCIIcon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name={this.props.icon}/>}
+                        {_.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
+                            <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='home'/>) :
+                            <MCIIcon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}}
+                                     name={this.props.icon}/>}
                     </View>
                 </TouchableNativeFeedback>
             </View>

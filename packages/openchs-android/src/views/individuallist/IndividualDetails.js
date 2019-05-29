@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
-    encounterStyle: {
+    programNameStyle: {
         color: Colors.DefaultPrimaryColor,
         fontWeight: 'normal',
         fontSize: 13,

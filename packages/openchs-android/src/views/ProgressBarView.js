@@ -9,31 +9,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class ProgressBarView extends AbstractComponent {
     static propType = {
-        progressBar: PropTypes.func,
-        progressMessage: PropTypes.func,
-        onProgressComplete: PropTypes.func,
         onPress: PropTypes.func.isRequired,
+        progress: PropTypes.number,
+        message: PropTypes.string
     };
 
     constructor(props, context) {
         super(props, context);
-        this.state = {value: 0, syncMessage: ''};
         this.createStyles();
-        this.props.progressBar(this);
-        this.props.progressMessage(this)
-    }
-
-    update(value) {
-        this.setState({value});
-    }
-
-    messageCallBack(syncMessage) {
-        //this is kept to give time to render this state when user first time login.
-        return new Promise((resolve) => {
-            this.setState({syncMessage}, () => {
-                setTimeout(resolve, 10)
-            })
-        })
     }
 
     createStyles() {
@@ -57,24 +40,24 @@ class ProgressBarView extends AbstractComponent {
 
         return (
             <View>
-                {this.state.value < 1 ?
+                {this.props.progress < 1 ?
 
                     (<View>
                         <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                            {this.I18n.t(_.isNil(this.state.syncMessage) ? "doingNothing" : this.state.syncMessage)}
+                            {this.I18n.t(_.isNil(this.props.message) ? "doingNothing" : this.props.message)}
                         </Text>
-                        <ProgressBarAndroid styleAttr="Horizontal" progress={this.state.value}
+                        <ProgressBarAndroid styleAttr="Horizontal" progress={this.props.progress}
                                             indeterminate={false} color="white"/>
                         <Text
                             style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
-                            {((this.state.value) * 100).toFixed(0)}%
+                            {((this.props.progress) * 100).toFixed(0)}%
                         </Text>
                     </View>)
                     :
                     (<View>
                         <View style={this.container}>
                             <Text
-                                style={[Fonts.typography("paperFontSubhead"),{color: Colors.TextOnPrimaryColor}]}>
+                                style={[Fonts.typography("paperFontSubhead"), {color: Colors.TextOnPrimaryColor}]}>
                                 {this.I18n.t("syncComplete")}
                             </Text>
                             <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
