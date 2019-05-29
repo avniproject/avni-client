@@ -55,11 +55,10 @@ class IndividualDetails extends AbstractComponent {
     renderAttribute(attribute, style) {
         return (
             <Text key={attribute.key} style={style}>
-                {!_.isEmpty(attribute) ?
+                {!_.isEmpty(attribute) &&
                     <Text key={attribute.key} style={style}>
                         {attribute.value}
-                    </Text> :
-                    <View/>}
+                    </Text>}
             </Text>
         );
     }
