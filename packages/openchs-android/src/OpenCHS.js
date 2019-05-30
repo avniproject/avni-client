@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {AppRegistry, StyleSheet, View} from 'react-native';
+import {AppRegistry, StatusBar, StyleSheet, View} from 'react-native';
 import App from "./App";
 import Playground from "./Playground";
 import Config from './framework/Config';
+import Colors from "./views/primitives/Colors";
 
 export default class OpenCHS extends Component {
 
@@ -19,6 +20,7 @@ export default class OpenCHS extends Component {
     render() {
         const renderApp = (
             <View style={OpenCHS.styles.container}>
+                <StatusBar backgroundColor={Colors.DefaultPrimaryColor}/>
                 <App/>
             </View>
         );
