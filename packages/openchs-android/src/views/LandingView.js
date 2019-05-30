@@ -50,7 +50,8 @@ class LandingView extends AbstractComponent {
             <CHSContainer>
                 <AppHeader title={this.I18n.t('home')} hideBackButton={true} icon={'settings'} iconFunc={()=> TypedTransition.from(this).to(SettingsView)}/>
                     <IndividualSearchView
-                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}/>
+                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                        menuProps={this.props.menuProps}/>
             </CHSContainer>
         );
     }
