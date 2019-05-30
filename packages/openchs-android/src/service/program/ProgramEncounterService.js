@@ -71,8 +71,9 @@ class ProgramEncounterService extends BaseService {
     }
 
     findDueEncounter({encounterTypeUUID, enrolmentUUID, encounterTypeName}) {
-        const encounters = this.findAllByCriteria(` ( encounterType.name == "${encounterTypeName}" OR encounterType.uuid == "${encounterTypeUUID}" ) AND programEnrolment.uuid == "${enrolmentUUID}" `);
-        return encounters.find((encounter) => _.isNil(encounter.encounterDateTime));
+        return this.filtered('encounterType.name == $0 OR encounterType.uuid == $1', encounterTypeName, encounterTypeUUID)
+            .filtered('programEnrolment.uuid == $0', enrolmentUUID)
+            .filtered('encounterDateTime == null AND cancelDateTime == null')[0];
     }
 }
 

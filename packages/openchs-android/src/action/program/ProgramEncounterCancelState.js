@@ -53,6 +53,14 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     getNextScheduledVisits(ruleService, context) {
         return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
     }
+
+    getWorkContext() {
+        const {programEnrolment} = this.programEncounter;
+        return {
+            subjectUUID: programEnrolment.individual.uuid,
+            programEnrolmentUUID: programEnrolment.uuid,
+        };
+    }
 }
 
 export default ProgramEncounterCancelState;

@@ -135,6 +135,10 @@ class BaseService {
     existsByUuid(uuid, schema = this.getSchema()) {
         return this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
     }
+
+    filtered(...args) {
+        return this.db.objects(this.getSchema()).filtered(...args);
+    }
 }
 
 export default BaseService;

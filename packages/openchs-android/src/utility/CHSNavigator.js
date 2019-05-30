@@ -223,6 +223,8 @@ class CHSNavigator {
                 return i18n.t("enrolmentSavedMsg", {programName: workItem.parameters.programName});
             case WorkItem.type.PROGRAM_ENCOUNTER:
                 return i18n.t("encounterSavedMsg", {encounterName: workItem.parameters.encounterType});
+            case WorkItem.type.CANCELLED_ENCOUNTER:
+                return i18n.t("encounterCancelledMsg", {encounterName: workItem.parameters.encounterType});
             default:
                 throw new Error("Invalid WorkItemType");
         }

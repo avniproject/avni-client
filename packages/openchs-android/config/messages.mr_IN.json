@@ -252,7 +252,7 @@
   "enrolmentSavedMsg": "{{programName}} एनरोलमेण्ट जतन",
   "enrolmentExitMsg": "{{programName}} प्रोग्रामधून बाहेर आला",
   "encounterSavedMsg" : "{{encounterName}} एंकॉउंटर जतन",
-  "encounterCanceledMsg": "{{encounterName}} एंकॉउंटर कॅन्सल केले",
+  "encounterCancelledMsg": "{{encounterName}} एंकॉउंटर कॅन्सल केले",
   "programSavedProceedEncounterMsg" : "{{program}} प्रोग्राम पूर्ण",
   "encounterSavedProceedEncounterMsg" : "{{encounter}} एंकॉउंटर जतन",
   "saved": "जतन",

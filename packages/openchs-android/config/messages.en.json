@@ -233,7 +233,7 @@
   "enrolmentSavedMsg": "{{programName}} Enrolment Saved",
   "enrolmentExitMsg": "Exited From {{programName}} Program",
   "encounterSavedMsg": "{{encounterName}} Encounter Saved",
-  "encounterCanceledMsg": "{{encounterName}} Encounter Canceled",
+  "encounterCancelledMsg": "{{encounterName}} Encounter Canceled",
   "programSavedProceedEncounterMsg": "{{program}} Enrolment Saved",
   "encounterSavedProceedEncounterMsg": "{{encounter}} Encounter Saved",
   "saved": "Saved",
