@@ -8,6 +8,8 @@ import {Text, TouchableNativeFeedback, View, Platform} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
+import SettingsView from "../settings/SettingsView";
+import {LandingViewActionsNames} from "../../action/LandingViewActions";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -17,6 +19,8 @@ class AppHeader extends AbstractComponent {
         iconFunc: PropTypes.func,
         hideBackButton: PropTypes.bool,
         hideIcon: PropTypes.bool,
+        iconComponent: PropTypes.object,
+        showSettings: PropTypes.bool,
     };
 
     constructor(props, context) {
@@ -29,9 +33,29 @@ class AppHeader extends AbstractComponent {
         else
             this.props.func();
     }
+    
+    renderSettings() {
+        return <TouchableNativeFeedback
+            onPress={() => TypedTransition.from(this).to(SettingsView)}
+            background={this.background()}>
+            <View style={{
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'flex-start',
+                height: 30,
+                width: 30,
+                paddingRight: 2,
+                alignSelf: 'center',
+                marginRight: 16,
+            }}>
+                <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={'settings'}/>
+            </View>
+        </TouchableNativeFeedback>
+    }
 
     onHome() {
         CHSNavigator.goHome(this);
+        this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK)
     }
 
     background() {
@@ -40,10 +64,20 @@ class AppHeader extends AbstractComponent {
             TouchableNativeFeedback.SelectableBackground();
     }
 
+    renderIcon() {
+        if (!_.isNil(this.props.iconComponent)) {
+            return this.props.iconComponent;
+        } else {
+            return _.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
+                <Icon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
+                <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={this.props.icon}/>
+        }
+    }
+
     render() {
         return (
             <View style={{
-                backgroundColor: Colors.DefaultPrimaryColor,
+                backgroundColor: Colors.headerBackgroundColor,
                 flexDirection: 'row',
                 height: 56,
                 elevation: 3,
@@ -59,14 +93,14 @@ class AppHeader extends AbstractComponent {
                             width: 72,
                             paddingHorizontal: 16
                         }}>
-                            <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
+                            <Icon style={{fontSize: 35, color: Colors.headerIconColor}} name='keyboard-arrow-left'/>
                         </View>
                     </TouchableNativeFeedback>}
 
                 <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
                     <Text style={[{
-                        color: Colors.TextOnPrimaryColor,
-                        fontSize: 20
+                        color: Colors.headerTextColor,
+                        fontSize: 15
                     }, this.props.hideBackButton && {marginLeft: 20}]}>{this.props.title}</Text>
                 </View>
 
@@ -79,14 +113,12 @@ class AppHeader extends AbstractComponent {
                         alignItems: 'flex-end',
                         height: 56,
                         width: 72,
-                        paddingHorizontal: 16
+                        paddingHorizontal: 16,
                     }}>
-                        {_.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
-                            <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='home'/>) :
-                            <MCIIcon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}}
-                                     name={this.props.icon}/>}
+                        {this.renderIcon()}
                     </View>
                 </TouchableNativeFeedback>
+                {this.props.showSettings ? this.renderSettings() : <View/>}
             </View>
         );
     }

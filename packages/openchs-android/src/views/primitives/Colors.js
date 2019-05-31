@@ -32,6 +32,10 @@ class Colors {
     static getCode(colorName) {
         return color[colorName];
     }
+
+    static headerIconColor = '#FFFFFF';
+    static headerTextColor = '#FFFFFF';
+    static headerBackgroundColor = '#212121';
 }
 
 export default Colors;

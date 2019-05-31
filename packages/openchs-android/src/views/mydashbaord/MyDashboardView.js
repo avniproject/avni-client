@@ -12,7 +12,6 @@ import Separator from '../primitives/Separator';
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
-import MenuView from "../MenuView";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -99,7 +98,6 @@ class MyDashboardView extends AbstractComponent {
                     </View>
                     <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
-                <MenuView dashboardSelected={true}/>
             </CHSContainer>
         );
     }

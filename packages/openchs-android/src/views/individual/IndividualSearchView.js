@@ -17,7 +17,6 @@ import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import CHSContainer from "../common/CHSContainer";
-import MenuView from "../MenuView";
 import Separator from "../primitives/Separator";
 import Colors from "../primitives/Colors";
 import SingleSelectFilter from '../filter/SingleSelectFilter';
@@ -67,10 +66,8 @@ class IndividualSearchView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    {this.props.showHeader ? <AppHeader
-                        title={this.props.headerMessage ? this.props.headerMessage : this.I18n.t("search")}
-                        hideBackButton={true}/> : <View/>}
-
+                    <AppHeader title={this.I18n.t('home')} hideBackButton={true} iconComponent={this.props.iconComponent}
+                               iconFunc={this.props.iconFunc} showSettings={true}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
@@ -109,7 +106,7 @@ class IndividualSearchView extends AbstractComponent {
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>
-                <View style={{height: 110, position: 'absolute', bottom: 0, width: '100%'}}>
+                <View style={{height: 90, position: 'absolute', bottom: 0, width: '100%'}}>
                     <TouchableOpacity activeOpacity={0.5}
                                       onPress={() => this.searchIndividual()}
                                       style={{
@@ -120,16 +117,15 @@ class IndividualSearchView extends AbstractComponent {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                           backgroundColor: Colors.AccentColor,
-                                          elevation: 3,
+                                          elevation: 2,
                                       }}>
                         <Text style={{
-                            fontSize: 15,
+                            fontSize: Styles.smallTextSize,
                             color: Colors.TextOnPrimaryColor,
                             alignSelf: "center"
                         }}>{this.I18n.t("search")}</Text>
                     </TouchableOpacity>
                 </View>
-                <MenuView homeSelected={true} {...this.props.menuProps}/>
             </CHSContainer>
         );
     }

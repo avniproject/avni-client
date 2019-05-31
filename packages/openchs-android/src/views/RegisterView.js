@@ -10,9 +10,7 @@ import EntityService from "../service/EntityService";
 import {SubjectType, WorkList, WorkLists} from "openchs-models";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
-import ProgramService from "../service/program/ProgramService";
 import _ from "lodash";
-import MenuView from "./MenuView";
 import Distances from "./primitives/Distances";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Fonts from "./primitives/Fonts";
@@ -101,9 +99,6 @@ class RegisterView extends AbstractComponent {
                         )
                     )}
                 </CHSContent>
-                < MenuView
-                    registerSelected={true}
-                />
             </CHSContainer>
         );
     }
@@ -141,7 +136,7 @@ const styles = StyleSheet.create({
     programNameStyle: {
         color: Colors.DefaultPrimaryColor,
         fontWeight: 'normal',
-        fontSize: 24,
+        fontSize: 20,
         alignSelf: 'flex-start',
         textAlignVertical: 'center',
     },

@@ -20,7 +20,7 @@ export default class OpenCHS extends Component {
     render() {
         const renderApp = (
             <View style={OpenCHS.styles.container}>
-                <StatusBar backgroundColor={Colors.DefaultPrimaryColor}/>
+                <StatusBar backgroundColor={Colors.headerBackgroundColor} barStyle={'default'}/>
                 <App/>
             </View>
         );
