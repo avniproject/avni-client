@@ -3,7 +3,7 @@ class LandingViewActions {
         return {
             dummy: false,
             home: false,
-            dashboard: false,
+            search: false,
             register: false,
             menu: false,
             progress: 0,
@@ -15,7 +15,7 @@ class LandingViewActions {
         return {
             ...state,
             home: false,
-            dashboard: false,
+            search: false,
             register: false,
             menu: false
         }
@@ -38,11 +38,11 @@ class LandingViewActions {
         }
     }
 
-    static onDashboardClick(state) {
+    static onSearchClick(state) {
         const newState = LandingViewActions.reset(state);
         return {
             ...newState,
-            dashboard: true,
+            search: true,
         }
     }
 
@@ -80,7 +80,7 @@ class LandingViewActions {
 const LandingViewActionsNames = {
     ON_LOAD: 'LVA.ON_LOAD',
     ON_HOME_CLICK: 'LVA.ON_HOME_CLICK',
-    ON_DASHBOARD_CLICK: 'LVA.ON_DASHBOARD_CLICK',
+    ON_SEARCH_CLICK: 'LVA.ON_SEARCH_CLICK',
     ON_REGISTER_CLICK: 'LVA.ON_REGISTER_CLICK',
     ON_MENU_CLICK: 'LVA.ON_MENU_CLICK',
     ON_UPDATE: `LVA.ON_UPDATE`,
@@ -90,7 +90,7 @@ const LandingViewActionsNames = {
 const LandingViewActionsMap = new Map([
     [LandingViewActionsNames.ON_LOAD, LandingViewActions.onLoad],
     [LandingViewActionsNames.ON_HOME_CLICK, LandingViewActions.onHomeClick],
-    [LandingViewActionsNames.ON_DASHBOARD_CLICK, LandingViewActions.onDashboardClick],
+    [LandingViewActionsNames.ON_SEARCH_CLICK, LandingViewActions.onSearchClick],
     [LandingViewActionsNames.ON_REGISTER_CLICK, LandingViewActions.onRegisterClick],
     [LandingViewActionsNames.ON_MENU_CLICK, LandingViewActions.onMenuClick],
     [LandingViewActionsNames.ON_UPDATE, LandingViewActions.onUpdate],

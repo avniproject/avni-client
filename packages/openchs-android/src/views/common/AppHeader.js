@@ -100,7 +100,7 @@ class AppHeader extends AbstractComponent {
                 <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
                     <Text style={[{
                         color: Colors.headerTextColor,
-                        fontSize: 15
+                        fontSize: 18
                     }, this.props.hideBackButton && {marginLeft: 20}]}>{this.props.title}</Text>
                 </View>
 

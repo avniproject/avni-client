@@ -8,6 +8,7 @@ import AppliedFilters from "../filter/AppliedFilters";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import _ from "lodash";
 import General from "../../utility/General";
+import Styles from "../primitives/Styles";
 
 export default class DashboardFilters extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -72,7 +73,7 @@ export default class DashboardFilters extends AbstractComponent {
                                 borderRadius: 3
                             }}
                             onPress={this.props.onPress}>
-                            <Text style={{color: Colors.TextOnPrimaryColor, fontSize: 20}}>FILTER</Text>
+                            <Text style={{color: Colors.TextOnPrimaryColor, fontSize: Styles.normalTextSize}}>FILTER</Text>
                         </TouchableOpacity>
                     </View>
                     <AppliedFilters filters={this.props.filters}

@@ -54,8 +54,9 @@ class MyDashboardView extends AbstractComponent {
         const date = this.state.date;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('myDashboard')} func={this.onBackCallback.bind(this)}
-                           hideBackButton={true} hideIcon={true}/>
+                <AppHeader title={this.I18n.t('home')} func={this.onBackCallback.bind(this)}
+                           hideBackButton={true} iconComponent={this.props.iconComponent}
+                           iconFunc={this.props.iconFunc} showSettings={true}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}
                                       selectedLocations={this.state.selectedLocations}

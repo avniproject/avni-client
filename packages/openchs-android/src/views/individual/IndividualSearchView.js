@@ -66,9 +66,7 @@ class IndividualSearchView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('home')} hideBackButton={true}
-                               iconComponent={this.props.iconComponent}
-                               iconFunc={this.props.iconFunc} showSettings={true}/>
+                    <AppHeader title={this.I18n.t('search')} hideBackButton={true} hideIcon={true}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
@@ -124,7 +122,7 @@ class IndividualSearchView extends AbstractComponent {
                                           elevation: 2,
                                       }}>
                         <Text style={{
-                            fontSize: Styles.smallTextSize,
+                            fontSize: Styles.normalTextSize,
                             color: Colors.TextOnPrimaryColor,
                             alignSelf: "center"
                         }}>{this.I18n.t("search")}</Text>

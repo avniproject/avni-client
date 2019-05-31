@@ -52,11 +52,10 @@ class LandingView extends SyncComponent {
 
 
     renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {
-        return (<View key={idx} style={{
+        return (<View key={idx} style={[{
             alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column'
-        }}>
+            flexDirection: 'column',
+        }, isSelected && {borderBottomWidth: 2, borderColor: Colors.ActionButtonColor, marginBottom: 1}]}>
             <TouchableOpacity style={{height: 35, width: 35}} onPress={pressHandler}>
                 {icon}
             </TouchableOpacity>
@@ -65,7 +64,7 @@ class LandingView extends SyncComponent {
                 fontStyle: 'normal',
                 color: isSelected ? Colors.ActionButtonColor : 'white',
                 lineHeight: 10,
-                alignSelf: 'center', paddingTop: 4
+                alignSelf: 'center', paddingTop: 2
             }}>{menuMessageKey}</Text>
         </View>);
     }
@@ -81,16 +80,15 @@ class LandingView extends SyncComponent {
         const bottomBarIcons = [
             [this.Icon("home", LandingView.barIconStyle, this.state.home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), this.state.home],
             registerMenuItem,
-            [this.Icon("view-list", LandingView.barIconStyle, this.state.dashboard), this.I18n.t("Dashboard"), () => this.dispatchAction(Actions.ON_DASHBOARD_CLICK), this.state.dashboard],
+            [this.Icon("magnify", LandingView.barIconStyle, this.state.search), this.I18n.t("search"), () => this.dispatchAction(Actions.ON_SEARCH_CLICK), this.state.search],
             [this.Icon("menu", LandingView.barIconStyle, this.state.menu), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), this.state.menu]
         ];
 
         return (
             <CHSContainer>
-                {this.state.home && <IndividualSearchView
-                    onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                    iconComponent={this.syncIcon} iconFunc={this.sync.bind(this)}/>}
-                {this.state.dashboard && <MyDashboardView/>}
+                {this.state.home && <MyDashboardView iconComponent={this.syncIcon} iconFunc={this.sync.bind(this)}/>}
+                {this.state.search && <IndividualSearchView
+                    onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}/>}
                 {this.state.register && <RegisterView/>}
                 {this.state.menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
 

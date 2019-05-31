@@ -200,7 +200,7 @@ class FilterView extends AbstractComponent {
                                   onPress={() => this.onApply()}
                                   style={FilterView.styles.floatingButton}>
                     <Text style={{
-                        fontSize: 25,
+                        fontSize: Styles.normalTextSize,
                         color: Colors.TextOnPrimaryColor,
                         alignSelf: "center"
                     }}>Apply</Text>

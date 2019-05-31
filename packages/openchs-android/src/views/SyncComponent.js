@@ -25,6 +25,7 @@ import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import MenuView from "./MenuView";
+import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
 
 const {width, height} = Dimensions.get('window');
 
@@ -77,6 +78,7 @@ class SyncComponent extends AbstractComponent {
 
         //To load subjectType after sync
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD);
 
         //To re-render LandingView after sync
         this.dispatchAction(LandingViewActions.ON_LOAD);
