@@ -36,14 +36,6 @@ class MyDashboardView extends AbstractComponent {
         this.goBack();
     }
 
-    _onPress() {
-        this.dispatchAction(Actions.ON_FILTERS);
-    }
-
-    _addFilter(filter) {
-        this.dispatchAction(Actions.ADD_FILTER, {filter: filter})
-    }
-
     _onBack() {
         this.goBack();
     }

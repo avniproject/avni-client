@@ -137,10 +137,6 @@ class MyDashboardActions {
         }
     }
 
-    static onFilters(state) {
-        return {...state, showFilters: !state.showFilters};
-    }
-
     static cloneFilters(filters) {
         return [...filters.entries()].reduce((acc, [l, f]) => acc.set(l, f.clone()), new Map());
     }
@@ -193,7 +189,6 @@ const MyDashboardActionNames = {
     ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`,
     RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`,
     ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
-    ON_FILTERS: `${MyDashboardPrefix}.ON_FILTERS`,
     ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`,
     APPLY_FILTERS: `${MyDashboardPrefix}.APPLY_FILTERS`,
 };
@@ -203,7 +198,6 @@ const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.ON_LOAD, MyDashboardActions.onLoad],
     [MyDashboardActionNames.ON_LIST_LOAD, MyDashboardActions.onListLoad],
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
-    [MyDashboardActionNames.ON_FILTERS, MyDashboardActions.onFilters],
     [MyDashboardActionNames.ADD_FILTER, MyDashboardActions.addFilter],
     [MyDashboardActionNames.APPLY_FILTERS, MyDashboardActions.assignFilters],
 ]);
