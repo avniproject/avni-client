@@ -66,15 +66,19 @@ class IndividualSearchView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('home')} hideBackButton={true} iconComponent={this.props.iconComponent}
+                    <AppHeader title={this.I18n.t('home')} hideBackButton={true}
+                               iconComponent={this.props.iconComponent}
                                iconFunc={this.props.iconFunc} showSettings={true}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
+                        {this.state.subjectTypes.length > 0 &&
                         <SingleSelectFilter filter={subjectTypeSelectFilter}
-                                            onSelect={(subjectType) => this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
+                                            onSelect={(subjectType) =>
+                                                this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
+                        }
                         <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                          element={new StaticFormElement('name')}
                                          style={Styles.simpleTextFormElement}

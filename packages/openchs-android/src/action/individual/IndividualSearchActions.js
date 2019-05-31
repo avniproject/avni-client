@@ -12,7 +12,8 @@ export class IndividualSearchActions {
     static onLoad(state, action, context) {
         const newState = IndividualSearchActions.clone(state);
         newState.subjectTypes = context.get(EntityService).getAll(SubjectType.schema.name);
-        newState.searchCriteria.addSubjectTypeCriteria(newState.subjectTypes[0]);
+        const subjectType = newState.subjectTypes[0] || SubjectType.create('');
+        newState.searchCriteria.addSubjectTypeCriteria(subjectType);
         return newState;
     }
 
