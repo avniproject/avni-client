@@ -18,8 +18,6 @@ import codePush from "react-native-code-push";
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
-console.log(EntityMetaData);
-
 BackgroundTask.define(() => {
     PruneMedia().then(
         () => BackgroundTask.finish(),

@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import React from "react";
-import {Text, View} from 'react-native';
+import {View, Text} from 'react-native';
 import BaseFilter from "./BaseFilter";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
@@ -8,6 +9,11 @@ export default class SingleSelectFilter extends BaseFilter {
     constructor(props, context) {
         super(props, context);
     }
+
+    static propTypes = {
+        filter: PropTypes.object,
+        onSelect: PropTypes.func,
+    };
 
     render() {
         const filter = this.props.filter;

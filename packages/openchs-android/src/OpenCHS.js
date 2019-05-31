@@ -25,7 +25,6 @@ export default class OpenCHS extends Component {
             </View>
         );
         const renderPlayground = <Playground/>;
-        console.log(['OpenCHS'], JSON.stringify(Config));
         return Config.PLAYGROUND ? renderPlayground : renderApp;
     }
 }

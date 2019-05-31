@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity} from "react-native";
+import {Button, View, Text, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -12,7 +12,7 @@ import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
 import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
-import {PrimitiveValue} from 'openchs-models';
+import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel} from 'openchs-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
@@ -20,6 +20,7 @@ import CHSContainer from "../common/CHSContainer";
 import MenuView from "../MenuView";
 import Separator from "../primitives/Separator";
 import Colors from "../primitives/Colors";
+import SingleSelectFilter from '../filter/SingleSelectFilter';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -55,6 +56,14 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        let subjectTypeSelectFilter = new SingleSelectFilterModel(
+            "Choose type",
+            this.state.subjectTypes.reduce(
+                (subjectTypesMap, subjectType) => subjectTypesMap.set(subjectType.name, subjectType),
+                new Map())
+        );
+        subjectTypeSelectFilter = subjectTypeSelectFilter.selectOption(this.state.searchCriteria.subjectType.name);
+
         return (
             <CHSContainer>
                 <CHSContent>
@@ -67,17 +76,19 @@ class IndividualSearchView extends AbstractComponent {
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
+                        <SingleSelectFilter filter={subjectTypeSelectFilter}
+                                            onSelect={(subjectType) => this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
                         <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                          element={new StaticFormElement('name')}
                                          style={Styles.simpleTextFormElement}
                                          value={new PrimitiveValue(this.state.searchCriteria.name)} multiline={false}/>
-                        {this.state.subjectType.isIndividual() ?
+                        {this.state.searchCriteria.subjectType.isIndividual() ?
                             <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
                                              element={new StaticFormElement('age')}
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.age)}
                                              multiline={false}/> : null}
-                        {this.state.subjectType.isIndividual() ?
+                        {this.state.searchCriteria.subjectType.isIndividual() ?
                             <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                              element={new StaticFormElement('obsKeyword')}
                                              style={Styles.simpleTextFormElement}

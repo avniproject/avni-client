@@ -3,16 +3,16 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
 import {SubjectType} from "openchs-models";
-import _ from "lodash";
 
 export class IndividualSearchActions {
     static clone(state) {
-        return {searchCriteria: state.searchCriteria.clone(), subjectType:state.subjectType.clone()};
+        return {searchCriteria: state.searchCriteria.clone(), subjectTypes:state.subjectTypes.map((subjectType => subjectType.clone()))};
     }
 
     static onLoad(state, action, context) {
         const newState = IndividualSearchActions.clone(state);
-        newState.subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0] || SubjectType.create("");
+        newState.subjectTypes = context.get(EntityService).getAll(SubjectType.schema.name);
+        newState.searchCriteria.addSubjectTypeCriteria(newState.subjectTypes[0]);
         return newState;
     }
 
@@ -40,6 +40,14 @@ export class IndividualSearchActions {
         return newState;
     };
 
+    static enterSubjectTypeCriteria = function (state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        const selectedSubjectType = newState.subjectTypes.find(
+            (subjectType) => subjectType.name === action.subjectType);
+        newState.searchCriteria.addSubjectTypeCriteria(selectedSubjectType);
+        return newState;
+    };
+
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
         const addressLevelService = beans.get(AddressLevelService);
@@ -62,7 +70,7 @@ export class IndividualSearchActions {
     };
 
     static getInitialState(state) {
-        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false, subjectType: SubjectType.create("")};
+        return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false, subjectTypes: []};
     }
 
     static reset(state) {
@@ -76,6 +84,7 @@ const individualSearchActions = {
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
     ENTER_VOIDED_CRITERIA: "ENTER_VOIDED_CRITERIA",
+    ENTER_SUBJECT_TYPE_CRITERIA: "ENTER_SUBJECT_TYPE_CRITERIA",
     TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
     SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS",
     RESET: "ISA.RESET"
@@ -86,6 +95,7 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_AGE_CRITERIA, IndividualSearchActions.enterAgeCriteria],
     [individualSearchActions.ENTER_OBS_CRITERIA, IndividualSearchActions.enterObsCriteria],
     [individualSearchActions.ENTER_VOIDED_CRITERIA, IndividualSearchActions.enterVoidedCriteria],
+    [individualSearchActions.ENTER_SUBJECT_TYPE_CRITERIA, IndividualSearchActions.enterSubjectTypeCriteria],
     [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
     [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria],
     [individualSearchActions.RESET, IndividualSearchActions.reset],

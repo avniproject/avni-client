@@ -1,9 +1,8 @@
-import PropTypes from 'prop-types';
 import React from "react";
-import {View, StyleSheet, ListView, Text} from 'react-native';
+import {ListView, StyleSheet, Text, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
-export default class BaseFilter extends AbstractComponent {
+export default class BaseFilter extends React.Component {
     constructor(props, context) {
         super(props, context);
     }

@@ -44,6 +44,10 @@ class IndividualSearchCriteria {
             });
             criteria.push("( " + addressLevelCriteria.join(" OR ") + ")");
         }
+
+        if (!_.isEmpty(this.subjectType)) {
+            criteria.push(`subjectType.uuid = "${this.subjectType.uuid}"`);
+        }
         return criteria.join(" AND ");
     }
 
@@ -65,6 +69,10 @@ class IndividualSearchCriteria {
 
     addVoidedCriteria(includeVoided) {
         this.includeVoided = includeVoided;
+    }
+
+    addSubjectTypeCriteria(subjectType) {
+        this.subjectType = subjectType;
     }
 
     toggleLowestAddress(lowestAddress) {
@@ -95,6 +103,7 @@ class IndividualSearchCriteria {
         individualSearchCriteria.ageInYears = this.ageInYears;
         individualSearchCriteria.obsKeyword = this.obsKeyword;
         individualSearchCriteria.includeVoided = this.includeVoided;
+        individualSearchCriteria.subjectType = this.subjectType;
         return individualSearchCriteria;
     }
 }
