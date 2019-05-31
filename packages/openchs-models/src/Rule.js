@@ -33,12 +33,11 @@ class Rule extends ReferenceEntity {
     static fromResource(resource, entityService) {
         const rule = General.assignFields(resource, new Rule(), ['uuid', 'name', 'type', 'fnName', 'executionOrder']);
         rule.data = JSON.stringify(resource['data']);
-        if (resource._links.hasOwnProperty('programUUID')) {
-            rule.program = entityService.findByUUID(ResourceUtil.getUUIDFor(resource, "programUUID"), Program.schema.name);
-        } else if (resource._links.hasOwnProperty('formUUID')) {
-            rule.form = entityService.findByUUID(ResourceUtil.getUUIDFor(resource, "formUUID"), Form.schema.name);
-        }
-        rule.voided = resource['voided'] || false;
+        const programUUID = ResourceUtil.getUUIDFor(resource, "programUUID");
+        rule.program = programUUID && entityService.findByUUID(programUUID, Program.schema.name);
+        const formUUID = ResourceUtil.getUUIDFor(resource, "formUUID");
+        rule.form = formUUID && entityService.findByUUID(formUUID, Form.schema.name);
+        rule.voided = !!resource.voided;
         return rule;
     }
 
