@@ -80,8 +80,13 @@ class RegisterView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
 
         subjectTypes.forEach(subjectType => {
+            let formMappingService = this.context.getService(FormMappingService);
+            // Sometimes, a register form might not be provided. Register functionality does not work without that. 
+            if (!formMappingService.findRegistrationForm(subjectType)) {
+                return;
+            }
             actions = actions.concat(this._addRegistrationAction(subjectType));
-            const programs = this.context.getService(FormMappingService).findProgramsForSubjectType(subjectType);
+            const programs = formMappingService.findProgramsForSubjectType(subjectType);
             actions = actions.concat(this._addProgramActions(subjectType, programs));
         });
 
