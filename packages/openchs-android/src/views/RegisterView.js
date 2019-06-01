@@ -81,7 +81,7 @@ class RegisterView extends AbstractComponent {
 
         subjectTypes.forEach(subjectType => {
             let formMappingService = this.context.getService(FormMappingService);
-            // Sometimes, a register form might not be provided. Register functionality does not work without that. 
+            // Sometimes, a register form might not be provided. Register functionality does not work without that.
             if (!formMappingService.findRegistrationForm(subjectType)) {
                 return;
             }

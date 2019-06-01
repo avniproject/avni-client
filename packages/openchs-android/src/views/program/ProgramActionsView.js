@@ -7,7 +7,7 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
-import {EncounterTypeChoiceActionNames, ProgramEnrolmentDashboardActionsNames} from "../../action/program/ProgramEnrolmentDashboardActions";
+import {ProgramEnrolmentDashboardActionsNames} from "../../action/program/ProgramEnrolmentDashboardActions";
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";

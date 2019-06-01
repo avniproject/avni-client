@@ -59,9 +59,9 @@ class IndividualService extends BaseService {
     }
 
     eligiblePrograms(individualUUID) {
-        const programs = this.getAll(Program.schema.name);
         const individual = this.findByUUID(individualUUID);
-        const nonEnrolledPrograms = individual.eligiblePrograms(programs);
+        const programs = this.getService(FormMappingService).findProgramsForSubjectType(individual.subjectType);
+        const nonEnrolledPrograms = individual.eligiblePrograms(programs);  
         const ruleEvaluationService = this.getService(RuleEvaluationService);
         return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program));
     }
