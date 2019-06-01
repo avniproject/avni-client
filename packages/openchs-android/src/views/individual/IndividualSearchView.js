@@ -55,14 +55,7 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        let subjectTypeSelectFilter = new SingleSelectFilterModel(
-            "Choose type",
-            this.state.subjectTypes.reduce(
-                (subjectTypesMap, subjectType) => subjectTypesMap.set(subjectType.name, subjectType),
-                new Map())
-        );
-        subjectTypeSelectFilter = subjectTypeSelectFilter.selectOption(this.state.searchCriteria.subjectType.name);
-
+        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         return (
             <CHSContainer>
                 <CHSContent>

@@ -15,6 +15,8 @@ class FiltersActions {
             selectedPrograms: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
+            subjectTypes:[],
+            selectedSubjectType:null
         };
     }
 
@@ -29,6 +31,8 @@ class FiltersActions {
             selectedPrograms: action.selectedPrograms,
             encounterTypes: action.encounterTypes,
             selectedEncounterTypes: action.selectedEncounterTypes,
+            subjectTypes: action.subjectTypes,
+            selectedSubjectType:action.selectedSubjectType,
         }
     }
 
@@ -82,7 +86,21 @@ class FiltersActions {
             }
     }
 
-    //todo: vinay evaluate formMappingService usage
+    static addSubjectType(state, action, context) {
+        const selectedSubjectType = state.subjectTypes.find(subjectType => subjectType.name=== action.subjectTypeName);
+        const programs = context.get(FormMappingService).findProgramsForSubjectType(selectedSubjectType);
+        const selectedPrograms = programs.length === 1 ? programs : [];
+        const encounterTypes = programs.length === 1 ? context.get(FormMappingService).findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : [];
+        return {
+            ...state,
+            selectedSubjectType,
+            programs,
+            selectedPrograms,
+            encounterTypes,
+            selectedEncounterTypes: [],
+        }
+    }
+
     static addProgram(state, action, context) {
         const isPresent = FiltersActions.isPresent(state.selectedPrograms, action.programUUID);
         const program = _.filter(state.programs, (program) => program.uuid === action.programUUID);
@@ -123,6 +141,7 @@ const FilterActionNames = {
     LOAD_ENCOUNTERS: `${ActionPrefix}.LOAD_ENCOUNTERS`,
     ADD_VISITS: `${ActionPrefix}.ADD_VISITS`,
     ADD_PROGRAM: `${ActionPrefix}.ADD_PROGRAM`,
+    ADD_SUBJECT_TYPE: `${ActionPrefix}.ADD_SUBJECT_TYPE`,
 };
 const FilterActionMap = new Map([
     [FilterActionNames.ON_LOAD, FiltersActions.onLoad],
@@ -132,6 +151,7 @@ const FilterActionMap = new Map([
     [FilterActionNames.LOAD_ENCOUNTERS, FiltersActions.loadEncounters],
     [FilterActionNames.ADD_VISITS, FiltersActions.addVisits],
     [FilterActionNames.ADD_PROGRAM, FiltersActions.addProgram],
+    [FilterActionNames.ADD_SUBJECT_TYPE, FiltersActions.addSubjectType],
 ]);
 
 export {

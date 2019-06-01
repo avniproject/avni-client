@@ -35,7 +35,7 @@ class FormMappingService extends BaseService {
         const programs = enrolmentFormMappingsForSubjectType.map(
             (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name));
 
-        return _.compact(programs);
+        return _.uniqBy(_.compact(programs), 'uuid');
     }
 
     findFormForProgramExit(program: Program, subjectType: SubjectType) {
@@ -52,10 +52,10 @@ class FormMappingService extends BaseService {
             criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
         }
         const formMappings = this.findAllByCriteria(criteria);
-        return formMappings
+        return _.uniqBy(formMappings
             .map(this._findEncounterTypesForFormMapping)
             .filter(this.unVoided)
-            .filter(et => !_.isEmpty(et));
+            .filter(et => !_.isEmpty(et)), 'uuid');
     }
 
     findEncounterTypesForEncounter(subjectType: SubjectType): Array<EncounterType> {

@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {Filter} from 'openchs-models';
+import {Filter, SubjectType, SingleSelectFilter as SingleSelectFilterModel} from 'openchs-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -20,6 +20,7 @@ import Separator from "../primitives/Separator";
 import ProgramFilter from "../common/ProgramFilter";
 import ProgramService from "../../service/program/ProgramService";
 import FormMappingService from "../../service/FormMappingService";
+import EntityService from "../../service/EntityService";
 
 
 @Path('/FilterView')
@@ -36,12 +37,16 @@ class FilterView extends AbstractComponent {
             [Filter.types.MultiSelect, MultiSelectFilter]]);
         this.programService = context.getService(ProgramService);
         this.formMappingService = context.getService(FormMappingService);
+        this.entityService = context.getService(EntityService);
     }
 
     componentWillMount() {
-        const programs = this.programService.allPrograms();
+        const subjectTypes = this.entityService.findAll(SubjectType.schema.name);
+        const selectedSubjectType = subjectTypes[0];
+        const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
         const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
-        const encounters = programs.length === 1 ? this.formMappingService.findEncounterTypesForProgram(_.first(programs)) : this.props.encounterTypes;
+        const encounterTypes = programs.length === 1 ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : this.props.encounterTypes;
+
         this.dispatchAction(FilterActionNames.ON_LOAD, {
             filters: this.props.filters,
             locationSearchCriteria: this.props.locationSearchCriteria,
@@ -49,8 +54,10 @@ class FilterView extends AbstractComponent {
             filterDate: this.props.filterDate,
             programs: programs,
             selectedPrograms: selectedPrograms,
-            encounterTypes: encounters,
+            encounterTypes,
             selectedEncounterTypes: this.props.selectedEncounterTypes,
+            subjectTypes,
+            selectedSubjectType
         });
         super.componentWillMount();
     }
@@ -166,7 +173,9 @@ class FilterView extends AbstractComponent {
 
     render() {
         const {width} = Dimensions.get('window');
-        const filters = this.state.filters ? Array.from(this.state.filters.values()) : [];
+        console.log('this.state.subjectTypes',this.state.subjectTypes);
+        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType );
+
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('Filter')} func={this.props.onBack}/>
@@ -182,7 +191,11 @@ class FilterView extends AbstractComponent {
                                     pickTime={false}
                                     dateValue={this.state.filterDate.value}/>
                             </View>
-                            {_.map(filters, (f, idx) => this.renderFilter(f, idx))}
+                            <SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) =>
+                            {
+                                this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
+                            }}/>
+
                             {this.renderProgramEncounterList()}
                             <AddressLevels
                                 addressLevelState={this.state.addressLevelState}

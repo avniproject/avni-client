@@ -1,4 +1,7 @@
+// @flow
 import Filter from "./Filter";
+import {SingleSelectFilter as SingleSelectFilterModel} from "../../index";
+import SubjectType from "../SubjectType";
 
 export default class SingleSelectFilter extends Filter {
     constructor(label, optsFnMap, optsQueryMap, options) {
@@ -19,5 +22,16 @@ export default class SingleSelectFilter extends Filter {
 
     clone() {
         return new SingleSelectFilter(this.label, this.optsFnMap, this.optsQueryMap, this.selectedOptions);
+    }
+
+    static forSubjectTypes(subjectTypes : Array<SubjectType>, selectedSubjectType: SubjectType): SingleSelectFilter {
+        const filterModel = new SingleSelectFilterModel(
+            "Choose type",
+            subjectTypes.reduce(
+                (subjectTypesMap, subjectType) => subjectTypesMap.set(subjectType.name, subjectType),
+                new Map())
+        );
+
+        return filterModel.selectOption(selectedSubjectType.name)
     }
 }
