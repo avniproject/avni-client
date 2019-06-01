@@ -65,7 +65,7 @@ class IndividualSearchView extends AbstractComponent {
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
-                        {this.state.subjectTypes.length > 0 &&
+                        {this.state.subjectTypes.length > 1 &&
                         <SingleSelectFilter filter={subjectTypeSelectFilter}
                                             onSelect={(subjectType) =>
                                                 this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
