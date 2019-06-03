@@ -61,7 +61,7 @@ class IndividualService extends BaseService {
     eligiblePrograms(individualUUID) {
         const individual = this.findByUUID(individualUUID);
         const programs = this.getService(FormMappingService).findProgramsForSubjectType(individual.subjectType);
-        const nonEnrolledPrograms = individual.eligiblePrograms(programs);  
+        const nonEnrolledPrograms = individual.eligiblePrograms(programs);
         const ruleEvaluationService = this.getService(RuleEvaluationService);
         return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program));
     }
@@ -92,9 +92,8 @@ class IndividualService extends BaseService {
     allIn(ignored, queryAdditions) {
         return [...this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions} AND enrolments.voided = false AND enrolments.programExitDateTime = null`))
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((individual) => {
-                const registrationDate = individual.registrationDate;
                 return {individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}};
             })
             .reduce(this._uniqIndividualWithVisitName, new Map())

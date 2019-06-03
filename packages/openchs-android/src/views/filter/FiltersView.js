@@ -114,7 +114,8 @@ class FilterView extends AbstractComponent {
             selectedPrograms: this.state.selectedPrograms,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
-            listType: this.props.listType
+            listType: this.props.listType,
+            selectedSubjectType: this.state.selectedSubjectType,
         });
         this.goBack();
     }
@@ -173,7 +174,6 @@ class FilterView extends AbstractComponent {
 
     render() {
         const {width} = Dimensions.get('window');
-        console.log('this.state.subjectTypes',this.state.subjectTypes);
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType );
 
         return (

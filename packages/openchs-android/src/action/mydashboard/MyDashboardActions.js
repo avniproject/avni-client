@@ -45,23 +45,37 @@ class MyDashboardActions {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
         const subjectType = entityService.getAll(SubjectType.schema.name)[0];
+
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
             const filterService = context.get(FilterService);
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
         }
+
+        let individualFilters, encountersFilters, enrolmentFilters;
+        if (_.isEmpty(state.individualFilters)) {
+            const subjectTypeQuery = (path) => [`${path} = "${subjectType.uuid}"`];
+            individualFilters = subjectTypeQuery('subjectType.uuid');
+            encountersFilters = subjectTypeQuery('programEnrolment.individual.subjectType.uuid');
+            enrolmentFilters = subjectTypeQuery('individual.subjectType.uuid');
+        } else {
+            individualFilters = state.individualFilters;
+            encountersFilters = state.encountersFilters;
+            enrolmentFilters = state.enrolmentFilters;
+        }
+
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
             allIndividualsWithRecentlyCompletedVisits,
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals] =
-            [individualService.allScheduledVisitsIn(state.date.value, state.encountersFilters),
-                individualService.allOverdueVisitsIn(state.date.value, state.encountersFilters),
-                individualService.recentlyCompletedVisitsIn(state.date.value, state.encountersFilters),
-                individualService.recentlyRegistered(state.date.value, state.individualFilters),
-                individualService.recentlyEnrolled(state.date.value, state.enrolmentFilters),
-                individualService.allIn(state.date.value, state.individualFilters)
+            [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
+                individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
+                individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
+                individualService.recentlyRegistered(state.date.value, individualFilters),
+                individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
+                individualService.allIn(state.date.value, individualFilters)
             ].map(MyDashboardActions.applyFilters(filters));
         let row1 = {
             visits: {
@@ -94,7 +108,10 @@ class MyDashboardActions {
             ...state,
             visits: results,
             filters: filters,
-            subjectType: subjectType,
+            selectedSubjectType: subjectType,
+            individualFilters,
+            encountersFilters,
+            enrolmentFilters
         };
     }
 
@@ -143,33 +160,43 @@ class MyDashboardActions {
     }
 
     static assignFilters(state, action, context) {
-        const formMappingService = context.get(FormMappingService);
+        const shouldApplyValidEnrolmentQuery = (() => {
+            if (action.programs.length > 1) return !_.isEmpty(action.selectedPrograms);
+            if (action.programs.length === 1) return !_.isEmpty(action.selectedEncounterTypes);
+            return false;
+        })();
+
         const newFilters = MyDashboardActions.cloneFilters(action.filters);
 
         //get all the lowest level address UUIDs for the selected locations
         const addressUUIDs = action.locationSearchCriteria.clone().getAllAddressLevelUUIDs();
         const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
-        const visitQuery = (path) => _.isEmpty(action.selectedEncounterTypes) ?
-            _.flatten(action.selectedPrograms.map((program) => formMappingService.findEncounterTypesForProgram(program)))
-                .map((encounter) => `${path} = \'${encounter.uuid}\'`) :
-            action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`);
-        const programQuery = (path) => _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`);
+        const subjectTypeQuery = (path) => `${path} = "${action.selectedSubjectType.uuid}"`;
+        const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`): '';
+        const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`): '';
+        const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null`: '';
 
         const individualFilters = [
+            subjectTypeQuery('subjectType.uuid'),
             MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')),
             MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid'))
+            MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid')),
+            validEnrolmentQuery("enrolments")
         ].filter(Boolean).join(" AND ");
 
         const encountersFilters = [
+            subjectTypeQuery('programEnrolment.individual.subjectType.uuid'),
             MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')),
             MyDashboardActions.orQuery(programQuery('programEnrolment.program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))
+            MyDashboardActions.orQuery(visitQuery('encounterType.uuid')),
+            validEnrolmentQuery("programEnrolment")
         ].filter(Boolean).join(" AND ");
 
         const enrolmentFilters = [
+            subjectTypeQuery('individual.subjectType.uuid'),
             MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(programQuery('program.uuid'))
+            MyDashboardActions.orQuery(programQuery('program.uuid')),
+            'voided = false and programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
         const newState = {
@@ -185,7 +212,8 @@ class MyDashboardActions {
             selectedEncounterTypes: action.selectedEncounterTypes,
             individualFilters,
             encountersFilters,
-            enrolmentFilters
+            enrolmentFilters,
+            selectedSubjectType: action.selectedSubjectType,
         };
         return _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
     }
