@@ -19,6 +19,7 @@ import _ from "lodash";
 import Colors from "./primitives/Colors";
 import RegisterView from "./RegisterView";
 import SyncComponent from "./SyncComponent";
+import UserInfoService from "../service/UserInfoService";
 
 @Path('/landingView')
 class LandingView extends SyncComponent {
@@ -33,6 +34,7 @@ class LandingView extends SyncComponent {
             isConnected: true,
             error: false,
             startSync: _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync,
+            hideRegister: context.getService(UserInfoService).getUserSettings().hideRegister,
         }
     }
 
@@ -52,21 +54,22 @@ class LandingView extends SyncComponent {
 
 
     renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {
-        return (<View key={idx} style={[{
-            alignItems: 'center',
-            flexDirection: 'column',
-        }, isSelected && {borderBottomWidth: 2, borderColor: Colors.ActionButtonColor, marginBottom: 1}]}>
-            <TouchableOpacity style={{height: 35, width: 35}} onPress={pressHandler}>
-                {icon}
-            </TouchableOpacity>
-            <Text style={{
-                fontSize: Styles.smallerTextSize,
-                fontStyle: 'normal',
-                color: isSelected ? Colors.ActionButtonColor : 'white',
-                lineHeight: 10,
-                alignSelf: 'center', paddingTop: 2
-            }}>{menuMessageKey}</Text>
-        </View>);
+        return _.isNil(menuMessageKey) ? null :
+            (<View key={idx} style={[{
+                alignItems: 'center',
+                flexDirection: 'column',
+            }, isSelected && {borderBottomWidth: 2, borderColor: Colors.ActionButtonColor, marginBottom: 1}]}>
+                <TouchableOpacity style={{height: 35, width: 35}} onPress={pressHandler}>
+                    {icon}
+                </TouchableOpacity>
+                <Text style={{
+                    fontSize: Styles.smallerTextSize,
+                    fontStyle: 'normal',
+                    color: isSelected ? Colors.ActionButtonColor : 'white',
+                    lineHeight: 10,
+                    alignSelf: 'center', paddingTop: 2
+                }}>{menuMessageKey}</Text>
+            </View>);
     }
 
     static barIconStyle = {color: 'white', opacity: 0.8, alignSelf: 'center', fontSize: 35};
