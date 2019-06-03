@@ -44,7 +44,7 @@ class MyDashboardActions {
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
-        const subjectType = entityService.getAll(SubjectType.schema.name)[0];
+        const subjectType = state.selectedSubjectType || entityService.getAll(SubjectType.schema.name)[0];
 
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
@@ -199,6 +199,7 @@ class MyDashboardActions {
             'voided = false and programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
+
         const newState = {
             ...state,
             filters: newFilters,
@@ -215,6 +216,7 @@ class MyDashboardActions {
             enrolmentFilters,
             selectedSubjectType: action.selectedSubjectType,
         };
+
         return _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
     }
 }

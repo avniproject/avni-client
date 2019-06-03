@@ -35,14 +35,13 @@ class FilterView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.filterAction);
         this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
             [Filter.types.MultiSelect, MultiSelectFilter]]);
-        this.programService = context.getService(ProgramService);
         this.formMappingService = context.getService(FormMappingService);
         this.entityService = context.getService(EntityService);
     }
 
     componentWillMount() {
         const subjectTypes = this.entityService.findAll(SubjectType.schema.name);
-        const selectedSubjectType = subjectTypes[0];
+        const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
         const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
         const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
         const encounterTypes = programs.length === 1 ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : this.props.encounterTypes;

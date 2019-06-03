@@ -46,7 +46,7 @@ class MyDashboardView extends AbstractComponent {
             textAlign: 'center',
             fontSize: 20,
             color: Colors.DefaultPrimaryColor,
-        }}>Individuals</Text>
+        }}>{this.state.selectedSubjectType && this.state.selectedSubjectType.name}</Text>
     }
 
     render() {
@@ -69,6 +69,7 @@ class MyDashboardView extends AbstractComponent {
                                           addressLevelState: this.state.addressLevelState,
                                           programs: this.state.programs,
                                           selectedPrograms: this.state.selectedPrograms,
+                                          selectedSubjectType: this.state.selectedSubjectType,
                                           encounterTypes: this.state.encounterTypes,
                                           selectedEncounterTypes: this.state.selectedEncounterTypes,
                                           onBack: this._onBack.bind(this),
