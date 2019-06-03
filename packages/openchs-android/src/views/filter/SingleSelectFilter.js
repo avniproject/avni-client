@@ -21,9 +21,10 @@ export default class SingleSelectFilter extends BaseFilter {
         return (
                 <RadioGroup labelKey={filter.label}
                             labelValuePairs={labelValuePairs}
+                            inPairs={true}
                             multiSelect={false}
                             onPress={(rlv) => this.props.onSelect(rlv.value)}
                             selectionFn={(selectedVal) => filter.isSelected(selectedVal)}
-                            mandatory={false} inPairs={false}/>);
+                            mandatory={false}/>);
     }
 }
