@@ -196,7 +196,7 @@ class GrowthChartView extends AbstractComponent {
             },
             text: {
                 color: Styles.whiteColor,
-                fontSize: 16
+                fontSize: 12
             }
         },
         unselectedGraphButton: {
@@ -207,7 +207,7 @@ class GrowthChartView extends AbstractComponent {
             },
             text: {
                 color: Styles.accentColor,
-                fontSize: 16
+                fontSize: 12,
             }
         }
     };
@@ -259,29 +259,26 @@ class GrowthChartView extends AbstractComponent {
                 <View style={{flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between'}}>
                     <Button
                         style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForAge).self]}
-                        textStyle={this.getGraphStyle(this.states.weightForAge).text}
                         onPress={() => {
                             this.onGraphSelected(this.states.weightForAge)
                         }}>
-                        <Text>{this.states.weightForAge}</Text>
+                        <Text style={this.getGraphStyle(this.states.weightForAge).text}>{this.states.weightForAge}</Text>
                     </Button>
 
                     <Button
                         style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.heightForAge).self]}
-                        textStyle={this.getGraphStyle(this.states.heightForAge).text}
                         onPress={() => {
                             this.onGraphSelected(this.states.heightForAge)
                         }}>
-                        <Text>{this.states.heightForAge}</Text>
+                        <Text style={this.getGraphStyle(this.states.heightForAge).text}>{this.states.heightForAge}</Text>
                     </Button>
 
                     <Button
                         style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForHeight).self]}
-                        textStyle={this.getGraphStyle(this.states.weightForHeight).text}
                         onPress={() => {
                             this.onGraphSelected(this.states.weightForHeight)
                         }}>
-                        <Text>{this.states.weightForHeight}</Text>
+                        <Text style={this.getGraphStyle(this.states.weightForHeight).text}>{this.states.weightForHeight}</Text>
                     </Button>
                 </View>
 
