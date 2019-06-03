@@ -52,7 +52,7 @@ class IndividualProfile extends AbstractComponent {
 
     editProfile() {
         CHSNavigator.navigateToRegisterView(this, new WorkLists(
-            new WorkList('Register',
+            new WorkList(`${this.props.individual.subjectType.name} `,
                 [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
                     {
                         uuid: this.props.individual.uuid,
