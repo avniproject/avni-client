@@ -173,7 +173,7 @@ class FilterView extends AbstractComponent {
 
     render() {
         const {width} = Dimensions.get('window');
-        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType );
+        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType);
 
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
@@ -190,11 +190,11 @@ class FilterView extends AbstractComponent {
                                     pickTime={false}
                                     dateValue={this.state.filterDate.value}/>
                             </View>
-                            <SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) =>
-                            {
+                            {this.state.subjectTypes.length > 1 &&
+                            (<SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
-                            }}/>
-
+                            }}/>)
+                            }
                             {this.renderProgramEncounterList()}
                             <AddressLevels
                                 addressLevelState={this.state.addressLevelState}
