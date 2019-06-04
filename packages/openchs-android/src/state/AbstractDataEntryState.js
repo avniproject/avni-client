@@ -136,9 +136,9 @@ class AbstractDataEntryState {
             workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
         }
 
-        if(!workLists.peekNextWorkItem() && workLists.getCurrentWorkItem().type === WorkItem.type.REGISTRATION) {
-            const subjectType = context.get(EntityService).getAll(SubjectType.schema.name)[0];
-            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: subjectType.name}));
+        let currentWorkItem = workLists.getCurrentWorkItem();
+        if(!workLists.peekNextWorkItem() && currentWorkItem.type === WorkItem.type.REGISTRATION) {
+            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
         }
 
         return ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
