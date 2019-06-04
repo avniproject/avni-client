@@ -37,7 +37,7 @@ class SubjectType extends ReferenceEntity {
     }
 
     isIndividual(){
-        return this.name === 'Individual';
+        return this.name === 'Individual' || this.name === 'Patient';
     }
 
     registerIcon() {
