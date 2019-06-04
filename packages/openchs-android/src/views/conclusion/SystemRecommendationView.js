@@ -62,6 +62,8 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     get nextAndMore() {
+        if(_.isNil(this.props.workListState))
+            return {};
         let nextWorkItem = this.props.workListState.peekNextWorkItem();
         if (!nextWorkItem) return {};
 

@@ -74,6 +74,8 @@ gradlew.bat
 
 **/openchs_rules.tar.gz
 
+#make open_app_bundle
+temp/
 
 # Visual Studio Code
 .vscode

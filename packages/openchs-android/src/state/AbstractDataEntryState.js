@@ -131,6 +131,8 @@ class AbstractDataEntryState {
     }
 
     updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits, context) {
+        if(_.isNil(oldWorkLists))
+            return null;
         let workLists = oldWorkLists;
         if (!_.isEmpty(nextScheduledVisits)) {
             workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
