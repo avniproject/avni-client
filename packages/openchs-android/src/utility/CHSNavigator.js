@@ -33,6 +33,7 @@ import IndividualService from "../service/IndividualService";
 import ProgramEnrolmentService from "../service/ProgramEnrolmentService";
 import General from "./General";
 import WorkListState from "../state/WorkListState";
+import SubjectType from "../../../openchs-models/src/SubjectType";
 
 
 class CHSNavigator {
@@ -113,7 +114,7 @@ class CHSNavigator {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
-        const target = workItem.parameters.subjectTypeName === 'Individual' ? IndividualRegisterView : SubjectRegisterView;
+        const target = SubjectType.create(workItem.parameters.subjectTypeName).isIndividual() ? IndividualRegisterView : SubjectRegisterView;
         if (target.canLoad({uuid, subjectTypeName}, source)) {
             TypedTransition.from(source).with({
                 subjectUUID: uuid,
