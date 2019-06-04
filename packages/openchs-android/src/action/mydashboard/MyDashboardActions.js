@@ -44,7 +44,7 @@ class MyDashboardActions {
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
-        const subjectType = state.selectedSubjectType || entityService.getAll(SubjectType.schema.name)[0];
+        const subjectType = state.selectedSubjectType || entityService.getAll(SubjectType.schema.name)[0] || SubjectType.create("");
 
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
