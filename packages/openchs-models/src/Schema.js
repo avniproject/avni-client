@@ -59,7 +59,7 @@ export default {
         ChecklistDetail, ChecklistItemDetail, VideoTelemetric, Video, MediaQueue, Point, SyncTelemetry, IdentifierSource,
         IdentifierAssignment
     ],
-    schemaVersion: 104,
+    schemaVersion: 105,
     migration: function (oldDB, newDB) {
         if (oldDB.schemaVersion < 10) {
             var oldObjects = oldDB.objects('DecisionConfig');
@@ -297,6 +297,14 @@ export default {
             const formMappings = newDB.objects('FormMapping');
             _.forEach(formMappings, formMapping => {
                 formMapping.subjectType = subjectType;
+            });
+        }
+        if (oldDB.schemaVersion < 105) {
+            _.forEach(newDB.objects(Rule.schema.name), rule => {
+                rule.entity = {
+                    uuid: rule.program ? rule.program.uuid : rule.form ? rule.form.uuid : null,
+                    type: rule.program ? 'Program' : rule.form ? 'Form' : 'None',
+                };
             });
         }
     }

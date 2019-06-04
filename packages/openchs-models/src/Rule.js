@@ -1,8 +1,5 @@
 import ReferenceEntity from "./ReferenceEntity";
-import Form from './application/Form';
-import Program from './Program';
 import General from "./utility/General";
-import ResourceUtil from "./utility/ResourceUtil";
 
 class Rule extends ReferenceEntity {
     static schema = {
@@ -10,8 +7,7 @@ class Rule extends ReferenceEntity {
         primaryKey: 'uuid',
         properties: {
             uuid: 'string',
-            form: { type: 'Form', optional: true },
-            program: { type: 'Program', optional: true },
+            _entityString: 'string',
             type: 'string',
             name: 'string',
             fnName: 'string',
@@ -31,14 +27,18 @@ class Rule extends ReferenceEntity {
     };
 
     static fromResource(resource, entityService) {
-        const rule = General.assignFields(resource, new Rule(), ['uuid', 'name', 'type', 'fnName', 'executionOrder']);
+        const rule = General.assignFields(resource, new Rule(), ['uuid', 'name', 'type', 'fnName', 'executionOrder', 'entity']);
         rule.data = JSON.stringify(resource['data']);
-        const programUUID = ResourceUtil.getUUIDFor(resource, "programUUID");
-        rule.program = programUUID && entityService.findByUUID(programUUID, Program.schema.name);
-        const formUUID = ResourceUtil.getUUIDFor(resource, "formUUID");
-        rule.form = formUUID && entityService.findByUUID(formUUID, Form.schema.name);
         rule.voided = !!resource.voided;
         return rule;
+    }
+
+    get entity() {
+        return JSON.parse(this._entityString || '{}');
+    }
+
+    set entity(entityJson) {
+        this._entityString = JSON.stringify(entityJson || {});
     }
 
     clone() {

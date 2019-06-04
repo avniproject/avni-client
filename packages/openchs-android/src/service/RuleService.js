@@ -32,13 +32,15 @@ class RuleService extends BaseService {
         General.logDebug("RuleService", "\n>>>>>>>>>RULES LOADED<<<<<<<<<\n")
     }
 
-    getApplicableRules(ruledEntity, type, fieldNameInRule='form') {
-        const capitalizedFieldName = fieldNameInRule[0].toUpperCase() + fieldNameInRule.substring(1);
-        General.logDebug("RuleService", `Getting Rules of Type ${type} for 
-            ${capitalizedFieldName} - ${ruledEntity.name} ${ruledEntity.uuid}`);
-        const rules = this.db.objects(Rule.schema.name)
-            .filtered(`voided = false and ${fieldNameInRule}.uuid=$0 and type=$1`, ruledEntity.uuid, type)
-            .map(_.identity);
+    getApplicableRules(ruledEntity, type, _ruledEntityType = 'Form') {
+        const ruledEntityType = _.upperFirst(_ruledEntityType);
+        General.logDebug("RuleService",
+            `Getting Rules of Type ${type} for ${ruledEntityType} - ${ruledEntity.name} ${ruledEntity.uuid}`);
+        const rules = this.findAll()
+            .map(_.identity)
+            .filter(rule =>
+                rule.voided === false && rule.type === type &&
+                rule.entity.uuid === ruledEntity.uuid && rule.entity.type === ruledEntityType);
         return this.getRuleFunctions(rules);
     }
 
@@ -53,6 +55,10 @@ class RuleService extends BaseService {
             this.db.objects(Rule.schema.name)
             .filtered(`voided = false and type=$0`, type)
             .map(_.identity));
+    }
+
+    getSchema() {
+        return Rule.schema.name;
     }
 }
 
