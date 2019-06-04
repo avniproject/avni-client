@@ -14,6 +14,13 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import AuthService from "../service/AuthService";
+import RuleService from "../service/RuleService";
+import ProgramConfigService from "../service/ProgramConfigService";
+import MessageService from "../service/MessageService";
+import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
+import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
+import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -71,6 +78,21 @@ class MenuView extends AbstractComponent {
 
     videoListView() {
         TypedTransition.from(this).to(VideoListView);
+    }
+
+    reset() {
+        this.context.getService(RuleEvaluationService).init();
+        this.context.getService(ProgramConfigService).init();
+        this.context.getService(MessageService).init();
+        this.context.getService(RuleService).init();
+        this.dispatchAction('RESET');
+
+        //To load subjectType after sync
+        this.dispatchAction(IndividualSearchActions.ON_LOAD);
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD);
+
+        //To re-render LandingView after sync
+        this.dispatchAction(LandingViewActions.ON_LOAD);
     }
 
     deleteData() {
