@@ -24,7 +24,7 @@ export default class SingleSelectFilter extends Filter {
         return new SingleSelectFilter(this.label, this.optsFnMap, this.optsQueryMap, this.selectedOptions);
     }
 
-    static forSubjectTypes(subjectTypes, selectedSubjectType) {
+    static forSubjectTypes(subjectTypes: Array<SubjectType>, selectedSubjectType: SubjectType) {
         const filterModel = new SingleSelectFilterModel(
             "Choose type",
             subjectTypes.reduce(
