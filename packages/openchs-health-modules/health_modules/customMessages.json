@@ -1296,7 +1296,7 @@
     "Marriage Registration": "विवाह नोंदणी",
     "MCTS": "एमसीटीएस",
     "MCTS Number": "एमसीटीएस नंबर",
-    "Meal frequency per day": "दररोजच्या जेवणातील ????",
+    "Meal frequency per day": "दररोज किती वेळा जेवता?",
     "Meconium discharge": "मेकॉनियम डिस्चार्ज",
     "Men component": "पुरुष घटक",
     "Menstrual surveillance": "मासिक पाळीबद्दल देखरेख",
@@ -1733,6 +1733,8 @@
     "REG_ENROL_DISPLAY-Nutritional Supplements": "Nutritional supplements beneficiary",
     "REG_DISPLAY-Water source": "Water source",
     "REG_ENROL_DISPLAY-Water Quality": "Water quality test subject",
+    "REG_ENROL_DISPLAY-Pregnant": "Pregnant woman",
+    "REG_ENROL_DISPLAY-ASHA Area Inputs": "ASHA Area Inputs",
     "Water is safe": "The water is safe for drinking and cooking. Please inform all households to use this water source",
     "Water is unsafe": "The water is unsafe for drinking or cooking. Please inform all households to stop using this water.",
     "waterQualityTestingAfterOverdueDateNotAllowed": "Water quality testing after overdue date not allowed."
