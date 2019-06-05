@@ -2,32 +2,31 @@ import Service from "../framework/bean/Service";
 import _ from 'lodash';
 import BaseService from "./BaseService";
 import {
+    ChecklistDetail,
+    Encounter,
     EntityRule,
     FormElementStatus,
+    Individual,
     Observation,
-    Encounter,
     ProgramEncounter,
     ProgramEnrolment
 } from 'openchs-models';
 import {
     encounterDecision,
+    familyRegistrationDecision,
+    individualRegistrationDecision,
     programEncounterDecision,
     programEnrolmentDecision,
-    individualRegistrationDecision,
-    familyRegistrationDecision,
     RuleRegistry
 } from 'openchs-health-modules';
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
-import {  Decision  } from 'openchs-models';
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
 import RuleService from "./RuleService";
-import {  ChecklistDetail  } from 'openchs-models';
 import IndividualService from "./IndividualService";
 import IndividualEncounterService from "./IndividualEncounterService";
-import {  Individual  } from 'openchs-models';
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -64,7 +63,7 @@ class RuleEvaluationService extends BaseService {
             "registrationDecisions": []
         };
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
-        const decisionsMap = this.getAllRuleItemsFor(form, "Decision")
+        const decisionsMap = this.getAllRuleItemsFor(form, "Decision", "Form")
             .reduce((decisions, rule) => rule.fn.exec(entity, decisions, context, new Date()), defaultDecisions);
         const trimmedDecisions = {};
         _.forEach(decisionsMap, (decisions, decisionType) => {
@@ -84,9 +83,9 @@ class RuleEvaluationService extends BaseService {
         return _.reduce(additionalRules, (newWorkLists, rule) => rule.fn.exec(workLists, context), workLists);
     }
 
-    getEnrolmentSummary(enrolment, entityName='ProgramEnrolment', context) {
+    getEnrolmentSummary(enrolment, entityName = 'ProgramEnrolment', context) {
         const summaries = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
-        const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary")
+        const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", "Program")
             .reduce((summaries, rule) => rule.fn.exec(enrolment, summaries, context, new Date()), summaries);
         const conceptService = this.getService(ConceptService);
         const summaryObservations = _.map(updatedSummaries, (summary) => {
@@ -100,7 +99,7 @@ class RuleEvaluationService extends BaseService {
     validateAgainstRule(entity, form, entityName) {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
-        const validationErrors = this.getAllRuleItemsFor(form, "Validation")
+        const validationErrors = this.getAllRuleItemsFor(form, "Validation", "Form")
             .reduce((validationErrors, rule) => rule.fn.exec(entity, validationErrors), defaultValidationErrors);
         General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
         return validationErrors;
@@ -111,7 +110,7 @@ class RuleEvaluationService extends BaseService {
         const form = this.entityFormMap.get(entityName)(entity);
         if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVistSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
-        const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule")
+        const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
             .reduce((schedule, rule) => rule.fn.exec(entity, schedule, visitScheduleConfig), scheduledVisits);
         General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
         return nextVisits;
@@ -121,7 +120,7 @@ class RuleEvaluationService extends BaseService {
         const form = this.entityFormMap.get(entityName)(entity);
         const allChecklistDetails = this.findAll(ChecklistDetail.schema.name);
         if ([entity, form, allChecklistDetails].some(_.isEmpty)) return defaultChecklists;
-        const allChecklists = this.getAllRuleItemsFor(form, "Checklists")
+        const allChecklists = this.getAllRuleItemsFor(form, "Checklists", "Form")
             .reduce((checklists, rule) => rule.fn.exec(entity, allChecklistDetails), defaultChecklists);
         // General.logDebug("RuleEvaluationService - Checklists", allChecklists);
         return allChecklists;
@@ -129,7 +128,7 @@ class RuleEvaluationService extends BaseService {
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
-        const allRules = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter");
+        const allRules = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const defaultFormElementStatus = formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
         if (_.isEmpty(allRules)) return defaultFormElementStatus;
@@ -140,21 +139,21 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    getAllRuleItemsFor(entity, type) {
-        const entityType = entity.constructor.schema.name;
+    getAllRuleItemsFor(entity, type, entityTypeHardCoded) {
+        const entityType = _.get(entity, 'constructor.schema.name', entityTypeHardCoded);
         const applicableRules = RuleRegistry.getRulesFor(entity.uuid, type, entityType);
         const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, entityType);
         return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
 
     isEligibleForEncounter(individual, encounterType) {
-        const applicableRules = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck");
-        return _.isEmpty(applicableRules)? true: _.last(applicableRules).fn.exec({individual});
+        const applicableRules = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType");
+        return _.isEmpty(applicableRules) ? true : _.last(applicableRules).fn.exec({individual});
     }
 
     isEligibleForProgram(individual, program) {
-        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck");
-        return _.isEmpty(applicableRules)? true: _.last(applicableRules).fn.exec({individual});
+        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
+        return _.isEmpty(applicableRules) ? true : _.last(applicableRules).fn.exec({individual});
     }
 
     runOnAll(rulesToRun) {
