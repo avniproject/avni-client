@@ -1735,7 +1735,9 @@
     "REG_ENROL_DISPLAY-Water Quality": "Water quality test subject",
     "Water is safe": "The water is safe for drinking and cooking. Please inform all households to use this water source",
     "Water is unsafe": "The water is unsafe for drinking or cooking. Please inform all households to stop using this water.",
-    "waterQualityTestingAfterOverdueDateNotAllowed": "Water quality testing after overdue date not allowed."
+    "waterQualityTestingAfterOverdueDateNotAllowed": "Water quality testing after overdue date not allowed.",
+    "nutritionSupplementsAfterOverdueDateNotAllowed": "Nutrition Supplements after overdue date not allowed.",
+    "caAndMgSupplementsAfterOverdueDateNotAllowed": "Ca And Mg Supplements after overdue date not allowed."
 
   },
   "gu_IN": {
