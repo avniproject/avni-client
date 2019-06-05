@@ -36,7 +36,7 @@ build-tools:
 # <clean>
 clean: clean_env ##
 # </clean>
-renew_env: clean_all deps
+renew_env: clean_env deps
 # <deps>
 deps: build_env ##
 deps_ci: build_env_ci ##
@@ -205,18 +205,12 @@ clean_env:  ##
 	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-models/node_modules
 
-clean_all:  clean_env
-	rm -rf packages/openchs-android/package-lock.json
-	rm -rf packages/openchs-health-modules/package-lock.json
-	rm -rf packages/openchs-models/package-lock.json
-
 setup_env: ##
 	npm install -g jest@20.0.1
 	npm install -g jest-cli@20.0.1
 
 build_env: ##
 	npm install
-	export NODE_OPTIONS=--max_old_space_size=4096
 	npm run bootstrap
 # </env>
 
