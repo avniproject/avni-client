@@ -238,7 +238,7 @@ class CHSNavigator {
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
-                const target = nextWorkItem.parameters.subjectTypeName === 'Individual' ? IndividualRegisterView : SubjectRegisterView;
+                const target = SubjectType.create(nextWorkItem.parameters.subjectTypeName).isIndividual() ? IndividualRegisterView : SubjectRegisterView;
                 TypedTransition.from(recommendationsView)
                     .resetStack([
                             SystemRecommendationView,
