@@ -32,14 +32,13 @@ class RuleService extends BaseService {
         General.logDebug("RuleService", "\n>>>>>>>>>RULES LOADED<<<<<<<<<\n")
     }
 
-    getApplicableRules(ruledEntity, type, _ruledEntityType = 'Form') {
-        const ruledEntityType = _.upperFirst(_ruledEntityType);
+    getApplicableRules(ruledEntity, ruleType, ruledEntityType) {
         General.logDebug("RuleService",
-            `Getting Rules of Type ${type} for ${ruledEntityType} - ${ruledEntity.name} ${ruledEntity.uuid}`);
+            `Getting Rules of Type ${ruleType} for ${ruledEntityType} - ${ruledEntity.name} ${ruledEntity.uuid}`);
         const rules = this.findAll()
             .map(_.identity)
             .filter(rule =>
-                rule.voided === false && rule.type === type &&
+                rule.voided === false && rule.type === ruleType &&
                 rule.entity.uuid === ruledEntity.uuid && rule.entity.type === ruledEntityType);
         return this.getRuleFunctions(rules);
     }

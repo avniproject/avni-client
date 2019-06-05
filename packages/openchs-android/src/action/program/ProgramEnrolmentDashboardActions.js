@@ -36,13 +36,19 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static _setEncounterTypeState(newState, context) {
+        const enrolment = newState.enrolment;
+        const individual = enrolment.individual;
         const programEncounter = ProgramEncounter.createEmptyInstance();
-        programEncounter.programEnrolment = newState.enrolment;
-        const programEncounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(newState.enrolment.program, newState.enrolment.individual.subjectType);
+        programEncounter.programEnrolment = enrolment;
+        const programEncounterTypes = context.get(FormMappingService)
+            .findEncounterTypesForProgram(enrolment.program, individual.subjectType);
         newState.programEncounterTypeState.entityParentSelected(programEncounterTypes, programEncounter);
 
-        newState.encounter.individual = newState.enrolment.individual;
-        newState.encounterTypes = context.get(FormMappingService).findEncounterTypesForEncounter(newState.encounter.individual.subjectType);
+        newState.encounter.individual = individual;
+        newState.encounterTypes = context.get(FormMappingService)
+            .findEncounterTypesForEncounter(individual.subjectType)
+            .filter(encounterType => context.get(RuleEvaluationService)
+                .isEligibleForEncounter(individual, encounterType));
         return newState;
     }
 
