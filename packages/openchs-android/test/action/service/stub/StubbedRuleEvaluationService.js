@@ -20,6 +20,9 @@ class StubbedRuleEvaluationService {
     updateWorkLists(workLists, context) {
         return workLists;
     }
+    isEligibleForEncounter() {
+        return true;
+    }
 }
 
 export default StubbedRuleEvaluationService;

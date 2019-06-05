@@ -86,7 +86,7 @@ class RuleEvaluationService extends BaseService {
 
     getEnrolmentSummary(enrolment, entityName='ProgramEnrolment', context) {
         const summaries = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
-        const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", 'program')
+        const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary")
             .reduce((summaries, rule) => rule.fn.exec(enrolment, summaries, context, new Date()), summaries);
         const conceptService = this.getService(ConceptService);
         const summaryObservations = _.map(updatedSummaries, (summary) => {
@@ -140,14 +140,20 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    getAllRuleItemsFor(entity, type, fieldNameInRule='form', entityType) {
+    getAllRuleItemsFor(entity, type) {
+        const entityType = entity.constructor.schema.name;
         const applicableRules = RuleRegistry.getRulesFor(entity.uuid, type, entityType);
-        const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, fieldNameInRule, entityType);
+        const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, entityType);
         return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
 
+    isEligibleForEncounter(individual, encounterType) {
+        const applicableRules = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck");
+        return _.isEmpty(applicableRules)? true: _.last(applicableRules).fn.exec({individual});
+    }
+
     isEligibleForProgram(individual, program) {
-        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", 'program', "Program");
+        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck");
         return _.isEmpty(applicableRules)? true: _.last(applicableRules).fn.exec({individual});
     }
 

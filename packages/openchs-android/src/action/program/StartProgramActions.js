@@ -6,6 +6,7 @@ import moment from "moment";
 import {ProgramEncounter} from 'openchs-models';
 import General from "../../utility/General";
 import UserInfoService from "../../service/UserInfoService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 class StartProgramActions {
     static clone(state) {
@@ -77,9 +78,17 @@ class StartProgramActions {
                     data: encounter, selected: index === 0}})
             .value();
 
-        let encounterTypes = context.get(FormMappingService).findEncounterTypesForProgram(enrolment.program, enrolment.individual.subjectType);
-        newState.encounterTypes = _.map(encounterTypes, (encounterType) => {
-            return {key: encounterType.uuid, label: newState.I18n.t(encounterType.displayName), data: encounterType, selected: false}});
+        newState.encounterTypes = context.get(FormMappingService)
+            .findEncounterTypesForProgram(enrolment.program, enrolment.individual.subjectType)
+            .filter(encounterType => context.get(RuleEvaluationService).isEligibleForEncounter(enrolment.individual, encounterType))
+            .map(encounterType => {
+                return {
+                    key: encounterType.uuid,
+                    label: newState.I18n.t(encounterType.displayName),
+                    data: encounterType,
+                    selected: false
+                }
+            });
 
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 
