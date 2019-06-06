@@ -27,13 +27,14 @@ import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
 import FilterView from "../views/filter/FiltersView";
-import {ProgramEnrolment, WorkItem} from "openchs-models";
+import {ProgramEnrolment, WorkItem, ProgramEncounter, EncounterType} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
 import IndividualService from "../service/IndividualService";
 import ProgramEnrolmentService from "../service/ProgramEnrolmentService";
 import General from "./General";
 import WorkListState from "../state/WorkListState";
 import SubjectType from "../../../openchs-models/src/SubjectType";
+import EntityService from "../service/EntityService";
 
 
 class CHSNavigator {
@@ -235,6 +236,7 @@ class CHSNavigator {
         const currentWorkItem = workListState.currentWorkItem;
         const message = this.getMessage(recommendationsView.I18n, currentWorkItem);
         const nextWorkItem = workListState.moveToNextWorkItem();
+
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
@@ -284,6 +286,10 @@ class CHSNavigator {
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
                 const enrolment = context.getService(ProgramEnrolmentService).findByUUID(nextWorkItem.parameters.programEnrolmentUUID);
+                let programEncounter = ProgramEncounter.createEmptyInstance();
+                programEncounter.encounterType = context.getService(EntityService).findByKey('name', nextWorkItem.parameters.encounterType, EncounterType.schema.name);
+
+                programEncounter.programEnrolment = enrolment;
                 TypedTransition.from(recommendationsView)
                     .resetStack([
                             SystemRecommendationView,
@@ -300,7 +306,8 @@ class CHSNavigator {
                                     enrolmentUUID: enrolment.uuid,
                                     encounterType: nextWorkItem.parameters.encounterType,
                                     workLists: workListState.workLists,
-                                    message: message
+                                    message: message,
+                                    programEncounter,
                                 }
                             }], true);
                 break;

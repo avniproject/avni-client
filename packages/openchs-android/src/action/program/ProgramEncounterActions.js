@@ -26,6 +26,7 @@ class ProgramEncounterActions {
             .forEncounterType(action.programEncounter.encounterType)
             .forProgram(action.programEncounter.programEnrolment.program)
             .forFormType(Form.formTypes.ProgramEncounter)
+            .forSubjectType(action.programEncounter.programEnrolment.individual.subjectType)
             .bestMatch();
 
         const form = formMapping && formMapping.form;

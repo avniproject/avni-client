@@ -14,6 +14,11 @@ export default class WorkListState {
     moveToNextWorkItem() {
         const parameters = this.getParametersFn();
         let nextWorkItem = this.workLists.currentWorkList.nextWorkItem();
+        let currentWorkItem = this.currentWorkItem;
+        //Assign any new parameters that may have been created during this flow. This will serve as a record of what was created.
+        currentWorkItem.parameters = _.merge({}, parameters, currentWorkItem.parameters);
+
+        //Assign context to the next parameters if it may be useful during the flow
         nextWorkItem.parameters = _.merge({}, parameters, nextWorkItem.parameters);
         this.workLists.currentWorkList.setCurrentWorkItem(nextWorkItem);
         return this.workLists.getCurrentWorkItem();
