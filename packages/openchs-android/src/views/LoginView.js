@@ -26,7 +26,8 @@ import _ from "lodash";
 import {Button, CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
 import AuthService from "../service/AuthService";
-import ConfirmationModal from "./common/ConfirmationModal";
+import { ConfirmDialog } from 'react-native-simple-dialogs';
+import Fonts from "./primitives/Fonts";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -123,14 +124,32 @@ class LoginView extends AbstractComponent {
     }
 
     renderMultiUserLoginFailure() {
-        return (<ConfirmationModal
-            visible={this.state.showMultiUserLoginWarning}
-            hide={(actionFn) => this.setState({showMultiUserLoginWarning: false}, actionFn)}
-            negative={{action: this.clearDataAndLogin, label: this.I18n.t('clearDataAndLogin')}}
-            positive={{action: _.noop, label: this.I18n.t('cancel')}}
+        return (<ConfirmDialog
             title={this.I18n.t("cannotChangeUserTitle", {newUser: this.state.userId})}
-            desc={this.I18n.t("cannotChangeUserDesc", {oldUser: this.state.loggedInUser, newUser: this.state.userId})}
-        />);
+            visible={this.state.showMultiUserLoginWarning}
+            onTouchOutside={() => this.setState({showMultiUserLoginWarning: false})}
+            negativeButton={{
+                style: {backgroundColor: Colors.NegativeActionButtonColor},
+                titleStyle: {color: Colors.TextOnPrimaryColor},
+                title: 'Delete data and login',
+                onPress: () => this.setState({showMultiUserLoginWarning: false}, this.clearDataAndLogin)
+            }}
+            positiveButton={{
+                style: {backgroundColor: Colors.ActionButtonColor},
+                titleStyle: {color: Colors.TextOnPrimaryColor},
+                title: 'Cancel',
+                onPress: () => this.setState({showMultiUserLoginWarning: false})
+            }}
+        >
+            <View>
+                <Text style={{
+                    fontSize: Fonts.Large,
+                    color: Colors.InputNormal,
+                }}>
+                    {this.I18n.t("cannotChangeUserDesc", {oldUser: this.state.loggedInUser, newUser: this.state.userId})}
+                </Text>
+            </View>
+        </ConfirmDialog>);
     }
 
     render() {
