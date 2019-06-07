@@ -103,12 +103,12 @@ class IndividualSearchView extends AbstractComponent {
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>
 
-                    <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 20}}>
+                    <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 35}}>
                         <TouchableOpacity activeOpacity={0.5}
                                           onPress={() => this.searchIndividual()}
                                           style={{
                                               height: 40,
-                                              width: 70,
+                                              width: 80,
                                               alignItems: 'center',
                                               justifyContent: 'center',
                                               backgroundColor: Colors.AccentColor,
