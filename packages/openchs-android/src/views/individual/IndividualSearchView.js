@@ -113,7 +113,6 @@ class IndividualSearchView extends AbstractComponent {
                                               justifyContent: 'center',
                                               backgroundColor: Colors.AccentColor,
                                               elevation: 2,
-                                              borderRadius: 5,
                                           }}>
                             <Text style={{
                                 color: 'white',
