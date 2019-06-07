@@ -62,13 +62,12 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     get nextAndMore() {
-        if(_.isNil(this.props.workListState))
+        let workListState = this.props.workListState;
+        if(_.isNil(workListState))
             return {};
-        let nextWorkItem = this.props.workListState.peekNextWorkItem();
-        if (!nextWorkItem) return {};
+        if (!workListState.peekNextWorkItem()) return {};
 
-        const workItemLabel = this.props.workListState.saveAndProceedButtonLabel(this.I18n);
-
+        const workItemLabel = workListState.saveAndProceedButtonLabel(this.I18n);
         return {
             label: workItemLabel,
             func: () => this.save(() => {

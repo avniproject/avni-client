@@ -1,4 +1,4 @@
-import { WorkLists, WorkList, WorkItem } from 'openchs-models';
+import {WorkLists, WorkList, WorkItem} from 'openchs-models';
 
 export default class WorkListState {
     constructor(workLists: WorkLists, getParametersFn) {
@@ -36,17 +36,30 @@ export default class WorkListState {
         return this.workLists.getCurrentWorkItem();
     }
 
+    labelOrDefault(workItem, defaultLabel, i18n) {
+        const parameterLabel = _.get(workItem, 'parameters.saveAndProceedLabel');
+        const label = _.isEmpty(parameterLabel) ? defaultLabel : parameterLabel;
+        return `${i18n.t('saveAnd')} ${i18n.t(label, {
+            subject: workItem.parameters.subjectTypeName,
+            program: workItem.parameters.programName,
+            enc: workItem.parameters.encounterType
+        })}`;
+    }
+
     saveAndProceedButtonLabel(i18n) {
         const nextWorkItem = this.peekNextWorkItem();
+        if (nextWorkItem.parameters.name) {
+            return i18n.t('saveAndAnotherActivity', {anotherActivity: nextWorkItem.parameters.name})
+        }
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
-                return i18n.t('saveAndAnotherRegistration', {subject: nextWorkItem.parameters.subjectTypeName});
+                return this.labelOrDefault(nextWorkItem, 'anotherRegistration', i18n);
             }
             case WorkItem.type.PROGRAM_ENROLMENT: {
-                return i18n.t('saveAndEnrol', {program: nextWorkItem.parameters.programName});
+                return this.labelOrDefault(nextWorkItem, 'enrolIntoProgram', i18n);
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
-                return i18n.t('saveAndProceedEncounter', {enc: nextWorkItem.parameters.encounterType});
+                return this.labelOrDefault(nextWorkItem, 'proceedEncounter', i18n);
             }
         }
     }
