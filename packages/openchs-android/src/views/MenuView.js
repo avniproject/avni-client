@@ -1,17 +1,21 @@
-import {Alert, Dimensions, Modal, NetInfo, Text, TouchableOpacity, View} from "react-native";
+import {
+    Alert, Platform,
+    SectionList, StyleSheet,
+    Text,
+    TouchableNativeFeedback,
+    View
+} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from "lodash";
 import Path from "../framework/routing/Path";
 import TypedTransition from "../framework/routing/TypedTransition";
-import DynamicGlobalStyles from "../views/primitives/DynamicGlobalStyles";
 import FamilyFolderView from "./familyfolder/FamilyFolderView";
 import VideoListView from "./videos/VideoListView";
 import CHSNavigator from "../utility/CHSNavigator";
 import General from "../utility/General";
 import CHSContent from "./common/CHSContent";
-import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import AuthService from "../service/AuthService";
 import RuleService from "../service/RuleService";
@@ -21,6 +25,17 @@ import {IndividualSearchActionNames as IndividualSearchActions} from "../action/
 import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
 import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
 import RuleEvaluationService from "../service/RuleEvaluationService";
+import Distances from "./primitives/Distances";
+import Fonts from "./primitives/Fonts";
+import CHSContainer from "./common/CHSContainer";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import Separator from "./primitives/Separator";
+import EntitySyncStatusView from "./entitysyncstatus/EntitySyncStatusView";
+import DevSettingsView from "./settings/DevSettingsView";
+import UserInfoService from "../service/UserInfoService";
+import SettingsView from "./settings/SettingsView";
+
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -30,24 +45,16 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.createStyles();
+        this.state = {
+            userInfo: context.getService(UserInfoService).getUserInfo()
+        };
     }
 
     viewName() {
         return "MenuView";
     }
 
-    static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 48, padding: 8};
-
-    createStyles() {
-        this.columnStyle = {
-            marginHorizontal: DynamicGlobalStyles.resizeWidth(29),
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: DynamicGlobalStyles.resizeWidth(71),
-            flexDirection: 'column'
-        };
-    }
+    static iconStyle = {color: Colors.DefaultPrimaryColor, opacity: 0.8, alignSelf: 'center', fontSize: 20, padding: 8};
 
     changePasswordView() {
         CHSNavigator.navigateToChangePasswordView(this);
@@ -78,6 +85,18 @@ class MenuView extends AbstractComponent {
 
     videoListView() {
         TypedTransition.from(this).to(VideoListView);
+    }
+
+    entitySyncStatusView() {
+        TypedTransition.from(this).to(EntitySyncStatusView);
+    }
+
+    devSettingsView() {
+        TypedTransition.from(this).to(DevSettingsView);
+    }
+
+    userSettingsView() {
+        TypedTransition.from(this).to(SettingsView);
     }
 
     reset() {
@@ -113,41 +132,136 @@ class MenuView extends AbstractComponent {
         )
     };
 
-    renderMenuItem = (maxLength) => (icon, menuMessageKey, pressHandler, idx) => {
-        let pad = _.pad(menuMessageKey, 2 * Math.round(maxLength / 2), ' ');
-        return (<View key={idx} style={this.columnStyle}>
-            <TouchableOpacity style={{height: 84, width: 84, justifyContent: 'flex-end'}} onPress={pressHandler}>
-                {icon}
-            </TouchableOpacity>
-            <Text style={Styles.menuTitle}>{pad}</Text>
-        </View>);
-    };
+    background() {
+        return Platform['Version'] >= 21 ?
+            TouchableNativeFeedback.SelectableBackgroundBorderless() :
+            TouchableNativeFeedback.SelectableBackground();
+    }
+
+    renderItem(menuOption) {
+        const [icon, menuMessageKey, pressHandler, shouldRender] = menuOption.item;
+        return (shouldRender === undefined || shouldRender()) ?
+            (<TouchableNativeFeedback onPress={pressHandler}
+                                      background={TouchableNativeFeedback.SelectableBackground()}>
+                <View
+                    style={styles.container}>
+                    {icon}
+                    <View style={styles.textContainer}>
+                        <Text
+                            style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{menuMessageKey}</Text>
+                    </View>
+                    {(menuMessageKey === 'Logout' || menuMessageKey === 'Delete Data') ? <View/> :
+                        <Icon style={styles.iconStyle} name='chevron-right'/>}
+                </View>
+            </TouchableNativeFeedback>)
+            : <View/>
+    }
+
+    renderTitle() {
+        return (
+            <TouchableNativeFeedback onPress={() => this.userSettingsView()}
+                                     background={this.background()}>
+                <View style={{
+                    backgroundColor: Colors.headerBackgroundColor,
+                    flexDirection: 'row',
+                    height: 56,
+                    elevation: 3,
+                }}>
+                    <View style={{flexDirection: 'column', alignSelf: 'center'}}>
+                        <Text style={[{
+                            color: Colors.headerTextColor,
+                            fontSize: 18,
+                            marginLeft: 20
+                        }]}>{this.state.userInfo.username}</Text>
+                    </View>
+                </View>
+            </TouchableNativeFeedback>);
+    }
 
     render() {
         General.logDebug("MenuView", "render");
-        let menuItemsData = [
-            [this.props.menuIcon("account-multiple", MenuView.iconStyle), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
-            [this.props.menuIcon("video-library", MenuView.iconStyle), this.I18n.t("VideoList"), this.videoListView.bind(this)],
-            [this.props.menuIcon("logout", MenuView.iconStyle), this.I18n.t("logout"), this.logout.bind(this)],
-            [this.props.menuIcon("account-key", MenuView.iconStyle), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
-            [this.props.menuIcon("delete", MenuView.iconStyle), "Delete Data", this.onDelete.bind(this), () => __DEV__]
+        const dataGroup1 = [
+            {
+                title: 'otherItems', data: [
+                    [this.props.menuIcon("video-library", MenuView.iconStyle), this.I18n.t("VideoList"), this.videoListView.bind(this)],
+                    [this.props.menuIcon("sync", MenuView.iconStyle), this.I18n.t("EntitySyncStatus"), this.entitySyncStatusView.bind(this)]
+                ]
+            },
+            {
+                title: 'changePassword', data: [
+                    [this.props.menuIcon("account-key", MenuView.iconStyle), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
+                ]
+            },
+            {
+                title: 'logout', data: [
+                    [this.props.menuIcon("logout", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), this.I18n.t("logout"), this.logout.bind(this)]
+                ]
+            },
+            {
+                title: 'dev', data: [
+                    [this.props.menuIcon("delete", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), "Delete Data", this.onDelete.bind(this), () => __DEV__],
+                    [this.props.menuIcon("account-multiple", MenuView.iconStyle), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
+                    [this.props.menuIcon("settings", MenuView.iconStyle), "Dev Settings", this.devSettingsView.bind(this), () => __DEV__],
+                ]
+            }
         ];
-        const maxMenuItemDisplay = _.maxBy(menuItemsData, ([i, d, j]) => d.length)[1].length;
-        const MenuItems = menuItemsData
-            .filter(([icon, display, cb, shouldRender]) => shouldRender === undefined || shouldRender())
-            .map(([icon, display, cb], idx) => this.renderMenuItem(maxMenuItemDisplay)(icon, display, cb, idx));
+
+
         return (
-            <CHSContent>
-                <View style={{
-                    flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center',
-                    justifyContent: 'center', backgroundColor: Styles.defaultBackground,
-                    height: Dimensions.get('window').height
-                }}>
-                    {MenuItems}
-                </View>
-            </CHSContent>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+                {this.renderTitle()}
+                <CHSContent>
+                    <View>
+                        <SectionList
+                            contentContainerStyle={{
+                                marginRight: Distances.ScaledContentDistanceFromEdge,
+                                marginLeft: Distances.ScaledContentDistanceFromEdge,
+                                marginTop: Distances.ScaledContentDistanceFromEdge
+                            }}
+                            sections={dataGroup1}
+                            renderSectionHeader={() => <Separator height={30}
+                                                                  backgroundColor={Colors.GreyContentBackground}/>}
+                            renderItem={(data) => this.renderItem(data)}
+                            keyExtractor={(item, index) => index}
+                        />
+                    </View>
+                </CHSContent>
+            </CHSContainer>
         );
     }
 }
 
 export default MenuView;
+const styles = StyleSheet.create({
+        container: {
+            margin: 4,
+            elevation: 2,
+            minHeight: 48,
+            marginVertical: StyleSheet.hairlineWidth,
+            backgroundColor: '#fefefe',
+            flexDirection: 'row',
+            alignItems: 'center',
+            alignSelf: 'center',
+        },
+        textContainer: {
+            flex: 1,
+            paddingVertical: 4,
+            padding: Distances.ScaledContentDistanceFromEdge,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+        },
+        optionStyle: {
+            color: Colors.DefaultPrimaryColor,
+            fontWeight: 'normal',
+            fontSize: 13,
+            alignSelf: 'flex-start',
+            textAlignVertical: 'center',
+        },
+        iconStyle: {
+            color: Colors.AccentColor,
+            opacity: 0.8,
+            alignSelf: 'center',
+            fontSize: 40
+        }
+    }
+);

@@ -20,12 +20,13 @@ export default class DashboardFilters extends AbstractComponent {
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
             elevation: 2,
+            minHeight: 60
         },
         buttons: {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            paddingTop: 4,
+            paddingTop: 8,
         },
     });
 
@@ -65,7 +66,7 @@ export default class DashboardFilters extends AbstractComponent {
                         <TouchableOpacity
                             style={{
                                 width: 90,
-                                height: 40,
+                                height: 30,
                                 flexDirection: 'row',
                                 justifyContent: 'center',
                                 alignItems: 'center',

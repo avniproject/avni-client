@@ -17,12 +17,11 @@ class AddressVisitRow extends AbstractComponent {
 
     static styles = StyleSheet.create({
         visitBlockContainer: {
-            marginTop: 20,
+            marginTop: 3,
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-            marginBottom:2,
+            marginBottom: 1,
         }
     });
 
@@ -40,7 +39,7 @@ class AddressVisitRow extends AbstractComponent {
     render() {
         const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) => {
             const cardTitle = _.has(numberObj, "label") ? numberObj.label : title;
-            return (<View style={{paddingLeft: 8}} key={idx}>
+            return (<View style={{paddingLeft: 3}} key={idx}>
                 <TitleNumberBlock
                                   highlight={numberObj.abnormal}
                                   onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count, this.props.backFunction, cardTitle)}

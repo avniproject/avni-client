@@ -1,4 +1,4 @@
-import {Button, View, Text, TouchableOpacity} from "react-native";
+import {Button, View, Text, TouchableOpacity, KeyboardAvoidingView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -20,6 +20,8 @@ import CHSContainer from "../common/CHSContainer";
 import Separator from "../primitives/Separator";
 import Colors from "../primitives/Colors";
 import SingleSelectFilter from '../filter/SingleSelectFilter';
+
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -56,6 +58,7 @@ class IndividualSearchView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
+        const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 20;
         return (
             <CHSContainer>
                 <CHSContent>
@@ -101,26 +104,28 @@ class IndividualSearchView extends AbstractComponent {
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>
-                <View style={{height: 90, position: 'absolute', bottom: 0, width: '100%'}}>
-                    <TouchableOpacity activeOpacity={0.5}
-                                      onPress={() => this.searchIndividual()}
-                                      style={{
-                                          position: 'absolute',
-                                          width: '100%',
-                                          height: 40,
-                                          alignSelf: 'stretch',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          backgroundColor: Colors.AccentColor,
-                                          elevation: 2,
-                                      }}>
-                        <Text style={{
-                            fontSize: Styles.normalTextSize,
-                            color: Colors.TextOnPrimaryColor,
-                            alignSelf: "center"
-                        }}>{this.I18n.t("search")}</Text>
-                    </TouchableOpacity>
-                </View>
+
+                    <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 20}}>
+                        <TouchableOpacity activeOpacity={0.5}
+                                          onPress={() => this.searchIndividual()}
+                                          style={{
+                                              height: 40,
+                                              width: 40,
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              backgroundColor: Colors.AccentColor,
+                                              elevation: 2,
+                                              borderRadius: 12,
+                                          }}>
+                            <MCIIcon name="chevron-right" style={{
+                                color: 'white',
+                                opacity: 0.8,
+                                alignSelf: 'center',
+                                fontSize: 35
+                            }}/>
+                        </TouchableOpacity>
+                    </View>
+
             </CHSContainer>
         );
     }
