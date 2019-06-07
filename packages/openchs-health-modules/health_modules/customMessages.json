@@ -1559,7 +1559,8 @@
     "Village": "गाव",
     "Village Health Sanitation Nutrition Commitee meetings in ASHA area": "आशाच्या विभागातील VHSNC च्या मिटिंग",
     "Village name": "गावाचे नाव",
-    "Visit cancel reason": "घरभेट न होण्याचे कारण"
+    "Visit cancel reason": "घरभेट न होण्याचे कारण",
+    "registerAChild": "मुलाची नोंदणी करा"
   },
   "en": {
     "LOGIN": "Login",
@@ -1765,9 +1766,8 @@
     "Preconception Counselling her for RTI treatment":"Counsel her for RTI treatment",
     "Preconception Counselling husband for RTI treatment":"Counsel husband for RTI treatment",
     "Preconception Counselling for hypothyroidism treatment":"Counsel her for hypothyroidism treatment",
-    "Preconception Counselling for other illness treatment":"Counsel her for other illness treatment"
-
-
+    "Preconception Counselling for other illness treatment":"Counsel her for other illness treatment",
+    "registerAChild": "register baby"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
@@ -2171,7 +2171,8 @@
     "REG_ENROL_DISPLAY-Phulwari": "Phulwari ",
     "REG_ENROL_DISPLAY-Pregnancy": "ગર્ભાવસ્થા ",
     "REG_ENROL_DISPLAY-Sickle Cell Screening": "સિકલ સેલ સ્ક્રિનિંગ ",
-    "REG_ENROL_DISPLAY-Maternal Death": "માતાના મૃત્યુ "
+    "REG_ENROL_DISPLAY-Maternal Death": "માતાના મૃત્યુ ",
+    "registerAChild": "બાળકની નોંધણી કરો"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
@@ -3551,6 +3552,7 @@
     "REG_ENROL_DISPLAY-Phulwari": "फुलवारी ",
     "REG_ENROL_DISPLAY-Pregnancy": "गर्भावस्था ",
     "REG_ENROL_DISPLAY-Sickle Cell Screening": "सिकल सेल स्क्रीनिंग ",
-    "REG_ENROL_DISPLAY-Maternal Death": "मातृ मृत्यु "
+    "REG_ENROL_DISPLAY-Maternal Death": "मातृ मृत्यु ",
+    "registerAChild": "बच्चे को पंजीकृत करें"
   }
 }
