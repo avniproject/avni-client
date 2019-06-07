@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
             elevation: 2,
             minHeight: 48,
             marginVertical: 8,
-            backgroundColor: '#fefefe',
+            backgroundColor: Colors.cardBackgroundColor,
             flexDirection: 'row',
             alignItems: 'center',
             alignSelf: 'center',

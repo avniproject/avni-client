@@ -40,6 +40,7 @@ class Colors {
     static bottomBarIconColor = 'black';
 
     static iconSelectedColor = '#126CB4';
+    static cardBackgroundColor = '#fefefe';
 }
 
 export default Colors;

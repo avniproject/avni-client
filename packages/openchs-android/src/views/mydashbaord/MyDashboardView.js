@@ -46,6 +46,7 @@ class MyDashboardView extends AbstractComponent {
             textAlign: 'center',
             fontSize: 20,
             color: Colors.DefaultPrimaryColor,
+            paddingBottom: 10
         }}>{this.state.selectedSubjectType && this.state.selectedSubjectType.name}</Text>
     }
 

@@ -71,6 +71,7 @@ class IndividualSearchView extends AbstractComponent {
                                             onSelect={(subjectType) =>
                                                 this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
                         }
+                        <Separator height={25} backgroundColor={Styles.whiteColor}/>
                         <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                          element={new StaticFormElement('name')}
                                          style={Styles.simpleTextFormElement}

@@ -170,7 +170,7 @@ class MenuView extends AbstractComponent {
                 <View style={{
                     backgroundColor: Colors.headerBackgroundColor,
                     flexDirection: 'row',
-                    height: 56,
+                    height: 70,
                     elevation: 3,
                     paddingHorizontal: 16
                 }}>
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
             elevation: 2,
             minHeight: 48,
             marginVertical: StyleSheet.hairlineWidth,
-            backgroundColor: '#fefefe',
+            backgroundColor: Colors.cardBackgroundColor,
             flexDirection: 'row',
             alignItems: 'center',
             alignSelf: 'center',
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
             padding: Distances.ScaledContentDistanceFromEdge,
             margin: 4,
             elevation: 2,
-            backgroundColor: '#fefefe',
+            backgroundColor: Colors.cardBackgroundColor,
             marginVertical: 16,
         }
     }
